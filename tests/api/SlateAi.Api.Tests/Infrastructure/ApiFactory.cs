@@ -5,12 +5,18 @@ using Microsoft.Extensions.Configuration;
 namespace SlateAi.Api.Tests.Infrastructure;
 
 /// <summary>Runs the real API in-process against the given database.</summary>
-public sealed class ApiFactory(string connectionString, bool initialiseDatabase = true)
+/// <param name="webRoot">Optional static-file root, so SPA tests don't depend on a real web build.</param>
+public sealed class ApiFactory(string connectionString, bool initialiseDatabase = true, string? webRoot = null)
     : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+        if (webRoot is not null)
+        {
+            builder.UseWebRoot(webRoot);
+        }
+
         builder.ConfigureAppConfiguration(config => config.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["ConnectionStrings:Db"] = connectionString,

@@ -35,7 +35,7 @@ Parent web page ──────┼── SlateAi.Api (.NET) ┼── Sarvam 
 |---|---|
 | `src/api/SlateAi.Api` | .NET 10 Minimal API; `Features/` slices, `Ai/` (all LLM calls), `Speech/`, `Curriculum/`, `Data/` |
 | `src/web` | React + Vite + TypeScript PWA (teacher app, parent page, demo shell) |
-| `tests/api`, `tests/e2e` | xUnit unit/integration tests; Playwright end-to-end + accessibility |
+| `tests/api`, `src/web/e2e` | xUnit unit/integration tests; Playwright end-to-end + accessibility |
 | `evals/` | Live evaluation cases and results for each Claude call |
 | `prompts/` | Versioned prompt files |
 | `data/` | Curriculum dependency graph, picture library manifest, seed data |
@@ -90,7 +90,8 @@ Secrets never go in Git. Use `.env` locally, `dotnet user-secrets` if you prefer
 | API tests (no live AI) | `dotnet test --filter "Category!=Eval"` |
 | Live AI evals | `dotnet test --filter Category=Eval` |
 | Web unit tests | `cd src/web && npm test` |
-| End-to-end + accessibility | `cd src/web && npx playwright test` |
+| Web build (into the API's `wwwroot`) | `cd src/web && npm run build` |
+| End-to-end + accessibility (after a build) | `cd src/web && npm run e2e` |
 | Lint / format | `cd src/web && npm run lint` · `dotnet format` |
 | Build container | `docker build -f deploy/Dockerfile -t slate-ai .` |
 

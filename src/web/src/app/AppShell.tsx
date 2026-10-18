@@ -1,0 +1,26 @@
+import { useTranslation } from 'react-i18next'
+import { Outlet } from 'react-router'
+import { LanguageSwitcher } from '../components/LanguageSwitcher'
+
+export function AppShell() {
+  const { t } = useTranslation()
+
+  return (
+    <div className="min-h-dvh bg-surface font-sans text-ink">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:rounded-md focus:bg-primary focus:p-3 focus:text-on-primary"
+      >
+        {t('a11y.skipToContent')}
+      </a>
+      <header className="border-b border-border px-4 py-3">
+        <p className="text-lg font-semibold">{t('app.name')}</p>
+        <p className="text-sm text-ink-muted">{t('app.tagline')}</p>
+        <LanguageSwitcher />
+      </header>
+      <main id="main" className="px-4 py-6">
+        <Outlet />
+      </main>
+    </div>
+  )
+}

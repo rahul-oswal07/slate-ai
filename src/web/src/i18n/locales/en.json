@@ -1,0 +1,24 @@
+{
+  "app": {
+    "name": "Tappida Paatha",
+    "tagline": "The missed lesson, at home"
+  },
+  "language": {
+    "label": "Language",
+    "kn": "ಕನ್ನಡ",
+    "en": "English",
+    "te": "తెలుగు",
+    "ta": "தமிழ்"
+  },
+  "home": {
+    "title": "Today",
+    "body": "Attendance and today's lesson will appear here."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "link": "Go to Today"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  }
+}

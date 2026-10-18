@@ -148,7 +148,7 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
      PostgreSQL (EF Core)        Blob storage (audio)     Claude API · Sarvam API · (WhatsApp)
 ```
 
-Why one container: one URL for judges, no CORS, one deploy pipeline, fewer moving parts in 10 days. **[CONFIRM: Rahul]** D-10
+Why one container: one URL for judges, no CORS, one deploy pipeline, fewer moving parts in 10 days. D-10 (Accepted)
 
 ### 4.2 Stack
 
@@ -292,7 +292,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-07 | Picture library | Code-generated place-value SVGs + ~10 illustrations | Monika | Day 3 | Proposed |
 | D-08 | Parent page structure | Four single-action steps | Monika | Day 3 | Proposed |
 | D-09 | Teacher review of non-Kannada script | Kannada gloss + audio | Monika | Day 3 | Proposed |
-| D-10 | Single container (API serves SPA) | Yes | Rahul | Day 1 | Proposed |
+| D-10 | Single container (API serves SPA) | Yes | Rahul | Day 1 | Accepted (T-03) |
 | D-11 | Claude client | Official `Anthropic` NuGet SDK behind `ILlmClient` | Rahul | Day 1 | Proposed |
 | D-12 | Speech provider | Sarvam (Saarika STT, Bulbul TTS) | Rahul | Day 1 | Proposed |
 | D-13 | Hosting | Azure App Service + PostgreSQL Flexible, Central India | Rahul | Day 1 | Proposed |

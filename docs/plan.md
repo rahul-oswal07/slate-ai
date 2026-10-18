@@ -37,11 +37,11 @@ slate-ai/
 │  │  ├─ Curriculum/              graph loader, candidate-set computation
 │  │  ├─ Data/                    DbContext, entities, migrations, seed
 │  │  └─ Jobs/                    background queue
-│  └─ web/                        React + Vite PWA
-│     └─ src/{app,features/{today,approve,ledger,return-day,pacing,parent,demo},components,i18n,offline,styles}
+│  └─ web/                        React + Vite PWA; `npm run build` writes into the API's wwwroot
+│     ├─ src/{app,features/{today,approve,ledger,return-day,pacing,parent,demo},components,i18n,offline,styles}
+│     └─ e2e/                     Playwright + axe (lives here because CI runs Playwright from src/web)
 ├─ tests/
-│  ├─ api/SlateAi.Api.Tests/      unit + integration (Testcontainers)
-│  └─ e2e/                        Playwright + axe
+│  └─ api/SlateAi.Api.Tests/      unit + integration (Testcontainers)
 ├─ evals/                         cases/*.json, results/ (live Claude evals)
 ├─ prompts/                       a1-lesson-mapping.md … versioned prompts
 ├─ data/curriculum/  data/pictures/  data/seed/
