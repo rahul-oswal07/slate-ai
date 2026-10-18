@@ -49,3 +49,36 @@ jobs:
         with:
           name: playwright-report
           path: src/web/playwright-report
+
+  container:
+    # Builds the production image and checks it boots against Postgres and serves the SPA.
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16
+        env:
+          POSTGRES_USER: slateai
+          POSTGRES_PASSWORD: slateai
+          POSTGRES_DB: slateai
+        options: >-
+          --health-cmd "pg_isready -U slateai -d slateai"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -f deploy/Dockerfile -t slate-ai:ci .
+
+      - name: Run and smoke-test
+        run: |
+          docker run -d --name app --network host \
+            -e ConnectionStrings__Db="Host=localhost;Port=5432;Database=slateai;Username=slateai;Password=slateai" \
+            -e ASPNETCORE_HTTP_PORTS=8080 slate-ai:ci
+          for i in $(seq 1 30); do curl -sf http://localhost:8080/health && break; sleep 2; done
+          curl -sf http://localhost:8080/health
+          curl -sf http://localhost:8080/ | grep -q '<html lang="kn">'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/does-not-exist)" = "404"
+
+      - name: Container logs
+        if: always()
+        run: docker logs app || true
