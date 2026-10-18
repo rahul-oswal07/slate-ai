@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Placeholder mark: a slate with a tick. Colours mirror tokens.css (primary / on-primary). -->
+  <rect width="512" height="512" rx="96" fill="#0f5f5c"/>
+  <rect x="112" y="136" width="288" height="216" rx="20" fill="none" stroke="#ffffff" stroke-width="24"/>
+  <path d="M188 246l46 46 92-92" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M200 392h112" stroke="#ffffff" stroke-width="24" stroke-linecap="round"/>
+</svg>
