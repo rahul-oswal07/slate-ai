@@ -60,6 +60,8 @@ jobs:
           POSTGRES_USER: slateai
           POSTGRES_PASSWORD: slateai
           POSTGRES_DB: slateai
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd "pg_isready -U slateai -d slateai"
           --health-interval 5s --health-timeout 3s --health-retries 10
