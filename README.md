@@ -56,6 +56,15 @@ cd src/web && npm ci && npm run dev           # http://localhost:5173
 
 Without API keys the app runs with fake AI and speech providers (`Ai__Provider=Fake`), which is enough for UI work.
 
+On Apple Silicon, install the **arm64** .NET 10 SDK (`brew install --cask dotnet-sdk`); the x64 build won't run without Rosetta. Run `dotnet tool restore` once to get `dotnet-ef`.
+
+**Colima instead of Docker Desktop:** `brew install colima docker docker-compose && colima start`. Integration tests use Testcontainers, which needs to find Colima's socket:
+
+```bash
+export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
 ### Environment variables
 
 | Variable | Required | Purpose |
