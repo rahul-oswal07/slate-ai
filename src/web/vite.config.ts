@@ -35,7 +35,7 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/health/],
+        navigateFallbackDenylist: [/^\/api\//, /^\/health/, /^\/swagger/, /^\/openapi\//],
       },
     }),
   ],
@@ -45,7 +45,7 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    proxy: { '/api': apiUrl, '/health': apiUrl },
+    proxy: { '/api': apiUrl, '/health': apiUrl, '/swagger': apiUrl, '/openapi': apiUrl },
   },
   test: {
     environment: 'jsdom',

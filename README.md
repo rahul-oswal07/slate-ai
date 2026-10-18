@@ -94,6 +94,7 @@ Secrets never go in Git. Use `.env` locally, `dotnet user-secrets` if you prefer
 | End-to-end + accessibility (after a build) | `cd src/web && npm run e2e` |
 | Lint / format | `cd src/web && npm run lint` · `dotnet format` |
 | Build container | `docker build -f deploy/Dockerfile -t slate-ai .` |
+| API docs (Swagger UI) | http://localhost:5080/swagger (dev) · https://slateai-staging.azurewebsites.net/swagger |
 | Run full container locally | `docker compose -f deploy/docker-compose.yml up --build` → http://localhost:8080 |
 
 ## Contributing
