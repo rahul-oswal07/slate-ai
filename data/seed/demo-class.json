@@ -1,0 +1,302 @@
+{
+  "_note": "Fictional demo class. No real children. Phone numbers are placeholders and must never be messaged.",
+  "teacher": {
+    "id": "6abf3cc9-9aa8-5786-a833-62325a6418f4",
+    "displayName": "Shobha"
+  },
+  "class": {
+    "id": "0a1e03b3-23fa-5a7d-87e3-490d6ddae335",
+    "grade": 3,
+    "medium": "kn"
+  },
+  "children": [
+    {
+      "id": "23300ec3-a39b-5356-b355-dc8149189429",
+      "rollNo": 1,
+      "firstName": "Ananya",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000001"
+    },
+    {
+      "id": "09e86c1d-8d7e-50aa-ab65-fd9a3afaf9b5",
+      "rollNo": 2,
+      "firstName": "Bhavana",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000002"
+    },
+    {
+      "id": "4cb78153-e1ac-56e5-aca1-e4aa8537b018",
+      "rollNo": 3,
+      "firstName": "Chetan",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000003"
+    },
+    {
+      "id": "1e95443f-d2d9-5c22-8401-fcd0aeaa9395",
+      "rollNo": 4,
+      "firstName": "Ravi",
+      "homeLanguage": "te",
+      "hasPhone": true,
+      "parentPhone": "+919000000004"
+    },
+    {
+      "id": "9c0761f5-f8df-55a3-a60d-088d4636266d",
+      "rollNo": 5,
+      "firstName": "Darshan",
+      "homeLanguage": "kn",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "16cd8b1d-00b6-57e8-9bab-e50b198c7966",
+      "rollNo": 6,
+      "firstName": "Deepa",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000006"
+    },
+    {
+      "id": "c4cd0c5f-daaa-579d-bf1b-0e63edad57a3",
+      "rollNo": 7,
+      "firstName": "Arun",
+      "homeLanguage": "ta",
+      "hasPhone": true,
+      "parentPhone": "+919000000007"
+    },
+    {
+      "id": "3811b5b9-e9d4-53e4-9dd5-594829195f35",
+      "rollNo": 8,
+      "firstName": "Ganesh",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000008"
+    },
+    {
+      "id": "67fbe7ee-f2a1-532c-a5a9-728553980b06",
+      "rollNo": 9,
+      "firstName": "Harsha",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000009"
+    },
+    {
+      "id": "72a7e49f-dd54-548e-8b93-cfe66adeb1ff",
+      "rollNo": 10,
+      "firstName": "Sai Teja",
+      "homeLanguage": "te",
+      "hasPhone": true,
+      "parentPhone": "+919000000010"
+    },
+    {
+      "id": "4f0bfb1e-5a58-5adf-8603-a8130d1bf312",
+      "rollNo": 11,
+      "firstName": "Kavya",
+      "homeLanguage": "kn",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "9ce2bf3a-9008-5c80-8e85-6af75762a8ef",
+      "rollNo": 12,
+      "firstName": "Kiran",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000012"
+    },
+    {
+      "id": "8352c0e3-89c5-5416-a6f6-d4ebe57bf6b2",
+      "rollNo": 13,
+      "firstName": "Lakshmi",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000013"
+    },
+    {
+      "id": "2abf78e2-d47b-5e3b-89c2-aa8fe3056ec6",
+      "rollNo": 14,
+      "firstName": "Lavanya",
+      "homeLanguage": "te",
+      "hasPhone": true,
+      "parentPhone": "+919000000014"
+    },
+    {
+      "id": "fd174b93-e58c-58cf-a2fd-c961415bc3f2",
+      "rollNo": 15,
+      "firstName": "Manjunath",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000015"
+    },
+    {
+      "id": "bdd11010-5ffb-58b5-9786-3334e7dfd4e0",
+      "rollNo": 16,
+      "firstName": "Meghana",
+      "homeLanguage": "kn",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "35fbe664-8013-5b0b-9497-08a999955bc1",
+      "rollNo": 17,
+      "firstName": "Nandini",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000017"
+    },
+    {
+      "id": "a9bb90cb-26e5-5d1a-8f13-ce8f24b5c43c",
+      "rollNo": 18,
+      "firstName": "Pavan",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000018"
+    },
+    {
+      "id": "e8378ca1-e822-5cea-b7ed-1f27f6bc6ba4",
+      "rollNo": 19,
+      "firstName": "Srinivas",
+      "homeLanguage": "te",
+      "hasPhone": true,
+      "parentPhone": "+919000000019"
+    },
+    {
+      "id": "cb9fb6c2-6941-531b-b086-46d9000cda50",
+      "rollNo": 20,
+      "firstName": "Pooja",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000020"
+    },
+    {
+      "id": "ea28aa4d-d098-5abf-a6f6-0db42c5335e3",
+      "rollNo": 21,
+      "firstName": "Divya",
+      "homeLanguage": "ta",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "3af47366-d0cf-5e4b-bead-87d3e330532d",
+      "rollNo": 22,
+      "firstName": "Prajwal",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000022"
+    },
+    {
+      "id": "6ca1af7f-32c5-5ffa-ba1b-6658353c0116",
+      "rollNo": 23,
+      "firstName": "Rakshitha",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000023"
+    },
+    {
+      "id": "b559533d-f012-5bad-aed1-f9ef20b5b66d",
+      "rollNo": 24,
+      "firstName": "Rohan",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000024"
+    },
+    {
+      "id": "015d1c6b-30ad-54c8-92e2-6e89cfe9753a",
+      "rollNo": 25,
+      "firstName": "Keerthi",
+      "homeLanguage": "te",
+      "hasPhone": true,
+      "parentPhone": "+919000000025"
+    },
+    {
+      "id": "ab1ed7c3-0700-58a0-80d8-5ff5e72b5b26",
+      "rollNo": 26,
+      "firstName": "Sahana",
+      "homeLanguage": "kn",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "27607212-6419-5480-bccc-d377721e19ea",
+      "rollNo": 27,
+      "firstName": "Sanjay",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000027"
+    },
+    {
+      "id": "dcaa11b4-e777-5199-ae36-63de19d1e280",
+      "rollNo": 28,
+      "firstName": "Shreya",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000028"
+    },
+    {
+      "id": "9752c169-9ddf-56e6-938b-35e20b4d04f3",
+      "rollNo": 29,
+      "firstName": "Sneha",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000029"
+    },
+    {
+      "id": "08302697-79d9-5a24-928a-f52ee74fd9b4",
+      "rollNo": 30,
+      "firstName": "Sudeep",
+      "homeLanguage": "kn",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "7dc1e43a-c26b-559d-97b3-aac78c00e7db",
+      "rollNo": 31,
+      "firstName": "Tejas",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000031"
+    },
+    {
+      "id": "e501bf1a-8d95-5262-812d-e8cd7277c10c",
+      "rollNo": 32,
+      "firstName": "Mahesh",
+      "homeLanguage": "te",
+      "hasPhone": true,
+      "parentPhone": "+919000000032"
+    },
+    {
+      "id": "449321dc-67f2-5299-8d87-3bbc3e308923",
+      "rollNo": 33,
+      "firstName": "Varun",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000033"
+    },
+    {
+      "id": "48b872c4-5dba-58bf-9a85-5c4901a1c200",
+      "rollNo": 34,
+      "firstName": "Karthik",
+      "homeLanguage": "ta",
+      "hasPhone": false,
+      "parentPhone": null
+    },
+    {
+      "id": "ffe7df8e-8cfe-5c0a-8c1e-f893445f3e83",
+      "rollNo": 35,
+      "firstName": "Vidya",
+      "homeLanguage": "kn",
+      "hasPhone": true,
+      "parentPhone": "+919000000035"
+    },
+    {
+      "id": "43ec36de-2337-5084-9b21-6d54b8e72f37",
+      "rollNo": 36,
+      "firstName": "Yashas",
+      "homeLanguage": "kn",
+      "hasPhone": false,
+      "parentPhone": null
+    }
+  ]
+}

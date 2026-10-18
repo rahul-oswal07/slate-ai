@@ -16,3 +16,7 @@ csharp_style_var_for_built_in_types = true:suggestion
 
 [*.md]
 trim_trailing_whitespace = false
+
+# EF Core migrations are generated; don't apply style rules to them
+[**/Migrations/*.cs]
+generated_code = true
