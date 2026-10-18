@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <RootNamespace>SlateAi.Api</RootNamespace>
+    <UserSecretsId>55f10f7f-feba-4e13-8ead-3f783856b301</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
