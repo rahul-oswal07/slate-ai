@@ -48,7 +48,6 @@ Prerequisites: .NET 10 SDK, Node 22 LTS, Docker.
 
 ```bash
 git clone <repo-url> slate-ai && cd slate-ai
-cp .env.example .env                          # fill in keys (see below)
 docker compose -f deploy/docker-compose.yml up -d db
 dotnet run --project src/api/SlateAi.Api      # applies migrations + seeds demo class; http://localhost:5080
 cd src/web && npm ci && npm run dev           # http://localhost:5173
@@ -82,7 +81,29 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 | `Demo__Enabled` | no | Enables `/demo` and reset (default `true`) |
 | `VITE_API_BASE` | no | Front-end API base when not same-origin |
 
-Secrets never go in Git. Use `.env` locally, `dotnet user-secrets` if you prefer, and GitHub/Azure secrets in CI and production.
+### API keys and other secrets
+
+Secrets never go in Git: not in `appsettings*.json`, code, tests or PR descriptions. `.env.example` only lists variable names; .NET does **not** read `.env` files, so don't put keys there.
+
+**Locally: .NET user-secrets.** They're stored outside the repo (`~/.microsoft/usersecrets/`) and loaded automatically in Development (`./scripts/run-local.sh`, `dotnet run`). Run these in a terminal; don't paste keys into chats or shared logs:
+
+```bash
+dotnet user-secrets set "Anthropic:ApiKey" "<key>" --project src/api/SlateAi.Api
+dotnet user-secrets set "Sarvam:ApiKey" "<key>"    --project src/api/SlateAi.Api
+dotnet user-secrets list --project src/api/SlateAi.Api      # shows values
+dotnet user-secrets remove "Sarvam:ApiKey" --project src/api/SlateAi.Api
+```
+
+**Azure (staging/prod): App Service app settings.** They're encrypted at rest and reach the app as environment variables (`__` = section separator). Setting them restarts the app:
+
+```bash
+az webapp config appsettings set -g rg-slateai -n slateai-staging --output none \
+  --settings Anthropic__ApiKey="<key>" Sarvam__ApiKey="<key>"
+```
+
+**CI:** none needed; tests run with `Ai__Provider=Fake`. Live evals in Actions would use a repository secret `ANTHROPIC_API_KEY`.
+
+Use separate Anthropic keys for local and Azure (revoke one without breaking the other) and set a spend limit per key in the Anthropic console.
 
 ## Commands
 
