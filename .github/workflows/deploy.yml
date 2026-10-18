@@ -55,6 +55,7 @@ jobs:
             ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE }}:${{ steps.meta.outputs.channel }}
           labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          build-args: APP_VERSION=${{ steps.meta.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -77,11 +78,23 @@ jobs:
           app-name: ${{ github.event_name == 'push' && vars.AZURE_WEBAPP_PROD || vars.AZURE_WEBAPP_STAGING }}
           images: ${{ env.IMAGE }}:${{ needs.image.outputs.tag }}
 
-      - name: Smoke test (allows for image pull + cold start)
+      - name: Smoke test (waits for the new build to be serving)
         env:
           URL: ${{ steps.deploy.outputs.webapp-url }}
+          EXPECTED: ${{ needs.image.outputs.tag }}
         run: |
-          for i in $(seq 1 60); do curl -sf "$URL/health" && break; sleep 5; done
-          curl -sf "$URL/health"
-          curl -sf "$URL/" | grep -q '<html lang="kn">'
-          test "$(curl -s -o /dev/null -w '%{http_code}' "$URL/api/does-not-exist")" = "404"
+          # App Service swaps containers in the background: wait until /health reports the new
+          # build on 3 consecutive polls, so we never pass against the old container or a swap blip.
+          ok=0; seen=none
+          for i in $(seq 1 90); do
+            seen=$(curl -s --max-time 10 "$URL/health" | jq -r '.version // empty' 2>/dev/null || true)
+            if [ "$seen" = "$EXPECTED" ]; then ok=$((ok + 1)); else ok=0; fi
+            [ "$ok" -ge 3 ] && break
+            sleep 5
+          done
+          if [ "$ok" -lt 3 ]; then
+            echo "::error::$URL never served $EXPECTED (last seen: ${seen:-none})"; exit 1
+          fi
+          echo "serving $EXPECTED"
+          curl -sf --retry 3 --retry-all-errors "$URL/" | grep -q '<html lang="kn">'
+          test "$(curl -s --retry 3 -o /dev/null -w '%{http_code}' "$URL/api/does-not-exist")" = "404"

@@ -22,6 +22,9 @@ RUN dotnet publish src/api/SlateAi.Api/SlateAi.Api.csproj -c Release -o /app --n
 
 # --- 3. Runtime: chiseled, non-root, no shell. Listens on 8080. ---
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS final
+# Reported by /health; the deploy smoke test waits for this value. Declared here so earlier stages stay cached.
+ARG APP_VERSION=dev
+ENV Build__Version=$APP_VERSION
 WORKDIR /app
 COPY --from=build /app ./
 EXPOSE 8080

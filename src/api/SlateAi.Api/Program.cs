@@ -8,6 +8,7 @@ using SlateAi.Api.Features.Spa;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.Section));
+builder.Services.Configure<BuildInfoOptions>(builder.Configuration.GetSection(BuildInfoOptions.Section));
 
 // Resolve the connection string lazily so test hosts can override configuration.
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
