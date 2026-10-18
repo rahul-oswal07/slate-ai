@@ -91,8 +91,10 @@ for env in "${ENVS[@]}"; do
   az webapp update -g "$RG" -n "$app" --https-only true --output none
   az webapp config set -g "$RG" -n "$app" --always-on true --min-tls-version 1.2 --ftps-state Disabled \
     --generic-configurations '{"healthCheckPath": "/health"}' --output none
+  # API docs (Swagger) on staging only; prod stays closed until there is auth.
+  docs_enabled=$([ "$env" = staging ] && echo true || echo false)
   az webapp config appsettings set -g "$RG" -n "$app" --output none --settings \
-    WEBSITES_PORT=8080 ASPNETCORE_ENVIRONMENT=Production
+    WEBSITES_PORT=8080 ASPNETCORE_ENVIRONMENT=Production "OpenApi__Enabled=$docs_enabled"
   if [ -n "$PG_PASSWORD" ]; then
     az webapp config appsettings set -g "$RG" -n "$app" --output none --settings \
       "ConnectionStrings__Db=Host=$PG.postgres.database.azure.com;Port=5432;Database=slateai_$env;Username=$PG_ADMIN;Password=$PG_PASSWORD;SSL Mode=Require"

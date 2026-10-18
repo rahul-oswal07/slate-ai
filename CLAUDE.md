@@ -29,6 +29,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 - C#: nullable enabled, file-scoped namespaces, `record` for DTOs, async all the way, `CancellationToken` on every endpoint. Config via `IOptions<T>`; secrets only from environment/user-secrets.
 - TypeScript: strict mode, function components, no `any`. Tailwind classes use design tokens from `src/styles/tokens.css`; no hard-coded colours.
 - Write endpoints accept `clientRequestId` and are idempotent.
+- Endpoints are documented in OpenAPI (`/swagger` in dev/staging): use `TypedResults` and add `WithSummary`/`WithTags` so the docs stay useful.
 - No user-facing string without keys in all four locale files.
 - Commits: Conventional Commits with task ID, e.g. `feat(api): compression validator (T-08)`.
 

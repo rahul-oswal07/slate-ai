@@ -17,6 +17,8 @@ Both web apps share one Linux **B1** App Service plan (`asp-slateai`) and one Po
 
 On startup the API applies EF migrations and the idempotent demo seed.
 
+**API docs:** `OpenApi__Enabled` is `true` on staging (https://slateai-staging.azurewebsites.net/swagger) and `false` on prod until the API has auth. Set by `provision.sh`.
+
 GitHub environment rules: `staging` accepts only `main`, `production` accepts only `v*` tags. IDs and app names are repo **variables** (`AZURE_*`), set by the provisioning script.
 
 ## Provisioning
