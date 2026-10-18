@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        if: hashFiles('SlateAi.sln') != ''
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-node@v4
+        if: hashFiles('src/web/package.json') != ''
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/web/package-lock.json
+
+      - name: Verify (build + unit + integration + web tests)
+        run: ./scripts/verify.sh
+        env:
+          Ai__Provider: Fake
+
+      - name: Install Playwright browsers
+        if: hashFiles('src/web/playwright.config.ts') != ''
+        working-directory: src/web
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end + accessibility
+        if: hashFiles('src/web/playwright.config.ts') != ''
+        working-directory: src/web
+        run: npx playwright test
+        env:
+          Ai__Provider: Fake
+
+      - uses: actions/upload-artifact@v4
+        if: failure() && hashFiles('src/web/playwright-report/**') != ''
+        with:
+          name: playwright-report
+          path: src/web/playwright-report

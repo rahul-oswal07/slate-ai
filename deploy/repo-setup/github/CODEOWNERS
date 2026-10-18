@@ -1,0 +1,10 @@
+# Replace the placeholders with GitHub usernames once the repo exists.
+*                     @RAHUL_GITHUB
+/docs/intent.md       @MONIKA_GITHUB
+/docs/spec.md         @MONIKA_GITHUB @RAHUL_GITHUB
+/docs/design/         @MONIKA_GITHUB
+/docs/user-testing.md @MONIKA_GITHUB
+/src/web/src/i18n/    @MONIKA_GITHUB @RAHUL_GITHUB
+/CLAUDE.md            @RAHUL_GITHUB
+/prompts/             @RAHUL_GITHUB
+/.claude/             @RAHUL_GITHUB

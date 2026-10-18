@@ -1,0 +1,9 @@
+# Evals
+
+Live evaluation of each Claude call against real-world cases. Run: `dotnet test --filter Category=Eval` (uses credits).
+
+- `cases/a1-lesson-mapping.json` — transcript → expected competency ID
+- `cases/a2-compression.json` — absence pattern → acceptable targets
+- `cases/a3-script.json` — (targets, language) → rubric
+
+Results: `results/<date>-<call>.json` with model, prompt version and score. Targets are in `docs/intent.md`.

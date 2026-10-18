@@ -1,0 +1,69 @@
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.code-workspace
+
+# ---- Secrets & local config (never commit) ----
+.env
+.env.*
+!.env.example
+*.pfx
+*.pem
+appsettings.*.local.json
+secrets.json
+
+# ---- .NET ----
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.rsuser
+TestResults/
+coverage/
+*.coverage
+*.trx
+artifacts/
+publish/
+
+# ---- Node / React ----
+node_modules/
+dist/
+build/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+
+# SPA build copied into the API at build time
+src/api/SlateAi.Api/wwwroot/
+
+# ---- Playwright ----
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# ---- App runtime data ----
+src/api/SlateAi.Api/storage/
+*.db
+*.sqlite
+uploads/
+audio-cache/
+
+# ---- Evals: keep summaries, drop raw dumps ----
+evals/results/raw/
+
+# ---- Claude Code local overrides ----
+.claude/settings.local.json
+
+# ---- Hackathon source PDFs (organiser material; not redistributed) ----
+docs/hackathon/*
+!docs/hackathon/README.md

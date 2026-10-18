@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./docs/hackathon/**)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
+    "allow": [
+      "Bash(./scripts/verify.sh)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx playwright test:*)"
+    ]
+  }
+}
