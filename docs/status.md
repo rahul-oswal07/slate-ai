@@ -25,6 +25,19 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 T-01–T-04 done. Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it). Next: T-05 (curriculum graph, needs D-01/T-22 from Monika), T-06 (attendance API) from `docs/tasks.md`: solution + API skeleton (.NET 10, EF Core, Postgres, `/health`, seed), React/Vite PWA skeleton with i18n, Dockerfile + docker-compose, deploy workflow to Azure. Goal: live walking-skeleton URL by end of day. Use plan mode first; one branch per task.
 
+## Waiting for review (from Monika, 18 Oct)
+
+- #49 accept D-01, D-02, D-16 (T-00): unblocks T-05
+- #50 AAA design tokens + dark theme (T-23)
+- #51 design-card template, screen states, copy rules (T-21)
+- #52 testing kit + Now/Next/Later roadmap (T-27)
+- #53 propose D-18, D-19 (spoken AI disclosure, parent stop)
+
+## Local dev
+
+- `./scripts/run-local.sh` runs Postgres + API (:5080) + web (:5173); `--container` runs the image on :8080.
+- API keys: `dotnet user-secrets set "Anthropic:ApiKey" …` / `"Sarvam:ApiKey"` (see README). Not stored yet; nothing reads them until T-07.
+
 ## Open questions
 
 - Real teachers reachable this week? (schools reportedly on Dasara break until ~21 Oct)
@@ -43,3 +56,4 @@ T-01–T-04 done. Staging live: https://slateai-staging.azurewebsites.net (prod 
 | 18 Oct | Rahul + Claude | First deploy to staging green (image sha-6192a40). Fixed OIDC subject (GitHub immutable-ID format). GHCR package already public |
 | 18 Oct | Rahul + Claude | API docs: built-in OpenAPI document + Swagger UI at `/swagger` (dev + staging; off on prod via `OpenApi:Enabled`) |
 | 18 Oct | Rahul + Claude | Deploy smoke test now waits for `/health` to report the new build (`version`) on 3 consecutive polls; fixes false failures during App Service container swaps |
+| 18 Oct | Rahul + Claude | `scripts/run-local.sh` (one-command local run); `UserSecretsId` + README secrets guidance (user-secrets locally, App Service settings on Azure). Next session: review Monika's PRs #49–#53, then T-06 |
