@@ -124,7 +124,7 @@ Acceptance criteria per requirement are in `spec.md` §2 and per task in `tasks.
 
 ## 7. Branching and pull requests
 
-- **Trunk-based.** `main` is protected and always deployable; merges to `main` auto-deploy to the Azure staging slot; `v*` tags deploy to production.
+- **Trunk-based.** `main` is protected and always deployable; merges to `main` auto-deploy to the `slateai-staging` web app (after CI passes); `v*` tags deploy to `slateai-prod`. B1 has no slots, so staging is a second app on the same plan. Runbook: `deploy/azure/README.md`.
 - Branch names: `feat/T-07-lesson-mapping`, `fix/…`, `design/T-23-today-hifi`, `docs/…`. One task per branch; branches live ≤ 1 day.
 - PRs: use the template; squash-merge; Conventional Commit titles (`feat(api): map lesson transcript to competencies (T-07)`).
 - Review rules:

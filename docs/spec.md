@@ -160,7 +160,7 @@ Why one container: one URL for judges, no CORS, one deploy pipeline, fewer movin
 | Audio storage | Azure Blob Storage (local disk in dev) | Opus/MP3 at 24–32 kbps |
 | Speech | Sarvam AI: Saarika STT (kn-IN), Bulbul TTS (te-IN, ta-IN, kn-IN) | **[CONFIRM: Rahul]** D-12: API key, cost, voice choice. Fallback: Google Cloud STT/TTS |
 | LLM | Claude via API; models set in config | See §5.1 |
-| Hosting | Azure App Service for Containers (Linux, Central India), Azure Database for PostgreSQL Flexible (B1ms), GitHub Actions | **[CONFIRM: Rahul]** D-13. Fallback: same Dockerfile on Render/Fly.io |
+| Hosting | Azure App Service for Containers (Linux, Central India), Azure Database for PostgreSQL Flexible (B1ms), GitHub Actions; two web apps (staging, prod) on one B1 plan | D-13 (Accepted). Fallback: same Dockerfile on Render/Fly.io |
 | Tests | xUnit, Testcontainers (PostgreSQL), WebApplicationFactory; Vitest + Testing Library; Playwright + @axe-core/playwright | |
 
 ### 4.3 Data model (core tables)
@@ -295,7 +295,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-10 | Single container (API serves SPA) | Yes | Rahul | Day 1 | Accepted (T-03) |
 | D-11 | Claude client | Official `Anthropic` NuGet SDK behind `ILlmClient` | Rahul | Day 1 | Proposed |
 | D-12 | Speech provider | Sarvam (Saarika STT, Bulbul TTS) | Rahul | Day 1 | Proposed |
-| D-13 | Hosting | Azure App Service + PostgreSQL Flexible, Central India | Rahul | Day 1 | Proposed |
+| D-13 | Hosting | Azure App Service + PostgreSQL Flexible, Central India | Rahul | Day 1 | Accepted (T-04): staging + prod apps on one B1 plan, images on GHCR, OIDC deploy |
 | D-14 | Curriculum source and wording | State textbook + NIPUN outcomes; Monika approves Kannada names | Monika | Day 2 | Proposed |
 | D-15 | Open-source licence | MIT, repo public from submission day | Rahul + Monika | Day 9 | Proposed |
 | D-16 | Test participants | 3 teachers (phone/video during Dasara break), plus 2 parents after schools reopen | Monika | Day 1 | Proposed |

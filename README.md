@@ -94,6 +94,7 @@ Secrets never go in Git. Use `.env` locally, `dotnet user-secrets` if you prefer
 | End-to-end + accessibility (after a build) | `cd src/web && npm run e2e` |
 | Lint / format | `cd src/web && npm run lint` · `dotnet format` |
 | Build container | `docker build -f deploy/Dockerfile -t slate-ai .` |
+| Run full container locally | `docker compose -f deploy/docker-compose.yml up --build` → http://localhost:8080 |
 
 ## Contributing
 
@@ -104,7 +105,7 @@ We work trunk-based with short-lived branches.
 3. Commit with Conventional Commits and the task ID: `feat(api): map transcript to competencies (T-07)`.
 4. Run `./scripts/verify.sh`. Open a PR using the template; add screenshots for UI changes.
 5. Review: Monika approves UI/copy and `intent.md`/`spec.md` changes; Rahul approves code, `CLAUDE.md`, `prompts/`. Squash-merge when CI is green.
-6. Merges to `main` deploy to staging; tags `v*` deploy to production.
+6. Merges to `main` deploy to staging (https://slateai-staging.azurewebsites.net); tags `v*` deploy to production (https://slateai-prod.azurewebsites.net). Runbook: [`deploy/azure/README.md`](deploy/azure/README.md).
 
 Review policy: [`REVIEW.md`](REVIEW.md). Conventions for Claude Code and humans: [`CLAUDE.md`](CLAUDE.md).
 
