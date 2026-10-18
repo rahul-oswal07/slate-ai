@@ -43,3 +43,4 @@ T-01–T-04 done. Staging live: https://slateai-staging.azurewebsites.net (prod 
 | 18 Oct | Rahul + Claude | First deploy to staging green (image sha-6192a40). Fixed OIDC subject (GitHub immutable-ID format). GHCR package already public |
 | 18 Oct | Rahul + Claude | API docs: built-in OpenAPI document + Swagger UI at `/swagger` (dev + staging; off on prod via `OpenApi:Enabled`) |
 | 18 Oct | Rahul + Claude | Deploy smoke test now waits for `/health` to report the new build (`version`) on 3 consecutive polls; fixes false failures during App Service container swaps |
+| 18 Oct | Monika + Claude | T-00: accepted gate decisions D-01 (Grade 3 maths unit), D-02 (Kannada UI; Telugu+Kannada tested, Tamil spot-checked), D-16 (3 teachers + 2 parents/proxies incl. Telugu). Unblocks T-22, T-20, T-05, T-07 |
