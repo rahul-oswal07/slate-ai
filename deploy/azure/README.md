@@ -13,7 +13,7 @@ Both web apps share one Linux **B1** App Service plan (`asp-slateai`) and one Po
 `.github/workflows/deploy.yml`:
 1. Builds `deploy/Dockerfile` and pushes `ghcr.io/rahul-oswal07/slate-ai:sha-<short>` (plus `:main` or `:<tag>`).
 2. Logs in to Azure with **OIDC**: no stored secrets. App registration `gh-slateai-deploy` trusts only the GitHub environments `staging` and `production`, and has *Website Contributor* on `rg-slateai` only. The federated subject uses GitHub's immutable-ID format (`repo:rahul-oswal07@16301809/slate-ai@1424145741:environment:<env>`); `provision.sh` reads the prefix from the repo's OIDC settings.
-3. Points the web app at the new image, then smoke-tests `/health`, `/` and `/api/does-not-exist`.
+3. Points the web app at the new image, then smoke-tests it: waits until `/health` reports the new build version on 3 consecutive polls (App Service swaps containers in the background), then checks `/` and `/api/does-not-exist`.
 
 On startup the API applies EF migrations and the idempotent demo seed.
 
@@ -38,6 +38,8 @@ The script is idempotent. The Postgres admin password is generated in the script
 The container package must be **public** so App Service can pull it without credentials: GitHub → Packages → `slate-ai` → Package settings → Change visibility → Public. (Not possible via the API for user-owned packages.)
 
 ## Operations
+
+- **Which build is live:** `curl https://slateai-staging.azurewebsites.net/health` → `{"status":"Healthy","version":"sha-<short>"}` (`dev` when run from source)
 
 - **Logs:** `az webapp log tail -g rg-slateai -n slateai-staging`
 - **Roll back:** re-run an older successful `deploy` workflow run, or
