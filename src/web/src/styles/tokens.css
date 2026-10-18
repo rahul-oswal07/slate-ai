@@ -1,0 +1,15 @@
+/*
+ * Design tokens: PLACEHOLDER until Monika's tokens land (D-04 / T-23).
+ * Components use these via Tailwind classes (bg-surface, text-ink, ...); never hard-code colours.
+ * Contrast (WCAG AA): ink on surface 15.4:1, ink-muted on surface 7.6:1, on-primary on primary 7.6:1.
+ */
+@theme {
+  --color-surface: #ffffff;
+  --color-ink: #111827;
+  --color-ink-muted: #4b5563;
+  --color-border: #d1d5db;
+  --color-primary: #0f5f5c;
+  --color-on-primary: #ffffff;
+
+  --font-sans: system-ui, "Noto Sans Kannada", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans", sans-serif;
+}
