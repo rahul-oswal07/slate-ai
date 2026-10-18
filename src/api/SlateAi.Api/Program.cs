@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Health;
+using SlateAi.Api.Features.Spa;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ var app = builder.Build();
 await app.InitialiseDatabaseAsync(app.Lifetime.ApplicationStopping);
 
 app.MapHealthEndpoints();
+app.MapSpa();
 
 await app.RunAsync();
 
