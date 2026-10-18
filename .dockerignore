@@ -1,0 +1,15 @@
+**/bin
+**/obj
+**/node_modules
+**/test-results
+**/playwright-report
+src/api/SlateAi.Api/wwwroot
+.git
+.github
+.claude
+docs
+evals
+tests
+.env
+.env.*
+**/.DS_Store

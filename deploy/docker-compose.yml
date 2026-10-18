@@ -1,4 +1,6 @@
-# Local development. T-04 adds the app service.
+# Local development.
+#   DB only:        docker compose -f deploy/docker-compose.yml up -d db
+#   Full container: docker compose -f deploy/docker-compose.yml up --build   → http://localhost:8080
 services:
   db:
     image: postgres:16
@@ -15,6 +17,18 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      ConnectionStrings__Db: Host=db;Port=5432;Database=slateai;Username=slateai;Password=slateai
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db-data:
