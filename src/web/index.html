@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Mirrors --color-primary in src/styles/tokens.css -->
-    <meta name="theme-color" content="#0f5f5c" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Browser bar matches --color-canvas (light / dark) in src/styles/tokens.css -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafaf7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#151513" />
     <meta name="description" content="Tappida Paatha: a home-language catch-up of the lesson a child missed." />
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />

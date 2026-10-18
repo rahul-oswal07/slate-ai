@@ -6,7 +6,7 @@ export function AppShell() {
   const { t } = useTranslation()
 
   return (
-    <div className="min-h-dvh bg-surface font-sans text-ink">
+    <div className="min-h-dvh bg-canvas font-sans text-ink">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:rounded-md focus:bg-primary focus:p-3 focus:text-on-primary"

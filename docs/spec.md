@@ -69,7 +69,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | NFR-01 | Teacher time ≤ 60 s/day for capture + attendance (measured in usability tests) |
 | NFR-02 | Teacher flow usable offline; queued actions sync automatically; sync state always visible |
 | NFR-03 | Works on a 2 GB RAM Android phone, Chrome, 3G-class network (test with throttling) |
-| NFR-04 | WCAG 2.2 AA for teacher and parent UIs; touch targets ≥ 48 px (parent picture targets ≥ 96 px) |
+| NFR-04 | WCAG 2.2 AA for teacher and parent UIs, with AAA text contrast: all text ≥ 7:1, UI components ≥ 3:1, in light and dark themes (D-17); touch targets ≥ 48 px (parent picture targets ≥ 96 px) |
 | NFR-05 | No child names, parent numbers or teacher names sent to the LLM or STT/TTS providers; IDs and placeholders only |
 | NFR-06 | Every AI call logged: prompt version, model, tokens, latency, verifier verdict |
 | NFR-07 | p95 lesson processing (upload → teacher sees mapped lesson) ≤ 20 s online |
@@ -110,7 +110,7 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 | # | Decision | Recommendation |
 |---|---|---|
 | D-03 | Attendance UI: name list vs photo grid vs roll-number grid | Roll number + first name grid, 4 columns; photos raise consent questions **[DECIDE: Monika]** |
-| D-04 | Visual style and tokens (colour, type, iconography) for both UIs | Monika supplies tokens by Day 2; must meet AA contrast; Noto Sans Kannada/Telugu/Tamil **[DECIDE: Monika]** |
+| D-04 | Visual style and tokens (colour, type, iconography) for both UIs | Accepted: Build Kit palette (warm canvas, deep ink, teal primary), AAA text contrast, Noto Sans Kannada/Telugu/Tamil. See `docs/design/tokens.md` (D-17) |
 | D-07 | Picture library style for the learning check | Code-generated place-value pictures (bundles of ten sticks + loose sticks, numerals) in Monika's style; plus ~10 activity illustrations (bottle caps, sticks, stones) **[DECIDE: Monika]** |
 | D-08 | Parent page: one screen with sections vs four steps | Four steps, one action per screen, audio auto-prompts **[DECIDE: Monika]** |
 | D-09 | How the teacher reviews a Telugu script she cannot read | Kannada gloss + audio; approval wording "I've checked the Kannada summary" **[DECIDE: Monika]** |
@@ -286,7 +286,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-01 | Demo subject/unit | Grade 3 maths, place value → carrying → borrowing | Monika | Day 1 | Accepted (T-00) |
 | D-02 | Languages fully tested | Kannada UI; Telugu + Kannada audio; Tamil spot-checked | Monika | Day 1 | Accepted (T-00) |
 | D-03 | Attendance UI pattern | Roll number + first name grid | Monika | Day 2 | Proposed |
-| D-04 | Design tokens and type | Monika's tokens; Noto Sans Indic families | Monika | Day 2 | Proposed |
+| D-04 | Design tokens and type | Monika's tokens; Noto Sans Indic families | Monika | Day 2 | Accepted (T-23): `src/web/src/styles/tokens.css`, `docs/design/tokens.md` |
 | D-05 | Delivery channel in demo | Simulated parent phone primary; WhatsApp Cloud API test number stretch; `wa.me` share as fallback | Rahul | Day 1 | Proposed |
 | D-06 | Board photo capture | Stretch | Monika + Rahul | Day 7 | Proposed |
 | D-07 | Picture library | Code-generated place-value SVGs + ~10 illustrations | Monika | Day 3 | Proposed |
@@ -299,6 +299,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-14 | Curriculum source and wording | State textbook + NIPUN outcomes; Monika approves Kannada names | Monika | Day 2 | Proposed |
 | D-15 | Open-source licence | MIT, repo public from submission day | Rahul + Monika | Day 9 | Proposed |
 | D-16 | Test participants | 3 teachers (phone/video during Dasara break), plus 2 parents (incl. Telugu; proxies as fallback) after schools reopen | Monika | Day 1 | Accepted (T-00) |
+| D-17 | Contrast level and dark theme | All text ≥ 7:1 (AAA), UI ≥ 3:1; dark theme follows the phone setting (`prefers-color-scheme`), no in-app toggle yet | Monika | Day 2 | Accepted (T-23) |
 
 ## 9. Assumptions
 

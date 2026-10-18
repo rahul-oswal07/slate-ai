@@ -7,9 +7,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 // scripts/run-local.sh sets API_URL when the API runs on another port.
 const apiUrl = process.env.API_URL ?? 'http://localhost:5080'
 
-// Manifest colours mirror --color-primary / --color-surface in src/styles/tokens.css.
-const themeColor = '#0f5f5c'
-const backgroundColor = '#ffffff'
+// Manifest colours mirror --color-primary / --color-canvas (light) in src/styles/tokens.css.
+const themeColor = '#115e59'
+const backgroundColor = '#fafaf7'
 
 export default defineConfig({
   plugins: [
