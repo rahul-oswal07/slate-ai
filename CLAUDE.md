@@ -1,6 +1,6 @@
 # CLAUDE.md — Tappida Paatha (slate-ai)
 
-Hackathon MVP: absent children get a home-language catch-up of the lesson they missed. Read `docs/intent.md` → `docs/spec.md` → `docs/plan.md` before changing behaviour. Task IDs (T-xx) are in `docs/tasks.md`; requirement IDs (FR-xx, NFR-xx) in `docs/spec.md`.
+Hackathon MVP: absent children get a home-language catch-up of the lesson they missed. **Start every session with `docs/status.md`** (current state, next tasks), then read `docs/intent.md` → `docs/spec.md` → `docs/plan.md` before changing behaviour. Task IDs (T-xx) are in `docs/tasks.md`; requirement IDs (FR-xx, NFR-xx) in `docs/spec.md`.
 
 ## Commands
 
@@ -53,6 +53,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 - Rahul owns code, `CLAUDE.md`, `.claude/`, `prompts/`. Monika owns `intent.md`, UX and copy in `spec.md`, `docs/design/`, `docs/user-testing.md`.
 - Open decisions are tagged `[DECIDE: Monika]` / `[CONFIRM: Rahul]` in `spec.md` §8. Don't implement past an open gate; build behind a flag or ask.
 - If implementation drifts from `plan.md`, update `plan.md` in the same PR.
+- At the end of each session, update `docs/status.md` (what changed, next step, blockers).
 - Use plan mode for anything touching more than 3 files; save accepted plans into the PR description.
 - Branches: `feat|fix|design|docs/T-xx-slug`, short-lived, squash-merged into `main`.
 
