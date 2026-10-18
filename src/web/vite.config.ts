@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-const apiUrl = 'http://localhost:5080'
+// scripts/run-local.sh sets API_URL when the API runs on another port.
+const apiUrl = process.env.API_URL ?? 'http://localhost:5080'
 
 // Manifest colours mirror --color-primary / --color-surface in src/styles/tokens.css.
 const themeColor = '#0f5f5c'

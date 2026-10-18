@@ -54,6 +54,8 @@ dotnet run --project src/api/SlateAi.Api      # applies migrations + seeds demo 
 cd src/web && npm ci && npm run dev           # http://localhost:5173
 ```
 
+**Quickest way:** `./scripts/run-local.sh` starts Postgres, the API (:5080) and the web dev server with hot reload (:5173), and stops them on Ctrl+C. Use `./scripts/run-local.sh --container` for the production-like container on :8080, or `API_PORT=… WEB_PORT=…` to use other ports.
+
 Without API keys the app runs with fake AI and speech providers (`Ai__Provider=Fake`), which is enough for UI work.
 
 On Apple Silicon, install the **arm64** .NET 10 SDK (`brew install --cask dotnet-sdk`); the x64 build won't run without Rosetta. Run `dotnet tool restore` once to get `dotnet-ef`.
@@ -86,6 +88,7 @@ Secrets never go in Git. Use `.env` locally, `dotnet user-secrets` if you prefer
 
 | Task | Command |
 |---|---|
+| Run the app locally | `./scripts/run-local.sh` (`--container` for the built image) |
 | Verify everything before a PR | `./scripts/verify.sh` |
 | API tests (no live AI) | `dotnet test --filter "Category!=Eval"` |
 | Live AI evals | `dotnet test --filter Category=Eval` |
