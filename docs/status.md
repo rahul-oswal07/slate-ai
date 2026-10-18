@@ -12,8 +12,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 ## Pending on Day 0 (before build starts)
 
-- [ ] Rahul: move `deploy/repo-setup/*` into `.github/` and `.claude/` (commands in `deploy/repo-setup/README.md`), set CODEOWNERS usernames, delete `deploy/repo-setup/`
-- [ ] Rahul: invite Monika, protect `main` (PR + `ci` check), create Project board
+- [x] Rahul: move repo-setup files into `.github/` and `.claude/`, set CODEOWNERS usernames, delete `deploy/repo-setup/` (T-01)
+- [x] Rahul: repo public, Monika is a collaborator, `main` protected (PR + required `verify` check), Project board created, issues #1–#38 for P0+P1 tasks (T-01)
 - [ ] Rahul: Anthropic API key (hackathon credits), Sarvam API key, Azure resources (Central India: App Service B1 Linux, PostgreSQL Flexible B1ms, Storage)
 - [ ] Rahul: install .NET 10 SDK and Docker locally
 - [ ] Monika: accept `docs/intent.md`; decide D-01, D-02, D-16 in `docs/spec.md` §8
@@ -22,7 +22,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 ## Next session (Day 1, Mon 19 Oct)
 
-Start T-01 → T-04 from `docs/tasks.md`: solution + API skeleton (.NET 10, EF Core, Postgres, `/health`, seed), React/Vite PWA skeleton with i18n, Dockerfile + docker-compose, deploy workflow to Azure. Goal: live walking-skeleton URL by end of day. Use plan mode first; one branch per task.
+T-01 done. Start T-02 → T-04 (install .NET 10 SDK and Docker first; local SDK is 8.0) from `docs/tasks.md`: solution + API skeleton (.NET 10, EF Core, Postgres, `/health`, seed), React/Vite PWA skeleton with i18n, Dockerfile + docker-compose, deploy workflow to Azure. Goal: live walking-skeleton URL by end of day. Use plan mode first; one branch per task.
 
 ## Open questions
 
@@ -34,3 +34,4 @@ Start T-01 → T-04 from `docs/tasks.md`: solution + API skeleton (.NET 10, EF C
 | Date | Who | What |
 |---|---|---|
 | 18 Oct | Rahul + Claude | Planning artifacts, repo setup, first commit and push |
+| 18 Oct | Rahul + Claude | T-01: CODEOWNERS, repo public, issues per P0/P1 task, Project board, branch protection |
