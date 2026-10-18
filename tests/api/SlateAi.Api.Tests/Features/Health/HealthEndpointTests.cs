@@ -1,6 +1,5 @@
 using System.Net;
-using System.Net.Http.Json;
-using SlateAi.Api.Features.Health;
+using System.Text.Json;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.Health;
@@ -17,8 +16,22 @@ public sealed class HealthEndpointTests(PostgresFixture postgres)
         var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<HealthResponse>(TestContext.Current.CancellationToken);
-        Assert.Equal("Healthy", body?.Status);
+        var body = await ReadBodyAsync(response);
+        Assert.Equal("Healthy", body.GetProperty("status").GetString());
+        Assert.Equal("dev", body.GetProperty("version").GetString());
+    }
+
+    [Fact]
+    public async Task Health_reports_the_configured_build_version()
+    {
+        // The deploy smoke test relies on this to know the new container is the one answering.
+        var settings = new Dictionary<string, string?> { ["Build:Version"] = "sha-test123" };
+        await using var factory = new ApiFactory(postgres.ConnectionString, settings: settings);
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
+
+        Assert.Equal("sha-test123", (await ReadBodyAsync(response)).GetProperty("version").GetString());
     }
 
     [Fact]
@@ -31,5 +44,11 @@ public sealed class HealthEndpointTests(PostgresFixture postgres)
         var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+    }
+
+    private static async Task<JsonElement> ReadBodyAsync(HttpResponseMessage response)
+    {
+        var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        return JsonDocument.Parse(json).RootElement.Clone();
     }
 }
