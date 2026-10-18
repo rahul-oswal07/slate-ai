@@ -83,25 +83,25 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 
 Teacher app (PWA, Kannada first):
 
-| Screen | Purpose | Key interaction |
-|---|---|---|
-| T0 Onboarding | Consent, record 10-second greeting once ("Ravi, this is Lakshmi teacher…") | Record → play back → save |
-| T1 **Today** | Attendance + lesson capture on one screen | Tap absent faces/names; hold mic button; sync badge |
-| T2 Lesson confirm | Shows mapped lesson | One tap confirm, or pick from chapter list |
-| T3 **Approve** | Draft catch-up packages for the week | Play, read gloss, Approve / Regenerate; Approve all |
-| T4 **Ledger** | Per-child missed lessons and status | Filter: absent this week; tap child for history |
-| T5 **Return day** | Buddy cards for children back today | Swipe cards; print/share |
-| T6 Pacing | Weekly nudge | Read; "Plan recap" adds a reminder |
-| T7 Review queue (stretch) | Low-confidence spoken answers | Listen; mark right/wrong |
+| Screen | Purpose | Key interaction | States to design (besides default) |
+|---|---|---|---|
+| T0 Onboarding | Consent, record 10-second greeting once ("Ravi, this is Lakshmi teacher…") | Record → play back → save | Recording · recorded (play / re-record) · consent given · greeting deleted · mic permission denied |
+| T1 **Today** | Attendance + lesson capture on one screen | Tap absent faces/names; hold mic button; sync badge | Attendance already marked · lesson already recorded today · offline ("3 waiting to send") · sending · mic permission denied |
+| T2 Lesson confirm | Shows mapped lesson | One tap confirm, or pick from chapter list | Processing · confident · low confidence ("Please confirm") · changed by teacher · could not read the note (pick from list) |
+| T3 **Approve** | Draft catch-up packages for the week | Play, read gloss, Approve / Regenerate; Approve all | Generating · ready · needs review (verifier failed) · approved · sent · generation failed · offline (approval queued) |
+| T4 **Ledger** | Per-child missed lessons and status | Filter: absent this week; tap child for history | Empty (first week) · filtered · offline ("Last updated …") |
+| T5 **Return day** | Buddy cards for children back today | Swipe cards; print/share | None due today · marked done · offline (cached cards) |
+| T6 Pacing | Weekly nudge | Read; "Plan recap" adds a reminder | No nudge this week ("Most children are on track") · decided |
+| T7 Review queue (stretch) | Low-confidence spoken answers | Listen; mark right/wrong | Nothing waiting · marked |
 
 Parent page (no install, opens from a link, Telugu/Tamil/Kannada):
 
-| Screen | Content |
-|---|---|
-| P1 Listen | Teacher photo initial, big ▶ Listen (greeting + catch-up), "AI-assisted, approved by Lakshmi teacher" |
-| P2 Activity | One picture of the household-object activity, audio instruction replays |
-| P3 Answer | "Ravi, tap the answer" read aloud; 3 large pictures |
-| P4 Done | Positive sound, "Lakshmi teacher will see this" |
+| Screen | Content | States to design (besides default) |
+|---|---|---|
+| P1 Listen | Teacher photo initial, big ▶ Listen (greeting + catch-up), "AI-assisted, approved by Lakshmi teacher" | Playing · paused · played · network dropped mid-play (resume) · link expired |
+| P2 Activity | One picture of the household-object activity, audio instruction replays | Audio replaying |
+| P3 Answer | "Ravi, tap the answer" read aloud; 3 large pictures | Picture chosen (confirm / change) · sending · could not send (try again) |
+| P4 Done | Positive sound, "Lakshmi teacher will see this" | none |
 
 Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide for judges, and Reset.
 
@@ -115,7 +115,7 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 | D-08 | Parent page: one screen with sections vs four steps | Four steps, one action per screen, audio auto-prompts **[DECIDE: Monika]** |
 | D-09 | How the teacher reviews a Telugu script she cannot read | Kannada gloss + audio; approval wording "I've checked the Kannada summary" **[DECIDE: Monika]** |
 
-### 3.3 Content rules (apply to every generated script)
+### 3.3 Content rules for generated scripts
 
 - Child addressed by first name via placeholder `{child}`; inserted after generation.
 - 90 seconds maximum (≈ 160 spoken Telugu words; tuned on Day 3 by timing TTS output).
@@ -123,6 +123,18 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 - Activity uses only household objects from an allowed list (bottle caps, sticks, stones, tamarind seeds, bangles, rotis, spoons).
 - Warm, encouraging, no negative words about absence.
 - One learning check that tests the single most important target competency.
+
+### 3.4 Interface copy rules (every screen, all four languages)
+
+- **Voice:** a respectful colleague, never a supervisor. Kannada to the teacher uses the formal ನೀವು.
+- **Short:** buttons and banners at most about 12 words. Buttons start with the verb ("Approve", "Listen", "Try again").
+- **Errors** always say what happened, what is safe, and what to do next. Example: "Could not send. Your note is saved. It will send when you have network."
+- **Numbers** as counts ("11 of 36 children"), never percentages. Numbers come from code (guardrail 4).
+- **Confidence in words**, not scores: "This is…" when sure, "Looks like… Please confirm" when not.
+- **Never:** exclamation marks, "Oops", error codes, abbreviations ("qty", "ETA"), "AI-powered", or blame words about absence ("failed to attend").
+- **Numerals:** Latin digits, as in Karnataka textbooks.
+- **Status** is always an icon plus a word, never colour alone (see `docs/design/tokens.md`).
+- Indic copy stays marked "needs review" until a native speaker approves it.
 
 ---
 
