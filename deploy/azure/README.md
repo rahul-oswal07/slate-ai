@@ -12,7 +12,7 @@ Both web apps share one Linux **B1** App Service plan (`asp-slateai`) and one Po
 
 `.github/workflows/deploy.yml`:
 1. Builds `deploy/Dockerfile` and pushes `ghcr.io/rahul-oswal07/slate-ai:sha-<short>` (plus `:main` or `:<tag>`).
-2. Logs in to Azure with **OIDC**: no stored secrets. App registration `gh-slateai-deploy` trusts only the GitHub environments `staging` and `production`, and has *Website Contributor* on `rg-slateai` only.
+2. Logs in to Azure with **OIDC**: no stored secrets. App registration `gh-slateai-deploy` trusts only the GitHub environments `staging` and `production`, and has *Website Contributor* on `rg-slateai` only. The federated subject uses GitHub's immutable-ID format (`repo:rahul-oswal07@16301809/slate-ai@1424145741:environment:<env>`); `provision.sh` reads the prefix from the repo's OIDC settings.
 3. Points the web app at the new image, then smoke-tests `/health`, `/` and `/api/does-not-exist`.
 
 On startup the API applies EF migrations and the idempotent demo seed.

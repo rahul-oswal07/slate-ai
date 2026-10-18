@@ -106,15 +106,23 @@ if [ -z "$CLIENT_ID" ]; then
   CLIENT_ID=$(az ad app create --display-name "$SP_NAME" --query appId -o tsv)
 fi
 exists az ad sp show --id "$CLIENT_ID" || az ad sp create --id "$CLIENT_ID" --output none
+# GitHub's subject prefix: newer repos use immutable IDs (repo:owner@id/name@id), older ones repo:owner/name.
+SUB_PREFIX=$(gh api "repos/$REPO/actions/oidc/customization/sub" --jq '.sub_claim_prefix // empty' 2>/dev/null || true)
+SUB_PREFIX="${SUB_PREFIX:-repo:$REPO}"
 for env in "${ENVS[@]}"; do
   name="github-$(gh_env "$env")"
-  if [ -z "$(az ad app federated-credential list --id "$CLIENT_ID" --query "[?name=='$name'].name" -o tsv)" ]; then
-    az ad app federated-credential create --id "$CLIENT_ID" --output none --parameters "{
-      \"name\": \"$name\",
-      \"issuer\": \"https://token.actions.githubusercontent.com\",
-      \"subject\": \"repo:$REPO:environment:$(gh_env "$env")\",
-      \"audiences\": [\"api://AzureADTokenExchange\"]
-    }"
+  subject="$SUB_PREFIX:environment:$(gh_env "$env")"
+  params="{
+    \"name\": \"$name\",
+    \"issuer\": \"https://token.actions.githubusercontent.com\",
+    \"subject\": \"$subject\",
+    \"audiences\": [\"api://AzureADTokenExchange\"]
+  }"
+  current=$(az ad app federated-credential list --id "$CLIENT_ID" --query "[?name=='$name'].subject" -o tsv)
+  if [ -z "$current" ]; then
+    az ad app federated-credential create --id "$CLIENT_ID" --parameters "$params" --output none
+  elif [ "$current" != "$subject" ]; then
+    az ad app federated-credential update --id "$CLIENT_ID" --federated-credential-id "$name" --parameters "$params" --output none
   fi
 done
 RG_ID=$(az group show -n "$RG" --query id -o tsv)
