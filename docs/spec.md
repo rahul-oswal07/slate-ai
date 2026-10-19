@@ -22,7 +22,7 @@ Tags used in this file:
 One class, one subject, one complete loop:
 
 - **Class:** Grade 3, Kannada-medium, 36 seeded children; 6 children with Telugu home language, 3 with Tamil, the rest Kannada.
-- **Subject:** maths. One textbook unit chain: place value (tens and ones) → 2-digit addition without carrying → **addition with carrying** → subtraction without borrowing → **subtraction with borrowing**. About 12–18 competencies in the dependency map. **[DECIDE: Monika]** D-01
+- **Subject:** maths. One textbook unit chain: place value (tens and ones) → 2-digit addition without carrying → **addition with carrying** → subtraction without borrowing → **subtraction with borrowing**. About 12–18 competencies in the dependency map. D-01 (Accepted)
 - **Languages:** teacher UI in Kannada (English toggle for judges). Catch-up audio in **Telugu** and **Kannada**, fully tested. Tamil works through the same pipeline but is only spot-checked. D-02
 
 ### 1.2 Stretch (only after the Day 7 code freeze for MVP features is met)
@@ -283,8 +283,8 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 
 | ID | Decision | Recommendation | Owner | Gate | Status |
 |---|---|---|---|---|---|
-| D-01 | Demo subject/unit | Grade 3 maths, place value → carrying → borrowing | Monika | Day 1 | Proposed |
-| D-02 | Languages fully tested | Kannada UI; Telugu + Kannada audio; Tamil spot-checked | Monika | Day 1 | Proposed |
+| D-01 | Demo subject/unit | Grade 3 maths, place value → carrying → borrowing | Monika | Day 1 | Accepted (T-00) |
+| D-02 | Languages fully tested | Kannada UI; Telugu + Kannada audio; Tamil spot-checked | Monika | Day 1 | Accepted (T-00) |
 | D-03 | Attendance UI pattern | Roll number + first name grid | Monika | Day 2 | Proposed |
 | D-04 | Design tokens and type | Monika's tokens; Noto Sans Indic families | Monika | Day 2 | Proposed |
 | D-05 | Delivery channel in demo | Simulated parent phone primary; WhatsApp Cloud API test number stretch; `wa.me` share as fallback | Rahul | Day 1 | Proposed |
@@ -298,7 +298,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-13 | Hosting | Azure App Service + PostgreSQL Flexible, Central India | Rahul | Day 1 | Accepted (T-04): staging + prod apps on one B1 plan, images on GHCR, OIDC deploy |
 | D-14 | Curriculum source and wording | State textbook + NIPUN outcomes; Monika approves Kannada names | Monika | Day 2 | Proposed |
 | D-15 | Open-source licence | MIT, repo public from submission day | Rahul + Monika | Day 9 | Proposed |
-| D-16 | Test participants | 3 teachers (phone/video during Dasara break), plus 2 parents after schools reopen | Monika | Day 1 | Proposed |
+| D-16 | Test participants | 3 teachers (phone/video during Dasara break), plus 2 parents (incl. Telugu; proxies as fallback) after schools reopen | Monika | Day 1 | Accepted (T-00) |
 
 ## 9. Assumptions
 

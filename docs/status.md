@@ -17,9 +17,10 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Azure resources (personal Free Trial subscription, Central India): `rg-slateai` with App Service B1 (staging + prod apps), PostgreSQL Flexible B1ms. Storage deferred to T-11
 - [ ] Rahul: Anthropic API key (hackathon credits), Sarvam API key
 - [x] Rahul: install .NET 10 SDK (arm64) and Docker (Colima) locally
-- [ ] Monika: accept `docs/intent.md`; decide D-01, D-02, D-16 in `docs/spec.md` §8
+- [ ] Monika: accept `docs/intent.md` (D-01, D-02, D-16 decided: PR #49)
 - [ ] Together: accept D-05, D-10, D-11, D-12, D-13; mark Accepted in the decision log
-- [ ] Book education mentor (Monika) and technical mentor (Rahul)
+- [ ] Book education mentor (Monika, by 22 Oct: validate pacing + buddy card) and technical mentor (Rahul)
+- [ ] Rahul: review #50 (tokens, touches `src/web`) and confirm D-18 / D-19 in #53 before T-11 / T-15
 
 ## Next session (Day 1, Mon 19 Oct)
 
@@ -56,4 +57,6 @@ T-01–T-04 done. Staging live: https://slateai-staging.azurewebsites.net (prod 
 | 18 Oct | Rahul + Claude | First deploy to staging green (image sha-6192a40). Fixed OIDC subject (GitHub immutable-ID format). GHCR package already public |
 | 18 Oct | Rahul + Claude | API docs: built-in OpenAPI document + Swagger UI at `/swagger` (dev + staging; off on prod via `OpenApi:Enabled`) |
 | 18 Oct | Rahul + Claude | Deploy smoke test now waits for `/health` to report the new build (`version`) on 3 consecutive polls; fixes false failures during App Service container swaps |
+| 18 Oct | Monika + Claude | T-00: accepted gate decisions D-01 (Grade 3 maths unit), D-02 (Kannada UI; Telugu+Kannada tested, Tamil spot-checked), D-16 (3 teachers + 2 parents/proxies incl. Telugu). Unblocks T-22, T-20, T-05, T-07 |
+| 18 Oct | Monika + Claude | Compared the external Build Kit (00–06) with the repo; adopted its design tokens, design-card template, copy rules, testing kit and roadmap; kept our stack and CLAUDE.md. PRs: #50 AAA tokens + system dark theme (T-23, D-04/D-17 accepted; fixed 1.5:1 border), #51 design cards + screen states + copy rules (T-21), #52 testing kit + Now/Next/Later roadmap (T-27), #53 spoken AI disclosure + parent stop (D-18/D-19 proposed). Merge order: #49 → #50 → #53; #51, #52 independent
 | 18 Oct | Rahul + Claude | `scripts/run-local.sh` (one-command local run); `UserSecretsId` + README secrets guidance (user-secrets locally, App Service settings on Azure). Next session: review Monika's PRs #49–#53, then T-06 |
