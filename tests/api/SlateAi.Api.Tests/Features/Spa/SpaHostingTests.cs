@@ -3,8 +3,7 @@ using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.Spa;
 
-[Trait("Category", "Integration")]
-public sealed class SpaHostingTests(PostgresFixture postgres) : IDisposable
+public sealed class SpaHostingTests : IDisposable
 {
     private const string IndexMarker = "<!-- spa-index -->";
     private readonly string _webRoot = CreateWebRoot();
@@ -14,7 +13,7 @@ public sealed class SpaHostingTests(PostgresFixture postgres) : IDisposable
     [InlineData("/ledger/123")]
     public async Task Client_routes_serve_index_html(string path)
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString, webRoot: _webRoot);
+        await using var factory = FakeApi.Create(webRoot: _webRoot);
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync(path, TestContext.Current.CancellationToken);
@@ -27,7 +26,7 @@ public sealed class SpaHostingTests(PostgresFixture postgres) : IDisposable
     [Fact]
     public async Task Unknown_api_route_returns_404_not_html()
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString, webRoot: _webRoot);
+        await using var factory = FakeApi.Create(webRoot: _webRoot);
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync("/api/does-not-exist", TestContext.Current.CancellationToken);
@@ -42,7 +41,7 @@ public sealed class SpaHostingTests(PostgresFixture postgres) : IDisposable
     [InlineData("/")]
     public async Task Service_worker_and_shell_are_not_cached(string path)
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString, webRoot: _webRoot);
+        await using var factory = FakeApi.Create(webRoot: _webRoot);
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync(path, TestContext.Current.CancellationToken);

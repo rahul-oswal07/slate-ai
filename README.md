@@ -35,7 +35,7 @@ Parent web page ──────┼── SlateAi.Api (.NET) ┼── Sarvam 
 |---|---|
 | `src/api/SlateAi.Api` | .NET 10 Minimal API; `Features/` slices, `Ai/` (all LLM calls), `Speech/`, `Curriculum/`, `Data/` |
 | `src/web` | React + Vite + TypeScript PWA (teacher app, parent page, demo shell) |
-| `tests/api`, `src/web/e2e` | xUnit unit/integration tests; Playwright end-to-end + accessibility |
+| `tests/api`, `src/web/e2e` | xUnit tests (fakes, no database); Playwright end-to-end + accessibility |
 | `evals/` | Live evaluation cases and results for each Claude call |
 | `prompts/` | Versioned prompt files |
 | `data/` | Curriculum dependency graph, picture library manifest, seed data |
@@ -59,12 +59,7 @@ Without API keys the app runs with fake AI and speech providers (`Ai__Provider=F
 
 On Apple Silicon, install the **arm64** .NET 10 SDK (`brew install --cask dotnet-sdk`); the x64 build won't run without Rosetta. Run `dotnet tool restore` once to get `dotnet-ef`.
 
-**Colima instead of Docker Desktop:** `brew install colima docker docker-compose && colima start`. Integration tests use Testcontainers, which needs to find Colima's socket:
-
-```bash
-export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
-export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
-```
+**Colima instead of Docker Desktop:** `brew install colima docker docker-compose && colima start`. Docker is only needed to run Postgres and the container locally; the API tests use fakes and need no database.
 
 ### Environment variables
 

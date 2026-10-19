@@ -174,7 +174,7 @@ Why one container: one URL for judges, no CORS, one deploy pipeline, fewer movin
 | Speech | Sarvam AI: Saarika STT (kn-IN), Bulbul TTS (te-IN, ta-IN, kn-IN) | **[CONFIRM: Rahul]** D-12: API key, cost, voice choice. Fallback: Google Cloud STT/TTS |
 | LLM | Claude via API; models set in config | See §5.1 |
 | Hosting | Azure App Service for Containers (Linux, Central India), Azure Database for PostgreSQL Flexible (B1ms), GitHub Actions; two web apps (staging, prod) on one B1 plan | D-13 (Accepted). Fallback: same Dockerfile on Render/Fly.io |
-| Tests | xUnit, Testcontainers (PostgreSQL), WebApplicationFactory; Vitest + Testing Library; Playwright + @axe-core/playwright | |
+| Tests | xUnit, WebApplicationFactory with fake stores (no database); Vitest + Testing Library; Playwright + @axe-core/playwright | |
 
 ### 4.3 Data model (core tables)
 

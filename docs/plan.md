@@ -41,7 +41,7 @@ slate-ai/
 │     ├─ src/{app,features/{today,approve,ledger,return-day,pacing,parent,demo},components,i18n,offline,styles}
 │     └─ e2e/                     Playwright + axe (lives here because CI runs Playwright from src/web)
 ├─ tests/
-│  └─ api/SlateAi.Api.Tests/      unit + integration (Testcontainers)
+│  └─ api/SlateAi.Api.Tests/      unit + endpoint tests with fakes (no database)
 ├─ evals/                         cases/*.json, results/ (live Claude evals)
 ├─ prompts/                       a1-lesson-mapping.md … versioned prompts
 ├─ data/curriculum/  data/pictures/  data/seed/

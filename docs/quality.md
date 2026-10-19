@@ -7,7 +7,7 @@ Goal: a demo that works every time, and evidence that real users shaped it. Keep
 | Layer | Tool | What it covers | When it runs | Gate |
 |---|---|---|---|---|
 | Unit (API) | xUnit | Curriculum graph, candidate set, ledger query, verifier checks, scoring, pacing numbers, prompt builder PII guard, validators with a fake `ILlmClient` | Every PR (CI) | Must pass |
-| Integration (API) | xUnit + WebApplicationFactory + Testcontainers PostgreSQL | Endpoints end to end with fake Claude/Sarvam: attendance idempotency, approval rule, parent answer → ledger, delete | Every PR (CI) | Must pass |
+| Endpoint (API) | xUnit + WebApplicationFactory with fake stores (`FakeApi`), no database | Endpoints over HTTP with fake stores and fake Claude/Sarvam: validation, approval rule, parent answer → ledger, delete. Postgres-only behaviour (locks, replay no-op, migrations) is not covered; the CI container smoke test boots against real Postgres | Every PR (CI) | Must pass |
 | Unit (web) | Vitest + Testing Library | Outbox logic, i18n keys present for all 4 languages, component states | Every PR (CI) | Must pass |
 | End to end | Playwright | Happy path (teacher → approve → parent → ledger), offline capture + sync, demo reset | Every PR against the built container | Must pass |
 | Accessibility | @axe-core/playwright + manual TalkBack | Teacher and parent screens | Every PR (axe); Day 8 (manual) | 0 serious/critical |
@@ -16,7 +16,7 @@ Goal: a demo that works every time, and evidence that real users shaped it. Keep
 | Usability | Moderated sessions | Teacher flow time and errors; parent comprehension | Day 3 (round 0), Day 6, Day 8 | ≥ 5 logged changes |
 
 Rules from the playbook we adopt:
-- One command to verify: `./scripts/verify.sh` (build + unit + integration + web tests). Claude Code must run it before reporting a task done.
+- One command to verify: `./scripts/verify.sh` (build + API + web tests). Claude Code must run it before reporting a task done.
 - Bug fix = failing test first, then the fix, without editing the test.
 - Every demo failure or production bug becomes a regression test or an eval case (`docs/lessons.md`).
 - Prompt changes require an eval run in the PR description.

@@ -4,15 +4,14 @@ using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.Docs;
 
-[Trait("Category", "Integration")]
-public sealed class ApiDocsTests(PostgresFixture postgres)
+public sealed class ApiDocsTests
 {
     private static readonly Dictionary<string, string?> DocsOn = new() { ["OpenApi:Enabled"] = "true" };
 
     [Fact]
     public async Task OpenApi_document_is_served_when_enabled()
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString, settings: DocsOn);
+        await using var factory = FakeApi.Create(settings: DocsOn);
         using var client = factory.CreateClient();
         var ct = TestContext.Current.CancellationToken;
 
@@ -32,7 +31,7 @@ public sealed class ApiDocsTests(PostgresFixture postgres)
     [Fact]
     public async Task Swagger_ui_is_served_when_enabled()
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString, settings: DocsOn);
+        await using var factory = FakeApi.Create(settings: DocsOn);
         using var client = factory.CreateClient();
         var ct = TestContext.Current.CancellationToken;
 
@@ -46,7 +45,7 @@ public sealed class ApiDocsTests(PostgresFixture postgres)
     [Fact]
     public async Task Docs_are_off_by_default()
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString);
+        await using var factory = FakeApi.Create();
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);

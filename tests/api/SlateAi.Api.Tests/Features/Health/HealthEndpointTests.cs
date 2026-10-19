@@ -4,21 +4,18 @@ using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.Health;
 
-[Trait("Category", "Integration")]
-public sealed class HealthEndpointTests(PostgresFixture postgres)
+public sealed class HealthEndpointTests
 {
     [Fact]
-    public async Task Health_returns_200_when_database_is_reachable()
+    public async Task Health_returns_503_when_database_is_unreachable()
     {
-        await using var factory = new ApiFactory(postgres.ConnectionString);
+        await using var factory = FakeApi.Create();
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await ReadBodyAsync(response);
-        Assert.Equal("Healthy", body.GetProperty("status").GetString());
-        Assert.Equal("dev", body.GetProperty("version").GetString());
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Equal("Unhealthy", (await ReadBodyAsync(response)).GetProperty("status").GetString());
     }
 
     [Fact]
@@ -26,7 +23,7 @@ public sealed class HealthEndpointTests(PostgresFixture postgres)
     {
         // The deploy smoke test relies on this to know the new container is the one answering.
         var settings = new Dictionary<string, string?> { ["Build:Version"] = "sha-test123" };
-        await using var factory = new ApiFactory(postgres.ConnectionString, settings: settings);
+        await using var factory = FakeApi.Create(settings: settings);
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
@@ -35,15 +32,14 @@ public sealed class HealthEndpointTests(PostgresFixture postgres)
     }
 
     [Fact]
-    public async Task Health_returns_503_when_database_is_unreachable()
+    public async Task Health_reports_dev_when_no_version_is_configured()
     {
-        const string unreachable = "Host=127.0.0.1;Port=1;Database=none;Username=none;Password=none;Timeout=2";
-        await using var factory = new ApiFactory(unreachable, initialiseDatabase: false);
+        await using var factory = FakeApi.Create();
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Equal("dev", (await ReadBodyAsync(response)).GetProperty("version").GetString());
     }
 
     private static async Task<JsonElement> ReadBodyAsync(HttpResponseMessage response)

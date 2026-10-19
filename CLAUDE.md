@@ -8,7 +8,7 @@ Hackathon MVP: absent children get a home-language catch-up of the lesson they m
 docker compose -f deploy/docker-compose.yml up -d db     # PostgreSQL on :5432
 dotnet run --project src/api/SlateAi.Api                 # API + built SPA on :5080
 cd src/web && npm ci && npm run dev                      # Vite dev server on :5173 (proxies /api)
-./scripts/verify.sh                                      # build + all unit/integration/web tests — run before saying "done"
+./scripts/verify.sh                                      # build + all API/web tests — run before saying "done"
 dotnet test --filter "Category!=Eval"                    # API tests without live AI
 dotnet test --filter Category=Eval                       # live Claude evals (costs credits; only when asked or after prompt changes)
 cd src/web && npx playwright test                        # e2e + axe
@@ -45,7 +45,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 ## Testing expectations
 
 - New logic ships with xUnit or Vitest tests. Keep logic pure where possible (e.g. `Features/Ledger/LedgerBuilder.cs`) and unit-test it with in-memory data.
-- **New tests must not create, update or delete database rows** (no new Testcontainers tests for now). Put each feature's DB access behind a small store interface (e.g. `IAttendanceStore`; not a generic repository) and test endpoints over HTTP with `FakeApi.Create(...)` + hand-written fakes (`tests/api/.../Infrastructure/FakeApi.cs`), plus fake `ILlmClient`/speech. Existing DB tests (health, seeder, SPA, docs) stay.
+- **Tests never touch a database** (no Testcontainers, no Postgres; the API tests run without Docker). Put each feature's DB access behind a small store interface (e.g. `IAttendanceStore`; not a generic repository) and test endpoints over HTTP with `FakeApi.Create(...)` + hand-written fakes (`tests/api/.../Infrastructure/FakeApi.cs`), plus fake `ILlmClient`/speech.
 - If behaviour only Postgres can prove (locks, idempotency, transactions) is left untested by fakes, say so in the PR and ask before adding a DB test.
 - Bug fix: write the failing test first; don't edit the test to make it pass.
 - UI change: attach screenshots (phone width 360 px) to the PR; run axe.
