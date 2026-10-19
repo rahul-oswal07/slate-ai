@@ -23,6 +23,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 - **All LLM calls go through `Ai/ILlmClient`** and live in `Ai/`. Prompts are files in `prompts/` with a version header. Every call is logged to `AiCall`.
 - Deterministic logic stays in code, never the LLM: attendance, ledger, candidate set, picture scoring, arithmetic, buddy selection, pacing numbers.
 - Curriculum graph is loaded from `data/curriculum/*.json`; competency IDs look like `M3.ADD.CARRY`.
+- Database schema is documented in `docs/database.md`; update it in the same PR as any migration.
 - Front end: feature folders in `src/web/src/features/`; server state via TanStack Query; offline writes via the Dexie outbox in `src/offline/`; all strings via i18next (`kn`, `en`, `te`, `ta`).
 
 ## Conventions
