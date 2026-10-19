@@ -4,7 +4,7 @@
 |---|---|
 | Who | Education mentor (CSF panel), Monika, Rahul |
 | Source | 25-minute call recording, transcribed automatically. Full transcript kept locally in `docs/hackathon/` (not committed: the repo is public) |
-| Status | **Proposed changes — need Monika's decision** (D-20 to D-25 below) |
+| Status | **Proposed changes — need Monika's decision** (D-20 to D-25 below). Note: D-21 conflicts with FR-08 weekly approval (see row) |
 
 ## 1. What the mentor said
 
@@ -35,8 +35,8 @@ The product stays the same loop, but its purpose and headline measure shift:
 | ID | Decision | Recommendation | Owner | Build cost |
 |---|---|---|---|---|
 | D-20 | Primary success measure | **Days until a child returns** (and share of absent children back within 2 school days); then **home engagement** (listened + homework done); learning check secondary. Still never message opens. | Monika | Docs only |
-| D-21 | Message on the first evening of absence | Every evening a child is absent: teacher's recorded greeting, today's short lesson, one homework task, and "tomorrow we're doing X; [buddy] is keeping your seat". Several missed days still compress into one catch-up on the return evening. | Monika | ~0.5 day (prompt, schedule, template) |
-| D-22 | Homework from school materials + bring-back hook | Activity points to the **child's own textbook/workbook page** with a household-object option. "Show Lakshmi teacher when you come back." On return day the teacher taps **Brought homework** on the buddy card. Needs page numbers per competency in the curriculum data. | Monika (pages), Rahul | ~0.5 day |
+| D-21 | Message on the first evening of absence | Every evening a child is absent: teacher's recorded greeting, today's short lesson, one homework task, and "tomorrow we're doing X; `{buddy}` is keeping your seat". Several missed days still compress into one catch-up on the return evening. **Conflict:** FR-08 has weekly teacher approval and nothing reaches a parent unapproved (guardrail 3); daily generated messages would mean daily approvals and put NFR-01 (≤ 60 s/day) at risk. Option: a fixed, pre-approved template with code-filled slots ("We missed `{child}` today; tomorrow we're doing X"). | Monika (+ Rahul on FR-08) | ~0.5 day (prompt, schedule, template) |
+| D-22 | Homework from school materials + bring-back hook | Activity points to the **child's own textbook/workbook page** with a household-object option. "Show `{teacher}` when you come back." (placeholder only, never the real name; AI guardrail 1) On return day the teacher taps **Brought homework** on the buddy card. Needs page numbers per competency in the curriculum data. | Monika (pages), Rahul | ~0.5 day |
 | D-23 | Reason for absence | One optional step on the parent page: **"Why was Ravi away?"** with 5 picture buttons (unwell · family travel/work · festival or function · needed at home · other) and an optional voice note. Claude classifies the voice note into one of the categories; low confidence → "other". Teacher sees categories only. | Monika | ~0.75 day |
 | D-24 | Return-speed view for the teacher | Weekly card: absences by length (1, 2, 3, 4+ days) this week vs last, plus reasons. Teacher's own view; nothing goes to officers. | Monika | ~0.25 day |
 | D-25 | Existing pathways (cook/community visit) | Don't build yet. Ask in round 1 interviews; if confirmed, add a "Ask someone to visit" list for children absent 3+ days with no phone. | Monika | Research first |
