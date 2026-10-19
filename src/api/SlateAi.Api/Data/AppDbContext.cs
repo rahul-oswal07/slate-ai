@@ -8,6 +8,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Teacher> Teachers => Set<Teacher>();
     public DbSet<Class> Classes => Set<Class>();
     public DbSet<Child> Children => Set<Child>();
+    public DbSet<Attendance> Attendance => Set<Attendance>();
+    public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<ProcessedRequest> ProcessedRequests => Set<ProcessedRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +35,27 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(c => c.ParentPhone).HasMaxLength(20);
             e.HasOne<Class>().WithMany().HasForeignKey(c => c.ClassId);
             e.HasIndex(c => new { c.ClassId, c.RollNo }).IsUnique();
+        });
+
+        modelBuilder.Entity<Attendance>(e =>
+        {
+            e.HasKey(a => new { a.ClassId, a.Date, a.ChildId });
+            e.HasOne<Class>().WithMany().HasForeignKey(a => a.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(a => a.ChildId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Lesson>(e =>
+        {
+            e.Property(l => l.Source).HasMaxLength(10);
+            e.Property(l => l.Status).HasMaxLength(20);
+            e.HasOne<Class>().WithMany().HasForeignKey(l => l.ClassId);
+            e.HasIndex(l => new { l.ClassId, l.Date });
+        });
+
+        modelBuilder.Entity<ProcessedRequest>(e =>
+        {
+            e.HasKey(r => r.ClientRequestId);
+            e.Property(r => r.Endpoint).HasMaxLength(100);
         });
     }
 }
