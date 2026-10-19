@@ -43,3 +43,19 @@ test('has no serious or critical accessibility violations', async ({ page }, tes
 
   await page.screenshot({ path: testInfo.outputPath('shell-360.png'), fullPage: true })
 })
+
+test('dark theme follows the phone setting and stays accessible', async ({ page }, testInfo) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+  // D-17: dark canvas from tokens.css, not the light one.
+  const background = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)
+  expect(background).toBe('rgb(21, 21, 19)')
+
+  const results = await new AxeBuilder({ page }).analyze()
+  const blocking = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
+  expect(blocking.map((v) => `${v.id}: ${v.help}`)).toEqual([])
+
+  await page.screenshot({ path: testInfo.outputPath('shell-360-dark.png'), fullPage: true })
+})

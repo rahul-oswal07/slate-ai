@@ -1,15 +1,158 @@
 /*
- * Design tokens: PLACEHOLDER until Monika's tokens land (D-04 / T-23).
- * Components use these via Tailwind classes (bg-surface, text-ink, ...); never hard-code colours.
- * Contrast (WCAG AA): ink on surface 15.4:1, ink-muted on surface 7.6:1, on-primary on primary 7.6:1.
+ * Design tokens (D-04, D-17, T-23). Source: Build Kit 02-DESIGN §2, names mapped to ours
+ * (kit accent → primary, accent-strong → primary-strong, on-accent → on-primary).
+ * Full table with measured ratios: docs/design/tokens.md. Checked by tokens.test.ts.
+ *
+ * Contrast targets: all text ≥ 7:1 (WCAG 1.4.6 AAA) at every size; UI (borders, icons, focus) ≥ 3:1.
+ * Usage rules (they keep the targets true):
+ *   1. Never put primary text on panel (6.6:1 in light). Use primary-strong there.
+ *   2. Warning colour is for icons and borders only, never text. Banner text stays ink.
+ *   3. Panel and surface are close (1.15:1), so panels and cards always get a border.
+ *   4. Focus ring: 3px outline with a 2px offset. Without the gap it vanishes against primary buttons.
+ *
+ * Dark theme follows the phone setting only (prefers-color-scheme); no in-app toggle yet.
+ * Components use these via Tailwind classes (bg-canvas, text-ink, ...); never hard-code colours.
  */
 @theme {
+  --color-canvas: #fafaf7;
   --color-surface: #ffffff;
-  --color-ink: #111827;
-  --color-ink-muted: #4b5563;
-  --color-border: #d1d5db;
-  --color-primary: #0f5f5c;
+  --color-panel: #e6f2f0;
+  --color-ink: #1a1a2e;
+  --color-ink-muted: #495059;
+  --color-border: #7c8591;
+  --color-divider: #e5e7eb;
+  --color-primary: #115e59;
+  --color-primary-strong: #134e4a;
   --color-on-primary: #ffffff;
+  --color-focus: #1d4ed8;
+  --color-error: #991b1b;
+  --color-error-bg: #fef2f2;
+  --color-on-error: #ffffff;
+  --color-warning: #b45309;
+  /* Decorative only (illustrations); never carries meaning. */
+  --color-illustration-warm: #f59e0b;
+
+  /* Status tags: text/icon colour on its own background. Always icon + word, never colour alone. */
+  --color-status-sent: #1e40af;
+  --color-status-sent-bg: #eff6ff;
+  --color-status-listened: #134e4a;
+  --color-status-listened-bg: #e6f2f0;
+  --color-status-caught-up: #14532d;
+  --color-status-caught-up-bg: #dcfce7;
+  --color-status-needs-buddy: #78350f;
+  --color-status-needs-buddy-bg: #fef3c7;
+  --color-status-no-phone: #5b21b6;
+  --color-status-no-phone-bg: #ede9fe;
+  --color-status-needs-ear: #7c2d12;
+  --color-status-needs-ear-bg: #ffedd5;
+  --color-status-stopped: #374151;
+  --color-status-stopped-bg: #f3f4f6;
+  --color-status-queued: #495059;
+  --color-status-queued-bg: #f1f5f9;
+  --color-status-error: #991b1b;
+  --color-status-error-bg: #fef2f2;
 
   --font-sans: system-ui, "Noto Sans Kannada", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans", sans-serif;
+
+  /* Type scale (Latin). Indic scripts get larger sizes and ~1.7 line height below. Never below caption. */
+  --text-display: 1.75rem;
+  --text-display--line-height: 2.25rem;
+  --text-display--font-weight: 700;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.875rem;
+  --text-title--font-weight: 600;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-label: 1rem;
+  --text-label--line-height: 1.25rem;
+  --text-label--font-weight: 600;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.25rem;
+
+  /* Touch targets: min-h-target, size-target-mic, ... Keep 8px between adjacent targets. */
+  --spacing-target: 3rem;
+  --spacing-target-primary: 3.5rem;
+  --spacing-target-mic: 6rem;
+  --spacing-target-picture: 7.5rem;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+/* Kannada, Telugu and Tamil need room for conjuncts and vowel signs. */
+:where(:lang(kn), :lang(te), :lang(ta)) {
+  --text-display: 1.875rem;
+  --text-display--line-height: 3.125rem;
+  --text-title: 1.5rem;
+  --text-title--line-height: 2.5rem;
+  --text-body-lg: 1.25rem;
+  --text-body-lg--line-height: 2.125rem;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.875rem;
+  --text-label: 1.125rem;
+  --text-label--line-height: 1.625rem;
+  --text-caption: 1rem;
+  --text-caption--line-height: 1.625rem;
+}
+
+/* English inside an Indic page (e.g. subtitles for judges) goes back to the Latin scale. */
+:where(:lang(en)) {
+  --text-display: 1.75rem;
+  --text-display--line-height: 2.25rem;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.875rem;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-label: 1rem;
+  --text-label--line-height: 1.25rem;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.25rem;
+}
+
+/* Dark: designed, not inverted. Warm near-black, off-white text, light teal fills with dark text. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-canvas: #151513;
+    --color-surface: #1e1f1c;
+    --color-panel: #11302c;
+    --color-ink: #edece6;
+    --color-ink-muted: #b4bac2;
+    --color-border: #7a828c;
+    --color-divider: #2e302c;
+    --color-primary: #2dd4bf;
+    --color-primary-strong: #5eead4;
+    --color-on-primary: #0b1f1d;
+    --color-focus: #93c5fd;
+    --color-error: #fca5a5;
+    --color-error-bg: #3a1515;
+    --color-on-error: #2a0a0a;
+    --color-warning: #fbbf24;
+
+    --color-status-sent: #bfdbfe;
+    --color-status-sent-bg: #172a4a;
+    --color-status-listened: #99f6e4;
+    --color-status-listened-bg: #11302c;
+    --color-status-caught-up: #bbf7d0;
+    --color-status-caught-up-bg: #143223;
+    --color-status-needs-buddy: #fde68a;
+    --color-status-needs-buddy-bg: #3a2a0b;
+    --color-status-no-phone: #ddd6fe;
+    --color-status-no-phone-bg: #2b1e4f;
+    --color-status-needs-ear: #fed7aa;
+    --color-status-needs-ear-bg: #3d200f;
+    --color-status-stopped: #e5e7eb;
+    --color-status-stopped-bg: #2a2c30;
+    --color-status-queued: #cbd2da;
+    --color-status-queued-bg: #24272b;
+    --color-status-error: #fecaca;
+    --color-status-error-bg: #3a1515;
+  }
 }

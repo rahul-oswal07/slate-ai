@@ -47,11 +47,11 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-02 | M | Teacher records a voice note (≤ 30 s, Kannada) saying what she taught | Recording queued offline; uploaded on reconnect |
 | FR-03 | M | System transcribes the note and Claude maps it to 1–3 competency IDs from the curriculum map, with a one-line Kannada summary and the examples she used | Teacher sees "Today: Addition with carrying" and confirms or changes with one tap |
 | FR-04 | M | Fallback when audio or AI fails: teacher picks the lesson from the chapter list | One tap; ledger still updates |
-| FR-05 | M | Ledger: for each child, the lessons missed and current status (missed · sent · caught up · needs buddy) | Matches attendance × lessons exactly (deterministic) |
+| FR-05 | M | Ledger: for each child, the lessons missed and current status (missed · sent · caught up · needs buddy · stopped by family) | Matches attendance × lessons exactly (deterministic) |
 | FR-06 | M | Compression: for a child with several missed lessons, Claude selects at most 2 target competencies that block next week's lessons, with a reason for each kept and dropped item | Targets are always a subset of the graph-computed candidate set (validator) |
 | FR-07 | M | Script writer: per (target set, home language) Claude writes a ≤ 90 s catch-up script with 3 Kannada key words, a 5-minute household-object activity, a 3-picture learning check, a Kannada gloss for the teacher, and buddy-card content | Passes the verifier (§5.4) |
 | FR-08 | M | Teacher approval: weekly list of draft packages; play audio, read Kannada gloss, Approve or Regenerate ("simpler", "shorter"); Approve all | No package reaches a parent without approval (enforced in API) |
-| FR-09 | M | Audio: text-to-speech in the home language, preceded by the teacher's own recorded greeting (recorded once with consent) | Audio ≤ 300 KB; plays on a low-end Android browser |
+| FR-09 | M | Audio: text-to-speech in the home language, in this order: the teacher's own recorded greeting (recorded once with consent) → a ~5 s **spoken AI disclosure** in the home language ("The rest of this message is read by a computer voice, from Lakshmi teacher's lesson") → the catch-up script. The written transcript starts with the same disclosure. *(Disclosure proposed in D-18.)* | Audio ≤ 300 KB, ≤ 95 s including greeting and disclosure; disclosure segment present in every package; plays on a low-end Android browser |
 | FR-10 | M | Parent page from a link: big Listen button, activity picture, then 3-picture answer; audio prompts so a low-literacy parent can follow | Lighthouse mobile performance ≥ 85; total transfer ≤ 500 KB excluding audio |
 | FR-11 | M | Picture-tap answer is scored by code (no LLM) and updates the ledger: correct → caught up; wrong → needs buddy | Ledger updates within 2 s of the tap |
 | FR-12 | M | Return-day buddy card for every returning child, whether or not the family has a phone: which classmate, 3 sums, key words, 10 minutes | Buddy is a child who was present for those lessons; card is cached offline and printable |
@@ -61,6 +61,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-16 | S | Send via WhatsApp Cloud API (template message with link), scheduled for after 6 pm | Delivered to a registered test number |
 | FR-17 | S | Board photo capture via Claude vision | Same output as FR-03 |
 | FR-18 | S | Spoken answer: STT + Claude rubric; confidence < 0.8 goes to a teacher review queue with the audio | Never auto-marks below threshold |
+| FR-19 | M | **Stop these messages** *(proposed in D-19)*: on the parent page, one tap plus one confirmation stops all future messages for that child; reversible from the same page. The ledger shows "Stopped by family" and the child stays on the buddy-card path | After a stop, the API refuses to send to that child (409), covered by an integration test; the ledger shows the status within 2 s |
 
 ### Non-functional requirements
 
@@ -69,7 +70,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | NFR-01 | Teacher time ≤ 60 s/day for capture + attendance (measured in usability tests) |
 | NFR-02 | Teacher flow usable offline; queued actions sync automatically; sync state always visible |
 | NFR-03 | Works on a 2 GB RAM Android phone, Chrome, 3G-class network (test with throttling) |
-| NFR-04 | WCAG 2.2 AA for teacher and parent UIs; touch targets ≥ 48 px (parent picture targets ≥ 96 px) |
+| NFR-04 | WCAG 2.2 AA for teacher and parent UIs, with AAA text contrast: all text ≥ 7:1, UI components ≥ 3:1, in light and dark themes (D-17); touch targets ≥ 48 px (parent picture targets ≥ 96 px) |
 | NFR-05 | No child names, parent numbers or teacher names sent to the LLM or STT/TTS providers; IDs and placeholders only |
 | NFR-06 | Every AI call logged: prompt version, model, tokens, latency, verifier verdict |
 | NFR-07 | p95 lesson processing (upload → teacher sees mapped lesson) ≤ 20 s online |
@@ -110,7 +111,7 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 | # | Decision | Recommendation |
 |---|---|---|
 | D-03 | Attendance UI: name list vs photo grid vs roll-number grid | Roll number + first name grid, 4 columns; photos raise consent questions **[DECIDE: Monika]** |
-| D-04 | Visual style and tokens (colour, type, iconography) for both UIs | Monika supplies tokens by Day 2; must meet AA contrast; Noto Sans Kannada/Telugu/Tamil **[DECIDE: Monika]** |
+| D-04 | Visual style and tokens (colour, type, iconography) for both UIs | Accepted: Build Kit palette (warm canvas, deep ink, teal primary), AAA text contrast, Noto Sans Kannada/Telugu/Tamil. See `docs/design/tokens.md` (D-17) |
 | D-07 | Picture library style for the learning check | Code-generated place-value pictures (bundles of ten sticks + loose sticks, numerals) in Monika's style; plus ~10 activity illustrations (bottle caps, sticks, stones) **[DECIDE: Monika]** |
 | D-08 | Parent page: one screen with sections vs four steps | Four steps, one action per screen, audio auto-prompts **[DECIDE: Monika]** |
 | D-09 | How the teacher reviews a Telugu script she cannot read | Kannada gloss + audio; approval wording "I've checked the Kannada summary" **[DECIDE: Monika]** |
@@ -181,7 +182,7 @@ Why one container: one URL for judges, no CORS, one deploy pipeline, fewer movin
 |---|---|
 | `Teacher` | Id, DisplayName, Phone, PinHash, GreetingAudioUrl, ConsentAt |
 | `Class` | Id, TeacherId, Grade, Medium (kn) |
-| `Child` | Id, ClassId, RollNo, FirstName, HomeLanguage, ParentPhone?, ParentConsentAt?, HasPhone |
+| `Child` | Id, ClassId, RollNo, FirstName, HomeLanguage, ParentPhone?, ParentConsentAt?, ParentStoppedAt? (D-19), HasPhone |
 | `Competency` | Id (e.g. `M3.ADD.CARRY`), Grade, NameKn, NameEn, PrerequisiteIds[], NipunOutcome, SequenceNo — loaded from `data/curriculum/` |
 | `Lesson` | Id, ClassId, Date, Source (voice/photo/picked), Transcript?, CompetencyIds[], SummaryKn, ExamplesUsed, Confidence, Status |
 | `Attendance` | ClassId, Date, ChildId, Present |
@@ -278,7 +279,8 @@ LLM check (Haiku): script teaches the target competency; age-appropriate; no sha
 
 ## 7. Privacy, safety and consent
 
-- Parent opt-in before any message; recorded with timestamp.
+- Parent opt-in before any message; recorded with timestamp. Parents can stop messages at any time from the parent page (FR-19).
+- Every parent audio says out loud that the voice after the greeting is a computer voice (FR-09), because written labels fail for parents with limited literacy.
 - Teacher greeting recorded with explicit consent; deletable.
 - Store first name, roll number, home language, parent number. No surname, address, caste, photos.
 - Pseudonymised IDs to LLM/STT/TTS providers. Claude API data is not used for training by default.
@@ -298,7 +300,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-01 | Demo subject/unit | Grade 3 maths, place value → carrying → borrowing | Monika | Day 1 | Accepted (T-00) |
 | D-02 | Languages fully tested | Kannada UI; Telugu + Kannada audio; Tamil spot-checked | Monika | Day 1 | Accepted (T-00) |
 | D-03 | Attendance UI pattern | Roll number + first name grid | Monika | Day 2 | Proposed |
-| D-04 | Design tokens and type | Monika's tokens; Noto Sans Indic families | Monika | Day 2 | Proposed |
+| D-04 | Design tokens and type | Monika's tokens; Noto Sans Indic families | Monika | Day 2 | Accepted (T-23): `src/web/src/styles/tokens.css`, `docs/design/tokens.md` |
 | D-05 | Delivery channel in demo | Simulated parent phone primary; WhatsApp Cloud API test number stretch; `wa.me` share as fallback | Rahul | Day 1 | Proposed |
 | D-06 | Board photo capture | Stretch | Monika + Rahul | Day 7 | Proposed |
 | D-07 | Picture library | Code-generated place-value SVGs + ~10 illustrations | Monika | Day 3 | Proposed |
@@ -311,6 +313,9 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-14 | Curriculum source and wording | State textbook + NIPUN outcomes; Monika approves Kannada names | Monika | Day 2 | Proposed |
 | D-15 | Open-source licence | MIT, repo public from submission day | Rahul + Monika | Day 9 | Proposed |
 | D-16 | Test participants | 3 teachers (phone/video during Dasara break), plus 2 parents (incl. Telugu; proxies as fallback) after schools reopen | Monika | Day 1 | Accepted (T-00) |
+| D-17 | Contrast level and dark theme | All text ≥ 7:1 (AAA), UI ≥ 3:1; dark theme follows the phone setting (`prefers-color-scheme`), no in-app toggle yet | Monika | Day 2 | Accepted (T-23) |
+| D-18 | Spoken AI disclosure in parent audio | Greeting → ~5 s disclosure in the home language → script; fixed text per language, synthesised once and cached; native review of the wording **[CONFIRM: Rahul]** | Monika + Rahul | Day 3 (before T-11) | Proposed |
+| D-19 | Parent "Stop these messages" | One tap + confirm on the parent page; `ParentStoppedAt` on `Child`; send endpoint refuses stopped children; ledger status "Stopped by family" **[CONFIRM: Rahul]** | Monika + Rahul | Day 5 (before T-15) | Proposed |
 
 ## 9. Assumptions
 

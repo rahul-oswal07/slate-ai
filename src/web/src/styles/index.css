@@ -1,2 +1,15 @@
 @import "tailwindcss";
 @import "./tokens.css";
+
+@layer base {
+  html {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+  }
+
+  /* Rule 4 in tokens.css: the 2px gap keeps the ring visible next to primary fills. */
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
