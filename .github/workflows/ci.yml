@@ -32,6 +32,10 @@ jobs:
         env:
           Ai__Provider: Fake
 
+      - name: Database tests (Testcontainers Postgres)
+        if: hashFiles('SlateAi.sln') != ''
+        run: dotnet test SlateAi.sln --nologo --no-build --filter Category=Db
+
       - name: Install Playwright browsers
         if: hashFiles('src/web/playwright.config.ts') != ''
         working-directory: src/web

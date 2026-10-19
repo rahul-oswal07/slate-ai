@@ -7,7 +7,8 @@ Goal: a demo that works every time, and evidence that real users shaped it. Keep
 | Layer | Tool | What it covers | When it runs | Gate |
 |---|---|---|---|---|
 | Unit (API) | xUnit | Curriculum graph, candidate set, ledger query, verifier checks, scoring, pacing numbers, prompt builder PII guard, validators with a fake `ILlmClient` | Every PR (CI) | Must pass |
-| Endpoint (API) | xUnit + WebApplicationFactory with fake stores (`FakeApi`), no database | Endpoints over HTTP with fake stores and fake Claude/Sarvam: validation, approval rule, parent answer → ledger, delete. Postgres-only behaviour (locks, replay no-op, migrations) is not covered; the CI container smoke test boots against real Postgres | Every PR (CI) | Must pass |
+| Endpoint (API) | xUnit + WebApplicationFactory with fake stores (`FakeApi`), no database | Endpoints over HTTP with fake stores and fake Claude/Sarvam: validation, approval rule, parent answer → ledger, delete. Postgres-only behaviour is covered by the Db suite below | Every PR (CI) | Must pass |
+| Database (API) | xUnit + Testcontainers PostgreSQL (`Category=Db`), throwaway DB per test | Only what a real Postgres proves: attendance replay idempotency, ledger query translation, concurrent migrate + seed; approval rule (T-14) and child deletion (T-19) when built | Every PR (CI); locally with Docker | Must pass |
 | Unit (web) | Vitest + Testing Library | Outbox logic, i18n keys present for all 4 languages, component states | Every PR (CI) | Must pass |
 | End to end | Playwright | Happy path (teacher → approve → parent → ledger), offline capture + sync, demo reset | Every PR against the built container | Must pass |
 | Accessibility | @axe-core/playwright + manual TalkBack | Teacher and parent screens | Every PR (axe); Day 8 (manual) | 0 serious/critical |

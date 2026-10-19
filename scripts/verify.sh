@@ -7,8 +7,8 @@ cd "$(dirname "$0")/.."
 if [ -f SlateAi.sln ]; then
   echo "==> dotnet build"
   dotnet build SlateAi.sln --nologo -warnaserror
-  echo "==> dotnet test (excluding live evals)"
-  dotnet test SlateAi.sln --nologo --no-build --filter "Category!=Eval"
+  echo "==> dotnet test (excluding live evals and Db tests)"
+  dotnet test SlateAi.sln --nologo --no-build --filter "Category!=Eval&Category!=Db"
 else
   echo "==> skip .NET (no SlateAi.sln yet)"
 fi
