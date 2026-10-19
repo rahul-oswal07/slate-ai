@@ -178,6 +178,8 @@ Why one container: one URL for judges, no CORS, one deploy pipeline, fewer movin
 
 ### 4.3 Data model (core tables)
 
+Built schema, keys, indexes and locking: `docs/database.md`.
+
 | Table | Key fields |
 |---|---|
 | `Teacher` | Id, DisplayName, Phone, PinHash, GreetingAudioUrl, ConsentAt |
