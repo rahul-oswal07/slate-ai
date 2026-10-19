@@ -47,11 +47,11 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-02 | M | Teacher records a voice note (≤ 30 s, Kannada) saying what she taught | Recording queued offline; uploaded on reconnect |
 | FR-03 | M | System transcribes the note and Claude maps it to 1–3 competency IDs from the curriculum map, with a one-line Kannada summary and the examples she used | Teacher sees "Today: Addition with carrying" and confirms or changes with one tap |
 | FR-04 | M | Fallback when audio or AI fails: teacher picks the lesson from the chapter list | One tap; ledger still updates |
-| FR-05 | M | Ledger: for each child, the lessons missed and current status (missed · sent · caught up · needs buddy) | Matches attendance × lessons exactly (deterministic) |
+| FR-05 | M | Ledger: for each child, the lessons missed and current status (missed · sent · caught up · needs buddy · stopped by family) | Matches attendance × lessons exactly (deterministic) |
 | FR-06 | M | Compression: for a child with several missed lessons, Claude selects at most 2 target competencies that block next week's lessons, with a reason for each kept and dropped item | Targets are always a subset of the graph-computed candidate set (validator) |
 | FR-07 | M | Script writer: per (target set, home language) Claude writes a ≤ 90 s catch-up script with 3 Kannada key words, a 5-minute household-object activity, a 3-picture learning check, a Kannada gloss for the teacher, and buddy-card content | Passes the verifier (§5.4) |
 | FR-08 | M | Teacher approval: weekly list of draft packages; play audio, read Kannada gloss, Approve or Regenerate ("simpler", "shorter"); Approve all | No package reaches a parent without approval (enforced in API) |
-| FR-09 | M | Audio: text-to-speech in the home language, preceded by the teacher's own recorded greeting (recorded once with consent) | Audio ≤ 300 KB; plays on a low-end Android browser |
+| FR-09 | M | Audio: text-to-speech in the home language, in this order: the teacher's own recorded greeting (recorded once with consent) → a ~5 s **spoken AI disclosure** in the home language ("The rest of this message is read by a computer voice, from Lakshmi teacher's lesson") → the catch-up script. The written transcript starts with the same disclosure. *(Disclosure proposed in D-18.)* | Audio ≤ 300 KB, ≤ 95 s including greeting and disclosure; disclosure segment present in every package; plays on a low-end Android browser |
 | FR-10 | M | Parent page from a link: big Listen button, activity picture, then 3-picture answer; audio prompts so a low-literacy parent can follow | Lighthouse mobile performance ≥ 85; total transfer ≤ 500 KB excluding audio |
 | FR-11 | M | Picture-tap answer is scored by code (no LLM) and updates the ledger: correct → caught up; wrong → needs buddy | Ledger updates within 2 s of the tap |
 | FR-12 | M | Return-day buddy card for every returning child, whether or not the family has a phone: which classmate, 3 sums, key words, 10 minutes | Buddy is a child who was present for those lessons; card is cached offline and printable |
@@ -61,6 +61,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-16 | S | Send via WhatsApp Cloud API (template message with link), scheduled for after 6 pm | Delivered to a registered test number |
 | FR-17 | S | Board photo capture via Claude vision | Same output as FR-03 |
 | FR-18 | S | Spoken answer: STT + Claude rubric; confidence < 0.8 goes to a teacher review queue with the audio | Never auto-marks below threshold |
+| FR-19 | M | **Stop these messages** *(proposed in D-19)*: on the parent page, one tap plus one confirmation stops all future messages for that child; reversible from the same page. The ledger shows "Stopped by family" and the child stays on the buddy-card path | After a stop, the API refuses to send to that child (409), covered by an integration test; the ledger shows the status within 2 s |
 
 ### Non-functional requirements
 
@@ -83,25 +84,25 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 
 Teacher app (PWA, Kannada first):
 
-| Screen | Purpose | Key interaction |
-|---|---|---|
-| T0 Onboarding | Consent, record 10-second greeting once ("Ravi, this is Lakshmi teacher…") | Record → play back → save |
-| T1 **Today** | Attendance + lesson capture on one screen | Tap absent faces/names; hold mic button; sync badge |
-| T2 Lesson confirm | Shows mapped lesson | One tap confirm, or pick from chapter list |
-| T3 **Approve** | Draft catch-up packages for the week | Play, read gloss, Approve / Regenerate; Approve all |
-| T4 **Ledger** | Per-child missed lessons and status | Filter: absent this week; tap child for history |
-| T5 **Return day** | Buddy cards for children back today | Swipe cards; print/share |
-| T6 Pacing | Weekly nudge | Read; "Plan recap" adds a reminder |
-| T7 Review queue (stretch) | Low-confidence spoken answers | Listen; mark right/wrong |
+| Screen | Purpose | Key interaction | States to design (besides default) |
+|---|---|---|---|
+| T0 Onboarding | Consent, record 10-second greeting once ("Ravi, this is Lakshmi teacher…") | Record → play back → save | Recording · recorded (play / re-record) · consent given · greeting deleted · mic permission denied |
+| T1 **Today** | Attendance + lesson capture on one screen | Tap absent faces/names; hold mic button; sync badge | Attendance already marked · lesson already recorded today · offline ("3 waiting to send") · sending · mic permission denied |
+| T2 Lesson confirm | Shows mapped lesson | One tap confirm, or pick from chapter list | Processing · confident · low confidence ("Please confirm") · changed by teacher · could not read the note (pick from list) |
+| T3 **Approve** | Draft catch-up packages for the week | Play, read gloss, Approve / Regenerate; Approve all | Generating · ready · needs review (verifier failed) · approved · sent · generation failed · offline (approval queued) |
+| T4 **Ledger** | Per-child missed lessons and status | Filter: absent this week; tap child for history | Empty (first week) · filtered · offline ("Last updated …") |
+| T5 **Return day** | Buddy cards for children back today | Swipe cards; print/share | None due today · marked done · offline (cached cards) |
+| T6 Pacing | Weekly nudge | Read; "Plan recap" adds a reminder | No nudge this week ("Most children are on track") · decided |
+| T7 Review queue (stretch) | Low-confidence spoken answers | Listen; mark right/wrong | Nothing waiting · marked |
 
 Parent page (no install, opens from a link, Telugu/Tamil/Kannada):
 
-| Screen | Content |
-|---|---|
-| P1 Listen | Teacher photo initial, big ▶ Listen (greeting + catch-up), "AI-assisted, approved by Lakshmi teacher" |
-| P2 Activity | One picture of the household-object activity, audio instruction replays |
-| P3 Answer | "Ravi, tap the answer" read aloud; 3 large pictures |
-| P4 Done | Positive sound, "Lakshmi teacher will see this" |
+| Screen | Content | States to design (besides default) |
+|---|---|---|
+| P1 Listen | Teacher photo initial, big ▶ Listen (greeting + catch-up), "AI-assisted, approved by Lakshmi teacher" | Playing · paused · played · network dropped mid-play (resume) · link expired |
+| P2 Activity | One picture of the household-object activity, audio instruction replays | Audio replaying |
+| P3 Answer | "Ravi, tap the answer" read aloud; 3 large pictures | Picture chosen (confirm / change) · sending · could not send (try again) |
+| P4 Done | Positive sound, "Lakshmi teacher will see this" | none |
 
 Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide for judges, and Reset.
 
@@ -115,7 +116,7 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 | D-08 | Parent page: one screen with sections vs four steps | Four steps, one action per screen, audio auto-prompts **[DECIDE: Monika]** |
 | D-09 | How the teacher reviews a Telugu script she cannot read | Kannada gloss + audio; approval wording "I've checked the Kannada summary" **[DECIDE: Monika]** |
 
-### 3.3 Content rules (apply to every generated script)
+### 3.3 Content rules for generated scripts
 
 - Child addressed by first name via placeholder `{child}`; inserted after generation.
 - 90 seconds maximum (≈ 160 spoken Telugu words; tuned on Day 3 by timing TTS output).
@@ -123,6 +124,18 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 - Activity uses only household objects from an allowed list (bottle caps, sticks, stones, tamarind seeds, bangles, rotis, spoons).
 - Warm, encouraging, no negative words about absence.
 - One learning check that tests the single most important target competency.
+
+### 3.4 Interface copy rules (every screen, all four languages)
+
+- **Voice:** a respectful colleague, never a supervisor. Kannada to the teacher uses the formal ನೀವು.
+- **Short:** buttons and banners at most about 12 words. Buttons start with the verb ("Approve", "Listen", "Try again").
+- **Errors** always say what happened, what is safe, and what to do next. Example: "Could not send. Your note is saved. It will send when you have network."
+- **Numbers** as counts ("11 of 36 children"), never percentages. Numbers come from code (guardrail 4).
+- **Confidence in words**, not scores: "This is…" when sure, "Looks like… Please confirm" when not.
+- **Never:** exclamation marks, "Oops", error codes, abbreviations ("qty", "ETA"), "AI-powered", or blame words about absence ("failed to attend").
+- **Numerals:** Latin digits, as in Karnataka textbooks.
+- **Status** is always an icon plus a word, never colour alone (see `docs/design/tokens.md`).
+- Indic copy stays marked "needs review" until a native speaker approves it.
 
 ---
 
@@ -169,7 +182,7 @@ Why one container: one URL for judges, no CORS, one deploy pipeline, fewer movin
 |---|---|
 | `Teacher` | Id, DisplayName, Phone, PinHash, GreetingAudioUrl, ConsentAt |
 | `Class` | Id, TeacherId, Grade, Medium (kn) |
-| `Child` | Id, ClassId, RollNo, FirstName, HomeLanguage, ParentPhone?, ParentConsentAt?, HasPhone |
+| `Child` | Id, ClassId, RollNo, FirstName, HomeLanguage, ParentPhone?, ParentConsentAt?, ParentStoppedAt? (D-19), HasPhone |
 | `Competency` | Id (e.g. `M3.ADD.CARRY`), Grade, NameKn, NameEn, PrerequisiteIds[], NipunOutcome, SequenceNo — loaded from `data/curriculum/` |
 | `Lesson` | Id, ClassId, Date, Source (voice/photo/picked), Transcript?, CompetencyIds[], SummaryKn, ExamplesUsed, Confidence, Status |
 | `Attendance` | ClassId, Date, ChildId, Present |
@@ -266,7 +279,8 @@ LLM check (Haiku): script teaches the target competency; age-appropriate; no sha
 
 ## 7. Privacy, safety and consent
 
-- Parent opt-in before any message; recorded with timestamp.
+- Parent opt-in before any message; recorded with timestamp. Parents can stop messages at any time from the parent page (FR-19).
+- Every parent audio says out loud that the voice after the greeting is a computer voice (FR-09), because written labels fail for parents with limited literacy.
 - Teacher greeting recorded with explicit consent; deletable.
 - Store first name, roll number, home language, parent number. No surname, address, caste, photos.
 - Pseudonymised IDs to LLM/STT/TTS providers. Claude API data is not used for training by default.
@@ -300,6 +314,8 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-15 | Open-source licence | MIT, repo public from submission day | Rahul + Monika | Day 9 | Proposed |
 | D-16 | Test participants | 3 teachers (phone/video during Dasara break), plus 2 parents (incl. Telugu; proxies as fallback) after schools reopen | Monika | Day 1 | Accepted (T-00) |
 | D-17 | Contrast level and dark theme | All text ≥ 7:1 (AAA), UI ≥ 3:1; dark theme follows the phone setting (`prefers-color-scheme`), no in-app toggle yet | Monika | Day 2 | Accepted (T-23) |
+| D-18 | Spoken AI disclosure in parent audio | Greeting → ~5 s disclosure in the home language → script; fixed text per language, synthesised once and cached; native review of the wording **[CONFIRM: Rahul]** | Monika + Rahul | Day 3 (before T-11) | Proposed |
+| D-19 | Parent "Stop these messages" | One tap + confirm on the parent page; `ParentStoppedAt` on `Child`; send endpoint refuses stopped children; ledger status "Stopped by family" **[CONFIRM: Rahul]** | Monika + Rahul | Day 5 (before T-15) | Proposed |
 
 ## 9. Assumptions
 

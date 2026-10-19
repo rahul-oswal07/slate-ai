@@ -22,13 +22,13 @@ Owner: **R** = Rahul, **M** = Monika. Day refers to `plan.md` §4. Create one Gi
 | T-08 | A2 compression with candidate-set validator and rule fallback | R | 3 | T-05, T-06 | Targets ⊆ candidate set, ≤ 2; rationale stored; fallback when invalid | xUnit with fake LLM returning invalid IDs; 10 eval cases |
 | T-09 | A3 script writer (script, key words, activity, check item, gloss, buddy content) | R | 3 | T-08 | JSON schema valid; placeholders only; prompt versioned | Eval rubric on 10 cases; manual review by M + native speaker |
 | T-10 | A4 verifier (code checks + Haiku check) with one auto-retry | R | 3 | T-09 | All 6 code checks implemented; failing package marked "needs review" | xUnit: one test per check with crafted bad outputs |
-| T-11 | TTS + greeting merge; audio to blob storage | R | 3 | T-09 | Audio ≤ 300 KB, ≤ 95 s; greeting plays first | Integration test with recorded fake; manual listen on Android |
+| T-11 | TTS + greeting merge; audio to blob storage | R | 3 | T-09 | Audio ≤ 300 KB, ≤ 95 s; greeting plays first, then the spoken AI disclosure (FR-09, D-18) | Integration test with recorded fake asserts segment order greeting → disclosure → script; manual listen on Android |
 | T-24 | Hi-fi Approve + Parent P1–P4 + picture style; interview/test script | M | 2–3 | T-21 | Design PRs with handoff notes (`plan.md` §4) | Rahul confirms buildable |
 | T-25 | Round 0: 2 teacher calls reviewing 3 sample scripts and the flow | M (R joins) | 3 | T-20, sample scripts from T-09 | Notes in `docs/user-testing.md`; changes listed with owner | — |
 | T-12 | Today screen: attendance grid + voice capture + offline outbox + sync badge | R | 4 | T-03, T-06, T-07, T-23 | FR-01, FR-02; works with network off; no duplicates on replay | Playwright: offline capture → reconnect → one lesson created |
 | T-13 | Ledger screen | R | 4 | T-06, T-23 | FR-05; filter by "absent this week" | Vitest component test; Playwright check of counts |
 | T-14 | Approve screen + API rule "no send without approval" | R | 5 | T-10, T-11, T-24 | FR-08; Approve all; Regenerate with hint | Integration test: send unapproved → 409 |
-| T-15 | Parent page P1–P4 + picture-tap scoring + ledger update | R | 5 | T-14, T-24 | FR-10, FR-11; ≤ 500 KB excluding audio | Playwright happy path; Lighthouse mobile ≥ 85 |
+| T-15 | Parent page P1–P4 + picture-tap scoring + ledger update | R | 5 | T-14, T-24 | FR-10, FR-11, FR-19 (D-19); ≤ 500 KB excluding audio | Playwright happy path + stop flow; integration test: stopped child gets no send (409); Lighthouse mobile ≥ 85 |
 | T-27 | Usability kit: tasks, consent, observation + timing sheet | M | 5 | T-24 | Kit in `docs/user-testing.md` | Dry run with Rahul |
 | T-28 | **Usability round 1** (3 teachers, 1–2 parents) | M (R observes) | 6 | T-15, T-27 | Teacher time measured; findings logged; top 5 P0 issues created | — |
 | T-16 | Buddy cards + pacing nudge | R | 6 | T-06, T-09 | FR-12, FR-13; numbers by code only | xUnit: buddy was present for the missed lessons; nudge numbers = ledger |
