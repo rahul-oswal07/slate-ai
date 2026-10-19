@@ -15,8 +15,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## Open items
 
 - [ ] Rahul: merge #59 (Db test suite)
-- [ ] Rahul: Anthropic + Sarvam API keys into user-secrets (needed for T-07)
-- [ ] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log (D-11/D-12 gate T-07)
+- [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
+- [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
 - [ ] Rahul: book technical mentor
 - [ ] Monika: T-22 competency list (blocks T-05); add textbook page per competency if D-22 is accepted
@@ -27,14 +27,14 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## Next session (Day 2, Tue 20 Oct)
 
 - T-05 curriculum JSON + graph service, as soon as T-22 lands.
-- T-07 A1 lesson mapping (STT + Claude, 10 evals) once keys and D-11/D-12 are in. `Lesson` entity exists in minimal form from T-06; T-07 extends it and adds the capture endpoint.
+- T-07 A1 lesson mapping (STT + Claude, 10 evals): unblocked (keys set, D-11/D-12 accepted). `Lesson` entity exists in minimal form from T-06; T-07 extends it and adds the capture endpoint.
 - If D-20/D-22 are accepted: update `intent.md` / `spec.md` / `tasks.md` and fold the textbook-page homework into T-05/T-09.
 - Use plan mode first; one branch per task.
 
 ## Local dev
 
 - `./scripts/run-local.sh` runs Postgres + API (:5080) + web (:5173); `--container` runs the image on :8080.
-- API keys: `dotnet user-secrets set "Anthropic:ApiKey" …` / `"Sarvam:ApiKey"` (see README). Not stored yet; nothing reads them until T-07.
+- API keys: `dotnet user-secrets set "Anthropic:ApiKey" …` / `"Sarvam:ApiKey"` (see README). Stored locally (19 Oct); nothing reads them until T-07. Azure: App Service settings `Anthropic__ApiKey`, `Sarvam__ApiKey`.
 
 ## Open questions
 
