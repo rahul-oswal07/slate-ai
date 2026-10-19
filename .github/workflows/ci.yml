@@ -27,7 +27,7 @@ jobs:
           cache: npm
           cache-dependency-path: src/web/package-lock.json
 
-      - name: Verify (build + unit + integration + web tests)
+      - name: Verify (build + API + web tests)
         run: ./scripts/verify.sh
         env:
           Ai__Provider: Fake

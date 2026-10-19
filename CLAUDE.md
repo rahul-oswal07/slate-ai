@@ -8,7 +8,7 @@ Hackathon MVP: absent children get a home-language catch-up of the lesson they m
 docker compose -f deploy/docker-compose.yml up -d db     # PostgreSQL on :5432
 dotnet run --project src/api/SlateAi.Api                 # API + built SPA on :5080
 cd src/web && npm ci && npm run dev                      # Vite dev server on :5173 (proxies /api)
-./scripts/verify.sh                                      # build + all unit/integration/web tests — run before saying "done"
+./scripts/verify.sh                                      # build + all API/web tests — run before saying "done"
 dotnet test --filter "Category!=Eval"                    # API tests without live AI
 dotnet test --filter Category=Eval                       # live Claude evals (costs credits; only when asked or after prompt changes)
 cd src/web && npx playwright test                        # e2e + axe
@@ -18,7 +18,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 ## Architecture
 
 - One container: `SlateAi.Api` (.NET 10 Minimal API) serves `/api/*` and the built React SPA from `wwwroot`.
-- Vertical slices in `src/api/SlateAi.Api/Features/<Feature>/` (endpoints, request/response records, handler). No generic repositories; use `AppDbContext` directly.
+- Vertical slices in `src/api/SlateAi.Api/Features/<Feature>/` (endpoints, request/response records, handler, store). No generic repositories; a feature's store (`I<Feature>Store` + `AppDbContext` implementation) holds its DB access so endpoints can be tested with fakes.
 - **All LLM calls go through `Ai/ILlmClient`** and live in `Ai/`. Prompts are files in `prompts/` with a version header. Every call is logged to `AiCall`.
 - Deterministic logic stays in code, never the LLM: attendance, ledger, candidate set, picture scoring, arithmetic, buddy selection, pacing numbers.
 - Curriculum graph is loaded from `data/curriculum/*.json`; competency IDs look like `M3.ADD.CARRY`.
@@ -44,7 +44,9 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 
 ## Testing expectations
 
-- New logic ships with xUnit or Vitest tests. Endpoints get an integration test (Testcontainers Postgres, fake `ILlmClient`/speech).
+- New logic ships with xUnit or Vitest tests. Keep logic pure where possible (e.g. `Features/Ledger/LedgerBuilder.cs`) and unit-test it with in-memory data.
+- **Tests never touch a database** (no Testcontainers, no Postgres; the API tests run without Docker). Put each feature's DB access behind a small store interface (e.g. `IAttendanceStore`; not a generic repository) and test endpoints over HTTP with `FakeApi.Create(...)` + hand-written fakes (`tests/api/.../Infrastructure/FakeApi.cs`), plus fake `ILlmClient`/speech.
+- If behaviour only Postgres can prove (locks, idempotency, transactions) is left untested by fakes, say so in the PR and ask before adding a DB test.
 - Bug fix: write the failing test first; don't edit the test to make it pass.
 - UI change: attach screenshots (phone width 360 px) to the PR; run axe.
 - Run `./scripts/verify.sh` and report its result before declaring a task complete.

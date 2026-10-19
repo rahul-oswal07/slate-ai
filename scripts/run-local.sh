@@ -41,7 +41,7 @@ if ! docker info >/dev/null 2>&1; then
     fail "Docker isn't running. Start Docker Desktop or Colima."
   fi
 fi
-# Lets Testcontainers-based tooling find Colima's socket too.
+# Lets docker compose find Colima's socket.
 if [ -S "$HOME/.colima/default/docker.sock" ]; then
   export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
 fi

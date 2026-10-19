@@ -7,8 +7,11 @@ public static class FakeApi
 {
     private const string NoDatabase = "Host=127.0.0.1;Port=1;Database=none;Username=none;Password=none;Timeout=1";
 
-    public static ApiFactory Create(Action<IServiceCollection> services) =>
-        new(NoDatabase, initialiseDatabase: false, services: services);
+    public static ApiFactory Create(
+        Action<IServiceCollection>? services = null,
+        IReadOnlyDictionary<string, string?>? settings = null,
+        string? webRoot = null) =>
+        new(NoDatabase, initialiseDatabase: false, webRoot: webRoot, settings: settings, services: services);
 }
 
 /// <summary>A clock stuck at one instant.</summary>
