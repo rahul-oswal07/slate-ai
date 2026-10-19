@@ -3,36 +3,33 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
-## Current state — Sun 18 Oct 2026 (Day 0)
+## Current state — Mon 19 Oct 2026 (Day 1)
 
-- Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). API skeleton in place (T-02): .NET 10, EF Core + Postgres, `/health`, demo seed of 1 teacher + 36 children. Web skeleton (T-03): React PWA with i18n (kn/en/te/ta), served by the API from `wwwroot`.
-- Committed: SDLC artifacts (intent, spec, plan, tasks, quality, judging narrative, hackathon requirements), CLAUDE.md, README, REVIEW.md, .gitignore, verify script, folder skeleton.
-- Hackathon PDFs are in `docs/hackathon/` locally and git-ignored. Everything needed from them is in `docs/hackathon-requirements.md`.
+- Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it).
+- Done: T-01–T-04 (skeleton, CI, deploy), **T-06** attendance API + ledger query (#57). Ledger also computes absence spells and weekly return speed (mentor review; UI waits for D-20/D-24).
+- Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59, open). See CLAUDE.md "Testing expectations".
+- Education mentor call held 19 Oct: notes and proposed decisions D-20–D-25 in `docs/mentor-feedback-2026-10-19.md` (#55, #56).
+- Monika's PRs #49–#53 merged.
 - Submission target: **Sat 31 Oct, 18:00 IST** (hard deadline 1 Nov, 23:59).
 
-## Pending on Day 0 (before build starts)
+## Open items
 
-- [x] Rahul: move repo-setup files into `.github/` and `.claude/`, set CODEOWNERS usernames, delete `deploy/repo-setup/` (T-01)
-- [x] Rahul: repo public, Monika is a collaborator, `main` protected (PR + required `verify` check), Project board created, issues #1–#38 for P0+P1 tasks (T-01)
-- [x] Azure resources (personal Free Trial subscription, Central India): `rg-slateai` with App Service B1 (staging + prod apps), PostgreSQL Flexible B1ms. Storage deferred to T-11
-- [ ] Rahul: Anthropic API key (hackathon credits), Sarvam API key
-- [x] Rahul: install .NET 10 SDK (arm64) and Docker (Colima) locally
-- [ ] Monika: accept `docs/intent.md` (D-01, D-02, D-16 decided: PR #49)
-- [ ] Together: accept D-05, D-10, D-11, D-12, D-13; mark Accepted in the decision log
-- [ ] Book education mentor (Monika, by 22 Oct: validate pacing + buddy card) and technical mentor (Rahul)
-- [ ] Rahul: review #50 (tokens, touches `src/web`) and confirm D-18 / D-19 in #53 before T-11 / T-15
+- [ ] Rahul: merge #59 (Db test suite)
+- [ ] Rahul: Anthropic + Sarvam API keys into user-secrets (needed for T-07)
+- [ ] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log (D-11/D-12 gate T-07)
+- [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
+- [ ] Rahul: book technical mentor
+- [ ] Monika: T-22 competency list (blocks T-05); add textbook page per competency if D-22 is accepted
+- [ ] Monika: T-21 low-fi wireframes; T-20 recruit teachers + parents (Dasara break until ~21 Oct)
+- [ ] Monika: decide D-20–D-25 (mentor review). D-21 conflicts with FR-08 weekly approval; see the mentor notes
+- [ ] Add the mentor's 6 interview questions to the teacher interview script
 
-## Next session (Day 1, Mon 19 Oct)
+## Next session (Day 2, Tue 20 Oct)
 
-T-01–T-04 done. Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it). Next: T-05 (curriculum graph, needs D-01/T-22 from Monika), T-06 (attendance API) from `docs/tasks.md`: solution + API skeleton (.NET 10, EF Core, Postgres, `/health`, seed), React/Vite PWA skeleton with i18n, Dockerfile + docker-compose, deploy workflow to Azure. Goal: live walking-skeleton URL by end of day. Use plan mode first; one branch per task.
-
-## Waiting for review (from Monika, 18 Oct)
-
-- #49 accept D-01, D-02, D-16 (T-00): unblocks T-05
-- #50 AAA design tokens + dark theme (T-23)
-- #51 design-card template, screen states, copy rules (T-21)
-- #52 testing kit + Now/Next/Later roadmap (T-27)
-- #53 propose D-18, D-19 (spoken AI disclosure, parent stop)
+- T-05 curriculum JSON + graph service, as soon as T-22 lands.
+- T-07 A1 lesson mapping (STT + Claude, 10 evals) once keys and D-11/D-12 are in. `Lesson` entity exists in minimal form from T-06; T-07 extends it and adds the capture endpoint.
+- If D-20/D-22 are accepted: update `intent.md` / `spec.md` / `tasks.md` and fold the textbook-page homework into T-05/T-09.
+- Use plan mode first; one branch per task.
 
 ## Local dev
 
@@ -60,3 +57,6 @@ T-01–T-04 done. Staging live: https://slateai-staging.azurewebsites.net (prod 
 | 18 Oct | Monika + Claude | T-00: accepted gate decisions D-01 (Grade 3 maths unit), D-02 (Kannada UI; Telugu+Kannada tested, Tamil spot-checked), D-16 (3 teachers + 2 parents/proxies incl. Telugu). Unblocks T-22, T-20, T-05, T-07 |
 | 18 Oct | Monika + Claude | Compared the external Build Kit (00–06) with the repo; adopted its design tokens, design-card template, copy rules, testing kit and roadmap; kept our stack and CLAUDE.md. PRs: #50 AAA tokens + system dark theme (T-23, D-04/D-17 accepted; fixed 1.5:1 border), #51 design cards + screen states + copy rules (T-21), #52 testing kit + Now/Next/Later roadmap (T-27), #53 spoken AI disclosure + parent stop (D-18/D-19 proposed). Merge order: #49 → #50 → #53; #51, #52 independent
 | 18 Oct | Rahul + Claude | `scripts/run-local.sh` (one-command local run); `UserSecretsId` + README secrets guidance (user-secrets locally, App Service settings on Azure). Next session: review Monika's PRs #49–#53, then T-06 |
+| 19 Oct | Rahul + Claude | Mentor session notes committed (#55); fixed real teacher name → `{teacher}` placeholder and flagged D-21 vs FR-08 conflict (#56). Reviewed the feedback: return speed folded into T-06; textbook-page homework and "bring it back" hook proposed for T-05/T-09/T-16 |
+| 19 Oct | Rahul + Claude | T-06 (#57): `POST attendance` (full register per date, idempotent by `clientRequestId`, corrections replace, IST future-date check), `GET ledger` (missed lessons, absence spells, return speed), `Attendance`/`Lesson`/`ProcessedRequest` + migration. Fixed startup migration race with an advisory lock |
+| 19 Oct | Rahul + Claude | Testing: no database in default tests, stores + fakes, CLAUDE.md updated (#58); small Postgres suite `Category=Db` run in CI (#59) |
