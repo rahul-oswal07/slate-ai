@@ -19,10 +19,12 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
 - [ ] Rahul: book technical mentor
-- [ ] Monika: T-22 competency list (blocks T-05); add textbook page per competency if D-22 is accepted
+- [ ] Monika: T-22 competency list (blocks T-05), now **with a textbook page per competency** (D-22 accepted)
 - [ ] Monika: T-21 low-fi wireframes; T-20 recruit teachers + parents (Dasara break until ~21 Oct)
-- [ ] Monika: decide D-20–D-25 (mentor review). D-21 conflicts with FR-08 weekly approval; see the mentor notes
-- [ ] Add the mentor's 6 interview questions to the teacher interview script
+- [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
+- [ ] Rahul: confirm D-21 (pre-approved evening template, FR-20) against guardrail 3 / FR-08
+- [ ] Rahul: `plan.md` / `tasks.md` for FR-20–22 and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
+- [x] Mentor's 6 interview questions added to `user-testing.md`
 
 ## Next session (Day 2, Tue 20 Oct)
 
@@ -60,3 +62,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 19 Oct | Rahul + Claude | Mentor session notes committed (#55); fixed real teacher name → `{teacher}` placeholder and flagged D-21 vs FR-08 conflict (#56). Reviewed the feedback: return speed folded into T-06; textbook-page homework and "bring it back" hook proposed for T-05/T-09/T-16 |
 | 19 Oct | Rahul + Claude | T-06 (#57): `POST attendance` (full register per date, idempotent by `clientRequestId`, corrections replace, IST future-date check), `GET ledger` (missed lessons, absence spells, return speed), `Attendance`/`Lesson`/`ProcessedRequest` + migration. Fixed startup migration race with an advisory lock |
 | 19 Oct | Rahul + Claude | Testing: no database in default tests, stores + fakes, CLAUDE.md updated (#58); small Postgres suite `Category=Db` run in CI (#59) |
+| 20 Oct | Monika + Claude | Mentor decisions: D-20 return speed as primary measure, D-21 pre-approved evening template (awaiting Rahul), D-22 textbook homework, D-23 optional reason, D-24 return-speed card, D-25 roadmap only, D-26 scope cuts. New FR-20–22 (renumbered; FR-19 was taken). `intent.md` accepted and revised; narrative, roadmap north star and user-testing script updated; mentor session logged as F-M1–F-M12 |

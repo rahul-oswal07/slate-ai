@@ -13,7 +13,7 @@ On any school day, about 4 children in a rural Karnataka class of 36 are absent 
 
 ## 3. Solution
 
-Tappida Paatha gives every absent child the lesson they missed, based on what their own teacher taught, in their home language, at home on the family phone and again on the day they return.
+Tappida Paatha keeps absent children connected to their class so they come back sooner. While a child is away, the family hears from their own teacher each evening, in their home language: what the class did today, homework from the child's own textbook, and a classmate keeping their seat. When the child has missed several lessons, they get one short catch-up based on what the teacher taught, and a buddy on the day they return.
 
 The teacher's daily effort: mark absentees and record a 20-second voice note saying what she taught. Under 60 seconds, no typing.
 
@@ -22,6 +22,7 @@ What she gets back:
 2. A 90-second home-language catch-up for each absent child, with a 5-minute activity using household objects and a 3-picture learning check, approved by her once per lesson.
 3. A 10-minute buddy card for every returning child, with or without a phone at home.
 4. A weekly pacing nudge: "11 of 36 missed carrying-over. Recap 10 minutes before moving on."
+5. An evening message for each absent child from a template she approved once, and a weekly card showing how quickly absent children came back and why they were away.
 
 ## 4. Live demo flow (≈ 4 minutes live; 2:50 in the video)
 
@@ -43,7 +44,8 @@ What she gets back:
 - **Research basis:** weekly 20-minute phone tutorials plus SMS raised numeracy by 0.33 SD across six countries including India; government teachers were as effective as NGO tutors; one-way messages alone did little (J-PAL 2023; Angrist et al., NBER 31208). Our design keeps what worked (short, targeted, two-way) and adds the return-day buddy path.
 - **Our testing:** **[fill]** teachers and **[fill]** parents across 2 rounds; median teacher time **[fill]** s/day; **[fill]** changes made from feedback (see `docs/user-testing.md`).
 - **AI quality:** lesson-mapping accuracy **[fill]%** on 25 cases; **[fill]%** of scripts pass the verifier first time; 100% of parent-facing scripts teacher-approved.
-- **What we will measure in a pilot:** share of absentees who pass the learning check within 48 hours of return; teacher seconds per day; fewer whole-class repeat lessons. We do not count message opens.
+- **What we will measure in a pilot:** how quickly absent children come back (days until return; share back within 2 school days), whether families engage at home (listened, homework brought back), and, as a secondary signal, the share who pass the learning check within 48 hours of return. We do not count message opens.
+- **Expert input that changed the product:** an education mentor from the CSF panel (19 Oct) told us that at this age home time gives engagement more than learning, and that the goal is a pull back to school. We changed our primary measure to return speed and added the evening message, textbook homework, an optional reason for absence and a return-speed card (D-20 to D-24).
 
 ## 6. Technical approach
 
@@ -74,7 +76,7 @@ Comparison: Rocket Learning, Avanti Fellows, SwiftChat send the same content to 
 
 Used for the deck (1–2 pages, 10% of the score), the in-demo roadmap and the 18 Nov pitch. Judges look for how the product develops and how it **integrates with existing systems**. Anything under Next or Later is out of scope for the build.
 
-**North star:** share of absent children who pass the learning check within 48 hours of returning, plus teacher seconds per day (target < 60) and fewer whole-class repeat lessons. We never count message opens.
+**North star:** how quickly absent children come back (days until return; share back within 2 school days), then home engagement (listened, homework brought back), with the learning check as a secondary signal. Plus teacher seconds per day (target < 60). We never count message opens.
 
 ### Now: Build stage (by 31 Oct)
 
