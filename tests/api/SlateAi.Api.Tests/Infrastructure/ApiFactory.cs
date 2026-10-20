@@ -32,6 +32,8 @@ public sealed class ApiFactory(
             {
                 ["ConnectionStrings:Db"] = connectionString,
                 ["Database:MigrateOnStartup"] = initialiseDatabase.ToString(),
+                // Tests never reach Claude or Sarvam; live calls are the Eval suite only.
+                ["Ai:Provider"] = "Fake",
             });
             if (settings is not null)
             {

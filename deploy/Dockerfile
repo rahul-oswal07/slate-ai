@@ -18,6 +18,7 @@ RUN dotnet restore src/api/SlateAi.Api/SlateAi.Api.csproj
 COPY src/api/ src/api/
 COPY data/seed/ data/seed/
 COPY data/curriculum/ data/curriculum/
+COPY prompts/ prompts/
 COPY --from=web /repo/src/api/SlateAi.Api/wwwroot/ src/api/SlateAi.Api/wwwroot/
 RUN dotnet publish src/api/SlateAi.Api/SlateAi.Api.csproj -c Release -o /app --no-restore
 

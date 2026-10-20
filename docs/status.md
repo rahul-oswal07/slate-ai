@@ -29,7 +29,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## Next session (Day 2, Tue 20 Oct)
 
 - T-05 code done on test data (graph, loader, candidate set). Remaining: turn Monika's T-22 list into `grade3-maths.json`.
-- T-07 A1 lesson mapping (STT + Claude, 10 evals): unblocked (keys set, D-11/D-12 accepted). `Lesson` entity exists in minimal form from T-06; T-07 extends it and adds the capture endpoint.
+- T-07 in two PRs. PR 1 (AI plumbing: Claude client, prompts, `AiCall` log, Sarvam STT) is open. PR 2 next: lesson capture endpoints, A1 prompt + validator, name scrubber, 10 draft evals.
 - Use plan mode first; one branch per task.
 
 ## Local dev
@@ -64,3 +64,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | Mentor decisions: D-20 return speed as primary measure, D-21 pre-approved evening template (awaiting Rahul), D-22 textbook homework, D-23 optional reason, D-24 return-speed card, D-25 roadmap only, D-26 scope cuts. New FR-20–22 (renumbered; FR-19 was taken). `intent.md` accepted and revised; narrative, roadmap north star and user-testing script updated; mentor session logged as F-M1–F-M12 |
 | 20 Oct | Rahul + Claude | Docs follow-through for D-20–D-26: D-21 confirmed (guardrail 3 now covers approved evening templates), T-44–T-46 added, T-41–T-43 dropped, A7 in spec/quality, new tables in spec/database.md |
 | 20 Oct | Rahul + Claude | T-05 code on test data: `Curriculum/` loader (validates IDs, prerequisites, cycles, textbook pages; fails startup on a bad file, warns when empty), `CurriculumGraph` (ancestors, nearest-first candidate set), 29 tests; Dockerfile now copies `data/curriculum/`. Real JSON waits for T-22 |
+| 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |

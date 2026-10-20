@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261019144249_AttendanceLessonsIdempotency` (T-06) |
+| Last migration | `20261020183655_AiCalls` (T-07) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -62,6 +62,19 @@ erDiagram
         varchar100 Endpoint
         timestamptz CreatedAt
     }
+    AiCalls {
+        uuid Id PK
+        timestamptz CreatedAt "indexed"
+        varchar50 Purpose "prompt id or stt"
+        varchar100 Model
+        int PromptVersion "nullable"
+        int InputTokens
+        int OutputTokens
+        int CacheReadTokens
+        int LatencyMs
+        varchar100 Verdict "nullable"
+        varchar300 Error "nullable"
+    }
 ```
 
 ### Tables
@@ -79,6 +92,8 @@ erDiagram
 **`Lessons`** — what was taught on a day. Minimal in T-06 so the ledger can join on it; T-07 adds `Transcript`, `ExamplesUsed`, `Confidence` and the capture endpoint. `CompetencyIds` is a Postgres `text[]` of curriculum IDs (1–3, validated against the curriculum in code, never trusted from the LLM). FK `ClassId → Classes` (cascade). Index `(ClassId, Date)`.
 
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
+
+**`AiCalls`** — one row per Claude or Sarvam call, successful or not, written by `Ai/LoggedLlmClient` and `Speech/LoggedSpeechToText` (CLAUDE.md: every call is logged). `Purpose` is the prompt ID (e.g. `a1-lesson-mapping`) with its `PromptVersion`, or `stt`. The caller sets `Verdict` after validating the output (e.g. `valid`, `fallback:low-confidence`); `Error` holds the failure kind (`Refused`, `Truncated`, `Unavailable`, `NotConfigured`, `Rejected`). **Never stores prompt text, transcripts or names.** No FKs: it is an audit log that outlives the rows it describes. Index on `CreatedAt` for the "Under the hood" panel (T-18) and cost totals.
 
 ### Delete behaviour
 
@@ -147,23 +162,11 @@ erDiagram
         bool Correct
         varchar Outcome "CaughtUp, NeedsBuddy, Review"
     }
-    AiCalls {
-        uuid Id PK
-        varchar Purpose "A1..A6"
-        varchar Model
-        varchar PromptVersion
-        int InputTokens
-        int OutputTokens
-        int LatencyMs
-        varchar Verdict
-        text Error
-    }
 ```
 
 | Table / column | Task | Notes |
 |---|---|---|
 | `Lessons` + `Transcript`, `ExamplesUsed`, `Confidence` | T-07 | Confidence < 0.7 → teacher picks from the chapter list |
-| `AiCalls` | T-07 | Every LLM call logged (NFR-06); IDs only, no names or prompts with personal data |
 | `CatchUpPackages` | T-08–T-11 | **Nothing reaches a parent unless `Status = Approved`** (guardrail 3, enforced in the API, T-14) |
 | `CatchUpAssignments` | T-14 | `Token` is the only key on the public parent page |
 | `CheckResponses` | T-15 | Scored by code (FR-11); no spoken-answer fields (T-42 dropped, D-26) |

@@ -75,6 +75,7 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 | `Ai__Provider` | no | `Claude` (default) or `Fake` |
 | `Ai__Models__Script` / `__Mapping` / `__Check` | no | Override model IDs |
 | `Sarvam__ApiKey` | for real speech | Sarvam AI key |
+| `Sarvam__SttModel` | no | Speech-to-text model (default `saaras:v4`) |
 | `Storage__Mode` | no | `Local` (default) or `AzureBlob` |
 | `Storage__AzureBlob__ConnectionString` | prod | Audio storage |
 | `WhatsApp__Token`, `WhatsApp__PhoneNumberId` | stretch | WhatsApp Cloud API |
