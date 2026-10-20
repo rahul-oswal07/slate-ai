@@ -166,9 +166,12 @@ erDiagram
 | `AiCalls` | T-07 | Every LLM call logged (NFR-06); IDs only, no names or prompts with personal data |
 | `CatchUpPackages` | T-08–T-11 | **Nothing reaches a parent unless `Status = Approved`** (guardrail 3, enforced in the API, T-14) |
 | `CatchUpAssignments` | T-14 | `Token` is the only key on the public parent page |
-| `CheckResponses` | T-15 | Scored by code (FR-11); spoken-answer fields (`SpokenAudioUrl`, `Transcript`, `Confidence`) only if stretch T-42 goes ahead |
+| `CheckResponses` | T-15 | Scored by code (FR-11); no spoken-answer fields (T-42 dropped, D-26) |
 | `Children.ParentStoppedAt` | T-15 (D-19 proposed) | Send endpoint refuses stopped children |
-| `AbsenceReason`, `HomeworkReturned`, textbook page refs | D-22/D-23 (proposed) | Only if Monika accepts the mentor-review decisions |
+| `MessageTemplates`, `EveningMessages` | T-44 (FR-20, D-21) | Template approved once; send refused unless Approved + lesson confirmed + consent (guardrail 3) |
+| `AbsenceReasons` | T-45 (FR-21, D-23) | Category only; no transcript or audio kept |
+| `BuddyCards.HomeworkReturnedAt` | T-16 (D-22) | "Brought homework" tap |
+| `textbookPage` on competencies | T-05 (D-22) | In `data/curriculum/*.json`, not a table |
 
 ## 5. Privacy
 
@@ -176,7 +179,7 @@ erDiagram
 - The demo seed (`data/seed/demo-class.json`) is fictional, with placeholder phone numbers that must never be messaged.
 - Logs record counts and IDs, never names.
 - Deleting a child removes all their rows by cascade; audio in blob storage is deleted in code (T-19).
-- Health data: if D-23 is accepted, store only the reason category (e.g. "unwell"), never symptoms.
+- Health data (D-23): store only the reason category (e.g. "unwell"), never symptoms.
 
 ## 6. Working with the schema
 

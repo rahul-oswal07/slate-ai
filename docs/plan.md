@@ -16,6 +16,7 @@ Keep this file honest: when implementation drifts, update `plan.md` in the same 
 
 - `slate-ai` contains only the three hackathon PDFs. **No code exists yet**; the repository was initialised today with the SDLC artifacts.
 - This is a clean start, which suits the originality rule (all code written in the hackathon window, visible in Git history).
+- **20 Oct update:** T-01–T-04 and T-06 done; staging live. The mentor review (D-20–D-26) added FR-20–FR-22 (T-44–T-46) and dropped T-41–T-43. T-05/T-07 wait on the competency list (T-22).
 - Fastest viable path: deploy a walking skeleton on Day 1, then build the loop in the order data flows (capture → ledger → compress → script → approve → parent → result), so there is a demoable end-to-end path by Day 5 and the rest is refinement.
 
 ## 2. Files and components
@@ -57,15 +58,16 @@ slate-ai/
 | 1 | Walking skeleton deployed: API + SPA + Postgres + CI/CD, `/health` green on Azure | §4 | Public URL returns app shell; CI green |
 | 2 | Curriculum graph + seed class (36 children) | §5.3 | Unit tests on graph (ancestors, candidate set) |
 | 3 | Attendance + lesson capture + A1 mapping | FR-01–04 | Endpoint tests with fake stores (no DB writes in new tests, 19 Oct); 10 A1 eval cases ≥ 80% |
-| 4 | Ledger, incl. absence spells and return speed (days away, back within 2 school days; mentor review, D-20/D-24 pending) | FR-05 | Deterministic tests on fixtures |
+| 4 | Ledger, incl. absence spells and return speed (days away, back within 2 school days; D-20/D-24), then the weekly return-speed card | FR-05, FR-22 | Deterministic tests on fixtures |
 | 5 | A2 compression + A3 script + A4 verifier + TTS | FR-06, 07, 09 | Validator unit tests; 10 A2/A3 eval cases |
 | 6 | Approval flow | FR-08 | API refuses to send unapproved package (test) |
-| 7 | Parent page + picture scoring + ledger update | FR-10, 11 | Playwright happy path |
+| 7 | Parent page + picture scoring + ledger update, incl. the optional reason for absence (A7) | FR-10, 11, 19, 21 | Playwright happy path; A7 fake-LLM tests + 10 evals |
+| 7b | Evening message on each day of absence from an approved template, slots filled by code | FR-20 | Endpoint tests: send refused without approved template / confirmed lesson / consent |
 | 8 | Buddy cards + pacing nudge | FR-12, 13 | Unit tests; snapshot of card |
 | 9 | Offline outbox | NFR-02 | Playwright offline test |
 | 10 | Demo mode + reset + "Under the hood" AI panel | FR-14 | Outsider completes loop in ≤ 5 min |
 | 11 | Consent + delete | FR-15 | Integration test |
-| 12 | Stretch: WhatsApp, board photo, spoken answers | FR-16–18 | Only after Day 7 freeze |
+| 12 | Stretch: WhatsApp only (board photo and spoken answers dropped, D-26) | FR-16 | Only after Day 7 freeze |
 
 ## 4. Ten-day delivery plan
 
@@ -77,9 +79,9 @@ Capacity assumption: both work around day jobs; weekdays ~4–5 h each, Sat/Sun 
 | 1 | Mon 19 Oct | T-01 repo/CI, T-02 API skeleton + DB, T-03 web skeleton (PWA, i18n), T-04 deploy walking skeleton | T-20 recruit 3 teachers + 2 Telugu-speaking parents; T-21 low-fi wireframes (Today, Approve, Ledger, Parent); T-22 competency list draft; book education mentor | **H1 (EOD):** wireframes + competency list → Rahul. **Gate: spec accepted** |
 | 2 | Tue 20 Oct | T-05 curriculum JSON + graph; T-06 attendance API; T-07 A1 lesson mapping (STT + Claude) + 10 evals | T-23 design tokens + hi-fi Today and Ledger; T-24 interview + test script; book technical mentor (Rahul attends) | **H2:** tokens + Today/Ledger hi-fi → Rahul. Rahul sends 3 sample scripts → Monika |
 | 3 | Wed 21 Oct | T-08 A2 compression; T-09 A3 script writer; T-10 A4 verifier; T-11 TTS + greeting merge | T-25 Round 0: 2 teacher calls reviewing sample scripts and the flow; hi-fi Approve + Parent P1–P4; picture style | **TC1:** A1 evals ≥ 80%; verifier unit tests green |
-| 4 | Thu 22 Oct | T-12 Today screen + offline outbox; T-13 Ledger screen | T-26 native-speaker review of Telugu/Kannada scripts; buddy card + pacing designs; parent copy | **H3:** Parent screens, buddy card, Approve hi-fi → Rahul |
-| 5 | Fri 23 Oct | T-14 Approve screen; T-15 parent page + picture scoring | T-27 usability kit: tasks, consent form, observation sheet, timing sheet | **TC2: first end-to-end loop on staging**; Playwright happy path green. Tag `v0.5-loop` |
-| 6 | Sat 24 Oct | Observe tests, time teacher actions; then T-16 buddy cards + pacing nudge | **T-28 Usability round 1**: 3 teachers + 1–2 parents; log in `docs/user-testing.md` | Evening triage: findings → issues, top 5 marked P0 |
+| 4 | Thu 22 Oct | T-12 Today screen + offline outbox; T-13 Ledger screen; T-46 return-speed card | T-26 native-speaker review of Telugu/Kannada scripts; buddy card + pacing designs; parent copy | **H3:** Parent screens, buddy card, Approve hi-fi → Rahul |
+| 5 | Fri 23 Oct | T-14 Approve screen; T-15 parent page + picture scoring; start T-45 reason for absence (A7) | T-27 usability kit: tasks, consent form, observation sheet, timing sheet | **TC2: first end-to-end loop on staging**; Playwright happy path green. Tag `v0.5-loop` |
+| 6 | Sat 24 Oct | Observe tests, time teacher actions; then T-16 buddy cards + pacing nudge; T-44 evening message; finish T-45 | **T-28 Usability round 1**: 3 teachers + 1–2 parents; log in `docs/user-testing.md` | Evening triage: findings → issues, top 5 marked P0 |
 | 7 | Sun 25 Oct | T-17 fix round-1 P0s; T-18 demo mode + reset + "Under the hood" panel; T-19 consent + delete | Revise designs from round 1; T-29 demo story + video storyboard (≤ 2:50) | **MVP feature freeze (FR-01–15).** Stretch go/no-go decision |
 | 8 | Mon 26 Oct | Stretch (if go) or hardening; T-30 accessibility + performance pass; full eval run | **T-31 Usability round 2**: 2 teachers (one in a real class if possible); screen-reader check | **TC3:** axe 0 serious/critical; evals at targets; Lighthouse ≥ 85 |
 | 9 | Tue 27 Oct | T-32 round-2 fixes; T-33 privacy/security pass; T-34 README + open-source prep | T-35 deck draft (AI layers, guardrails, offline, testing evidence, roadmap); record raw footage | Deck draft → Rahul for technical review |
@@ -121,6 +123,7 @@ Acceptance criteria per requirement are in `spec.md` §2 and per task in `tasks.
 | R13 | Real child data or teacher voice used without consent | L / H | — | Seed only fictional children; signed consent form for any real teacher voice |
 | R14 | Video over 3 minutes or unclear | M / M | Storyboard > 2:50 on Day 7 | Script to 2:50; problem in 20 s; loop shown at 1:00 |
 | R15 | AI centrality not obvious in code review | L / H | — | `Ai/` folder, `prompts/`, `evals/`, "Under the hood" panel showing each Claude call |
+| R16 | Days 4–6 overloaded by the mentor additions (T-44–T-46) | H / M | T-15 not on staging by Day 5 EOD | T-46 first (code only); T-45 ships picture buttons without the voice note; T-44 demo uses the same send path as T-14 |
 
 ## 7. Branching and pull requests
 

@@ -29,6 +29,7 @@ Rules from the playbook we adopt:
 | A1 Lesson mapping | 25 Kannada teacher transcripts (Monika + teachers write them; include noisy, code-mixed Kannada-English, off-topic) | Top-1 competency matches; off-topic → low confidence |
 | A2 Compression | 25 absence patterns (1–5 days, overlapping, already-mastered items) | Targets ⊆ candidates; human-labelled "best target" in top 2 |
 | A3 Script | 25 (target, language) pairs | All code checks pass; Haiku rubric ≥ 4/5; native-speaker spot check on 5 |
+| A7 Reason classification | 10 parent voice-note transcripts (Kannada, Telugu, code-mixed; include off-topic and symptom talk) | Category matches the label; off-topic or unclear → other; output never contains symptoms (only the category is stored) |
 
 Store cases in `evals/cases/*.json`; results (date, model, prompt version, score) in `evals/results/`. Quote these numbers in the deck.
 
