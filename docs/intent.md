@@ -29,13 +29,13 @@ The MVP proves one complete loop, end to end, with real AI and real audio:
 
 > Teacher records what she taught → Claude maps it to textbook competencies and logs it against absent children → Claude compresses several missed lessons into one catch-up that keeps only what blocks next week's lessons → teacher approves once → parent receives a link, taps Listen, child answers by tapping one of three pictures → teacher sees "caught up" or "needs buddy", a return-day buddy card, and a weekly pacing nudge.
 >
-> Around it: each evening of absence the family gets a short message from a template the teacher approved once (today's lesson, a textbook-page homework, "`{buddy}` is keeping your seat"); the parent can say why the child was away; on return the teacher taps "Brought homework"; a weekly card shows how quickly absent children came back.
+> Around it: each evening of absence the family gets a short message from a template the teacher approved once (today's lesson, a textbook-page homework, "a classmate is keeping the seat"); the parent can say why the child was away; on return the teacher taps "Brought homework"; a weekly card shows how quickly absent children came back.
 
 ## Affected users and systems
 
 | User | Role in MVP |
 |---|---|
-| **Lakshmi**, Grade 2–3 teacher, Kolar district (primary) | Records lesson, marks absentees, approves scripts, uses ledger, buddy cards and pacing nudge |
+| **Lakshmi**, Grade 2–3 teacher, Kolar district (primary) | Records lesson, checks the absent list that arrives from the school's system (corrects it if wrong), approves scripts, uses ledger, buddy cards and pacing nudge |
 | **Ravi (7) and his mother**, Telugu-speaking seasonal-worker family (secondary) | Receive catch-up on a shared phone after 6 pm; child taps a picture to answer |
 | **Buddy classmate** (e.g. Anjali) | Follows a 10-minute buddy card on return day; no device |
 | **Judges** | Need a working demo link they can test without a WhatsApp account or a Kannada keyboard |
@@ -76,7 +76,7 @@ Plus teacher seconds per day. We never count message opens.
 
 ## Out of scope for the MVP
 
-Voice cloning, avatar video, CRP/officer dashboards, SATS/VSK integration, home-visit pathways via the cook or community members (roadmap, D-25), board-photo capture and spoken child answers (D-26), subjects other than Grade 2–3 maths, production WhatsApp template approval at scale, native apps.
+Voice cloning, avatar video, CRP/officer dashboards, a real SATS/VSK attendance integration (the MVP simulates the feed and keeps manual marking as a fallback; roadmap, D-27), home-visit pathways via the cook or community members (roadmap, D-25), board-photo capture and spoken child answers (D-26), subjects other than Grade 2–3 maths, production WhatsApp template approval at scale, native apps.
 
 ## Open questions
 
