@@ -19,7 +19,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
 - [ ] Rahul: book technical mentor
-- [ ] Monika: T-22 competency list (blocks T-05), now **with a textbook page per competency** (D-22 accepted)
+- [ ] Monika: T-22 competency list, now **with a textbook page per competency** (D-22 accepted). T-05 code is done; her list becomes `data/curriculum/grade3-maths.json` (schema in that folder's README) and CI validates it
 - [ ] Monika: T-21 low-fi wireframes; T-20 recruit teachers + parents (Dasara break until ~21 Oct)
 - [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
 - [x] Rahul: confirmed D-21 (20 Oct): approved `MessageTemplate` + code-filled slots; guardrail 3 in CLAUDE.md reworded
@@ -28,9 +28,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 ## Next session (Day 2, Tue 20 Oct)
 
-- T-05 curriculum JSON + graph service, as soon as T-22 lands.
+- T-05 code done on test data (graph, loader, candidate set). Remaining: turn Monika's T-22 list into `grade3-maths.json`.
 - T-07 A1 lesson mapping (STT + Claude, 10 evals): unblocked (keys set, D-11/D-12 accepted). `Lesson` entity exists in minimal form from T-06; T-07 extends it and adds the capture endpoint.
-- If D-20/D-22 are accepted: update `intent.md` / `spec.md` / `tasks.md` and fold the textbook-page homework into T-05/T-09.
 - Use plan mode first; one branch per task.
 
 ## Local dev
@@ -64,3 +63,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 19 Oct | Rahul + Claude | Testing: no database in default tests, stores + fakes, CLAUDE.md updated (#58); small Postgres suite `Category=Db` run in CI (#59) |
 | 20 Oct | Monika + Claude | Mentor decisions: D-20 return speed as primary measure, D-21 pre-approved evening template (awaiting Rahul), D-22 textbook homework, D-23 optional reason, D-24 return-speed card, D-25 roadmap only, D-26 scope cuts. New FR-20–22 (renumbered; FR-19 was taken). `intent.md` accepted and revised; narrative, roadmap north star and user-testing script updated; mentor session logged as F-M1–F-M12 |
 | 20 Oct | Rahul + Claude | Docs follow-through for D-20–D-26: D-21 confirmed (guardrail 3 now covers approved evening templates), T-44–T-46 added, T-41–T-43 dropped, A7 in spec/quality, new tables in spec/database.md |
+| 20 Oct | Rahul + Claude | T-05 code on test data: `Curriculum/` loader (validates IDs, prerequisites, cycles, textbook pages; fails startup on a bad file, warns when empty), `CurriculumGraph` (ancestors, nearest-first candidate set), 29 tests; Dockerfile now copies `data/curriculum/`. Real JSON waits for T-22 |
