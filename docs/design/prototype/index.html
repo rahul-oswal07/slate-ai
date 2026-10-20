@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tappida Paatha · clickable flow (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ---------- Shell: a classroom slate ---------- */
+:root{ --slate:#1d2b28; --chalk:#ecebe3; --chalk-dim:#a9b3ad; --chalk-line:rgba(236,235,227,.14); --sun:#F59E0B; }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--slate); color:var(--chalk); font-family:"Noto Sans",system-ui,sans-serif; min-height:100vh;
+  background-image:
+    radial-gradient(1200px 600px at 20% -10%, rgba(255,255,255,.06), transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, rgba(245,158,11,.07), transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.shell{display:grid;grid-template-columns:300px auto auto;gap:28px;justify-content:center;align-items:start;padding:22px 24px 40px}
+@media (max-width:1180px){.shell{grid-template-columns:1fr;justify-items:center}}
+header.top{display:flex;align-items:baseline;gap:18px;padding:22px 32px 0;flex-wrap:wrap}
+header.top h1{font-family:Fraunces,serif;font-weight:800;font-size:34px;margin:0;letter-spacing:-.5px}
+header.top h1 span{color:var(--sun)}
+header.top .sub{color:var(--chalk-dim);font-size:14px}
+.toolbar{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--chalk-line);border-radius:10px;overflow:hidden}
+.seg button{background:transparent;color:var(--chalk-dim);border:0;padding:7px 11px;font:600 12px "Noto Sans",sans-serif;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--chalk);color:var(--slate)}
+.btn-chalk{background:transparent;border:1px dashed var(--chalk-dim);color:var(--chalk);border-radius:10px;padding:7px 12px;font:600 12px "Noto Sans";cursor:pointer}
+.guide{position:sticky;top:16px}
+.guide h2{font-family:Fraunces,serif;font-weight:600;font-size:20px;margin:6px 0 4px}
+.guide p.lead{color:var(--chalk-dim);font-size:13px;margin:0 0 14px;line-height:1.5}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;border-left:2px dashed var(--chalk-line)}
+.steps button{all:unset;cursor:pointer;display:block;width:100%;padding:8px 10px 8px 26px;border-radius:10px;font-size:13.5px;line-height:1.35;color:var(--chalk-dim);position:relative}
+.steps button:hover{background:rgba(255,255,255,.05);color:var(--chalk)}
+.steps button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+.steps button::before{counter-increment:s;content:counter(s);position:absolute;left:-12px;top:8px;width:22px;height:22px;border-radius:50%;background:var(--slate);border:2px solid var(--chalk-line);font:600 11px "JetBrains Mono";display:grid;place-items:center;color:var(--chalk-dim)}
+.steps button.on{color:var(--chalk);background:rgba(245,158,11,.10)}
+.steps button.on::before{background:var(--sun);border-color:var(--sun);color:var(--slate)}
+.steps .who{font:600 10px "JetBrains Mono";letter-spacing:.06em;text-transform:uppercase;color:var(--sun);display:block;margin-bottom:1px}
+.steps .phase{font:600 10px "JetBrains Mono";letter-spacing:.1em;text-transform:uppercase;color:var(--chalk-dim);opacity:.7;padding:12px 0 4px 14px;display:block}
+.note{margin-top:16px;font-size:12px;color:var(--chalk-dim);line-height:1.5;border-top:1px solid var(--chalk-line);padding-top:12px}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px}
+.col .label{font:600 11px "JetBrains Mono";letter-spacing:.08em;text-transform:uppercase;color:var(--chalk-dim);text-align:center}
+.col .label b{color:var(--chalk);font-weight:600}
+.states{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:390px;min-height:30px}
+.states .st-h{font:600 10px "JetBrains Mono";color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.08em;width:100%;text-align:center}
+.chip-s{background:transparent;border:1px solid var(--chalk-line);color:var(--chalk-dim);border-radius:999px;padding:4px 10px;font:600 11.5px "Noto Sans";cursor:pointer}
+.chip-s[aria-pressed=true]{border-color:var(--sun);color:var(--sun)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:var(--sun);color:#1d2b28;padding:9px 16px;border-radius:999px;font:600 13px "Noto Sans";opacity:0;transition:.3s;pointer-events:none;z-index:9}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.phone{width:384px;height:792px;border-radius:44px;padding:12px;background:#0d1110;box-shadow:0 0 0 2px #2c3a36, 0 30px 60px -20px rgba(0,0,0,.6), inset 0 0 0 2px #1a2220;position:relative}
+.phone::after{content:"";position:absolute;top:18px;left:50%;transform:translateX(-50%);width:88px;height:20px;background:#0d1110;border-radius:12px;z-index:5;pointer-events:none}
+
+/* ---------- App: design tokens (docs/design/tokens.md) ---------- */
+.screen{
+  --canvas:#FAFAF7;--surface:#FFFFFF;--panel:#E6F2F0;--ink:#1A1A2E;--ink-muted:#495059;--border:#7C8591;--divider:#E5E7EB;
+  --primary:#115E59;--primary-strong:#134E4A;--on-primary:#FFFFFF;--focus:#1D4ED8;--error:#991B1B;--error-bg:#FEF2F2;--on-error:#fff;--warning:#B45309;
+  --stick:#B45309;--illus:#F59E0B;
+  --s-sent:#1E40AF;--s-sent-bg:#EFF6FF;--s-listened:#134E4A;--s-listened-bg:#E6F2F0;--s-caught:#14532D;--s-caught-bg:#DCFCE7;
+  --s-buddy:#78350F;--s-buddy-bg:#FEF3C7;--s-nophone:#5B21B6;--s-nophone-bg:#EDE9FE;--s-stopped:#374151;--s-stopped-bg:#F3F4F6;
+  --s-queued:#495059;--s-queued-bg:#F1F5F9;--s-ear:#7C2D12;--s-ear-bg:#FFEDD5;
+  width:360px;height:768px;border-radius:34px;overflow:hidden;background:var(--canvas);color:var(--ink);
+  display:flex;flex-direction:column;position:relative;font-family:"Noto Sans","Noto Sans Kannada","Noto Sans Telugu",sans-serif;font-size:16px;line-height:24px;
+}
+.dark .screen{
+  --canvas:#151513;--surface:#1E1F1C;--panel:#11302C;--ink:#EDECE6;--ink-muted:#B4BAC2;--border:#7A828C;--divider:#2E302C;
+  --primary:#2DD4BF;--primary-strong:#5EEAD4;--on-primary:#0B1F1D;--focus:#93C5FD;--error:#FCA5A5;--error-bg:#3A1515;--on-error:#2A0A0A;--warning:#FBBF24;
+  --stick:#FBBF24;
+  --s-sent:#BFDBFE;--s-sent-bg:#172A4A;--s-listened:#99F6E4;--s-listened-bg:#11302C;--s-caught:#BBF7D0;--s-caught-bg:#143223;
+  --s-buddy:#FDE68A;--s-buddy-bg:#3A2A0B;--s-nophone:#DDD6FE;--s-nophone-bg:#2B1E4F;--s-stopped:#E5E7EB;--s-stopped-bg:#2A2C30;
+  --s-queued:#CBD2DA;--s-queued-bg:#24272B;--s-ear:#FED7AA;--s-ear-bg:#3D200F;
+}
+.screen :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.screen .li:focus-visible,.screen .pic:focus-visible{outline-offset:-4px}
+[lang=kn],[lang=te]{font-size:1.08em;line-height:1.65}
+[lang=kn] [lang=kn],[lang=te] [lang=te],.cap [lang]{font-size:1em}
+.sbar{height:34px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 26px 0;font:600 12.5px "Noto Sans";color:var(--ink)}
+.sbar .ic{display:flex;gap:5px;align-items:center}
+.appbar{flex:none;display:flex;align-items:center;gap:10px;padding:6px 16px 10px;border-bottom:1px solid var(--divider)}
+.appbar h2{margin:0;font-size:20px;line-height:1.3;font-weight:700;flex:1;min-width:0}
+.appbar h2:focus{outline:none}
+.appbar .back{all:unset;cursor:pointer;width:48px;height:48px;margin-left:-12px;display:grid;place-items:center;border-radius:12px;flex:none}
+.body{flex:1;overflow-y:auto;padding:14px 16px 24px;scroll-padding-bottom:120px}
+.body::-webkit-scrollbar{width:0}
+.body:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);background:var(--surface);padding-bottom:10px}
+.nav button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px 4px;min-height:56px;color:var(--ink-muted);font-size:14px;line-height:1.2;text-align:center;position:relative;overflow-wrap:normal;word-break:keep-all}
+.nav button [lang=kn]{font-size:14px;line-height:1.3}
+.nav button[aria-current=page]{color:var(--primary-strong);font-weight:700}
+.nav button[aria-current=page]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--primary)}
+.nav .badge{position:absolute;top:3px;right:calc(50% - 24px);background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:700;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px}
+
+.cap{display:block;font-size:14px;line-height:20px;color:var(--ink-muted);font-weight:400;font-family:"Noto Sans"}
+button .cap,.bigplay .cap,.btn .cap{color:inherit;opacity:.92}
+h3.t{font-size:18px;line-height:1.4;margin:0 0 2px;font-weight:700}
+.muted{color:var(--ink-muted)}
+.small{font-size:14px;line-height:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.card.panel{background:var(--panel)}
+.card.panel .teal{color:var(--primary-strong)}
+.card.warn{border:2px solid var(--warning)}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1;min-width:0}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:48px;min-width:48px;padding:8px 16px;border-radius:12px;font-weight:600;line-height:1.3}
+.btn.primary{background:var(--primary);color:var(--on-primary);min-height:56px;width:100%}
+.btn.primary:active{background:var(--primary-strong)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.ghost{border:1px solid var(--border);color:var(--ink);background:var(--surface)}
+.btn.text{color:var(--primary-strong);padding:8px 6px}
+.btn.danger-outline{border:2px solid var(--error);color:var(--error);background:var(--surface);width:100%}
+.btn.full{width:100%}
+.btns{display:flex;gap:8px;margin-top:10px}
+.btns > *{flex:1}
+.hint{font-size:14px;line-height:20px;color:var(--ink-muted);text-align:center;margin:6px 0 0}
+.hint.err{color:var(--error)}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:14px;font-weight:600;line-height:1.35;padding:3px 8px;border-radius:8px}
+.tag svg{flex:none}
+.tag.sent{color:var(--s-sent);background:var(--s-sent-bg)}
+.tag.listened{color:var(--s-listened);background:var(--s-listened-bg)}
+.tag.caught{color:var(--s-caught);background:var(--s-caught-bg)}
+.tag.buddy{color:var(--s-buddy);background:var(--s-buddy-bg)}
+.tag.nophone{color:var(--s-nophone);background:var(--s-nophone-bg)}
+.tag.stopped,.tag.missed{color:var(--s-stopped);background:var(--s-stopped-bg)}
+.tag.queued{color:var(--s-queued);background:var(--s-queued-bg)}
+.tag.ear{color:var(--s-ear);background:var(--s-ear-bg)}
+.ai{display:inline-flex;align-items:center;gap:5px;font-size:14px;font-weight:600;line-height:1.35;color:var(--primary-strong)}
+.banner{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-left:4px solid var(--warning);background:var(--surface);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;line-height:20px}
+.banner.err{border-left-color:var(--error);background:var(--error-bg)}
+.banner.ok{border-left-color:var(--primary)}
+.banner svg{flex:none;margin-top:2px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kid{all:unset;box-sizing:border-box;cursor:pointer;border:1px solid var(--border);border-radius:12px;min-height:64px;padding:5px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);text-align:center}
+.kid .no{font:600 14px "Noto Sans";color:var(--ink-muted)}
+.kid .nm{font-size:14px;line-height:1.35;font-weight:600}
+.kid .ab{font-size:13px;font-weight:700}
+.kid[aria-checked=true]{background:var(--error-bg);border:2px solid var(--error);color:var(--error)}
+.kid[aria-checked=true] .no{color:var(--error)}
+.mic{all:unset;cursor:pointer;width:96px;height:96px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;margin:6px auto 4px;touch-action:none;user-select:none;-webkit-user-select:none}
+.mic.rec{background:var(--error);color:var(--on-error);animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(153,27,27,.45)}100%{box-shadow:0 0 0 22px rgba(153,27,27,0)}}
+@media (prefers-reduced-motion: reduce){.mic.rec,.wave i,.spin{animation:none!important}}
+.wave{display:flex;gap:3px;align-items:center;justify-content:center;height:28px}
+.wave i{width:4px;border-radius:2px;background:var(--error);animation:wv .9s ease-in-out infinite}
+@keyframes wv{0%,100%{height:5px}50%{height:26px}}
+.timer{font:700 20px "Noto Sans";text-align:center}
+.spin{width:36px;height:36px;border:4px solid var(--panel);border-top-color:var(--primary);border-radius:50%;animation:sp 1s linear infinite;margin:10px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.list{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px}
+.li{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;min-height:56px;border-bottom:1px solid var(--divider)}
+.li:last-child{border-bottom:0}
+.list li:last-child .li{border-bottom:0}
+.li .no{font:600 14px "Noto Sans";color:var(--ink-muted);min-width:22px}
+.li .nm{font-weight:600;line-height:1.35}
+.fchips{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.fchip{all:unset;cursor:pointer;border:1px solid var(--border);border-radius:8px;padding:6px 12px;min-height:48px;box-sizing:border-box;display:flex;align-items:center;font-size:14px;font-weight:600;background:var(--surface)}
+.fchip[aria-pressed=true]{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.segctl{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.segctl button{all:unset;cursor:pointer;text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:600;background:var(--surface)}
+.segctl button[aria-pressed=true]{background:var(--primary);color:var(--on-primary)}
+.player{display:flex;align-items:center;gap:12px}
+.play{all:unset;cursor:pointer;width:52px;height:52px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;flex:none}
+.bar{height:8px;background:var(--divider);border-radius:4px;overflow:hidden;position:relative}
+.bar > i{display:block;height:100%;background:var(--primary);border-radius:4px;transition:width .25s linear}
+.segs{display:flex;gap:3px;margin-top:6px}
+.segs span{flex:1 1 0;min-width:0;overflow-wrap:anywhere;font-size:13px;line-height:1.3;color:var(--ink-muted);border-top:3px solid var(--divider);padding-top:3px}
+.segs span.on{border-top-color:var(--primary);color:var(--ink);font-weight:600}
+.kw{display:inline-block;background:var(--panel);border-radius:8px;padding:2px 9px;margin:3px 4px 0 0;font-weight:600}
+.pic{all:unset;box-sizing:border-box;cursor:pointer;width:100%;min-height:112px;border:2px solid var(--border);border-radius:14px;background:var(--surface);display:flex;align-items:center;gap:12px;padding:8px 14px;margin-bottom:10px}
+.pic[aria-pressed=true]{border:4px solid var(--primary);background:var(--panel)}
+.pic .num{font:700 26px "Noto Sans";min-width:48px;text-align:right}
+.pic[disabled]{cursor:default}
+.wk{display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:center;font-size:14px;margin:8px 0}
+.wk .bars{display:flex;flex-direction:column;gap:3px}
+.wk .b{display:flex;align-items:center;gap:6px}
+.wk .b i{display:block;height:12px;border-radius:3px;background:var(--primary)}
+.wk .b.last i{background:var(--border)}
+.wk .b span{font-size:13px;line-height:1.2;white-space:nowrap}
+.scrim{position:absolute;inset:0;background:rgba(10,12,12,.5);display:flex;align-items:flex-end;z-index:4;animation:fade .2s}
+.sheet{background:var(--surface);width:100%;border-radius:20px 20px 0 0;padding:18px 16px 22px;border-top:1px solid var(--border);animation:up .25s;max-height:85%;overflow-y:auto}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@keyframes fade{from{opacity:0}}
+.radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;flex:none}
+.radio.on{border-color:var(--primary)}
+.radio.on::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--primary)}
+.sticky{position:sticky;bottom:-24px;background:var(--canvas);padding:10px 0 12px;margin-top:8px;border-top:1px solid var(--divider)}
+.chat{background:var(--canvas);background-image:radial-gradient(var(--divider) 1px, transparent 1px);background-size:14px 14px}
+.bubble{background:var(--surface);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:10px 12px;margin:0 24px 12px 0;font-size:15px;line-height:1.5;animation:pop .35s}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+.bubble .time{font-size:12px;color:var(--ink-muted);text-align:right;margin-top:4px}
+.vn{display:flex;align-items:center;gap:8px;border-radius:10px;background:var(--panel);padding:4px 8px 4px 4px;margin-bottom:8px}
+.vn .play{width:48px;height:48px}
+.daysep{text-align:center;margin:6px 0 12px}
+.daysep span{font-size:13px;background:var(--surface);border:1px solid var(--divider);border-radius:8px;padding:2px 10px;color:var(--ink-muted)}
+.linkbtn{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;margin-top:8px;border:1px solid var(--primary);color:var(--primary-strong);border-radius:10px;padding:9px;min-height:48px;text-align:center;font-weight:700;background:var(--panel)}
+.quiet{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;color:var(--ink-muted);font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.reason{all:unset;box-sizing:border-box;cursor:pointer;border:2px solid var(--border);border-radius:14px;min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--surface);text-align:center;padding:6px;font-weight:600;font-size:14px;line-height:1.35}
+.reason[aria-pressed=true]{border:4px solid var(--primary);background:var(--panel)}
+.bigplay{all:unset;cursor:pointer;width:156px;height:156px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:10px auto;gap:2px;font-weight:700;font-size:20px;box-shadow:0 10px 30px -10px rgba(17,94,89,.6)}
+.avatar{width:64px;height:64px;border-radius:50%;background:var(--illus);color:#1A1A2E;display:grid;place-items:center;font-size:30px;font-weight:700;margin:6px auto 4px;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--border)}
+.pdots{display:flex;gap:6px;justify-content:center;margin:2px 0 8px}
+.pdots i{width:10px;height:10px;border-radius:50%;background:var(--divider);border:1px solid var(--border)}
+.pdots i.on{background:var(--primary);border-color:var(--primary);width:26px;border-radius:5px}
+.pdots i.done{background:var(--primary);border-color:var(--primary)}
+.sums{font:700 22px "Noto Sans";letter-spacing:.02em}
+.checkrow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;cursor:pointer;min-height:48px}
+.checkrow input{width:24px;height:24px;margin:2px 0 0;accent-color:var(--primary);flex:none}
+.timeline{border-left:2px solid var(--divider);margin:0 0 0 6px;padding:0 0 0 14px;list-style:none}
+.timeline li{position:relative;padding:4px 0 10px;font-size:14.5px;line-height:1.45}
+.timeline li::before{content:"";position:absolute;left:-21px;top:9px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--border)}
+.timeline .day{font-weight:700;margin-right:4px}
+.slot{border-bottom:2px solid var(--s-buddy);background:var(--s-buddy-bg);color:var(--s-buddy);border-radius:3px;padding:0 3px;font-weight:600}
+.section-h{font-size:14px;font-weight:700;color:var(--ink-muted);margin:18px 0 6px}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Tappida Paatha <span>·</span> clickable flow</h1>
+  <div class="sub">v2 after the UX review. Teacher phone and parent phone, linked. Ravi misses two days.</div>
+  <div class="toolbar">
+    <div class="seg" id="langT" aria-label="Teacher language"></div>
+    <div class="seg" id="langP" aria-label="Parent language"></div>
+    <div class="seg" id="theme" aria-label="Theme"></div>
+    <button class="btn-chalk" data-a="reset">Reset</button>
+  </div>
+</header>
+<main class="shell">
+  <aside class="guide">
+    <h2>The loop, step by step</h2>
+    <p class="lead">Click a step to jump both phones there, or just use the phones: they’re live and talk to each other.</p>
+    <ol class="steps" id="steps"></ol>
+    <div class="note">Design prototype for the handoff (docs/design/prototype), not the app. Kannada and Telugu copy is a draft and needs a native speaker’s review. Children’s names are fictional. Textbook pages are from the 2026–27 Grade 3 maths book (T-22). Attendance from SATS is simulated (D-27). What changed from v1 is listed in <code>ux-review.md</code>.</div>
+  </aside>
+  <section class="col">
+    <div class="label" id="tLabel"></div>
+    <div class="phone"><div class="screen" id="teacher"></div><div class="sr-only" aria-live="polite" id="tLive"></div></div>
+    <div class="states" id="tStates"></div>
+  </section>
+  <section class="col">
+    <div class="label" id="pLabel"></div>
+    <div class="phone"><div class="screen chat" id="parent"></div><div class="sr-only" aria-live="polite" id="pLive"></div></div>
+    <div class="states" id="pStates"></div>
+  </section>
+</main>
+<div class="toast" id="toast" aria-hidden="true"></div>
+
+<script>
+/* ================= Icons (Lucide paths) ================= */
+const I = {
+  home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  checkc:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  list:'<line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  mic:'<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+  square:'<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
+  play:'<polygon points="7 4 20 12 7 20 7 4" fill="currentColor"/>',
+  pause:'<rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>',
+  send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  head:'<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
+  belloff:'<path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"/><path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="m2 2 20 20"/>',
+  cloudoff:'<path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10 5.07"/>',
+  alert:'<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  phoneoff:'<path d="M12 18h.01"/><path d="M14.4 4H17a2 2 0 0 1 2 2v7"/><path d="M19 19a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5"/><path d="m2 2 20 20"/>',
+  calx:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+  back:'<path d="m15 18-6-6 6-6"/>',
+  right:'<path d="m9 18 6-6-6-6"/>',
+  down:'<path d="m6 9 6 6 6-6"/>',
+  up:'<path d="m18 15-6-6-6 6"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  print:'<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  wifi:'<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.86a10 10 0 0 1 14 0"/><path d="M8.5 16.43a5 5 0 0 1 7 0"/>',
+  wifioff:'<path d="M12 20h.01"/><path d="M8.5 16.43a5 5 0 0 1 7 0"/><path d="M5 12.86a10 10 0 0 1 5.17-2.69"/><path d="M19 12.86a10 10 0 0 0-2.01-1.52"/><path d="M2 8.82a15 15 0 0 1 4.18-2.65"/><path d="M22 8.82a15 15 0 0 0-11.29-3.76"/><path d="m2 2 20 20"/>',
+  batt:'<rect width="16" height="10" x="2" y="7" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/><rect width="9" height="6" x="4" y="9" fill="currentColor" stroke="none"/>',
+  therm:'<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>',
+  bus:'<path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>',
+  flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  msg:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  vol:'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+  starf:'<path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
+  bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+  lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>',
+};
+const ic=(n,s=20,sw=2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${I[n]}</svg>`;
+
+/* ================= Data ================= */
+const KIDS = [
+ ['ಅಂಜಲಿ','Anjali'],['ಅರ್ಜುನ್','Arjun'],['ಭವ್ಯ','Bhavya'],['ಚೇತನ್','Chetan'],['ದೀಪಾ','Deepa'],['ಗಣೇಶ್','Ganesh'],
+ ['ಹರೀಶ್','Harish'],['ಇಂದು','Indu'],['ಜ್ಯೋತಿ','Jyothi'],['ಕಿರಣ್','Kiran'],['ಲಾವಣ್ಯ','Lavanya'],['ರವಿ','Ravi'],
+ ['ಮಂಜು','Manju'],['ಮುರುಗನ್','Murugan'],['ನಂದಿನಿ','Nandini'],['ಪೂಜಾ','Pooja'],['ಪ್ರಕಾಶ್','Prakash'],['ರೇಖಾ','Rekha'],
+ ['ಸಾಯಿ','Sai'],['ಶಿಲ್ಪಾ','Shilpa'],['ಸುರೇಶ್','Suresh'],['ತೇಜಸ್','Tejas'],['ಉಷಾ','Usha'],['ವರುಣ್','Varun'],
+ ['ಯಮುನಾ','Yamuna'],['ಆಕಾಶ್','Akash'],['ಬಿಂದು','Bindu'],['ದರ್ಶನ್','Darshan'],['ಗೀತಾ','Geetha'],['ಹೇಮಾ','Hema'],
+ ['ಕಾರ್ತಿಕ್','Karthik'],['ಲತಾ','Latha'],['ಮಹೇಶ್','Mahesh'],['ನವೀನ್','Naveen'],['ಪ್ರಿಯಾ','Priya'],['ಸ್ವಾತಿ','Swathi'],
+];
+const LESSONS = [
+ {id:'M3.SUB.CHECK', kn:'ತಾಳೆ ನೋಡುವುದು', en:'Check subtraction by adding', page:'ಭಾಗ 2, ಪುಟ 4–5', pageEn:'Part 2, pages 4–5'},
+ {id:'M3.SUB.NOBORROW', kn:'ದಶಕ ರಹಿತ ವ್ಯವಕಲನ', en:'Subtraction without borrowing', page:'ಭಾಗ 2, ಪುಟ 6', pageEn:'Part 2, page 6'},
+ {id:'M3.SUB.BORROW', kn:'ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ', en:'Subtraction with borrowing', page:'ಭಾಗ 2, ಪುಟ 15', pageEn:'Part 2, page 15'},
+ {id:'M3.SUB.WORD', kn:'ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ)', en:'Subtraction word problems', page:'ಭಾಗ 2, ಪುಟ 18', pageEn:'Part 2, page 18'},
+];
+const NEXT_IN_BOOK = 'M3.SUB.BORROW'; // in the real app: computed from curriculum order + last confirmed lesson
+const WEEK_LESSONS = [
+ {id:'M3.SUB.CHECK', kn:'ಶುಕ್ರ 16', en:'Fri 16'},
+ {id:'M3.SUB.NOBORROW', kn:'ಸೋಮ 19', en:'Mon 19'},
+ {id:'M3.SUB.BORROW', kn:'ಮಂಗಳ 20', en:'Tue 20'},
+];
+const MISSED = {
+ 12:['M3.SUB.NOBORROW','M3.SUB.BORROW'], 19:['M3.SUB.NOBORROW','M3.SUB.BORROW'], 11:['M3.SUB.BORROW'],
+ 10:['M3.SUB.CHECK','M3.SUB.NOBORROW','M3.SUB.BORROW'], 16:['M3.SUB.BORROW'], 14:['M3.SUB.CHECK','M3.SUB.NOBORROW'],
+ 13:['M3.SUB.NOBORROW','M3.SUB.BORROW'],
+};
+// learning status per child (Ravi is live); channel status (no phone / stopped) is a separate field
+const WEEK = {
+ 12:{days:2, lang:'te'}, 19:{days:2, lang:'te', st:'sent'}, 11:{days:1, lang:'te', st:'listened'},
+ 10:{days:3, lang:'kn', st:'buddy'}, 16:{days:1, lang:'kn', st:'caught'}, 14:{days:2, lang:'ta', st:'sent'},
+ 13:{days:2, lang:'kn', st:'missed', channel:'nophone'},
+};
+// learning checks: generated in code from the competency; positions shuffled; correct index stored
+const CHECKS = {
+  borrow:{q:'43 − 18', opts:[35,25,15], correct:1},
+  noborrow:{q:'47 − 23', opts:[34,14,24], correct:2},
+};
+const PKGS = {
+  A:{lang:'te', langKn:'ತೆಲುಗು', langEn:'Telugu', kids:[12,19,11], targets:['M3.SUB.BORROW'], dur:'1:24', check:'borrow'},
+  B:{lang:'kn', langKn:'ಕನ್ನಡ', langEn:'Kannada', kids:[10,16], targets:['M3.SUB.BORROW','M3.SUB.NOBORROW'], dur:'1:28', check:'borrow'},
+  C:{lang:'ta', langKn:'ತಮಿಳು', langEn:'Tamil', kids:[14], targets:['M3.SUB.NOBORROW'], dur:'1:44', check:'noborrow'},
+};
+const REASONS=[
+ {k:'ill',i:'therm',te:'ఒంట్లో బాగాలేదు',kn:'ಹುಷಾರಿಲ್ಲ',en:'Unwell'},
+ {k:'travel',i:'bus',te:'కుటుంబ ప్రయాణం లేదా పని',kn:'ಕುಟುಂಬ ಪ್ರಯಾಣ ಅಥವಾ ಕೆಲಸ',en:'Family travel or work'},
+ {k:'fest',i:'flame',te:'పండుగ లేదా శుభకార్యం',kn:'ಹಬ್ಬ ಅಥವಾ ಸಮಾರಂಭ',en:'Festival or function'},
+ {k:'home',i:'home',te:'ఇంట్లో అవసరం',kn:'ಮನೆಯಲ್ಲಿ ಅಗತ್ಯ',en:'Needed at home'},
+ {k:'other',i:'msg',te:'ఇంకేదైనా',kn:'ಬೇರೆ',en:'Other'},
+];
+
+/* ================= State ================= */
+const fresh = () => ({
+  lang:'both', plang:'both', theme:'light', step:0,
+  t:'onboard', tVar:null, ob:0, greet:'none', consent:false, obErr:null,
+  absent:new Set([10,12,13,19]), attEdit:false, draft:null, attSrc:'sats', attCorrected:false,
+  lesson:'none', lowConf:false, pickOpen:false, lessonId:'M3.SUB.BORROW', offline:false, dayDone:false, recSec:0, micHint:false,
+  pk:{A:'ready',B:'ready',C:'review'}, reviewed:{}, pkOpen:null, glossOk:false,
+  filter:'week', lview:'child', lopen:'M3.SUB.BORROW', child:null, delAsk:false, deleted:new Set(),
+  retIdx:0, hw:{12:false,13:false}, retDone:{}, recap:null,
+  p:'empty', pVar:null, msgs:[], reason:null, reasonDone:false,
+  audio:{pos:0, playing:false, played:false, loading:false}, ans:null, ansState:'idle', stopAsk:false, stopped:false,
+  ravi:'missed', clock:{t:'Tue 20 Oct', h:'9:10'}, pclock:'9:10',
+});
+let S = fresh();
+let timer=null, recTimer=null;
+
+/* ================= Copy helpers ================= */
+function K(kn, en){ // teacher text: Kannada first, English caption
+  if(S.lang==='kn') return `<span lang="kn">${kn}</span>`;
+  if(S.lang==='en') return `<span>${en}</span>`;
+  return `<span lang="kn">${kn}</span><span class="cap" lang="en">${en}</span>`;
+}
+const Ki = (kn,en) => S.lang==='en'? en : `<span lang="kn">${kn}</span>`;
+const Kt = (kn,en) => S.lang==='en'? en : kn; // plain text, for aria-label
+function P(te, en){
+  if(S.plang==='te') return `<span lang="te">${te}</span>`;
+  if(S.plang==='en') return `<span>${en}</span>`;
+  return `<span lang="te">${te}</span><span class="cap" lang="en">${en}</span>`;
+}
+const Pi = (te,en) => S.plang==='en'? en : `<span lang="te">${te}</span>`;
+const Pt = (te,en) => S.plang==='en'? en : te;
+const kid = r => KIDS[r-1];
+const kname = r => S.lang==='en'? kid(r)[1] : kid(r)[0];
+const knameH = r => S.lang==='en'? kid(r)[1] : `<span lang="kn">${kid(r)[0]}</span>`;
+const lesson = id => LESSONS.find(l=>l.id===id);
+const AI = () => `<span class="ai">${ic('bot',16)}${Ki('AI ನೆರವು','AI-assisted')}</span>`;
+
+const TAGS = {
+  missed:['missed','calx','ಪಾಠ ತಪ್ಪಿದೆ','Missed lesson'],
+  sent:['sent','send','ಕಳುಹಿಸಲಾಗಿದೆ','Sent'],
+  listened:['listened','head','ಕೇಳಿದ್ದಾರೆ','Listened'],
+  caught:['caught','checkc','ಪಾಠ ಹಿಡಿದಿದ್ದಾರೆ','Caught up'],
+  buddy:['buddy','users','ಗೆಳೆಯರ ನೆರವು ಬೇಕು','Needs buddy'],
+  nophone:['nophone','phoneoff','ಫೋನ್ ಇಲ್ಲ · ಬಡ್ಡಿ ಕಾರ್ಡ್','No phone · buddy card'],
+  stopped:['stopped','belloff','ಕುಟುಂಬ ಸಂದೇಶ ನಿಲ್ಲಿಸಿದೆ','Stopped by family'],
+  queued:['queued','cloudoff','ಉಳಿಸಲಾಗಿದೆ · ನಂತರ ಕಳುಹಿಸುತ್ತದೆ','Saved · will send'],
+  ready:['listened','checkc','ಸಿದ್ಧವಾಗಿದೆ','Ready'],
+  review:['ear','alert','ಪರಿಶೀಲನೆ ಬೇಕು','Needs review'],
+  approved:['caught','check','ಅನುಮೋದಿಸಿದ್ದೀರಿ','Approved'],
+  gen:['queued','clock','ಸಿದ್ಧಪಡಿಸುತ್ತಿದೆ…','Generating…'],
+};
+const tag = k => { const [c,i,kn,en]=TAGS[k]; return `<span class="tag ${c}">${ic(i,16)}${Ki(kn,en)}</span>`; };
+
+/* ================= Shared chrome ================= */
+function sbar(time, offline){ return `<div class="sbar" aria-hidden="true"><span>${time}</span><span class="ic">${ic(offline?'wifioff':'wifi',15)}${ic('batt',18)}</span></div>`; }
+function appbar(titleKn, titleEn, back, right=''){
+  return `<div class="appbar">${back?`<button class="back" data-a="${back}" aria-label="${Kt('ಹಿಂದೆ','Back')}">${ic('back',24)}</button>`:''}<h2 tabindex="-1">${K(titleKn,titleEn)}</h2>${right}</div>`;
+}
+function body(label, inner){ return `<div class="body" tabindex="0" role="region" aria-label="${label}">${inner}</div>`; }
+function syncBadge(){
+  if(S.offline) return `<span class="tag queued">${ic('cloudoff',16)}${Ki('3 ಕಳುಹಿಸಲು ಕಾಯುತ್ತಿವೆ','3 waiting to send')}</span>`;
+  return `<span class="tag listened">${ic('check',16)}${Ki('ಉಳಿಸಲಾಗಿದೆ','Saved')}</span>`;
+}
+function nav(){
+  const items=[['today','home','ಇಂದು','Today'],['approve','check','ಒಪ್ಪಿಗೆ','Approve'],['ledger','list','ತಪ್ಪಿದ ಪಾಠ','Missed'],['ret','users','ಮರಳಿ ಬಂದವರು','Back today'],['week','chart','ವಾರ','Week']];
+  const pending = Object.values(S.pk).filter(v=>v==='ready'||v==='review').length;
+  const cur = {confirm:'today', pkg:'approve', child:'ledger'}[S.t]||S.t;
+  return `<nav class="nav" aria-label="${Kt('ಮುಖ್ಯ ಮೆನು','Main')}">${items.map(([k,i,kn,en])=>`<button data-a="go" data-v="${k}" ${cur===k?'aria-current="page"':''}>${ic(i,22)}<span>${Ki(kn,en)}</span>${k==='approve'&&pending?`<span class="badge" aria-hidden="true">${pending}</span><span class="sr-only">${Kt(`, ${pending} ಕಾಯುತ್ತಿವೆ`,`, ${pending} waiting`)}</span>`:''}</button>`).join('')}</nav>`;
+}
+
+/* ================= Mic: tap to start / tap to stop; holding also works ================= */
+const LIMIT = {lesson:30, greet:10};
+const isRec = k => k==='lesson'? S.lesson==='rec' : S.greet==='rec';
+function micButton(kind){
+  const rec = isRec(kind);
+  return `<button class="mic ${rec?'rec':''}" data-mic="${kind}" aria-pressed="${rec}" aria-label="${rec?Kt('ದಾಖಲಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿ','Stop recording'):Kt('ದಾಖಲಿಸಿ','Record')}">${ic(rec?'square':'mic',40)}</button>`;
+}
+function micStatus(kind){
+  if(!isRec(kind)) return '';
+  return `<div class="wave" aria-hidden="true">${Array.from({length:14},(_,i)=>`<i style="animation-delay:${i*.07}s"></i>`).join('')}</div>
+    <div class="timer">0:${String(S.recSec).padStart(2,'0')} / 0:${LIMIT[kind]}</div>
+    <p class="hint">${K('ಮುಗಿದಾಗ ಮತ್ತೆ ಒತ್ತಿ','Tap again when you finish')}</p>`;
+}
+function startRec(kind){
+  clearInterval(recTimer); S.recSec=0; S.micHint=false;
+  if(kind==='lesson') S.lesson='rec'; else S.greet='rec';
+  announce('t', Kt('ದಾಖಲಿಸುತ್ತಿದೆ','Recording'));
+  recTimer=setInterval(()=>{ S.recSec++; if(S.recSec>=LIMIT[kind]) stopRec(kind); render(); },1000);
+}
+function stopRec(kind){
+  clearInterval(recTimer);
+  if(kind==='greet'){ S.greet='done'; announce('t',Kt('ಶುಭಾಶಯ ಉಳಿಸಲಾಗಿದೆ','Greeting saved')); return; }
+  if(S.recSec<1){ S.lesson='none'; S.micHint=true; announce('t',Kt('ತುಂಬಾ ಚಿಕ್ಕದು. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.','Too short. Try again.')); return; }
+  S.lesson='proc'; S.t='confirm'; S.tVar=null;
+  announce('t', Kt('ಟಿಪ್ಪಣಿ ಉಳಿಸಲಾಗಿದೆ. ಪಾಠಕ್ಕೆ ಹೊಂದಿಸುತ್ತಿದೆ.','Note saved. Matching it to the textbook.'));
+  setTimeout(()=>{ if(S.lesson==='proc' && S.tVar!=='slow'){ S.lesson='mapped'; announce('t',Kt('ಪಾಠ ಸಿದ್ಧ. ಖಚಿತಪಡಿಸಿ.','Lesson ready. Please confirm.')); render(); } },1800);
+}
+function cancelRec(kind){
+  clearInterval(recTimer);
+  if(kind==='lesson') S.lesson='none'; else S.greet='none';
+  announce('t', Kt('ದಾಖಲಿಸುವುದು ನಿಂತಿತು. ಏನೂ ಕಳುಹಿಸಿಲ್ಲ.','Recording stopped. Nothing was sent.'));
+  toast('Recording cancelled (call, gesture or app switch)');
+}
+
+/* ================= Teacher screens ================= */
+function tOnboard(){
+  const steps = [
+  () => `<div style="text-align:center;margin:18px 0 8px">${ic('book',44,1.6)}</div>
+      <h3 class="t" style="text-align:center;font-size:22px">${K('ನಮಸ್ಕಾರ, ಲಕ್ಷ್ಮಿ ಮೇಡಂ','Namaskara, Lakshmi ma’am')}</h3>
+      <p class="muted" style="text-align:center;margin:6px 0 18px">${K('ಗೈರುಹಾಜರಾದ ಮಕ್ಕಳು ನಿಮ್ಮ ತರಗತಿಯೊಂದಿಗೆ ಸಂಪರ್ಕದಲ್ಲಿರಲು ಇದು ಸಹಾಯ ಮಾಡುತ್ತದೆ.','This helps absent children stay connected to your class.')}</p>
+      <div class="card"><div class="row" style="align-items:flex-start">${ic('clock',22)}<div>${K('ಹಾಜರಾತಿ SATS ನಿಂದ ಬರುತ್ತದೆ. ದಿನಕ್ಕೆ ಒಂದು ಧ್ವನಿ ಟಿಪ್ಪಣಿ ಮಾತ್ರ.','Attendance comes from SATS. Just one voice note a day.')}</div></div></div>
+      <div class="card"><div class="row" style="align-items:flex-start">${ic('checkc',22)}<div>${K('ನೀವು ಒಪ್ಪುವವರೆಗೆ ಯಾವುದೂ ಪೋಷಕರಿಗೆ ಹೋಗುವುದಿಲ್ಲ.','Nothing reaches a parent until you approve it.')}</div></div></div>
+      <div class="card"><div class="row" style="align-items:flex-start">${ic('lock',22)}<div>${K('ಈ ದಾಖಲೆಗಳನ್ನು ನೀವು ಮಾತ್ರ ನೋಡಬಹುದು.','Only you can see these records.')}</div></div></div>
+      <div class="sticky"><button class="btn primary" data-a="ob" data-v="1">${K('ಪ್ರಾರಂಭಿಸಿ','Start')}</button></div>`,
+  () => {
+    const g=S.greet;
+    return `<p class="small muted" style="margin:0 0 4px">${K('ಹಂತ 1 / 2','Step 1 of 2')}</p>
+      <h3 class="t">${K('ನಿಮ್ಮ ಧ್ವನಿಯಲ್ಲಿ 10 ಸೆಕೆಂಡು ಶುಭಾಶಯ','A 10-second greeting in your voice')}</h3>
+      <p class="muted small" style="margin:4px 0 12px">${K('ಪ್ರತಿ ಸಂದೇಶ ನಿಮ್ಮ ಧ್ವನಿಯಿಂದ ಆರಂಭವಾಗುತ್ತದೆ. ಒಮ್ಮೆ ಮಾತ್ರ ದಾಖಲಿಸಿ.','Every message starts with your voice. Record it once.')}</p>
+      <div class="card panel"><p class="small muted" style="margin:0 0 4px">${K('ಹೀಗೆ ಹೇಳಬಹುದು:','You could say:')}</p><div class="teal" style="font-weight:600">${K('“ನಮಸ್ಕಾರ, ನಾನು ಲಕ್ಷ್ಮಿ ಟೀಚರ್. ನಿಮ್ಮ ಮಗು ನಮಗೆ ನೆನಪಾಗುತ್ತಿದೆ. ಈ ಸಂದೇಶ ಕೇಳಿ.”','“Namaskara, this is Lakshmi teacher. We miss your child. Please listen to this message.”')}</div></div>
+      ${g==='done'
+        ? `<div class="card"><div class="player"><button class="play" data-a="toast" data-v="Plays the teacher’s greeting" aria-label="${Kt('ನಿಮ್ಮ ಶುಭಾಶಯ ಕೇಳಿ','Play your greeting')}">${ic('play',22)}</button><div class="sp"><div class="bar"><i style="width:0"></i></div><div class="small muted" style="margin-top:4px">0:09</div></div></div><div class="btns"><button class="btn ghost" data-a="greetAgain">${K('ಮತ್ತೆ ದಾಖಲಿಸಿ','Record again')}</button></div></div>`
+        : `<div style="text-align:center">${micButton('greet')}${g==='rec'?micStatus('greet'):`<p class="hint">${K('ಒತ್ತಿ ಮಾತನಾಡಿ. ಮುಗಿದಾಗ ಮತ್ತೆ ಒತ್ತಿ.','Tap and speak. Tap again when you finish.')}</p>`}</div>`}
+      <label class="checkrow"><input type="checkbox" data-a="consent" ${S.consent?'checked':''}><span class="small">${K('ನನ್ನ ಧ್ವನಿಯನ್ನು ಪೋಷಕರಿಗೆ ಕಳುಹಿಸುವ ಸಂದೇಶಗಳಲ್ಲಿ ಮಾತ್ರ ಬಳಸಲು ಒಪ್ಪುತ್ತೇನೆ. ಯಾವಾಗ ಬೇಕಾದರೂ ಅಳಿಸಬಹುದು.','I agree my voice is used only in messages to parents. I can delete it any time.')}</span></label>
+      <div class="sticky">${S.obErr?`<p class="hint err" role="alert">${S.obErr==='rec'?K('ಮೊದಲು ಶುಭಾಶಯ ದಾಖಲಿಸಿ.','Record your greeting first.'):K('ಒಪ್ಪಿಗೆಗೆ ಗುರುತು ಹಾಕಿ.','Tick the box to agree.')}</p>`:''}<button class="btn primary" data-a="obSave">${K('ಉಳಿಸಿ, ಮುಂದೆ','Save and continue')}</button></div>`;},
+  () => `<p class="small muted" style="margin:0 0 4px">${K('ಹಂತ 2 / 2','Step 2 of 2')}</p>
+      <h3 class="t">${K('ಗೈರಾದ ದಿನದ ಸಂಜೆಯ ಸಂದೇಶ','The evening message on a day of absence')}</h3>
+      <p class="muted small" style="margin:4px 0 12px">${K('ಇದನ್ನು ಒಮ್ಮೆ ಒಪ್ಪಿ. ಪ್ರತಿ ಸಂಜೆ ಗೆರೆ ಹಾಕಿದ ಪದಗಳು ನಿಮ್ಮ ದಾಖಲೆಯಿಂದ ತುಂಬುತ್ತವೆ. AI ಬರೆಯುವುದಿಲ್ಲ.','Approve this once. Each evening the underlined words are filled from your records. No AI writing.')}</p>
+      <div class="card" style="line-height:1.9">
+        <div class="vn" style="margin-bottom:10px"><span style="padding:0 6px">${ic('mic',18)}</span><span class="small">${K('ನಿಮ್ಮ ಶುಭಾಶಯ','Your greeting')}</span></div>
+        ${S.lang==='en'
+          ? `We missed <span class="slot">Ravi</span> today. In class we learned <span class="slot">subtraction with borrowing</span>. Homework: textbook <span class="slot">Part 2, page 15</span>. Tomorrow: <span class="slot">word problems</span>. A classmate is keeping <span class="slot">Ravi</span>’s seat.`
+          : `<span lang="kn">ಇಂದು <span class="slot">ರವಿ</span> ನಮಗೆ ನೆನಪಾದರು. ಇಂದು ತರಗತಿಯಲ್ಲಿ <span class="slot">ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ</span> ಕಲಿತೆವು. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ <span class="slot">ಭಾಗ 2, ಪುಟ 15</span>. ನಾಳೆ: <span class="slot">ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು</span>. ಒಬ್ಬ ಸಹಪಾಠಿ <span class="slot">ರವಿ</span>ಯ ಜಾಗ ಕಾಯುತ್ತಿದ್ದಾರೆ.</span>${S.lang==='both'?`<span class="cap" lang="en" style="margin-top:6px">We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat.</span>`:''}`}
+      </div>
+      <p class="small muted">${K('ಉದಾಹರಣೆ: ರವಿ, ಮಂಗಳವಾರ. ಪೋಷಕರು ಇದನ್ನು ತೆಲುಗು, ತಮಿಳು ಅಥವಾ ಕನ್ನಡದಲ್ಲಿ ಕೇಳುತ್ತಾರೆ.','Example: Ravi, Tuesday. Parents hear it in Telugu, Tamil or Kannada.')}</p>
+      <button class="btn ghost full" data-a="toast" data-v="Plays the Telugu version, filled by code">${ic('vol',18)} ${K('ತೆಲುಗು ಆವೃತ್ತಿ ಕೇಳಿ','Listen to the Telugu version')}</button>
+      <div class="sticky"><button class="btn primary" data-a="ob" data-v="3">${K('ಈ ಸಂದೇಶ ಒಪ್ಪಿ','Approve this message')}</button>
+      <button class="btn text full" data-a="toast" data-v="Saved for later. No evening messages until approved.">${K('ಈಗ ಬೇಡ · ನಂತರ ಬದಲಿಸಬಹುದು','Not now · you can change it later')}</button></div>`,
+  () => `<div style="text-align:center"><div style="margin:40px 0 10px;color:var(--primary)">${ic('checkc',64,1.6)}</div>
+      <h3 class="t" style="font-size:22px">${K('ಸಿದ್ಧ','All set')}</h3>
+      <p class="muted">${K('36 ರಲ್ಲಿ 31 ಕುಟುಂಬಗಳು ಸಂದೇಶಗಳಿಗೆ ಒಪ್ಪಿವೆ. 5 ಕುಟುಂಬಗಳಿಗೆ ಫೋನ್ ಇಲ್ಲ: ಅವರ ಮಕ್ಕಳಿಗೆ ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್.','31 of 36 families agreed to messages. 5 families have no phone: their children get a buddy card on return.')}</p>
+      <button class="btn primary" data-a="go" data-v="today" style="margin-top:20px">${K('ಇಂದು ಗೆ ಹೋಗಿ','Go to Today')}</button></div>`,
+  ];
+  return sbar(S.clock.h) + appbar('ಪ್ರಾರಂಭ','Set up', S.ob>0&&S.ob<3?'obBack':null) + body(Kt('ಪ್ರಾರಂಭ','Set up'), steps[S.ob]());
+}
+
+function currentCheck(){ return CHECKS.borrow; }
+function updates(){
+  const u=[];
+  if(S.stopped) u.push({r:12, t:'stopped', kn:'ಕುಟುಂಬ ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಿದೆ · ಬಡ್ಡಿ ಕಾರ್ಡ್ ಮುಂದುವರಿಯುತ್ತದೆ', en:'family stopped messages · buddy card continues'});
+  if(S.ansState==='sent') u.push(S.ans===currentCheck().correct
+    ? {r:12, t:'caught', kn:'ಚಿತ್ರ ಪ್ರಶ್ನೆ ಸರಿ', en:'picture question right'}
+    : {r:12, t:'buddy', kn:'ಇನ್ನೂ ಅಭ್ಯಾಸ ಬೇಕು · ಮರಳಿದಾಗ ಬಡ್ಡಿ ಕಾರ್ಡ್ ಸಿದ್ಧ', en:'needs more practice · buddy card ready for the return'});
+  if(S.audio.played) u.push({r:12, t:'listened', kn:'ಕುಟುಂಬ ಪಾಠ ಕೇಳಿದೆ', en:'family listened to the catch-up'});
+  if(S.reasonDone && S.reason){ const R=REASONS.find(x=>x.k===S.reason); u.push({r:12, t:null, i:R.i, kn:`ಕಾರಣ: ${R.kn}`, en:`reason: ${R.en.toLowerCase()}`}); }
+  if(S.hw[12]) u.push({r:12, t:'caught', kn:'ಮನೆಕೆಲಸ ತಂದಿದ್ದಾರೆ', en:'brought homework'});
+  u.push({r:11, t:'listened', kn:'ಕುಟುಂಬ ಪಾಠ ಕೇಳಿದೆ', en:'family listened to the catch-up'});
+  u.push({r:16, t:'caught', kn:'ಚಿತ್ರ ಪ್ರಶ್ನೆ ಸರಿ', en:'picture question right'});
+  u.push({r:10, t:'buddy', kn:'ಇನ್ನೂ ಅಭ್ಯಾಸ ಬೇಕು · ಮರಳಿದಾಗ ಬಡ್ಡಿ ಕಾರ್ಡ್ ಸಿದ್ಧ', en:'needs more practice · buddy card ready for the return'});
+  return u.filter(x=>!S.deleted.has(x.r));
+}
+function updatesCard(){
+  if(S.tVar==='noupdates') return `<div class="card"><h3 class="t">${K('ನಿನ್ನೆಯಿಂದ','Since yesterday')}</h3><p class="muted small" style="margin:4px 0 0">${K('ನಿನ್ನೆಯಿಂದ ಹೊಸದೇನೂ ಇಲ್ಲ.','Nothing new since yesterday.')}</p></div>`;
+  const u=updates(); if(!u.length) return '';
+  const ICON={caught:['checkc','var(--s-caught)'],buddy:['users','var(--s-buddy)'],listened:['head','var(--s-listened)'],stopped:['belloff','var(--s-stopped)']};
+  return `<div class="card" style="border-left:4px solid var(--primary)">
+    <div class="row"><h3 class="t sp">${K('ನಿನ್ನೆಯಿಂದ','Since yesterday')}</h3><span class="small muted">${Ki(`${u.length} ಹೊಸ ಸುದ್ದಿ`,`${u.length} updates`)}</span></div>
+    <ul style="list-style:none;margin:4px 0 0;padding:0">${u.slice(0,4).map(x=>{ const [i,c]=x.t?ICON[x.t]:[x.i,'var(--ink-muted)'];
+      return `<li><button class="li" data-a="openChild" data-v="${x.r}" style="padding:8px 0;align-items:flex-start"><span style="color:${c};margin-top:2px">${ic(i,20)}</span><span class="sp"><b>${knameH(x.r)}</b>: ${Ki(x.kn,x.en)}${S.lang==='both'?`<span class="cap" lang="en">${x.en}</span>`:''}</span>${ic('right',16)}</button></li>`; }).join('')}</ul>
+    <button class="btn text full" data-a="toChildView">${K(`ಎಲ್ಲಾ ${u.length} ಸುದ್ದಿ ನೋಡಿ`,`See all ${u.length} updates`)}</button>
+  </div>`;
+}
+
+function tToday(){
+  const n=S.absent.size;
+  let h='';
+  if(S.offline) h += `<div class="banner" role="status">${ic('cloudoff',18)}<div>${S.lesson==='queued'?K('ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನಿಮ್ಮ ಟಿಪ್ಪಣಿ ಫೋನಿನಲ್ಲಿ ಉಳಿದಿದೆ. ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ಕಳುಹಿಸಿ ಪಾಠಕ್ಕೆ ಹೊಂದಿಸುತ್ತದೆ.','No network. Your note is saved on the phone. It will send and be matched when you have network.'):K('ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನೀವು ಟಿಪ್ಪಣಿ ದಾಖಲಿಸಬಹುದು; ಅದು ಫೋನಿನಲ್ಲಿ ಉಳಿಯುತ್ತದೆ.','No network. You can still record your note; it stays on the phone.')}</div></div>`;
+  if(S.dayDone && S.lesson==='confirmed') h += `<div class="banner ok" role="status">${ic('checkc',18)}<div>${K('ಇಂದಿನ ಕೆಲಸ ಮುಗಿಯಿತು. ಧನ್ಯವಾದ.','Done for today. Thank you.')}</div></div>`;
+  if(S.attEdit){
+    const d=S.draft, dn=d.size;
+    h += `<h3 class="t">${K(S.attSrc==='waiting'?'ಹಾಜರಾತಿ ಇಲ್ಲೇ ಗುರುತಿಸಿ':'ಹಾಜರಾತಿ ಸರಿಪಡಿಸಿ', S.attSrc==='waiting'?'Mark attendance here':'Correct attendance')}</h3>
+    <p class="small muted" style="margin:0 0 10px">${S.attSrc==='waiting'?K('ಎಲ್ಲರೂ ಹಾಜರು. ಗೈರಾದ ಮಕ್ಕಳನ್ನು ಮಾತ್ರ ಒತ್ತಿ.','Everyone is present. Tap only the children who are absent.'):K('SATS ಹಾಜರಾತಿ ತಪ್ಪಿದ್ದರೆ ಮಾತ್ರ. ಇಲ್ಲಿ ಮಾತ್ರ ಬಳಸುತ್ತೇವೆ; SATS ಬದಲಾಗುವುದಿಲ್ಲ.','Only if the SATS attendance is wrong. Used here only; SATS is not changed.')}</p>
+    <div class="grid4" role="group" aria-label="${Kt('ಗೈರಾದ ಮಕ್ಕಳು','Absent children')}">${KIDS.map((k,i)=>{ const r=i+1, on=d.has(r);
+      return `<button class="kid" role="checkbox" data-a="kid" data-v="${r}" aria-checked="${on}" aria-label="${r} ${kname(r)}, ${on?Kt('ಗೈರು','absent'):Kt('ಹಾಜರು','present')}"><span class="no">${r}</span><span class="nm">${knameH(r)}</span>${on?`<span class="ab">${Ki('ಗೈರು','absent')}</span>`:''}</button>`;}).join('')}</div>
+    <div class="sticky">
+      <div class="small" style="text-align:center;margin-bottom:6px;font-weight:600">${K(`${dn} ಗೈರು · ${36-dn} ಹಾಜರು`,`${dn} absent · ${36-dn} present`)}</div>
+      <div class="btns" style="margin-top:0"><button class="btn ghost" data-a="attCancel">${K('ರದ್ದು','Cancel')}</button><button class="btn primary" style="min-height:48px" data-a="saveAtt">${K('ಉಳಿಸಿ','Save')}</button></div></div>`;
+  } else {
+    h += S.attSrc==='waiting'
+      ? `<div class="card"><div class="row" style="align-items:flex-start">${ic('clock',22)}<div class="sp"><b>${K('SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ','SATS attendance has not come in yet')}</b><div class="small muted">${K('10:00 ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ.','We will check again at 10:00. You do not need to do anything.')}</div></div></div><button class="btn text full" data-a="editAtt">${K('ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ','Mark it here if you prefer')}</button></div>`
+      : `<div class="card"><div class="row" style="align-items:flex-start">${ic('checkc',22)}<div class="sp"><div class="small muted">${S.attSrc==='manual'?K('ಹಾಜರಾತಿ · ನೀವು ಗುರುತಿಸಿದ್ದು','Attendance · marked by you'):K('ಹಾಜರಾತಿ · SATS (ಅನುಕರಣೆ), 9:05','Attendance · SATS (simulated), 9:05')}${S.attCorrected?' · '+Ki('ನೀವು ಸರಿಪಡಿಸಿದ್ದು','corrected by you'):''}</div><b>${K(`${n} ಗೈರು`,`${n} absent`)}</b><div class="small muted">${[...S.absent].sort((a,b)=>a-b).map(knameH).join(', ')||'—'}</div></div></div><button class="btn text full" data-a="editAtt">${K('ತಪ್ಪಿದೆಯೇ? ಸರಿಪಡಿಸಿ','Wrong? Correct it')}</button></div>`;
+    if(S.lesson==='none' || S.lesson==='rec'){
+      h += `<div class="card" style="text-align:center"><h3 class="t">${K('ಇಂದಿನ ಪಾಠ','Today’s lesson')}</h3>
+        <p class="small muted" style="margin:2px 0 4px">${K('ಒತ್ತಿ, ಇಂದು ಏನು ಕಲಿಸಿದಿರಿ ಎಂದು ಹೇಳಿ','Tap and say what you taught today')}</p>
+        ${micButton('lesson')}
+        ${S.lesson==='rec'?micStatus('lesson'):`<p class="hint">${K('30 ಸೆಕೆಂಡು ವರೆಗೆ · ಕನ್ನಡದಲ್ಲಿ · ಒತ್ತಿ ಹಿಡಿದರೂ ಆಗುತ್ತದೆ','Up to 30 seconds · in Kannada · holding also works')}</p>`}
+        ${S.micHint?`<p class="hint err" role="alert">${K('ತುಂಬಾ ಚಿಕ್ಕದು. ಒತ್ತಿ, ಮಾತನಾಡಿ, ಮತ್ತೆ ಒತ್ತಿ.','Too short. Tap, speak, then tap again.')}</p>`:''}
+        <button class="btn text full" data-a="pick">${K('ಅಥವಾ ಪಟ್ಟಿಯಿಂದ ಪಾಠ ಆರಿಸಿ','Or pick the lesson from the list')}</button></div>`;
+    } else if(S.lesson==='queued'){
+      h += `<div class="card"><div class="row">${ic('cloudoff',20)}<span class="sp">${K('ಟಿಪ್ಪಣಿ ಉಳಿಸಲಾಗಿದೆ · ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ಪಾಠಕ್ಕೆ ಹೊಂದಿಸುತ್ತದೆ','Note saved · it will be matched when you have network')}</span></div></div>`;
+    } else if(S.lesson==='confirmed'){
+      const l=lesson(S.lessonId); const fam=[...S.absent].filter(r=>r!==13).length;
+      h += `<div class="card"><div class="small muted">${K('ಇಂದಿನ ಪಾಠ','Today’s lesson')}</div><div class="row"><b class="sp">${K(l.kn,l.en)}</b>${ic('checkc',22)}</div><div class="small muted">${K(l.page,l.pageEn)}</div>
+        <button class="btn text full" data-a="pick">${K('ಬದಲಿಸಿ','Change')}</button></div>
+      <div class="card"><div class="row" style="align-items:flex-start">${ic('list',20)}<div class="sp"><b>${K(`ತಪ್ಪಿದ ಪಾಠಗಳಿಗೆ ಸೇರಿಸಲಾಗಿದೆ: ${n} ಮಕ್ಕಳು`,`Added to missed lessons: ${n} children`)}</b><div class="small muted">${K(`${l.kn} ತಪ್ಪಿಸಿಕೊಂಡವರು`,`who missed ${l.en.toLowerCase()}`)}</div></div></div><button class="btn text full" data-a="toLessonView">${K(`ಆ ${n} ಮಕ್ಕಳನ್ನು ನೋಡಿ`,`See the ${n} children`)}</button></div>
+      <div class="card panel"><div class="row" style="align-items:flex-start">${ic('send',20)}<div class="sp"><b class="teal">${K(`ಇಂದು ಸಂಜೆ 6 ರ ನಂತರ: ${n} ರಲ್ಲಿ ${fam} ಕುಟುಂಬಗಳಿಗೆ ಸಂದೇಶ`,`After 6 pm tonight: message to ${fam} of ${n} families`)}</b>
+        <p class="small" style="margin:4px 0 0">${K('ನೀವು ಒಮ್ಮೆ ಒಪ್ಪಿದ ಸಂದೇಶ, ಇಂದಿನ ಪಾಠ ಮತ್ತು ಪುಟದೊಂದಿಗೆ.','The message you approved once, with today’s lesson and page.')}</p>
+        ${S.absent.has(13)?`<p class="small" style="margin:6px 0 0">${tag('nophone')} ${knameH(13)}</p>`:''}</div></div>
+        <button class="btn ghost full" data-a="step" data-v="6" style="margin-top:10px">${K('ಸಂದೇಶ ನೋಡಿ','See the message')}</button></div>`;
+    } else {
+      h += `<div class="card"><div class="row">${ic('clock',20)}<span class="sp">${K('ಟಿಪ್ಪಣಿ ಉಳಿಸಲಾಗಿದೆ','Note saved')}</span><button class="btn text" data-a="go" data-v="confirm">${K('ನೋಡಿ','Open')}</button></div></div>`;
+    }
+    h += updatesCard();
+  }
+  return sbar(S.clock.h, S.offline) + appbar('ಇಂದು, 20 ಅಕ್ಟೋಬರ್','Today, 20 Oct', null, syncBadge()) + body(Kt('ಇಂದು','Today'), h) + nav() + (S.pickOpen?pickSheet():'');
+}
+
+function pickSheet(){
+  const items = [NEXT_IN_BOOK, ...LESSONS.map(l=>l.id).filter(id=>id!==NEXT_IN_BOOK)];
+  return `<div class="scrim" data-a="pickClose"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickH" data-stop>
+    <div class="row"><h3 class="t sp" id="pickH">${K('ಅಧ್ಯಾಯ 5 · ಕಳೆಯುವ ಮೋಜು','Chapter 5 · The fun of subtracting')}</h3><button class="btn" data-a="pickClose" aria-label="${Kt('ಮುಚ್ಚಿ','Close')}">${ic('x',22)}</button></div>
+    <div class="list" role="radiogroup" aria-labelledby="pickH" style="margin-top:8px">${items.map(id=>{ const l=lesson(id), sel=S.lesson==='confirmed'&&S.lessonId===id;
+      return `<button class="li" role="radio" aria-checked="${sel}" data-a="pickLesson" data-v="${id}"><span class="radio ${sel?'on':''}" aria-hidden="true"></span><div class="sp"><div class="nm">${K(l.kn,l.en)}</div><div class="small muted">${Ki(l.page,l.pageEn)}${id===NEXT_IN_BOOK?` · <b>${Ki('ಪುಸ್ತಕದಲ್ಲಿ ಮುಂದಿನದು','Next in the book')}</b>`:''}</div></div></button>`;}).join('')}</div>
+    <button class="btn text full" data-a="toast" data-v="Shows the other chapters">${K('ಬೇರೆ ಅಧ್ಯಾಯ','Another chapter')}</button></div></div>`;
+}
+
+function noteCard(){
+  return `<div class="card" style="margin-top:12px"><div class="row"><div class="sp small muted">${K('ನೀವು ಹೇಳಿದ್ದು','What you said')}</div><button class="play" style="width:48px;height:48px" data-a="toast" data-v="Plays the teacher’s own note" aria-label="${Kt('ನಿಮ್ಮ ಟಿಪ್ಪಣಿ ಕೇಳಿ','Play your note')}">${ic('play',18)}</button></div>
+    <p style="margin:4px 0 8px">${K('ಬ್ಲಾಕ್ ಮತ್ತು ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ ಬಳಸಿ, ದಶಕ ಪಡೆದು ಕಳೆಯುವುದನ್ನು ಕಲಿಸಿದೆ.','Taught subtracting by getting a ten, using blocks and the place-value table.')}</p>
+    <div class="small muted">${K('ನೀವು ಬಳಸಿದ ಉದಾಹರಣೆಗಳು','Examples you used')}</div><div class="sums" style="font-size:18px">346 − 158 · 452 − 358</div></div>`;
+}
+function tConfirm(){
+  const l=lesson(S.lessonId);
+  let b='';
+  if(S.lesson==='proc'){
+    b = S.tVar==='slow'
+      ? `<div class="banner" role="status">${ic('clock',18)}<div>${K('ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಸಮಯ ಆಗುತ್ತಿದೆ. ನಿಮ್ಮ ಟಿಪ್ಪಣಿ ಉಳಿದಿದೆ.','Taking longer than usual. Your note is saved.')}</div></div><button class="btn primary" data-a="pick">${K('ಪಟ್ಟಿಯಿಂದ ಆರಿಸಿ','Pick from the list')}</button><button class="btn text full" data-a="toToday">${K('ಕಾಯಿರಿ; ಸಿದ್ಧವಾದಾಗ ಇಂದು ಪುಟದಲ್ಲಿ ತೋರಿಸುತ್ತೇವೆ','Wait; we’ll show it on Today when ready')}</button>`
+      : `<div style="text-align:center;margin-top:60px"><div class="spin" aria-hidden="true"></div><p>${K('ನಿಮ್ಮ ಟಿಪ್ಪಣಿಯನ್ನು ಪಠ್ಯಪುಸ್ತಕಕ್ಕೆ ಹೊಂದಿಸುತ್ತಿದೆ…','Matching your note to the textbook…')}</p><p class="small muted">${K('ಸಾಮಾನ್ಯವಾಗಿ 20 ಸೆಕೆಂಡಿಗಿಂತ ಕಡಿಮೆ. ನೀವು ಬೇರೆ ಕೆಲಸ ಮಾಡಬಹುದು; ಇಂದು ಪುಟದಲ್ಲಿ ತೋರಿಸುತ್ತೇವೆ.','Usually under 20 seconds. You can carry on; we’ll show it on Today.')}</p></div>`;
+  } else if(S.lesson==='unclear'){
+    b=`<div class="banner err" role="alert">${ic('alert',18)}<div>${K('ಟಿಪ್ಪಣಿ ಸ್ಪಷ್ಟವಾಗಿ ಕೇಳಿಸಲಿಲ್ಲ. ನಿಮ್ಮ ಟಿಪ್ಪಣಿ ಉಳಿದಿದೆ. ಪಟ್ಟಿಯಿಂದ ಪಾಠ ಆರಿಸಿ.','Could not hear the note clearly. Your note is saved. Pick the lesson from the list.')}</div></div>
+      <button class="btn primary" data-a="pick">${K('ಪಟ್ಟಿಯಿಂದ ಆರಿಸಿ','Pick from the list')}</button>
+      <button class="btn text full" data-a="relesson">${K('ಮತ್ತೆ ಹೇಳಿ','Say it again')}</button>`;
+  } else if(S.lowConf){
+    const alt=lesson('M3.SUB.NOBORROW');
+    b=`<div class="card warn"><div class="row" style="margin-bottom:6px;color:var(--warning)">${ic('alert',20)}<b style="color:var(--ink)">${K('ಇವುಗಳಲ್ಲಿ ಒಂದು ಎನಿಸುತ್ತದೆ. ದಯವಿಟ್ಟು ಆರಿಸಿ.','Looks like one of these. Please choose.')}</b></div>
+        <div class="list" role="radiogroup" aria-label="${Kt('ಇಂದಿನ ಪಾಠ','Today’s lesson')}" style="margin:0">
+          <button class="li" role="radio" aria-checked="false" data-a="pickLesson" data-v="${l.id}"><span class="radio" aria-hidden="true"></span><div class="sp"><div class="nm">${K(l.kn,l.en)}</div><div class="small muted">${Ki(l.page,l.pageEn)}</div></div></button>
+          <button class="li" role="radio" aria-checked="false" data-a="pickLesson" data-v="${alt.id}"><span class="radio" aria-hidden="true"></span><div class="sp"><div class="nm">${K(alt.kn,alt.en)}</div><div class="small muted">${Ki(alt.page,alt.pageEn)}</div></div></button>
+        </div>
+        <button class="btn text full" data-a="pick">${K('ಬೇರೆ ಪಾಠ','Another lesson')}</button></div>
+      ${noteCard()}`;
+  } else {
+    b=`<div class="row" style="margin-bottom:8px">${AI()}</div>
+      <p class="muted" style="margin:0">${K('ಇಂದಿನ ಪಾಠ:','Today’s lesson is:')}</p>
+      <div class="card" style="border-width:2px;border-color:var(--primary)"><div style="font-size:20px;font-weight:700;line-height:1.4">${K(l.kn,l.en)}</div>
+        <div class="row small muted" style="margin-top:6px">${ic('book',16)} ${Ki(l.page,l.pageEn)}</div></div>
+      <button class="btn primary" data-a="confirmLesson">${K('ಸರಿ, ಖಚಿತಪಡಿಸಿ','Confirm')}</button>
+      <button class="btn text full" data-a="pick">${K('ಬೇರೆ ಪಾಠ ಆರಿಸಿ','Pick another lesson')}</button>
+      ${noteCard()}`;
+  }
+  return sbar(S.clock.h,S.offline)+appbar('ಇಂದಿನ ಪಾಠ','Today’s lesson','toToday')+body(Kt('ಇಂದಿನ ಪಾಠ','Today’s lesson'), b+'<div style="height:16px"></div>')+nav()+(S.pickOpen?pickSheet():'');
+}
+
+function shownStatus(k){ if(S.tVar==='gen' && k==='B' && S.pk.B==='ready') return 'gen'; return S.pk[k]; }
+function tApprove(){
+  const keys=Object.keys(PKGS);
+  const checkedReady = keys.filter(k=>shownStatus(k)==='ready' && S.reviewed[k]);
+  const anyReady = keys.some(k=>shownStatus(k)==='ready');
+  const allDone = keys.every(k=>S.pk[k]==='approved');
+  let b = `<p class="muted small" style="margin:0 0 12px">${K('ಮಗುವಿಗೊಂದಲ್ಲ, ಪ್ರತಿ ಪುನರಾವರ್ತನೆಗೆ ಒಂದು ಅನುಮೋದನೆ. ನೀವು ಒಪ್ಪುವವರೆಗೆ ಏನೂ ಕಳುಹಿಸುವುದಿಲ್ಲ.','One approval per catch-up, not per child. Nothing is sent until you approve.')}</p>`;
+  if(S.tVar==='offline') b = `<div class="banner" role="status">${ic('cloudoff',18)}<div>${K('ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನಿಮ್ಮ ಅನುಮೋದನೆ ಫೋನಿನಲ್ಲಿ ಉಳಿಯುತ್ತದೆ, ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ಕಳುಹಿಸುತ್ತದೆ.','No network. Your approval is saved on the phone and will send when you have network.')}</div></div>`+b;
+  if(allDone){ const nP=keys.length, nF=keys.reduce((s,k)=>s+PKGS[k].kids.filter(r=>!S.deleted.has(r)).length,0); b += `<div class="banner ok" role="status">${ic('checkc',18)}<div>${K(`${nP} ಕೂ ಅನುಮೋದಿಸಿದ್ದೀರಿ. ${nF} ಕುಟುಂಬಗಳಿಗೆ ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ.`,`All ${nP} approved. ${nF} families get them after 6 pm.`)}</div></div>`; }
+  b += `<ul style="list-style:none;margin:0;padding:0">`+keys.map(k=>{
+    const p=PKGS[k], st=shownStatus(k);
+    return `<li><button class="card li" style="display:block;border:1px solid var(--border);margin-bottom:10px" data-a="openPkg" data-v="${k}" ${st==='gen'?'disabled':''}>
+      <div class="row"><b class="sp">${K(`${p.langKn} · ${p.kids.length} ಮಕ್ಕಳು`,`${p.langEn} · ${p.kids.length} ${p.kids.length>1?'children':'child'}`)}</b>${ic('right',18)}</div>
+      <div class="small" style="margin:2px 0">${p.kids.map(knameH).join(', ')}</div>
+      <div class="small muted" style="margin:0 0 8px">${p.targets.map(t=>Ki(lesson(t).kn,lesson(t).en)).join(' + ')} · ${p.dur}</div>
+      <div class="row" style="flex-wrap:wrap">${tag(S.tVar==='offline'&&st==='approved'?'queued':st)}${st==='ready'&&S.reviewed[k]?`<span class="small">${ic('check',14)} ${Ki('ಪರಿಶೀಲಿಸಿದ್ದೀರಿ','Checked')}</span>`:''}${st==='approved'?`<span class="small muted">${Ki('ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ','Goes after 6 pm')}</span>`:''}</div></button></li>`;}).join('')+`</ul>`;
+  if(!allDone){
+    b += `<button class="btn primary" data-a="approveChecked" ${checkedReady.length?'':'disabled'} aria-describedby="apHint">${K(`ಪರಿಶೀಲಿಸಿದ ${checkedReady.length} ಒಪ್ಪಿ`,`Approve the ${checkedReady.length} you checked`)}</button>
+    <p class="hint" id="apHint">${anyReady&&!checkedReady.length?K('ಮೊದಲು ಪ್ರತಿಯೊಂದನ್ನು ತೆರೆದು ಕನ್ನಡ ಸಾರಾಂಶಕ್ಕೆ ಗುರುತು ಹಾಕಿ.','Open each one and tick the Kannada summary first.'):K('“ಪರಿಶೀಲನೆ ಬೇಕು” ಇರುವುದನ್ನು ಒಂದೊಂದಾಗಿ ನೋಡಿ.','Open “Needs review” ones one at a time.')}</p>`;
+  }
+  return sbar(S.clock.h, S.tVar==='offline')+appbar('ಈ ವಾರದ ಪುನರಾವರ್ತನೆಗಳು','This week’s catch-ups',null)+body(Kt('ಅನುಮೋದನೆ','Approve'), b)+nav();
+}
+
+function tPkg(){
+  const k=S.pkOpen, p=PKGS[k], st=S.pk[k], c=CHECKS[p.check], a=S.audio;
+  let b=`<div class="row" style="margin-bottom:8px;flex-wrap:wrap">${tag(st)}<span class="sp"></span>${AI()}</div>`;
+  if(st==='review') b+=`<div class="banner err">${ic('alert',18)}<div>${K('ಪರಿಶೀಲನೆಯಲ್ಲಿ ತಪ್ಪಿತು: ಆಡಿಯೋ 104 ಸೆಕೆಂಡು, ಮಿತಿ 90.','Didn’t pass the check: audio is 104 seconds, limit is 90.')}</div></div>`;
+  if(st==='gen') b+=`<div class="banner" role="status">${ic('clock',18)}<div>${K('ಹೊಸ ಆವೃತ್ತಿ ಸಿದ್ಧಪಡಿಸುತ್ತಿದೆ… ಸಿದ್ಧವಾದಾಗ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ.','Writing a new version… Check it again when it’s ready.')}</div></div>`;
+  b+=`<div class="small muted">${K(`${p.langKn} · ಮಕ್ಕಳು`,`${p.langEn} · children`)}</div><div style="margin-bottom:10px;font-weight:600">${p.kids.map(knameH).join(', ')}</div>
+  <div class="card"><div class="player"><button class="play" data-a="pkgPlay" aria-label="${a.playing?Kt('ನಿಲ್ಲಿಸಿ','Pause'):Kt('ಕೇಳಿ','Play')}">${ic(a.playing?'pause':'play',22)}</button><div class="sp"><div class="bar"><i style="width:${a.pos}%"></i></div>
+    <div class="segs"><span class="${a.pos<12?'on':''}">${Ki('ನಿಮ್ಮ ಧ್ವನಿ','Your voice')}</span><span class="${a.pos>=12&&a.pos<18?'on':''}">${Ki('ಸೂಚನೆ','Notice')}</span><span class="${a.pos>=18?'on':''}" style="flex:2.5 1 0">${Ki('ಪಾಠ','Lesson')} · ${p.dur}</span></div></div></div></div>
+  <div class="card panel"><div class="small teal" style="font-weight:700">${K('ಕನ್ನಡ ಸಾರಾಂಶ','Kannada summary')}</div>
+    <p style="margin:4px 0 0">${p.check==='borrow'
+      ? K('ಮಗುವಿಗೆ ದಶಕ ಪಡೆದು ಕಳೆಯುವುದನ್ನು ಪುಲ್ಲೆ ಕಟ್ಟುಗಳಿಂದ ತೋರಿಸುತ್ತದೆ: 43 ರಲ್ಲಿ 18. ಒಂದು ಕಟ್ಟು ಬಿಚ್ಚಿ 10 ಬಿಡಿ ಪುಲ್ಲೆ ಮಾಡುತ್ತದೆ. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ಕೊನೆಗೆ: “ಲಕ್ಷ್ಮಿ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.”','Shows the child subtracting by getting a ten, with bundles of sticks: 18 from 43. Opens one bundle into 10 loose sticks. Homework: textbook Part 2, page 15. Ends: “Show Lakshmi teacher.”')
+      : K('ಮಗುವಿಗೆ ದಶಕ ಪಡೆಯದೆ ಕಳೆಯುವುದನ್ನು ತೋರಿಸುತ್ತದೆ: 47 ರಲ್ಲಿ 23, ಮೊದಲು ಬಿಡಿ, ನಂತರ ಹತ್ತು. ಮನೆಕೆಲಸ: ಭಾಗ 2, ಪುಟ 6. ಕೊನೆಗೆ: “ಲಕ್ಷ್ಮಿ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.”','Shows the child subtracting without borrowing: 23 from 47, ones first, then tens. Homework: Part 2, page 6. Ends: “Show Lakshmi teacher.”')}</p>
+    <div style="margin-top:8px"><span class="small muted">${K('ಕನ್ನಡ ಪದಗಳು','Kannada words')}</span><br><span class="kw" lang="kn">ದಶಕ</span><span class="kw" lang="kn">ವ್ಯತ್ಯಾಸ</span><span class="kw" lang="kn">ಬಿಡಿ</span></div></div>
+  <div class="card"><div class="small muted">${K('ಏಕೆ ಇದು','Why this')}</div>
+    <div class="row" style="align-items:flex-start;margin-top:4px">${ic('check',18)}<div class="small">${K(`<b>${lesson(p.targets[0]).kn}</b>: ಮುಂದಿನ ವಾರದ ಹೇಳಿಕೆ ಲೆಕ್ಕಗಳಿಗೆ ಬೇಕು.`,`<b>${lesson(p.targets[0]).en}</b>: next week’s word problems need it.`)}</div></div>
+    <div class="row muted" style="align-items:flex-start;margin-top:6px">${ic('x',18)}<div class="small">${K('<b>ತಾಳೆ ನೋಡುವುದು</b>: ಈ ವಾರ ಬಿಟ್ಟಿದೆ. ಮುಂದಿನ ವಾರಕ್ಕೆ ಅಗತ್ಯವಿಲ್ಲ.','<b>Checking by adding</b>: left out this week. Not needed for next week.')}</div></div></div>
+  <div class="card"><div class="small muted">${K(`ಚಿತ್ರ ಪ್ರಶ್ನೆ · ಪರೀಕ್ಷಿಸುವುದು: ${lesson(p.targets[0]).kn}`,`Picture question · tests: ${lesson(p.targets[0]).en}`)}</div><div class="sums" style="margin:4px 0">${c.q} = ?</div><div class="row small" style="flex-wrap:wrap">${c.opts.map((n,i)=>`<span class="kw">${n}${i===c.correct?' ✓':''}</span>`).join('')}</div></div>`;
+  if(st==='approved') b+=`<div class="banner ok" role="status">${ic('checkc',18)}<div>${K('ಅನುಮೋದಿಸಿದ್ದೀರಿ. ಸಂಜೆ 6 ರ ನಂತರ ಕುಟುಂಬಗಳಿಗೆ ಹೋಗುತ್ತದೆ.','Approved. Goes to the families after 6 pm.')}</div></div>
+    <button class="btn ghost full" data-a="withdraw">${ic('undo',18)} ${K('ಹಿಂಪಡೆಯಿರಿ (6 ಗಂಟೆಯವರೆಗೆ)','Withdraw (until 6 pm)')}</button>`;
+  else if(st==='review') b+=`<button class="btn primary" data-a="regen" data-v="shorter">${K('ಚಿಕ್ಕದಾಗಿ ಬರೆಯಿರಿ','Make it shorter')}</button>
+    <p class="hint">${K('ಒಪ್ಪಲು ಆಗದು: ಆಡಿಯೋ ತುಂಬಾ ಉದ್ದ.','Can’t approve: the audio is too long.')}</p>`;
+  else b+=`<label class="checkrow"><input type="checkbox" data-a="gloss" ${S.glossOk?'checked':''} ${st==='gen'?'disabled':''}><span>${K('ಕನ್ನಡ ಸಾರಾಂಶ ಪರಿಶೀಲಿಸಿದ್ದೇನೆ','I’ve checked the Kannada summary')}</span></label>
+    <button class="btn primary" data-a="approvePkg" ${S.glossOk&&st==='ready'?'':'disabled'} aria-describedby="pkHint">${K('ಒಪ್ಪಿ','Approve')}</button>
+    ${!S.glossOk&&st==='ready'?`<p class="hint" id="pkHint">${K('ಒಪ್ಪಲು ಮೊದಲು ಸಾರಾಂಶಕ್ಕೆ ಗುರುತು ಹಾಕಿ.','Tick the summary box to approve.')}</p>`:''}
+    <div class="btns"><button class="btn ghost" data-a="regen" data-v="simpler" ${st==='gen'?'disabled':''}>${K('ಸರಳವಾಗಿ','Simpler')}</button><button class="btn ghost" data-a="regen" data-v="shorter" ${st==='gen'?'disabled':''}>${K('ಚಿಕ್ಕದಾಗಿ','Shorter')}</button></div>`;
+  return sbar(S.clock.h)+appbar('ಪುನರಾವರ್ತನೆ ಪರಿಶೀಲಿಸಿ','Review catch-up','toApprove')+body(Kt('ಪುನರಾವರ್ತನೆ','Catch-up'), b)+nav();
+}
+
+function learnOf(r){ return r===12?S.ravi:(WEEK[r]?WEEK[r].st:null); }
+function channelOf(r){ if(r===12&&S.stopped) return 'stopped'; return WEEK[r]?WEEK[r].channel||null:null; }
+function missedBy(id){ return Object.keys(MISSED).map(Number).filter(r=>!S.deleted.has(r)&&MISSED[r].includes(id)); }
+function tLedger(){
+  const T1='ತಪ್ಪಿದ ಪಾಠಗಳು', T2='Missed lessons';
+  if(S.tVar==='empty') return sbar(S.clock.h)+appbar(T1,T2,null)+body(Kt(T1,T2),`<div style="text-align:center"><div style="margin:60px 0 10px" class="muted">${ic('list',48,1.5)}</div><h3 class="t">${K('ಇನ್ನೂ ಯಾರೂ ಪಾಠ ತಪ್ಪಿಸಿಲ್ಲ','No missed lessons yet')}</h3><p class="muted">${K('ಹಾಜರಾತಿ ಬಂದು, ನೀವು ಪಾಠ ದಾಖಲಿಸಿದ ನಂತರ ಇದು ತಾನೇ ತುಂಬುತ್ತದೆ.','This fills itself once attendance arrives and you record a lesson.')}</p><button class="btn ghost full" data-a="go" data-v="today">${K('ಇಂದು ಗೆ ಹೋಗಿ','Go to Today')}</button></div>`)+nav();
+  const rows = Object.keys(WEEK).map(Number).filter(r=>!S.deleted.has(r));
+  let b = (S.tVar==='offline'?`<div class="banner" role="status">${ic('cloudoff',18)}<div>${K('ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ಉಳಿಸಿದ ಪಟ್ಟಿ ತೋರಿಸುತ್ತಿದೆ (ಇಂದು 9:12). ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ನವೀಕರಿಸುತ್ತದೆ.','No network. Showing the saved list (today 9:12). It updates when the network returns.')}</div></div>`:'');
+  b += `<div class="segctl" role="group" aria-label="${Kt('ನೋಟ','View')}">${[['child','ಮಗುವಿನಂತೆ','By child'],['lesson','ಪಾಠದಂತೆ','By lesson']].map(([k,a,e])=>`<button data-a="lview" data-v="${k}" aria-pressed="${S.lview===k}">${Ki(a,e)}</button>`).join('')}</div>`;
+  if(S.lview==='child'){
+    const list = S.filter==='week'?rows:KIDS.map((_,i)=>i+1).filter(r=>!S.deleted.has(r));
+    b += `<div class="fchips" role="group" aria-label="${Kt('ಫಿಲ್ಟರ್','Filter')}"><button class="fchip" data-a="filter" data-v="week" aria-pressed="${S.filter==='week'}">${Ki('ಈ ವಾರ ಗೈರು','Absent this week')} · ${rows.length}</button><button class="fchip" data-a="filter" data-v="all" aria-pressed="${S.filter==='all'}">${Ki('ಎಲ್ಲರೂ','Everyone')} · ${36-S.deleted.size}</button></div>`;
+    b += `<ul class="list" style="list-style:none;padding:0">${list.map(r=>{
+      const w=WEEK[r], st=learnOf(r), ch=channelOf(r), m=MISSED[r]||[];
+      const days = w?`<span class="small muted">· ${Ki(`${w.days} ದಿನ ಗೈರು`,`${w.days} day${w.days>1?'s':''} away`)}</span>`:'';
+      const missed = m.length ? `<div class="small" style="margin:2px 0 6px">${Ki('ತಪ್ಪಿದ್ದು: ','Missed: ')}${m.map(id=>Ki(lesson(id).kn,lesson(id).en)).join(', ')}</div>` : `<div class="small muted">${Ki('ಈ ವಾರ ಯಾವ ಪಾಠವೂ ತಪ್ಪಿಲ್ಲ','No missed lessons this week')}</div>`;
+      return `<li><button class="li" data-a="openChild" data-v="${r}" style="align-items:flex-start"><span class="no" style="padding-top:2px">${r}</span><div class="sp"><div class="row" style="gap:6px;flex-wrap:wrap"><span class="nm">${knameH(r)}</span>${days}</div>${missed}<div class="row" style="gap:6px;flex-wrap:wrap">${st?tag(st):''}${ch?tag(ch):''}</div></div>${ic('right',18)}</button></li>`;
+    }).join('')}</ul>`;
+  } else {
+    b += WEEK_LESSONS.slice().reverse().map(wl=>{
+      const l=lesson(wl.id), who=missedBy(wl.id), open=S.lopen===wl.id;
+      const c={caught:0,buddy:0,listened:0,sent:0,missed:0};
+      who.forEach(r=>{ const s=learnOf(r)||'missed'; c[s]=(c[s]||0)+1; });
+      const chip=(k,num)=> num?`<span class="tag ${TAGS[k][0]}">${ic(TAGS[k][1],16)}${num} ${Ki(TAGS[k][2],TAGS[k][3])}</span>`:'';
+      return `<div class="card" style="padding:0">
+        <button class="li" data-a="lopen" data-v="${wl.id}" aria-expanded="${open}" style="align-items:flex-start;${open?'':'border-bottom:0'}"><div class="sp">
+          <div class="small muted">${Ki(wl.kn,wl.en)} · ${Ki(l.page,l.pageEn)}</div>
+          <div class="nm" style="font-size:17px">${K(l.kn,l.en)}</div>
+          <div style="margin-top:4px;font-weight:700">${Ki(`36 ರಲ್ಲಿ ${who.length} ಮಕ್ಕಳು ತಪ್ಪಿಸಿಕೊಂಡರು`,`${who.length} of 36 children missed it`)}</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:6px">${chip('caught',c.caught)}${chip('buddy',c.buddy)}${chip('listened',c.listened)}${chip('sent',c.sent)}${chip('missed',c.missed)}</div>
+        </div>${ic(open?'up':'down',20)}</button>
+        ${open?`<ul style="list-style:none;margin:0;padding:2px 12px 8px">${who.map(r=>`<li><button class="li" data-a="openChild" data-v="${r}" style="padding-left:0;min-height:48px;flex-wrap:wrap"><span class="sp nm">${knameH(r)}</span>${tag(learnOf(r)||'missed')}${channelOf(r)?tag(channelOf(r)):''}</button></li>`).join('')}</ul>`:''}
+      </div>`;
+    }).join('');
+    b += `<button class="btn ghost full" data-a="go" data-v="week">${K('ಮುಂದುವರಿಯಬೇಕೆ, ಪುನರಾವರ್ತಿಸಬೇಕೆ? ವಾರ ನೋಡಿ','Move on or recap? See the week')}</button>`;
+  }
+  b += `<p class="small muted">${K('ಹಾಜರಾತಿ × ನಿಮ್ಮ ಪಾಠ ದಾಖಲೆಯಿಂದ ತಾನೇ ತುಂಬುತ್ತದೆ. ಇದರಲ್ಲಿ AI ಇಲ್ಲ.','Filled automatically from attendance × your lesson records. No AI in this.')}</p>`;
+  return sbar(S.clock.h, S.tVar==='offline')+appbar(T1,T2,null)+body(Kt(T1,T2), b)+nav();
+}
+
+function tChild(){
+  const r=S.child, w=WEEK[r]||{days:0}, isR = r===12;
+  const st = learnOf(r), ch=channelOf(r);
+  const R = S.reason? REASONS.find(x=>x.k===S.reason):null;
+  const ev=(day,txt)=>`<li>${day?`<span class="day">${day}</span>`:''}${txt}</li>`;
+  const wl=id=>WEEK_LESSONS.find(x=>x.id===id);
+  let b=`<div class="small muted">${K(`ಕ್ರಮ ಸಂಖ್ಯೆ ${r} · ಮನೆ ಭಾಷೆ: ${({te:'ತೆಲುಗು',kn:'ಕನ್ನಡ',ta:'ತಮಿಳು'})[w.lang||'kn']}`,`Roll ${r} · home language: ${({te:'Telugu',kn:'Kannada',ta:'Tamil'})[w.lang||'kn']}`)}</div>
+  <div class="row" style="margin:8px 0 12px;gap:6px;flex-wrap:wrap">${st?tag(st):''}${ch?tag(ch):''}</div>
+  <h3 class="t">${K('ಈ ವಾರ','This week')}</h3>`;
+  if(isR){
+    b+=`<ol class="timeline">
+      ${ev(Ki('ಸೋಮ','Mon'), Ki('ಗೈರು · ತಪ್ಪಿದ ಪಾಠ: ದಶಕ ರಹಿತ ವ್ಯವಕಲನ','away · missed: subtraction without borrowing'))}
+      ${ev(Ki('ಸೋಮ','Mon'), Ki('ಸಂಜೆಯ ಸಂದೇಶ ಕೇಳಿದ್ದಾರೆ','evening message listened'))}
+      ${ev(Ki('ಮಂಗಳ','Tue'), Ki('ಗೈರು · ತಪ್ಪಿದ ಪಾಠ: ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ','away · missed: subtraction with borrowing'))}
+      ${R?ev(Ki('ಮಂಗಳ','Tue'), Ki(`ಕಾರಣ (ಪೋಷಕರು ತಿಳಿಸಿದ್ದು): <b>${R.kn}</b>`,`reason (from the parent): <b>${R.en}</b>`)):''}
+      ${S.hw[12]?ev(Ki('ಗುರು','Thu'), Ki('ಮರಳಿದ · ಮನೆಕೆಲಸ ತಂದಿದ್ದಾರೆ','back · brought homework')):''}
+      ${S.pk.A==='approved'?ev(Ki('ಶುಕ್ರ','Fri'), Ki('ಪುನರಾವರ್ತನೆ ಕಳುಹಿಸಲಾಗಿದೆ (ತೆಲುಗು)','catch-up sent (Telugu)')):''}
+      ${S.audio.played?ev(Ki('ಶುಕ್ರ','Fri'), Ki('ಕುಟುಂಬ ಕೇಳಿದೆ','family listened')):''}
+      ${S.ansState==='sent'?ev(Ki('ಶುಕ್ರ','Fri'), S.ans===currentCheck().correct?Ki('ಚಿತ್ರ ಪ್ರಶ್ನೆ: ಸರಿ','picture question: right'):Ki('ಚಿತ್ರ ಪ್ರಶ್ನೆ: ಇನ್ನೂ ಅಭ್ಯಾಸ ಬೇಕು','picture question: needs more practice')):''}
+      ${S.stopped?ev('', Ki('ಕುಟುಂಬ ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಿದೆ. ಬಡ್ಡಿ ಕಾರ್ಡ್ ಮುಂದುವರಿಯುತ್ತದೆ.','family stopped messages. Buddy card continues.')):''}
+    </ol>`;
+  } else {
+    b+=`<ol class="timeline">${(MISSED[r]||[]).map(id=>ev(Ki(wl(id).kn,wl(id).en), Ki(`ಗೈರು · ತಪ್ಪಿದ ಪಾಠ: ${lesson(id).kn}`,`away · missed: ${lesson(id).en.toLowerCase()}`))).join('')||`<li>${Ki('ಈ ವಾರ ಯಾವ ಪಾಠವೂ ತಪ್ಪಿಲ್ಲ','No missed lessons this week')}</li>`}</ol>`;
+  }
+  b+=`<h3 class="section-h">${K('ಮಗುವಿನ ದಾಖಲೆ','Child’s data')}</h3>
+  <button class="btn danger-outline" data-a="delAsk">${ic('trash',18)} ${K(`${kname(r)} ಅವರ ಎಲ್ಲಾ ದಾಖಲೆ ಅಳಿಸಿ`,`Delete all of ${kname(r)}’s data`)}</button>`;
+  let sheet='';
+  if(S.delAsk) sheet=`<div class="scrim" data-a="delNo"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="delH" data-stop><h3 class="t" id="delH">${K(`${kname(r)} ಅವರ ದಾಖಲೆ ಅಳಿಸಬೇಕೆ?`,`Delete ${kname(r)}’s data?`)}</h3>
+    <ul class="small" style="padding-left:18px;margin:8px 0 12px"><li>${Ki('ಹೆಸರು, ಉತ್ತರಗಳು ಮತ್ತು ಆಡಿಯೋ ಶಾಶ್ವತವಾಗಿ ಅಳಿಯುತ್ತವೆ.','The name, answers and audio are removed for good.')}</li><li>${Ki('ಕಳುಹಿಸದ ಸಂದೇಶಗಳು ರದ್ದಾಗುತ್ತವೆ.','Messages not yet sent are cancelled.')}</li><li>${Ki('ತರಗತಿಯ ಸಂಖ್ಯೆಗಳು ಬದಲಾಗುತ್ತವೆ.','Class counts update.')}</li><li>${Ki('ಇದನ್ನು ಹಿಂಪಡೆಯಲಾಗದು. ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲದಿದ್ದರೆ, ಬಂದಾಗ ಅಳಿಸುತ್ತದೆ.','This can’t be undone. If offline, it happens when the network returns.')}</li></ul>
+    <button class="btn primary" data-a="delNo" data-focus>${K('ಬೇಡ, ಇರಲಿ','Keep')}</button><div style="height:8px"></div><button class="btn danger-outline" data-a="delDo">${K('ಅಳಿಸಿ','Delete')}</button></div></div>`;
+  return sbar(S.clock.h)+appbar(kid(r)[0], kid(r)[1],'toLedger')+body(Kt(kid(r)[0],kid(r)[1]), b)+nav()+sheet;
+}
+
+function tRet(){
+  if(S.tVar==='none') return sbar(S.clock.h)+appbar('ಇಂದು ಮರಳಿದವರು','Back today',null)+body(Kt('ಇಂದು ಮರಳಿದವರು','Back today'),`<div style="text-align:center"><div class="muted" style="margin:60px 0 10px">${ic('users',48,1.5)}</div><h3 class="t">${K('ಇಂದು ಯಾರೂ ಮರಳಿಲ್ಲ','No one is back today')}</h3><p class="muted">${K('ಗೈರಾದ ಮಗು ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್ ಇಲ್ಲಿ ಬರುತ್ತದೆ.','A buddy card appears here on the day an absent child comes back.')}</p></div>`)+nav();
+  const cards=[{r:12,buddy:1,days:2,sums:['438 − 229','452 − 358','346 − 158']},{r:13,buddy:15,days:2,sums:['532 − 401','448 − 335','438 − 229']}];
+  const c=cards[S.retIdx], nxt=cards[S.retIdx+1], done=S.retDone[c.r];
+  let b=(S.tVar==='offline'?`<div class="banner" role="status">${ic('cloudoff',18)}<div>${K('ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ಕಾರ್ಡ್‌ಗಳು ಫೋನ್‌ನಲ್ಲಿ ಉಳಿದಿವೆ.','No network. The cards are saved on your phone.')}</div></div>`:'')+
+  `<p class="small muted" style="margin:0 0 8px">${K(`ಕಾರ್ಡ್ ${S.retIdx+1} / ${cards.length}`,`Card ${S.retIdx+1} of ${cards.length}`)}${nxt?' · '+Ki(`ಮುಂದೆ: ${kid(nxt.r)[0]}`,`next: ${kid(nxt.r)[1]}`):''}</p>
+  <div class="card" style="border-width:2px">
+    <b style="font-size:20px">${knameH(c.r)}</b><div class="small muted">${K(`${c.days} ದಿನದ ನಂತರ ಮರಳಿದ್ದಾರೆ`,`Back after ${c.days} days`)}</div>
+    <div class="card panel" style="margin:12px 0 10px"><div class="row">${ic('users',22)}<div class="sp"><div class="small teal">${K('ಬಡ್ಡಿ (ಆ ಎರಡೂ ದಿನ ಹಾಜರಿದ್ದರು)','Buddy (was present both days)')}</div><b>${knameH(c.buddy)}</b></div><span class="small"><b>10</b> ${Ki('ನಿಮಿಷ','min')}</span></div></div>
+    <div class="small muted">${K('ಒಟ್ಟಿಗೆ ಮಾಡಲು 3 ಲೆಕ್ಕಗಳು','3 sums to do together')}</div>
+    ${c.sums.map(s=>`<div class="sums" style="margin:2px 0">${s}</div>`).join('')}
+    <div class="small muted" style="margin-top:8px">${K('ಕನ್ನಡ ಪದಗಳು (ಪಠ್ಯಪುಸ್ತಕದಿಂದ)','Kannada words (from the textbook)')}</div><span class="kw" lang="kn">ದಶಕ</span><span class="kw" lang="kn">ವ್ಯತ್ಯಾಸ</span><span class="kw" lang="kn">ಬಿಡಿ</span>
+    <label class="checkrow" style="margin-top:8px;border-top:1px solid var(--divider)"><input type="checkbox" data-a="hw" data-v="${c.r}" ${S.hw[c.r]?'checked':''}><span><b>${K('ಮನೆಕೆಲಸ ತಂದಿದ್ದಾರೆ','Brought homework')}</b><span class="small muted" style="display:block">${Ki('ಭಾಗ 2, ಪುಟ 15','Part 2, page 15')}</span></span></label>
+  </div>
+  <div class="btns"><button class="btn ghost" data-a="retNav" data-v="-1" ${S.retIdx===0?'disabled':''} aria-label="${Kt('ಹಿಂದಿನ ಕಾರ್ಡ್','Previous card')}">${ic('back',20)}</button><button class="btn ghost" data-a="toast" data-v="Opens the print / share sheet" aria-label="${Kt('ಕಾರ್ಡ್ ಮುದ್ರಿಸಿ ಅಥವಾ ಹಂಚಿ','Print or share card')}">${ic('print',20)}</button><button class="btn ghost" data-a="retNav" data-v="1" ${!nxt?'disabled':''} aria-label="${Kt('ಮುಂದಿನ ಕಾರ್ಡ್','Next card')}">${ic('right',20)}</button></div>
+  ${done?`<div class="banner ok" role="status" style="margin-top:10px">${ic('checkc',18)}<div class="sp">${K('ಬಡ್ಡಿ ಸಮಯ ಮುಗಿದಿದೆ','Buddy time done')}</div><button class="btn text" data-a="retUndo" data-v="${c.r}">${Ki('ರದ್ದು','Undo')}</button></div>`
+    :`<button class="btn primary" data-a="retDone" data-v="${c.r}" style="margin-top:10px">${K('ಬಡ್ಡಿ ಸಮಯ ಮುಗಿಯಿತು','Mark buddy time done')}</button>`}`;
+  return sbar(S.clock.h, S.tVar==='offline')+appbar('ಇಂದು ಮರಳಿದವರು','Back today',null)+body(Kt('ಇಂದು ಮರಳಿದವರು','Back today'), b)+nav();
+}
+
+function tWeek(){
+  const none=S.tVar==='nonudge';
+  const bars=[['1',7,5],['2',3,4],['3',1,2],['4+',1,2]];
+  const sum=(i)=>bars.reduce((s,b)=>s+b[i],0);
+  const within=(i)=>bars[0][i]+bars[1][i];
+  const max=Math.max(...bars.flatMap(b=>[b[1],b[2]]));
+  const cnt=missedBy('M3.SUB.BORROW').length;
+  let b=`<p class="small muted" style="margin:0 0 10px">${Ki('19–23 ಅಕ್ಟೋಬರ್','19–23 October')}</p>`;
+  b+=`<div class="card"><h3 class="t">${K('ಎಷ್ಟು ಬೇಗ ಮರಳಿದರು','How quickly children came back')}</h3>
+    <p style="margin:6px 0 2px;font-size:20px;font-weight:700">${Ki(`${sum(1)} ರಲ್ಲಿ ${within(1)}`,`${within(1)} of ${sum(1)}`)}</p>
+    <p class="small muted" style="margin:0 0 8px">${K(`ಗೈರಾದ ಮಕ್ಕಳು 2 ಶಾಲಾ ದಿನಗಳೊಳಗೆ ಮರಳಿದರು. ಕಳೆದ ವಾರ: ${sum(2)} ರಲ್ಲಿ ${within(2)}.`,`absent children were back within 2 school days. Last week: ${within(2)} of ${sum(2)}.`)}</p>
+    <table class="sr-only"><caption>${Kt('ಗೈರು ಅವಧಿ','Days away')}</caption><tr><th>${Kt('ದಿನ','Days')}</th><th>${Kt('ಈ ವಾರ','This week')}</th><th>${Kt('ಕಳೆದ ವಾರ','Last week')}</th></tr>${bars.map(([d,a,l])=>`<tr><td>${d}</td><td>${a}</td><td>${l}</td></tr>`).join('')}</table>
+    <div aria-hidden="true">
+    <div class="small muted">${Ki('ಗೈರು ಅವಧಿ (ದಿನ)','Days away')}</div>
+    ${bars.map(([d,a,l])=>`<div class="wk"><span>${d} ${Ki('ದಿನ','day'+(d==='1'?'':'s'))}</span><div class="bars"><div class="b"><i style="width:${a/max*62}%"></i><span><b>${a}</b> ${Ki('ಈ ವಾರ','this week')}</span></div><div class="b last"><i style="width:${l/max*62}%"></i><span>${l} ${Ki('ಕಳೆದ ವಾರ','last week')}</span></div></div></div>`).join('')}
+    </div>
+  </div>
+  <div class="card"><h3 class="t">${K('ಕಾರಣಗಳು (ಪೋಷಕರು ತಿಳಿಸಿದ್ದು)','Reasons (from parents)')}</h3>
+    ${REASONS.map((r,i)=>`<div class="row small" style="margin:6px 0">${ic(r.i,18)}<span class="sp">${K(r.kn,r.en)}</span><b>${[4,3,2,1,0][i]+(S.reason===r.k?1:0)}</b></div>`).join('')}
+    <div class="row small muted" style="margin:6px 0">${ic('help',18)}<span class="sp">${K('ತಿಳಿಸಿಲ್ಲ','Not given')}</span><b>${S.reason?1:2}</b></div>
+    <p class="small muted" style="margin:6px 0 0">${K('ನಿಮಗೆ ಮಾತ್ರ. ಯಾರಿಗೂ ಕಳುಹಿಸುವುದಿಲ್ಲ.','Only for you. Not sent to anyone.')}</p></div>`;
+  b+= none?`<div class="card"><div class="row">${ic('checkc',22)}<b>${K('ಹೆಚ್ಚಿನ ಮಕ್ಕಳು ಸರಿಯಾಗಿದ್ದಾರೆ. ಈ ವಾರ ಪುನರಾವರ್ತನೆ ಬೇಕಿಲ್ಲ.','Most children are on track. No recap needed this week.')}</b></div></div>`
+  :`<div class="card panel"><div class="row" style="margin-bottom:6px;flex-wrap:wrap"><b class="teal sp">${K('ಮುಂದಿನ ವಾರದ ಮೊದಲು','Before next week')}</b>${AI()}</div>
+    <p style="margin:0">${K(`36 ರಲ್ಲಿ ${cnt} ಮಕ್ಕಳು <b>ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ</b> ತಪ್ಪಿಸಿಕೊಂಡಿದ್ದಾರೆ. ಹೇಳಿಕೆ ಲೆಕ್ಕಗಳಿಗೆ ಮೊದಲು 10 ನಿಮಿಷ ಪುನರಾವರ್ತಿಸಿ.`,`${cnt} of 36 children missed <b>subtraction with borrowing</b>. Recap 10 minutes before word problems.`)}</p>
+    ${S.recap?`<div class="banner ok" role="status" style="margin:10px 0 0">${ic('checkc',18)}<div class="sp">${S.recap==='yes'?K('ಸೋಮವಾರ ಬೆಳಿಗ್ಗೆ ನೆನಪಿಸುತ್ತೇವೆ.','We’ll remind you on Monday morning.'):K('ಸರಿ. ಈ ವಾರ ಬಿಡಲಾಗಿದೆ.','OK. Skipped this week.')}</div><button class="btn text" data-a="recap" data-v="">${Ki('ಬದಲಿಸಿ','Change')}</button></div>`
+    :`<div class="btns"><button class="btn primary" style="min-height:48px" data-a="recap" data-v="yes">${K('ಪುನರಾವರ್ತನೆ ಯೋಜಿಸಿ','Plan recap')}</button><button class="btn ghost" data-a="recap" data-v="no">${K('ಈ ವಾರ ಬೇಡ','Not this week')}</button></div>`}</div>`;
+  b+=`<p class="small muted">${none?K('ಸಂಖ್ಯೆಗಳು ಹಾಜರಾತಿಯಿಂದ ಲೆಕ್ಕ ಹಾಕಲಾಗಿದೆ.','Numbers are counted from attendance.'):K('ಸಂಖ್ಯೆಗಳು ಹಾಜರಾತಿಯಿಂದ ಲೆಕ್ಕ ಹಾಕಲಾಗಿದೆ. AI ಪದಗಳನ್ನು ಮಾತ್ರ ಬರೆಯುತ್ತದೆ.','Numbers are counted from attendance. AI writes only the wording.')}</p>`;
+  return sbar(S.clock.h)+appbar('ಈ ವಾರ','This week',null)+body(Kt('ಈ ವಾರ','This week'), b)+nav();
+}
+
+/* ================= Parent screens ================= */
+function psbar(){ return `<div class="sbar" aria-hidden="true"><span>${S.pclock}</span><span class="ic">${ic(S.pVar==='dropped'?'wifioff':'wifi',15)}${ic('batt',18)}</span></div>`; }
+function pbar(te,en,back){ return `<div class="appbar" style="background:var(--surface)">${back?`<button class="back" data-a="${back}" aria-label="${Pt('వెనక్కి','Back')}">${ic('back',24)}</button>`:''}<h2 tabindex="-1" style="font-size:18px">${P(te,en)}</h2></div>`; }
+function pbody(label, inner){ return `<div class="body" tabindex="0" role="region" aria-label="${label}">${inner}</div>`; }
+function pdots(n){ return `<div class="pdots" role="img" aria-label="${Pt(`4 లో ${n}వ అడుగు`,`Step ${n} of 4`)}">${[1,2,3,4].map(i=>`<i class="${i===n?'on':i<n?'done':''}"></i>`).join('')}</div>`; }
+function stopLink(){ return S.stopped?'':`<button class="quiet" data-a="stopAsk">${ic('belloff',16)} ${Pi('ఈ సందేశాలు ఆపండి','Stop these messages')}</button>`; }
+function stopSheet(){
+  if(!S.stopAsk) return '';
+  return `<div class="scrim" data-a="stopNo"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="stopH" data-stop><h3 class="t" id="stopH">${P('రవి కోసం సందేశాలు ఆపాలా?','Stop messages for Ravi?')}</h3><p class="muted">${P('ఇక సందేశాలు రావు. ఎప్పుడైనా మళ్ళీ మొదలుపెట్టవచ్చు.','No more messages will come. You can start them again any time.')}</p><button class="btn primary" data-a="stopDo">${P('సందేశాలు ఆపండి','Stop messages')}</button><button class="btn text full" data-a="stopNo" data-focus>${P('వద్దు, వస్తూ ఉండనీ','No, keep them coming')}</button></div></div>`;
+}
+function replayBtn(msg){ return `<button class="btn" style="color:var(--primary-strong)" data-a="toast" data-v="${msg}" aria-label="${Pt('మళ్ళీ వినండి','Listen again')}">${ic('vol',24)}</button>`; }
+
+function pHome(){
+  let b='';
+  if(!S.msgs.length) b=`<div style="text-align:center;margin-top:120px" class="muted">${ic('msg',44,1.5)}<p>${P('ఇంకా సందేశాలు లేవు','No messages yet')}</p><p class="small" lang="en">Ravi’s mother’s phone. Messages from Lakshmi teacher arrive here.</p></div>`;
+  S.msgs.forEach(m=>{
+    if(m==='evening') b+=`<div class="daysep"><span>${Pi('మంగళవారం','Tuesday')}</span></div><div class="bubble">
+      <div class="vn"><button class="play" data-a="toast" data-v="Plays Lakshmi teacher’s own greeting" aria-label="${Pt('లక్ష్మి టీచర్ గొంతు వినండి','Play Lakshmi teacher’s voice')}">${ic('play',18)}</button><span class="small">${P('లక్ష్మి టీచర్ గొంతు · 0:09','Lakshmi teacher’s voice · 0:09')}</span></div>
+      ${P('ఈ రోజు రవి మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో పది తీసుకుని తీసివేత నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం భాగం 2, పేజీ 15. రేపు: మాటల లెక్కలు. ఒక సహవిద్యార్థి రవి సీటు కాపాడుతోంది.','We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat.')}
+      <button class="linkbtn" data-a="pgo" data-v="reason">${P('అంతా బాగుందా? చెప్పండి','Is everything OK? Tell us')}</button>
+      ${stopLink()}
+      <div class="time">6:05 pm</div></div>`;
+    if(m==='catchup') b+=`<div class="daysep"><span>${Pi('శుక్రవారం','Friday')}</span></div><div class="bubble">
+      ${P('రవి కోసం లక్ష్మి టీచర్ నుండి ఒక చిన్న పాఠం. 2 నిమిషాలు.','A short lesson for Ravi from Lakshmi teacher. 2 minutes.')}
+      <button class="linkbtn" data-a="pgo" data-v="listen">${ic('play',16)} ${P('తెరవండి','Open')}</button>
+      <div class="time">6:10 pm</div></div>`;
+    if(m==='stopped') b+=`<div class="bubble">${P('రవి కోసం సందేశాలు ఆపేశాం. ఎప్పుడైనా మళ్ళీ మొదలుపెట్టవచ్చు.','Messages for Ravi are stopped. You can start them again any time.')}
+      <button class="linkbtn" data-a="stopUndo">${P('మళ్ళీ మొదలుపెట్టండి','Start them again')}</button><div class="time">${S.pclock}</div></div>`;
+  });
+  return psbar()+`<div class="appbar" style="background:var(--surface)"><div class="avatar" style="margin:0;width:40px;height:40px;font-size:18px" aria-hidden="true">ల</div><h2 tabindex="-1" style="font-size:16px">${P('లక్ష్మి టీచర్ · బడి','Lakshmi teacher · school')}</h2></div>`+pbody(Pt('సందేశాలు','Messages'), b)+stopSheet();
+}
+
+function pReason(){
+  if(S.reasonDone) return psbar()+pbar('లక్ష్మి టీచర్','Lakshmi teacher','phome')+pbody(Pt('ధన్యవాదాలు','Thank you'),`<div style="text-align:center" role="status"><div style="margin:70px 0 10px;color:var(--primary)">${ic('checkc',64,1.6)}</div><h3 class="t" style="font-size:22px">${P('ధన్యవాదాలు','Thank you')}</h3><p class="muted">${P('ఇది లక్ష్మి టీచర్‌కు మాత్రమే కనిపిస్తుంది.','Only Lakshmi teacher sees this.')}</p></div><button class="btn primary" data-a="phome" style="margin-top:20px">${P('సరే','OK')}</button>${stopLink()}`)+stopSheet();
+  return psbar()+pbar('లక్ష్మి టీచర్','Lakshmi teacher','phome')+pbody(Pt('అంతా బాగుందా?','Is everything OK?'),`
+    <div class="avatar" aria-hidden="true">ల</div>
+    <div class="row" style="justify-content:center;gap:4px"><h3 class="t" style="text-align:center;font-size:20px">${P('ఈ రోజు రవి మాకు గుర్తొచ్చాడు. అంతా బాగుందా?','We missed Ravi today. Is everything OK?')}</h3>${replayBtn('Reads the question aloud in Telugu')}</div>
+    <div role="group" aria-label="${Pt('కారణం','Reason')}" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${REASONS.map(r=>`<button class="reason" data-a="reason" data-v="${r.k}" aria-pressed="${S.reason===r.k}">${ic(r.i,34,1.6)}${P(r.te,r.en)}</button>`).join('')}</div>
+    <button class="btn ghost full" style="margin-top:10px" data-a="toast" data-v="Records a voice note; a computer listens and picks one picture, then asks: Is it this?">${ic('mic',20)} ${P('మాట్లాడి చెప్పండి','Say it instead')}</button>
+    <p class="hint">${P('కంప్యూటర్ మీ మాట విని ఒక బొమ్మను ఎంచుకుంటుంది. ఆరోగ్య వివరాలు అడగము.','A computer listens to pick a picture. We never ask for health details.')}</p>
+    <div class="sticky"><button class="btn primary" data-a="reasonSend" ${S.reason?'':'disabled'} aria-describedby="rsHint">${P('పంపండి','Send')}</button>${S.reason?'':`<p class="hint" id="rsHint">${P('ఒక బొమ్మను నొక్కండి','Tap one picture')}</p>`}
+    <button class="btn text full" data-a="phome">${P('వద్దు, వదిలేయండి','Skip')}</button></div>
+    ${stopLink()}`)+stopSheet();
+}
+
+function pListen(){
+  if(S.pVar==='expired') return psbar()+pbar('రవి కోసం పాఠం','Ravi’s lesson','phome')+pbody(Pt('లింక్ పాతది','Link is old'),`<div style="text-align:center"><div class="muted" style="margin:50px 0 10px">${ic('clock',52,1.5)}</div><div class="row" style="justify-content:center"><h3 class="t">${P('ఈ లింక్ పాతది','This link is old')}</h3>${replayBtn('Reads this message aloud')}</div><p class="muted">${P('లక్ష్మి టీచర్ కొత్తది పంపుతారు. మీరు ఏమీ చేయనక్కర్లేదు.','Lakshmi teacher will send a new one. You don’t need to do anything.')}</p></div>
+    <div class="card"><div class="row">${ic('book',22)}<b class="sp">${P('ఇంటి పని: పాఠ్యపుస్తకం భాగం 2, పేజీ 15','Homework: textbook Part 2, page 15')}</b></div></div>
+    <button class="btn primary" data-a="phome">${P('సరే','OK')}</button>${stopLink()}`)+stopSheet();
+  const a=S.audio; const seg = a.pos<12?0:a.pos<18?1:2;
+  const tot=95, el=Math.round(a.pos/100*tot), fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  const label = a.loading?Pi('వస్తోంది…','Loading…'):a.playing?Pi('ఆపు','Pause'):(S.pVar==='dropped'?Pi('కొనసాగించు','Resume'):(a.played?Pi('మళ్ళీ వినండి','Listen again'):Pi('వినండి','Listen')));
+  return psbar()+pbar('రవి కోసం పాఠం','Ravi’s lesson','phome')+pbody(Pt('వినండి','Listen'),`<div style="text-align:center">
+    ${pdots(1)}
+    <div class="avatar" aria-hidden="true">ల</div>
+    <div class="small"><b>${P('లక్ష్మి టీచర్ నుండి','From Lakshmi teacher')}</b></div>
+    <div style="margin:6px 0"><span class="ai">${ic('bot',16)}${Pi('AI సహాయంతో · లక్ష్మి టీచర్ ఆమోదించారు','AI-assisted, approved by Lakshmi teacher')}</span></div>
+    ${S.pVar==='dropped'?`<div class="banner" role="alert" style="text-align:left">${ic('wifioff',18)}<div>${P('నెట్‌వర్క్ పోయింది. విన్న భాగం దాచి ఉంది. నెట్‌వర్క్ రాగానే అక్కడి నుండే కొనసాగుతుంది.','Network dropped. The part you heard is saved. It will continue from there when the network is back.')}</div></div>`:''}
+    <button class="bigplay" data-a="pPlay" aria-pressed="${a.playing}">${ic(a.loading?'clock':a.playing?'pause':'play',52)}<span>${label}</span></button>
+    <div class="bar" style="margin:8px 4px 0"><i style="width:${a.pos}%"></i></div>
+    <div class="row small muted" style="justify-content:space-between;margin:4px 4px 0"><span>${fmt(el)}</span><span>${fmt(tot)}</span></div>
+    <div class="segs" style="text-align:left"><span class="${seg===0?'on':''}">${Pi('టీచర్ గొంతు','Teacher')}</span><span class="${seg===1?'on':''}">${Pi('కంప్యూటర్ గొంతు','Computer voice')}</span><span class="${seg===2?'on':''}" style="flex:2 1 0">${Pi('పాఠం','Lesson')}</span></div>
+    <details style="text-align:left;margin-top:14px" class="card"><summary style="cursor:pointer;font-weight:600;min-height:48px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start">${P('రాసినది చూడండి','Read the words')}</summary>
+      <p class="small" style="margin:8px 0 0">${P('మిగిలిన సందేశాన్ని కంప్యూటర్ గొంతు చదువుతుంది, లక్ష్మి టీచర్ పాఠం నుండి.','The rest of this message is read by a computer voice, from Lakshmi teacher’s lesson.')}</p>
+      <p class="small">${S.plang==='en'?'Ravi, today let’s learn to subtract by taking a ten. From 43 sticks, take away 18. You can’t take 8 from 3, can you? Open one bundle and you get 10 loose sticks… In Kannada we say “<span lang="kn">ದಶಕ ಪಡೆಯೋಣ</span>”.':`<span lang="te">రవీ, ఈ రోజు పది తీసుకుని తీసివేయడం నేర్చుకుందాం. 43 పుల్లల్లో 18 తీసేయాలి. 3 లో 8 రాదు, కదా? ఒక కట్ట విప్పు, 10 విడి పుల్లలు వస్తాయి… కన్నడలో దీన్ని “</span><span lang="kn">ದಶಕ ಪಡೆಯೋಣ</span><span lang="te">” అంటారు.</span>`}</p></details>
+    <button class="btn primary" data-a="pgo" data-v="activity" style="margin-top:6px">${P('తరువాత','Next')}</button>
+    ${stopLink()}
+  </div>`)+stopSheet();
+}
+
+function sticksSVG(n, size=1){
+  const t=Math.floor(n/10), o=n%10, bw=24*size, gap=8*size, h=64*size;
+  let g='', x=4;
+  for(let i=0;i<t;i++){ g+=`<g transform="translate(${x},4)">${[0,4.5,9,13.5,18].map(dx=>`<rect x="${dx*size}" y="0" width="${3.5*size}" height="${h}" rx="1.5" style="fill:var(--stick)"/>`).join('')}<rect x="${-2*size}" y="${h*0.42}" width="${bw+2*size}" height="${8*size}" rx="2" style="fill:var(--primary)"/></g>`; x+=bw+gap; }
+  x+=gap;
+  const tilt=[-6,4,-2,5,-4,3,-5,2,-3];
+  for(let i=0;i<o;i++){ g+=`<rect x="${x}" y="${10*size}" width="${3.5*size}" height="${h-8*size}" rx="1.5" style="fill:var(--stick)" transform="rotate(${tilt[i]} ${x} ${h/2})"/>`; x+=9*size; }
+  return `<svg viewBox="0 0 ${Math.max(x+8,60)} ${h+10}" height="${h+10}" aria-hidden="true" focusable="false">${g}</svg>`;
+}
+function pActivity(){
+  return psbar()+pbar('ఇంట్లో చేసే ఆట','Activity at home','pback')+pbody(Pt('ఇంట్లో చేసే ఆట','Activity at home'),`
+    ${pdots(2)}
+    <div style="text-align:center;margin:0 0 8px"><span class="ai">${ic('bot',16)}${Pi('AI సహాయంతో · లక్ష్మి టీచర్ ఆమోదించారు','AI-assisted, approved by Lakshmi teacher')}</span></div>
+    <div class="card" style="text-align:center">
+      <div class="row" style="justify-content:space-between"><b class="sums" style="font-size:28px">43</b>${replayBtn('Replays the activity instruction')}</div>
+      <div style="overflow:hidden">${sticksSVG(43,0.8)}</div>
+      <p class="small muted" style="margin:2px 0 6px">${P('4 కట్టలు, 3 విడి పుల్లలు','4 bundles of ten, 3 loose sticks')}</p>
+      <p style="margin:6px 0 0;font-weight:600">${P('రవి: ఒక కట్ట విప్పి 10 విడి పుల్లలు చేయి. ఇప్పుడు 18 తీసేయి.','Ravi: open one bundle into 10 loose sticks. Now take away 18.')}</p>
+      <p class="small muted">${P('పుల్లలు లేకపోతే సీసా మూతలు, రాళ్ళు లేదా చింతగింజలు వాడండి.','No sticks? Use bottle caps, stones or tamarind seeds.')}</p></div>
+    <button class="btn primary" data-a="pgo" data-v="answer" style="margin-top:6px">${P('తరువాత: ప్రశ్న','Next: question')}</button>
+    <div class="card" style="margin-top:14px"><div class="row">${ic('book',28)}<div class="sp"><b>${P('ఇంటి పని: పేజీ 15','Homework: page 15')}</b><div class="small muted">${P('పాఠ్యపుస్తకం భాగం 2 · బడికి వచ్చినప్పుడు లక్ష్మి టీచర్‌కు చూపించు.','Textbook Part 2 · show Lakshmi teacher when you come back.')}</div></div></div></div>
+    ${stopLink()}`)+stopSheet();
+}
+
+function pAnswer(){
+  const c=currentCheck(), st=S.ansState, busy=st==='sending';
+  const desc=n=>Pt(`${Math.floor(n/10)} కట్టలు, ${n%10} విడి పుల్లలు`,`${Math.floor(n/10)} bundles of ten, ${n%10} loose sticks`);
+  return psbar()+pbar('ప్రశ్న','Question','pback')+pbody(Pt('ప్రశ్న','Question'),`
+    ${pdots(3)}
+    <div style="text-align:center;margin:0 0 8px"><span class="ai">${ic('bot',16)}${Pi('AI సహాయంతో · లక్ష్మి టీచర్ ఆమోదించారు','AI-assisted, approved by Lakshmi teacher')}</span></div>
+    <div class="row" style="justify-content:center;gap:4px"><h3 class="t" style="text-align:center">${P('రవీ, సరైన బొమ్మను నొక్కు','Ravi, tap the right picture')}</h3>${replayBtn('Reads the question aloud')}</div>
+    <div class="sums" style="text-align:center;font-size:30px;margin:4px 0 12px">${c.q} = ?</div>
+    <div role="group" aria-label="${Pt('జవాబులు','Answers')}">${c.opts.map((n,i)=>`<button class="pic" data-a="ans" data-v="${i}" aria-pressed="${S.ans===i}" aria-label="${desc(n)}${S.ans===i?`, ${n}`:''}" ${busy?'disabled':''}><span class="sp" style="overflow:hidden">${sticksSVG(n,0.75)}</span>${S.ans===i?`<span class="num">${n}</span>`:''}</button>`).join('')}</div>
+    ${st==='failed'?`<div class="banner err" role="alert">${ic('alert',18)}<div>${P('పంపలేకపోయాం. మీ జవాబు దాచి ఉంది. నెట్‌వర్క్ రాగానే మళ్ళీ పంపుతాం.','Could not send. Your answer is saved. We’ll send it again when the network is back.')}</div></div>`:''}
+    <div class="sticky">${S.ans!==null?`<button class="btn primary" data-a="ansSend" ${busy?'disabled':''}>${busy?P('పంపుతోంది…','Sending…'):st==='failed'?P('మళ్ళీ ప్రయత్నించండి','Try again'):P('ఇదే, పంపు','This one, send')}</button><p class="hint">${P('మార్చాలంటే వేరే బొమ్మను నొక్కు','To change, tap another picture')}</p>`:`<p class="hint">${P('ఒక బొమ్మను నొక్కు','Tap one picture')}</p>`}</div>
+    ${stopLink()}`)+stopSheet();
+}
+function pDone(){
+  if(S.stopped) return psbar()+pbar('లక్ష్మి టీచర్','Lakshmi teacher','phome')+pbody(Pt('సందేశాలు ఆపేశాం','Messages stopped'),`<div style="text-align:center" role="status"><div class="muted" style="margin:70px 0 10px">${ic('belloff',56,1.5)}</div><h3 class="t">${P('సందేశాలు ఆపేశాం','Messages stopped')}</h3><p class="muted">${P('రవి బడికి వచ్చినప్పుడు టీచర్ ఎప్పటిలాగే సహాయం చేస్తారు.','When Ravi comes back, his teacher will help him as usual.')}</p></div><button class="btn ghost full" data-a="stopUndo" style="margin-top:16px">${P('మళ్ళీ మొదలుపెట్టండి','Start them again')}</button>`);
+  return psbar()+pbar('లక్ష్మి టీచర్','Lakshmi teacher','phome')+pbody(Pt('అయిపోయింది','Done'),`<div style="text-align:center" role="status">
+    ${pdots(4)}
+    <div style="margin:30px 0 6px;color:var(--illus)">${ic('starf',88,1.4)}</div>
+    <h3 class="t" style="font-size:24px">${P('బాగుంది రవీ','Well done, Ravi')}</h3>
+    <p style="font-size:18px">${P('లక్ష్మి టీచర్ ఇది చూస్తారు.','Lakshmi teacher will see this.')}</p>
+    <p class="small muted">${P('పేజీ 15 బడికి తీసుకురా.','Bring page 15 to school.')}</p></div>
+    <button class="btn primary" data-a="phome" style="margin-top:20px">${P('అయిపోయింది','Finish')}</button>
+    <div style="height:30px"></div>${stopLink()}`)+stopSheet();
+}
+
+/* ================= Shell: steps & states ================= */
+const STEPS = [
+ {ph:'Once, at setup'},
+ {who:'Teacher', t:'Set up: greeting + evening message', go(){ S.t='onboard'; S.ob=1; S.clock.h='4:30 pm'; }},
+ {ph:'Tuesday: Ravi is absent'},
+ {who:'Teacher', t:'Morning: attendance arrives from SATS; nothing to mark', go(){ day1(); S.lesson='none'; }},
+ {who:'Teacher', t:'Tap the mic, say what you taught, tap again', go(){ day1(); S.lesson='none'; }},
+ {who:'Teacher', t:'Confirm the lesson (or pick it)', go(){ day1(); S.t='confirm'; S.lesson='mapped'; S.lowConf=false; }},
+ {who:'Parent', t:'6 pm: evening message from her template', go(){ day1(); S.lesson='confirmed'; S.dayDone=true; S.clock.h='6:05 pm'; S.pclock='6:05 pm'; S.msgs=['evening']; S.p='home'; }},
+ {who:'Parent', t:'Optional: say why Ravi was away', go(){ STEPS[6].go(); S.p='reason'; S.reason=null; S.reasonDone=false; }},
+ {ph:'Friday: catch-up'},
+ {who:'Teacher', t:'Open, check, approve this week’s catch-ups', go(){ friday(); S.t='approve'; }},
+ {who:'Parent', t:'Listen: teacher’s voice, notice, lesson', go(){ friday(); S.pk.A='approved'; S.reviewed.A=true; S.msgs=['evening','catchup']; S.p='listen'; S.pclock='6:12 pm'; S.audio={pos:0,playing:false,played:false,loading:false}; S.t='approve'; S.ravi='sent'; }},
+ {who:'Parent', t:'Activity + homework page, then the child taps a picture', go(){ STEPS[10].go(); S.audio.played=true; S.audio.pos=100; S.ravi='listened'; S.p='answer'; S.ans=null; S.ansState='idle'; }},
+ {who:'Teacher', t:'Missed lessons update by themselves', go(){ if(S.ansState!=='sent'){ STEPS[11].go(); S.ans=CHECKS.borrow.correct; S.ansState='sent'; S.ravi='caught'; } S.p='done'; S.t='ledger'; S.filter='week'; }},
+ {ph:'Thursday: back in class'},
+ {who:'Teacher', t:'Buddy card + "Brought homework"', go(){ if(S.ansState!=='sent'){ STEPS[12].go(); } S.t='ret'; S.retIdx=0; S.clock={t:'Thu 22 Oct',h:'9:05'}; }},
+ {who:'Teacher', t:'Week: how fast children came back + recap nudge', go(){ S.t='week'; S.clock={t:'Fri 23 Oct',h:'3:30 pm'}; }},
+ {ph:'Any time'},
+ {who:'Parent', t:'Family stops the messages (from any screen)', go(){ if(S.ansState!=='sent'){ STEPS[12].go(); } S.p='done'; S.stopAsk=true; S.t='ledger'; }},
+];
+function day1(){ S.t='today'; S.tVar=null; S.ob=3; S.greet='done'; S.consent=true; S.clock={t:'Tue 20 Oct',h:'9:10'}; S.attEdit=false; S.attSrc='sats'; S.attCorrected=false; S.absent=new Set([10,12,13,19]); S.offline=false; S.pickOpen=false; S.dayDone=false; if(S.msgs.length===0) S.p='empty'; }
+function friday(){ STEPS[6].go(); S.clock={t:'Fri 23 Oct',h:'3:10 pm'}; S.pk={A:'ready',B:'ready',C:'review'}; S.reviewed={}; S.glossOk=false; S.pkOpen=null; S.msgs=['evening']; S.p='home'; S.pclock='3:10 pm'; }
+
+const TSTATES = {
+  today:[['default','From SATS'],['waiting','SATS not in yet'],['correct','Correcting'],['offline','Offline'],['nolesson','Lesson not yet recorded'],['queued','Note queued offline'],['done','Done for today'],['noupdates','No updates yet']],
+  confirm:[['proc','Processing'],['slow','Slow (>20 s)'],['confident','Confident'],['low','Low confidence'],['unclear','Could not hear']],
+  approve:[['default','Default'],['gen','Generating'],['offline','Offline']],
+  pkg:[['ready','Ready'],['review','Needs review (failed check)'],['gen','Regenerating'],['approved','Approved']],
+  ledger:[['default','By child'],['lesson','By lesson'],['empty','Empty (first week)'],['offline','Offline']],
+  child:[['default','Default'],['delete','Delete: confirm']],
+  ret:[['default','Cards'],['none','None today'],['offline','Offline']],
+  week:[['default','Nudge'],['nonudge','No nudge this week']],
+  onboard:[['0','Welcome'],['1','Greeting'],['1rec','Recording'],['1done','Recorded'],['1err','Missing step'],['2','Evening message'],['3','All set']],
+};
+const PSTATES = {
+  empty:[], home:[['default','Chat']],
+  reason:[['default','Default'],['chosen','Picture chosen'],['done','Sent']],
+  listen:[['default','Default'],['loading','Loading'],['playing','Playing'],['played','Played'],['dropped','Network dropped'],['expired','Link expired']],
+  activity:[['default','Default']],
+  answer:[['default','Default'],['chosen','Chosen'],['sending','Sending'],['failed','Could not send']],
+  done:[['default','Done'],['ask','Stop: confirm'],['stopped','Stopped']],
+};
+function applyT(k){
+  S.tVar=null; const t=S.t;
+  if(t==='today'){ clearInterval(recTimer); S.offline=(k==='offline'||k==='queued'); S.dayDone=k==='done'; S.tVar=k==='noupdates'?'noupdates':null;
+    S.attSrc = k==='waiting'?'waiting':'sats'; S.attEdit = k==='correct'; if(S.attEdit) S.draft=new Set(S.absent);
+    if(k==='nolesson'||k==='offline') S.lesson='none'; if(k==='queued') S.lesson='queued'; if(k==='done') S.lesson='confirmed'; }
+  if(t==='confirm'){ S.lowConf=k==='low'; if(k==='proc'||k==='slow'){ S.lesson='proc'; S.tVar=k==='slow'?'slow':null; } else if(k==='unclear') S.lesson='unclear'; else S.lesson='mapped'; }
+  if(t==='ledger'){ S.lview = k==='lesson'?'lesson':'child'; S.tVar = (k==='empty'||k==='offline')?k:null; }
+  if(t==='approve'||t==='ret'||t==='week') S.tVar=k==='default'?null:k;
+  if(t==='pkg'){ S.pk[S.pkOpen]=k; S.glossOk=false; }
+  if(t==='child') S.delAsk=k==='delete';
+  if(t==='onboard'){ clearInterval(recTimer); S.ob=+k[0]; S.obErr=k==='1err'?'rec':null; S.greet = k==='1rec'?'rec':(k==='1done'||+k[0]>1)?'done':'none'; if(k==='1done') S.consent=true; }
+  S._tk=k;
+}
+function applyP(k){
+  S.pVar=null; const p=S.p; stopTimer();
+  if(p==='reason'){ S.reasonDone=k==='done'; S.reason = k==='default'?null:'travel'; }
+  if(p==='listen'){ S.audio={pos:k==='played'?100:(k==='playing'||k==='dropped')?40:0, playing:false, played:k==='played', loading:k==='loading'}; if(k==='dropped'||k==='expired') S.pVar=k; if(k==='playing') pPlay(); }
+  if(p==='answer'){ S.ans = k==='default'?null:0; S.ansState = k==='sending'?'sending':k==='failed'?'failed':'idle'; }
+  if(p==='done'){ S.stopAsk=k==='ask'; S.stopped=k==='stopped'; }
+  S._pk=k;
+}
+
+/* ================= Actions ================= */
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2400); }
+function announce(side,msg){ const el=document.getElementById(side==='t'?'tLive':'pLive'); el.textContent=''; setTimeout(()=>{ el.textContent=msg; },60); }
+function stopTimer(){ clearInterval(timer); timer=null; S.audio.playing=false; }
+function pPlay(){
+  if(S.audio.playing){ stopTimer(); announce('p',Pt('ఆపారు','Paused')); return; }
+  if(S.audio.pos>=100) S.audio.pos=0;
+  S.pVar=null; S.audio.loading=true; render();
+  setTimeout(()=>{ S.audio.loading=false; S.audio.playing=true; announce('p',Pt('వినిపిస్తోంది','Playing'));
+    timer=setInterval(()=>{ S.audio.pos=Math.min(100,S.audio.pos+2.5); if(S.audio.pos>=100){ stopTimer(); S.audio.played=true; if(S.ravi==='missed'||S.ravi==='sent') S.ravi='listened'; } render(); },120); render(); },350);
+}
+const A = {
+  reset(){ stopTimer(); clearInterval(recTimer); const keep={lang:S.lang,plang:S.plang,theme:S.theme}; S=Object.assign(fresh(),keep); },
+  step(v){ stopTimer(); clearInterval(recTimer); S._tk=null; S._pk=null; S.step=+v; STEPS[+v].go(); },
+  toast(v){ toast(v); },
+  go(v){ S.t=v; S.tVar=null; S._tk=null; S.pickOpen=false; if(v==='today' && S.ob<3){ S.ob=3; S.greet='done'; S.consent=true; } if(v==='confirm' && S.lesson==='none') S.lesson='mapped'; },
+  ob(v){ S.ob=+v; },
+  obBack(){ S.ob=Math.max(0,S.ob-1); S.obErr=null; },
+  obSave(){ if(S.greet!=='done'){ S.obErr='rec'; return; } if(!S.consent){ S.obErr='consent'; return; } S.obErr=null; S.ob=2; },
+  greetAgain(){ S.greet='none'; },
+  consent(){ S.consent=!S.consent; if(S.obErr==='consent'&&S.consent) S.obErr=null; },
+  kid(v){ const r=+v; S.draft.has(r)?S.draft.delete(r):S.draft.add(r); },
+  editAtt(){ S.attEdit=true; S.draft=new Set(S.absent); },
+  attCancel(){ S.attEdit=false; S.draft=null; announce('t',Kt('ಬದಲಾವಣೆ ರದ್ದು','Changes discarded')); },
+  saveAtt(){ S.absent=new Set(S.draft); if(S.attSrc==='waiting') S.attSrc='manual'; else S.attCorrected=true; S.attEdit=false; announce('t',Kt('ಹಾಜರಾತಿ ಉಳಿಸಲಾಗಿದೆ','Attendance saved')); },
+  pick(){ S.pickOpen=true; },
+  pickClose(){ S.pickOpen=false; },
+  pickLesson(v){ S.lessonId=v; S.pickOpen=false; S.lesson='confirmed'; S.lowConf=false; S.dayDone=true; S.t='today'; announce('t',Kt('ಪಾಠ ಉಳಿಸಲಾಗಿದೆ. ಬದಲಿಸಬಹುದು.','Lesson saved. You can change it.')); },
+  relesson(){ S.lesson='none'; S.t='today'; },
+  confirmLesson(){ S.lesson='confirmed'; S.dayDone=true; S.t='today'; S.tVar=null; announce('t',Kt('ಪಾಠ ಖಚಿತವಾಗಿದೆ','Lesson confirmed')); },
+  toToday(){ S.t='today'; S.pickOpen=false; },
+  openPkg(v){ S.pkOpen=v; S.t='pkg'; S.glossOk=!!S.reviewed[v]; stopTimer(); S.audio={pos:0,playing:false,played:S.audio.played,loading:false}; },
+  toApprove(){ stopTimer(); S.t='approve'; },
+  pkgPlay(){ pPlay(); },
+  gloss(){ S.glossOk=!S.glossOk; S.reviewed[S.pkOpen]=S.glossOk; },
+  approvePkg(){ if(S.pk[S.pkOpen]!=='ready'||!S.glossOk) return; S.pk[S.pkOpen]='approved'; onApproved(); announce('t',Kt('ಅನುಮೋದಿಸಿದ್ದೀರಿ. ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ.','Approved. Goes after 6 pm.')); },
+  approveChecked(){ Object.keys(S.pk).forEach(k=>{ if(shownStatus(k)==='ready' && S.reviewed[k]) S.pk[k]='approved'; }); onApproved(); announce('t',Kt('ಅನುಮೋದಿಸಿದ್ದೀರಿ','Approved')); },
+  withdraw(){ const k=S.pkOpen; S.pk[k]='ready'; S.reviewed[k]=false; S.glossOk=false; if(k==='A'){ S.msgs=S.msgs.filter(m=>m!=='catchup'); if(['listen','activity','answer'].includes(S.p)) S.p='home'; } announce('t',Kt('ಹಿಂಪಡೆಯಲಾಗಿದೆ. ಏನೂ ಕಳುಹಿಸುವುದಿಲ್ಲ.','Withdrawn. Nothing will be sent.')); },
+  regen(v){ const k=S.pkOpen; S.pk[k]='gen'; S.reviewed[k]=false; S.glossOk=false; announce('t',Kt('ಹೊಸ ಆವೃತ್ತಿ ಬರೆಯುತ್ತಿದೆ','Writing a new version'));
+    setTimeout(()=>{ S.pk[k]='ready'; if(v==='shorter') PKGS[k].dur='1:26'; announce('t',Kt('ಹೊಸ ಆವೃತ್ತಿ ಸಿದ್ಧ. ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ.','New version ready. Check it again.')); render(); },1600); },
+  filter(v){ S.filter=v; },
+  lview(v){ S.lview=v; },
+  lopen(v){ S.lopen = S.lopen===v?null:v; },
+  toLessonView(){ S.t='ledger'; S.lview='lesson'; S.lopen=S.lessonId; S.tVar=null; },
+  toChildView(){ S.t='ledger'; S.lview='child'; S.filter='week'; S.tVar=null; },
+  openChild(v){ S.child=+v; S.t='child'; S.delAsk=false; },
+  toLedger(){ S.t='ledger'; },
+  delAsk(){ S.delAsk=true; }, delNo(){ S.delAsk=false; },
+  delDo(){ S.deleted.add(S.child); S.delAsk=false; S.t='ledger'; announce('t',Kt('ಅಳಿಸಲಾಗಿದೆ: ಹೆಸರು, ಉತ್ತರಗಳು, ಆಡಿಯೋ','Deleted: name, answers and audio')); toast('Deleted: name, answers and audio'); },
+  hw(v){ S.hw[+v]=!S.hw[+v]; },
+  retNav(v){ S.retIdx=Math.max(0,Math.min(1,S.retIdx+(+v))); },
+  retDone(v){ S.retDone[+v]=true; announce('t',Kt('ಬಡ್ಡಿ ಸಮಯ ಮುಗಿದಿದೆ','Buddy time done')); },
+  retUndo(v){ S.retDone[+v]=false; },
+  recap(v){ S.recap=v||null; },
+  // parent
+  pgo(v){ stopTimer(); S.p=v; S.pVar=null; S._pk=null; if(v==='reason') S.reasonDone=false; if(v==='listen' && S.ravi==='missed') S.ravi='sent'; },
+  phome(){ stopTimer(); S.p= S.msgs.length?'home':'empty'; S.stopAsk=false; },
+  pback(){ stopTimer(); S.p = S.p==='answer'?'activity':'listen'; },
+  reason(v){ S.reason=v; },
+  reasonSend(){ S.reasonDone=true; announce('p',Pt('పంపాము. ధన్యవాదాలు.','Sent. Thank you.')); toast('Lakshmi teacher sees: '+REASONS.find(r=>r.k===S.reason).en); },
+  pPlay(){ pPlay(); },
+  ans(v){ if(S.ansState==='sending') return; S.ans=+v; if(S.ansState==='failed') S.ansState='idle'; },
+  ansSend(){ S.ansState='sending'; announce('p',Pt('పంపుతోంది','Sending')); render(); setTimeout(()=>{ S.ansState='sent'; S.ravi = S.ans===currentCheck().correct?'caught':'buddy'; S.p='done'; announce('p',Pt('పంపాము','Sent')); toast(S.ravi==='caught'?'Teacher’s list: Ravi → Caught up':'Teacher’s list: Ravi → Needs buddy'); render(); },1100); },
+  stopAsk(){ S.stopAsk=true; }, stopNo(){ S.stopAsk=false; },
+  stopDo(){ S.stopped=true; S.stopAsk=false; if(!S.msgs.includes('stopped')) S.msgs.push('stopped'); if(S.p!=='done') S.p='home'; announce('p',Pt('సందేశాలు ఆపేశాం','Messages stopped')); toast('Teacher’s list: Ravi → Stopped by family'); },
+  stopUndo(){ S.stopped=false; S.msgs=S.msgs.filter(m=>m!=='stopped'); announce('p',Pt('మళ్ళీ మొదలైంది','Messages started again')); },
+  lang(v){ S.lang=v; }, plang(v){ S.plang=v; }, theme(v){ S.theme=v; },
+};
+A.tstate=v=>applyT(v); A.pstate=v=>applyP(v);
+function onApproved(){ if(S.pk.A==='approved' && !S.msgs.includes('catchup')){ S.msgs.push('catchup'); S.pclock='6:10 pm'; if(S.p==='empty') S.p='home'; if(S.ravi==='missed') S.ravi='sent'; } }
+
+/* ================= Render, with focus management ================= */
+const TSCREENS={onboard:tOnboard,today:tToday,confirm:tConfirm,approve:tApprove,pkg:tPkg,ledger:tLedger,child:tChild,ret:tRet,week:tWeek};
+const PSCREENS={empty:pHome,home:pHome,reason:pReason,listen:pListen,activity:pActivity,answer:pAnswer,done:pDone};
+const TNAMES={onboard:'T0 Set up',today:'T1 Today',confirm:'T2 Lesson confirm',approve:'T3 Approve',pkg:'T3 Approve · detail',ledger:'T4 Missed lessons (ledger)',child:'T4 Child',ret:'T5 Back today (buddy card)',week:'T6 Week (return speed + pacing)'};
+const PNAMES={empty:'Phone · no messages',home:'Messages (WhatsApp stand-in)',reason:'Reason for absence (FR-21)',listen:'P1 Listen',activity:'P2 Activity',answer:'P3 Answer',done:'P4 Done'};
+const opener={};
+function keyOf(el){ if(!el||!el.dataset) return null; if(el.dataset.mic) return 'mic|'+el.dataset.mic; if(el.dataset.a) return el.dataset.a+'|'+(el.dataset.v||''); return null; }
+function renderSide(id, html, scrKey, dialogOpen){
+  const root=document.getElementById(id);
+  const active=document.activeElement, inside=root.contains(active), k=inside?keyOf(active):null;
+  const bodyEl=root.querySelector('.body'); const st=bodyEl?bodyEl.scrollTop:0;
+  const prevScr=root.dataset.scr, prevDlg=root.dataset.dlg==='1';
+  root.innerHTML=html; root.dataset.scr=scrKey; root.dataset.dlg=dialogOpen?'1':'0';
+  const nb=root.querySelector('.body'); if(nb && prevScr===scrKey) nb.scrollTop=st;
+  if(dialogOpen && !prevDlg){ const f=root.querySelector('.sheet [data-focus]')||root.querySelector('.sheet button'); if(f) f.focus(); return; }
+  if(!dialogOpen && prevDlg && opener[id]){ const o=root.querySelector(`[data-a="${opener[id]}"]`); if(o){ o.focus(); return; } }
+  if(prevScr!==scrKey && inside){ const h=root.querySelector('h2'); if(h) h.focus(); return; }
+  if(k){ const [a,v]=k.split('|'); const el = a==='mic'? root.querySelector(`[data-mic="${v}"]`) : (root.querySelector(`[data-a="${a}"][data-v="${v}"]`)||root.querySelector(`[data-a="${a}"]:not([data-v])`)); if(el) el.focus(); }
+}
+function render(){
+  document.body.classList.toggle('dark', S.theme==='dark');
+  const T=document.getElementById('teacher'), Pp=document.getElementById('parent');
+  T.setAttribute('lang', S.lang==='en'?'en':'kn'); Pp.setAttribute('lang', S.plang==='en'?'en':'te');
+  renderSide('teacher', TSCREENS[S.t](), S.t+S.ob+(S.t==='child'?S.child:''), S.pickOpen||S.delAsk);
+  renderSide('parent', PSCREENS[S.p](), S.p, S.stopAsk);
+  document.getElementById('tLabel').innerHTML=`Teacher · Lakshmi · <b>${S.clock.t}, ${S.clock.h}</b><br>${TNAMES[S.t]}`;
+  document.getElementById('pLabel').innerHTML=`Ravi’s family · shared phone · <b>${S.pclock}</b><br>${PNAMES[S.p]}`;
+  const tk=S._tk;
+  document.getElementById('tStates').innerHTML=`<span class="st-h">States on this screen</span>`+(TSTATES[S.t]||[]).map(([k,l])=>`<button class="chip-s" data-a="tstate" data-v="${k}" aria-pressed="${tk===k}">${l}</button>`).join('');
+  const pk=S._pk; const ps2=PSTATES[S.p]||[];
+  document.getElementById('pStates').innerHTML=ps2.length?`<span class="st-h">States on this screen</span>`+ps2.map(([k,l])=>`<button class="chip-s" data-a="pstate" data-v="${k}" aria-pressed="${pk===k}">${l}</button>`).join(''):'';
+  document.getElementById('steps').innerHTML=STEPS.map((s,i)=>s.ph?`<li><span class="phase">${s.ph}</span></li>`:`<li><button class="${S.step===i?'on':''}" data-a="step" data-v="${i}"><span class="who">${s.who}</span>${s.t}</button></li>`).join('');
+  const seg=(id,act,cur,opts)=>document.getElementById(id).innerHTML=opts.map(([v,l])=>`<button data-a="${act}" data-v="${v}" aria-pressed="${cur===v}">${l}</button>`).join('');
+  seg('langT','lang',S.lang,[['both','ಕನ್ನಡ + EN'],['kn','ಕನ್ನಡ'],['en','EN']]);
+  seg('langP','plang',S.plang,[['both','తెలుగు + EN'],['te','తెలుగు'],['en','EN']]);
+  seg('theme','theme',S.theme,[['light','Light'],['dark','Dark']]);
+}
+
+/* ================= Events ================= */
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-mic]')) return; // mic handled separately
+  const el=e.target.closest('[data-a]'); if(!el||el.disabled) return;
+  if(el.classList.contains('scrim') && e.target.closest('[data-stop]')) return; // clicks inside a sheet don't close it
+  const a=el.dataset.a; if(!A[a]) return;
+  const side = el.closest('#teacher')?'teacher':el.closest('#parent')?'parent':null;
+  if(side && ['pick','delAsk','stopAsk'].includes(a)) opener[side]=a;
+  if(el.tagName==='INPUT'){ A[a](el.dataset.v); render(); return; }
+  e.preventDefault(); A[a](el.dataset.v); render();
+});
+// Mic: tap to start / tap to stop; press-and-hold also works; Enter/Space toggles (via click)
+let downAt=null, startedByDown=false, suppressClick=false, micKind=null;
+document.addEventListener('pointerdown',e=>{ const m=e.target.closest('[data-mic]'); if(!m) return; e.preventDefault(); micKind=m.dataset.mic;
+  if(!isRec(micKind)){ startRec(micKind); startedByDown=true; downAt=Date.now(); render(); } });
+document.addEventListener('pointerup',()=>{ if(downAt && micKind && isRec(micKind) && Date.now()-downAt>700){ stopRec(micKind); suppressClick=true; render(); } downAt=null; setTimeout(()=>{ startedByDown=false; suppressClick=false; },60); });
+document.addEventListener('pointercancel',()=>{ if(micKind && isRec(micKind)){ cancelRec(micKind); render(); } downAt=null; });
+document.addEventListener('click',e=>{ const m=e.target.closest('[data-mic]'); if(!m) return; const k=m.dataset.mic;
+  if(startedByDown||suppressClick){ startedByDown=false; suppressClick=false; return; }
+  if(isRec(k)) stopRec(k); else startRec(k); render(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ let any=false; ['lesson','greet'].forEach(k=>{ if(isRec(k)){ cancelRec(k); any=true; } }); if(any) render(); } });
+// Dialogs: Esc closes, Tab is trapped inside
+document.addEventListener('keydown',e=>{
+  const sheet=document.querySelector('.sheet[role=dialog]'); if(!sheet) return;
+  if(e.key==='Escape'){ if(S.pickOpen) A.pickClose(); else if(S.delAsk) A.delNo(); else if(S.stopAsk) A.stopNo(); render(); return; }
+  if(e.key==='Tab'){ const f=[...sheet.querySelectorAll('button,input,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled); if(!f.length) return;
+    const first=f[0], last=f[f.length-1]; if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); } }
+});
+
+render();
+</script>
+</body>
+</html>
