@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <None Include="../../../data/seed/demo-class.json" Link="data/seed/demo-class.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../../data/curriculum/*.json" Link="data/curriculum/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
