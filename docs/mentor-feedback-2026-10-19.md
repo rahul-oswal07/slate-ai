@@ -4,7 +4,7 @@
 |---|---|
 | Who | Education mentor (CSF panel), Monika, Rahul |
 | Source | 25-minute call recording, transcribed automatically. Full transcript kept locally in `docs/hackathon/` (not committed: the repo is public) |
-| Status | **Proposed changes — need Monika's decision** (D-20 to D-25 below). Note: D-21 conflicts with FR-08 weekly approval (see row) |
+| Status | **Decided by Monika, 20 Oct 2026.** D-20, D-22–D-26 accepted; D-21 accepted as the pre-approved template option, awaiting Rahul's confirmation on guardrail 3 / FR-08. Recorded in `spec.md` §8 |
 
 ## 1. What the mentor said
 
@@ -30,7 +30,22 @@ The product stays the same loop, but its purpose and headline measure shift:
 > **Before:** catch up the lesson a child missed, measured by a passed learning check.
 > **After:** keep an absent child connected to their class so they come back sooner, with a short lesson and homework from their teacher while they are away. Measured by how quickly children return and whether they did the home task. The learning check stays as a secondary signal.
 
-### Proposed decisions
+### Decisions (20 Oct)
+
+| ID | Monika's decision |
+|---|---|
+| D-20 | Accepted: return speed first, then home engagement, learning check secondary |
+| D-21 | Accepted: **pre-approved template** with code-filled slots, no AI text daily (FR-20). **Rahul to confirm** guardrail 3 / FR-08 |
+| D-22 | Accepted: textbook page per competency (added in T-22), "Brought homework" on the buddy card |
+| D-23 | Accepted: caring and optional, picture buttons + optional voice note, category only (FR-21) |
+| D-24 | Accepted: weekly return-speed card, teacher only (FR-22) |
+| D-25 | **Roadmap only** (no research in this stage) |
+| Tone | Agreed with "Where we should not follow the feedback literally" |
+| Scope | Approved: drop T-41, T-42, T-43; T-40 stays stretch (D-26) |
+
+**Numbering:** FR-19 was already taken by "Stop these messages" (#53), so the new requirements are **FR-20** (evening message), **FR-21** (reason for absence), **FR-22** (return-speed card).
+
+### Proposed decisions (as discussed)
 
 | ID | Decision | Recommendation | Owner | Build cost |
 |---|---|---|---|---|
@@ -60,7 +75,7 @@ The product stays the same loop, but its purpose and headline measure shift:
 ### Changes to artifacts once accepted
 
 - `intent.md`: proposed outcome and success measures (D-20).
-- `spec.md`: FR-07 (homework + preview), new FR-19 (first-evening message), FR-20 (absence reason), FR-21 (return-speed card); content rules §3.3; data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs); new AI call A7 (reason classification, Haiku); decision log D-20 to D-25.
+- `spec.md`: FR-07 (homework + preview), new FR-20 (evening message), FR-21 (absence reason), FR-22 (return-speed card); content rules §3.3; data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs); new AI call A7 (reason classification, Haiku); decision log D-20 to D-25.
 - `plan.md` / `tasks.md`: new tasks for D-21 to D-24 in Days 3–6; drop T-41 to T-43.
 - `quality.md`: eval cases for A7; usability questions below.
 - `judging-narrative.md`: lead with "keeps absent children connected so they come back sooner"; cite the mentor's input as evidence of refinement.

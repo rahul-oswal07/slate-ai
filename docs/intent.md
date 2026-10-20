@@ -5,7 +5,7 @@
 | Stage | 1 · Plan |
 | Originator | Rahul Oswal (engineering) |
 | Product owner (accepts) | Monika I |
-| Status | **Draft — awaiting Monika's acceptance** (accept = merge to `main`) |
+| Status | **Accepted** by Monika, 20 Oct 2026; revised after the education-mentor review (D-20 to D-25, `docs/mentor-feedback-2026-10-19.md`) |
 | Challenge | AI for Foundational Learning Hackathon, Problem 1C: student absenteeism |
 | Deadline | Submit 31 Oct 2026 (hard deadline 1 Nov, 23:59 IST) |
 
@@ -21,11 +21,15 @@ Children of seasonal and migrant workers, often Telugu- or Tamil-speaking, are h
 
 ## Proposed outcome
 
-Every absent child gets a short catch-up for the lesson they missed, in their home language, using what their own teacher taught, and a teacher-visible result showing whether they caught up. The teacher spends under 60 seconds a day and types nothing.
+Every absent child stays connected to their class so they come back sooner. While a child is away, the family hears from their own teacher each evening: what the class did today, homework from the child's own textbook, and a buddy keeping their seat. When several days are missed, the child gets one short catch-up in their home language, based on what the teacher taught. The teacher sees who is back, how soon, and why children were away. She spends under 60 seconds a day and types nothing.
+
+The education mentor (19 Oct) pointed out that at this age home time gives engagement more than learning, and that the real goal is a **pull back to school**. So return speed leads and the learning check is a secondary signal (D-20).
 
 The MVP proves one complete loop, end to end, with real AI and real audio:
 
 > Teacher records what she taught → Claude maps it to textbook competencies and logs it against absent children → Claude compresses several missed lessons into one catch-up that keeps only what blocks next week's lessons → teacher approves once → parent receives a link, taps Listen, child answers by tapping one of three pictures → teacher sees "caught up" or "needs buddy", a return-day buddy card, and a weekly pacing nudge.
+>
+> Around it: each evening of absence the family gets a short message from a template the teacher approved once (today's lesson, a textbook-page homework, "`{buddy}` is keeping your seat"); the parent can say why the child was away; on return the teacher taps "Brought homework"; a weekly card shows how quickly absent children came back.
 
 ## Affected users and systems
 
@@ -62,15 +66,21 @@ Systems: Claude API (reasoning, vision, script writing, checks), Sarvam AI (Indi
 | Teachers tested with and changes made from their feedback | ≥ 3 teachers (or proxies), 2 rounds, ≥ 5 logged changes |
 | Teacher flow works offline (capture queued, synced on reconnect) | Demonstrated on video |
 
-**Product measure we will report (from the proposal):** share of absentees who pass the learning check within 48 hours of return; teacher seconds per day; fewer whole-class repeat lessons. We measure a passed learning check, never message opens.
+**Product measures we will report (D-20, changed after the mentor review):**
+
+1. **Return speed (primary):** days until an absent child is back in class, and the share of absent children back within 2 school days.
+2. **Home engagement:** the family listened, and the child brought the homework back.
+3. **Learning check (secondary):** share of absentees who pass the picture check within 48 hours of return.
+
+Plus teacher seconds per day. We never count message opens.
 
 ## Out of scope for the MVP
 
-Voice cloning, avatar video, CRP/officer dashboards, SATS/VSK integration, subjects other than Grade 2–3 maths, production WhatsApp template approval at scale, native apps.
+Voice cloning, avatar video, CRP/officer dashboards, SATS/VSK integration, home-visit pathways via the cook or community members (roadmap, D-25), board-photo capture and spoken child answers (D-26), subjects other than Grade 2–3 maths, production WhatsApp template approval at scale, native apps.
 
 ## Open questions
 
-1. **[DECIDE: Monika]** Demo subject and unit: Grade 2–3 maths, place value → addition with carrying → subtraction with borrowing (recommended; matches "carrying-over" in our proposal and the 19.3% subtraction statistic).
-2. **[DECIDE: Monika + Rahul]** Do we have 3 real teachers we can reach this week (schools are reportedly on Dasara break until about 21 Oct)? If not, who are the proxies?
+1. ~~Demo subject and unit~~ Resolved: Grade 3 maths, place value → carrying → borrowing (D-01).
+2. Resolved as D-16 (3 teachers + 2 parents or proxies); recruiting is T-20. Do we have 3 real teachers we can reach this week (schools are reportedly on Dasara break until about 21 Oct)? If not, who are the proxies?
 3. **[CONFIRM: Rahul]** Open-source the repo (MIT) for the +USD 250 credits?
-4. **[CONFIRM: Rahul]** Real WhatsApp delivery as a stretch, with the simulated parent phone as the primary demo path?
+4. ~~Real WhatsApp delivery as a stretch?~~ Resolved: simulated parent phone primary, WhatsApp stretch (D-05).
