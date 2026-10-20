@@ -22,7 +22,7 @@ Tags used in this file:
 One class, one subject, one complete loop:
 
 - **Class:** Grade 3, Kannada-medium, 36 seeded children; 6 children with Telugu home language, 3 with Tamil, the rest Kannada.
-- **Subject:** maths. One textbook unit chain: place value (tens and ones) → 2-digit addition without carrying → **addition with carrying** → subtraction without borrowing → **subtraction with borrowing**. About 12–18 competencies in the dependency map. D-01 (Accepted)
+- **Subject:** maths. One textbook unit chain, as the Grade 3 book teaches it: place value (hundreds, tens, ones) → 3-digit addition without carrying → **addition with carrying** → subtraction without borrowing → **subtraction with borrowing**, sums ≤ 999. 2-digit addition and subtraction are Grade 2 prerequisites. 16 competencies in the dependency map (`docs/design/curriculum.md`). D-01 (Accepted, revised 20 Oct)
 - **Languages:** teacher UI in Kannada (English toggle for judges). Catch-up audio in **Telugu** and **Kannada**, fully tested. Tamil works through the same pipeline but is only spot-checked. D-02
 
 ### 1.2 Stretch (only after the Day 7 code freeze for MVP features is met)
@@ -31,7 +31,7 @@ One class, one subject, one complete loop:
 
 ### 1.3 Not in scope
 
-Voice cloning, avatar video, officer/CRP dashboards, SATS/VSK attendance import, other subjects, native app, multi-school admin. Dropped to make room for the mentor changes (D-26): board-photo capture (FR-17, T-41), spoken child answer (FR-18, T-42; replaced by the parent's optional spoken reason in FR-21), full Tamil review (T-43; Tamil stays spot-checked). Home visits by the cook or community members: roadmap only (D-25).
+Voice cloning, avatar video, officer/CRP dashboards, a real SATS/VSK attendance integration (the MVP uses a simulated feed, D-27), other subjects, native app, multi-school admin. Dropped to make room for the mentor changes (D-26): board-photo capture (FR-17, T-41), spoken child answer (FR-18, T-42; replaced by the parent's optional spoken reason in FR-21), full Tamil review (T-43; Tamil stays spot-checked). Home visits by the cook or community members: roadmap only (D-25).
 
 ---
 
@@ -41,14 +41,14 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 
 | ID | P | Requirement | Acceptance |
 |---|---|---|---|
-| FR-01 | M | Teacher marks absentees for today with one tap per absent child (all present by default) | 4 absentees marked in ≤ 10 s; works offline |
-| FR-02 | M | Teacher records a voice note (≤ 30 s, Kannada) saying what she taught | Recording queued offline; uploaded on reconnect |
+| FR-01 | M | Today's attendance arrives from the school's attendance system (a **simulated SATS feed** in the MVP, labelled as simulated; D-27). The teacher only corrects mistakes. If it has not arrived by 10:00, she can mark absentees in the app, one tap per absent child (all present by default) | Absent list shows its source and time; corrections and fallback marking work offline; corrections are never written back to SATS; fallback: 4 absentees marked in ≤ 10 s |
+| FR-02 | M | Teacher records a voice note (≤ 30 s, Kannada) saying what she taught: tap to start, tap to stop (holding also works); elapsed time against the limit; auto-stop at 30 s; works with keyboard and screen reader (D-31) | Recording queued offline; uploaded on reconnect |
 | FR-03 | M | System transcribes the note and Claude maps it to 1–3 competency IDs from the curriculum map, with a one-line Kannada summary and the examples she used | Teacher sees "Today: Addition with carrying" and confirms or changes with one tap |
 | FR-04 | M | Fallback when audio or AI fails: teacher picks the lesson from the chapter list | One tap; ledger still updates |
 | FR-05 | M | Ledger: for each child, the lessons missed and current status (missed · sent · caught up · needs buddy · stopped by family) | Matches attendance × lessons exactly (deterministic) |
 | FR-06 | M | Compression: for a child with several missed lessons, Claude selects at most 2 target competencies that block next week's lessons, with a reason for each kept and dropped item | Targets are always a subset of the graph-computed candidate set (validator) |
 | FR-07 | M | Script writer: per (target set, home language) Claude writes a ≤ 90 s catch-up script with 3 Kannada key words, a 5-minute homework task that points to the child's own textbook/workbook page (with a household-object option) and ends with "Show `{teacher}` when you come back" (D-22), a 3-picture learning check, a Kannada gloss for the teacher, and buddy-card content | Passes the verifier (§5.4) |
-| FR-08 | M | Teacher approval: weekly list of draft packages; play audio, read Kannada gloss, Approve or Regenerate ("simpler", "shorter"); Approve all | No package reaches a parent without approval (enforced in API) |
+| FR-08 | M | Teacher approval: weekly list of draft packages; play audio, read Kannada gloss, Approve or Regenerate ("simpler", "shorter"); bulk approve only for packages she has opened and ticked; Withdraw until the send starts (D-28) | No package reaches a parent without approval (enforced in API) |
 | FR-09 | M | Audio: text-to-speech in the home language, in this order: the teacher's own recorded greeting (recorded once with consent) → a ~5 s **spoken AI disclosure** in the home language ("The rest of this message is read by a computer voice, from Lakshmi teacher's lesson") → the catch-up script. The written transcript starts with the same disclosure. *(Disclosure proposed in D-18.)* | Audio ≤ 300 KB, ≤ 95 s including greeting and disclosure; disclosure segment present in every package; plays on a low-end Android browser |
 | FR-10 | M | Parent page from a link: big Listen button, activity picture, then 3-picture answer; audio prompts so a low-literacy parent can follow | Lighthouse mobile performance ≥ 85; total transfer ≤ 500 KB excluding audio |
 | FR-11 | M | Picture-tap answer is scored by code (no LLM) and updates the ledger: correct → caught up; wrong → needs buddy | Ledger updates within 2 s of the tap |
@@ -59,8 +59,8 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-16 | S | Send via WhatsApp Cloud API (template message with link), scheduled for after 6 pm | Delivered to a registered test number |
 | FR-17 | — | ~~Board photo capture via Claude vision~~ Dropped (D-26) | Same output as FR-03 |
 | FR-18 | — | ~~Spoken answer~~ Dropped (D-26); replaced by the optional spoken reason in FR-21. Was: STT + Claude rubric; confidence < 0.8 goes to a teacher review queue with the audio | Never auto-marks below threshold |
-| FR-19 | M | **Stop these messages** *(proposed in D-19)*: on the parent page, one tap plus one confirmation stops all future messages for that child; reversible from the same page. The ledger shows "Stopped by family" and the child stays on the buddy-card path | After a stop, the API refuses to send to that child (409), covered by an integration test; the ledger shows the status within 2 s |
-| FR-20 | M | **Evening message on each day of absence** (D-21): the teacher's recorded greeting plus a fixed message the teacher approved once at setup, with slots filled by code: today's lesson (from her confirmed lesson record), the textbook page for homework, tomorrow's lesson, and "`{buddy}` is keeping your seat". No AI-written text, so no daily approval. Several missed days still compress into one catch-up (FR-06–FR-08) | Sent after 6 pm only to opted-in, not-stopped families; slots filled by code; template approval recorded once; teacher time stays within NFR-01. Guardrail 3 (confirmed by Rahul, 20 Oct): the send endpoint returns 409 unless the class's `MessageTemplate` is Approved, the lesson record is teacher-confirmed, and the family has opted in and not stopped; no LLM is called on this path; audio is the greeting plus pre-synthesised template and competency-name segments, covered by an endpoint test |
+| FR-19 | M | **Stop these messages** *(D-19, D-30)*: a stop link on every parent screen and in the evening message, plus a STOP reply; one tap plus one confirmation stops all future messages for that child; one confirmation message with a restart link; reversible. The ledger shows "Stopped by family" and the child stays on the buddy-card path | After a stop, the API refuses to send to that child (409), covered by an integration test; the ledger shows the status within 2 s |
+| FR-20 | M | **Evening message on each day of absence** (D-21): the teacher's recorded greeting plus a fixed message the teacher approved once at setup, with slots filled by code: today's lesson (from her confirmed lesson record), the textbook page for homework, tomorrow's lesson, and "a classmate is keeping `{child}`'s seat" (the buddy is named only on the teacher's card, D-29). No AI-written text, so no daily approval. Several missed days still compress into one catch-up (FR-06–FR-08) | Sent after 6 pm only to opted-in, not-stopped families; slots filled by code; template approval recorded once; teacher time stays within NFR-01. Guardrail 3 (confirmed by Rahul, 20 Oct): the send endpoint returns 409 unless the class's `MessageTemplate` is Approved, the lesson record is teacher-confirmed, and the family has opted in and not stopped; no LLM is called on this path; audio is the greeting plus pre-synthesised template and competency-name segments, covered by an endpoint test |
 | FR-21 | M | **Reason for absence** (D-23), optional, on the parent page: "We missed `{child}` today. Is everything OK?" with 5 picture buttons (unwell · family travel or work · festival or function · needed at home · other) and an optional voice note that Claude classifies into one of them (low confidence → other) | Category only is stored; shown only to the teacher; never asks for symptoms; skipping it never blocks the rest of the page |
 | FR-22 | M | **Return-speed card** (D-24): weekly card for the teacher with absences by length (1, 2, 3, 4+ days) this week vs last, the share back within 2 school days, and reason categories | Numbers computed by code from attendance; teacher's own view; nothing exported to officers |
 
@@ -68,7 +68,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 
 | ID | Requirement |
 |---|---|
-| NFR-01 | Teacher time ≤ 60 s/day for capture + attendance (measured in usability tests) |
+| NFR-01 | Teacher time ≤ 60 s/day for lesson capture plus any attendance corrections (measured in usability tests) |
 | NFR-02 | Teacher flow usable offline; queued actions sync automatically; sync state always visible |
 | NFR-03 | Works on a 2 GB RAM Android phone, Chrome, 3G-class network (test with throttling) |
 | NFR-04 | WCAG 2.2 AA for teacher and parent UIs, with AAA text contrast: all text ≥ 7:1, UI components ≥ 3:1, in light and dark themes (D-17); touch targets ≥ 48 px (parent picture targets ≥ 96 px) |
@@ -88,9 +88,9 @@ Teacher app (PWA, Kannada first):
 | Screen | Purpose | Key interaction | States to design (besides default) |
 |---|---|---|---|
 | T0 Onboarding | Consent, record 10-second greeting once ("Ravi, this is Lakshmi teacher…") | Record → play back → save | Recording · recorded (play / re-record) · consent given · greeting deleted · mic permission denied |
-| T1 **Today** | Attendance + lesson capture on one screen | Tap absent faces/names; hold mic button; sync badge | Attendance already marked · lesson already recorded today · offline ("3 waiting to send") · sending · mic permission denied |
+| T1 **Today** | Attendance (from SATS, D-27) + lesson capture on one screen | Check the absent list, correct only if wrong; tap the mic (tap again to stop); sync badge | Attendance not in yet (mark here instead) · corrected by teacher · lesson already recorded today · offline ("3 waiting to send") · sending · mic permission denied |
 | T2 Lesson confirm | Shows mapped lesson | One tap confirm, or pick from chapter list | Processing · confident · low confidence ("Please confirm") · changed by teacher · could not read the note (pick from list) |
-| T3 **Approve** | Draft catch-up packages for the week | Play, read gloss, Approve / Regenerate; Approve all | Generating · ready · needs review (verifier failed) · approved · sent · generation failed · offline (approval queued) |
+| T3 **Approve** | Draft catch-up packages for the week | Play, read gloss, tick, Approve / Regenerate; approve the checked ones; Withdraw | Generating · ready · needs review (verifier failed) · approved · sent · generation failed · offline (approval queued) |
 | T4 **Ledger** | Per-child missed lessons and status | Filter: absent this week; tap child for history | Empty (first week) · filtered · offline ("Last updated …") |
 | T5 **Return day** | Buddy cards for children back today | Swipe cards; print/share | None due today · marked done · offline (cached cards) |
 | T6 Pacing | Weekly nudge | Read; "Plan recap" adds a reminder | No nudge this week ("Most children are on track") · decided |
@@ -111,11 +111,11 @@ Demo shell (`/demo`): teacher phone and parent phone side by side, a step guide 
 
 | # | Decision | Recommendation |
 |---|---|---|
-| D-03 | Attendance UI: name list vs photo grid vs roll-number grid | Roll number + first name grid, 4 columns; photos raise consent questions **[DECIDE: Monika]** |
+| D-03 | Attendance UI: name list vs photo grid vs roll-number grid (now only for corrections and the fallback, D-27) | Roll number + first name grid, 4 columns; photos raise consent questions. **Accepted** (prototype v2, 20 Oct) |
 | D-04 | Visual style and tokens (colour, type, iconography) for both UIs | Accepted: Build Kit palette (warm canvas, deep ink, teal primary), AAA text contrast, Noto Sans Kannada/Telugu/Tamil. See `docs/design/tokens.md` (D-17) |
-| D-07 | Picture library style for the learning check | Code-generated place-value pictures (bundles of ten sticks + loose sticks, numerals) in Monika's style; plus ~10 activity illustrations (bottle caps, sticks, stones) **[DECIDE: Monika]** |
-| D-08 | Parent page: one screen with sections vs four steps | Four steps, one action per screen, audio auto-prompts **[DECIDE: Monika]** |
-| D-09 | How the teacher reviews a Telugu script she cannot read | Kannada gloss + audio; approval wording "I've checked the Kannada summary" **[DECIDE: Monika]** |
+| D-07 | Picture library style for the learning check | Code-generated bundles of ten sticks + loose sticks, the same style as the activity. The pictures are the answer: the numeral appears only after the tap. Options shuffled by code, distractors visibly different; plus ~10 activity illustrations (bottle caps, sticks, stones). **Accepted** (prototype v2, 20 Oct) |
+| D-08 | Parent page: one screen with sections vs four steps | Four steps, one action per screen, step dots, audio auto-prompts, Next never blocked by audio. **Accepted** (prototype v2, 20 Oct) |
+| D-09 | How the teacher reviews a Telugu script she cannot read | Kannada gloss + audio; approval wording "I've checked the Kannada summary"; the tick is required and is cleared by any regenerate. **Accepted** (prototype v2, 20 Oct) |
 
 ### 3.3 Content rules for generated scripts
 
@@ -310,15 +310,15 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 
 | ID | Decision | Recommendation | Owner | Gate | Status |
 |---|---|---|---|---|---|
-| D-01 | Demo subject/unit | Grade 3 maths, place value → carrying → borrowing | Monika | Day 1 | Accepted (T-00) |
+| D-01 | Demo subject/unit | Grade 3 maths, place value → carrying → borrowing. Revised 20 Oct (T-22): 3-digit, as in the 2026–27 textbook (Part 1 Ch 2–4, Part 2 Ch 5); 2-digit skills become Grade 2 prerequisites | Monika | Day 1 | Accepted (T-00); revised (T-22) |
 | D-02 | Languages fully tested | Kannada UI; Telugu + Kannada audio; Tamil spot-checked | Monika | Day 1 | Accepted (T-00) |
-| D-03 | Attendance UI pattern | Roll number + first name grid | Monika | Day 2 | Proposed |
+| D-03 | Attendance UI pattern | Roll number + first name grid | Monika | Day 2 | Accepted |
 | D-04 | Design tokens and type | Monika's tokens; Noto Sans Indic families | Monika | Day 2 | Accepted (T-23): `src/web/src/styles/tokens.css`, `docs/design/tokens.md` |
 | D-05 | Delivery channel in demo | Simulated parent phone primary; WhatsApp Cloud API test number stretch; `wa.me` share as fallback | Rahul | Day 1 | Accepted (19 Oct) |
 | D-06 | Board photo capture | Stretch | Monika + Rahul | Day 7 | Proposed |
-| D-07 | Picture library | Code-generated place-value SVGs + ~10 illustrations | Monika | Day 3 | Proposed |
-| D-08 | Parent page structure | Four single-action steps | Monika | Day 3 | Proposed |
-| D-09 | Teacher review of non-Kannada script | Kannada gloss + audio | Monika | Day 3 | Proposed |
+| D-07 | Picture library | Code-generated place-value SVGs + ~10 illustrations | Monika | Day 3 | Accepted (pictures are the answer) |
+| D-08 | Parent page structure | Four single-action steps | Monika | Day 3 | Accepted |
+| D-09 | Teacher review of non-Kannada script | Kannada gloss + audio | Monika | Day 3 | Accepted |
 | D-10 | Single container (API serves SPA) | Yes | Rahul | Day 1 | Accepted (T-03) |
 | D-11 | Claude client | Official `Anthropic` NuGet SDK behind `ILlmClient` | Rahul | Day 1 | Accepted (19 Oct) |
 | D-12 | Speech provider | Sarvam (Saarika STT, Bulbul TTS) | Rahul | Day 1 | Accepted (19 Oct): API key in user-secrets; voice choice during T-11 |
@@ -336,6 +336,11 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-24 | Return-speed view | Weekly card, teacher only (FR-22) | Monika | Day 4 | Accepted (mentor review) |
 | D-25 | Existing home-visit pathways (cook, community) | Roadmap only; no research or build in this stage | Monika | — | Accepted (mentor review) |
 | D-26 | Make room for the mentor changes | Drop T-41 board photo, T-42 spoken child answer, T-43 full Tamil review; T-40 WhatsApp stays stretch | Monika | Day 2 | Accepted (mentor review) |
+| D-27 | Where attendance comes from | Read from the school's system so the teacher enters nothing new. MVP: simulated SATS feed (labelled as simulated) plus manual fallback and corrections in the app; corrections never written back. Real SATS/VSK feed is roadmap: needs a data-sharing agreement with the state (no public API found, 20 Oct). Never scrape the SATS portal with a teacher's login | Monika | Day 2 | Accepted |
+| D-28 | Bulk approve | Only for catch-ups she has opened and ticked; count uses the status shown; Withdraw until the 6 pm send (UX review B-01–B-03, B-13) | Monika | Day 3 | Accepted |
+| D-29 | Buddy in the evening message | "A classmate is keeping `{child}`'s seat"; the buddy is named only on the teacher's buddy card (UX review C-30) | Monika | Day 3 | Accepted |
+| D-30 | Where families can stop messages | Stop link on every parent screen and in the evening message; STOP reply honoured; confirmation message with restart link (UX review C-06, C-22) | Monika + Rahul | Day 3 | Accepted |
+| D-31 | Mic gesture | Both mics: tap to start, tap to stop; holding also works; timer and auto-stop; keyboard and screen-reader operable (UX review A-01, A-06) | Monika | Day 3 | Accepted |
 
 ## 9. Assumptions
 

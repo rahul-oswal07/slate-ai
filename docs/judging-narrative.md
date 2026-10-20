@@ -28,8 +28,8 @@ What she gets back:
 
 | Step | Screen | What we say |
 |---|---|---|
-| 1 | Teacher phone, Today | Lakshmi taps Ravi and three others absent, then records "Today we did addition with carrying using bundles of sticks" in Kannada |
-| 2 | Lesson confirm | Claude mapped it to *Addition with carrying (2-digit)*, grounded in the Grade 3 textbook. One tap to confirm |
+| 1 | Teacher phone, Today | The absent list has already arrived from SATS (simulated): Ravi and three others. Lakshmi only records "Today we did addition with carrying using bundles of sticks" in Kannada |
+| 2 | Lesson confirm | Claude mapped it to *Addition with carrying (3-digit)*, grounded in the Grade 3 textbook. One tap to confirm |
 | 3 | Ledger | Ravi has now missed 4 lessons this week |
 | 4 | Approve | Claude compressed 4 lessons into one catch-up and dropped the one that does not block next week; it explains why. Telugu audio plays with Lakshmi's own greeting; she reads the Kannada summary and approves |
 | 5 | "Under the hood" | Each AI call, the model, the verifier checks (arithmetic recomputed, language, length) |
@@ -95,7 +95,7 @@ Week 1: ledger and script quality with 3 teachers → week 2: WhatsApp and voice
 | Workstream | What | Evidence to collect |
 |---|---|---|
 | Real WhatsApp delivery | Verified sender, approved utility template, opt-in capture, audio after the parent taps Listen | Real cost per catch-up against the < ₹10 target |
-| Attendance integration | Read attendance from **SATS** or **Vidya Samiksha Kendra** so the teacher enters nothing | Needs a data-sharing agreement with the state |
+| Attendance integration | Replace the MVP's simulated feed with real attendance from **SATS** or **Vidya Samiksha Kendra**, so the teacher enters nothing | Needs a data-sharing agreement with the state; no public API today. Pilot with one block first |
 | Curriculum retrieval | Index over the full Karnataka Grade 1–3 maths and Kannada-literacy textbooks + NIPUN Bharat outcomes; teacher-reviewed dependency maps | Moves beyond the hand-built JSON; adds literacy |
 | Teacher voice clone (consented, deletable) | Only for languages the teacher speaks; stock voice + her real greeting stays for others | A/B test against the stock voice for parent trust |
 | Learning from teacher edits | Use "change" and "regenerate" corrections to improve prompts and examples | Fewer edits per approval over time |
@@ -136,7 +136,7 @@ Week 1: ledger and script quality with 3 teachers → week 2: WhatsApp and voice
 |---|---|---|
 | 0:00–0:20 | Empty desk, attendance register | The problem in three sentences |
 | 0:20–0:35 | Lakshmi and Ravi personas | Who we built for, and their constraints |
-| 0:35–1:05 | Teacher phone: attendance + voice note → mapped lesson | Under 60 seconds, no typing |
+| 0:35–1:05 | Teacher phone: absent list from SATS (simulated) + voice note → mapped lesson | Under 60 seconds, no typing |
 | 1:05–1:35 | Approve: compression reason, Telugu audio, Kannada gloss, verifier | AI that explains itself; teacher stays in control |
 | 1:35–2:05 | Parent phone: Listen, activity, picture tap | Voice-first, home language, large picture targets |
 | 2:05–2:25 | Ledger update, buddy card, pacing nudge | Three outputs from one loop |
