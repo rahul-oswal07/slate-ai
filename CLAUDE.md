@@ -39,7 +39,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 
 1. Never send child names, parent numbers or teacher names to Claude, Sarvam or WhatsApp templates other than the final send. Use IDs and `{child}` / `{teacher}` placeholders.
 2. LLM output is parsed with a schema and validated; invalid IDs or targets fall back to rules, never pass through.
-3. Nothing reaches a parent unless `CatchUpPackage.Status == Approved` (enforced in the API, covered by a test).
+3. Nothing reaches a parent without teacher approval: a `CatchUpPackage` with `Status == Approved`, or an evening message (FR-20, D-21) built from an Approved `MessageTemplate` whose slots are filled only by code from teacher-confirmed records. Both enforced in the API and covered by tests.
 4. Numbers shown to users are computed in code; the LLM writes wording around slots.
 5. Model IDs come from `Ai:Models:*` config. Don't hard-code them.
 6. Changing a prompt → bump its version and include an eval run in the PR.

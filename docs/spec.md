@@ -60,7 +60,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-17 | — | ~~Board photo capture via Claude vision~~ Dropped (D-26) | Same output as FR-03 |
 | FR-18 | — | ~~Spoken answer~~ Dropped (D-26); replaced by the optional spoken reason in FR-21. Was: STT + Claude rubric; confidence < 0.8 goes to a teacher review queue with the audio | Never auto-marks below threshold |
 | FR-19 | M | **Stop these messages** *(proposed in D-19)*: on the parent page, one tap plus one confirmation stops all future messages for that child; reversible from the same page. The ledger shows "Stopped by family" and the child stays on the buddy-card path | After a stop, the API refuses to send to that child (409), covered by an integration test; the ledger shows the status within 2 s |
-| FR-20 | M | **Evening message on each day of absence** (D-21): the teacher's recorded greeting plus a fixed message the teacher approved once at setup, with slots filled by code: today's lesson (from her confirmed lesson record), the textbook page for homework, tomorrow's lesson, and "`{buddy}` is keeping your seat". No AI-written text, so no daily approval. Several missed days still compress into one catch-up (FR-06–FR-08) | Sent after 6 pm only to opted-in, not-stopped families; slots filled by code; template approval recorded once; teacher time stays within NFR-01. **[CONFIRM: Rahul]** how this satisfies guardrail 3 and FR-08 |
+| FR-20 | M | **Evening message on each day of absence** (D-21): the teacher's recorded greeting plus a fixed message the teacher approved once at setup, with slots filled by code: today's lesson (from her confirmed lesson record), the textbook page for homework, tomorrow's lesson, and "`{buddy}` is keeping your seat". No AI-written text, so no daily approval. Several missed days still compress into one catch-up (FR-06–FR-08) | Sent after 6 pm only to opted-in, not-stopped families; slots filled by code; template approval recorded once; teacher time stays within NFR-01. Guardrail 3 (confirmed by Rahul, 20 Oct): the send endpoint returns 409 unless the class's `MessageTemplate` is Approved, the lesson record is teacher-confirmed, and the family has opted in and not stopped; no LLM is called on this path; audio is the greeting plus pre-synthesised template and competency-name segments, covered by an endpoint test |
 | FR-21 | M | **Reason for absence** (D-23), optional, on the parent page: "We missed `{child}` today. Is everything OK?" with 5 picture buttons (unwell · family travel or work · festival or function · needed at home · other) and an optional voice note that Claude classifies into one of them (low confidence → other) | Category only is stored; shown only to the teacher; never asks for symptoms; skipping it never blocks the rest of the page |
 | FR-22 | M | **Return-speed card** (D-24): weekly card for the teacher with absences by length (1, 2, 3, 4+ days) this week vs last, the share back within 2 school days, and reason categories | Numbers computed by code from attendance; teacher's own view; nothing exported to officers |
 
@@ -186,13 +186,16 @@ Built schema, keys, indexes and locking: `docs/database.md`.
 | `Teacher` | Id, DisplayName, Phone, PinHash, GreetingAudioUrl, ConsentAt |
 | `Class` | Id, TeacherId, Grade, Medium (kn) |
 | `Child` | Id, ClassId, RollNo, FirstName, HomeLanguage, ParentPhone?, ParentConsentAt?, ParentStoppedAt? (D-19), HasPhone |
-| `Competency` | Id (e.g. `M3.ADD.CARRY`), Grade, NameKn, NameEn, PrerequisiteIds[], NipunOutcome, SequenceNo — loaded from `data/curriculum/` |
+| `Competency` | Id (e.g. `M3.ADD.CARRY`), Grade, NameKn, NameEn, PrerequisiteIds[], NipunOutcome, SequenceNo, TextbookPage (D-22) — loaded from `data/curriculum/` |
 | `Lesson` | Id, ClassId, Date, Source (voice/photo/picked), Transcript?, CompetencyIds[], SummaryKn, ExamplesUsed, Confidence, Status |
 | `Attendance` | ClassId, Date, ChildId, Present |
 | `CatchUpPackage` | Id, ClassId, TargetCompetencyIds[], Language, Script, GlossKn, Activity, CheckItem (json), BuddyContent (json), AudioUrl, Status (Draft/Verified/Approved/Rejected), PromptVersion |
 | `CatchUpAssignment` | Id, ChildId, PackageId, MissedLessonIds[], CompressionRationale (json), Token, ScheduledAt, SentAt, OpenedAt |
-| `CheckResponse` | AssignmentId, ChoiceId, Correct, SpokenAudioUrl?, Transcript?, Confidence?, Outcome (CaughtUp/NeedsBuddy/Review) |
-| `BuddyCard` | ChildId, BuddyChildId, Date, Sums[], KeyWords[] |
+| `CheckResponse` | AssignmentId, ChoiceId, Correct, Outcome (CaughtUp/NeedsBuddy). Spoken-answer fields dropped with FR-18 (D-26) |
+| `BuddyCard` | ChildId, BuddyChildId, Date, Sums[], KeyWords[], HomeworkReturnedAt? (D-22) |
+| `MessageTemplate` | Id, ClassId, Language, Text with slots `{lesson}` `{page}` `{tomorrow}` `{buddy}`, Status (Draft/Approved), ApprovedAt, ApprovedByTeacherId (FR-20, D-21) |
+| `EveningMessage` | Id, ChildId, Date, TemplateId, LessonId, SlotValues (json), Token, SentAt (FR-20) |
+| `AbsenceReason` | ChildId, Date, Category (Unwell/TravelOrWork/Festival/NeededAtHome/Other), Source (Picture/Voice), Confidence?. Category only; no transcript or audio kept (FR-21) |
 | `PacingNudge` | ClassId, WeekStart, Stats (json), TextKn |
 | `AiCall` | Id, Purpose, Model, PromptVersion, InputTokens, OutputTokens, LatencyMs, Verdict, Error |
 
@@ -212,8 +215,13 @@ GET  /api/classes/{id}/packages?status=
 POST /api/packages/{id}/approve | /regenerate { hint }
 POST /api/assignments/{id}/send             (demo: immediate; prod: schedule 18:00 IST)
 GET  /api/p/{token}                         parent payload (no auth; 128-bit token; expires 14 days)
-POST /api/p/{token}/answer                  { choiceId } or audio
+POST /api/p/{token}/answer                  { choiceId }
+POST /api/p/{token}/reason                  { category } or audio → A7 (FR-21)
+PUT  /api/classes/{id}/message-template     draft evening template (FR-20) · POST …/message-template/approve
+POST /api/classes/{id}/evening-messages/send   today's absentees; 409 unless template Approved + lesson confirmed
 GET  /api/classes/{id}/buddy-cards?date=
+POST /api/buddy-cards/{id}/homework-returned   "Brought homework" tap (D-22)
+GET  /api/classes/{id}/return-speed?week=   FR-22
 GET  /api/classes/{id}/pacing?week=
 DELETE /api/children/{id}                   data deletion
 POST /api/demo/reset · GET /health
@@ -234,9 +242,10 @@ All write endpoints accept a client-generated `clientRequestId` so offline repla
 | A3 | **Catch-up script writer** | Targets, teacher's lesson records (her examples), language, content rules (§3.3), allowed objects, picture library IDs | `script`, `keyWordsKn[3]`, `activity`, `checkItem{prompt, options[3]{pictureId}, correct}`, `glossKn`, `buddy{sums[3], keyWords}` | Opus 5.5 (low volume, cached per package) | Verifier A4; one auto-retry with verifier feedback; then teacher sees "needs review" |
 | A4 | **Verifier** | A3 output | pass/fail + reasons | Code checks + Haiku 5.5 | See §5.4 |
 | A5 | Pacing wording | Stats computed by code | one Kannada sentence with slots `{n}`, `{total}`, `{minutes}` | Haiku 5.5 | Numbers filled by code; LLM cannot change them |
-| A6 | Spoken answer rubric (stretch) | STT transcript of child, expected answer | `correct`, `confidence` | Haiku 5.5 | < 0.8 → teacher review queue; never required |
+| A6 | ~~Spoken answer rubric~~ Dropped (D-26) | — | — | — | — |
+| A7 | Reason classification (FR-21) | STT transcript of the parent's optional voice note (no names) | `category` (one of the 5), `confidence` | Haiku 5.5 | Category constrained to an enum; confidence below threshold → "other"; only the category is stored, transcript and audio discarded; never asks about symptoms |
 
-Not done by the LLM, on purpose: attendance, ledger, candidate-set computation, picture-tap scoring, arithmetic, buddy selection, scheduling. Rules are cheaper, faster and verifiable where they suffice; Claude is used for language, judgement and grounding.
+Not done by the LLM, on purpose: attendance, ledger, candidate-set computation, picture-tap scoring, arithmetic, buddy selection, scheduling, evening-message slots (FR-20), return-speed numbers (FR-22). Rules are cheaper, faster and verifiable where they suffice; Claude is used for language, judgement and grounding.
 
 Model IDs live in `appsettings.json` (`Ai:Models:*`) so they can be swapped without code changes. Use prompt caching on the curriculum system prompt.
 
@@ -321,7 +330,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-18 | Spoken AI disclosure in parent audio | Greeting → ~5 s disclosure in the home language → script; fixed text per language, synthesised once and cached; native review of the wording **[CONFIRM: Rahul]** | Monika + Rahul | Day 3 (before T-11) | Proposed |
 | D-19 | Parent "Stop these messages" | One tap + confirm on the parent page; `ParentStoppedAt` on `Child`; send endpoint refuses stopped children; ledger status "Stopped by family" **[CONFIRM: Rahul]** | Monika + Rahul | Day 5 (before T-15) | Proposed |
 | D-20 | Primary success measure | Return speed (days until back; share back within 2 school days), then home engagement (listened + homework brought back), then learning check. Never message opens | Monika | Day 2 | Accepted (mentor review) |
-| D-21 | Message on each evening of absence | Template approved once by the teacher, slots filled by code; no AI text daily (FR-20) **[CONFIRM: Rahul]** guardrail 3 / FR-08 | Monika + Rahul | Day 3 | Accepted by Monika; awaiting Rahul |
+| D-21 | Message on each evening of absence | Template approved once by the teacher, slots filled by code; no AI text daily (FR-20). Guardrail 3 covers it: approved `MessageTemplate` + code-filled slots from confirmed records, send refused otherwise (T-44) | Monika + Rahul | Day 3 | Accepted (Monika; Rahul confirmed 20 Oct) |
 | D-22 | Homework from school materials | Textbook/workbook page per competency + household option; "Show `{teacher}`"; "Brought homework" on the buddy card. Page numbers added in T-22 | Monika + Rahul | Day 2 | Accepted (mentor review) |
 | D-23 | Reason for absence | Optional, caring wording, 5 picture buttons + optional voice note classified by Claude (A7); category only (FR-21) | Monika | Day 3 | Accepted (mentor review) |
 | D-24 | Return-speed view | Weekly card, teacher only (FR-22) | Monika | Day 4 | Accepted (mentor review) |

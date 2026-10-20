@@ -7,14 +7,14 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 - Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it).
 - Done: T-01–T-04 (skeleton, CI, deploy), **T-06** attendance API + ledger query (#57). Ledger also computes absence spells and weekly return speed (mentor review; UI waits for D-20/D-24).
-- Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59, open). See CLAUDE.md "Testing expectations".
+- Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59). See CLAUDE.md "Testing expectations".
 - Education mentor call held 19 Oct: notes and proposed decisions D-20–D-25 in `docs/mentor-feedback-2026-10-19.md` (#55, #56).
 - Monika's PRs #49–#53 merged.
 - Submission target: **Sat 31 Oct, 18:00 IST** (hard deadline 1 Nov, 23:59).
 
 ## Open items
 
-- [ ] Rahul: merge #59 (Db test suite)
+- [x] Rahul: merge #59 (Db test suite)
 - [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
@@ -22,8 +22,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [ ] Monika: T-22 competency list (blocks T-05), now **with a textbook page per competency** (D-22 accepted)
 - [ ] Monika: T-21 low-fi wireframes; T-20 recruit teachers + parents (Dasara break until ~21 Oct)
 - [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
-- [ ] Rahul: confirm D-21 (pre-approved evening template, FR-20) against guardrail 3 / FR-08
-- [ ] Rahul: `plan.md` / `tasks.md` for FR-20–22 and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
+- [x] Rahul: confirmed D-21 (20 Oct): approved `MessageTemplate` + code-filled slots; guardrail 3 in CLAUDE.md reworded
+- [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
 - [x] Mentor's 6 interview questions added to `user-testing.md`
 
 ## Next session (Day 2, Tue 20 Oct)
@@ -63,3 +63,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 19 Oct | Rahul + Claude | T-06 (#57): `POST attendance` (full register per date, idempotent by `clientRequestId`, corrections replace, IST future-date check), `GET ledger` (missed lessons, absence spells, return speed), `Attendance`/`Lesson`/`ProcessedRequest` + migration. Fixed startup migration race with an advisory lock |
 | 19 Oct | Rahul + Claude | Testing: no database in default tests, stores + fakes, CLAUDE.md updated (#58); small Postgres suite `Category=Db` run in CI (#59) |
 | 20 Oct | Monika + Claude | Mentor decisions: D-20 return speed as primary measure, D-21 pre-approved evening template (awaiting Rahul), D-22 textbook homework, D-23 optional reason, D-24 return-speed card, D-25 roadmap only, D-26 scope cuts. New FR-20–22 (renumbered; FR-19 was taken). `intent.md` accepted and revised; narrative, roadmap north star and user-testing script updated; mentor session logged as F-M1–F-M12 |
+| 20 Oct | Rahul + Claude | Docs follow-through for D-20–D-26: D-21 confirmed (guardrail 3 now covers approved evening templates), T-44–T-46 added, T-41–T-43 dropped, A7 in spec/quality, new tables in spec/database.md |
