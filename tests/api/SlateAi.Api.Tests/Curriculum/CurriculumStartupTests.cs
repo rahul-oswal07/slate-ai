@@ -22,6 +22,29 @@ public sealed class CurriculumStartupTests
     }
 
     [Fact]
+    public void The_grade3_curriculum_gives_every_competency_a_homework_page()
+    {
+        // D-22: homework points to the child's own book, so a missing page is a content bug.
+        var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
+
+        Assert.Equal(16, graph.All.Count);
+        Assert.All(graph.All, c => Assert.NotNull(c.TextbookPage));
+    }
+
+    [Fact]
+    public void The_grade3_curriculum_keeps_only_what_next_week_builds_on()
+    {
+        var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
+
+        // Away for no-carry addition, face value and comparing; next week is carrying.
+        var candidates = graph.CandidateSet(
+            missed: ["M3.ADD.NOCARRY", "M3.PV.FACE", "M3.NUM.COMPARE"],
+            nextWeek: ["M3.ADD.CARRY"]);
+
+        Assert.Equal(["M3.ADD.NOCARRY"], candidates);
+    }
+
+    [Fact]
     public async Task The_api_starts_with_an_empty_curriculum()
     {
         using var directory = new TempDirectory();
