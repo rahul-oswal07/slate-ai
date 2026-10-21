@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using SlateAi.Api.Features.Auth;
 
 namespace SlateAi.Api.Features.Ledger;
 
@@ -27,6 +28,7 @@ public static class LedgerEndpoints
     public static IEndpointRouteBuilder MapLedgerEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/classes/{classId:guid}/ledger", GetAsync)
+            .RequireClassOwner()
             .WithTags("Ledger")
             .WithSummary("Missed lessons and absence spells per child")
             .WithDescription(

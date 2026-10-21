@@ -2,7 +2,8 @@
   "_note": "Fictional demo class. No real children. Phone numbers are placeholders and must never be messaged.",
   "teacher": {
     "id": "6abf3cc9-9aa8-5786-a833-62325a6418f4",
-    "displayName": "Shobha"
+    "displayName": "Shobha",
+    "phone": "+919000000000"
   },
   "class": {
     "id": "0a1e03b3-23fa-5a7d-87e3-490d6ddae335",

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using SlateAi.Api.Features.Auth;
 
 namespace SlateAi.Api.Features.Attendance;
 
@@ -18,6 +19,7 @@ public static class AttendanceEndpoints
     public static IEndpointRouteBuilder MapAttendanceEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/classes/{classId:guid}/attendance", MarkAsync)
+            .RequireClassOwner()
             .WithTags("Attendance")
             .WithSummary("Mark today's register")
             .WithDescription(

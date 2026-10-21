@@ -82,14 +82,36 @@ public sealed class AttendanceEndpointTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    private async Task<HttpResponseMessage> PostAsync(Guid classId, Guid requestId, DateOnly date, Guid[] absent)
+    [Fact]
+    public async Task Requires_a_signed_in_teacher()
+    {
+        var response = await PostAsync(ClassId, Guid.NewGuid(), TodayIst, [], signedInClassId: null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Empty(_store.Saved);
+    }
+
+    [Fact]
+    public async Task Another_teachers_class_is_404()
+    {
+        var response = await PostAsync(ClassId, Guid.NewGuid(), TodayIst, [], signedInClassId: Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Empty(_store.Saved);
+    }
+
+    private Task<HttpResponseMessage> PostAsync(Guid classId, Guid requestId, DateOnly date, Guid[] absent) =>
+        PostAsync(classId, requestId, date, absent, signedInClassId: classId);
+
+    private async Task<HttpResponseMessage> PostAsync(
+        Guid classId, Guid requestId, DateOnly date, Guid[] absent, Guid? signedInClassId)
     {
         await using var factory = FakeApi.Create(services =>
         {
             services.AddSingleton<IAttendanceStore>(_store);
             services.AddSingleton<TimeProvider>(Clock);
         });
-        using var client = factory.CreateClient();
+        using var client = signedInClassId is { } id ? factory.CreateTeacherClient(id) : factory.CreateHttpsClient();
         return await client.PostAsJsonAsync(
             $"/api/classes/{classId}/attendance",
             new MarkAttendanceRequest(requestId, date, absent),

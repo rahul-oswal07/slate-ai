@@ -205,7 +205,11 @@ The ledger is a query (attendance × lessons × assignments × responses), not a
 ### 4.4 API (first cut)
 
 ```
-POST /api/auth/pin                          teacher login (seeded) · POST /api/demo/login
+POST /api/auth/pin                          { phone, pin } → session cookie; seeded teachers only, no registration (D-40); 5 wrong → 15 min lock (429)
+POST /api/auth/logout                       ends the session
+GET  /api/me                                { teacherId, displayName, classId, setupComplete }; 401 when signed out
+POST /api/me/welcome                        { clientRequestId } → sets Teacher.ConsentAt once (first-run gate)
+POST /api/demo/login                        one-tap demo sign-in (T-18)
 POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId)
 POST /api/lessons                           multipart audio|image or { pickedCompetencyId } → 202 { lessonId }
 GET  /api/lessons/{id}                      status + mapping
@@ -349,6 +353,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-36 | Evening message listens | Not tracked or shown (D-20); only the catch-up "Listened" status stays | Monika | Day 3 | Accepted |
 | D-37 | Withdraw cut-off wording | "Withdraw (until 6 pm)"; allowed until the 6 pm send job starts, then Sent (FR-08) | Monika | Day 3 | Accepted |
 | D-38 | Remaining states | T3 Sent ("Sent at 6:02 pm · N families", no Withdraw) and Generation failed ("Could not write this catch-up. Nothing was sent.", Try again); T0 offline and greeting deleted; T2 offline. Designs in the prototype and cards | Monika | Day 3 | Accepted |
+| D-40 | Teacher sign-in | No registration: teachers are seeded (in reality set up by the school/department from SATS). First sign-in on a phone: mobile number + 4–6 digit PIN; the phone is remembered, so later sign-ins ask for the PIN only, with "Not you? Change phone". 30-day session cookie. 5 wrong PINs → locked 15 minutes. First run: Welcome (T0 state 0) shows until `Teacher.ConsentAt` is set; for now "Start" sets it, and it moves to the voice-consent tick when T0 step 1 is built. All class endpoints require the signed-in teacher's own class. **[DECIDE: Monika]** login screen UX and copy (no design card; built from T0 patterns, te/ta strings drafted) | Rahul (+ Monika for UX) | Day 3 | Accepted (technical); UX proposed |
 | D-39 | Parent opt-in | Paper consent form collected offline; teacher records Yes / No / No phone per child with date on T8 Families; a child whose form has not come back counts as No; nothing sent unless Yes; family can still stop (D-30); tag for No is "No consent" | Monika | Day 3 | Accepted |
 
 ## 9. Assumptions

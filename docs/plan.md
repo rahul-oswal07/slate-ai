@@ -69,6 +69,8 @@ slate-ai/
 | 11 | Consent + delete | FR-15 | Integration test |
 | 12 | Stretch: WhatsApp only (board photo and spoken answers dropped, D-26) | FR-16 | Only after Day 7 freeze |
 
+**Build order from Day 3 (21 Oct): screen by screen.** Each screen is one vertical slice (UI + API + any AI step) built against its design card: sign-in + Welcome (T-47) → T1 Today → T2 Lesson confirm → T4 Missed lessons → T0 setup steps + T8 Families → T3 Approve → P1–P4 parent page → P0 evening message + reason → T5 Back today → T6 Week → demo shell (`POST /api/demo/login` stays with T-18). Cut T6 and T5 first if time runs short.
+
 ## 4. Ten-day delivery plan
 
 Capacity assumption: both work around day jobs; weekdays ~4–5 h each, Sat/Sun ~8 h each. Daily sync **21:30 IST, 15 min** (what shipped, what's blocked, next handoff). Status lives on the GitHub Project board.

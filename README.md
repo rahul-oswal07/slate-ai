@@ -95,6 +95,8 @@ dotnet user-secrets list --project src/api/SlateAi.Api      # shows values
 dotnet user-secrets remove "Sarvam:ApiKey" --project src/api/SlateAi.Api
 ```
 
+**Demo teacher sign-in.** The seeded teacher signs in with phone `9000000000` and the PIN from `Demo:TeacherPin`. `appsettings.Development.json` sets `2468` for local use only (like the local database password). Staging and prod read `Demo__TeacherPin` from App Service settings; if it isn't set, the demo teacher can't sign in. The seeder hashes the PIN on first start and never overwrites an existing one.
+
 **Azure (staging/prod): App Service app settings.** They're encrypted at rest and reach the app as environment variables (`__` = section separator). Setting them restarts the app:
 
 ```bash

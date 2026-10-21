@@ -41,6 +41,7 @@ public sealed class ApiFactory(
             }
         });
 
+        builder.ConfigureTestServices(TestAuth.Add);
         if (services is not null)
         {
             builder.ConfigureTestServices(services);

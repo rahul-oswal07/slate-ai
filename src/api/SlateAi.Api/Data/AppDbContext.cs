@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Data.Entities;
 
 namespace SlateAi.Api.Data;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IDataProtectionKeyContext
 {
     public DbSet<Teacher> Teachers => Set<Teacher>();
     public DbSet<Class> Classes => Set<Class>();
@@ -12,6 +13,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<ProcessedRequest> ProcessedRequests => Set<ProcessedRequest>();
     public DbSet<AiCall> AiCalls => Set<AiCall>();
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,6 +22,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(t => t.DisplayName).HasMaxLength(100);
             e.Property(t => t.Phone).HasMaxLength(20);
             e.Property(t => t.PinHash).HasMaxLength(200);
+            e.HasIndex(t => t.Phone).IsUnique();
             e.Property(t => t.GreetingAudioUrl).HasMaxLength(500);
         });
 

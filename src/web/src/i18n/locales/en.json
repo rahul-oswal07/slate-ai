@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "Tappida Paatha",
-    "tagline": "The missed lesson, at home"
+    "tagline": "The missed lesson, at home",
+    "loadError": "Could not load. Check the network and try again."
   },
   "language": {
     "label": "Language",
@@ -20,5 +21,41 @@
   },
   "a11y": {
     "skipToContent": "Skip to content"
+  },
+  "common": {
+    "tryAgain": "Try again"
+  },
+  "auth": {
+    "title": "Sign in",
+    "lead": "Use your mobile number and the PIN from your school.",
+    "phone": "Mobile number",
+    "pin": "PIN",
+    "pinHint": "4 to 6 digits",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "returning": {
+      "heading": "Namaskara, {{teacher}}",
+      "lead": "Enter your PIN."
+    },
+    "changePhone": "Not you? Change phone",
+    "error": {
+      "phone": "Enter a 10-digit mobile number.",
+      "pin": "The PIN is 4 to 6 digits.",
+      "wrong": "The mobile number or PIN is wrong. Try again.",
+      "locked": "Too many wrong PINs. Try again after {{time}}.",
+      "offline": "No network. Connect to sign in.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "setup": {
+    "welcome": {
+      "heading": "Namaskara, {{teacher}} ma’am",
+      "lead": "This helps absent children stay connected to your class.",
+      "sats": "Attendance comes from SATS. Just one voice note a day.",
+      "approval": "Nothing reaches a parent until you approve it.",
+      "privacy": "Only you can see these records.",
+      "start": "Start",
+      "offline": "No network. Connect and tap Start again."
+    }
   }
 }

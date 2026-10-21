@@ -25,6 +25,8 @@ erDiagram
         varchar200 PinHash "nullable"
         varchar500 GreetingAudioUrl "nullable"
         timestamptz ConsentAt "nullable"
+        int FailedPinAttempts
+        timestamptz PinLockedUntil "nullable"
     }
     Classes {
         uuid Id PK
@@ -79,7 +81,7 @@ erDiagram
 
 ### Tables
 
-**`Teachers`** — one per teacher login. `PinHash` for the seeded PIN login (`POST /api/auth/pin`, not built yet). `GreetingAudioUrl` is the teacher's own recorded greeting, played first in every parent message (FR-09).
+**`Teachers`** — one per teacher login (D-40, T-47). `Phone` is the 10-digit national number, unique. `PinHash` is a PBKDF2 hash (`PasswordHasher`) of the 4–6 digit PIN; the demo teacher's comes from `Demo:TeacherPin` via the seeder, never stored in clear. `FailedPinAttempts` / `PinLockedUntil`: 5 wrong PINs lock sign-in for 15 minutes. `ConsentAt` is the first-run gate: null → Welcome; for now the Welcome's Start sets it, and it moves to the voice-consent tick when T0 step 1 is built. `GreetingAudioUrl` is the teacher's own recorded greeting, played first in every parent message (FR-09).
 
 **`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`.
 
@@ -94,6 +96,8 @@ erDiagram
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
 
 **`AiCalls`** — one row per Claude or Sarvam call, successful or not, written by `Ai/LoggedLlmClient` and `Speech/LoggedSpeechToText` (CLAUDE.md: every call is logged). `Purpose` is the prompt ID (e.g. `a1-lesson-mapping`) with its `PromptVersion`, or `stt`. The caller sets `Verdict` after validating the output (e.g. `valid`, `fallback:low-confidence`); `Error` holds the failure kind (`Refused`, `Truncated`, `Unavailable`, `NotConfigured`, `Rejected`). **Never stores prompt text, transcripts or names.** No FKs: it is an audit log that outlives the rows it describes. Index on `CreatedAt` for the "Under the hood" panel (T-18) and cost totals.
+
+**`DataProtectionKeys`** — ASP.NET Core data-protection key ring (`PersistKeysToDbContext`), so teacher session cookies survive restarts and deploys (T-47). Managed by the framework; holds no personal data.
 
 ### Delete behaviour
 
