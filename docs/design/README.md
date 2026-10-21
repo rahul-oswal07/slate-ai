@@ -6,7 +6,7 @@ Before building, copy the design card below into the file and fill in every fiel
 
 ## Cards
 
-Start with [`journey.md`](journey.md) (end-to-end journey, screen map, open gates, spec follow-ups). Clickable source of truth: [`prototype/index.html`](prototype/index.html) (open in a browser). Review with finding IDs: [`ux-review.md`](ux-review.md). Screenshots (360 px, light and dark): [`screenshots/`](screenshots/).
+Development default language is **English** (D-32); Kannada, Telugu and Tamil come from each card's copy table through i18next. The screenshots show the Kannada/Telugu + English captions view; the prototype now opens in English. Start with [`journey.md`](journey.md) (end-to-end journey, screen map, open gates, spec follow-ups). Clickable source of truth: [`prototype/index.html`](prototype/index.html) (open in a browser). Review with finding IDs: [`ux-review.md`](ux-review.md). Screenshots (360 px, light and dark): [`screenshots/`](screenshots/).
 
 | Card | Screen | Task |
 |---|---|---|
