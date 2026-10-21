@@ -14,35 +14,36 @@ public sealed class AttendanceDayEndpointTests
     private static readonly DateOnly Today = new(2026, 10, 21);
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
 
-    private readonly MovableClock _clock = new() { Now = Ist(9, 30) };
+    private readonly MovableClock _clock = new() { Now = Ist(12, 30) };
     private readonly FakeAttendanceStore _store;
     private readonly FakeSource _source = new();
 
     public AttendanceDayEndpointTests() => _store = new FakeAttendanceStore(ClassId, Children, _clock);
 
     [Fact]
-    public async Task Before_9_05_it_is_waiting_and_says_when_it_will_check()
+    public async Task Before_noon_it_is_waiting_and_names_both_sync_times()
     {
-        _clock.Now = Ist(8, 50);
+        _clock.Now = Ist(11, 0);
 
         var day = await GetDayAsync();
 
         Assert.Equal("waiting", day.Status);
-        Assert.Equal(new TimeOnly(9, 5), day.RecheckAt);
+        Assert.Equal(new TimeOnly(12, 0), day.SyncAt);
+        Assert.Equal(new TimeOnly(14, 0), day.RetryAt);
         Assert.Equal(0, _source.Calls);
         Assert.Equal(36, day.Children.Count);
     }
 
     [Fact]
-    public async Task After_9_05_the_sats_register_is_fetched_once_and_stored()
+    public async Task After_noon_the_sats_register_is_fetched_once_and_stored()
     {
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3], Children[9] }, Ist(9, 5));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3], Children[9] }, Ist(12, 0));
 
         var first = await GetDayAsync();
         var second = await GetDayAsync();
 
         Assert.Equal("sats", first.Status);
-        Assert.Equal(Ist(9, 5), first.ReceivedAt);
+        Assert.Equal(Ist(12, 0), first.ReceivedAt);
         Assert.Equivalent(new[] { Children[3], Children[9] }, first.AbsentChildIds);
         Assert.False(first.Corrected);
         Assert.Equal(first.AbsentChildIds, second.AbsentChildIds);
@@ -50,23 +51,25 @@ public sealed class AttendanceDayEndpointTests
     }
 
     [Fact]
-    public async Task Sats_not_in_by_10_offers_no_new_check_time()
+    public async Task Still_nothing_after_the_2_pm_retry_is_missing_and_nobody_is_marked_absent()
     {
-        _clock.Now = Ist(10, 15);
+        _clock.Now = Ist(14, 15);
         _source.Result = new SourceResult.NotYet();
 
         var day = await GetDayAsync();
 
-        Assert.Equal("waiting", day.Status);
-        Assert.Null(day.RecheckAt);
+        Assert.Equal("missing", day.Status);
+        Assert.Empty(day.AbsentChildIds);
+        Assert.Null(day.SyncAt);
+        Assert.Empty(_store.Day(Today));
     }
 
     [Fact]
-    public async Task Between_9_05_and_10_a_late_register_promises_the_10_oclock_check()
+    public async Task Late_between_noon_and_2_pm_is_still_waiting()
     {
         _source.Result = new SourceResult.NotYet();
 
-        Assert.Equal(new TimeOnly(10, 0), (await GetDayAsync()).RecheckAt);
+        Assert.Equal("waiting", (await GetDayAsync()).Status);
     }
 
     [Fact]
@@ -77,13 +80,13 @@ public sealed class AttendanceDayEndpointTests
         var day = await GetDayAsync();
 
         Assert.Equal("noSchool", day.Status);
-        Assert.Null(day.RecheckAt);
+        Assert.Null(day.RetryAt);
     }
 
     [Fact]
     public async Task A_correction_shows_as_corrected()
     {
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(9, 5));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(12, 0));
         await GetDayAsync();
 
         await PostAsync([Children[4]]);
@@ -97,26 +100,26 @@ public sealed class AttendanceDayEndpointTests
     [Fact]
     public async Task Late_sats_after_manual_marking_keeps_hers_and_flags_the_difference()
     {
-        _clock.Now = Ist(8, 40);
+        _clock.Now = Ist(11, 0);
         await PostAsync([Children[0]]);
-        _clock.Now = Ist(10, 0);
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[1] }, Ist(9, 5));
+        _clock.Now = Ist(14, 0);
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[1] }, Ist(12, 0));
 
         var day = await GetDayAsync();
 
         Assert.Equal("manual", day.Status);
         Assert.Equal([Children[0]], day.AbsentChildIds);
         Assert.True(day.SatsDiffers);
-        Assert.Equal(Ist(9, 5), day.ReceivedAt);
+        Assert.Equal(Ist(12, 0), day.ReceivedAt);
     }
 
     [Fact]
     public async Task Late_sats_that_agrees_with_her_is_not_flagged()
     {
-        _clock.Now = Ist(8, 40);
+        _clock.Now = Ist(11, 0);
         await PostAsync([Children[0]]);
-        _clock.Now = Ist(10, 0);
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[0] }, Ist(9, 5));
+        _clock.Now = Ist(14, 0);
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[0] }, Ist(12, 0));
 
         Assert.False((await GetDayAsync()).SatsDiffers);
     }

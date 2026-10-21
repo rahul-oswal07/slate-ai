@@ -10,7 +10,7 @@ namespace SlateAi.Api.Features.Demo;
 public sealed record SatsFeedRequest(Guid ClassId, DateOnly Date, string Mode);
 
 /// <summary>
-/// Demo-shell controls (FR-14, D-41). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
+/// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
 /// a real school deployment turns it off and the endpoints don't exist.
 /// </summary>
 public static class DemoEndpoints

@@ -36,7 +36,7 @@ test('SATS register → correct one child → "corrected by you"', async ({ page
   const posts = await fakeToday(page, () => register)
 
   await page.goto('/')
-  await expect(page.getByRole('region', { name: /SATS \(simulated\), 9:05/ })).toContainText('3 absent')
+  await expect(page.getByRole('region', { name: /SATS \(simulated\), 12:00/ })).toContainText('3 absent')
   await expectNoBlockingViolations(page)
   await page.screenshot({ path: testInfo.outputPath('today-sats-360.png'), fullPage: true })
 
@@ -57,7 +57,7 @@ test('SATS register → correct one child → "corrected by you"', async ({ page
 
 test('SATS not in yet → mark it here', async ({ page }, testInfo) => {
   await fakeToday(page, () =>
-    attendanceDay({ status: 'waiting', receivedAt: null, recheckAt: '10:00:00', absentChildIds: [] }),
+    attendanceDay({ status: 'waiting', receivedAt: null, syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [] }),
   )
 
   await page.goto('/')
@@ -67,6 +67,18 @@ test('SATS not in yet → mark it here', async ({ page }, testInfo) => {
 
   await page.getByRole('button', { name: 'Mark it here if you prefer' }).click()
   await expect(page.getByText('0 absent · 12 present')).toBeVisible()
+})
+
+test('still missing after the 2 pm retry → Mark attendance (D-67)', async ({ page }, testInfo) => {
+  await fakeToday(page, () => attendanceDay({ status: 'missing', receivedAt: null, absentChildIds: [] }))
+
+  await page.goto('/')
+  await expect(page.getByText('Still missing after 2 pm')).toBeVisible()
+  await expectNoBlockingViolations(page)
+  await page.screenshot({ path: testInfo.outputPath('today-missing-360.png'), fullPage: true })
+
+  await page.getByRole('button', { name: 'Mark attendance' }).click()
+  await expect(page.getByRole('heading', { name: 'Mark attendance here' })).toBeVisible()
 })
 
 test('offline save waits in the outbox, then sends once', async ({ page }, testInfo) => {
