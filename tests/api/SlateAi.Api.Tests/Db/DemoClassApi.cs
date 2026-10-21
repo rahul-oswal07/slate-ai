@@ -15,7 +15,7 @@ public sealed class DemoClassApi : IAsyncDisposable
     private DemoClassApi(ApiFactory factory, Guid classId, IReadOnlyList<Guid> childIds)
     {
         _factory = factory;
-        Client = factory.CreateClient();
+        Client = factory.CreateTeacherClient(classId);
         ClassId = classId;
         ChildIds = childIds;
     }

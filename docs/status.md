@@ -3,10 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
-## Current state — Mon 19 Oct 2026 (Day 1)
+## Current state — Wed 21 Oct 2026 (Day 3)
 
 - Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it).
-- Done: T-01–T-04 (skeleton, CI, deploy), **T-06** attendance API + ledger query (#57). Ledger also computes absence spells and weekly return speed (mentor review; UI waits for D-20/D-24).
+- Done: T-01–T-04 (skeleton, CI, deploy), **T-05** curriculum graph + `grade3-maths.json` (#68, #74), **T-06** attendance API + ledger query (#57), **T-07 PR 1** AI plumbing (#72). Ledger also computes absence spells and weekly return speed.
+- **Building screen by screen from Day 3** (order in `plan.md` §3). First slice: **T-47** teacher sign-in (phone once, then PIN) + first-run Welcome, class endpoints locked to the signed-in teacher's class (D-40), branch `feat/T-47-pin-login`.
 - Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59). See CLAUDE.md "Testing expectations".
 - Education mentor call held 19 Oct: notes and proposed decisions D-20–D-25 in `docs/mentor-feedback-2026-10-19.md` (#55, #56).
 - Monika's PRs #49–#53 merged.
@@ -18,7 +19,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
-- [x] Rahul: book technical mentor (call 21 Oct; brief + notes in `docs/mentor-technical-2026-10-21.md`, fill in part C after the call)
+- [ ] Rahul: technical mentor call moved from 21 Oct to next week (brief ready in `docs/mentor-technical-2026-10-21.md`; fill in part C after the call)
 - [x] Monika: T-22 competency list drafted in `docs/design/curriculum.md` (16 competencies, textbook page each). D-01 revised to 3-digit. Open: † Kannada names to confirm with a teacher; NIPUN codes have no source yet
 - [ ] Rahul: D-27 attendance source. Put attendance behind a source interface (`DemoSource` simulated SATS feed now; file import / state API later) feeding the existing T-06 register endpoint; store source + time per record; teacher corrections overlay, never written back. Update `plan.md` / `tasks.md` (T-12: grid becomes corrections + fallback only) and the demo label "simulated"
 - [ ] Monika: T-20 interviews: ask teachers how they mark student attendance today (paper register, SATS app, other). If SATS does not hold daily Grade 3 attendance, revisit D-27
@@ -33,10 +34,12 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
 - [x] Mentor's 6 interview questions added to `user-testing.md`
 
-## Next session (Day 2, Tue 20 Oct)
+## Next session (Day 4, Thu 22 Oct)
 
-- T-05 done (21 Oct): graph, loader and `grade3-maths.json` from T-22.
-- T-07 in two PRs. PR 1 (AI plumbing: Claude client, prompts, `AiCall` log, Sarvam STT) is open. PR 2 next: lesson capture endpoints, A1 prompt + validator, name scrubber, 10 draft evals.
+- Merge T-47 (sign-in + Welcome); set `Demo__TeacherPin` on staging before the deploy, or the demo teacher can't sign in.
+- Next screen: **T1 Today** (T-12) against `docs/design/T1-today.md`. Needs first: D-27 attendance source + provenance fields (`source`, `receivedAt`, `correctedAt`); Monika's answers on the T1 open items ("Since yesterday" window, manual marking before 10:00, no-absentees copy).
+- Then T2 Lesson confirm = T-07 PR 2 (capture endpoints, A1 prompt + validator returning 1–3 lessons per D-33, name scrubber, 10 evals).
+- Monika: D-40 login screen UX/copy review; te/ta strings for login and Welcome are drafts.
 - Use plan mode first; one branch per task.
 
 ## Local dev
@@ -78,6 +81,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
 | 21 Oct | Rahul + Claude | Technical mentor brief: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
+| 21 Oct | Rahul + Claude | Switched to building screen by screen. T-47: phone + PIN sign-in (no registration, D-40), 30-day cookie session with keys in Postgres, lockout after 5 wrong PINs, `/api/me` + first-run Welcome gated on `Teacher.ConsentAt`, attendance and ledger endpoints limited to the teacher's own class. Web: TanStack Query, login + Welcome screens, offline open from the cached teacher. Mentor call moved to next week |
 | 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
 | 21 Oct | Monika + Claude | D-32: English is the default locale for development and design references; prototype opens in English. Screenshots kept as captured (Kannada/Telugu with English captions) |
 | 21 Oct | Monika + Claude | Closed the open design gaps (D-33–D-39): multi-lesson checklist confirm, mic blocked + sending, tag colours (tokens.md), no evening-message listens, Withdraw until 6 pm, Sent / Generation failed / offline states, parent opt-in on new T8 Families screen. Prototype checked against every spec §3.1 state (83 states, axe 0 violations); FR-03/08/15 and §3.1 updated; cards updated, T8 card added |

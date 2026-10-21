@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SlateAi.Api.Tests.Infrastructure;
@@ -11,7 +12,12 @@ public static class FakeApi
         Action<IServiceCollection>? services = null,
         IReadOnlyDictionary<string, string?>? settings = null,
         string? webRoot = null) =>
-        new(NoDatabase, initialiseDatabase: false, webRoot: webRoot, settings: settings, services: services);
+        new(NoDatabase, initialiseDatabase: false, webRoot: webRoot, settings: settings, services: all =>
+        {
+            // Session cookies need keys; the real ones live in Postgres.
+            all.AddDataProtection().UseEphemeralDataProtectionProvider();
+            services?.Invoke(all);
+        });
 }
 
 /// <summary>A clock stuck at one instant.</summary>

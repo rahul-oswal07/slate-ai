@@ -1,15 +1,23 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Features.Auth;
 
 namespace SlateAi.Api.Data.Seed;
 
 /// <summary>
 /// Loads the fictional demo class from JSON. Idempotent: rows are keyed by the fixed IDs in the
-/// file and only missing rows are inserted. Logs counts only, never names (NFR-05).
+/// file and only missing rows are inserted. Logs counts only, never names (NFR-05). The demo teacher's
+/// phone and PIN are filled in only while empty, so a PIN changed later is never overwritten.
 /// </summary>
-public sealed class DemoSeeder(AppDbContext db, IOptions<DatabaseOptions> options, ILogger<DemoSeeder> logger)
+public sealed class DemoSeeder(
+    AppDbContext db,
+    IOptions<DatabaseOptions> options,
+    IOptions<DemoOptions> demo,
+    IPasswordHasher<Teacher> hasher,
+    ILogger<DemoSeeder> logger)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -25,11 +33,15 @@ public sealed class DemoSeeder(AppDbContext db, IOptions<DatabaseOptions> option
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock({SeedLockKey})", cancellationToken);
 
-        if (!await db.Teachers.AnyAsync(t => t.Id == seed.Teacher.Id, cancellationToken))
+        var teacher = await db.Teachers.SingleOrDefaultAsync(t => t.Id == seed.Teacher.Id, cancellationToken);
+        if (teacher is null)
         {
-            db.Teachers.Add(new Teacher { Id = seed.Teacher.Id, DisplayName = seed.Teacher.DisplayName });
+            teacher = new Teacher { Id = seed.Teacher.Id, DisplayName = seed.Teacher.DisplayName };
+            db.Teachers.Add(teacher);
             added++;
         }
+
+        SetLogin(teacher, seed.Teacher.Phone);
 
         if (!await db.Classes.AnyAsync(c => c.Id == seed.Class.Id, cancellationToken))
         {
@@ -69,6 +81,25 @@ public sealed class DemoSeeder(AppDbContext db, IOptions<DatabaseOptions> option
         logger.LogInformation("Demo seed applied: {Added} rows added", added);
     }
 
+    private void SetLogin(Teacher teacher, string? phone)
+    {
+        teacher.Phone ??= PhoneNumber.Normalise(phone);
+        if (teacher.PinHash is not null)
+        {
+            return;
+        }
+
+        var pin = demo.Value.TeacherPin;
+        if (pin is { Length: >= 4 and <= 6 } && pin.All(char.IsAsciiDigit))
+        {
+            teacher.PinHash = hasher.HashPassword(teacher, pin);
+        }
+        else
+        {
+            logger.LogWarning("Demo:TeacherPin is not set to 4-6 digits; the demo teacher can't sign in");
+        }
+    }
+
     private async Task<DemoSeed> LoadAsync(CancellationToken cancellationToken)
     {
         var path = Path.Combine(AppContext.BaseDirectory, options.Value.SeedFile);
@@ -79,7 +110,7 @@ public sealed class DemoSeeder(AppDbContext db, IOptions<DatabaseOptions> option
 
     private sealed record DemoSeed(SeedTeacher Teacher, SeedClass Class, IReadOnlyList<SeedChild> Children);
 
-    private sealed record SeedTeacher(Guid Id, string DisplayName);
+    private sealed record SeedTeacher(Guid Id, string DisplayName, string? Phone);
 
     private sealed record SeedClass(Guid Id, int Grade, string Medium);
 

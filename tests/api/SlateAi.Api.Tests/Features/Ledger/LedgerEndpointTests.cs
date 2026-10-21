@@ -33,11 +33,30 @@ public sealed class LedgerEndpointTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    private static async Task<HttpResponseMessage> GetAsync(Guid classId, LedgerData data)
+    [Fact]
+    public async Task Requires_a_signed_in_teacher()
+    {
+        var response = await GetAsync(ClassId, new LedgerData([], [], []), signedInClassId: null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Another_teachers_class_is_404()
+    {
+        var response = await GetAsync(ClassId, new LedgerData([], [], []), signedInClassId: Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    private static Task<HttpResponseMessage> GetAsync(Guid classId, LedgerData data) =>
+        GetAsync(classId, data, signedInClassId: classId);
+
+    private static async Task<HttpResponseMessage> GetAsync(Guid classId, LedgerData data, Guid? signedInClassId)
     {
         await using var factory = FakeApi.Create(services =>
             services.AddSingleton<ILedgerStore>(new FakeLedgerStore(ClassId, data)));
-        using var client = factory.CreateClient();
+        using var client = signedInClassId is { } id ? factory.CreateTeacherClient(id) : factory.CreateHttpsClient();
         return await client.GetAsync($"/api/classes/{classId}/ledger", TestContext.Current.CancellationToken);
     }
 
