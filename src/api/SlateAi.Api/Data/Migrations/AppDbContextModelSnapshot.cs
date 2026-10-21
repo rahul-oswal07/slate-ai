@@ -102,7 +102,23 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<Guid>("ChildId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("CorrectedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("Present")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("manual");
+
+                    b.Property<bool?>("SourcePresent")
                         .HasColumnType("boolean");
 
                     b.HasKey("ClassId", "Date", "ChildId");

@@ -40,7 +40,7 @@ describe('WelcomeScreen', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Start' }))
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Today' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
     const ids = calls.filter((c) => c.key === 'POST /api/me/welcome').map((c) => c.body)
     expect(ids).toHaveLength(2)
     expect(ids[0]).toEqual(ids[1])
@@ -52,6 +52,6 @@ describe('WelcomeScreen', () => {
 
     renderApp('/welcome')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Today' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
   })
 })

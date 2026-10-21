@@ -11,10 +11,6 @@
     "te": "తెలుగు",
     "ta": "தமிழ்"
   },
-  "home": {
-    "title": "Today",
-    "body": "Attendance and today's lesson will appear here."
-  },
   "notFound": {
     "title": "Page not found",
     "link": "Go to Today"
@@ -23,7 +19,9 @@
     "skipToContent": "Skip to content"
   },
   "common": {
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "auth": {
     "title": "Sign in",
@@ -57,5 +55,66 @@
       "start": "Start",
       "offline": "No network. Connect and tap Start again."
     }
+  },
+  "today": {
+    "title": "Today, {{date}}",
+    "offline": {
+      "banner": "No network. What you save stays on the phone and sends when there is network."
+    },
+    "attendance": {
+      "source": {
+        "sats": "Attendance · SATS (simulated), {{time}}",
+        "manual": "Attendance · marked by you"
+      },
+      "corrected": "corrected by you",
+      "absentCount": "{{n}} absent",
+      "noneAbsent": "Everyone is here today",
+      "correctAction": "Wrong? Correct it",
+      "satsLater": "SATS came in at {{time}}. Your marking is kept.",
+      "noSchool": "No school today in SATS",
+      "waiting": {
+        "title": "SATS attendance has not come in yet",
+        "body": "We will check again at {{time}}. You do not need to do anything.",
+        "markHere": "Mark it here if you prefer"
+      },
+      "edit": {
+        "titleCorrect": "Correct attendance",
+        "titleManual": "Mark attendance here",
+        "hintCorrect": "Only if the SATS attendance is wrong. Used here only; SATS is not changed.",
+        "hintManual": "Everyone is present. Tap only the children who are absent.",
+        "count": "{{absent}} absent · {{present}} present"
+      },
+      "grid": "Absent children",
+      "tile": "{{roll}} {{name}}, {{state}}",
+      "absent": "absent",
+      "present": "present"
+    },
+    "lesson": {
+      "title": "Today’s lesson",
+      "prompt": "Tap and say what you taught today",
+      "notYet": "Recording your note comes in the next update."
+    }
+  },
+  "sync": {
+    "saved": "Saved",
+    "waiting": "{{n}} waiting to send"
+  },
+  "announce": {
+    "attDiscarded": "Changes discarded",
+    "attSaved": "Attendance saved"
+  },
+  "mic": {
+    "record": "Record"
+  },
+  "nav": {
+    "label": "Main",
+    "today": "Today",
+    "approve": "Approve",
+    "missed": "Missed",
+    "back": "Back today",
+    "week": "Week"
+  },
+  "comingSoon": {
+    "body": "This screen is coming in a later update."
   }
 }

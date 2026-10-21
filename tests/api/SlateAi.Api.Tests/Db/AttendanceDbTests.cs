@@ -29,6 +29,34 @@ public sealed class AttendanceDbTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task Sats_is_stored_once_and_a_correction_keeps_what_sats_said()
+    {
+        await using var api = await DemoClassApi.StartAsync(postgres);
+        var url = $"/api/classes/{api.ClassId}/attendance/{Day:yyyy-MM-dd}";
+
+        // Two phones open Today at once: one SATS register is stored.
+        var days = await Task.WhenAll(
+            api.Client.GetFromJsonAsync<AttendanceDayResponse>(url, DemoClassApi.Ct),
+            api.Client.GetFromJsonAsync<AttendanceDayResponse>(url, DemoClassApi.Ct));
+        Assert.All(days, d => Assert.Equal("sats", d!.Status));
+        Assert.Equal(36, await api.QueryAsync(db => db.Attendance.CountAsync(a => a.Source == "sats", DemoClassApi.Ct)));
+
+        var satsAbsent = days[0]!.AbsentChildIds.ToHashSet();
+        var child = api.ChildIds.First(id => !satsAbsent.Contains(id));
+        var correction = Guid.NewGuid();
+        Guid[] corrected = [.. satsAbsent, child];
+        await api.MarkAsync(correction, Day, corrected);
+        await api.MarkAsync(correction, Day, corrected);
+
+        var row = await api.QueryAsync(db => db.Attendance.SingleAsync(a => a.ChildId == child, DemoClassApi.Ct));
+        Assert.False(row.Present);
+        Assert.Equal("sats", row.Source);
+        Assert.True(row.SourcePresent);
+        Assert.NotNull(row.CorrectedAt);
+        Assert.True((await api.Client.GetFromJsonAsync<AttendanceDayResponse>(url, DemoClassApi.Ct))!.Corrected);
+    }
+
+    [Fact]
     public async Task Concurrent_replays_both_succeed_and_apply_once()
     {
         await using var api = await DemoClassApi.StartAsync(postgres);

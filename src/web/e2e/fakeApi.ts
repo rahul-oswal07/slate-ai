@@ -29,8 +29,33 @@ export async function fakeTeacherApi(page: Page, { pin = '2468' }: { pin?: strin
     me = { ...teacher, setupComplete: true }
     return route.fulfill({ json: me })
   })
+  // Today needs a register; tests that care about attendance replace this with fakeAttendance().
+  await page.route('**/api/classes/*/attendance/*', (route) =>
+    route.fulfill({ json: attendanceDay({ status: 'waiting', receivedAt: null, recheckAt: '10:00:00', absentChildIds: [] }) }),
+  )
   await page.route('**/api/auth/logout', (route) => {
     me = null
     return route.fulfill({ status: 204, body: '' })
   })
+}
+
+const children = ['Ananya', 'Bhavana', 'Chetan', 'Ravi', 'Darshan', 'Deepa', 'Arun', 'Ganesh', 'Harsha', 'Sai Teja', 'Kavya', 'Kiran']
+  .map((firstName, i) => ({ id: `child-${i + 1}`, rollNo: i + 1, firstName }))
+
+/** Today's date in IST, as the app computes it. */
+export const istToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
+
+export function attendanceDay(overrides: Record<string, unknown> = {}) {
+  const date = istToday()
+  return {
+    date,
+    status: 'sats',
+    receivedAt: `${date}T09:05:00+05:30`,
+    corrected: false,
+    satsDiffers: false,
+    recheckAt: null,
+    absentChildIds: ['child-3', 'child-4', 'child-10'],
+    children,
+    ...overrides,
+  }
 }

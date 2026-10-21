@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../../../data/seed/demo-class.json" Link="data/seed/demo-class.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../../data/seed/*.json" Link="data/seed/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../../data/curriculum/*.json" Link="data/curriculum/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../../prompts/*.md" Link="prompts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

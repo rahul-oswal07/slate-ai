@@ -43,10 +43,10 @@ test('first sign-in: phone + PIN → welcome → Start → Today, then straight 
   await page.screenshot({ path: testInfo.outputPath('welcome-360.png'), fullPage: true })
 
   await page.getByRole('button', { name: 'Start' }).click()
-  await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: /^Today, / })).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: /^Today, / })).toBeVisible()
 })
 
 test('returning on the same phone: PIN only', async ({ page }, testInfo) => {

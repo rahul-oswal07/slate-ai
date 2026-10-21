@@ -28,7 +28,7 @@ describe('App shell', () => {
 
     renderApp('/')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'ಇಂದು' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /^ಇಂದು, / })).toBeInTheDocument()
   })
 
   it('opens the welcome the first time', async () => {
@@ -45,7 +45,7 @@ describe('App shell', () => {
 
     renderApp('/')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'ಇಂದು' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /^ಇಂದು, / })).toBeInTheDocument()
   })
 
   it('switches language, updates <html lang> and remembers the choice', async () => {
