@@ -2,7 +2,7 @@
 
 Spec: FR-20, FR-21, FR-19, FR-16 (stretch), NFR-05 · Tier: MVP (chat is the demo stand-in; real WhatsApp is FR-16 / T-40, stretch) · Task: T-44 (evening message), T-45 (reason + A7), T-15 (catch-up link) · Prototype: prototype/index.html (steps 5, 6; stopped bubble step 13) · PNG: screenshots/P0-messages-evening-360-light.png
 
-Decisions: D-05 (simulated parent phone primary), D-21 (template approved once, slots by code), D-23 (reason optional, caring, category only), D-29 ("a classmate is keeping Ravi's seat"), D-30 (stop link everywhere, STOP reply, confirmation with restart). Review: C-06, C-14, C-15, C-16, C-21, C-22, C-30.
+Decisions: D-05 (simulated parent phone primary), D-21 (template approved once, slots by code), D-23 (reason optional, caring, category only), D-29 ("a classmate is keeping Ravi's seat"), D-30 (stop link everywhere, STOP reply, confirmation with restart), D-43 (parent phone from T8, never shared with AI), D-47 (home language sets the message language), D-48 (no "Tomorrow"), D-50 (no names in the computer voice), D-52 (greeting per language). Review: C-06, C-14, C-15, C-16, C-21, C-22, C-30.
 
 The chat screen is a stand-in for WhatsApp in the demo shell. It renders the same three message types the real channel will carry. Build it as a demo component, not as a product inbox.
 
@@ -16,7 +16,7 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
   - Evening message: none. No LLM on this path (FR-20, D-21).
   - Catch-up link bubble: none at send time. It links to an approved package (A2/A3/A4 ran earlier, T3).
   - Reason voice note: automation with confirmation. Sarvam STT → A7 (Claude Haiku) returns one of 5 categories + confidence; the parent sees "Is it this?" before sending.
-- Code (no AI): evening slots `{child}`, `{lesson}`, `{page}`, `{tomorrow}` from the confirmed lesson record and curriculum; send only after 6 pm to opted-in, not-stopped families; audio = teacher's greeting + pre-synthesised template and competency-name segments; catch-up duration in the bubble ("2 minutes") from the audio length; storing the reason category; stop / restart.
+- Code (no AI): evening slots `{child}` (written text only), `{lesson}` (name in the family's language), `{page}` from the confirmed lesson record and curriculum; no `{tomorrow}` (D-48); template picked by the child's home language (D-47); send only after 6 pm to opted-in, not-stopped families, to the phone entered on T8 (D-43); audio stitched by the 6 pm job = greeting in that language (or her Kannada greeting + computer-voice introduction, D-52) + pre-made fixed phrases + lesson-name clip + page numbers, saying "your child", never a name (D-50); catch-up duration in the bubble ("2 minutes") from the audio length; storing the reason category; stop / restart.
 
 ## 3. Always / never
 - Always: the evening message uses only the template text the teacher approved; slots come from teacher-confirmed records (guardrail 3, FR-20).
@@ -33,7 +33,7 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 | State | What the user sees | Copy (en) |
 |---|---|---|
 | Messages · empty | Chat header; empty icon; demo-only English line. `screenshots/P0-messages-empty-360-light.png` | "No messages yet" · (demo) "Ravi’s mother’s phone. Messages from Lakshmi teacher arrive here." |
-| Messages · evening message | Day separator; bubble: greeting voice note (play, "0:09"), text with slots, "Is everything OK? Tell us" link, stop link, time. `screenshots/P0-messages-evening-360-light.png`, dark: `screenshots/P0-messages-evening-360-dark.png`, Telugu only: `screenshots/P0-messages-telugu-only-360-light.png` | "We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat." |
+| Messages · evening message | Day separator; bubble: greeting voice note (play, "0:09"), text with slots, "Is everything OK? Tell us" link, stop link, time. `screenshots/P0-messages-evening-360-light.png`, dark: `screenshots/P0-messages-evening-360-dark.png`, Telugu only: `screenshots/P0-messages-telugu-only-360-light.png` | "We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. A classmate is keeping Ravi’s seat." (no "Tomorrow", D-48) |
 | Messages · catch-up link | Second bubble (Friday) appears only after the teacher approves the package: text + "Open" link to P1. No PNG exported | "A short lesson for Ravi from Lakshmi teacher. 2 minutes." · "Open" |
 | Messages · stopped | Confirmation bubble with restart link; stop links disappear. No PNG exported (see P4) | "Messages for Ravi are stopped. You can start them again any time." · "Start them again" |
 | Reason · default | Teacher initial; question + replay; 2-column grid of 5 picture buttons; "Say it instead"; disclosure hint; sticky Send (disabled) + hint; Skip; stop link. `screenshots/P0-reason-default-360-light.png`, dark: `screenshots/P0-reason-default-360-dark.png` | "We missed Ravi today. Is everything OK?" · "Tap one picture" · "Skip" |
@@ -51,7 +51,7 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 | `chat.empty` | needs translation | ఇంకా సందేశాలు లేవు | needs translation | No messages yet | needs review |
 | `chat.day.tuesday` / `.friday` | needs translation | మంగళవారం / శుక్రవారం | needs translation | Tuesday / Friday | needs review |
 | `evening.voice` | needs translation | లక్ష్మి టీచర్ గొంతు · {duration} | needs translation | Lakshmi teacher’s voice · {duration} | needs review |
-| `evening.body` | needs translation | ఈ రోజు {child} మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో: {lesson}. ఇంటి పని: పాఠ్యపుస్తకం {page}. రేపు: {tomorrow}. ఒక సహవిద్యార్థి {child} సీటు కాపాడుతోంది. | needs translation | We missed {child} today. In class today: {lesson}. Homework: textbook {page}. Tomorrow: {tomorrow}. A classmate is keeping {child}’s seat. | needs review |
+| `evening.body` | needs translation | ఈ రోజు {child} మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం {page}. ఒక సహవిద్యార్థి {child} సీటు కాపాడుతోంది. | needs translation | We missed {child} today. In class we learned {lesson}. Homework: textbook {page}. A classmate is keeping {child}’s seat. | needs review |
 | `evening.reasonLink` | needs translation | అంతా బాగుందా? చెప్పండి | needs translation | Is everything OK? Tell us | needs review |
 | `catchup.body` | needs translation | {child} కోసం లక్ష్మి టీచర్ నుండి ఒక చిన్న పాఠం. {minutes} నిమిషాలు. | needs translation | A short lesson for {child} from Lakshmi teacher. {minutes} minutes. | needs review |
 | `catchup.open` | needs translation | తెరవండి | needs translation | Open | needs review |
@@ -102,7 +102,10 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 - [ ] axe: 0 serious/critical, in light and dark
 - [ ] `POST /api/classes/{id}/evening-messages/send` returns 409 when the `MessageTemplate` is not Approved, the lesson is not teacher-confirmed, the family has not opted in, or the child is stopped (FR-20, FR-19, T-44). One endpoint test per case.
 - [ ] No `ILlmClient` call on the evening path: test with a fake `ILlmClient` that fails if invoked (FR-20).
-- [ ] xUnit: slot filler from fixtures yields `{lesson}`, `{page}`, `{tomorrow}` from the confirmed lesson and curriculum; text equals the approved template with slots filled (D-21).
+- [ ] xUnit: slot filler from fixtures yields `{lesson}` (in the family's language) and `{page}` from the confirmed lesson and curriculum; there is no `{tomorrow}` slot (D-48); text equals the approved template with slots filled (D-21).
+- [ ] The message and audio language follow the child's home language from T8 (D-47); the 6 pm job refuses and logs when a translation or audio clip for that language is missing.
+- [ ] Evening audio contains no names: "your child" in the computer voice; names only in the written text and the teacher's own greeting (D-50). Audio ≤ 300 KB.
+- [ ] The parent phone is used only by the send step; never in a prompt or AI call (D-43).
 - [ ] Sent only after 18:00 IST (demo mode may send immediately, labelled).
 - [ ] The buddy is never named in the evening message (D-29, C-30). Test: rendered text contains no other child's name.
 - [ ] Catch-up bubble appears only after the package is Approved; withdrawing removes it in the demo (guardrail 3).
@@ -121,8 +124,8 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 - STOP reply (FR-19, D-30) only exists on the real channel; the chat stand-in has no reply box. Decide whether the demo needs one.
 - C-30 lock-screen preview: "We missed Ravi today" shows on a shared phone's lock screen. D-29 settled the buddy name only.
 - C-16: prompts should play once on arrival (question read aloud); needs real audio.
-- Template wording mismatch: the T0 template the teacher approves says "In class we learned {lesson}"; the delivered message says "In class today: {lesson}". The sent text must be exactly the approved text.
-- Lesson names in the message are in Telugu ("subtraction by taking a ten"), but `Competency` has only `NameKn` and `NameEn`. Add home-language names (te, ta) plus their pre-synthesised audio segments.
+- Resolved 21 Oct in the prototype: the delivered text now matches the approved template ("In class we learned …") and "Tomorrow" is gone (D-48).
+- Still open (spec follow-up #4): lesson names in the message are in Telugu ("subtraction by taking a ten"), but `Competency` has only `NameKn` and `NameEn`. Add home-language names (te, ta) plus their pre-made lesson-name audio clips.
 - `MessageTemplate` slots in spec §4.3 include `{buddy}`, which D-29 removed; `{child}` is used but not listed. Update the data model.
 - FR-21 and T-45 say the reason step is "on the parent page"; the prototype reaches it from the evening message. Confirm whether it also appears in the catch-up flow.
 - Voice-note recording, "Is it this?", mic permission denied, offline and send-error states for the reason are not designed.

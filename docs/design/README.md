@@ -17,7 +17,9 @@ Development default language is **English** (D-32); Kannada, Telugu and Tamil co
 | [T4-missed-lessons.md](T4-missed-lessons.md) | Missed lessons (ledger), child history, delete | T-13, T-19 |
 | [T5-back-today.md](T5-back-today.md) | Return-day buddy card, brought homework | T-16 |
 | [T6-week.md](T6-week.md) | Return speed, reasons, pacing nudge | T-46, T-16 |
-| [T8-families.md](T8-families.md) | Families and consent: paper consent per child (Yes / No / No phone) | T-19, T-44 |
+| [T8-families.md](T8-families.md) | Families and consent list + Family details: consent (Yes / No / No phone), parent phone, home language | T-19, T-44 |
+| [T9-sign-in.md](T9-sign-in.md) | Sign in: phone number + PIN, remembered phone, wrong PIN, lock | T-47 |
+| [T10-settings.md](T10-settings.md) | Settings: families, evening message, my greetings (withdraw voice consent), help, app language | T-44, T-19 |
 | [P0-messages-reason.md](P0-messages-reason.md) | Parent chat: evening message, catch-up link, reason, stopped | T-44, T-45 |
 | [P1-listen.md](P1-listen.md) | Listen: greeting, disclosure, lesson | T-15 |
 | [P2-activity.md](P2-activity.md) | Activity at home + textbook page | T-15 |

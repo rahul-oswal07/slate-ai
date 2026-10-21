@@ -1,7 +1,7 @@
 # Journey: Tappida Paatha, end to end
 
 Spec: FR-01–FR-22 · Tier: MVP · Prototype: [prototype/index.html](prototype/index.html) (steps 1–13) · Review: [ux-review.md](ux-review.md)
-Decisions: D-03, D-07, D-08, D-09, D-20–D-24, D-27–D-39
+Decisions: D-03, D-07, D-08, D-09, D-20–D-24, D-27–D-52
 
 English is the default language for development (D-32); Kannada, Telugu and Tamil come from each card's copy table.
 
@@ -19,22 +19,42 @@ Lakshmi teaches a Grade 3 Kannada-medium class of 36. Attendance arrives from SA
 | Buddy | A classmate who was present (e.g. Anjali) | None (printable card) | A 10-minute card with 3 sums and 3 Kannada words; never sees family or channel status |
 | Judges | Hackathon panel | Desktop browser | Complete the loop in ≤ 5 minutes on the split-screen demo (FR-14) |
 
+## How a school starts
+
+Scope in the MVP: one school, one class, one teacher (D-46).
+
+1. **School setup (D-41).** The MVP runs on the demo seed (T-02): 1 teacher, 1 class, 36 fictional children, each with a home language (6 Telugu, 3 Tamil, the rest Kannada). CSV import of a real school's teacher and roster comes at the end if time permits. An admin page is roadmap.
+2. **Start sheet (D-42, roadmap).** A printed sheet with a QR code, the link, her PIN and "Add to Home screen" steps. Not in the MVP; for now the school gives her the link, phone number and PIN.
+3. **Sign in (D-40, [T9](T9-sign-in.md)).** Phone number + 4–6 digit PIN from the school. The phone remembers her, so later sign-ins ask for the PIN only ("Not you? Change phone"). 30-day session; 5 wrong PINs lock sign-in for 15 minutes. Welcome shows until `ConsentAt` is set. OTP is roadmap.
+4. **First use ([T0](T0-setup.md), [T8](T8-families.md)).** Kannada greeting, then one greeting card per other home language in her class (record or skip; skipped → Kannada greeting + computer-voice introduction, D-52); voice consent, version 1 (D-44); evening-message template approved once (D-21, no "Tomorrow", D-48); then Families: paper consent Yes / No / No phone, parent phone (D-43) and home language (D-47) per child. All of it can be changed later in [T10 Settings](T10-settings.md) (D-49, D-51).
+5. **Daily cycle.** 12:00 attendance sync from SATS (simulated), retry at 2:00 pm; manual marking any time; nobody is marked absent automatically (D-45). After class she records one voice note and confirms the lesson (T1, T2). At 6 pm the evening-message job sends to absent children's families (see Server jobs).
+6. **Weekly cycle.** Friday: she approves the week's catch-ups (T3); families get the catch-up link after 6 pm (P1–P4). Return days: buddy cards (T5). Friday 3:30 pm: return speed and pacing nudge (T6).
+
+Demo shell (not in the prototype): `/demo` gets a "Bring in today's attendance" button that runs the attendance sync on demand (D-45).
+
+### Server jobs
+
+- **Attendance sync.** Runs at 12:00, retries once at 2:00 pm, via the attendance source (SATS, simulated). Stores source and received time. If nothing arrives, no child is marked absent automatically; the teacher can mark manually at any time (D-45).
+- **6 pm evening-message builder.** For each absent child marked Yes on T8 and not stopped by the family, with a teacher-confirmed lesson: fill the template slots from records (`{child}` name in the text only, `{lesson}` name in the family's language, `{page}`); pick the approved template in the child's home language (D-47); stitch the audio from pre-made pieces with ffmpeg (her greeting in that language, or the Kannada greeting + computer-voice introduction (D-52), fixed phrases, the lesson-name clip, page numbers; volume evened out; ≤ 300 KB); save an `EveningMessages` row with a token; send. If a translation or audio clip is missing, refuse that message and log it; never send a partial message. No AI on this path (FR-20); no names in the audio (D-50).
+- **Catch-up audio.** The whole approved script goes through text-to-speech with no names ("your child", "your teacher", D-50); her greeting in the family's language and the spoken disclosure are stitched in front (FR-09, D-52).
+
 ## Journey steps
 
 Order follows the prototype guide (steps 1–13). The prototype places the Thursday buddy card after the Friday catch-up; see Open items at the end.
 
 | # | When | Who | What they do | Screen card | FR | Task | AI / code / human |
 |---|---|---|---|---|---|---|---|
-| 1 | Once, at setup | Lakshmi | Records a 10-second greeting, ticks voice consent, listens to the Telugu version of the evening message and approves the template once | [T0](T0-setup.md) | FR-09, FR-15, FR-20 | T-44, T-19, T-11 | Human records and approves. Code stores consent and template approval. No AI |
-| 1a | Once, at setup (and when a family changes its mind) | Lakshmi | From "All set" → "Review families", copies each family's paper consent form: Yes / No / No phone. Nothing is sent to families marked No or No phone (D-39) | [T8](T8-families.md) | FR-15, FR-19, FR-20 | T-19, T-44 | Human records. Code stores the value and filters every send (409). No AI |
-| 2 | Tue 9:05 | System, then Lakshmi | Absent list arrives from SATS (simulated, D-27), labelled with source and time. She corrects it only if wrong; if nothing has arrived she marks absentees in the app | [T1](T1-today.md) | FR-01 | T-06, T-12 | Code (feed, draft, outbox). Human corrects. Corrections never written back to SATS. No AI |
+| 0 | First time | Lakshmi | Opens the link from the school, signs in with phone number + PIN; the phone remembers her (D-40) | [T9](T9-sign-in.md) | new (D-40) | T-47 | Human. Code checks the PIN, locks after 5 wrong tries. No AI |
+| 1 | Once, at setup | Lakshmi | Records a 10-second Kannada greeting and one per other home language in her class, or skips them (D-52), ticks voice consent (version 1, D-44), listens to the Telugu version of the evening message and approves the template once | [T0](T0-setup.md) | FR-09, FR-15, FR-20 | T-44, T-19, T-11 | Human records and approves. Code stores consent and template approval. No AI |
+| 1a | Once, at setup (and when a family changes its mind) | Lakshmi | From "All set" → "Review families", opens each family and copies the paper consent form: Yes / No / No phone, the parent phone number and the home language (D-43, D-47). Nothing is sent to families marked No or No phone (D-39) | [T8](T8-families.md) | FR-15, FR-19, FR-20 | T-19, T-44 | Human records. Code stores the value and filters every send (409). No AI |
+| 2 | Tue 12:00 (retry 2:00 pm) | System, then Lakshmi | Absent list arrives from SATS (simulated, D-27, D-45), labelled with source and time. She corrects it only if wrong; if nothing has arrived she marks absentees in the app | [T1](T1-today.md) | FR-01 | T-06, T-12 | Code (feed, draft, outbox). Human corrects. Corrections never written back to SATS. No AI |
 | 3 | Tue, after class | Lakshmi | Taps the mic, says in Kannada what she taught (≤ 30 s), taps again | [T1](T1-today.md) | FR-02 | T-12, T-07 | Human speaks. Code queues audio in the outbox. Speech-to-text by Sarvam |
 | 4 | Tue, ≤ 20 s later | Claude, then Lakshmi | Claude (A1 via `ILlmClient`) maps the transcript to 1–3 competency IDs with a confidence. She sees them as a ticked checklist, unticks any that are wrong and confirms with one tap (D-33), or picks from the chapter list | [T2](T2-lesson-confirm.md) | FR-03, FR-04 | T-07, T-05 | AI proposes (augmentation). Code validates IDs against the curriculum enum. Human confirms. Confidence < 0.7 → she picks |
 | 5 | Tue, at confirm | System | "Added to missed lessons: 4 children" appears on Today | [T1](T1-today.md) | FR-05 | T-06, T-13 | Code: attendance × confirmed lesson. No AI |
-| 6 | Tue, after 6 pm | System → Ravi's family | Evening message: teacher's greeting + approved template; slots (today's lesson, page, tomorrow, "a classmate is keeping Ravi's seat") filled by code | [P0](P0-messages-reason.md) | FR-20 | T-44 | Code only. Template approved once. Send refused (409) unless template Approved, lesson confirmed, family opted in and not stopped. No AI |
+| 6 | Tue, after 6 pm | System → Ravi's family | Evening message: teacher's greeting + approved template; slots (child's name in text only, today's lesson in the family's language, page; "a classmate is keeping Ravi's seat") filled by code; no "tomorrow" (D-48); audio says "your child" (D-50) | [P0](P0-messages-reason.md) | FR-20 | T-44 | Code only. Template approved once. Send refused (409) unless template Approved, lesson confirmed, family opted in and not stopped. No AI |
 | 7 | Tue evening, optional | Ravi's mother | "We missed Ravi today. Is everything OK?" She taps one of 5 pictures, or speaks, or skips | [P0](P0-messages-reason.md) | FR-21 | T-45 | Human. AI (A7, Haiku) classifies a voice note only; low confidence → "other". Category only stored |
 | 8 | Fri afternoon | System, then Lakshmi | Catch-ups are drafted per language and target set. She opens each, plays it, reads the Kannada summary, ticks "I've checked the Kannada summary", approves. Withdraw until 6 pm | [T3](T3-approve.md) | FR-06–FR-09 | T-08, T-09, T-10, T-11, T-14 | AI: A2 compression (targets ⊆ code candidate set), A3 script, A4 verifier. Human approves. Guardrail 3: nothing sent unless `Approved` (D-28) |
-| 9 | Fri, after 6 pm | Ravi's family | Opens the link; Listen: teacher's voice → spoken AI notice → lesson | [P1](P1-listen.md) | FR-09, FR-10 | T-15, T-11 | AI-written, teacher-approved audio. Labelled "AI-assisted, approved by Lakshmi teacher". Next never blocked by audio |
+| 9 | Fri, after 6 pm | Ravi's family | Opens the link; Listen: teacher's greeting → computer voice notice → lesson (D-52); no names in the computer voice (D-50) | [P1](P1-listen.md) | FR-09, FR-10 | T-15, T-11 | AI-written, teacher-approved audio. Labelled "AI-assisted, approved by Lakshmi teacher". Next never blocked by audio |
 | 10 | Fri evening | Ravi + family | Activity with sticks (or household objects) and the textbook homework page | [P2](P2-activity.md) | FR-10, FR-07 | T-15 | Human. Content approved in step 8 |
 | 11 | Fri evening | Ravi | Taps one of three bundle-of-sticks pictures; numeral shows only after the tap (D-07) | [P3](P3-answer.md) | FR-11 | T-15 | Code scores the tap (no LLM). Options shuffled by code |
 | 12 | Fri evening | Ravi | "Well done, Ravi" whatever the answer | [P4](P4-done.md) | FR-10 | T-15 | Code. No score shown to the family |
@@ -49,9 +69,11 @@ Order follows the prototype guide (steps 1–13). The prototype places the Thurs
 Teacher app (PWA, Kannada first, English captions):
 
 ```
-T0 Set up (once; no bottom nav)
-   ├─► T8 Families and consent ("Review families" on All set)
-   └─► T1 Today ──► T2 Lesson confirm (+ pick-lesson sheet)
+T9 Sign in (first time; later PIN only)
+   └─► T0 Set up (once; no bottom nav)
+         ├─► T8 Families and consent ("Review families" on All set) ──► Family details
+         └─► T1 Today ──► T2 Lesson confirm (+ pick-lesson sheet)
+                 └─► (gear) T10 Settings ──► Families and consent (T8) · Evening message · My greetings · Help · App language
 Bottom nav (5 tabs, always visible after setup):
    [Today T1] [Approve T3 + detail] [Missed T4 + child + T8] [Back today T5] [Week T6]
 ```
@@ -65,7 +87,9 @@ Bottom nav (5 tabs, always visible after setup):
 | T4 | Missed lessons: by child, by lesson, child history | Missed | [T4-missed-lessons.md](T4-missed-lessons.md) |
 | T5 | Back today: buddy cards | Back today | [T5-back-today.md](T5-back-today.md) |
 | T6 | Week: return speed + pacing nudge | Week | [T6-week.md](T6-week.md) |
-| T8 | Families and consent: paper consent per child | Missed (sub-screen; also from T0 All set) | [T8-families.md](T8-families.md) |
+| T8 | Families and consent (list) + Family details: consent, parent phone, home language | Missed (from T4), Today (from T10), none (from T0 All set) | [T8-families.md](T8-families.md) |
+| T9 | Sign in: phone number + PIN | none (before nav) | [T9-sign-in.md](T9-sign-in.md) |
+| T10 | Settings: families, evening message, my greetings, help, app language | Today (sub-screen; gear on T1) | [T10-settings.md](T10-settings.md) |
 
 Parent (no install; opens from a link; Telugu/Tamil/Kannada):
 
@@ -93,6 +117,8 @@ Stop link on every screen
 - [T5-back-today.md](T5-back-today.md)
 - [T6-week.md](T6-week.md)
 - [T8-families.md](T8-families.md)
+- [T9-sign-in.md](T9-sign-in.md)
+- [T10-settings.md](T10-settings.md)
 - [P0-messages-reason.md](P0-messages-reason.md)
 - [P1-listen.md](P1-listen.md)
 - [P2-activity.md](P2-activity.md)
@@ -120,10 +146,10 @@ These came up while writing the cards. The prototype slips are already fixed in 
 
 | # | Issue | Affects | Owner |
 |---|---|---|---|
-| 1 | **Real names reach text-to-speech (NFR-05).** The script addresses the child by name ("Ravi, …"), ends "Show `{teacher}`", and the disclosure names the teacher. If Sarvam synthesises these, names go to the provider. Options: synthesise placeholders as generic words ("your teacher"), or splice the name from the teacher's own recorded greeting | FR-09, T-11, P1 | Rahul (before T-11) |
+| 1 | **Resolved (D-50).** **Real names reach text-to-speech (NFR-05).** The script addresses the child by name ("Ravi, …"), ends "Show `{teacher}`", and the disclosure names the teacher. If Sarvam synthesises these, names go to the provider. Options: synthesise placeholders as generic words ("your teacher"), or splice the name from the teacher's own recorded greeting | FR-09, T-11, P1 | Rahul (before T-11) |
 | 2 | `CatchUpPackage.Status` is Draft/Verified/Approved/Rejected. The UI needs Generating, Ready, Needs review, Approved, Sent and Generation failed, plus a script version that the approval is bound to (D-28) | §4.3, T-14, T3 | Rahul |
 | 3 | Endpoints missing from §4.4: withdraw, bulk approve (checked only), parent stop and restart, STOP reply | §4.4, T-14, T-15 | Rahul |
-| 4 | `MessageTemplate` slots still list `{buddy}` (removed by D-29) and lack `{child}`. The evening message needs home-language lesson names (Telugu, Tamil) and pre-synthesised audio, but `Competency` has only NameKn and NameEn | §4.3, T-44, T-05 | Rahul; names: Monika (D-14) |
+| 4 | **Partly resolved (D-48 removes `{tomorrow}`).** Home-language lesson names are still open. `MessageTemplate` slots still list `{buddy}` (removed by D-29) and lack `{child}`. The evening message needs home-language lesson names (Telugu, Tamil) and pre-synthesised audio, but `Competency` has only NameKn and NameEn | §4.3, T-44, T-05 | Rahul; names: Monika (D-14) |
 | 5 | FR-07/A3 lists the buddy sums as AI output; guardrail 4 and the review (B-21) say the sums come from code | FR-07, T-09, T-16 | Rahul |
 | 6 | FR-05 still has one status per child. The cards use learning status (missed, sent, listened, caught up, needs buddy) plus a separate channel status (no phone, stopped by family). The by-lesson view should count per child × lesson | FR-05, T-13 | Rahul |
 | 7 | **Resolved (D-33).** FR-03 maps a note to 1–3 competencies, but T2 shows one. The confirm screen needs a multi-lesson design | FR-03, T-07, T2 | Monika |

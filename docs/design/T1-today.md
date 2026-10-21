@@ -1,9 +1,9 @@
 # T1 Today
 
 Spec: FR-01, FR-02, FR-05, FR-20 (tonight card), NFR-01, NFR-02 · Tier: MVP · Task: T-12 (screen), T-06 (attendance API), T-07 (lesson upload), T-44 (tonight count) · Prototype: prototype/index.html (steps 2, 3; step 5 for "done") · PNG: screenshots/T1-today-from-sats-360-light.png
-Decisions: D-03, D-21, D-27, D-31, D-17, D-33 (lesson card lists every confirmed lesson), D-34 (mic blocked, sending), D-39 (tonight counts only families marked Yes)
+Decisions: D-03, D-21, D-27, D-31, D-17, D-33 (lesson card lists every confirmed lesson), D-34 (mic blocked, sending), D-39 (tonight counts only families marked Yes), D-45 (attendance sync 12:00, retry 2:00 pm), D-46 (one school, one class, one teacher), D-51 (gear opens T10 Settings)
 
-One screen that follows her day, top to bottom: attendance (from SATS) → today's lesson (mic, or the confirmed lesson with Change) → "Added to missed lessons" → tonight's message → "Since yesterday". App bar carries the sync badge. This card also owns the bottom nav spec (§8).
+One screen that follows her day, top to bottom: attendance (from SATS) → today's lesson (mic, or the confirmed lesson with Change) → "Added to missed lessons" → tonight's message → "Since yesterday". App bar carries the sync badge and a gear button (aria-label "Settings") that opens [T10 Settings](T10-settings.md) (D-51). This card also owns the bottom nav spec (§8).
 
 ## 1. User voice
 
@@ -14,7 +14,7 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 
 - Human: checks the absent list; corrects it only if wrong, or marks absentees if SATS hasn't arrived; taps the mic and speaks ≤ 30 s in Kannada; or picks the lesson from the list (the only way when the mic is blocked, D-34); taps Change if the confirmed lesson is wrong.
 - AI: none on this screen. The recorded note goes to T2, where Claude (A1) maps it. Mode: none here.
-- Code (no AI): simulated SATS feed and its arrival time; draft-then-save attendance corrections; offline outbox (Dexie) and sync badge count; mic state machine, 30 s auto-stop, < 1 s "too short" rule; upload after stop with the 3-second rule (still uploading after 3 s → kept in the outbox, D-34); "Added to missed lessons" count (absent children × confirmed lessons); tonight's count (absent ∩ consent Yes on T8 ∩ not stopped by the family, D-39); "Since yesterday" events from the ledger; nav badge count.
+- Code (no AI): server attendance-sync job at 12:00 with one retry at 2:00 pm, reading the simulated SATS source (D-45); if nothing arrives nobody is marked absent automatically; draft-then-save attendance corrections; offline outbox (Dexie) and sync badge count; mic state machine, 30 s auto-stop, < 1 s "too short" rule; upload after stop with the 3-second rule (still uploading after 3 s → kept in the outbox, D-34); "Added to missed lessons" count (absent children × confirmed lessons); tonight's count (absent ∩ consent Yes on T8 ∩ not stopped by the family, D-39); "Since yesterday" events from the ledger; nav badge count.
 
 ## 3. Always / never
 
@@ -24,17 +24,17 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 - Never: write corrections back to SATS; never scrape SATS with her login (D-27).
 - Never: show seconds taken or anything that times her (A-28). Never say "sent" before anything has been sent (A-11).
 - Never: send child names or the teacher's name to Claude or Sarvam; the audio upload carries class and date IDs only (guardrail 1).
-- Uncertainty: no AI here. Recording < 1 s → not uploaded, inline "Too short" hint. SATS not in → offer manual marking; system checks again at 10:00.
+- Uncertainty: no AI here. Recording < 1 s → not uploaded, inline "Too short" hint. SATS not in → manual marking is offered at any time; the job runs at 12:00 and retries at 2:00 pm; if nothing arrives, nobody is marked absent automatically (D-45).
 - If it goes wrong: wrong attendance → wrong missed lessons and wrong evening messages. Limited by: visible source and list of names, one-tap "Wrong? Correct it", draft with Cancel, and Change on the lesson card until the 6 pm send.
 
 ## 4. States
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| From SATS (`default`) | Attendance card: check icon, "Attendance · SATS (simulated), 9:05", "4 absent", names, "Wrong? Correct it". Lesson card with mic below. ![](screenshots/T1-today-from-sats-360-light.png) Kannada only: ![](screenshots/T1-today-kannada-only-360-light.png) | "Attendance · SATS (simulated), 9:05" |
-| SATS not in yet (`waiting`) | Clock icon card: not in yet, will check at 10:00, "Mark it here if you prefer". ![](screenshots/T1-today-sats-not-in-360-light.png) | "SATS attendance has not come in yet" |
+| From SATS (`default`) | Attendance card: check icon, "Attendance · SATS (simulated), 12:00", "4 absent", names, "Wrong? Correct it". App bar: sync badge, then gear button (D-45, D-51). Lesson card with mic below. ![](screenshots/T1-today-from-sats-360-light.png) Kannada only: ![](screenshots/T1-today-kannada-only-360-light.png) | "Attendance · SATS (simulated), 12:00" |
+| SATS not in yet (`waiting`) | Clock icon card: not in yet, comes in at 12:00, retry at 2:00 pm, "Mark it here if you prefer" (D-45). ![](screenshots/T1-today-sats-not-in-360-light.png) | "SATS attendance has not come in yet" · "It comes in at 12:00. If it is late, we check again at 2:00 pm. You do not need to do anything." |
 | Correcting (`correct`) | Heading, hint, 4-column roll + first-name grid (D-03), absent tiles in error style with the word "absent"; sticky count "4 absent · 32 present", Cancel / Save. Same grid for manual marking with "Mark attendance here" and all present by default. ![](screenshots/T1-today-correcting-360-light.png) | "Correct attendance" / "Mark attendance here" |
-| Corrected by teacher (`corrected`) | Attendance card as From SATS, with " · corrected by you" after the source line and the corrected absent list. No PNG | "Attendance · SATS (simulated), 9:05 · corrected by you" |
+| Corrected by teacher (`corrected`) | Attendance card as From SATS, with " · corrected by you" after the source line and the corrected absent list. No PNG | "Attendance · SATS (simulated), 12:00 · corrected by you" |
 | Offline (`offline`) | Warning banner, Wi-Fi-off in status bar, badge "3 waiting to send"; mic still works. ![](screenshots/T1-today-offline-360-light.png) | "No network. You can still record your note; it stays on the phone." |
 | Lesson not yet recorded (`nolesson`) | Lesson card: title, prompt, 96 px mic, hint, "Or pick the lesson from the list". Same layout as From SATS; no separate PNG | "Tap and say what you taught today" |
 | Recording | Mic error-red with stop square and pulse, waveform, "0:12 / 0:30", "Tap again when you finish" | "Tap again when you finish" |
@@ -58,6 +58,7 @@ kn and en from the prototype. te "—" (teacher UI). Reviewed by: needs review (
 | `today.title` | ಇಂದು, {date} | — | needs translation | Today, {date} | needs review |
 | `today.region` (aria-label) | ಇಂದು | — | needs translation | Today | needs review |
 | `sync.saved` | ಉಳಿಸಲಾಗಿದೆ | — | needs translation | Saved | needs review |
+| `today.settings` (gear, aria-label) | ಸೆಟ್ಟಿಂಗ್ಸ್ | — | needs translation | Settings | needs review |
 | `sync.waiting` | {n} ಕಳುಹಿಸಲು ಕಾಯುತ್ತಿವೆ | — | needs translation | {n} waiting to send | needs review |
 | `today.offline.canRecord` | ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನೀವು ಟಿಪ್ಪಣಿ ದಾಖಲಿಸಬಹುದು; ಅದು ಫೋನಿನಲ್ಲಿ ಉಳಿಯುತ್ತದೆ. | — | needs translation | No network. You can still record your note; it stays on the phone. | needs review |
 | `today.offline.noteQueued` | ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನಿಮ್ಮ ಟಿಪ್ಪಣಿ ಫೋನಿನಲ್ಲಿ ಉಳಿದಿದೆ. ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ಕಳುಹಿಸಿ ಪಾಠಕ್ಕೆ ಹೊಂದಿಸುತ್ತದೆ. | — | needs translation | No network. Your note is saved on the phone. It will send and be matched when you have network. | needs review |
@@ -69,7 +70,7 @@ kn and en from the prototype. te "—" (teacher UI). Reviewed by: needs review (
 | `today.attendance.noneAbsent` | — | — | — | — | needs review |
 | `today.attendance.correctAction` | ತಪ್ಪಿದೆಯೇ? ಸರಿಪಡಿಸಿ | — | needs translation | Wrong? Correct it | needs review |
 | `today.attendance.waiting.title` | SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ | — | needs translation | SATS attendance has not come in yet | needs review |
-| `today.attendance.waiting.body` | {time} ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ. | — | needs translation | We will check again at {time}. You do not need to do anything. | needs review |
+| `today.attendance.waiting.body` | ಮಧ್ಯಾಹ್ನ {syncTime} ಕ್ಕೆ ಬರುತ್ತದೆ. ತಡವಾದರೆ {retryTime} ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ. | — | needs translation | It comes in at {syncTime}. If it is late, we check again at {retryTime}. You do not need to do anything. (12:00 / 2:00 pm, D-45) | needs review |
 | `today.attendance.waiting.markHere` | ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ | — | needs translation | Mark it here if you prefer | needs review |
 | `today.attendance.edit.titleCorrect` | ಹಾಜರಾತಿ ಸರಿಪಡಿಸಿ | — | needs translation | Correct attendance | needs review |
 | `today.attendance.edit.titleManual` | ಹಾಜರಾತಿ ಇಲ್ಲೇ ಗುರುತಿಸಿ | — | needs translation | Mark attendance here | needs review |
@@ -157,6 +158,9 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 - [ ] No AI output on this screen; nothing labelled AI here
 - [ ] Every Indic text has a `lang` attribute; strings exist in kn, en, te, ta; `<html lang>` follows UI language (A-24)
 - [ ] axe: 0 serious/critical, in light and dark; body region focusable and labelled
+- [ ] App bar shows the sync badge and a 48 px gear button with aria-label "Settings" that opens T10 Settings; the Today tab stays active there (D-51)
+- [ ] Attendance sync runs as a server job at 12:00 and retries once at 2:00 pm; the card source reads "SATS (simulated), 12:00"; the waiting copy names both times (D-45)
+- [ ] If no attendance arrives after the 2:00 pm retry, no child is marked absent automatically; manual marking stays available at any time (D-45)
 - [ ] Attendance card shows source and time; MVP label reads "SATS (simulated)"; "corrected by you" appears after a correction; "marked by you" after fallback (FR-01, A-13, D-27)
 - [ ] API returns attendance with `source` (Sats/Manual), `receivedAt`, `correctedAt`; correction stored locally with provenance; no code path writes to SATS (D-27)
 - [ ] Correction edits a draft; Save commits, Cancel and Back discard and announce "Changes discarded" (A-14)
@@ -183,9 +187,9 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 
 | Tab | Icon (Lucide) | kn | en | Active for screens |
 |---|---|---|---|---|
-| Today | `house` | ಇಂದು | Today | T1, T2 |
+| Today | `house` | ಇಂದು | Today | T1, T2, T10 Settings and its sub-screens, T8 when opened from Settings (D-51) |
 | Approve | `check` | ಒಪ್ಪಿಗೆ | Approve | T3 list, T3 detail |
-| Missed | `list` | ತಪ್ಪಿದ ಪಾಠ | Missed | T4, child history, T8 Families and consent (D-39) |
+| Missed | `list` | ತಪ್ಪಿದ ಪಾಠ | Missed | T4, child history, T8 Families and consent when opened from Missed lessons (D-39, D-51) |
 | Back today | `users` | ಮರಳಿ ಬಂದವರು | Back today | T5 |
 | Week | `chart-column` | ವಾರ | Week | T6 |
 
@@ -193,7 +197,7 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 - Active tab: `aria-current="page"`, `text-primary-strong` bold, 3 px `bg-primary` bar at top. Inactive `text-ink-muted`.
 - Labels `text-caption` minimum; wrap only at spaces (`word-break: keep-all`), never truncate.
 - Approve badge: count of packages in Ready or Needs review (code). `bg-primary text-on-primary`, never error red (A-32, B-15). Badge `aria-hidden`; sr-only text gives "Approve, 3 waiting".
-- Hidden on T0. Sub-screens (T2, T3 detail, child, T8) keep their parent tab active and show a Back button.
+- Hidden on T0 and T9 Sign in, and on T8 when opened from setup. Sub-screens (T2, T3 detail, child, T8, T10 sub-screens) keep their parent tab active and show a Back button.
 - Tab change moves focus to the new screen's title (`h2 tabindex="-1"`) (A-04, B-19).
 
 Open items:
@@ -203,7 +207,8 @@ Open items:
 - "Since yesterday" window is not defined (since previous school day? since last opened?). Define it in the API.
 - `update.needsPractice` en says "his return"; `update.homework` kn ತಂದಿದ್ದಾನೆ is masculine. Need gender-neutral strings or a per-child form (buddy card uses ತಂದಿದ್ದಾರೆ).
 - Two listen strings ("family listened to the catch-up" vs "family listened") for the same event; pick one.
-- FR-01 says manual marking is offered if SATS has not arrived by 10:00; the prototype offers it at any time while waiting. Confirm.
+- Resolved (D-45): sync at 12:00, retry at 2:00 pm, manual marking at any time, nobody marked absent automatically. FR-01 still says 10:00; spec update pending.
+- No state is designed for "still not in after 2:00 pm". Proposed: same card, body "It has not come in today. Mark it here if you want messages to go tonight."
 - Nav Kannada labels and tile names render at 14 px; tokens.md sets 16 px minimum for Indic captions. Decide.
 - Spec §3.1 lists "lesson already recorded today"; built as the `done` state. Recording a second note on the same day is not designed (Change uses the list only).
 - Per-child "Skip tonight" (A-10) is behind the FR-20 gate [CONFIRM: Rahul]; not built.
