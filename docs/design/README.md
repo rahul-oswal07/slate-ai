@@ -4,6 +4,19 @@ One file per screen or component: `docs/design/<screen>.md`, opened as a PR labe
 
 Before building, copy the design card below into the file and fill in every field. A field that doesn't apply says "none" and why, so nothing is skipped by accident.
 
+## Cards
+
+Start with [`journey.md`](journey.md) (end-to-end journey, screen map, open gates, spec follow-ups). Clickable source of truth: [`prototype/index.html`](prototype/index.html) (open in a browser). Review with finding IDs: [`ux-review.md`](ux-review.md). Screenshots (360 px, light and dark): [`screenshots/`](screenshots/).
+
+| Card | Screen | Task |
+|---|---|---|
+| [T0-setup.md](T0-setup.md) | Teacher set-up: greeting, evening template | T-44 |
+| [T1-today.md](T1-today.md) | Today: attendance from SATS, voice note, tonight, since yesterday, nav | T-12 |
+| [T2-lesson-confirm.md](T2-lesson-confirm.md) | Lesson confirm + pick-lesson sheet | T-07, T-12 |
+| [T4-missed-lessons.md](T4-missed-lessons.md) | Missed lessons (ledger), child history, delete | T-13, T-19 |
+
+T3, T5, T6 and parent cards P0–P4 follow in the H3 design PR.
+
 Reference: tokens and usage rules in [`tokens.md`](tokens.md); copy rules in `spec.md` §3.3–3.4; screens and states in `spec.md` §3.1.
 
 ---
