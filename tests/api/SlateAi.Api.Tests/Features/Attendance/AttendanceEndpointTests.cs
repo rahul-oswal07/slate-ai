@@ -117,26 +117,4 @@ public sealed class AttendanceEndpointTests
             new MarkAttendanceRequest(requestId, date, absent),
             TestContext.Current.CancellationToken);
     }
-
-    private sealed record SaveCall(Guid ClientRequestId, IReadOnlyCollection<Guid> ChildIds, IReadOnlySet<Guid> Absent);
-
-    private sealed class FakeAttendanceStore(Guid classId, IReadOnlyList<Guid> children) : IAttendanceStore
-    {
-        public List<SaveCall> Saved { get; } = [];
-
-        public Task<IReadOnlyList<Guid>?> GetChildIdsAsync(Guid id, CancellationToken cancellationToken) =>
-            Task.FromResult(id == classId ? children : null);
-
-        public Task<MarkAttendanceResponse> SaveRegisterAsync(
-            Guid id,
-            Guid clientRequestId,
-            DateOnly date,
-            IReadOnlyCollection<Guid> childIds,
-            IReadOnlySet<Guid> absent,
-            CancellationToken cancellationToken)
-        {
-            Saved.Add(new SaveCall(clientRequestId, childIds, absent));
-            return Task.FromResult(new MarkAttendanceResponse(date, childIds.Count - absent.Count, absent.Count));
-        }
-    }
 }

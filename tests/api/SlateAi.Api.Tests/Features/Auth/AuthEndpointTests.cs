@@ -206,13 +206,6 @@ public sealed class AuthEndpointTests
 
     private sealed record ProblemTitle(string? Title);
 
-    private sealed class MovableClock : TimeProvider
-    {
-        public DateTimeOffset Now { get; set; }
-
-        public override DateTimeOffset GetUtcNow() => Now;
-    }
-
     /// <summary>One teacher, held in memory.</summary>
     private sealed class FakeAuthStore : IAuthStore
     {

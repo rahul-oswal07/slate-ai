@@ -44,6 +44,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<Attendance>(e =>
         {
             e.HasKey(a => new { a.ClassId, a.Date, a.ChildId });
+            e.Property(a => a.Source).HasMaxLength(10).HasDefaultValue("manual");
             e.HasOne<Class>().WithMany().HasForeignKey(a => a.ClassId);
             e.HasOne<Child>().WithMany().HasForeignKey(a => a.ChildId).OnDelete(DeleteBehavior.Cascade);
         });
