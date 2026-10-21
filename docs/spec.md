@@ -211,7 +211,9 @@ POST /api/auth/logout                       ends the session
 GET  /api/me                                { teacherId, displayName, classId, setupComplete }; 401 when signed out
 POST /api/me/welcome                        { clientRequestId } → sets Teacher.ConsentAt once (first-run gate)
 POST /api/demo/login                        one-tap demo sign-in (T-18)
-POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId)
+GET  /api/classes/{id}/attendance/{date}    { status: sats|manual|waiting, receivedAt, correctedAt, recheckAt, absentChildIds[] } (fetches the simulated SATS feed when due, D-69)
+POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId; correction or manual marking, never written back to SATS)
+POST /api/demo/sats-feed                    { classId, date, mode: waiting|arrive } (only while Demo:Enabled, D-69)
 POST /api/lessons                           multipart audio|image or { pickedCompetencyId } → 202 { lessonId }
 GET  /api/lessons/{id}                      status + mapping
 PUT  /api/lessons/{id}/competencies         teacher correction
@@ -384,6 +386,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-66 | Families: Yes without a phone number | Save is blocked: "Add the parent's phone number, or choose No phone." | Monika | Day 4 | Accepted |
 | D-67 | Attendance missing after the 2:00 pm retry | Today shows "Attendance didn't come in today. Mark it here so tonight's messages can go." with "Mark attendance" | Monika | Day 4 | Accepted |
 | D-68 | Loading, offline, error, conflict on every screen | Loading: show saved data at once, else grey placeholder cards (no spinner over a blank screen). Offline: saved data + "No network. Showing what was saved at {time}. It updates when the network returns."; actions go to the outbox ("Saved · will send"). Error: what happened, what is safe, what to do (e.g. "Could not save. Your change is kept on the phone. It will try again."). Conflict (409): "This changed on another device. Showing the latest." then reload. First sign-in offline: "Sign-in needs network the first time." Applies wherever a card says "Not designed" for these states | Monika | Day 4 | Accepted |
+| D-69 | How attendance arrives (D-27, D-45, technical) | (1) **Fetched when needed**, no scheduler: when Today opens, or when the 6 pm evening-message job (T-44) needs the day, if nothing from SATS is stored and it is after `Attendance:Sats:ArrivesAt` (12:00 IST, D-45), the API asks `IAttendanceSource` and stores the result with its arrival time. Until then Today says it will check at 12:00, then 2:00 pm (`RecheckAt`); after 2:00 pm with nothing in, Today shows D-67. The demo endpoint `POST /api/demo/sats-feed` (only while `Demo:Enabled`) forces "not in yet" or "arrives now" (D-45 "Bring in today's attendance"). Swappable sources: `SimulatedSatsSource` now, file import / state API later. Sundays, second Saturdays and configured holidays return nothing, so they never count as absences. (2) **Who is absent:** repeatable pseudo-random per class and date (`AbsenceRate` ≈ 8%) plus scripted overrides in `data/seed/` for the demo story. (3) **Storage:** `Attendance` gains `Source` (sats/manual), `SourcePresent` (what SATS said; null for manual), `ReceivedAt`, `CorrectedAt`; `Present` stays the effective value, so the ledger is unchanged. (4) **SATS arriving after manual marking:** the teacher's marking stands; SATS values are kept in `SourcePresent`; if they differ, Today says so **[DECIDE: Monika]** copy for that line and for "no school today" | Rahul | Day 4 | Accepted |
 
 ## 9. Assumptions
 

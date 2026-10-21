@@ -25,3 +25,11 @@ public sealed class FixedClock(DateTimeOffset now) : TimeProvider
 {
     public override DateTimeOffset GetUtcNow() => now;
 }
+
+/// <summary>A clock a test can move forward.</summary>
+public sealed class MovableClock : TimeProvider
+{
+    public DateTimeOffset Now { get; set; }
+
+    public override DateTimeOffset GetUtcNow() => Now;
+}

@@ -1,26 +1,39 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
+import { AnnouncerProvider } from '../components/Announcer'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { useOutboxSync } from '../offline/outbox'
 
 export function AppShell() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  // Once queued writes reach the server, show the server's view of them.
+  const refreshAttendance = useCallback(
+    () => void queryClient.invalidateQueries({ queryKey: ['attendance'] }),
+    [queryClient],
+  )
+  useOutboxSync(refreshAttendance)
 
   return (
-    <div className="min-h-dvh bg-canvas font-sans text-ink">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:rounded-md focus:bg-primary focus:p-3 focus:text-on-primary"
-      >
-        {t('a11y.skipToContent')}
-      </a>
-      <header className="border-b border-border px-4 py-3">
-        <p className="text-lg font-semibold">{t('app.name')}</p>
-        <p className="text-sm text-ink-muted">{t('app.tagline')}</p>
-        <LanguageSwitcher />
-      </header>
-      <main id="main" className="px-4 py-6">
-        <Outlet />
-      </main>
-    </div>
+    <AnnouncerProvider>
+      <div className="min-h-dvh bg-canvas font-sans text-ink">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:rounded-md focus:bg-primary focus:p-3 focus:text-on-primary"
+        >
+          {t('a11y.skipToContent')}
+        </a>
+        <header className="border-b border-border px-4 py-3">
+          <p className="text-lg font-semibold">{t('app.name')}</p>
+          <p className="text-sm text-ink-muted">{t('app.tagline')}</p>
+          <LanguageSwitcher />
+        </header>
+        <main id="main" className="px-4 py-6">
+          <Outlet />
+        </main>
+      </div>
+    </AnnouncerProvider>
   )
 }

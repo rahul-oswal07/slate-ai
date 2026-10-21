@@ -57,7 +57,7 @@ slate-ai/
 |---|---|---|---|
 | 1 | Walking skeleton deployed: API + SPA + Postgres + CI/CD, `/health` green on Azure | §4 | Public URL returns app shell; CI green |
 | 2 | Curriculum graph + seed class (36 children) | §5.3 | Unit tests on graph (ancestors, candidate set) |
-| 3 | Attendance + lesson capture + A1 mapping | FR-01–04 | Endpoint tests with fake stores (no DB writes in new tests, 19 Oct); 10 A1 eval cases ≥ 80% |
+| 3 | Attendance from the simulated SATS feed (`IAttendanceSource`, fetched when needed, D-41) with corrections + lesson capture + A1 mapping | FR-01–04 | Endpoint tests with fake stores (no DB writes in new tests, 19 Oct); 10 A1 eval cases ≥ 80% |
 | 4 | Ledger, incl. absence spells and return speed (days away, back within 2 school days; D-20/D-24), then the weekly return-speed card | FR-05, FR-22 | Deterministic tests on fixtures |
 | 5 | A2 compression + A3 script + A4 verifier + TTS | FR-06, 07, 09 | Validator unit tests; 10 A2/A3 eval cases |
 | 6 | Approval flow | FR-08 | API refuses to send unapproved package (test) |

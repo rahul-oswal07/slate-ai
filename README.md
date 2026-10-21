@@ -79,7 +79,7 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 | `Storage__Mode` | no | `Local` (default) or `AzureBlob` |
 | `Storage__AzureBlob__ConnectionString` | prod | Audio storage |
 | `WhatsApp__Token`, `WhatsApp__PhoneNumberId` | stretch | WhatsApp Cloud API |
-| `Demo__Enabled` | no | Enables `/demo` and reset (default `true`) |
+| `Demo__Enabled` | no | Enables `/demo`, reset and the demo SATS controls `POST /api/demo/sats-feed` (default `true`) |
 | `VITE_API_BASE` | no | Front-end API base when not same-origin |
 
 ### API keys and other secrets

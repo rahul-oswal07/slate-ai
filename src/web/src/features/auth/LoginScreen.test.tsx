@@ -46,7 +46,7 @@ describe('LoginScreen', () => {
     await userEvent.type(screen.getByLabelText('PIN'), '2468')
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Today' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
     expect(calls.find((c) => c.key === 'POST /api/auth/pin')?.body).toEqual({ phone: '9000000000', pin: '2468' })
   })
 
@@ -129,6 +129,6 @@ describe('LoginScreen', () => {
 
     renderApp('/login')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Today' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
   })
 })
