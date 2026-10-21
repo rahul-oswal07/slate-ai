@@ -27,6 +27,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Monika: T-21 replaced by the clickable prototype v2 + UX review (outside the repo, `Documents/tappida-paatha-prototype`); D-03, D-07, D-08, D-09 accepted as prototyped
 - [x] Monika: T-21 delivered as the clickable prototype + design cards (#70, #73)
 - [ ] Monika: T-20 recruit teachers + parents (offline, by Monika)
+- [ ] Rahul: D-33–D-39 in the build: lesson confirm accepts 1–3 ticked competency IDs (D-33); mic-blocked + sending states and outbox (D-34); tag aliases in tokens.css (D-35); no evening-message listen tracking (D-36); Withdraw until the 6 pm job, then Sent (D-37); Sent / Generation failed package states (D-38); `Child` consent field Yes/No/No phone + date, T8 Families screen, send endpoints 409 unless Yes (D-39, FR-15)
 - [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
 - [x] Rahul: confirmed D-21 (20 Oct): approved `MessageTemplate` + code-filled slots; guardrail 3 in CLAUDE.md reworded
 - [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
@@ -79,4 +80,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 21 Oct | Rahul + Claude | Technical mentor brief: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
 | 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
 | 21 Oct | Monika + Claude | D-32: English is the default locale for development and design references; prototype opens in English. Screenshots kept as captured (Kannada/Telugu with English captions) |
-
+| 21 Oct | Monika + Claude | Closed the open design gaps (D-33–D-39): multi-lesson checklist confirm, mic blocked + sending, tag colours (tokens.md), no evening-message listens, Withdraw until 6 pm, Sent / Generation failed / offline states, parent opt-in on new T8 Families screen. Prototype checked against every spec §3.1 state (83 states, axe 0 violations); FR-03/08/15 and §3.1 updated; cards updated, T8 card added |

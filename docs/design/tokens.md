@@ -61,6 +61,16 @@ Ratios measured with the WCAG formula. Background order: canvas · surface · pa
 | `stopped` | `bell-off` | Stopped by family | `#374151` / `#F3F4F6` | 9.4 | `#E5E7EB` / `#2A2C30` | 11.3 |
 | `queued` | `cloud-off` | Saved · will send | `#495059` / `#F1F5F9` | 7.4 | `#CBD2DA` / `#24272B` | 9.8 |
 | `error` | `circle-alert` | (sentence) | `#991B1B` / `#FEF2F2` | 7.6 | `#FECACA` / `#3A1515` | 11.2 |
+| `missed` | `calendar-x` | Missed lesson | same pair as `stopped` | 9.4 | same as `stopped` | 11.3 |
+| `ready` | `circle-check` | Ready | same pair as `listened` | 8.3 | same as `listened` | 11.2 |
+| `needs-review` | `circle-alert` | Needs review | same pair as `needs-ear` | 8.2 | same as `needs-ear` | 11.0 |
+| `approved` | `check` | Approved | same pair as `caught-up` | 8.3 | same as `caught-up` | 11.5 |
+| `generating` | `clock` | Generating… | same pair as `queued` | 7.4 | same as `queued` | 9.8 |
+| `generation-failed` | `circle-alert` | Generation failed | same pair as `error` | 7.6 | same as `error` | 11.2 |
+
+The last six rows (D-35) reuse existing pairs, so no new contrast pairs are needed; in `tokens.css` they are aliases of the pair named. The icon and word tell them apart (rule 5). `needs-ear` was for the dropped review queue (FR-18) and is kept only as the colour source for `needs-review`.
+
+**Picture-question sticks (D-07, D-35):** drawn in `warning` (`#B45309` light, `#FBBF24` dark) with the band in `primary`. Illustration only, never text; both meet 3:1 against `surface` (non-text contrast).
 
 Words are draft English; Kannada, Telugu and Tamil go into the locale files when the components are built.
 

@@ -1,7 +1,9 @@
 # Journey: Tappida Paatha, end to end
 
 Spec: FR-01–FR-22 · Tier: MVP · Prototype: [prototype/index.html](prototype/index.html) (steps 1–13) · Review: [ux-review.md](ux-review.md)
-Decisions: D-03, D-07, D-08, D-09, D-20–D-24, D-27–D-31
+Decisions: D-03, D-07, D-08, D-09, D-20–D-24, D-27–D-39
+
+English is the default language for development (D-32); Kannada, Telugu and Tamil come from each card's copy table.
 
 ## Summary
 
@@ -24,9 +26,10 @@ Order follows the prototype guide (steps 1–13). The prototype places the Thurs
 | # | When | Who | What they do | Screen card | FR | Task | AI / code / human |
 |---|---|---|---|---|---|---|---|
 | 1 | Once, at setup | Lakshmi | Records a 10-second greeting, ticks voice consent, listens to the Telugu version of the evening message and approves the template once | [T0](T0-setup.md) | FR-09, FR-15, FR-20 | T-44, T-19, T-11 | Human records and approves. Code stores consent and template approval. No AI |
+| 1a | Once, at setup (and when a family changes its mind) | Lakshmi | From "All set" → "Review families", copies each family's paper consent form: Yes / No / No phone. Nothing is sent to families marked No or No phone (D-39) | [T8](T8-families.md) | FR-15, FR-19, FR-20 | T-19, T-44 | Human records. Code stores the value and filters every send (409). No AI |
 | 2 | Tue 9:05 | System, then Lakshmi | Absent list arrives from SATS (simulated, D-27), labelled with source and time. She corrects it only if wrong; if nothing has arrived she marks absentees in the app | [T1](T1-today.md) | FR-01 | T-06, T-12 | Code (feed, draft, outbox). Human corrects. Corrections never written back to SATS. No AI |
 | 3 | Tue, after class | Lakshmi | Taps the mic, says in Kannada what she taught (≤ 30 s), taps again | [T1](T1-today.md) | FR-02 | T-12, T-07 | Human speaks. Code queues audio in the outbox. Speech-to-text by Sarvam |
-| 4 | Tue, ≤ 20 s later | Claude, then Lakshmi | Claude (A1 via `ILlmClient`) maps the transcript to 1–3 competency IDs with a confidence. She confirms with one tap, or picks from the chapter list | [T2](T2-lesson-confirm.md) | FR-03, FR-04 | T-07, T-05 | AI proposes (augmentation). Code validates IDs against the curriculum enum. Human confirms. Confidence < 0.7 → she picks |
+| 4 | Tue, ≤ 20 s later | Claude, then Lakshmi | Claude (A1 via `ILlmClient`) maps the transcript to 1–3 competency IDs with a confidence. She sees them as a ticked checklist, unticks any that are wrong and confirms with one tap (D-33), or picks from the chapter list | [T2](T2-lesson-confirm.md) | FR-03, FR-04 | T-07, T-05 | AI proposes (augmentation). Code validates IDs against the curriculum enum. Human confirms. Confidence < 0.7 → she picks |
 | 5 | Tue, at confirm | System | "Added to missed lessons: 4 children" appears on Today | [T1](T1-today.md) | FR-05 | T-06, T-13 | Code: attendance × confirmed lesson. No AI |
 | 6 | Tue, after 6 pm | System → Ravi's family | Evening message: teacher's greeting + approved template; slots (today's lesson, page, tomorrow, "a classmate is keeping Ravi's seat") filled by code | [P0](P0-messages-reason.md) | FR-20 | T-44 | Code only. Template approved once. Send refused (409) unless template Approved, lesson confirmed, family opted in and not stopped. No AI |
 | 7 | Tue evening, optional | Ravi's mother | "We missed Ravi today. Is everything OK?" She taps one of 5 pictures, or speaks, or skips | [P0](P0-messages-reason.md) | FR-21 | T-45 | Human. AI (A7, Haiku) classifies a voice note only; low confidence → "other". Category only stored |
@@ -47,9 +50,10 @@ Teacher app (PWA, Kannada first, English captions):
 
 ```
 T0 Set up (once; no bottom nav)
+   ├─► T8 Families and consent ("Review families" on All set)
    └─► T1 Today ──► T2 Lesson confirm (+ pick-lesson sheet)
 Bottom nav (5 tabs, always visible after setup):
-   [Today T1] [Approve T3 + detail] [Missed T4 + child] [Back today T5] [Week T6]
+   [Today T1] [Approve T3 + detail] [Missed T4 + child + T8] [Back today T5] [Week T6]
 ```
 
 | ID | Screen | Tab | Card |
@@ -61,6 +65,7 @@ Bottom nav (5 tabs, always visible after setup):
 | T4 | Missed lessons: by child, by lesson, child history | Missed | [T4-missed-lessons.md](T4-missed-lessons.md) |
 | T5 | Back today: buddy cards | Back today | [T5-back-today.md](T5-back-today.md) |
 | T6 | Week: return speed + pacing nudge | Week | [T6-week.md](T6-week.md) |
+| T8 | Families and consent: paper consent per child | Missed (sub-screen; also from T0 All set) | [T8-families.md](T8-families.md) |
 
 Parent (no install; opens from a link; Telugu/Tamil/Kannada):
 
@@ -87,6 +92,7 @@ Stop link on every screen
 - [T4-missed-lessons.md](T4-missed-lessons.md)
 - [T5-back-today.md](T5-back-today.md)
 - [T6-week.md](T6-week.md)
+- [T8-families.md](T8-families.md)
 - [P0-messages-reason.md](P0-messages-reason.md)
 - [P1-listen.md](P1-listen.md)
 - [P2-activity.md](P2-activity.md)
@@ -106,7 +112,7 @@ Accepted design: [prototype/index.html](prototype/index.html) (v2). Findings and
 Other open items for the whole journey:
 
 - Calendar: Ravi is away Mon and Tue and is "back after 2 days" on Thursday; Wednesday is not accounted for. The weekly catch-up (Friday) arrives after he is back. Confirm the story dates before the demo seed (T-18).
-- Family opt-in capture (FR-15, T-19): T0 "All set" shows "31 of 36 families agreed", but no screen records parent consent. Define where consent is captured.
+- Resolved (D-39): family opt-in (FR-15, T-19) is recorded on [T8 Families and consent](T8-families.md); T0 "All set" and T1 tonight's counts come from it.
 
 ## Spec follow-ups found while writing the cards
 
@@ -120,13 +126,13 @@ These came up while writing the cards. The prototype slips are already fixed in 
 | 4 | `MessageTemplate` slots still list `{buddy}` (removed by D-29) and lack `{child}`. The evening message needs home-language lesson names (Telugu, Tamil) and pre-synthesised audio, but `Competency` has only NameKn and NameEn | §4.3, T-44, T-05 | Rahul; names: Monika (D-14) |
 | 5 | FR-07/A3 lists the buddy sums as AI output; guardrail 4 and the review (B-21) say the sums come from code | FR-07, T-09, T-16 | Rahul |
 | 6 | FR-05 still has one status per child. The cards use learning status (missed, sent, listened, caught up, needs buddy) plus a separate channel status (no phone, stopped by family). The by-lesson view should count per child × lesson | FR-05, T-13 | Rahul |
-| 7 | FR-03 maps a note to 1–3 competencies, but T2 shows one. The confirm screen needs a multi-lesson design | FR-03, T-07, T2 | Monika |
-| 8 | Withdraw cut-off: FR-08 says "until the send starts"; the UI says "until 6 pm". Use one wording | FR-08, T3 | Monika |
-| 9 | tokens.md has no tags for Ready, Needs review, Approved, Generating or Missed lesson, no `stick` illustration colour, and calls "Needs review" by the name "Needs your ear". Add the tags with contrast values | tokens.md | Monika |
+| 7 | **Resolved (D-33).** FR-03 maps a note to 1–3 competencies, but T2 shows one. The confirm screen needs a multi-lesson design | FR-03, T-07, T2 | Monika |
+| 8 | **Resolved (D-37).** Withdraw cut-off: FR-08 says "until the send starts"; the UI says "until 6 pm". Use one wording | FR-08, T3 | Monika |
+| 9 | **Resolved (D-35, tokens.md).** tokens.md has no tags for Ready, Needs review, Approved, Generating or Missed lesson, no `stick` illustration colour, and calls "Needs review" by the name "Needs your ear". Add the tags with contrast values | tokens.md | Monika |
 | 10 | Nav labels and attendance tiles render Kannada at 14 px; tokens.md asks 16 px for Indic text. Accept an exception for the 5-tab nav or reduce to 4 tabs | tokens.md, T-12 | Monika |
-| 11 | No screen records parent opt-in, yet T0 shows "31 of 36 families agreed" (FR-15, T-19) | T-19 | Monika + Rahul |
-| 12 | The child history shows "evening message listened", but `EveningMessage` has no listened field, and D-20 says never count message opens. Drop it or define it | T4, D-20 | Monika |
+| 11 | **Resolved (D-39, [T8](T8-families.md)).** No screen records parent opt-in, yet T0 shows "31 of 36 families agreed" (FR-15, T-19) | T-19 | Monika + Rahul |
+| 12 | **Resolved (D-36): dropped.** The child history shows "evening message listened", but `EveningMessage` has no listened field, and D-20 says never count message opens. Drop it or define it | T4, D-20 | Monika |
 | 13 | Story calendar: Ravi is away Mon and Tue but is "back after 2 days" on Thursday, and the Friday catch-up comes after his return. Fix the demo seed so the dates line up | T-18 demo seed | Rahul |
 | 14 | Undefined rules: when the weekly recap nudge shows; absence spells that cross a week; buddy fallback when no classmate was present on every missed day | FR-13, FR-22, FR-12 | Rahul |
 | 15 | Telugu fixed text uses gendered verbs; it needs a neutral or per-child-gender form after native review | P0, P1 | Monika (T-26) |
-| 16 | Not yet designed: T0 greeting deleted, mic permission denied (T0, T1), sending (T1), offline (T0, T2), T3 Sent and Generation failed | T0–T3 | Monika |
+| 16 | **Resolved (D-38 and D-34).** Not yet designed: T0 greeting deleted, mic permission denied (T0, T1), sending (T1), offline (T0, T2), T3 Sent and Generation failed | T0–T3 | Monika |

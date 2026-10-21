@@ -28,7 +28,7 @@ Decisions: D-20 (home engagement is a product measure), D-22 ("Brought homework"
 | Cards (default) | "Card 1 of 2 · next: Manju"; card: child name, days away, buddy panel with 10 min, 3 sums, Kannada words, "Brought homework" checkbox with the page; prev / print / next; "Mark buddy time done". `screenshots/T5-back-today-card-360-light.png`, dark: `screenshots/T5-back-today-card-360-dark.png` | "Back after 2 days" · "Buddy (was present both days)" · "3 sums to do together" · "Brought homework" · "Mark buddy time done" |
 | None today (empty) | Users icon, heading, explanation. `screenshots/T5-back-today-none-360-light.png` | "No one is back today" · "A buddy card appears here on the day an absent child comes back." |
 | Offline | Warning banner; cards readable from cache; ticks queue. `screenshots/T5-back-today-offline-360-light.png` | "No network. The cards are saved on your phone." |
-| Marked done | Success banner with Undo replaces the button (B-31). No PNG exported | "Buddy time done" · "Undo" |
+| Marked done (`done`) | Success banner with Undo replaces the button (B-31). State chip "Marked done" in the prototype. No PNG exported | "Buddy time done" · "Undo" |
 | Homework ticked | Checkbox checked; stored with the card. No PNG exported | "Brought homework" |
 | Last / first card | Prev or Next disabled with a visible disabled style (B-23) | — |
 | Loading | Not designed. Cached cards show at once; no spinner when cached | — |
@@ -88,7 +88,7 @@ Decisions: D-20 (home engagement is a product measure), D-22 ("Brought homework"
 - [ ] Cards cached for offline (service worker + IndexedDB) and printable (FR-12).
 - [ ] Print button has an accessible name in all 4 locales (B-04).
 - [ ] Position shown as text "Card 1 of 2 · next: Manju", not dots only (B-23). Disabled Prev/Next look disabled.
-- [ ] "Mark buddy time done" has Undo; no auto-advance (B-31). Polite announcement on done.
+- [ ] "Mark buddy time done" has Undo; no auto-advance (B-31). Polite announcement on done. The "Marked done" state is reachable.
 - [ ] Focus stays on the card heading when moving between cards (B-19).
 
 ## Open items

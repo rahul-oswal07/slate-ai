@@ -30,7 +30,7 @@ Decisions: D-08 (four steps, step dots, Next never blocked by audio), D-18 (spok
 | Default | Header "Ravi’s lesson" with Back; step dots 1 of 4; teacher initial; "From Lakshmi teacher"; AI label; 156 px Listen button; progress bar 0:00 / 1:35; segments; "Read the words"; Next; stop link. `screenshots/P1-listen-default-360-light.png`, dark: `screenshots/P1-listen-default-360-dark.png` | "Listen" · "AI-assisted, approved by Lakshmi teacher" · "Next" |
 | Loading | Button shows a clock icon and "Loading…" within 400 ms of the tap. `screenshots/P1-listen-loading-360-light.png` | "Loading…" |
 | Playing | Pause icon and label; bar and elapsed time move; current segment highlighted. `screenshots/P1-listen-playing-360-light.png` | "Pause" |
-| Paused | No chip in the prototype. Label returns to "Listen" with the bar where it stopped | "Listen" (see Open items) |
+| Paused (`paused`) | Play icon; label "Resume"; bar and elapsed time stay where playback stopped. The label reads "Resume" whenever playback is part-way, after a pause or a network drop | "Resume" |
 | Played | Bar full; label "Listen again". `screenshots/P1-listen-played-360-light.png` | "Listen again" |
 | Network dropped mid-play (resume) | Assertive banner; button "Resume"; position kept. `screenshots/P1-listen-network-dropped-360-light.png` | "Network dropped. The part you heard is saved. It will continue from there when the network is back." · "Resume" |
 | Link expired | Clock icon, message + replay; homework card; OK; stop link. `screenshots/P1-listen-link-expired-360-light.png` | "This link is old" · "Lakshmi teacher will send a new one. You don’t need to do anything." · "Homework: textbook Part 2, page 15" · "OK" |
@@ -49,7 +49,7 @@ Decisions: D-08 (four steps, step dots, Next never blocked by audio), D-18 (spok
 | `p1.listen` | needs translation | వినండి | needs translation | Listen | needs review |
 | `p1.loading` | needs translation | వస్తోంది… | needs translation | Loading… | needs review |
 | `p1.pause` | needs translation | ఆపు | needs translation | Pause | needs review |
-| `p1.resume` | needs translation | కొనసాగించు | needs translation | Resume | needs review |
+| `p1.resume` (paused or dropped part-way) | needs translation | కొనసాగించు | needs translation | Resume | needs review |
 | `p1.again` | needs translation | మళ్ళీ వినండి | needs translation | Listen again | needs review |
 | `p1.seg.teacher` | needs translation | టీచర్ గొంతు | needs translation | Teacher | needs review |
 | `p1.seg.computer` | needs translation | కంప్యూటర్ గొంతు | needs translation | Computer voice | needs review |
@@ -96,6 +96,7 @@ The Listen button has no `aria-label`: its accessible name is its visible label 
 - [ ] Next is enabled before, during and after playback (C-05, D-08). Playwright: tap Next without playing → P2.
 - [ ] Loading feedback within 400 ms of the tap; elapsed and total time shown (C-19).
 - [ ] Listen button's accessible name equals its visible text in each state (C-01).
+- [ ] Label rule: "Listen" at the start; "Loading…" while loading; "Pause" while playing; "Resume" whenever playback is part-way (paused or dropped); "Listen again" after the end. Vitest on the rule.
 - [ ] Polite announcements "Playing" / "Paused"; the network banner is assertive (C-08).
 - [ ] "Listened" ledger status is set when playback reaches the end, within 2 s (FR-05).
 - [ ] Expired link: no dead end; homework card and OK shown; message has a replay button (C-29).
@@ -105,7 +106,7 @@ The Listen button has no `aria-label`: its accessible name is its visible label 
 
 ## Open items
 - NFR-05 conflict: the transcript starts "Ravi, today let's learn…" and ends "Show {teacher}"; the disclosure names "Lakshmi teacher". If these are spoken by Sarvam TTS, real names go to the provider. Options: name only in the teacher's recorded greeting; TTS says "you"/"your teacher"; or splice pre-recorded name segments. Rahul to decide before T-11.
-- Paused state: label goes back to "Listen". Recommend "Resume" for consistency with the dropped state.
+- Resolved: the Paused state is in the prototype; the label reads "Resume" whenever playback is part-way.
 - C-19 "back 10 s" control and C-16 auto-play of the spoken prompt need real audio.
 - Offline-on-open and audio-file-error states not designed.
 - Spec NFR-08 label is "AI-assisted, approved by your teacher"; prototype says "AI-assisted, approved by Lakshmi teacher". Pick one wording for all locales.

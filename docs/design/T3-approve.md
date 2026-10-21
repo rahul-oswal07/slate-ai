@@ -2,14 +2,14 @@
 
 Spec: FR-06, FR-07, FR-08, FR-09, NFR-08 · Tier: MVP · Task: T-14 (pipeline: T-08, T-09, T-10, T-11) · Prototype: prototype/index.html (step 7) · PNG: screenshots/T3-approve-list-360-light.png
 
-Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenerate), D-18 (spoken AI disclosure), D-28 (bulk approve only for opened and ticked; Withdraw until the send). Review: B-01, B-02, B-03, B-10, B-11, B-12, B-13, B-14, B-15, B-28, B-29.
+Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenerate), D-18 (spoken AI disclosure), D-28 (bulk approve only for opened and ticked; Withdraw until the send), D-35 (tag colours reuse status tokens), D-37 (Withdraw label and cut-off), D-38 (Sent and Generation failed states). Review: B-01, B-02, B-03, B-10, B-11, B-12, B-13, B-14, B-15, B-28, B-29.
 
 ## 1. User voice
 - Says: "Show me what goes to the families this week. I'll check it once and send it. I can't read Telugu, so tell me in Kannada what it says."
 - Unsaid: "If the computer says something wrong in my name, the parents will blame me." "I don't have time to open every one." "What if I tap Approve by mistake?"
 
 ## 2. Who does what
-- Human (teacher): opens each catch-up, plays the audio, reads the Kannada summary, ticks "I've checked the Kannada summary", taps Approve (one catch-up) or "Approve the N you checked" (several). Can ask for Simpler or Shorter, and can Withdraw until the send job starts.
+- Human (teacher): opens each catch-up, plays the audio, reads the Kannada summary, ticks "I've checked the Kannada summary", taps Approve (one catch-up) or "Approve the N you checked" (several). Can ask for Simpler or Shorter, can Withdraw until the 6 pm send job starts (D-37), and can ask to "Try again" when generation failed (D-38).
 - AI · Mode: augmentation (the teacher decides).
   - A2 compression (Claude): chooses at most 2 targets from the code-computed candidate set; writes the reason for each kept and dropped lesson ("Why this").
   - A3 script writer (Claude): script, 3 Kannada key words, activity, homework page, picture check, Kannada gloss (the "Kannada summary"), buddy content. Placeholders `{child}`, `{teacher}` only.
@@ -19,7 +19,8 @@ Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenera
 
 ## 3. Always / never
 - Always: one approval per catch-up, not per child. Show which children, which lessons, the duration and why each lesson was kept or dropped. Count the bulk button from the status shown on screen. Bind each approval to the script version she ticked.
-- Always: the "AI-assisted" label on the detail screen (NFR-08).
+- Always: the "AI-assisted" label on the detail screen when it shows AI output (NFR-08). A failed generation has no AI output, so no label (D-38).
+- Always: once the send job has started, the tag shows "Sent" with the time and Withdraw is gone (D-37).
 - Never: send anything to a parent unless `CatchUpPackage.Status == Approved` for the current script version (guardrail 3; enforced in the API, not only the UI).
 - Never: let a tick survive a regenerate (B-03). Never count a Generating or Needs review catch-up in the bulk button (B-02).
 - Never: send child, parent or teacher names to Claude or Sarvam. The summary says "the child", never one child's name (B-12, NFR-05).
@@ -34,13 +35,15 @@ Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenera
 | List · offline (approval queued) | Warning banner on top; approved cards show the "Saved · will send" tag. `screenshots/T3-approve-offline-360-light.png` | "No network. Your approval is saved on the phone and will send when you have network." |
 | List · some checked | Button counts only Ready + ticked cards; hint switches to needs-review advice | "Approve the 2 you checked" · "Open “Needs review” ones one at a time." |
 | List · all approved | Success banner; bulk button and hint hidden (B-29). No PNG exported | "All {packages} approved. {families} families get them after 6 pm. (counts from code)" (counts from code; see Open items) |
+| List · sent (`sent`) | Sent cards show the "Sent" tag (send icon) and the time; approved-but-not-sent cards keep "Approved · Goes after 6 pm" (D-38). No PNG | "Sent" · "6:02 pm" |
+| List · generation failed (`failed`) | The failed card shows the "Generation failed" tag (alert icon, error colours); it stays tappable and is not counted in the button or the nav badge (D-38). No PNG | "Generation failed" |
 | List · empty | Not designed. No catch-ups this week | Open item |
 | Detail · ready | Status tag + AI label; children; player with segments; Kannada summary panel with key words; "Why this"; picture question with the correct option marked; tick; Approve (disabled until ticked); Simpler / Shorter. `screenshots/T3-approve-detail-ready-360-light.png` | "I’ve checked the Kannada summary" · "Approve" · "Tick the summary box to approve." |
 | Detail · needs review (verifier failed) | Error banner with the reason in numbers; no tick; "Make it shorter" primary; reason next to it. `screenshots/T3-approve-detail-needs-review-360-light.png` | "Didn’t pass the check: audio is 104 seconds, limit is 90." · "Can’t approve: the audio is too long." |
 | Detail · regenerating | Status banner; tick, Approve, Simpler, Shorter disabled. No PNG exported | "Writing a new version… Check it again when it’s ready." |
-| Detail · approved | Success banner + "Withdraw (until 6 pm)". No PNG exported | "Approved. Goes to the families after 6 pm." |
-| Sent | Not yet designed (B-14). Needs the real send job | — |
-| Generation failed | Not yet designed (B-14). A3/TTS error after retry | — |
+| Detail · approved | Success banner + "Withdraw (until 6 pm)" (ghost, undo icon). Allowed until the 6 pm send job starts (D-37). No PNG exported | "Approved. Goes to the families after 6 pm." · "Withdraw (until 6 pm)" |
+| Detail · sent (`sent`) | "Sent" tag + AI label; success banner (send icon); the content stays readable; no Withdraw, no tick, no buttons (D-37, D-38). No PNG | "Sent at 6:02 pm · {n} families" |
+| Detail · generation failed (`failed`) | "Generation failed" tag, no AI label; error banner `role="alert"`; language and children; primary "Try again". No player, summary or check (D-38). No PNG | "Could not write this catch-up. Nothing was sent. Your other catch-ups are not affected." · "Try again" |
 | Loading | Not designed. Use skeleton cards; no spinner-only screen | — |
 | Error (approve rejected, 409) | Not designed. API refused because status or version changed | Open item |
 | Permission denied | none: no mic or camera on this screen | — |
@@ -59,6 +62,9 @@ Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenera
 | `approve.bulk.hintTick` | ಮೊದಲು ಪ್ರತಿಯೊಂದನ್ನು ತೆರೆದು ಕನ್ನಡ ಸಾರಾಂಶಕ್ಕೆ ಗುರುತು ಹಾಕಿ. | — | needs translation | Open each one and tick the Kannada summary first. | needs review |
 | `approve.bulk.hintReview` | “ಪರಿಶೀಲನೆ ಬೇಕು” ಇರುವುದನ್ನು ಒಂದೊಂದಾಗಿ ನೋಡಿ. | — | needs translation | Open “Needs review” ones one at a time. | needs review |
 | `status.ready` / `.review` / `.approved` / `.generating` / `.queued` | ಸಿದ್ಧವಾಗಿದೆ / ಪರಿಶೀಲನೆ ಬೇಕು / ಅನುಮೋದಿಸಿದ್ದೀರಿ / ಸಿದ್ಧಪಡಿಸುತ್ತಿದೆ… / ಉಳಿಸಲಾಗಿದೆ · ನಂತರ ಕಳುಹಿಸುತ್ತದೆ | — | needs translation | Ready / Needs review / Approved / Generating… / Saved · will send | needs review |
+| `status.sent` | ಕಳುಹಿಸಲಾಗಿದೆ | — | needs translation | Sent | needs review |
+| `status.failed` | ಬರೆಯಲು ಆಗಲಿಲ್ಲ | — | needs translation | Generation failed | needs review |
+| `approve.card.sentAt` | ಸಂಜೆ {time} | — | needs translation | {time} pm | needs review |
 | `pkg.title` | ಪುನರಾವರ್ತನೆ ಪರಿಶೀಲಿಸಿ | — | needs translation | Review catch-up | needs review |
 | `pkg.children` | {language} · ಮಕ್ಕಳು | — | needs translation | {language} · children | needs review |
 | `pkg.segments` | ನಿಮ್ಮ ಧ್ವನಿ · ಸೂಚನೆ · ಪಾಠ | — | needs translation | Your voice · Notice · Lesson | needs review |
@@ -76,6 +82,9 @@ Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenera
 | `pkg.simpler` / `pkg.shorter` | ಸರಳವಾಗಿ / ಚಿಕ್ಕದಾಗಿ | — | needs translation | Simpler / Shorter | needs review |
 | `pkg.approved.banner` | ಅನುಮೋದಿಸಿದ್ದೀರಿ. ಸಂಜೆ 6 ರ ನಂತರ ಕುಟುಂಬಗಳಿಗೆ ಹೋಗುತ್ತದೆ. | — | needs translation | Approved. Goes to the families after 6 pm. | needs review |
 | `pkg.withdraw` | ಹಿಂಪಡೆಯಿರಿ (6 ಗಂಟೆಯವರೆಗೆ) | — | needs translation | Withdraw (until 6 pm) | needs review |
+| `pkg.sent.banner` | ಸಂಜೆ {time} ಕ್ಕೆ ಕಳುಹಿಸಲಾಗಿದೆ · {n} ಕುಟುಂಬಗಳು | — | needs translation | Sent at {time} pm · {n} families | needs review |
+| `pkg.failed.banner` | ಈ ಪುನರಾವರ್ತನೆ ಬರೆಯಲು ಆಗಲಿಲ್ಲ. ಏನೂ ಕಳುಹಿಸಿಲ್ಲ. ನಿಮ್ಮ ಇತರ ಪುನರಾವರ್ತನೆಗಳಿಗೆ ತೊಂದರೆ ಇಲ್ಲ. | — | needs translation | Could not write this catch-up. Nothing was sent. Your other catch-ups are not affected. | needs review |
+| `pkg.failed.retry` | ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ | — | needs translation | Try again | needs review |
 | `ai.label` | AI ನೆರವು | — | needs translation | AI-assisted | needs review |
 | `aria.pkg.play` / `aria.pkg.pause` | ಕೇಳಿ / ನಿಲ್ಲಿಸಿ | — | needs translation | Play / Pause | needs review |
 | `aria.back` | ಹಿಂದೆ | — | needs translation | Back | needs review |
@@ -90,14 +99,14 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 
 ## 6. Tokens and sizes
 - Page `bg-canvas`; cards `bg-surface border border-border rounded-md` (usage rule 3). Summary card `bg-panel border` with title in `text-primary-strong` (rule 1: no `primary` text on `panel`). Key words `bg-panel rounded-sm text-label`, `lang="kn"`.
-- Status tags (icon + word, rule 5): Ready = `text-status-listened bg-status-listened-bg` + `circle-check`; Needs review = `status-needs-ear` + `circle-alert`; Approved = `status-caught-up` + `check`; Generating = `status-queued` + `clock`; Saved · will send = `status-queued` + `cloud-off`. tokens.md has no Ready/Review/Approved/Generating rows yet: add them.
+- Status tags (icon + word, rule 5), reusing existing colours (D-35, tokens.md): Ready = `text-status-listened bg-status-listened-bg` + `circle-check`; Needs review = `status-needs-ear` + `circle-alert`; Approved = `status-caught-up` + `check`; Generating = `status-queued` + `clock`; Saved · will send = `status-queued` + `cloud-off`; Sent = `status-sent` + `send`; Generation failed = `text-error bg-error-bg` + `circle-alert`.
 - AI label: `text-primary-strong text-label` + bot icon (distinct from the reward star, C-25).
-- Banners: offline/regenerating `bg-surface border border-border border-l-4 border-l-warning`, text `text-ink`; error `bg-error-bg border-l-error`, icon `text-error`; success `border-l-primary`.
+- Banners: offline/regenerating `bg-surface border border-border border-l-4 border-l-warning`, text `text-ink`; error (needs review, generation failed) `bg-error-bg border-l-error`, icon `text-error`; success (approved, sent) `border-l-primary`.
 - Buttons: Approve and bulk button `bg-primary text-on-primary min-h-target-primary rounded-md w-full`; Simpler/Shorter/Withdraw ghost `min-h-target`. Checkbox row `min-h-target`, box 24 px. Play button 52 px `bg-primary text-on-primary`.
 - Type: title `text-display`; card heading `text-title`/`text-label`; meta `text-caption text-ink-muted` (14 px Latin / 16 px Indic minimum, B-22). Nav badge neutral, not `error` (B-15).
 
 ## 7. Acceptance checklist
-- [ ] Every state above is built and reachable (Sent and Generation failed once designed)
+- [ ] Every state above is built and reachable, including list and detail Sent and Generation failed (D-38)
 - [ ] One primary action; works with one thumb at 360 px
 - [ ] Status shown as icon + word, never colour alone
 - [ ] Targets ≥ 48 px; 8 px apart
@@ -110,7 +119,10 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 - [ ] Any regenerate (Simpler, Shorter, Make it shorter) clears the tick and disables Approve until the new version is Ready and ticked again (B-03). Vitest + endpoint test.
 - [ ] Needs review: no tick, Approve not offered, failure reason in numbers next to the action, "Make it shorter" primary (B-10). Numbers come from the A4 result, not the LLM.
 - [ ] Send endpoint returns 409 for any package not Approved (guardrail 3, FR-08). Integration test "send unapproved → 409" (T-14).
-- [ ] Withdraw: `POST /api/packages/{id}/withdraw` allowed until the send job starts for that package; afterwards 409. Withdraw returns status to Ready and clears the tick (B-13, D-28).
+- [ ] Withdraw: label "Withdraw (until 6 pm)"; `POST /api/packages/{id}/withdraw` allowed until the 6 pm send job starts for that package; afterwards 409 and the tag shows "Sent". Withdraw returns status to Ready and clears the tick (B-13, D-28, D-37).
+- [ ] Sent: list card shows the "Sent" tag and send time; detail shows "Sent at 6:02 pm · N families" with N counted in code from the families actually sent to; no Withdraw, tick or regenerate (D-38, guardrail 4).
+- [ ] Generation failed: list card shows the "Generation failed" tag, is not counted in the bulk button or nav badge; detail shows the error banner (`role="alert"`), no AI label, and "Try again", which starts a new generation (status Generating) (D-38).
+- [ ] Tag colours follow D-35: Ready = listened, Needs review = needs-ear, Approved = caught-up, Generating = queued, Sent = sent, Generation failed = error; each with its icon and word.
 - [ ] Offline approval goes to the Dexie outbox with `clientRequestId`; replay is idempotent; the card shows "Saved · will send" until synced (B-14, §6).
 - [ ] Kannada summary never names a child; uses "the child" (B-12). Verifier code check 6 rejects real names.
 - [ ] Verifier rejects a check item whose competency is not a target (B-12, C-11).
@@ -121,11 +133,14 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 - [ ] Tags wrap at 320 px and 200 % text (B-26).
 
 ## Open items
-- B-14: "Sent" and "Generation failed" tags are pending the real send job. Design both before T-14 closes.
+- Resolved (D-38): "Sent" and "Generation failed" are designed for the list and the detail (B-14).
+- Finish banner is sent-aware: "All N sent · F families", or "Sent to F families; M get them after 6 pm" when some are still pending (resolved 21 Oct in the prototype).
+- "Sent at 6:02 pm · N families" and the banner count families marked Yes on T8 and not stopped, in code (resolved 21 Oct in the prototype).
+- The Generation failed card shows no duration and no AI label (resolved 21 Oct in the prototype).
 - `CatchUpPackage.Status` in spec §4.3 is Draft/Verified/Approved/Rejected. The screen needs Generating, Ready, Needs review, Approved, Sent, Generation failed, plus a script version. Rahul to extend the enum and add `ScriptVersion`; update `docs/database.md`.
 - `/withdraw` and bulk approve are not in the spec §4.4 API list. Add them.
-- FR-08 says Withdraw "until the send starts"; the UI says "until 6 pm". Keep the UI wording only if the send job always starts at 18:00.
-- "All {packages} approved. {families} families get them after 6 pm. (counts from code)" The prototype has 6 children across 3 catch-ups and the 5 is hard-coded. The real count must come from code (opted-in, not-stopped families, guardrail 4); confirm whether siblings or no-phone children explain 5.
+- Resolved (D-37): the label is "Withdraw (until 6 pm)"; Withdraw is allowed until the 6 pm send job starts, after which the tag shows "Sent".
+- Finish-banner counts come from code (packages, families marked Yes and not stopped) (resolved 21 Oct in the prototype).
 - B-01 also suggests a confirm sheet listing each catch-up for bulk approve. The prototype has no sheet. Decide whether the tick requirement is enough.
 - A-21: the teacher can't hear the Telugu audio in her language; the Kannada summary and audio cover D-09. No change unless round 1 says otherwise.
 - Replay of a queued approval after the package was regenerated: show what? Not designed.
