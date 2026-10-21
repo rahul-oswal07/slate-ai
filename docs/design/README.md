@@ -13,9 +13,15 @@ Start with [`journey.md`](journey.md) (end-to-end journey, screen map, open gate
 | [T0-setup.md](T0-setup.md) | Teacher set-up: greeting, evening template | T-44 |
 | [T1-today.md](T1-today.md) | Today: attendance from SATS, voice note, tonight, since yesterday, nav | T-12 |
 | [T2-lesson-confirm.md](T2-lesson-confirm.md) | Lesson confirm + pick-lesson sheet | T-07, T-12 |
+| [T3-approve.md](T3-approve.md) | Approve catch-ups: list, detail, withdraw | T-14 |
 | [T4-missed-lessons.md](T4-missed-lessons.md) | Missed lessons (ledger), child history, delete | T-13, T-19 |
-
-T3, T5, T6 and parent cards P0–P4 follow in the H3 design PR.
+| [T5-back-today.md](T5-back-today.md) | Return-day buddy card, brought homework | T-16 |
+| [T6-week.md](T6-week.md) | Return speed, reasons, pacing nudge | T-46, T-16 |
+| [P0-messages-reason.md](P0-messages-reason.md) | Parent chat: evening message, catch-up link, reason, stopped | T-44, T-45 |
+| [P1-listen.md](P1-listen.md) | Listen: greeting, disclosure, lesson | T-15 |
+| [P2-activity.md](P2-activity.md) | Activity at home + textbook page | T-15 |
+| [P3-answer.md](P3-answer.md) | Picture answer (scored by code) | T-15 |
+| [P4-done.md](P4-done.md) | Done; stop / restart messages (defined here) | T-15 |
 
 Reference: tokens and usage rules in [`tokens.md`](tokens.md); copy rules in `spec.md` §3.3–3.4; screens and states in `spec.md` §3.1.
 
