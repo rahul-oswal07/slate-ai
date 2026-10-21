@@ -145,6 +145,11 @@ AI output (A1, not locale keys): `summaryKn`, e.g. "ಬ್ಲಾಕ್ ಮತ್
 - [ ] Focus moves to the screen title on arrival; never dropped to `<body>` (A-04)
 
 Open items:
+
+**Resolved 22 Oct:**
+- English view: A1 returns summaryKn and summaryEn in the same call; the English view shows summaryEn (D-56).
+
+**Still open:**
 - Resolved (D-33): 2–3 matched lessons are shown as a ticked checklist and confirmed together.
 - Add mode: a tap toggles a lesson on or off and the sheet stays open; "Done" closes it (resolved 21 Oct in the prototype).
 - Cap: at 3 ticked lessons the other rows are disabled and the sheet says "Up to 3 lessons" (FR-03) (resolved 21 Oct in the prototype).
