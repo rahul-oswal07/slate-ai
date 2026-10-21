@@ -37,7 +37,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## Next session (Day 4, Thu 22 Oct)
 
 - Merge T-47 (sign-in + Welcome); set `Demo__TeacherPin` on staging before the deploy, or the demo teacher can't sign in.
-- Next screen: **T1 Today** (T-12) against `docs/design/T1-today.md`. Needs first: D-27 attendance source + provenance fields (`source`, `receivedAt`, `correctedAt`); Monika's answers on the T1 open items ("Since yesterday" window, manual marking before 10:00, no-absentees copy).
+- Next screen: **T1 Today** (T-12) against `docs/design/T1-today.md`. Needs first: D-27 attendance source + provenance fields (`source`, `receivedAt`, `correctedAt`); Monika's answers on the T1 open items: **answered 22 Oct** — "Since yesterday" = since she last opened Today, at least the previous school day (D-53); attendance sync 12:00 + 2:00 pm retry, manual marking any time (D-45); nobody absent → "Everyone is here today." / "No messages tonight." (D-54).
 - Then T2 Lesson confirm = T-07 PR 2 (capture endpoints, A1 prompt + validator returning 1–3 lessons per D-33, name scrubber, 10 evals).
 - Monika: D-40 login screen UX/copy review; te/ta strings for login and Welcome are drafts.
 - Use plan mode first; one branch per task.
@@ -85,3 +85,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
 | 21 Oct | Monika + Claude | D-32: English is the default locale for development and design references; prototype opens in English. Screenshots kept as captured (Kannada/Telugu with English captions) |
 | 21 Oct | Monika + Claude | Closed the open design gaps (D-33–D-39): multi-lesson checklist confirm, mic blocked + sending, tag colours (tokens.md), no evening-message listens, Withdraw until 6 pm, Sent / Generation failed / offline states, parent opt-in on new T8 Families screen. Prototype checked against every spec §3.1 state (83 states, axe 0 violations); FR-03/08/15 and §3.1 updated; cards updated, T8 card added |
+| 22 Oct | Monika + Claude | Decisions D-41–D-54 (setup, phone/consent/language on Family details, voice consent version, 12:00 attendance sync, no "Tomorrow", no names in computer voice, Settings, greeting per language, T1 answers). Spec FR-01/09/15/20 + data model (`TeacherGreeting`, `Child` consent/phone/language) updated. Prototype + cards follow in the next design PR |
