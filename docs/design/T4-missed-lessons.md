@@ -1,9 +1,9 @@
 # T4 Missed lessons (ledger, by child, by lesson, child history, delete)
 
 Spec: FR-05, FR-11, FR-15, FR-19 (status), FR-21 (reason, teacher only) · Tier: MVP · Task: T-13 (screen), T-06 (ledger query), T-19 (consent + delete), T-15 (status updates) · Prototype: prototype/index.html (step 10; step 13 for "stopped") · PNG: screenshots/T4-missed-by-child-360-light.png
-Decisions: D-19, D-20, D-27, D-30, D-17
+Decisions: D-19, D-20, D-27, D-30, D-17, D-35 (Missed lesson tag uses stopped colours), D-36 (no "evening message listened" in the history), D-39 (link to Families and consent)
 
-Nav tab "Missed". Segmented control: By child / By lesson. Tapping a child opens child history, which holds the "Child’s data" delete action.
+Nav tab "Missed". Segmented control: By child / By lesson. Tapping a child opens child history, which holds the "Child’s data" delete action. A ghost button "Families and consent" at the bottom of the list opens [T8](T8-families.md); the Missed tab stays active there (D-39).
 
 ## 1. User voice
 
@@ -12,7 +12,7 @@ Nav tab "Missed". Segmented control: By child / By lesson. Tapping a child opens
 
 ## 2. Who does what
 
-- Human: switches view, filters, opens a child, reads the week's history, deletes a child's data on request.
+- Human: switches view, filters, opens a child, reads the week's history, deletes a child's data on request, opens Families and consent.
 - AI: none. The footer says so ("No AI in this"). Mode: none.
 - Code (no AI): ledger query = attendance × confirmed lessons × assignments × check responses × channel; per child × lesson learning status (Missed lesson → Sent → Listened → Caught up / Needs buddy); per child channel status (No phone · buddy card, Stopped by family), a separate field (B-08); "days away"; counts "N of 36 children missed it"; status counts per lesson; offline snapshot with its time; delete cascade.
 
@@ -30,12 +30,12 @@ Nav tab "Missed". Segmented control: By child / By lesson. Tapping a child opens
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| By child (`default`) | Segmented control (By child pressed); filter chips "Absent this week · 7" / "Everyone · 36"; list rows: roll, name, "2 days away", "Missed: …", learning tag + channel tag, chevron; footer. ![](screenshots/T4-missed-by-child-360-light.png) Dark: ![](screenshots/T4-missed-by-child-360-dark.png) | "Filled automatically from attendance × your lesson records. No AI in this." |
+| By child (`default`) | Segmented control (By child pressed); filter chips "Absent this week · 7" / "Everyone · 36"; list rows: roll, name, "2 days away", "Missed: …", learning tag + channel tag, chevron; footer; ghost "Families and consent" (users icon, D-39). ![](screenshots/T4-missed-by-child-360-light.png) Dark: ![](screenshots/T4-missed-by-child-360-dark.png) | "Filled automatically from attendance × your lesson records. No AI in this." |
 | By lesson (`lesson`) | One card per lesson this week (newest first): date · page, lesson name, "4 of 36 children missed it", status-count tags; expander (chevron, `aria-expanded`) lists children with tags; "Move on or recap? See the week". ![](screenshots/T4-missed-by-lesson-360-light.png) | "4 of 36 children missed it" |
 | Everyone filter | All 36 children; rows with no missed lesson show "No missed lessons this week" | "No missed lessons this week" |
 | Empty, first week (`empty`) | Large list icon, heading, explanation, ghost "Go to Today". ![](screenshots/T4-missed-empty-360-light.png) | "No missed lessons yet" |
 | Offline (`offline`) | Warning banner with snapshot time above the list; Wi-Fi-off in status bar. ![](screenshots/T4-missed-offline-360-light.png) | "No network. Showing the saved list (today 9:12). It updates when the network returns." |
-| Child history (`child` · `default`) | App bar: child's name as title, Back. "Roll 12 · home language: Telugu", tags, "This week" timeline (`<ol>`, day on every event), "Child’s data" section with outlined Delete. ![](screenshots/T4-child-history-360-light.png) | "This week" |
+| Child history (`child` · `default`) | App bar: child's name as title, Back. "Roll 12 · home language: Telugu", tags, "This week" timeline (`<ol>`, day on every event: away and missed lesson, reason, back with homework, catch-up sent, family listened (the catch-up), picture question, stopped; no evening-message event, D-36), "Child’s data" section with outlined Delete. ![](screenshots/T4-child-history-360-light.png) | "This week" |
 | Delete: confirm (`child` · `delete`) | Modal sheet: title, 4 consequence bullets, primary "Keep" (focused), outlined "Delete". ![](screenshots/T4-child-delete-confirm-360-light.png) | "Delete Ravi’s data?" |
 | Deleted | Back to the list; child removed; counts update; announcement | "Deleted: name, answers and audio" |
 | Delete offline | Delete queued; happens when the network returns (copy in the dialog) | "This can’t be undone. If offline, it happens when the network returns." |
@@ -68,6 +68,7 @@ kn and en from the prototype. te "—" (teacher UI). Reviewed by: needs review (
 | `ledger.lesson.statusCount` | {n} {status} | — | needs translation | {n} {status} | needs review |
 | `ledger.toWeek` | ಮುಂದುವರಿಯಬೇಕೆ, ಪುನರಾವರ್ತಿಸಬೇಕೆ? ವಾರ ನೋಡಿ | — | needs translation | Move on or recap? See the week | needs review |
 | `ledger.footer` | ಹಾಜರಾತಿ × ನಿಮ್ಮ ಪಾಠ ದಾಖಲೆಯಿಂದ ತಾನೇ ತುಂಬುತ್ತದೆ. ಇದರಲ್ಲಿ AI ಇಲ್ಲ. | — | needs translation | Filled automatically from attendance × your lesson records. No AI in this. | needs review |
+| `ledger.families` | ಕುಟುಂಬಗಳು ಮತ್ತು ಒಪ್ಪಿಗೆ | — | needs translation | Families and consent | needs review |
 | `status.missed` | ಪಾಠ ತಪ್ಪಿದೆ | — | needs translation | Missed lesson | needs review |
 | `status.sent` | ಕಳುಹಿಸಲಾಗಿದೆ | — | needs translation | Sent | needs review |
 | `status.listened` | ಕೇಳಿದ್ದಾರೆ | — | needs translation | Listened | needs review |
@@ -80,7 +81,6 @@ kn and en from the prototype. te "—" (teacher UI). Reviewed by: needs review (
 | `language.te` / `.kn` / `.ta` | ತೆಲುಗು / ಕನ್ನಡ / ತಮಿಳು | — | needs translation | Telugu / Kannada / Tamil | needs review |
 | `child.thisWeek` | ಈ ವಾರ | — | needs translation | This week | needs review |
 | `child.event.away` | ಗೈರು · ತಪ್ಪಿದ ಪಾಠ: {lesson} | — | needs translation | away · missed: {lesson} | needs review |
-| `child.event.eveningListened` | ಸಂಜೆಯ ಸಂದೇಶ ಕೇಳಿದ್ದಾರೆ | — | needs translation | evening message listened | needs review |
 | `child.event.reason` | ಕಾರಣ (ಪೋಷಕರು ತಿಳಿಸಿದ್ದು): {reason} | — | needs translation | reason (from the parent): {reason} | needs review |
 | `child.event.backHomework` | ಮರಳಿದ · ಮನೆಕೆಲಸ ತಂದಿದ್ದಾರೆ | — | needs translation | back · brought homework | needs review |
 | `child.event.catchupSent` | ಪುನರಾವರ್ತನೆ ಕಳುಹಿಸಲಾಗಿದೆ ({language}) | — | needs translation | catch-up sent ({language}) | needs review |
@@ -108,7 +108,8 @@ Reason words reuse `reason.*` (see T1). Lesson names, pages and dates come from 
 - Page `bg-canvas`; list `bg-surface border border-border rounded-md`, rows `min-h-[56px]` with `border-b border-divider`; lesson cards `bg-surface border border-border rounded-md`.
 - Segmented control: 2 columns, `min-h-target`, `border border-border rounded-md`; pressed `bg-primary text-on-primary`, `aria-pressed` (B-16, B-17).
 - Filter chips `min-h-target rounded-sm border border-border text-label`; pressed `bg-primary text-on-primary`.
-- Status tags (`rounded-sm`, `text-label` ≥ 14 px, icon 16 px, wrap): `text-status-sent bg-status-sent-bg` + `send`; `text-status-listened bg-status-listened-bg` + `headphones`; `text-status-caught-up bg-status-caught-up-bg` + `circle-check`; `text-status-needs-buddy bg-status-needs-buddy-bg` + `users`; `text-status-no-phone bg-status-no-phone-bg` + `smartphone-off`; `text-status-stopped bg-status-stopped-bg` + `bell-off`; "Missed lesson" uses stopped colours + `calendar-x` (no own token yet).
+- Status tags (`rounded-sm`, `text-label` ≥ 14 px, icon 16 px, wrap): `text-status-sent bg-status-sent-bg` + `send`; `text-status-listened bg-status-listened-bg` + `headphones`; `text-status-caught-up bg-status-caught-up-bg` + `circle-check`; `text-status-needs-buddy bg-status-needs-buddy-bg` + `users`; `text-status-no-phone bg-status-no-phone-bg` + `smartphone-off`; `text-status-stopped bg-status-stopped-bg` + `bell-off`; "Missed lesson" uses the stopped colours + `calendar-x`, told apart from "Stopped by family" by icon and word (D-35, tokens.md).
+- "Families and consent": ghost button `min-h-target w-full border-border bg-surface` with `users` icon, below the footer.
 - Type: title `text-title`; names `text-label`; meta `text-caption text-ink-muted`; lesson name 17 px in prototype → `text-body-lg`; section heading `text-caption` bold `text-ink-muted`.
 - Timeline: `<ol>` with 2 px `border-divider` rail, 10 px dots `border-border`; day `font-bold`.
 - Delete button `min-h-target w-full border-2 border-error text-error bg-surface`; in the sheet Keep is `min-h-target-primary bg-primary text-on-primary`, Delete is the outlined error button below with 8 px gap.
@@ -133,6 +134,9 @@ Reason words reuse `reason.*` (see T1). Lesson names, pages and dates come from 
 - [ ] Offline: shows cached snapshot with its time; banner says what is safe (B-25, NFR-02)
 - [ ] Child history: child's name is the app-bar heading; every event has a day; timeline is an `<ol>` (B-27)
 - [ ] Reason shown as category with "from the parent"; only on teacher screens (FR-21)
+- [ ] Child history has no evening-message event; "family listened" means the catch-up played to the end (D-36, D-20)
+- [ ] "Families and consent" opens T8 with the Missed tab still `aria-current="page"` (D-39)
+- [ ] The channel tag (No phone · buddy card) comes from the consent recorded on T8, so a change there shows here (D-39)
 - [ ] Delete sits in a "Child’s data" section, not under the thumb (B-24)
 - [ ] Delete dialog: `role="dialog"`, `aria-modal`, labelled by title; focus starts on Keep; trapped; Esc and scrim close; focus returns to the Delete button (B-07)
 - [ ] `DELETE /api/children/{id}` with `clientRequestId`, idempotent; queued offline and replayed; removes child, responses, assignments, reasons, buddy cards and audio; cancels unsent messages (FR-15, T-19, Db suite test)
@@ -140,10 +144,10 @@ Reason words reuse `reason.*` (see T1). Lesson names, pages and dates come from 
 - [ ] Ledger visible only to the authenticated teacher; no export endpoint (spec §7)
 
 Open items:
-- Status words differ from spec and tokens: prototype "Stopped by family" vs FR-05/D-19/tokens.md "Stopped by family". Prototype "Missed lesson" has no status token. Choose the words and add a `missed` token.
+- Resolved (D-35): "Missed lesson" reuses the stopped colours with its own icon and word; tokens.md is being updated.
 - FR-05 lists one status per child mixing learning and channel; B-08 and the prototype separate them and add "Listened" and "No phone". Update FR-05.
 - The prototype's by-lesson view still counts each child's latest status, not child × lesson (B-08 only half applied). Build per child × lesson as specified above.
 - Spec §3.1 asks for "Last updated …" offline copy; prototype uses "Showing the saved list (today 9:12)". Prototype copy chosen here.
-- `child.event.eveningListened` needs a listened timestamp on `EveningMessage`; spec §4.3 has `SentAt` only. Confirm it doesn't conflict with "never count message opens" (D-20).
+- The channel tag comes from T8: No phone → "No phone · buddy card", No → "No consent", family stopped → "Stopped by family" (resolved 21 Oct in the prototype).
 - `child.event.backHomework` kn ತಂದಿದ್ದಾನೆ is masculine; needs a neutral form.
 - Error state for an online ledger fetch failure is not designed.

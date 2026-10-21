@@ -29,8 +29,8 @@ Decisions: D-20 (return speed is the primary measure), D-23 (reason categories o
 |---|---|---|
 | Nudge (default) | Date range; return-speed card with headline "10 of 12", sentence with last week, bars per length with "this week" / "last week" numbers, hidden table; reasons card with counts; pacing panel with AI label, "Plan recap" / "Not this week"; footer. `screenshots/T6-week-nudge-360-light.png`, dark: `screenshots/T6-week-nudge-360-dark.png` | "How quickly children came back" · "10 of 12" · "absent children were back within 2 school days. Last week: 9 of 13." · "6 of 36 children missed subtraction with borrowing. Recap 10 minutes before word problems." |
 | No nudge this week | Return speed and reasons as above; pacing panel replaced by an on-track card; footer without the AI sentence. `screenshots/T6-week-no-nudge-360-light.png` | "Most children are on track. No recap needed this week." · "Numbers are counted from attendance." |
-| Decided: recap planned | Success banner with Change. No PNG exported | "We’ll remind you on Monday morning." · "Change" |
-| Decided: skipped | Success banner with Change. No PNG exported | "OK. Skipped this week." · "Change" |
+| Decided: recap planned (`decided`) | Success banner with Change replaces the two buttons. State chip "Decided (recap planned)" in the prototype. No PNG exported | "We’ll remind you on Monday morning." · "Change" |
+| Decided: skipped | Success banner with Change. Reached by tapping "Not this week"; no state chip of its own. No PNG exported | "OK. Skipped this week." · "Change" |
 | Empty (first week, no absences) | Not designed. Needs "No absences this week" and no last-week comparison | Open item |
 | Loading | Not designed. Skeleton cards | — |
 | Offline | Not designed. Recommend last cached week with "Last updated …" (as T4) | Open item |
@@ -92,7 +92,7 @@ The nudge sentence shown is A5 output (`PacingNudge.TextKn`) with code-filled sl
 - [ ] Reason counts + "Not given" = number of absent children in the week. xUnit.
 - [ ] Reasons show categories only; no names, no transcripts (FR-21, D-23).
 - [ ] Pacing numbers come from the ledger by code (FR-13); test "nudge numbers = ledger" (T-16). The A5 response cannot change `{n}`, `{total}`, `{minutes}`; a response with other digits is rejected → fallback sentence.
-- [ ] "Plan recap" stores the decision and schedules the Monday reminder; "Change" reopens the choice (B-30). Write accepts `clientRequestId`.
+- [ ] "Plan recap" stores the decision and schedules the Monday reminder; the "Decided (recap planned)" banner replaces the buttons; "Change" reopens the choice (B-30). Write accepts `clientRequestId`.
 - [ ] Last week shown as numbers and side-by-side bars; screen reader reads the table (B-06).
 - [ ] Date range shown ("19–23 October") (B-30).
 - [ ] No route, export or API exposes this card outside the teacher's session (FR-22).

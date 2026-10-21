@@ -1,9 +1,9 @@
 # T0 Set up
 
 Spec: FR-09 (greeting), FR-15 (consent), FR-20 (evening template), FR-02 (mic gesture) · Tier: MVP · Task: T-44, T-19, T-11 · Prototype: prototype/index.html (step 1) · PNG: screenshots/T0-setup-greeting-360-light.png
-Decisions: D-21, D-27, D-29, D-31, D-04, D-17
+Decisions: D-21, D-27, D-29, D-31, D-04, D-17, D-34 (mic permission denied), D-38 (offline, greeting deleted), D-39 (family consent on T8)
 
-Four steps, once: Welcome → Step 1 of 2 greeting + voice consent → Step 2 of 2 evening-message template → All set. No bottom nav until set-up is done.
+Four steps, once: Welcome → Step 1 of 2 greeting + voice consent → Step 2 of 2 evening-message template → All set. No bottom nav until set-up is done. "All set" links to [T8 Families and consent](T8-families.md) ("Review families"), where she records each family's paper consent form (D-39).
 
 ## 1. User voice
 
@@ -12,18 +12,18 @@ Four steps, once: Welcome → Step 1 of 2 greeting + voice consent → Step 2 of
 
 ## 2. Who does what
 
-- Human: Lakshmi records a ≤ 10 s greeting, plays it back, re-records if needed, ticks voice consent, listens to the Telugu sample and approves the evening template (or "Not now").
+- Human: Lakshmi records a ≤ 10 s greeting, plays it back, re-records or deletes it if needed, ticks voice consent, listens to the Telugu sample and approves the evening template (or "Not now"). If the microphone is blocked she can continue without a greeting and record it later (D-34). On "All set" she can open T8 to review the families' consent (D-39).
 - AI: none. The template is fixed text with slots filled by code (D-21, FR-20: "No AI writing"). Mode: none.
-- Code (no AI): mic state machine and 10 s auto-stop; stores `Teacher.GreetingAudioUrl` and `Teacher.ConsentAt`; stores `MessageTemplate.Status = Approved`, `ApprovedAt`, `ApprovedByTeacherId`; renders the filled example from the seed (Ravi, Tuesday) and the Telugu sample from pre-synthesised segments; counts families opted in and families with no phone (`Child.ParentConsentAt`, `Child.HasPhone`).
+- Code (no AI): mic state machine and 10 s auto-stop; stores `Teacher.GreetingAudioUrl` and `Teacher.ConsentAt`; stores `MessageTemplate.Status = Approved`, `ApprovedAt`, `ApprovedByTeacherId`; renders the filled example from the seed (Ravi, Tuesday) and the Telugu sample from pre-synthesised segments; counts families marked Yes and families marked No phone from the consent recorded on T8 (D-39); keeps the greeting on the phone and uploads it later when offline (D-38).
 
 ## 3. Always / never
 
 - Always: show the template as a filled example with marked slots, not `{child}` syntax (A-20). Let her hear the parent-language version before approving (A-21). Say plainly that nothing reaches a parent until she approves.
 - Always: allow "Not now". With no approved template, no evening message is sent (FR-20: send endpoint 409).
 - Never: send the greeting audio or the teacher's name to Claude or Sarvam (guardrail 1). Name the buddy in the template (D-29: "a classmate is keeping Ravi’s seat"). Promise anything about officers (A-29).
-- Never: let "Save and continue" pass without a recorded greeting and the consent tick; say what is missing instead of disabling silently (A-19).
+- Never: let "Save and continue" pass without a recorded greeting and the consent tick, except when the mic is blocked or she deleted the greeting (then she continues without a greeting and no tick is needed, D-34); say what is missing instead of disabling silently (A-19).
 - Uncertainty: none (no AI on this screen). A recording under 1 s is not saved (same rule as T1).
-- If it goes wrong: a bad greeting reaches every family → she can play it back and "Record again" before saving, and delete it later (consent text: "I can delete it any time"). An unapproved template → no evening messages, never a silent default.
+- If it goes wrong: a bad greeting reaches every family → she can play it back, "Record again" or "Delete" before saving (consent text: "I can delete it any time"). After a delete, messages go without her voice until she records a new one, and the banner says so (D-38). An unapproved template → no evening messages, never a silent default.
 
 ## 4. States
 
@@ -32,14 +32,14 @@ Four steps, once: Welcome → Step 1 of 2 greeting + voice consent → Step 2 of
 | Welcome (`0`) | Book icon, greeting, 3 promise cards (SATS, approval, privacy), sticky Start. No Back. ![](screenshots/T0-setup-welcome-360-light.png) | "Namaskara, Lakshmi ma’am" · "Start" |
 | Greeting (`1`) | "Step 1 of 2", suggested words in a panel, 96 px mic, consent checkbox, sticky "Save and continue". Back visible. ![](screenshots/T0-setup-greeting-360-light.png) Dark: ![](screenshots/T0-setup-greeting-360-dark.png) | "A 10-second greeting in your voice" |
 | Recording (`1rec`) | Mic turns error-red with pulse and a stop square; waveform; timer "0:04 / 0:10"; hint. ![](screenshots/T0-setup-recording-360-light.png) | "Tap again when you finish" |
-| Recorded (`1done`) | Player card (play, progress bar, 0:09) with "Record again"; consent ticked. No PNG | "Record again" |
+| Recorded (`1done`) | Player card (play, progress bar, 0:09) with two ghost buttons, "Record again" and "Delete" (trash icon); consent ticked. No PNG | "Record again" · "Delete" |
+| Offline (`1off`) | Warning banner (cloud-off icon) above "Step 1 of 2"; the recorded greeting card stays usable; "Save and continue" still works (D-38). No PNG | "No network. Your greeting is saved on the phone and will upload later." |
+| Greeting deleted (`1del`) | After "Delete" on the recorded greeting: banner (trash icon, `role="status"`) above the mic; mic and idle hint return; polite announcement (D-38). No PNG | "Greeting deleted. Messages go without your voice until you record a new one." |
+| Mic permission denied (`1deny`) | No mic button. Card with a warning-coloured alert icon, the text and a text button "Open settings". Consent row and "Save and continue" stay; she can continue without a greeting (D-34). No PNG | "The microphone is off for this app. Turn it on in Settings. You can continue without a greeting and record it later." · "Open settings" |
 | Missing step (`1err`) | Error hint above the sticky button, `role="alert"`. ![](screenshots/T0-setup-missing-step-360-light.png) | "Record your greeting first." / "Tick the box to agree." |
 | Evening message (`2`) | "Step 2 of 2", filled example with underlined slots, "Your greeting" chip, "Listen to the Telugu version", sticky "Approve this message" + "Not now". ![](screenshots/T0-setup-evening-message-360-light.png) | "Approve this message" |
-| All set (`3`) | Large check, family counts, "Go to Today". No Back (A-30). ![](screenshots/T0-setup-all-set-360-light.png) | "All set" |
+| All set (`3`) | Large check, family counts from the T8 consent data, text button "Review families" (opens T8), primary "Go to Today". No Back (A-30, D-39). ![](screenshots/T0-setup-all-set-360-light.png) | "All set" |
 | Recording cancelled | Call, gesture cancel (`pointercancel`) or app switch stops recording; nothing saved; polite announcement | "Recording stopped. Nothing was sent." |
-| Mic permission denied | Not in prototype (spec §3.1 lists it). Proposed: error banner, mic disabled | Proposed: "Can’t use the microphone. Nothing was recorded. Allow the microphone in phone settings, then try again." (needs Monika) |
-| Greeting deleted | Not in prototype (spec §3.1 lists it). Returns to the Greeting state | none designed; see Open items |
-| Offline | Not designed. Greeting and approval need to reach the server once | none designed; see Open items |
 | Loading / Empty | none: content is static; counts come with the seed | — |
 
 ## 5. Copy
@@ -68,12 +68,18 @@ kn and en from the prototype. te "—" for teacher-only strings. Reviewed by: ne
 | `mic.timer` | 0:{ss} / 0:{limit} | — | 0:{ss} / 0:{limit} | 0:{ss} / 0:{limit} | needs review |
 | `setup.greeting.play` (aria-label) | ನಿಮ್ಮ ಶುಭಾಶಯ ಕೇಳಿ | — | needs translation | Play your greeting | needs review |
 | `setup.greeting.again` | ಮತ್ತೆ ದಾಖಲಿಸಿ | — | needs translation | Record again | needs review |
+| `setup.greeting.delete` | ಅಳಿಸಿ | — | needs translation | Delete | needs review |
+| `setup.greeting.deleted` | ಶುಭಾಶಯ ಅಳಿಸಲಾಗಿದೆ. ಹೊಸದನ್ನು ದಾಖಲಿಸುವವರೆಗೆ ಸಂದೇಶಗಳು ನಿಮ್ಮ ಧ್ವನಿ ಇಲ್ಲದೆ ಹೋಗುತ್ತವೆ. | — | needs translation | Greeting deleted. Messages go without your voice until you record a new one. | needs review |
+| `setup.greeting.offline` | ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನಿಮ್ಮ ಶುಭಾಶಯ ಫೋನಿನಲ್ಲಿ ಉಳಿದಿದೆ, ನಂತರ ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತದೆ. | — | needs translation | No network. Your greeting is saved on the phone and will upload later. | needs review |
+| `setup.greeting.micDenied` | ಈ ಆಪ್‌ಗೆ ಮೈಕ್ರೊಫೋನ್ ಆಫ್ ಆಗಿದೆ. ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಆನ್ ಮಾಡಿ. ಶುಭಾಶಯ ಇಲ್ಲದೆಯೂ ಮುಂದುವರಿಯಬಹುದು; ನಂತರ ದಾಖಲಿಸಿ. | — | needs translation | The microphone is off for this app. Turn it on in Settings. You can continue without a greeting and record it later. | needs review |
+| `mic.openSettings` | ಸೆಟ್ಟಿಂಗ್ಸ್ ತೆರೆಯಿರಿ | — | needs translation | Open settings | needs review |
 | `setup.consent.voice` | ನನ್ನ ಧ್ವನಿಯನ್ನು ಪೋಷಕರಿಗೆ ಕಳುಹಿಸುವ ಸಂದೇಶಗಳಲ್ಲಿ ಮಾತ್ರ ಬಳಸಲು ಒಪ್ಪುತ್ತೇನೆ. ಯಾವಾಗ ಬೇಕಾದರೂ ಅಳಿಸಬಹುದು. | — | needs translation | I agree my voice is used only in messages to parents. I can delete it any time. | needs review |
 | `setup.error.noGreeting` | ಮೊದಲು ಶುಭಾಶಯ ದಾಖಲಿಸಿ. | — | needs translation | Record your greeting first. | needs review |
 | `setup.error.noConsent` | ಒಪ್ಪಿಗೆಗೆ ಗುರುತು ಹಾಕಿ. | — | needs translation | Tick the box to agree. | needs review |
 | `setup.greeting.save` | ಉಳಿಸಿ, ಮುಂದೆ | — | needs translation | Save and continue | needs review |
 | `announce.recording` | ದಾಖಲಿಸುತ್ತಿದೆ | — | needs translation | Recording | needs review |
 | `announce.greetingSaved` | ಶುಭಾಶಯ ಉಳಿಸಲಾಗಿದೆ | — | needs translation | Greeting saved | needs review |
+| `announce.greetingDeleted` | ಶುಭಾಶಯ ಅಳಿಸಲಾಗಿದೆ | — | needs translation | Greeting deleted | needs review |
 | `announce.recCancelled` | ದಾಖಲಿಸುವುದು ನಿಂತಿತು. ಏನೂ ಕಳುಹಿಸಿಲ್ಲ. | — | needs translation | Recording stopped. Nothing was sent. | needs review |
 | `setup.step2.progress` | ಹಂತ 2 / 2 | — | needs translation | Step 2 of 2 | needs review |
 | `setup.template.heading` | ಗೈರಾದ ದಿನದ ಸಂಜೆಯ ಸಂದೇಶ | — | needs translation | The evening message on a day of absence | needs review |
@@ -85,7 +91,8 @@ kn and en from the prototype. te "—" for teacher-only strings. Reviewed by: ne
 | `setup.template.approve` | ಈ ಸಂದೇಶ ಒಪ್ಪಿ | — | needs translation | Approve this message | needs review |
 | `setup.template.notNow` | ಈಗ ಬೇಡ · ನಂತರ ಬದಲಿಸಬಹುದು | — | needs translation | Not now · you can change it later | needs review |
 | `setup.done.heading` | ಸಿದ್ಧ | — | needs translation | All set | needs review |
-| `setup.done.summary` | {total} ರಲ್ಲಿ {agreed} ಕುಟುಂಬಗಳು ಸಂದೇಶಗಳಿಗೆ ಒಪ್ಪಿವೆ. {noPhone} ಕುಟುಂಬಗಳಿಗೆ ಫೋನ್ ಇಲ್ಲ: ಅವರ ಮಕ್ಕಳಿಗೆ ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್. | — | needs translation | {agreed} of {total} families agreed to messages. {noPhone} families have no phone: their children get a buddy card on return. | needs review |
+| `setup.done.summary` | {total} ರಲ್ಲಿ {agreed} ಕುಟುಂಬಗಳು ಸಂದೇಶಗಳಿಗೆ ಒಪ್ಪಿವೆ (ಕಾಗದದ ಒಪ್ಪಿಗೆ ಪತ್ರ). {noPhone} ಕುಟುಂಬಗಳಿಗೆ ಫೋನ್ ಇಲ್ಲ: ಅವರ ಮಕ್ಕಳಿಗೆ ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್. | — | needs translation | {agreed} of {total} families agreed to messages (paper consent form). {noPhone} families have no phone: their children get a buddy card on return. | needs review |
+| `setup.done.reviewFamilies` | ಕುಟುಂಬಗಳನ್ನು ನೋಡಿ | — | needs translation | Review families | needs review |
 | `setup.done.goToday` | ಇಂದು ಗೆ ಹೋಗಿ | — | needs translation | Go to Today | needs review |
 
 Slot values (lesson names, pages) come from `data/curriculum/*.json` (`NameKn`, `NameEn`, `TextbookPage`), not from locale files.
@@ -95,14 +102,15 @@ Slot values (lesson names, pages) come from `data/curriculum/*.json` (`NameKn`, 
 - Page `bg-canvas`; cards `bg-surface border border-border rounded-md`; suggestion card `bg-panel border border-border` with `text-primary-strong` (rule 1: no `primary` text on `panel`).
 - Screen title `text-title`; headings `text-title`; body `text-body`; hints and English captions `text-caption text-ink-muted` (never below 14 px Latin / 16 px Indic).
 - Mic `size-target-mic rounded-full bg-primary text-on-primary`; recording `bg-error text-on-error` with pulse, off under `prefers-reduced-motion`.
-- Primary button `min-h-target-primary w-full bg-primary text-on-primary rounded-md` in a sticky footer; "Record again", "Listen to the Telugu version" `min-h-target` ghost (`border-border bg-surface`); "Not now" text button `text-primary-strong min-h-target`.
+- Primary button `min-h-target-primary w-full bg-primary text-on-primary rounded-md` in a sticky footer; "Record again", "Delete" (trash icon) and "Listen to the Telugu version" `min-h-target` ghost (`border-border bg-surface`), 8 px apart; "Not now", "Open settings" and "Review families" text buttons `text-primary-strong min-h-target`.
+- Offline and greeting-deleted banners `bg-surface border border-border border-l-4 border-l-warning`, icon (cloud-off / trash) 18 px, text `text-ink`, `role="status"`. Mic-denied card: alert icon `text-warning`, text `text-ink` (rule 2).
 - Error hint `text-error text-caption`, `role="alert"`. Consent row ≥ 48 px, checkbox 24 px with `accent-color: primary`.
 - Slots in the example: underline + `bg-status-needs-buddy-bg text-status-needs-buddy` (prototype `.slot`); meaning is also carried by the underline, not colour alone.
 - Focus ring: global 3 px `focus` with 2 px offset.
 
 ## 7. Acceptance checklist
 
-- [ ] Every state above is built and reachable (7 TSTATES + cancelled + permission denied)
+- [ ] Every state above is built and reachable (10 prototype states + recording cancelled)
 - [ ] One primary action per step; works with one thumb at 360 px; primary button sticky and never hidden by the keyboard (A-19, A-29)
 - [ ] Status shown as icon + word, never colour alone
 - [ ] Targets ≥ 48 px; 8 px apart; mic 96 px
@@ -118,13 +126,18 @@ Slot values (lesson names, pages) come from `data/curriculum/*.json` (`NameKn`, 
 - [ ] `POST …/message-template/approve` records `ApprovedAt` and `ApprovedByTeacherId`, accepts `clientRequestId` and is idempotent
 - [ ] Greeting upload and consent write accept `clientRequestId`; replays create one greeting
 - [ ] Greeting audio and the teacher's name are never sent to Claude; `{teacher}` placeholder only (guardrail 1, NFR-05)
-- [ ] Family counts on "All set" are computed in code from `Child` rows (guardrail 4)
+- [ ] Family counts on "All set" are computed in code from the consent recorded on T8 (Yes count, No phone count) (guardrail 4, D-39)
+- [ ] "Review families" opens T8 Families and consent (D-39)
+- [ ] "Delete" on the recorded greeting removes it on the phone and the server, shows the greeting-deleted banner, brings back the mic and announces "Greeting deleted" (D-38)
+- [ ] Offline: a recorded greeting stays in the Dexie outbox with `clientRequestId`; the banner says it will upload later; "Save and continue" still moves on; replay creates one greeting (D-38, NFR-02)
+- [ ] Mic permission denied (`NotAllowedError`): no mic button; the warning text and "Open settings" show; "Save and continue" passes without a greeting (D-34)
 - [ ] Back hidden on Welcome and on All set; focus moves to the step heading on each step change (A-30, A-04)
 
 Open items:
-- Mic permission denied, greeting deleted and offline states are not in the prototype; copy above is a proposal for Monika.
+- Mic permission denied: no greeting, so no voice-consent tick is needed; "Save and continue" passes (resolved 21 Oct in the prototype).
+- Greeting deleted during setup: setup can finish without a greeting; messages go without her voice until she records one (resolved 21 Oct in the prototype).
 - Template wording differs between T0 en ("In class we learned subtraction with borrowing") and the P0 bubble en ("In class today: subtraction by taking a ten"); kn "ಹೇಳಿಕೆ ಲೆಕ್ಕಗಳು" differs from the curriculum name "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ)". Decide whether `{lesson}`/`{tomorrow}` use the curriculum name or a parent-friendly name field.
 - te template is gendered (గుర్తొచ్చాడు, masculine; కాపాడుతోంది, feminine classmate). Fixed text with a `{child}` slot needs a gender-neutral form or a per-child variant.
 - `MessageTemplate` in spec §4.3 still lists a `{buddy}` slot; D-29 removed the buddy's name. Update the data model.
-- Where is the per-family opt-in recorded (FR-15, T-19)? "All set" shows counts but no screen captures parent consent.
+- Resolved (D-39): per-family opt-in is recorded on [T8 Families and consent](T8-families.md); the "All set" counts come from it.
 - Where can she re-open the template or delete the greeting later ("you can change it later")? No settings screen is designed.

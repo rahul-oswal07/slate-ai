@@ -28,7 +28,7 @@ Decisions: D-07 (pictures are the answer; the numeral shows only after the tap; 
 | State | What the user sees | Copy (en) |
 |---|---|---|
 | Default | Header "Question" with Back; step dots 3 of 4; prompt + replay; "43 − 18 = ?"; three full-width picture tiles (bundles + loose sticks, no numerals); sticky hint; stop link. `screenshots/P3-answer-default-360-light.png`, Telugu only: `screenshots/P3-answer-telugu-only-360-light.png` | "Ravi, tap the right picture" · "Tap one picture" |
-| Chosen | Picked tile: thick primary border, panel fill, numeral on the right; sticky "This one, send" + change hint. `screenshots/P3-answer-chosen-360-light.png` | "This one, send" · "To change, tap another picture" |
+| Chosen (`chosen`) | Picked tile: thick primary border, panel fill, numeral on the right; sticky "This one, send" + hint. Tapping another picture changes the choice; there is no separate Change button. `screenshots/P3-answer-chosen-360-light.png` | "This one, send" · "To change, tap another picture" |
 | Sending | Button "Sending…", button and tiles disabled. `screenshots/P3-answer-sending-360-light.png` | "Sending…" |
 | Could not send | Error banner (assertive); button "Try again"; tapping another picture is allowed again. `screenshots/P3-answer-could-not-send-360-light.png` | "Could not send. Your answer is saved. We’ll send it again when the network is back." · "Try again" |
 | Sent | Goes to P4 Done | — |
@@ -95,5 +95,4 @@ The prompt uses the informal "you" for the child (నొక్కు), the forma
 - C-16: the prompt should be read aloud once on arrival; needs real audio.
 - Reopening the link after answering: not designed (go to P4, or allow a new answer?). Ledger rule for a second answer is not specified.
 - FR-11 says "correct → caught up; wrong → needs buddy" on one tap. Confirm there is no second try, since the family never sees feedback.
-- Spec §3.1 lists "Picture chosen (confirm / change)"; v2 removed Change (C-24). Update §3.1.
 - Package B in the prototype targets two competencies; the check tests the first. Spec §3.3 says the single most important target: A2 or code must mark which.
