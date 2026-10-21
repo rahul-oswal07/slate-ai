@@ -23,7 +23,7 @@ One class, one subject, one complete loop:
 
 - **Class:** Grade 3, Kannada-medium, 36 seeded children; 6 children with Telugu home language, 3 with Tamil, the rest Kannada.
 - **Subject:** maths. One textbook unit chain, as the Grade 3 book teaches it: place value (hundreds, tens, ones) → 3-digit addition without carrying → **addition with carrying** → subtraction without borrowing → **subtraction with borrowing**, sums ≤ 999. 2-digit addition and subtraction are Grade 2 prerequisites. 16 competencies in the dependency map (`docs/design/curriculum.md`). D-01 (Accepted, revised 20 Oct)
-- **Languages:** teacher UI in Kannada (English toggle for judges). Catch-up audio in **Telugu** and **Kannada**, fully tested. Tamil works through the same pipeline but is only spot-checked. D-02
+- **Languages:** development and the default UI locale are **English** (D-32); Kannada for the teacher UI and Telugu/Kannada/Tamil for parents are added through i18next from the design cards' copy tables and chosen per user. Catch-up audio in **Telugu** and **Kannada**, fully tested. Tamil works through the same pipeline but is only spot-checked. D-02
 
 ### 1.2 Stretch (only after the Day 7 code freeze for MVP features is met)
 
@@ -341,6 +341,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-29 | Buddy in the evening message | "A classmate is keeping `{child}`'s seat"; the buddy is named only on the teacher's buddy card (UX review C-30) | Monika | Day 3 | Accepted |
 | D-30 | Where families can stop messages | Stop link on every parent screen and in the evening message; STOP reply honoured; confirmation message with restart link (UX review C-06, C-22) | Monika + Rahul | Day 3 | Accepted |
 | D-31 | Mic gesture | Both mics: tap to start, tap to stop; holding also works; timer and auto-stop; keyboard and screen-reader operable (UX review A-01, A-06) | Monika | Day 3 | Accepted |
+| D-32 | Default language during development | English is the default locale for development, demos and design references (prototype opens in English). Kannada/Telugu/Tamil strings come from the cards' copy tables via i18next and switch per user; D-02 language scope (Kannada UI, Telugu + Kannada audio tested, Tamil spot-checked) is unchanged | Monika | Day 3 | Accepted |
 
 ## 9. Assumptions
 

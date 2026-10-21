@@ -1,6 +1,6 @@
 # T5 Back today (buddy cards + "Brought homework")
 
-Spec: FR-12, FR-19 (buddy path for stopped families), NFR-08 · Tier: MVP · Task: T-16 · Prototype: prototype/index.html (step 11) · PNG: screenshots/T5-back-today-card-360-light.png
+Spec: FR-12, FR-19 (buddy path for stopped families), NFR-08 · Tier: MVP · Task: T-16 · Prototype: prototype/index.html (step 11; states via the chips under each phone)
 
 Decisions: D-20 (home engagement is a product measure), D-22 ("Brought homework" tap on the buddy card), D-29 (the buddy is named only on the teacher's card). Review: B-04, B-20, B-21, B-23, B-28, B-31.
 
@@ -25,9 +25,9 @@ Decisions: D-20 (home engagement is a product measure), D-22 ("Brought homework"
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Cards (default) | "Card 1 of 2 · next: Manju"; card: child name, days away, buddy panel with 10 min, 3 sums, Kannada words, "Brought homework" checkbox with the page; prev / print / next; "Mark buddy time done". `screenshots/T5-back-today-card-360-light.png`, dark: `screenshots/T5-back-today-card-360-dark.png` | "Back after 2 days" · "Buddy (was present both days)" · "3 sums to do together" · "Brought homework" · "Mark buddy time done" |
-| None today (empty) | Users icon, heading, explanation. `screenshots/T5-back-today-none-360-light.png` | "No one is back today" · "A buddy card appears here on the day an absent child comes back." |
-| Offline | Warning banner; cards readable from cache; ticks queue. `screenshots/T5-back-today-offline-360-light.png` | "No network. The cards are saved on your phone." |
+| Cards (default) | "Card 1 of 2 · next: Manju"; card: child name, days away, buddy panel with 10 min, 3 sums, Kannada words, "Brought homework" checkbox with the page; prev / print / next; "Mark buddy time done". | "Back after 2 days" · "Buddy (was present both days)" · "3 sums to do together" · "Brought homework" · "Mark buddy time done" |
+| None today (empty) | Users icon, heading, explanation. | "No one is back today" · "A buddy card appears here on the day an absent child comes back." |
+| Offline | Warning banner; cards readable from cache; ticks queue. | "No network. The cards are saved on your phone." |
 | Marked done | Success banner with Undo replaces the button (B-31). No PNG exported | "Buddy time done" · "Undo" |
 | Homework ticked | Checkbox checked; stored with the card. No PNG exported | "Brought homework" |
 | Last / first card | Prev or Next disabled with a visible disabled style (B-23) | — |

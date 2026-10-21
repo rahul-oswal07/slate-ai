@@ -1,6 +1,6 @@
 # P1 Listen
 
-Spec: FR-09, FR-10, FR-19, NFR-03, NFR-04, NFR-05, NFR-08 · Tier: MVP · Task: T-15 (audio: T-11) · Prototype: prototype/index.html (step 8) · PNG: screenshots/P1-listen-default-360-light.png
+Spec: FR-09, FR-10, FR-19, NFR-03, NFR-04, NFR-05, NFR-08 · Tier: MVP · Task: T-15 (audio: T-11) · Prototype: prototype/index.html (step 8; states via the chips under each phone)
 
 Decisions: D-08 (four steps, step dots, Next never blocked by audio), D-18 (spoken AI disclosure after the greeting), D-30 (stop link on every parent screen). Review: C-01, C-02, C-05, C-07, C-08, C-16, C-18, C-19, C-20, C-23, C-25, C-28, C-29.
 
@@ -27,13 +27,13 @@ Decisions: D-08 (four steps, step dots, Next never blocked by audio), D-18 (spok
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Default | Header "Ravi’s lesson" with Back; step dots 1 of 4; teacher initial; "From Lakshmi teacher"; AI label; 156 px Listen button; progress bar 0:00 / 1:35; segments; "Read the words"; Next; stop link. `screenshots/P1-listen-default-360-light.png`, dark: `screenshots/P1-listen-default-360-dark.png` | "Listen" · "AI-assisted, approved by Lakshmi teacher" · "Next" |
-| Loading | Button shows a clock icon and "Loading…" within 400 ms of the tap. `screenshots/P1-listen-loading-360-light.png` | "Loading…" |
-| Playing | Pause icon and label; bar and elapsed time move; current segment highlighted. `screenshots/P1-listen-playing-360-light.png` | "Pause" |
+| Default | Header "Ravi’s lesson" with Back; step dots 1 of 4; teacher initial; "From Lakshmi teacher"; AI label; 156 px Listen button; progress bar 0:00 / 1:35; segments; "Read the words"; Next; stop link. | "Listen" · "AI-assisted, approved by Lakshmi teacher" · "Next" |
+| Loading | Button shows a clock icon and "Loading…" within 400 ms of the tap. | "Loading…" |
+| Playing | Pause icon and label; bar and elapsed time move; current segment highlighted. | "Pause" |
 | Paused | No chip in the prototype. Label returns to "Listen" with the bar where it stopped | "Listen" (see Open items) |
-| Played | Bar full; label "Listen again". `screenshots/P1-listen-played-360-light.png` | "Listen again" |
-| Network dropped mid-play (resume) | Assertive banner; button "Resume"; position kept. `screenshots/P1-listen-network-dropped-360-light.png` | "Network dropped. The part you heard is saved. It will continue from there when the network is back." · "Resume" |
-| Link expired | Clock icon, message + replay; homework card; OK; stop link. `screenshots/P1-listen-link-expired-360-light.png` | "This link is old" · "Lakshmi teacher will send a new one. You don’t need to do anything." · "Homework: textbook Part 2, page 15" · "OK" |
+| Played | Bar full; label "Listen again". | "Listen again" |
+| Network dropped mid-play (resume) | Assertive banner; button "Resume"; position kept. | "Network dropped. The part you heard is saved. It will continue from there when the network is back." · "Resume" |
+| Link expired | Clock icon, message + replay; homework card; OK; stop link. | "This link is old" · "Lakshmi teacher will send a new one. You don’t need to do anything." · "Homework: textbook Part 2, page 15" · "OK" |
 | Read the words (expanded) | Disclosure line, then the transcript; Kannada key words carry `lang="kn"` | "The rest of this message is read by a computer voice, from Lakshmi teacher’s lesson." |
 | Empty | none: a link always carries one package | — |
 | Offline on open | Not designed. The page needs a connection once (spec §6). Recommend the expired-style layout with network copy | Open item |

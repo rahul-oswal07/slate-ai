@@ -1,6 +1,6 @@
 # T6 Week (return speed, reasons, pacing nudge)
 
-Spec: FR-22, FR-21 (reason categories), FR-13, NFR-08 · Tier: MVP · Task: T-46 (return speed), T-16 (pacing nudge), T-45 (reason data) · Prototype: prototype/index.html (step 12) · PNG: screenshots/T6-week-nudge-360-light.png
+Spec: FR-22, FR-21 (reason categories), FR-13, NFR-08 · Tier: MVP · Task: T-46 (return speed), T-16 (pacing nudge), T-45 (reason data) · Prototype: prototype/index.html (step 12; states via the chips under each phone)
 
 Decisions: D-20 (return speed is the primary measure), D-23 (reason categories only), D-24 (weekly return-speed card, teacher only). Review: B-05, B-06, B-09, B-28, B-30.
 
@@ -27,8 +27,8 @@ Decisions: D-20 (return speed is the primary measure), D-23 (reason categories o
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Nudge (default) | Date range; return-speed card with headline "10 of 12", sentence with last week, bars per length with "this week" / "last week" numbers, hidden table; reasons card with counts; pacing panel with AI label, "Plan recap" / "Not this week"; footer. `screenshots/T6-week-nudge-360-light.png`, dark: `screenshots/T6-week-nudge-360-dark.png` | "How quickly children came back" · "10 of 12" · "absent children were back within 2 school days. Last week: 9 of 13." · "6 of 36 children missed subtraction with borrowing. Recap 10 minutes before word problems." |
-| No nudge this week | Return speed and reasons as above; pacing panel replaced by an on-track card; footer without the AI sentence. `screenshots/T6-week-no-nudge-360-light.png` | "Most children are on track. No recap needed this week." · "Numbers are counted from attendance." |
+| Nudge (default) | Date range; return-speed card with headline "10 of 12", sentence with last week, bars per length with "this week" / "last week" numbers, hidden table; reasons card with counts; pacing panel with AI label, "Plan recap" / "Not this week"; footer. | "How quickly children came back" · "10 of 12" · "absent children were back within 2 school days. Last week: 9 of 13." · "6 of 36 children missed subtraction with borrowing. Recap 10 minutes before word problems." |
+| No nudge this week | Return speed and reasons as above; pacing panel replaced by an on-track card; footer without the AI sentence. | "Most children are on track. No recap needed this week." · "Numbers are counted from attendance." |
 | Decided: recap planned | Success banner with Change. No PNG exported | "We’ll remind you on Monday morning." · "Change" |
 | Decided: skipped | Success banner with Change. No PNG exported | "OK. Skipped this week." · "Change" |
 | Empty (first week, no absences) | Not designed. Needs "No absences this week" and no last-week comparison | Open item |

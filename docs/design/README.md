@@ -6,7 +6,7 @@ Before building, copy the design card below into the file and fill in every fiel
 
 ## Cards
 
-Start with [`journey.md`](journey.md) (end-to-end journey, screen map, open gates, spec follow-ups). Clickable source of truth: [`prototype/index.html`](prototype/index.html) (open in a browser). Review with finding IDs: [`ux-review.md`](ux-review.md). Screenshots (360 px, light and dark): [`screenshots/`](screenshots/).
+Development default language is **English** (D-32); Kannada, Telugu and Tamil come from each card's copy table through i18next. The clickable prototype is the visual reference (no exported screenshots); open it and use the state chips under each phone. Start with [`journey.md`](journey.md) (end-to-end journey, screen map, open gates, spec follow-ups). Clickable source of truth: [`prototype/index.html`](prototype/index.html) (open in a browser). Review with finding IDs: [`ux-review.md`](ux-review.md). 
 
 | Card | Screen | Task |
 |---|---|---|
@@ -32,7 +32,7 @@ Reference: tokens and usage rules in [`tokens.md`](tokens.md); copy rules in `sp
 ```markdown
 # <Screen ID> <Screen name>
 
-Spec: FR-__ · Tier: MVP / stretch · Figma: <link> · PNG: <exported frame>
+Spec: FR-__ · Tier: MVP / stretch · Figma: <link>
 
 ## 1. User voice
 - Says: "<what the user would say, in their words>"

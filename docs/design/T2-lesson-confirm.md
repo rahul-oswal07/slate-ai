@@ -1,6 +1,6 @@
 # T2 Lesson confirm (+ pick-lesson sheet)
 
-Spec: FR-03, FR-04, NFR-07, NFR-08 · Tier: MVP · Task: T-07 (A1 mapping + picker fallback), T-05 (curriculum, chapter list, next-in-book), T-12 (screen) · Prototype: prototype/index.html (step 4) · PNG: screenshots/T2-lesson-confirm-confident-360-light.png
+Spec: FR-03, FR-04, NFR-07, NFR-08 · Tier: MVP · Task: T-07 (A1 mapping + picker fallback), T-05 (curriculum, chapter list, next-in-book), T-12 (screen) · Prototype: prototype/index.html (step 4; states via the chips under each phone)
 Decisions: D-14, D-22, D-31, D-17
 
 Opens after she stops recording on T1. Shows what Claude matched her note to; she confirms with one tap or picks another lesson. The pick-lesson sheet is shared with T1 ("Or pick the lesson from the list", "Change").
@@ -31,12 +31,12 @@ Opens after she stops recording on T1. Shows what Claude matched her note to; sh
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Processing (`proc`) | Spinner (static under reduced motion), line and estimate; she can go back to Today. ![](screenshots/T2-lesson-confirm-processing-360-light.png) | "Matching your note to the textbook…" |
-| Slow > 20 s (`slow`) | Warning banner; primary "Pick from the list"; text "Wait; we’ll show it on Today when ready". ![](screenshots/T2-lesson-confirm-slow-360-light.png) | "Taking longer than usual. Your note is saved." |
-| Confident (`confident`) | AI label, "Today’s lesson is:", lesson in a 2 px primary-bordered card with book icon + page, primary "Confirm", text "Pick another lesson", note card (play, summary, examples). ![](screenshots/T2-lesson-confirm-confident-360-light.png) Dark: ![](screenshots/T2-lesson-confirm-confident-360-dark.png) | "Confirm" |
-| Low confidence (`low`) | Warning card (2 px `warning` border, alert icon), two radio choices with pages, "Another lesson"; note card below. ![](screenshots/T2-lesson-confirm-low-confidence-360-light.png) | "Looks like one of these. Please choose." |
-| Could not hear (`unclear`) | Error banner `role="alert"`; primary "Pick from the list"; text "Say it again" (back to T1 mic). ![](screenshots/T2-lesson-confirm-could-not-hear-360-light.png) | "Could not hear the note clearly. Your note is saved. Pick the lesson from the list." |
-| Pick-lesson sheet | Modal bottom sheet: chapter title, close X, radio list ("Next in the book" first, each with page), "Another chapter". ![](screenshots/T2-pick-lesson-sheet-360-light.png) | "Chapter 5 · The fun of subtracting" |
+| Processing (`proc`) | Spinner (static under reduced motion), line and estimate; she can go back to Today. | "Matching your note to the textbook…" |
+| Slow > 20 s (`slow`) | Warning banner; primary "Pick from the list"; text "Wait; we’ll show it on Today when ready". | "Taking longer than usual. Your note is saved." |
+| Confident (`confident`) | AI label, "Today’s lesson is:", lesson in a 2 px primary-bordered card with book icon + page, primary "Confirm", text "Pick another lesson", note card (play, summary, examples). | "Confirm" |
+| Low confidence (`low`) | Warning card (2 px `warning` border, alert icon), two radio choices with pages, "Another lesson"; note card below. | "Looks like one of these. Please choose." |
+| Could not hear (`unclear`) | Error banner `role="alert"`; primary "Pick from the list"; text "Say it again" (back to T1 mic). | "Could not hear the note clearly. Your note is saved. Pick the lesson from the list." |
+| Pick-lesson sheet | Modal bottom sheet: chapter title, close X, radio list ("Next in the book" first, each with page), "Another chapter". | "Chapter 5 · The fun of subtracting" |
 | Changed by teacher | After a pick: returns to T1 with the confirmed lesson card and Change; announcement | "Lesson saved. You can change it." |
 | Offline | No T2 while offline: the note is queued on T1 (`queued` state). If the network drops during processing, behave as Slow | see T1 |
 | Error (A1 call fails or invalid IDs) | Same as Could not hear (fallback to list, guardrail 2) | as Could not hear |

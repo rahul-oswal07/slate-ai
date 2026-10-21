@@ -1,6 +1,6 @@
 # T0 Set up
 
-Spec: FR-09 (greeting), FR-15 (consent), FR-20 (evening template), FR-02 (mic gesture) · Tier: MVP · Task: T-44, T-19, T-11 · Prototype: prototype/index.html (step 1) · PNG: screenshots/T0-setup-greeting-360-light.png
+Spec: FR-09 (greeting), FR-15 (consent), FR-20 (evening template), FR-02 (mic gesture) · Tier: MVP · Task: T-44, T-19, T-11 · Prototype: prototype/index.html (step 1; states via the chips under each phone)
 Decisions: D-21, D-27, D-29, D-31, D-04, D-17
 
 Four steps, once: Welcome → Step 1 of 2 greeting + voice consent → Step 2 of 2 evening-message template → All set. No bottom nav until set-up is done.
@@ -29,13 +29,13 @@ Four steps, once: Welcome → Step 1 of 2 greeting + voice consent → Step 2 of
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Welcome (`0`) | Book icon, greeting, 3 promise cards (SATS, approval, privacy), sticky Start. No Back. ![](screenshots/T0-setup-welcome-360-light.png) | "Namaskara, Lakshmi ma’am" · "Start" |
-| Greeting (`1`) | "Step 1 of 2", suggested words in a panel, 96 px mic, consent checkbox, sticky "Save and continue". Back visible. ![](screenshots/T0-setup-greeting-360-light.png) Dark: ![](screenshots/T0-setup-greeting-360-dark.png) | "A 10-second greeting in your voice" |
-| Recording (`1rec`) | Mic turns error-red with pulse and a stop square; waveform; timer "0:04 / 0:10"; hint. ![](screenshots/T0-setup-recording-360-light.png) | "Tap again when you finish" |
+| Welcome (`0`) | Book icon, greeting, 3 promise cards (SATS, approval, privacy), sticky Start. No Back. | "Namaskara, Lakshmi ma’am" · "Start" |
+| Greeting (`1`) | "Step 1 of 2", suggested words in a panel, 96 px mic, consent checkbox, sticky "Save and continue". Back visible. | "A 10-second greeting in your voice" |
+| Recording (`1rec`) | Mic turns error-red with pulse and a stop square; waveform; timer "0:04 / 0:10"; hint. | "Tap again when you finish" |
 | Recorded (`1done`) | Player card (play, progress bar, 0:09) with "Record again"; consent ticked. No PNG | "Record again" |
-| Missing step (`1err`) | Error hint above the sticky button, `role="alert"`. ![](screenshots/T0-setup-missing-step-360-light.png) | "Record your greeting first." / "Tick the box to agree." |
-| Evening message (`2`) | "Step 2 of 2", filled example with underlined slots, "Your greeting" chip, "Listen to the Telugu version", sticky "Approve this message" + "Not now". ![](screenshots/T0-setup-evening-message-360-light.png) | "Approve this message" |
-| All set (`3`) | Large check, family counts, "Go to Today". No Back (A-30). ![](screenshots/T0-setup-all-set-360-light.png) | "All set" |
+| Missing step (`1err`) | Error hint above the sticky button, `role="alert"`. | "Record your greeting first." / "Tick the box to agree." |
+| Evening message (`2`) | "Step 2 of 2", filled example with underlined slots, "Your greeting" chip, "Listen to the Telugu version", sticky "Approve this message" + "Not now". | "Approve this message" |
+| All set (`3`) | Large check, family counts, "Go to Today". No Back (A-30). | "All set" |
 | Recording cancelled | Call, gesture cancel (`pointercancel`) or app switch stops recording; nothing saved; polite announcement | "Recording stopped. Nothing was sent." |
 | Mic permission denied | Not in prototype (spec §3.1 lists it). Proposed: error banner, mic disabled | Proposed: "Can’t use the microphone. Nothing was recorded. Allow the microphone in phone settings, then try again." (needs Monika) |
 | Greeting deleted | Not in prototype (spec §3.1 lists it). Returns to the Greeting state | none designed; see Open items |

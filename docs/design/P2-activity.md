@@ -1,6 +1,6 @@
 # P2 Activity at home
 
-Spec: FR-07, FR-10, FR-19, NFR-04, NFR-08 · Tier: MVP · Task: T-15 (content: T-09) · Prototype: prototype/index.html (step 9, before the answer) · PNG: screenshots/P2-activity-default-360-light.png
+Spec: FR-07, FR-10, FR-19, NFR-04, NFR-08 · Tier: MVP · Task: T-15 (content: T-09) · Prototype: prototype/index.html (step 9, before the answer; states via the chips under each phone)
 
 Decisions: D-07 (bundles of ten sticks, same picture language as the check), D-08 (four steps, Next never blocked by audio), D-22 (homework from the child's own textbook page, "Show {teacher}"), D-30 (stop link). Review: C-11, C-16, C-17, C-18, C-23.
 
@@ -27,7 +27,7 @@ Decisions: D-07 (bundles of ten sticks, same picture language as the check), D-0
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Default | Header "Activity at home" with Back; step dots 2 of 4; card: "43", replay, sticks picture, its description, instruction, object option; "Next: question"; homework card; stop link. `screenshots/P2-activity-default-360-light.png` | "4 bundles of ten, 3 loose sticks" · "Ravi: open one bundle into 10 loose sticks. Now take away 18." · "No sticks? Use bottle caps, stones or tamarind seeds." · "Homework: page 15" |
+| Default | Header "Activity at home" with Back; step dots 2 of 4; card: "43", replay, sticks picture, its description, instruction, object option; "Next: question"; homework card; stop link. | "4 bundles of ten, 3 loose sticks" · "Ravi: open one bundle into 10 loose sticks. Now take away 18." · "No sticks? Use bottle caps, stones or tamarind seeds." · "Homework: page 15" |
 | Audio replaying (spec §3.1) | Replay button pressed; instruction plays. Not a chip in the prototype (toast only) | — |
 | Empty / Loading / Offline / Error | none: content arrives with the P1 payload and is cached; nothing loads on this step | — |
 | Permission denied | none | — |

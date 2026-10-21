@@ -25,7 +25,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: built `data/curriculum/grade3-maths.json` from T-22 (21 Oct). Note: 2-digit → 3-digit changes number ranges for generated sums, checks and buddy cards (≤ 999, no borrowing across zero); test fixtures use `M3.PV.TENS`, which is now `M2.PV.TENS`
 - [ ] Rahul: D-28–D-31 from the UX review: approval API accepts only Ready + ticked for that script version, Withdraw until send (D-28); `MessageTemplate` no longer names the buddy to parents, drop or keep `{buddy}` teacher-side only (D-29); STOP reply + confirmation message with restart link (D-30); mic tap-to-start/stop (D-31)
 - [x] Monika: T-21 replaced by the clickable prototype v2 + UX review (outside the repo, `Documents/tappida-paatha-prototype`); D-03, D-07, D-08, D-09 accepted as prototyped
-- [ ] Monika: T-21 low-fi wireframes; T-20 recruit teachers + parents (Dasara break until ~21 Oct)
+- [x] Monika: T-21 delivered as the clickable prototype + design cards (#70, #73)
+- [ ] Monika: T-20 recruit teachers + parents (offline, by Monika)
 - [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
 - [x] Rahul: confirmed D-21 (20 Oct): approved `MessageTemplate` + code-filled slots; guardrail 3 in CLAUDE.md reworded
 - [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
@@ -76,3 +77,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
 | 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
+| 21 Oct | Monika + Claude | D-32: English is the default locale for development and design references; prototype opens in English. Exported screenshots removed from the design cards; the clickable prototype (`docs/design/prototype/index.html`) is the visual reference |

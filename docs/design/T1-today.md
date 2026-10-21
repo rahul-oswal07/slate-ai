@@ -1,6 +1,6 @@
 # T1 Today
 
-Spec: FR-01, FR-02, FR-05, FR-20 (tonight card), NFR-01, NFR-02 · Tier: MVP · Task: T-12 (screen), T-06 (attendance API), T-07 (lesson upload), T-44 (tonight count) · Prototype: prototype/index.html (steps 2, 3; step 5 for "done") · PNG: screenshots/T1-today-from-sats-360-light.png
+Spec: FR-01, FR-02, FR-05, FR-20 (tonight card), NFR-01, NFR-02 · Tier: MVP · Task: T-12 (screen), T-06 (attendance API), T-07 (lesson upload), T-44 (tonight count) · Prototype: prototype/index.html (steps 2, 3; step 5 for "done"; states via the chips under each phone)
 Decisions: D-03, D-21, D-27, D-31, D-17
 
 One screen that follows her day, top to bottom: attendance (from SATS) → today's lesson (mic, or the confirmed lesson with Change) → "Added to missed lessons" → tonight's message → "Since yesterday". App bar carries the sync badge. This card also owns the bottom nav spec (§8).
@@ -31,18 +31,18 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| From SATS (`default`) | Attendance card: check icon, "Attendance · SATS (simulated), 9:05", "4 absent", names, "Wrong? Correct it". Lesson card with mic below. ![](screenshots/T1-today-from-sats-360-light.png) Kannada only: ![](screenshots/T1-today-kannada-only-360-light.png) | "Attendance · SATS (simulated), 9:05" |
-| SATS not in yet (`waiting`) | Clock icon card: not in yet, will check at 10:00, "Mark it here if you prefer". ![](screenshots/T1-today-sats-not-in-360-light.png) | "SATS attendance has not come in yet" |
-| Correcting (`correct`) | Heading, hint, 4-column roll + first-name grid (D-03), absent tiles in error style with the word "absent"; sticky count "4 absent · 32 present", Cancel / Save. Same grid for manual marking with "Mark attendance here" and all present by default. ![](screenshots/T1-today-correcting-360-light.png) | "Correct attendance" / "Mark attendance here" |
-| Offline (`offline`) | Warning banner, Wi-Fi-off in status bar, badge "3 waiting to send"; mic still works. ![](screenshots/T1-today-offline-360-light.png) | "No network. You can still record your note; it stays on the phone." |
+| From SATS (`default`) | Attendance card: check icon, "Attendance · SATS (simulated), 9:05", "4 absent", names, "Wrong? Correct it". Lesson card with mic below. | "Attendance · SATS (simulated), 9:05" |
+| SATS not in yet (`waiting`) | Clock icon card: not in yet, will check at 10:00, "Mark it here if you prefer". | "SATS attendance has not come in yet" |
+| Correcting (`correct`) | Heading, hint, 4-column roll + first-name grid (D-03), absent tiles in error style with the word "absent"; sticky count "4 absent · 32 present", Cancel / Save. Same grid for manual marking with "Mark attendance here" and all present by default. | "Correct attendance" / "Mark attendance here" |
+| Offline (`offline`) | Warning banner, Wi-Fi-off in status bar, badge "3 waiting to send"; mic still works. | "No network. You can still record your note; it stays on the phone." |
 | Lesson not yet recorded (`nolesson`) | Lesson card: title, prompt, 96 px mic, hint, "Or pick the lesson from the list". Same layout as From SATS; no separate PNG | "Tap and say what you taught today" |
 | Recording | Mic error-red with stop square and pulse, waveform, "0:12 / 0:30", "Tap again when you finish" | "Tap again when you finish" |
 | Too short | Inline error hint under the mic, `role="alert"` | "Too short. Tap, speak, then tap again." |
 | Recording cancelled | Call, `pointercancel` or app switch stops it; nothing saved | "Recording stopped. Nothing was sent." |
 | Note saved, matching | Small card "Note saved" with "Open" (to T2) while A1 runs | "Note saved" |
-| Note queued offline (`queued`) | Banner (queued variant) + card with cloud-off icon. ![](screenshots/T1-today-note-queued-360-light.png) | "Note saved · it will be matched when you have network" |
-| Done for today (`done`) | Success banner; lesson card with page and Change; "Added to missed lessons: 4 children"; tonight's card (panel) with "No phone · buddy card" tag for Manju and "See the message"; Since yesterday. ![](screenshots/T1-today-done-360-light.png) Dark: ![](screenshots/T1-today-done-360-dark.png) | "Done for today. Thank you." |
-| No updates yet (`noupdates`) | Since-yesterday card with empty line. ![](screenshots/T1-today-no-updates-360-light.png) | "Nothing new since yesterday." |
+| Note queued offline (`queued`) | Banner (queued variant) + card with cloud-off icon. | "Note saved · it will be matched when you have network" |
+| Done for today (`done`) | Success banner; lesson card with page and Change; "Added to missed lessons: 4 children"; tonight's card (panel) with "No phone · buddy card" tag for Manju and "See the message"; Since yesterday. | "Done for today. Thank you." |
+| No updates yet (`noupdates`) | Since-yesterday card with empty line. | "Nothing new since yesterday." |
 | Mic permission denied | Not in prototype (spec §3.1). Proposed: error banner in the lesson card; mic disabled; pick-from-list stays | Proposed: "Can’t use the microphone. Nothing was recorded. Allow it in phone settings, or pick the lesson from the list." (needs Monika) |
 | Sending | Not designed (spec §3.1). Badge stays "N waiting to send" until the outbox drains, then "Saved" | — |
 | Error (save failed online) | Not designed. Outbox retries; badge keeps the count | see Open items |
