@@ -18,7 +18,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
-- [ ] Rahul: book technical mentor
+- [x] Rahul: book technical mentor (call 21 Oct; brief + notes in `docs/mentor-technical-2026-10-21.md`, fill in part C after the call)
 - [x] Monika: T-22 competency list drafted in `docs/design/curriculum.md` (16 competencies, textbook page each). D-01 revised to 3-digit. Open: † Kannada names to confirm with a teacher; NIPUN codes have no source yet
 - [ ] Rahul: D-27 attendance source. Put attendance behind a source interface (`DemoSource` simulated SATS feed now; file import / state API later) feeding the existing T-06 register endpoint; store source + time per record; teacher corrections overlay, never written back. Update `plan.md` / `tasks.md` (T-12: grid becomes corrections + fallback only) and the demo label "simulated"
 - [ ] Monika: T-20 interviews: ask teachers how they mark student attendance today (paper register, SATS app, other). If SATS does not hold daily Grade 3 attendance, revisit D-27
@@ -76,5 +76,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | H2 design handoff: `docs/design/journey.md` + cards T0, T1, T2, T4 (states, kn/en copy, tokens, acceptance checklists traced to UX-review finding IDs), 360 px screenshots, clickable prototype and UX review in `docs/design/`. Spec follow-ups for Rahul listed in journey.md |
 | 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
+| 21 Oct | Rahul + Claude | Technical mentor brief: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
 | 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
 | 21 Oct | Monika + Claude | D-32: English is the default locale for development and design references; prototype opens in English. Screenshots kept as captured (Kannada/Telugu with English captions) |
+
