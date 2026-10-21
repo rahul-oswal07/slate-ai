@@ -120,6 +120,12 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 - [ ] Reason buttons are toggle buttons with `aria-pressed`, inside a labelled group.
 
 ## Open items
+
+**Resolved 22 Oct:**
+- Reason: picture buttons only in the MVP; voice note, "Is it this?" and A7 are cut (D-63).
+- No STOP reply in the demo chat; the stop link covers FR-19 (D-64).
+
+**Still open:**
 - C-21 (gate, Rahul): how the teacher's voice reaches the family on WhatsApp; templates can't carry audio. Link to a voice page, or a separate session message. Blocks T-40 design, not the demo chat.
 - STOP reply (FR-19, D-30) only exists on the real channel; the chat stand-in has no reply box. Decide whether the demo needs one.
 - C-30 lock-screen preview: "We missed Ravi today" shows on a shared phone's lock screen. D-29 settled the buddy name only.

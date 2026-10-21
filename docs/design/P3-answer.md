@@ -92,6 +92,11 @@ The prompt uses the informal "you" for the child (నొక్కు), the forma
 - [ ] Stop link present and works (see P4, D-30).
 
 ## Open items
+
+**Resolved 22 Oct:**
+- Reopened link after answering: go straight to Done; the first answer counts (D-62).
+
+**Still open:**
 - C-16: the prompt should be read aloud once on arrival; needs real audio.
 - Reopening the link after answering: not designed (go to P4, or allow a new answer?). Ledger rule for a second answer is not specified.
 - FR-11 says "correct → caught up; wrong → needs buddy" on one tap. Confirm there is no second try, since the family never sees feedback.

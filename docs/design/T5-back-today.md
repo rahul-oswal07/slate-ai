@@ -92,6 +92,11 @@ Decisions: D-20 (home engagement is a product measure), D-22 ("Brought homework"
 - [ ] Focus stays on the card heading when moving between cards (B-19).
 
 ## Open items
+
+**Resolved 22 Oct:**
+- No eligible buddy: the classmate present on the most missed days; if none, "Teacher-led: 10 minutes"; state chip "No buddy available" (D-59).
+
+**Still open:**
 - B-21: approval path for the no-phone child's buddy-card wording. Sums come from code and key words from the textbook; who approves any AI wording for children with no catch-up package is still open.
 - No eligible buddy (nobody present on all missed days): fallback rule not specified (closest match, or teacher picks). Rahul + Monika.
 - Spec §3.1 T5 says "Swipe cards"; the prototype uses Prev/Next buttons. Keep buttons; swipe is optional.

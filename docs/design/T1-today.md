@@ -201,6 +201,13 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 - Tab change moves focus to the new screen's title (`h2 tabindex="-1"`) (A-04, B-19).
 
 Open items:
+
+**Resolved 22 Oct:**
+- Second voice note on the same day: not in the MVP; use Change (D-55).
+- Attendance still missing after the 2:00 pm retry: warning card "Attendance didn’t come in today. Mark it here so tonight’s messages can go." with "Mark attendance"; state chip "Still missing after 2 pm" (D-67).
+- Loading, error, conflict states: follow D-68.
+
+**Still open:**
 - Resolved (D-34): mic blocked and sending are in the prototype. The online save error state is still not designed.
 - Tonight's card: a child marked No on T8 gets its own tag, "No consent" (ಒಪ್ಪಿಗೆ ಇಲ್ಲ), not "Stopped by family"; families who stopped messages are left out of the count (FR-19) (resolved 21 Oct in the prototype). Tag word confirmed by Monika, 21 Oct.
 - "Change" on the lesson card reopens the T2 checklist with today's lessons ticked, so several lessons can be edited together (resolved 21 Oct in the prototype).

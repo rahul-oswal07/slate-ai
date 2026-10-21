@@ -423,7 +423,7 @@ function syncBadge(){
 function nav(){
   const items=[['today','home','ಇಂದು','Today'],['approve','check','ಒಪ್ಪಿಗೆ','Approve'],['ledger','list','ತಪ್ಪಿದ ಪಾಠ','Missed'],['ret','users','ಮರಳಿ ಬಂದವರು','Back today'],['week','chart','ವಾರ','Week']];
   const pending = Object.values(S.pk).filter(v=>v==='ready'||v==='review').length;
-  const cur = {confirm:'today', pkg:'approve', child:'ledger', families:S.famFrom==='settings'?'today':'ledger', family:S.famFrom==='settings'?'today':'ledger', settings:'today', tpl:'today', greetings:'today'}[S.t]||S.t;
+  const cur = {confirm:'today', pkg:'approve', child:'ledger', families:S.famFrom==='settings'?'today':'ledger', family:S.famFrom==='settings'?'today':'ledger', settings:'today', tpl:'today', greetings:'today', help:'today'}[S.t]||S.t;
   return `<nav class="nav" aria-label="${Kt('ಮುಖ್ಯ ಮೆನು','Main')}">${items.map(([k,i,kn,en])=>`<button data-a="go" data-v="${k}" ${cur===k?'aria-current="page"':''}>${ic(i,22)}<span>${Ki(kn,en)}</span>${k==='approve'&&pending?`<span class="badge" aria-hidden="true">${pending}</span><span class="sr-only">${Kt(`, ${pending} ಕಾಯುತ್ತಿವೆ`,`, ${pending} waiting`)}</span>`:''}</button>`).join('')}</nav>`;
 }
 
@@ -483,7 +483,7 @@ function tSettings(){
     ${item('famFromSettings','users','ಕುಟುಂಬಗಳು ಮತ್ತು ಒಪ್ಪಿಗೆ','Families and consent',`${c.yes} ಒಪ್ಪಿದ್ದಾರೆ · ${c.nophone} ಫೋನ್ ಇಲ್ಲ`,`${c.yes} agreed · ${c.nophone} no phone`)}
     ${item('openTpl','msg','ಸಂಜೆಯ ಸಂದೇಶ','Evening message','ಅನುಮೋದಿಸಲಾಗಿದೆ · 20 ಅಕ್ಟೋಬರ್','Approved · 20 Oct')}
     ${item('openGreetings','mic','ನನ್ನ ಶುಭಾಶಯಗಳು','My greetings',`${recorded} / 3 ದಾಖಲಾಗಿದೆ`,`${recorded} of 3 recorded`)}
-    ${item('toast','help','ಸಹಾಯ','Help','ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ · ಸಂಪರ್ಕ','How it works · who to contact').replace('data-a="toast"','data-a="toast" data-v="Opens help: how it works and who to contact"')}
+    ${item('openHelp','help','ಸಹಾಯ','Help','ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ · ಸಂಪರ್ಕ','How it works · who to contact')}
   </ul>
   <h3 class="section-h">${K('ಆಪ್ ಭಾಷೆ','App language')}</h3>
   <div class="segctl" role="group" aria-label="${Kt('ಆಪ್ ಭಾಷೆ','App language')}"><button data-a="appLang" data-v="kn" aria-pressed="${S.lang!=='en'}">ಕನ್ನಡ</button><button data-a="appLang" data-v="en" aria-pressed="${S.lang==='en'}">English</button></div>`;
@@ -503,7 +503,7 @@ function tTpl(){
     <p class="muted small" style="margin:0 0 10px">${K('ಪ್ರತಿ ಸಂಜೆ ಬಣ್ಣ ಹಚ್ಚಿದ ಪದಗಳು ಮಾತ್ರ ನಿಮ್ಮ ದಾಖಲೆಯಿಂದ ಬದಲಾಗುತ್ತವೆ. ಈ ಸಂದೇಶವನ್ನು AI ಬರೆಯುವುದಿಲ್ಲ.','Only the highlighted words change each evening, filled from your records. No AI writes this message.')}</p>
     ${tplBlock()}
     <div class="btns" style="flex-wrap:wrap">${['te','ta','kn'].map(l=>`<button class="btn ghost" data-a="toast" data-v="Plays the ${LANGS[l][1]} version, filled by code">${ic('vol',18)} ${Ki(LANGS[l][0],LANGS[l][1])}</button>`).join('')}</div>
-    <button class="btn text full" data-a="toast" data-v="Opens the wording for editing; it needs your approval again before any message is sent">${K('ಪದಗಳನ್ನು ಬದಲಿಸಿ (ಮತ್ತೆ ಒಪ್ಪಿಗೆ ಬೇಕು)','Change the wording (needs approval again)')}</button>`;
+    <p class="small muted">${K('ಪದಗಳನ್ನು ಬದಲಿಸಲು ಶಾಲೆಯನ್ನು ಸಂಪರ್ಕಿಸಿ. ಬದಲಾದ ಸಂದೇಶಕ್ಕೆ ಮತ್ತೆ ನಿಮ್ಮ ಒಪ್ಪಿಗೆ ಬೇಕು.','To change the wording, contact your school. A changed message needs your approval again.')}</p>`;
   return sbar(S.clock.h)+appbar('ಸಂಜೆಯ ಸಂದೇಶ','Evening message','toSettings')+body(Kt('ಸಂಜೆಯ ಸಂದೇಶ','Evening message'), b)+nav();
 }
 function greetRows(compact){
@@ -512,6 +512,17 @@ function greetRows(compact){
       <p style="margin:6px 0 0;font-weight:600" lang="kn">“${kn}”</p><p class="small muted" style="margin:0">${tr} · ${S.lang==='en'?mean:'ನಮಸ್ಕಾರ, ನಾನು ಲಕ್ಷ್ಮಿ ಟೀಚರ್'}</p>
       ${st==='skip'?`<p class="small" style="margin:6px 0 0">${K('ಬಿಟ್ಟಿದ್ದೀರಿ: ನಿಮ್ಮ ಕನ್ನಡ ಶುಭಾಶಯದ ನಂತರ ಕಂಪ್ಯೂಟರ್ ಧ್ವನಿ ನಿಮ್ಮನ್ನು ಆ ಭಾಷೆಯಲ್ಲಿ ಪರಿಚಯಿಸುತ್ತದೆ.','Skipped: your Kannada greeting plays, then a computer voice introduces you in that language.')}</p>`:''}
       <div class="btns"><button class="btn ghost" data-a="toast" data-v="Plays a native speaker saying the line">${ic('vol',18)} ${Ki('ಮೊದಲು ಕೇಳಿ','Listen first')}</button><button class="btn ghost" data-a="lgRec" data-v="${l}">${ic('mic',18)} ${st==='done'?Ki('ಮತ್ತೆ ದಾಖಲಿಸಿ','Record again'):Ki('ದಾಖಲಿಸಿ','Record')}</button>${st==='done'?`<button class="btn ghost" data-a="lgDel" data-v="${l}" aria-label="${Kt('ಅಳಿಸಿ','Delete')}">${ic('trash',18)}</button>`:`<button class="btn ghost" data-a="lgSkip" data-v="${l}">${Ki('ಈಗ ಬೇಡ','Skip for now')}</button>`}</div></div>`; }).join('');
+}
+function tHelp(){
+  const b=`<div class="card"><h3 class="t">${K('ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ','How it works')}</h3>
+    <ol class="small" style="padding-left:18px;margin:6px 0 0">
+      <li>${Ki('ಹಾಜರಾತಿ ಮಧ್ಯಾಹ್ನ 12:00 ಕ್ಕೆ SATS ನಿಂದ ಬರುತ್ತದೆ.','Attendance arrives from SATS at 12:00.')}</li>
+      <li>${Ki('ನೀವು ಇಂದು ಏನು ಕಲಿಸಿದಿರಿ ಎಂದು ಹೇಳುತ್ತೀರಿ; ಆಪ್ ಪಠ್ಯಪುಸ್ತಕದ ಪಾಠಕ್ಕೆ ಹೊಂದಿಸುತ್ತದೆ.','You say what you taught; the app matches it to the textbook lesson.')}</li>
+      <li>${Ki('ಸಂಜೆ 6 ರ ನಂತರ ಗೈರಾದ ಮಕ್ಕಳ ಕುಟುಂಬಗಳಿಗೆ ನೀವು ಒಪ್ಪಿದ ಸಂದೇಶ ಹೋಗುತ್ತದೆ.','After 6 pm, families of absent children get the message you approved.')}</li>
+      <li>${Ki('ವಾರಕ್ಕೊಮ್ಮೆ ಪುನರಾವರ್ತನೆಗಳನ್ನು ನೀವು ಒಪ್ಪುತ್ತೀರಿ; ಒಪ್ಪದೆ ಏನೂ ಹೋಗುವುದಿಲ್ಲ.','Once a week you approve catch-ups; nothing goes without your approval.')}</li>
+    </ol></div>
+    <div class="card"><h3 class="t">${K('ಸಂಪರ್ಕ','Contact')}</h3><p class="small" style="margin:4px 0 0">${K('ಸಮಸ್ಯೆ ಇದ್ದರೆ ನಿಮ್ಮ ಶಾಲೆಯ ಮುಖ್ಯ ಶಿಕ್ಷಕರನ್ನು ಅಥವಾ ತಂಡವನ್ನು ಸಂಪರ್ಕಿಸಿ.','For problems, contact your head teacher or the team.')}</p></div>`;
+  return sbar(S.clock.h)+appbar('ಸಹಾಯ','Help','toSettings')+body(Kt('ಸಹಾಯ','Help'), b)+nav();
 }
 function tGreetings(){
   const g=S.greet;
@@ -536,6 +547,7 @@ function tFamily(){
     <p class="small muted" style="margin:6px 0 0">${K('ಸಂದೇಶ ಕಳುಹಿಸಲು ಮಾತ್ರ. AI ಸೇವೆಗಳಿಗೆ ಎಂದೂ ಕಳುಹಿಸುವುದಿಲ್ಲ.','Used only to send messages. Never shared with AI services.')}</p>
     <h3 class="section-h">${K('ಮನೆ ಭಾಷೆ (ಸಂದೇಶದ ಭಾಷೆ)','Home language (language of messages)')}</h3>
     ${seg('hl',S.hl[r],[['kn','ಕನ್ನಡ','Kannada'],['te','ತೆಲುಗು','Telugu'],['ta','ತಮಿಳು','Tamil']],Kt('ಮನೆ ಭಾಷೆ','Home language'))}
+    ${S.famErr?`<p class="hint err" role="alert" style="margin-top:12px">${K('ಪೋಷಕರ ಫೋನ್ ನಂಬರ್ ಸೇರಿಸಿ, ಅಥವಾ “ಫೋನ್ ಇಲ್ಲ” ಆರಿಸಿ.','Add the parent’s phone number, or choose No phone.')}</p>`:''}
     <button class="btn primary" data-a="famSave" style="margin-top:18px">${K('ಉಳಿಸಿ','Save')}</button>`;
   return sbar(S.clock.h)+appbar(kid(r)[0],kid(r)[1],'famBack')+body(Kt(kid(r)[0],kid(r)[1]), b)+(S.famFrom==='ob'?'':nav());
 }
@@ -622,7 +634,8 @@ function tToday(){
       <div class="btns" style="margin-top:0"><button class="btn ghost" data-a="attCancel">${K('ರದ್ದು','Cancel')}</button><button class="btn primary" style="min-height:48px" data-a="saveAtt">${K('ಉಳಿಸಿ','Save')}</button></div></div>`;
   } else {
     h += S.attSrc==='waiting'
-      ? `<div class="card"><div class="row" style="align-items:flex-start">${ic('clock',22)}<div class="sp"><b>${K('SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ','SATS attendance has not come in yet')}</b><div class="small muted">${K('ಮಧ್ಯಾಹ್ನ 12:00 ಕ್ಕೆ ಬರುತ್ತದೆ. ತಡವಾದರೆ 2:00 ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ.','It comes in at 12:00. If it is late, we check again at 2:00 pm. You do not need to do anything.')}</div></div></div><button class="btn text full" data-a="editAtt">${K('ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ','Mark it here if you prefer')}</button></div>`
+      ? S.tVar==='missed2pm' ? `<div class="card warn"><div class="row" style="align-items:flex-start"><span style="color:var(--warning)">${ic('alert',22)}</span><div class="sp"><b>${K('ಇಂದು ಹಾಜರಾತಿ ಬರಲಿಲ್ಲ','Attendance didn’t come in today')}</b><div class="small muted">${K('ಇಂದು ಸಂಜೆಯ ಸಂದೇಶಗಳು ಹೋಗಲು ಇಲ್ಲೇ ಗುರುತಿಸಿ.','Mark it here so tonight’s messages can go.')}</div></div></div><button class="btn primary" data-a="editAtt">${K('ಹಾಜರಾತಿ ಗುರುತಿಸಿ','Mark attendance')}</button></div>`
+      : `<div class="card"><div class="row" style="align-items:flex-start">${ic('clock',22)}<div class="sp"><b>${K('SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ','SATS attendance has not come in yet')}</b><div class="small muted">${K('ಮಧ್ಯಾಹ್ನ 12:00 ಕ್ಕೆ ಬರುತ್ತದೆ. ತಡವಾದರೆ 2:00 ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ.','It comes in at 12:00. If it is late, we check again at 2:00 pm. You do not need to do anything.')}</div></div></div><button class="btn text full" data-a="editAtt">${K('ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ','Mark it here if you prefer')}</button></div>`
       : `<div class="card"><div class="row" style="align-items:flex-start">${ic('checkc',22)}<div class="sp"><div class="small muted">${S.attSrc==='manual'?K('ಹಾಜರಾತಿ · ನೀವು ಗುರುತಿಸಿದ್ದು','Attendance · marked by you'):K('ಹಾಜರಾತಿ · SATS (ಅನುಕರಣೆ), 12:00','Attendance · SATS (simulated), 12:00')}${S.attCorrected?' · '+Ki('ನೀವು ಸರಿಪಡಿಸಿದ್ದು','corrected by you'):''}</div><b>${n?K(`${n} ಗೈರು`,`${n} absent`):K('ಇಂದು ಎಲ್ಲರೂ ಹಾಜರು.','Everyone is here today.')}</b>${n?`<div class="small muted">${[...S.absent].sort((a,b)=>a-b).map(knameH).join(', ')}</div>`:''}</div></div><button class="btn text full" data-a="editAtt">${K('ತಪ್ಪಿದೆಯೇ? ಸರಿಪಡಿಸಿ','Wrong? Correct it')}</button></div>`;
     if((S.lesson==='none' || S.lesson==='rec') && S.micBlocked){
       h += `<div class="card"><h3 class="t">${K('ಇಂದಿನ ಪಾಠ','Today’s lesson')}</h3><div class="row" style="align-items:flex-start;margin:6px 0 10px"><span style="color:var(--warning)">${ic('alert',22)}</span><p class="small" style="margin:0">${K('ಈ ಆಪ್‌ಗೆ ಮೈಕ್ರೊಫೋನ್ ಆಫ್ ಆಗಿದೆ. ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಆನ್ ಮಾಡಿ, ಅಥವಾ ಇಂದಿನ ಪಾಠವನ್ನು ಪಟ್ಟಿಯಿಂದ ಆರಿಸಿ.','The microphone is off for this app. Turn it on in Settings, or pick today’s lesson from the list.')}</p></div>
@@ -853,7 +866,7 @@ function tRet(){
   `<p class="small muted" style="margin:0 0 8px">${K(`ಕಾರ್ಡ್ ${S.retIdx+1} / ${cards.length}`,`Card ${S.retIdx+1} of ${cards.length}`)}${nxt?' · '+Ki(`ಮುಂದೆ: ${kid(nxt.r)[0]}`,`next: ${kid(nxt.r)[1]}`):''}</p>
   <div class="card" style="border-width:2px">
     <b style="font-size:20px">${knameH(c.r)}</b><div class="small muted">${K(`${c.days} ದಿನದ ನಂತರ ಮರಳಿದ್ದಾರೆ`,`Back after ${c.days} days`)}</div>
-    <div class="card panel" style="margin:12px 0 10px"><div class="row">${ic('users',22)}<div class="sp"><div class="small teal">${K('ಬಡ್ಡಿ (ಆ ಎರಡೂ ದಿನ ಹಾಜರಿದ್ದರು)','Buddy (was present both days)')}</div><b>${knameH(c.buddy)}</b></div><span class="small"><b>10</b> ${Ki('ನಿಮಿಷ','min')}</span></div></div>
+    ${S.tVar==='nobuddy'?`<div class="card panel" style="margin:12px 0 10px"><div class="row">${ic('users',22)}<div class="sp"><div class="small teal">${K('ಎಲ್ಲಾ ದಿನ ಹಾಜರಿದ್ದ ಸಹಪಾಠಿ ಇಲ್ಲ','No classmate was present on all those days')}</div><b>${K('ಶಿಕ್ಷಕರೊಂದಿಗೆ: 10 ನಿಮಿಷ','Teacher-led: 10 minutes')}</b></div></div></div>`:''}<div class="card panel" style="margin:12px 0 10px;${S.tVar==='nobuddy'?'display:none':''}"><div class="row">${ic('users',22)}<div class="sp"><div class="small teal">${K('ಬಡ್ಡಿ (ಆ ಎರಡೂ ದಿನ ಹಾಜರಿದ್ದರು)','Buddy (was present both days)')}</div><b>${knameH(c.buddy)}</b></div><span class="small"><b>10</b> ${Ki('ನಿಮಿಷ','min')}</span></div></div>
     <div class="small muted">${K('ಒಟ್ಟಿಗೆ ಮಾಡಲು 3 ಲೆಕ್ಕಗಳು','3 sums to do together')}</div>
     ${c.sums.map(s=>`<div class="sums" style="margin:2px 0">${s}</div>`).join('')}
     <div class="small muted" style="margin-top:8px">${K('ಕನ್ನಡ ಪದಗಳು (ಪಠ್ಯಪುಸ್ತಕದಿಂದ)','Kannada words (from the textbook)')}</div><span class="kw" lang="kn">ದಶಕ</span><span class="kw" lang="kn">ವ್ಯತ್ಯಾಸ</span><span class="kw" lang="kn">ಬಿಡಿ</span>
@@ -867,6 +880,7 @@ function tRet(){
 
 function tWeek(){
   const none=S.tVar==='nonudge';
+  if(S.tVar==='empty') return sbar(S.clock.h)+appbar('ಈ ವಾರ','This week',null)+body(Kt('ಈ ವಾರ','This week'),`<p class="small muted" style="margin:0 0 10px">${Ki('19–23 ಅಕ್ಟೋಬರ್','19–23 October')}</p><div class="card"><div class="row">${ic('checkc',22)}<b>${K('ಈ ವಾರ ಯಾರೂ ಗೈರಾಗಿಲ್ಲ.','No absences this week.')}</b></div></div>`)+nav();
   const bars=[['1',7,5],['2',3,4],['3',1,2],['4+',1,2]];
   const sum=(i)=>bars.reduce((s,b)=>s+b[i],0);
   const within=(i)=>bars[0][i]+bars[1][i];
@@ -933,8 +947,7 @@ function pReason(){
     <div class="avatar" aria-hidden="true">ల</div>
     <div class="row" style="justify-content:center;gap:4px"><h3 class="t" style="text-align:center;font-size:20px">${P('ఈ రోజు రవి మాకు గుర్తొచ్చాడు. అంతా బాగుందా?','We missed Ravi today. Is everything OK?')}</h3>${replayBtn('Reads the question aloud in Telugu')}</div>
     <div role="group" aria-label="${Pt('కారణం','Reason')}" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${REASONS.map(r=>`<button class="reason" data-a="reason" data-v="${r.k}" aria-pressed="${S.reason===r.k}">${ic(r.i,34,1.6)}${P(r.te,r.en)}</button>`).join('')}</div>
-    <button class="btn ghost full" style="margin-top:10px" data-a="toast" data-v="Records a voice note; a computer listens and picks one picture, then asks: Is it this?">${ic('mic',20)} ${P('మాట్లాడి చెప్పండి','Say it instead')}</button>
-    <p class="hint">${P('కంప్యూటర్ మీ మాట విని ఒక బొమ్మను ఎంచుకుంటుంది. ఆరోగ్య వివరాలు అడగము.','A computer listens to pick a picture. We never ask for health details.')}</p>
+    <p class="hint">${P('ఆరోగ్య వివరాలు అడగము.','We never ask for health details.')}</p>
     <div class="sticky"><button class="btn primary" data-a="reasonSend" ${S.reason?'':'disabled'} aria-describedby="rsHint">${P('పంపండి','Send')}</button>${S.reason?'':`<p class="hint" id="rsHint">${P('ఒక బొమ్మను నొక్కండి','Tap one picture')}</p>`}
     <button class="btn text full" data-a="phome">${P('వద్దు, వదిలేయండి','Skip')}</button></div>
     ${stopLink()}`)+stopSheet();
@@ -1040,18 +1053,19 @@ function day1(){ S.lessonIds=['M3.SUB.BORROW']; S.lessonId='M3.SUB.BORROW'; S.ma
 function friday(){ STEPS[6].go(); S.clock={t:'Fri 23 Oct',h:'3:10 pm'}; S.pk={A:'ready',B:'ready',C:'review'}; S.reviewed={}; S.glossOk=false; S.pkOpen=null; S.msgs=['evening']; S.p='home'; S.pclock='3:10 pm'; }
 
 const TSTATES = {
-  today:[['default','From SATS'],['noabsent','Nobody absent'],['micblocked','Mic blocked'],['sending','Sending note'],['waiting','SATS not in yet'],['correct','Correcting'],['corrected','Corrected by teacher'],['offline','Offline'],['nolesson','Lesson not yet recorded'],['queued','Note queued offline'],['done','Done for today'],['noupdates','No updates yet']],
+  today:[['default','From SATS'],['noabsent','Nobody absent'],['missed2pm','Still missing after 2 pm'],['micblocked','Mic blocked'],['sending','Sending note'],['waiting','SATS not in yet'],['correct','Correcting'],['corrected','Corrected by teacher'],['offline','Offline'],['nolesson','Lesson not yet recorded'],['queued','Note queued offline'],['done','Done for today'],['noupdates','No updates yet']],
   confirm:[['offline','Offline'],['proc','Processing'],['slow','Slow (>20 s)'],['confident','Confident'],['low','Low confidence'],['unclear','Could not hear']],
   approve:[['default','Default'],['gen','Generating'],['offline','Offline'],['sent','Sent'],['failed','Generation failed']],
   families:[['default','Default']],
   pkg:[['ready','Ready'],['review','Needs review (failed check)'],['gen','Regenerating'],['approved','Approved'],['sent','Sent'],['failed','Generation failed']],
   ledger:[['default','By child'],['lesson','By lesson'],['empty','Empty (first week)'],['offline','Offline']],
   child:[['default','Default'],['delete','Delete: confirm']],
-  ret:[['default','Cards'],['done','Marked done'],['none','None today'],['offline','Offline']],
-  week:[['default','Nudge'],['decided','Decided (recap planned)'],['nonudge','No nudge this week']],
+  ret:[['default','Cards'],['nobuddy','No buddy available'],['done','Marked done'],['none','None today'],['offline','Offline']],
+  week:[['default','Nudge'],['empty','No absences'],['decided','Decided (recap planned)'],['nonudge','No nudge this week']],
   login:[['default','First sign-in'],['remembered','Phone remembered'],['wrongpin','Wrong PIN'],['locked','Locked (5 wrong PINs)']],
   settings:[['default','Default']],
   tpl:[['default','Approved']],
+  help:[['default','Default']],
   greetings:[['default','Default'],['withdraw','Withdraw: confirm']],
   family:[['default','Default'],['nophone','No phone']],
   onboard:[['0','Welcome'],['1','Greeting'],['1off','Offline'],['1del','Greeting deleted'],['1deny','Mic permission denied'],['1rec','Recording'],['1done','Recorded'],['1err','Missing step'],['2','Evening message'],['3','All set']],
@@ -1067,13 +1081,13 @@ const PSTATES = {
 function applyT(k){
   S.tVar=null; const t=S.t;
   if(t==='today'){ if(k==='noabsent'){ S.micBlocked=false; S.offline=false; S.attEdit=false; S.attSrc='sats'; S.absent=new Set(); S.lesson='confirmed'; S.dayDone=true; S.tVar=null; S._tk=k; return; } if(!S.absent.size) S.absent=new Set([10,12,13,19]); S.micBlocked=k==='micblocked'; if(k==='sending'){ S.lesson='sending'; } clearInterval(recTimer); S.offline=(k==='offline'||k==='queued'); S.dayDone=k==='done'; S.tVar=k==='noupdates'?'noupdates':null;
-    S.attSrc = k==='waiting'?'waiting':'sats'; S.attCorrected = k==='corrected'; S.attEdit = k==='correct'; if(S.attEdit) S.draft=new Set(S.absent);
+    S.attSrc = (k==='waiting'||k==='missed2pm')?'waiting':'sats'; if(k==='missed2pm') S.tVar='missed2pm'; S.attCorrected = k==='corrected'; S.attEdit = k==='correct'; if(S.attEdit) S.draft=new Set(S.absent);
     if(k==='nolesson'||k==='offline'||k==='micblocked') S.lesson='none'; if(k==='queued') S.lesson='queued'; if(k==='done') S.lesson='confirmed'; }
   if(t==='confirm'){ S.sel=new Set(S.mapped); if(k==='offline'){ S.tVar='offline'; S.lowConf=false; S.lesson='queued'; S._tk=k; return; } S.lowConf=k==='low'; if(k==='proc'||k==='slow'){ S.lesson='proc'; S.tVar=k==='slow'?'slow':null; } else if(k==='unclear') S.lesson='unclear'; else S.lesson='mapped'; }
   if(t==='ledger'){ S.lview = k==='lesson'?'lesson':'child'; S.tVar = (k==='empty'||k==='offline')?k:null; }
   if(t==='approve'){ if(k==='sent') S.pk={A:'sent',B:'sent',C:'approved'}; else if(k==='failed') S.pk={A:'ready',B:'failed',C:'review'}; else if(Object.values(S.pk).some(v=>v==='sent'||v==='failed')) S.pk={A:'ready',B:'ready',C:'review'}; S.tVar=(k==='gen'||k==='offline')?k:null; }
-  if(t==='ret'){ S.retDone[12] = k==='done'; S.tVar=(k==='none'||k==='offline')?k:null; }
-  if(t==='week'){ S.recap = k==='decided'?'yes':null; S.tVar=k==='nonudge'?k:null; }
+  if(t==='ret'){ S.retDone[12] = k==='done'; S.tVar=(k==='none'||k==='offline'||k==='nobuddy')?k:null; }
+  if(t==='week'){ S.recap = k==='decided'?'yes':null; S.tVar=(k==='nonudge'||k==='empty')?k:null; }
   if(t==='pkg'){ S.pk[S.pkOpen]=k; S.glossOk=false; }
   if(t==='child') S.delAsk=k==='delete';
   if(t==='login'){ S.loginErr=k==='wrongpin'; S.loginMode = k==='remembered'?'remembered':k==='locked'?'locked':'first'; }
@@ -1086,6 +1100,7 @@ function applyP(k){
   S.pVar=null; const p=S.p; stopTimer();
   if(p==='reason'){ S.reasonDone=k==='done'; S.reason = k==='default'?null:'travel'; }
   if(p==='listen'){ S.audio={pos:k==='played'?100:(k==='playing'||k==='dropped'||k==='paused')?40:0, playing:false, played:k==='played', loading:k==='loading'}; if(k==='dropped'||k==='expired') S.pVar=k; if(k==='playing') pPlay(); }
+  if(p==='answer' && k==='reopened'){ S.ansState='sent'; S.ans=1; S.p='done'; S._pk=k; return; }
   if(p==='answer'){ S.ans = k==='default'?null:0; S.ansState = k==='sending'?'sending':k==='failed'?'failed':'idle'; }
   if(p==='done'){ S.stopAsk=k==='ask'; S.stopped=k==='stopped'; }
   S._pk=k;
@@ -1126,9 +1141,10 @@ const A = {
   login(){ S.loginErr=false; S.t='onboard'; S.ob=0; announce('t',Kt('ಒಳಗೆ ಬಂದಿದ್ದೀರಿ','Signed in')); },
   toSettings(){ S.t='settings'; S.wdAsk=false; },
   famFromSettings(){ S.famFrom='settings'; S.t='families'; },
-  openFamily(v){ S.famChild=+v; S.t='family'; },
+  openFamily(v){ S.famChild=+v; S.famErr=false; S.t='family'; },
+  openHelp(){ S.t='help'; },
   famBack(){ S.t='families'; },
-  famSave(){ S.consChanged=true; S.t='families'; announce('t',Kt('ಉಳಿಸಲಾಗಿದೆ','Saved')); },
+  famSave(){ const r=S.famChild; if(S.cons[r]==='yes' && !(S.phone[r]||'').trim()){ S.famErr=true; announce('t',Kt('ಪೋಷಕರ ಫೋನ್ ನಂಬರ್ ಸೇರಿಸಿ, ಅಥವಾ “ಫೋನ್ ಇಲ್ಲ” ಆರಿಸಿ.','Add the parent’s phone number, or choose No phone.')); return; } S.famErr=false; S.consChanged=true; S.t='families'; announce('t',Kt('ಉಳಿಸಲಾಗಿದೆ','Saved')); },
   hl(v){ const [r,l]=v.split(':'); S.hl[+r]=l; },
   openTpl(){ S.t='tpl'; },
   openGreetings(){ S.t='greetings'; },
@@ -1188,9 +1204,9 @@ A.tstate=v=>applyT(v); A.pstate=v=>applyP(v);
 function onApproved(){ if(S.pk.A==='approved' && !S.msgs.includes('catchup')){ S.msgs.push('catchup'); S.pclock='6:10 pm'; if(S.p==='empty') S.p='home'; if(S.ravi==='missed') S.ravi='sent'; } }
 
 /* ================= Render, with focus management ================= */
-const TSCREENS={login:tLogin,settings:tSettings,tpl:tTpl,greetings:tGreetings,family:tFamily,onboard:tOnboard,today:tToday,confirm:tConfirm,approve:tApprove,pkg:tPkg,ledger:tLedger,child:tChild,families:tFamilies,ret:tRet,week:tWeek};
+const TSCREENS={help:tHelp,login:tLogin,settings:tSettings,tpl:tTpl,greetings:tGreetings,family:tFamily,onboard:tOnboard,today:tToday,confirm:tConfirm,approve:tApprove,pkg:tPkg,ledger:tLedger,child:tChild,families:tFamilies,ret:tRet,week:tWeek};
 const PSCREENS={empty:pHome,home:pHome,reason:pReason,listen:pListen,activity:pActivity,answer:pAnswer,done:pDone};
-const TNAMES={login:'T9 Sign in',settings:'T10 Settings',tpl:'T10 Settings · Evening message',greetings:'T10 Settings · My greetings',family:'T8 Family details',onboard:'T0 Set up',today:'T1 Today',confirm:'T2 Lesson confirm',approve:'T3 Approve',pkg:'T3 Approve · detail',ledger:'T4 Missed lessons (ledger)',child:'T4 Child',families:'T8 Families and consent',ret:'T5 Back today (buddy card)',week:'T6 Week (return speed + pacing)'};
+const TNAMES={help:'T10 Settings · Help',login:'T9 Sign in',settings:'T10 Settings',tpl:'T10 Settings · Evening message',greetings:'T10 Settings · My greetings',family:'T8 Family details',onboard:'T0 Set up',today:'T1 Today',confirm:'T2 Lesson confirm',approve:'T3 Approve',pkg:'T3 Approve · detail',ledger:'T4 Missed lessons (ledger)',child:'T4 Child',families:'T8 Families and consent',ret:'T5 Back today (buddy card)',week:'T6 Week (return speed + pacing)'};
 const PNAMES={empty:'Phone · no messages',home:'Messages (WhatsApp stand-in)',reason:'Reason for absence (FR-21)',listen:'P1 Listen',activity:'P2 Activity',answer:'P3 Answer',done:'P4 Done'};
 const opener={};
 function keyOf(el){ if(!el||!el.dataset) return null; if(el.dataset.mic) return 'mic|'+el.dataset.mic; if(el.dataset.a) return el.dataset.a+'|'+(el.dataset.v||''); return null; }
