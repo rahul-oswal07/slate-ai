@@ -198,7 +198,7 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 
 Open items:
 - Resolved (D-34): mic blocked and sending are in the prototype. The online save error state is still not designed.
-- Tonight's card: a child marked No on T8 gets its own tag, "No consent" (ಒಪ್ಪಿಗೆ ಇಲ್ಲ), not "Stopped by family"; families who stopped messages are left out of the count (FR-19) (resolved 21 Oct in the prototype). Monika to confirm the tag word.
+- Tonight's card: a child marked No on T8 gets its own tag, "No consent" (ಒಪ್ಪಿಗೆ ಇಲ್ಲ), not "Stopped by family"; families who stopped messages are left out of the count (FR-19) (resolved 21 Oct in the prototype). Tag word confirmed by Monika, 21 Oct.
 - "Change" on the lesson card reopens the T2 checklist with today's lessons ticked, so several lessons can be edited together (resolved 21 Oct in the prototype).
 - "Since yesterday" window is not defined (since previous school day? since last opened?). Define it in the API.
 - `update.needsPractice` en says "his return"; `update.homework` kn ತಂದಿದ್ದಾನೆ is masculine. Need gender-neutral strings or a per-child form (buddy card uses ತಂದಿದ್ದಾರೆ).

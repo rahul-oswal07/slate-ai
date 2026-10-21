@@ -349,7 +349,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-36 | Evening message listens | Not tracked or shown (D-20); only the catch-up "Listened" status stays | Monika | Day 3 | Accepted |
 | D-37 | Withdraw cut-off wording | "Withdraw (until 6 pm)"; allowed until the 6 pm send job starts, then Sent (FR-08) | Monika | Day 3 | Accepted |
 | D-38 | Remaining states | T3 Sent ("Sent at 6:02 pm · N families", no Withdraw) and Generation failed ("Could not write this catch-up. Nothing was sent.", Try again); T0 offline and greeting deleted; T2 offline. Designs in the prototype and cards | Monika | Day 3 | Accepted |
-| D-39 | Parent opt-in | Paper consent form collected offline; teacher records Yes / No / No phone per child with date on T8 Families; nothing sent unless Yes; family can still stop (D-30) | Monika | Day 3 | Accepted |
+| D-39 | Parent opt-in | Paper consent form collected offline; teacher records Yes / No / No phone per child with date on T8 Families; a child whose form has not come back counts as No; nothing sent unless Yes; family can still stop (D-30); tag for No is "No consent" | Monika | Day 3 | Accepted |
 
 ## 9. Assumptions
 

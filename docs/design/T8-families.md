@@ -87,6 +87,7 @@ Children's names come from `Child.FirstName`; the date comes from the latest con
 - [ ] A tap saves at once and announces "Saved"; the summary recounts in code and the three counts add up to the class size (guardrail 4)
 - [ ] `PUT /api/children/{id}/consent { value: Yes | No | NoPhone, clientRequestId }`, idempotent; stores changed-at and the teacher; offline changes go to the Dexie outbox and replay once (T-19, NFR-02)
 - [ ] "Last changed" shows the latest change date from the server and updates after a change
+- [ ] A child with no consent form yet is stored as No: nothing is sent and the row shows No until the teacher changes it (D-39)
 - [ ] Send filter: the evening-message and catch-up send endpoints return 409 for a child marked No or NoPhone, and for a family that stopped messages; endpoint tests with fakes (FR-15, FR-19, FR-20, T-44)
 - [ ] T1 tonight's card counts only absent children marked Yes and not stopped, and lists absent children marked No phone or No with a tag; T0 "All set" counts come from the same data (D-39)
 - [ ] A family's stop shows "Stopped by family" on its row within 2 s; setting Yes does not restart messages (D-30, FR-19)
@@ -99,8 +100,8 @@ Children's names come from `Child.FirstName`; the date comes from the latest con
 - "Last changed" switches to "today" after a change (resolved 21 Oct in the prototype); in the build it comes from the server.
 - Segment labels are now 14 px (resolved 21 Oct in the prototype); tokens.md asks 14 px Latin / 16 px Indic. "ಫೋನ್ ಇಲ್ಲ" in a 3-way control beside a name at 360 px needs a layout check (name above the control, or a stacked row).
 - Back returns to where T8 was opened (setup "All set" or Missed lessons); no bottom nav when opened from setup (resolved 21 Oct in the prototype).
-- Default value for a child whose form has not come back is not designed. Recommend No until the form is in, so nothing is sent without consent (FR-15).
-- A child marked No shows the "No consent" (ಒಪ್ಪಿಗೆ ಇಲ್ಲ) tag on T1 and T4 (resolved 21 Oct in the prototype). Monika to confirm the tag word.
+- A child whose form has not come back counts as **No** until it arrives, so nothing is sent without consent (FR-15). Decided by Monika, 21 Oct (D-39).
+- A child marked No shows the "No consent" (ಒಪ್ಪಿಗೆ ಇಲ್ಲ) tag on T1 and T4 (resolved 21 Oct in the prototype). Tag word confirmed by Monika, 21 Oct.
 - T4 channel tags follow this screen (resolved 21 Oct in the prototype).
 - Data model: spec §4.3 has `Child.ParentConsentAt` and `Child.HasPhone`; a three-value consent with changed-at and changed-by needs a field. Rahul to update the spec and `docs/database.md` with the T-19 migration.
 - Offline and online-error states are not in the prototype.
