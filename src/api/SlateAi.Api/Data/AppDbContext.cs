@@ -11,6 +11,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<ProcessedRequest> ProcessedRequests => Set<ProcessedRequest>();
+    public DbSet<AiCall> AiCalls => Set<AiCall>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +57,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         {
             e.HasKey(r => r.ClientRequestId);
             e.Property(r => r.Endpoint).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<AiCall>(e =>
+        {
+            e.Property(c => c.Purpose).HasMaxLength(50);
+            e.Property(c => c.Model).HasMaxLength(100);
+            e.Property(c => c.Verdict).HasMaxLength(100);
+            e.Property(c => c.Error).HasMaxLength(300);
+            e.HasIndex(c => c.CreatedAt);
         });
     }
 }

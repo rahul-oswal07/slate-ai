@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Seed;
@@ -22,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddCurriculum(builder.Configuration);
+builder.Services.AddAi(builder.Configuration);
 builder.Services.AddAttendance();
 builder.Services.AddLedger();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
@@ -30,6 +32,7 @@ builder.Services.AddApiDocs(builder.Configuration);
 var app = builder.Build();
 
 app.LoadCurriculum();
+app.CheckAiSetup();
 
 await app.InitialiseDatabaseAsync(app.Lifetime.ApplicationStopping);
 

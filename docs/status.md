@@ -34,7 +34,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## Next session (Day 2, Tue 20 Oct)
 
 - T-05 code done on test data (graph, loader, candidate set). Remaining: turn Monika's T-22 list into `grade3-maths.json`.
-- T-07 A1 lesson mapping (STT + Claude, 10 evals): unblocked (keys set, D-11/D-12 accepted). `Lesson` entity exists in minimal form from T-06; T-07 extends it and adds the capture endpoint.
+- T-07 in two PRs. PR 1 (AI plumbing: Claude client, prompts, `AiCall` log, Sarvam STT) is open. PR 2 next: lesson capture endpoints, A1 prompt + validator, name scrubber, 10 draft evals.
 - Use plan mode first; one branch per task.
 
 ## Local dev
@@ -73,3 +73,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | Clickable end-to-end prototype of teacher + parent flows (outside the repo, `Documents/tappida-paatha-prototype`). D-27: attendance comes from the school system (simulated SATS feed in the MVP + manual fallback; real SATS/VSK feed is roadmap, no public API found). FR-01, NFR-01, T1 screen, intent and narrative updated |
 | 20 Oct | Monika + Claude | UX review of all prototype screens (heuristics, UX laws, WCAG 2.2 + axe): 93 findings, P0s fixed in prototype v2 (axe 0 violations on 71 states). Accepted as prototyped: D-03, D-07 (pictures are the answer), D-08, D-09; new D-28 bulk approve only after review + withdraw, D-29 buddy not named to parents, D-30 stop everywhere + STOP reply, D-31 tap-to-start mic. FR-02/08/19/20 and screens table updated |
 | 20 Oct | Monika + Claude | H2 design handoff: `docs/design/journey.md` + cards T0, T1, T2, T4 (states, kn/en copy, tokens, acceptance checklists traced to UX-review finding IDs), 360 px screenshots, clickable prototype and UX review in `docs/design/`. Spec follow-ups for Rahul listed in journey.md |
+| 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |

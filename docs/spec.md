@@ -172,7 +172,7 @@ Why one container: one URL for judges, no CORS, one deploy pipeline, fewer movin
 | Back end | .NET 10 (LTS) Minimal APIs, EF Core 10 + Npgsql, `Anthropic` NuGet SDK, `Microsoft.Extensions.Http.Resilience` | D-11 accepted: official SDK behind `ILlmClient` |
 | Database | PostgreSQL 16 | Docker locally |
 | Audio storage | Azure Blob Storage (local disk in dev) | Opus/MP3 at 24–32 kbps |
-| Speech | Sarvam AI: Saarika STT (kn-IN), Bulbul TTS (te-IN, ta-IN, kn-IN) | D-12 accepted: Sarvam; voice choice during T-11. Fallback: Google Cloud STT/TTS |
+| Speech | Sarvam AI: Saaras STT (kn-IN; `saaras:v4`, configurable), Bulbul TTS (te-IN, ta-IN, kn-IN) | D-12 accepted: Sarvam; voice choice during T-11. Fallback: Google Cloud STT/TTS |
 | LLM | Claude via API; models set in config | See §5.1 |
 | Hosting | Azure App Service for Containers (Linux, Central India), Azure Database for PostgreSQL Flexible (B1ms), GitHub Actions; two web apps (staging, prod) on one B1 plan | D-13 (Accepted). Fallback: same Dockerfile on Render/Fly.io |
 | Tests | xUnit, WebApplicationFactory with fake stores (no database); Vitest + Testing Library; Playwright + @axe-core/playwright | |
@@ -235,7 +235,7 @@ All write endpoints accept a client-generated `clientRequestId` so offline repla
 
 ### 5.1 Where Claude is called
 
-| # | Call | Input | Output (JSON via tool use) | Model (config) | Guardrails |
+| # | Call | Input | Output (JSON via structured outputs; Sonnet/Opus 5.5 reject forced tool use) | Model (config) | Guardrails |
 |---|---|---|---|---|---|
 | A1 | **Lesson mapping** | STT transcript (or board photo, stretch) + the current chapter's competency list and textbook excerpt (retrieved deterministically by the class's syllabus week) | `competencyIds[1..3]`, `summaryKn`, `examplesUsed`, `confidence` | Sonnet 5.5 | IDs constrained to an enum of valid IDs; confidence < 0.7 → teacher picks from list |
 | A2 | **Prerequisite-aware compression** | Child's missed competency IDs, graph-computed candidate set (missed ∩ ancestors of next week's competencies), next week's plan, child's prior check results, lesson records | `targets[≤2]` with reason; `dropped[]` with reason | Sonnet 5.5 | Targets must be ⊆ candidate set; else fall back to the graph's nearest-prerequisite rule |
@@ -321,7 +321,7 @@ Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved b
 | D-09 | Teacher review of non-Kannada script | Kannada gloss + audio | Monika | Day 3 | Accepted |
 | D-10 | Single container (API serves SPA) | Yes | Rahul | Day 1 | Accepted (T-03) |
 | D-11 | Claude client | Official `Anthropic` NuGet SDK behind `ILlmClient` | Rahul | Day 1 | Accepted (19 Oct) |
-| D-12 | Speech provider | Sarvam (Saarika STT, Bulbul TTS) | Rahul | Day 1 | Accepted (19 Oct): API key in user-secrets; voice choice during T-11 |
+| D-12 | Speech provider | Sarvam (Saarika STT, Bulbul TTS) | Rahul | Day 1 | Accepted (19 Oct): API key in user-secrets; voice choice during T-11. 21 Oct: Sarvam's current STT model is `saaras:v4` (Saarika superseded), set via `Sarvam:SttModel` |
 | D-13 | Hosting | Azure App Service + PostgreSQL Flexible, Central India | Rahul | Day 1 | Accepted (T-04): staging + prod apps on one B1 plan, images on GHCR, OIDC deploy |
 | D-14 | Curriculum source and wording | State textbook + NIPUN outcomes; Monika approves Kannada names | Monika | Day 2 | Proposed |
 | D-15 | Open-source licence | MIT, repo public from submission day | Rahul + Monika | Day 9 | Proposed |
