@@ -98,6 +98,13 @@ The nudge sentence shown is A5 output (`PacingNudge.TextKn`) with code-filled sl
 - [ ] No route, export or API exposes this card outside the teacher's session (FR-22).
 
 ## Open items
+
+**Resolved 22 Oct:**
+- Nudge shows when 5 or more of the class missed the same lesson this week (D-60).
+- No absences / first week: "No absences this week." with no comparison; state chip "No absences" (D-61).
+- Offline / loading / error: follow D-68.
+
+**Still open:**
 - Definition of a spell that crosses weeks, or is still open on Friday (child not back yet): which week counts it, and is an open spell "not back within 2 days"? Rahul to define before T-46.
 - First week (no last week) and "no absences" states are not designed.
 - Offline state not designed; recommend cached snapshot with "Last updated …".

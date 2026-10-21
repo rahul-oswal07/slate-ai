@@ -112,6 +112,10 @@ Children's names come from `Child.FirstName`; the date comes from the latest con
 
 ## Open items
 
+**Resolved 22 Oct:**
+- Yes without a phone number: Save is blocked with "Add the parent’s phone number, or choose No phone." (D-66).
+
+**Still open:**
 - "Last changed" switches to "today" after a change (resolved 21 Oct in the prototype); in the build it comes from the server.
 - Segment labels are now 14 px (resolved 21 Oct in the prototype); tokens.md asks 14 px Latin / 16 px Indic. "ಫೋನ್ ಇಲ್ಲ" in a 3-way control beside a name at 360 px needs a layout check (name above the control, or a stacked row).
 - Back returns to where T8 was opened (setup "All set", Settings or Missed lessons); no bottom nav when opened from setup (D-51). In the prototype, Family details opened from setup still shows the bottom nav while the list does not; Family details should follow the list.

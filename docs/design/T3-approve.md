@@ -136,6 +136,13 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 - [ ] Tags wrap at 320 px and 200 % text (B-26).
 
 ## Open items
+
+**Resolved 22 Oct:**
+- Bulk approve: the tick is enough, no confirm sheet (D-57).
+- Audio labels: same three parts as the parent view; teacher view says "Your greeting" (D-58).
+- Empty list, loading, 409 conflict: follow D-68.
+
+**Still open:**
 - Resolved (D-38): "Sent" and "Generation failed" are designed for the list and the detail (B-14).
 - Finish banner is sent-aware: "All N sent · F families", or "Sent to F families; M get them after 6 pm" when some are still pending (resolved 21 Oct in the prototype).
 - "Sent at 6:02 pm · N families" and the banner count families marked Yes on T8 and not stopped, in code (resolved 21 Oct in the prototype).

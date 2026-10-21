@@ -103,6 +103,11 @@ Language names in the App language control are shown in their own script (ಕನ
 
 ## Open items
 
+**Resolved 22 Oct:**
+- Help: one static page, how it works + contact (built in the prototype) (D-65).
+- Wording editor: roadmap; the screen says "To change the wording, contact your school" (D-65).
+
+**Still open:**
 - Help content is not designed (prototype toast only). Proposed: a short "how it works" page and the school contact.
 - The "Change the wording" editor is not designed (prototype toast only). Who reviews changed wording in te and ta before it is sent?
 - The Evening message row and screen always show "Approved · 20 Oct" in the prototype, even after "Not now" on setup. A not-approved state ("Not approved yet") is needed on both.
