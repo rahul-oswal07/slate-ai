@@ -7,7 +7,7 @@ public sealed class RegisterMergeTests
     private static readonly Guid A = Guid.NewGuid();
     private static readonly Guid B = Guid.NewGuid();
     private static readonly Guid[] Roster = [A, B];
-    private static readonly DateTimeOffset Arrived = new(2026, 10, 21, 9, 5, 0, SchoolClock.Ist);
+    private static readonly DateTimeOffset Arrived = new(2026, 10, 21, 12, 0, 0, SchoolClock.Ist);
     private static readonly DateTimeOffset Later = Arrived.AddHours(1);
 
     [Fact]

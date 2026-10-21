@@ -21,10 +21,11 @@ function day(overrides: Partial<AttendanceDay> = {}): AttendanceDay {
   return {
     date,
     status: 'sats',
-    receivedAt: `${date}T09:05:00+05:30`,
+    receivedAt: `${date}T12:00:00+05:30`,
     corrected: false,
     satsDiffers: false,
-    recheckAt: null,
+    syncAt: null,
+    retryAt: null,
     absentChildIds: ['child-3', 'child-4'],
     children,
     ...overrides,
@@ -52,7 +53,7 @@ describe('TodayScreen', () => {
     today(day())
     renderApp('/')
 
-    const card = await screen.findByRole('region', { name: /Attendance · SATS \(simulated\), 9:05/i })
+    const card = await screen.findByRole('region', { name: /Attendance · SATS \(simulated\), 12:00/i })
     expect(within(card).getByText('2 absent')).toBeInTheDocument()
     expect(within(card).getByText('Chetan')).toBeInTheDocument()
     expect(within(card).getByText('Ravi')).toBeInTheDocument()
@@ -99,12 +100,12 @@ describe('TodayScreen', () => {
     await waitFor(() => expect(screen.getByTestId('announcer')).toHaveTextContent('Changes discarded'))
   })
 
-  it('SATS not in yet: says when it will check, and she can mark it here with everyone present', async () => {
-    today(day({ status: 'waiting', receivedAt: null, recheckAt: '10:00:00', absentChildIds: [] }))
+  it('SATS not in yet: names the sync and retry times, and she can mark it here with everyone present', async () => {
+    today(day({ status: 'waiting', receivedAt: null, syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [] }))
     renderApp('/')
 
     expect(await screen.findByText('SATS attendance has not come in yet')).toBeInTheDocument()
-    expect(screen.getByText(/We will check again at 10:00/)).toBeInTheDocument()
+    expect(screen.getByText(/It comes in at 12:00.*If it is late, we check again at 2:00/)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Mark it here if you prefer' }))
 
@@ -117,14 +118,26 @@ describe('TodayScreen', () => {
     renderApp('/')
 
     expect(await screen.findByRole('region', { name: 'Attendance · marked by you' })).toBeInTheDocument()
-    expect(screen.getByText(/SATS came in at 9:05.*Your marking is kept\./)).toBeInTheDocument()
+    expect(screen.getByText(/SATS came in at 12:00.*Your marking is kept\./)).toBeInTheDocument()
   })
 
   it('says so when nobody is absent', async () => {
     today(day({ absentChildIds: [] }))
     renderApp('/')
 
-    expect(await screen.findByText('Everyone is here today')).toBeInTheDocument()
+    expect(await screen.findByText('Everyone is here today.')).toBeInTheDocument()
+  })
+
+  it('still missing after the 2 pm retry: asks her to mark it so tonight’s messages can go', async () => {
+    today(day({ status: 'missing', receivedAt: null, absentChildIds: [] }))
+    renderApp('/')
+
+    expect(await screen.findByText('Still missing after 2 pm')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Attendance didn’t come in today/ })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Mark attendance' }))
+
+    expect(screen.getByRole('heading', { name: 'Mark attendance here' })).toBeInTheDocument()
   })
 
   it('offline: the correction waits in the outbox and is sent once when the network is back', async () => {
@@ -160,9 +173,12 @@ describe('TodayScreen', () => {
     first.unmount()
 
     offline = true
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
     renderApp('/')
 
     expect(await screen.findByText('2 absent')).toBeInTheDocument()
+    expect(screen.getByText(/^No network\. Showing what was saved at .+\. It updates when the network returns\.$/)).toBeInTheDocument()
+    vi.restoreAllMocks()
   })
 
   it('bottom nav marks Today and opens the other tabs', async () => {

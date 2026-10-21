@@ -16,7 +16,7 @@ public abstract record SourceResult
 }
 
 /// <summary>
-/// The school's attendance system (D-27, D-41): the simulated SATS feed now; a file import or state API later.
+/// The school's attendance system (D-27, D-69): the simulated SATS feed now; a file import or state API later.
 /// Read only. Corrections stay in our database and are never written back.
 /// </summary>
 public interface IAttendanceSource

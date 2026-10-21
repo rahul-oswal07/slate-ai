@@ -30,7 +30,8 @@ public static class AttendanceEndpoints
             .WithSummary("The register for a date, with its source")
             .WithDescription(
                 "Fetches the simulated SATS register when it is due (after Attendance:Sats:ArrivesAt IST) and " +
-                "nothing from SATS is stored yet (D-41). status: sats | manual | waiting | noSchool.");
+                "nothing from SATS is stored yet (D-45, D-69). status: sats | manual | waiting | missing (after the " +
+                "Attendance:Sats:RetryAt retry, D-67) | noSchool.");
 
         app.MapPost("/api/classes/{classId:guid}/attendance", MarkAsync)
             .RequireClassOwner()

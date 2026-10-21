@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { api, NetworkError } from '../../api/client'
-import { loadSnapshot, saveSnapshot } from '../../offline/db'
+import { db, saveSnapshot } from '../../offline/db'
 import { enqueue, flush, pendingFor } from '../../offline/outbox'
 import type { AttendanceDay } from './types'
 
@@ -26,7 +26,7 @@ function withPending(day: AttendanceDay, pending: RegisterBody | undefined): Att
 }
 
 /**
- * Today's register (D-41). Online it asks the server (which fetches the simulated SATS feed when due);
+ * Today's register (D-69). Online it asks the server (which fetches the simulated SATS feed when due);
  * offline it shows the last snapshot. Either way, a register still in the outbox is shown on top.
  */
 export function useAttendanceDay(classId: string, date: string) {
@@ -39,11 +39,11 @@ export function useAttendanceDay(classId: string, date: string) {
         day = await api<AttendanceDay>(`${registerUrl(classId)}/${date}`)
         await saveSnapshot(key, day)
       } catch (error) {
-        const snapshot = error instanceof NetworkError ? await loadSnapshot<AttendanceDay>(key) : null
+        const snapshot = error instanceof NetworkError ? await db.snapshots.get(key) : undefined
         if (!snapshot) {
           throw error
         }
-        day = snapshot
+        day = { ...(snapshot.value as AttendanceDay), savedAt: snapshot.savedAt }
       }
       const pending = (await pendingFor(registerUrl(classId)))
         .map((item) => item.body as RegisterBody)

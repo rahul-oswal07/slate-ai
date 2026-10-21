@@ -31,11 +31,11 @@ public sealed class SimulatedSatsSourceTests
     }
 
     [Fact]
-    public async Task Arrives_at_9_05_ist_on_the_day()
+    public async Task Arrives_at_noon_ist_on_the_day()
     {
         var register = Assert.IsType<SourceResult.Arrived>(await Create().FetchAsync(ClassId, Wednesday, Roster, Ct));
 
-        Assert.Equal(new DateTimeOffset(2026, 10, 21, 9, 5, 0, SchoolClock.Ist), register.ReceivedAt);
+        Assert.Equal(new DateTimeOffset(2026, 10, 21, 12, 0, 0, SchoolClock.Ist), register.ReceivedAt);
     }
 
     [Fact]

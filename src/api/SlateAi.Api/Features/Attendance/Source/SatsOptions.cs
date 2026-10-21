@@ -4,11 +4,11 @@ public sealed class SatsOptions
 {
     public const string Section = "Attendance:Sats";
 
-    /// <summary>When the simulated register "arrives" each school day, IST.</summary>
-    public TimeOnly ArrivesAt { get; set; } = new(9, 5);
+    /// <summary>When the register comes in each school day, IST (D-45 sync time).</summary>
+    public TimeOnly ArrivesAt { get; set; } = new(12, 0);
 
-    /// <summary>The time Today promises to check again while nothing has come in, IST.</summary>
-    public TimeOnly RecheckAt { get; set; } = new(10, 0);
+    /// <summary>The one retry if it is late, IST (D-45); after it, Today says it is missing (D-67).</summary>
+    public TimeOnly RetryAt { get; set; } = new(14, 0);
 
     /// <summary>Share of children the simulation marks absent on an ordinary day.</summary>
     public double AbsenceRate { get; set; } = 0.08;
