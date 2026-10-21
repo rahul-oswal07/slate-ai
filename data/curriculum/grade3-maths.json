@@ -1,0 +1,328 @@
+{
+  "grade": 3,
+  "subject": "maths",
+  "version": "2026-10-20",
+  "competencies": [
+    {
+      "id": "M2.PV.TENS",
+      "nameKn": "ಹತ್ತು ಮತ್ತು ಬಿಡಿ (ಸ್ಥಾನ ಬೆಲೆ)",
+      "nameEn": "Place value: tens and ones",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 0,
+      "sequence": 1,
+      "examples": [
+        "Ten-rods and unit cubes: 1 rod + 3 cubes = 13"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 6
+      }
+    },
+    {
+      "id": "M2.ADD.2D",
+      "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ",
+      "nameEn": "2-digit addition",
+      "prerequisites": [
+        "M2.PV.TENS"
+      ],
+      "nipunOutcome": null,
+      "chapter": 0,
+      "sequence": 2,
+      "examples": [
+        "25 + 13 coconuts",
+        "12 + 18"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 10
+      }
+    },
+    {
+      "id": "M2.SUB.2D",
+      "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ವ್ಯವಕಲನ",
+      "nameEn": "2-digit subtraction",
+      "prerequisites": [
+        "M2.PV.TENS"
+      ],
+      "nipunOutcome": null,
+      "chapter": 0,
+      "sequence": 3,
+      "examples": [
+        "66 + 23 cricket balls, 34 sold: 89 − 34"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 13
+      }
+    },
+    {
+      "id": "M3.PV.HTO",
+      "nameKn": "ನೂರು, ಹತ್ತು, ಬಿಡಿ",
+      "nameEn": "Hundreds, tens and ones (to 999)",
+      "prerequisites": [
+        "M2.PV.TENS"
+      ],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 4,
+      "examples": [
+        "1 hundred + 2 tens + 1 one = 121",
+        "2 hundreds + 1 ten + 3 ones"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 42
+      }
+    },
+    {
+      "id": "M3.PV.EXPAND",
+      "nameKn": "ಸಂಖ್ಯೆಗಳನ್ನು ಬಿಡಿಸಿ ಬರೆಯೋಣ",
+      "nameEn": "Expanded form",
+      "prerequisites": [
+        "M3.PV.HTO"
+      ],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 5,
+      "examples": [
+        "385 = 300 + 80 + 5",
+        "427",
+        "280"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 45
+      }
+    },
+    {
+      "id": "M3.PV.FACE",
+      "nameKn": "ಸ್ಥಾನಬೆಲೆ ಮತ್ತು ಮುಖಬೆಲೆ",
+      "nameEn": "Place value and face value",
+      "prerequisites": [
+        "M3.PV.HTO"
+      ],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 6,
+      "examples": [
+        "89: face value 8, place value 80",
+        "the 0 in 509"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 49
+      }
+    },
+    {
+      "id": "M3.PV.4D",
+      "nameKn": "9999 ರವರೆಗಿನ ಸಂಖ್ಯೆಗಳು (ಸಾವಿರ)",
+      "nameEn": "Numbers to 9999 (thousands)",
+      "prerequisites": [
+        "M3.PV.EXPAND"
+      ],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 7,
+      "examples": [
+        "3475 = 3000 + 400 + 70 + 5",
+        "2009 in words"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 55
+      }
+    },
+    {
+      "id": "M3.NUM.COMPARE",
+      "nameKn": "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ",
+      "nameEn": "Compare 3-digit numbers (>, <, =)",
+      "prerequisites": [
+        "M3.PV.HTO"
+      ],
+      "nipunOutcome": null,
+      "chapter": 3,
+      "sequence": 8,
+      "examples": [
+        "737 □ 738",
+        "605 □ 650"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 65
+      }
+    },
+    {
+      "id": "M3.NUM.ORDER",
+      "nameKn": "ಏರಿಕೆ ಕ್ರಮ – ಇಳಿಕೆ ಕ್ರಮ",
+      "nameEn": "Ascending and descending order",
+      "prerequisites": [
+        "M3.NUM.COMPARE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 3,
+      "sequence": 9,
+      "examples": [
+        "303 508 609 401",
+        "248 844 768 646"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 68
+      }
+    },
+    {
+      "id": "M3.ADD.NOCARRY",
+      "nameKn": "ದಶಕ ರಹಿತ ಸಂಕಲನ",
+      "nameEn": "3-digit addition without carrying",
+      "prerequisites": [
+        "M3.PV.HTO",
+        "M2.ADD.2D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 4,
+      "sequence": 10,
+      "examples": [
+        "718 + 221",
+        "452 + 224"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 80
+      }
+    },
+    {
+      "id": "M3.ADD.CARRY",
+      "nameKn": "ದಶಕ ಸಹಿತ ಸಂಕಲನ",
+      "nameEn": "3-digit addition with carrying",
+      "prerequisites": [
+        "M3.ADD.NOCARRY",
+        "M3.PV.EXPAND"
+      ],
+      "nipunOutcome": null,
+      "chapter": 4,
+      "sequence": 11,
+      "examples": [
+        "317 + 536",
+        "247 + 365"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 85
+      }
+    },
+    {
+      "id": "M3.ADD.WORD",
+      "nameKn": "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ಸಂಕಲನ)",
+      "nameEn": "Addition word problems",
+      "prerequisites": [
+        "M3.ADD.CARRY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 4,
+      "sequence": 12,
+      "examples": [
+        "324 boys and 258 girls: how many children?",
+        "230 + 565 guests"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 88
+      }
+    },
+    {
+      "id": "M3.SUB.NOBORROW",
+      "nameKn": "ದಶಕ ರಹಿತ ವ್ಯವಕಲನ",
+      "nameEn": "3-digit subtraction without borrowing",
+      "prerequisites": [
+        "M3.PV.HTO",
+        "M2.SUB.2D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 13,
+      "examples": [
+        "532 − 401",
+        "448 − 335"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 6
+      }
+    },
+    {
+      "id": "M3.SUB.CHECK",
+      "nameKn": "ತಾಳೆ ನೋಡುವುದು (ಕೂಡಿಸುವುದು ಮತ್ತು ಕಳೆಯುವುದರ ಸಹಸಂಬಂಧ)",
+      "nameEn": "Check subtraction by adding",
+      "prerequisites": [
+        "M3.SUB.NOBORROW",
+        "M3.ADD.NOCARRY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 14,
+      "examples": [
+        "626 − 615 = 011; check 011 + 615 = 626"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 4
+      }
+    },
+    {
+      "id": "M3.SUB.BORROW",
+      "nameKn": "ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ",
+      "nameEn": "3-digit subtraction with borrowing",
+      "prerequisites": [
+        "M3.SUB.NOBORROW",
+        "M3.PV.EXPAND"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 15,
+      "examples": [
+        "438 − 229",
+        "452 − 358 (borrows twice)"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 15
+      }
+    },
+    {
+      "id": "M3.SUB.WORD",
+      "nameKn": "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ)",
+      "nameEn": "Subtraction word problems",
+      "prerequisites": [
+        "M3.SUB.BORROW"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 16,
+      "examples": [
+        "Book of 257 pages, 152 read: how many left?",
+        "875 − 673 stamps"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 18
+      }
+    }
+  ]
+}

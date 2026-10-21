@@ -22,7 +22,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Monika: T-22 competency list drafted in `docs/design/curriculum.md` (16 competencies, textbook page each). D-01 revised to 3-digit. Open: † Kannada names to confirm with a teacher; NIPUN codes have no source yet
 - [ ] Rahul: D-27 attendance source. Put attendance behind a source interface (`DemoSource` simulated SATS feed now; file import / state API later) feeding the existing T-06 register endpoint; store source + time per record; teacher corrections overlay, never written back. Update `plan.md` / `tasks.md` (T-12: grid becomes corrections + fallback only) and the demo label "simulated"
 - [ ] Monika: T-20 interviews: ask teachers how they mark student attendance today (paper register, SATS app, other). If SATS does not hold daily Grade 3 attendance, revisit D-27
-- [ ] Rahul: build `data/curriculum/grade3-maths.json` from T-22 (T-05 loader is ready). Note: 2-digit → 3-digit changes number ranges for generated sums, checks and buddy cards (≤ 999, no borrowing across zero); test fixtures use `M3.PV.TENS`, which is now `M2.PV.TENS`
+- [x] Rahul: built `data/curriculum/grade3-maths.json` from T-22 (21 Oct). Note: 2-digit → 3-digit changes number ranges for generated sums, checks and buddy cards (≤ 999, no borrowing across zero); test fixtures use `M3.PV.TENS`, which is now `M2.PV.TENS`
 - [ ] Rahul: D-28–D-31 from the UX review: approval API accepts only Ready + ticked for that script version, Withdraw until send (D-28); `MessageTemplate` no longer names the buddy to parents, drop or keep `{buddy}` teacher-side only (D-29); STOP reply + confirmation message with restart link (D-30); mic tap-to-start/stop (D-31)
 - [x] Monika: T-21 replaced by the clickable prototype v2 + UX review (outside the repo, `Documents/tappida-paatha-prototype`); D-03, D-07, D-08, D-09 accepted as prototyped
 - [ ] Monika: T-21 low-fi wireframes; T-20 recruit teachers + parents (Dasara break until ~21 Oct)
@@ -33,7 +33,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 ## Next session (Day 2, Tue 20 Oct)
 
-- T-05 code done on test data (graph, loader, candidate set). Remaining: turn Monika's T-22 list into `grade3-maths.json`.
+- T-05 done (21 Oct): graph, loader and `grade3-maths.json` from T-22.
 - T-07 in two PRs. PR 1 (AI plumbing: Claude client, prompts, `AiCall` log, Sarvam STT) is open. PR 2 next: lesson capture endpoints, A1 prompt + validator, name scrubber, 10 draft evals.
 - Use plan mode first; one branch per task.
 
@@ -74,3 +74,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | UX review of all prototype screens (heuristics, UX laws, WCAG 2.2 + axe): 93 findings, P0s fixed in prototype v2 (axe 0 violations on 71 states). Accepted as prototyped: D-03, D-07 (pictures are the answer), D-08, D-09; new D-28 bulk approve only after review + withdraw, D-29 buddy not named to parents, D-30 stop everywhere + STOP reply, D-31 tap-to-start mic. FR-02/08/19/20 and screens table updated |
 | 20 Oct | Monika + Claude | H2 design handoff: `docs/design/journey.md` + cards T0, T1, T2, T4 (states, kn/en copy, tokens, acceptance checklists traced to UX-review finding IDs), 360 px screenshots, clickable prototype and UX review in `docs/design/`. Spec follow-ups for Rahul listed in journey.md |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
+| 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
