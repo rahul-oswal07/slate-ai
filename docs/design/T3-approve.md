@@ -2,7 +2,7 @@
 
 Spec: FR-06, FR-07, FR-08, FR-09, NFR-08 · Tier: MVP · Task: T-14 (pipeline: T-08, T-09, T-10, T-11) · Prototype: prototype/index.html (step 7) · PNG: screenshots/T3-approve-list-360-light.png
 
-Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenerate), D-18 (spoken AI disclosure), D-28 (bulk approve only for opened and ticked; Withdraw until the send), D-35 (tag colours reuse status tokens), D-37 (Withdraw label and cut-off), D-38 (Sent and Generation failed states). Review: B-01, B-02, B-03, B-10, B-11, B-12, B-13, B-14, B-15, B-28, B-29.
+Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenerate), D-18 (spoken AI disclosure), D-28 (bulk approve only for opened and ticked; Withdraw until the send), D-35 (tag colours reuse status tokens), D-37 (Withdraw label and cut-off), D-38 (Sent and Generation failed states), D-50 (no names in the computer voice; summary ends "Show your teacher"), D-52 (greeting per language). Card titles read "In Telugu · 3 children" (21 Oct). Review: B-01, B-02, B-03, B-10, B-11, B-12, B-13, B-14, B-15, B-28, B-29.
 
 ## 1. User voice
 - Says: "Show me what goes to the families this week. I'll check it once and send it. I can't read Telugu, so tell me in Kannada what it says."
@@ -55,7 +55,7 @@ Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenera
 | `approve.intro` | ಮಗುವಿಗೊಂದಲ್ಲ, ಪ್ರತಿ ಪುನರಾವರ್ತನೆಗೆ ಒಂದು ಅನುಮೋದನೆ. ನೀವು ಒಪ್ಪುವವರೆಗೆ ಏನೂ ಕಳುಹಿಸುವುದಿಲ್ಲ. | — | needs translation | One approval per catch-up, not per child. Nothing is sent until you approve. | needs review |
 | `approve.offline` | ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನಿಮ್ಮ ಅನುಮೋದನೆ ಫೋನಿನಲ್ಲಿ ಉಳಿಯುತ್ತದೆ, ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ಕಳುಹಿಸುತ್ತದೆ. | — | needs translation | No network. Your approval is saved on the phone and will send when you have network. | needs review |
 | `approve.allDone` | {n} ಕೂ ಅನುಮೋದಿಸಿದ್ದೀರಿ. {families} ಕುಟುಂಬಗಳಿಗೆ ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ. | — | needs translation | All {n} approved. {families} families get them after 6 pm. | needs review |
-| `approve.card.heading` | {language} · {count} ಮಕ್ಕಳು | — | needs translation | {language} · {count} children (1: "child") | needs review |
+| `approve.card.heading` | {languageIn} · {count} ಮಕ್ಕಳು (e.g. ತೆಲುಗಿನಲ್ಲಿ · 3 ಮಕ್ಕಳು; locative form per language: ತೆಲುಗಿನಲ್ಲಿ, ಕನ್ನಡದಲ್ಲಿ, ತಮಿಳಿನಲ್ಲಿ) | — | needs translation | In {language} · {count} children (1: "child") | needs review |
 | `approve.card.checked` | ಪರಿಶೀಲಿಸಿದ್ದೀರಿ | — | needs translation | Checked | needs review |
 | `approve.card.goesAt` | ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ | — | needs translation | Goes after 6 pm | needs review |
 | `approve.bulk.button` | ಪರಿಶೀಲಿಸಿದ {n} ಒಪ್ಪಿ | — | needs translation | Approve the {n} you checked | needs review |
@@ -125,6 +125,9 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 - [ ] Tag colours follow D-35: Ready = listened, Needs review = needs-ear, Approved = caught-up, Generating = queued, Sent = sent, Generation failed = error; each with its icon and word.
 - [ ] Offline approval goes to the Dexie outbox with `clientRequestId`; replay is idempotent; the card shows "Saved · will send" until synced (B-14, §6).
 - [ ] Kannada summary never names a child; uses "the child" (B-12). Verifier code check 6 rejects real names.
+- [ ] The catch-up script and its audio contain no names: no "Ravi, …" opening; it says "your child" / "your teacher"; the Kannada summary ends "Show your teacher" (D-50)
+- [ ] The greeting segment uses her recorded greeting in the family's language, or her Kannada greeting plus the computer-voice introduction when that language was skipped (D-52)
+- [ ] List card titles read "In {language} · {n} children" (kn: "{language}ನಲ್ಲಿ · {n} ಮಕ್ಕಳು") (21 Oct)
 - [ ] Verifier rejects a check item whose competency is not a target (B-12, C-11).
 - [ ] Audio player shows the three segments; the "Your voice" and "Notice" segments are present in every package (FR-09, D-18).
 - [ ] Polite live region announces approve, withdraw, regenerate start and ready; errors assertive.
@@ -144,4 +147,6 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 - B-01 also suggests a confirm sheet listing each catch-up for bulk approve. The prototype has no sheet. Decide whether the tick requirement is enough.
 - A-21: the teacher can't hear the Telugu audio in her language; the Kannada summary and audio cover D-09. No change unless round 1 says otherwise.
 - Replay of a queued approval after the package was regenerated: show what? Not designed.
-- The Kannada summary shows "Show Lakshmi teacher." The stored gloss must hold `{teacher}`; the name is filled only for display.
+- Resolved (D-50): the summary ends "Show your teacher" (ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು); no `{teacher}` slot is needed in the script.
+- The detail player still labels its segments "Your voice · Notice · Lesson", while P1 uses "Teacher’s greeting · Computer voice · Lesson" (D-52). Decide whether the teacher view keeps its own wording.
+- A Tamil card with one child reads "ತಮಿಳಿನಲ್ಲಿ · 1 ಮಕ್ಕಳು" in the prototype; kn needs a singular form ("1 ಮಗು").

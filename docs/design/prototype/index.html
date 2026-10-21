@@ -296,6 +296,7 @@ const I = {
   bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
   lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  gear:'<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
   undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>',
 };
 const ic=(n,s=20,sw=2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${I[n]}</svg>`;
@@ -338,10 +339,13 @@ const CHECKS = {
   noborrow:{q:'47 − 23', opts:[34,14,24], correct:2},
 };
 const PKGS = {
-  A:{lang:'te', langKn:'ತೆಲುಗು', langEn:'Telugu', kids:[12,19,11], targets:['M3.SUB.BORROW'], dur:'1:24', check:'borrow'},
-  B:{lang:'kn', langKn:'ಕನ್ನಡ', langEn:'Kannada', kids:[10,16], targets:['M3.SUB.BORROW','M3.SUB.NOBORROW'], dur:'1:28', check:'borrow'},
-  C:{lang:'ta', langKn:'ತಮಿಳು', langEn:'Tamil', kids:[14], targets:['M3.SUB.NOBORROW'], dur:'1:44', check:'noborrow'},
+  A:{lang:'te', langKn:'ತೆಲುಗು', langKnIn:'ತೆಲುಗಿನಲ್ಲಿ', langEn:'Telugu', kids:[12,19,11], targets:['M3.SUB.BORROW'], dur:'1:24', check:'borrow'},
+  B:{lang:'kn', langKn:'ಕನ್ನಡ', langKnIn:'ಕನ್ನಡದಲ್ಲಿ', langEn:'Kannada', kids:[10,16], targets:['M3.SUB.BORROW','M3.SUB.NOBORROW'], dur:'1:28', check:'borrow'},
+  C:{lang:'ta', langKn:'ತಮಿಳು', langKnIn:'ತಮಿಳಿನಲ್ಲಿ', langEn:'Tamil', kids:[14], targets:['M3.SUB.NOBORROW'], dur:'1:44', check:'noborrow'},
 };
+const HL0 = {8:'te',11:'te',12:'te',19:'te',24:'te',36:'te',14:'ta',22:'ta',35:'ta'}; // seed: 6 Telugu, 3 Tamil, rest Kannada
+const LANGS = {kn:['ಕನ್ನಡ','Kannada'], te:['ತೆಲುಗು','Telugu'], ta:['ತಮಿಳು','Tamil']};
+const GREET_LINES = {te:['ನಮಸ್ಕಾರಂ, ನೇನು ಲಕ್ಷ್ಮಿ ಟೀಚರ್','Namaskaram, nenu Lakshmi teacher','Hello, I am Lakshmi teacher'], ta:['ವಣಕ್ಕಂ, ನಾನ್ ಲಕ್ಷ್ಮಿ ಟೀಚರ್','Vanakkam, naan Lakshmi teacher','Hello, I am Lakshmi teacher']};
 const REASONS=[
  {k:'ill',i:'therm',te:'ఒంట్లో బాగాలేదు',kn:'ಹುಷಾರಿಲ್ಲ',en:'Unwell'},
  {k:'travel',i:'bus',te:'కుటుంబ ప్రయాణం లేదా పని',kn:'ಕುಟುಂಬ ಪ್ರಯಾಣ ಅಥವಾ ಕೆಲಸ',en:'Family travel or work'},
@@ -353,7 +357,8 @@ const REASONS=[
 /* ================= State ================= */
 const fresh = () => ({
   lang:'en', plang:'en', theme:'light', step:0,
-  t:'onboard', tVar:null, ob:0, greet:'none', consent:false, obErr:null,
+  t:'login', tVar:null, ob:0, greet:'none', consent:false, obErr:null, loginErr:false, loginMode:'first', lg:{te:'none', ta:'none'}, wdAsk:false, famChild:null,
+  hl:Object.fromEntries(Array.from({length:36},(_,i)=>[i+1,HL0[i+1]||'kn'])), phone:Object.fromEntries(Array.from({length:36},(_,i)=>[i+1,[13,25,28,31,34].includes(i+1)?'':'98450 '+String(10000+(i+1)*137).slice(0,5)])),
   absent:new Set([10,12,13,19]), attEdit:false, draft:null, attSrc:'sats', attCorrected:false,
   lesson:'none', lowConf:false, pickOpen:false, pickMode:'replace', lessonId:'M3.SUB.BORROW', lessonIds:['M3.SUB.BORROW'], mapped:['M3.SUB.BORROW','M3.SUB.CHECK'], sel:new Set(['M3.SUB.BORROW','M3.SUB.CHECK']), micBlocked:false, obOffline:false, greetDeleted:false, obDenied:false, consChanged:false, famFrom:'ledger', cons:Object.fromEntries(Array.from({length:36},(_,i)=>[i+1,[13,25,28,31,34].includes(i+1)?'nophone':'yes'])), offline:false, dayDone:false, recSec:0, micHint:false,
   pk:{A:'ready',B:'ready',C:'review'}, reviewed:{}, pkOpen:null, glossOk:false,
@@ -418,7 +423,7 @@ function syncBadge(){
 function nav(){
   const items=[['today','home','ಇಂದು','Today'],['approve','check','ಒಪ್ಪಿಗೆ','Approve'],['ledger','list','ತಪ್ಪಿದ ಪಾಠ','Missed'],['ret','users','ಮರಳಿ ಬಂದವರು','Back today'],['week','chart','ವಾರ','Week']];
   const pending = Object.values(S.pk).filter(v=>v==='ready'||v==='review').length;
-  const cur = {confirm:'today', pkg:'approve', child:'ledger', families:'ledger'}[S.t]||S.t;
+  const cur = {confirm:'today', pkg:'approve', child:'ledger', families:S.famFrom==='settings'?'today':'ledger', family:S.famFrom==='settings'?'today':'ledger', settings:'today', tpl:'today', greetings:'today'}[S.t]||S.t;
   return `<nav class="nav" aria-label="${Kt('ಮುಖ್ಯ ಮೆನು','Main')}">${items.map(([k,i,kn,en])=>`<button data-a="go" data-v="${k}" ${cur===k?'aria-current="page"':''}>${ic(i,22)}<span>${Ki(kn,en)}</span>${k==='approve'&&pending?`<span class="badge" aria-hidden="true">${pending}</span><span class="sr-only">${Kt(`, ${pending} ಕಾಯುತ್ತಿವೆ`,`, ${pending} waiting`)}</span>`:''}</button>`).join('')}</nav>`;
 }
 
@@ -457,6 +462,83 @@ function cancelRec(kind){
 }
 
 /* ================= Teacher screens ================= */
+function tLogin(){
+  const b=`<div style="text-align:center;margin:24px 0 10px">${ic('book',44,1.6)}</div>
+    <h3 class="t" style="text-align:center;font-size:22px">${K('ತಪ್ಪಿದ ಪಾಠ','Tappida Paatha')}</h3>
+    <p class="muted" style="text-align:center;margin:4px 0 18px">${K('ನಿಮ್ಮ ಶಾಲೆ ಕೊಟ್ಟ ಫೋನ್ ನಂಬರ್ ಮತ್ತು PIN ಬಳಸಿ.','Use the phone number and PIN from your school.')}</p>
+    ${S.loginErr?`<div class="banner err" role="alert">${ic('alert',18)}<div>${K('PIN ಹೊಂದುತ್ತಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ಶಾಲೆಯಿಂದ ಹೊಸ PIN ಕೇಳಿ.','That PIN does not match. Try again, or ask your school for a new PIN.')}</div></div>`:''}
+    ${S.loginMode==='locked'?`<div class="banner err" role="alert">${ic('lock',18)}<div>${K('ತುಂಬಾ ತಪ್ಪು PIN ಗಳು. 15 ನಿಮಿಷದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ನಿಮ್ಮ ದಾಖಲೆಗಳು ಸುರಕ್ಷಿತ.','Too many wrong PINs. Try again in 15 minutes. Your records are safe.')}</div></div>`:''}
+    ${S.loginMode==='remembered'?`<div class="card" style="padding:10px 14px"><div class="small muted">${K('ಈ ಫೋನ್','This phone')}</div><b>98•••••345</b><button class="btn text" style="padding:4px 0;min-height:48px" data-a="loginChange">${K('ನೀವಲ್ಲವೇ? ಫೋನ್ ಬದಲಿಸಿ','Not you? Change phone')}</button></div>`:`<label class="small" for="lgPhone" style="font-weight:600">${Ki('ಫೋನ್ ನಂಬರ್','Phone number')}</label>
+    <input id="lgPhone" type="tel" inputmode="tel" autocomplete="tel" value="98450 12345" style="width:100%;min-height:48px;margin:4px 0 12px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;font:inherit;background:var(--surface);color:var(--ink)">`}
+    <label class="small" for="lgPin" style="font-weight:600">${Ki('PIN (4–6 ಅಂಕಿ)','PIN (4–6 digits)')}</label>
+    <input id="lgPin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" ${S.loginMode==='locked'?'disabled':''} value="4729" style="width:100%;min-height:48px;margin:4px 0 16px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;font:inherit;letter-spacing:.3em;background:var(--surface);color:var(--ink)">
+    <button class="btn primary" data-a="login" ${S.loginMode==='locked'?'disabled':''}>${K('ಒಳಗೆ ಬನ್ನಿ','Sign in')}</button>
+    <p class="hint">${K('ಒಮ್ಮೆ ಒಳಗೆ ಬಂದ ನಂತರ ಈ ಫೋನಿನಲ್ಲಿ ನೆನಪಿಡುತ್ತದೆ. Chrome ⋮ → “Home screen‌ಗೆ ಸೇರಿಸಿ”.','After the first time, this phone remembers you. Chrome ⋮ → “Add to Home screen”.')}</p>`;
+  return sbar(S.clock.h)+appbar('ಒಳಗೆ ಬನ್ನಿ','Sign in',null)+body(Kt('ಒಳಗೆ ಬನ್ನಿ','Sign in'), b);
+}
+function tSettings(){
+  const item=(a,i,kn,en,subKn,subEn)=>`<li><button class="li" data-a="${a}">${ic(i,22)}<div class="sp"><div class="nm">${K(kn,en)}</div>${subEn?`<div class="small muted">${Ki(subKn,subEn)}</div>`:''}</div>${ic('right',18)}</button></li>`;
+  const c=consCount(); const recorded=['kn',...Object.keys(S.lg)].filter(l=>l==='kn'?S.greet==='done':S.lg[l]==='done').length;
+  const b=`<ul class="list" style="list-style:none;padding:0">
+    ${item('famFromSettings','users','ಕುಟುಂಬಗಳು ಮತ್ತು ಒಪ್ಪಿಗೆ','Families and consent',`${c.yes} ಒಪ್ಪಿದ್ದಾರೆ · ${c.nophone} ಫೋನ್ ಇಲ್ಲ`,`${c.yes} agreed · ${c.nophone} no phone`)}
+    ${item('openTpl','msg','ಸಂಜೆಯ ಸಂದೇಶ','Evening message','ಅನುಮೋದಿಸಲಾಗಿದೆ · 20 ಅಕ್ಟೋಬರ್','Approved · 20 Oct')}
+    ${item('openGreetings','mic','ನನ್ನ ಶುಭಾಶಯಗಳು','My greetings',`${recorded} / 3 ದಾಖಲಾಗಿದೆ`,`${recorded} of 3 recorded`)}
+    ${item('toast','help','ಸಹಾಯ','Help','ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ · ಸಂಪರ್ಕ','How it works · who to contact').replace('data-a="toast"','data-a="toast" data-v="Opens help: how it works and who to contact"')}
+  </ul>
+  <h3 class="section-h">${K('ಆಪ್ ಭಾಷೆ','App language')}</h3>
+  <div class="segctl" role="group" aria-label="${Kt('ಆಪ್ ಭಾಷೆ','App language')}"><button data-a="appLang" data-v="kn" aria-pressed="${S.lang!=='en'}">ಕನ್ನಡ</button><button data-a="appLang" data-v="en" aria-pressed="${S.lang==='en'}">English</button></div>`;
+  return sbar(S.clock.h)+appbar('ಸೆಟ್ಟಿಂಗ್ಸ್','Settings','toToday')+body(Kt('ಸೆಟ್ಟಿಂಗ್ಸ್','Settings'), b)+nav();
+}
+function tplBlock(){
+  return `<div class="card" style="line-height:1.9">
+        <div class="vn" style="margin-bottom:10px"><span style="padding:0 6px">${ic('mic',18)}</span><span class="small">${K('ನಿಮ್ಮ ಶುಭಾಶಯ (ಕುಟುಂಬದ ಭಾಷೆಯಲ್ಲಿ)','Your greeting (in the family’s language)')}</span></div>
+        ${S.lang==='en'
+          ? `We missed <span class="slot">Ravi</span> today. In class we learned <span class="slot">subtraction with borrowing</span>. Homework: textbook <span class="slot">Part 2, page 15</span>. A classmate is keeping <span class="slot">Ravi</span>’s seat.`
+          : `<span lang="kn">ಇಂದು <span class="slot">ರವಿ</span> ನಮಗೆ ನೆನಪಾದರು. ಇಂದು ತರಗತಿಯಲ್ಲಿ <span class="slot">ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ</span> ಕಲಿತೆವು. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ <span class="slot">ಭಾಗ 2, ಪುಟ 15</span>. ಒಬ್ಬ ಸಹಪಾಠಿ <span class="slot">ರವಿ</span>ಯ ಜಾಗ ಕಾಯುತ್ತಿದ್ದಾರೆ.</span>${S.lang==='both'?`<span class="cap" lang="en" style="margin-top:6px">We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. A classmate is keeping Ravi’s seat.</span>`:''}`}
+      </div>
+      <p class="small muted">${K('ಧ್ವನಿಯಲ್ಲಿ ಮಗುವಿನ ಹೆಸರು ಹೇಳುವುದಿಲ್ಲ (“ನಿಮ್ಮ ಮಗು”); ಹೆಸರು ಬರಹದಲ್ಲಿ ಮಾತ್ರ. ಪೋಷಕರು ಇದನ್ನು ತೆಲುಗು, ತಮಿಳು ಅಥವಾ ಕನ್ನಡದಲ್ಲಿ ಕೇಳುತ್ತಾರೆ.','The audio says “your child”, not the name; the name is only in the written text. Parents hear it in Telugu, Tamil or Kannada.')}</p>`;
+}
+function tTpl(){
+  const b=`<div class="row" style="margin-bottom:8px">${tag('approved')}<span class="small muted">${Ki('20 ಅಕ್ಟೋಬರ್','20 Oct')}</span></div>
+    <p class="muted small" style="margin:0 0 10px">${K('ಪ್ರತಿ ಸಂಜೆ ಬಣ್ಣ ಹಚ್ಚಿದ ಪದಗಳು ಮಾತ್ರ ನಿಮ್ಮ ದಾಖಲೆಯಿಂದ ಬದಲಾಗುತ್ತವೆ. ಈ ಸಂದೇಶವನ್ನು AI ಬರೆಯುವುದಿಲ್ಲ.','Only the highlighted words change each evening, filled from your records. No AI writes this message.')}</p>
+    ${tplBlock()}
+    <div class="btns" style="flex-wrap:wrap">${['te','ta','kn'].map(l=>`<button class="btn ghost" data-a="toast" data-v="Plays the ${LANGS[l][1]} version, filled by code">${ic('vol',18)} ${Ki(LANGS[l][0],LANGS[l][1])}</button>`).join('')}</div>
+    <button class="btn text full" data-a="toast" data-v="Opens the wording for editing; it needs your approval again before any message is sent">${K('ಪದಗಳನ್ನು ಬದಲಿಸಿ (ಮತ್ತೆ ಒಪ್ಪಿಗೆ ಬೇಕು)','Change the wording (needs approval again)')}</button>`;
+  return sbar(S.clock.h)+appbar('ಸಂಜೆಯ ಸಂದೇಶ','Evening message','toSettings')+body(Kt('ಸಂಜೆಯ ಸಂದೇಶ','Evening message'), b)+nav();
+}
+function greetRows(compact){
+  return ['te','ta'].map(l=>{ const st=S.lg[l], [kn,tr,mean]=GREET_LINES[l];
+    return `<div class="card"><div class="row"><b class="sp">${K(`${LANGS[l][0]} ಕುಟುಂಬಗಳಿಗೆ`,`For ${LANGS[l][1]} families`)}</b>${st==='done'?tag('approved').replace(Ki('ಅನುಮೋದಿಸಿದ್ದೀರಿ','Approved'),Ki('ದಾಖಲಾಗಿದೆ','Recorded')):''}</div>
+      <p style="margin:6px 0 0;font-weight:600" lang="kn">“${kn}”</p><p class="small muted" style="margin:0">${tr} · ${S.lang==='en'?mean:'ನಮಸ್ಕಾರ, ನಾನು ಲಕ್ಷ್ಮಿ ಟೀಚರ್'}</p>
+      ${st==='skip'?`<p class="small" style="margin:6px 0 0">${K('ಬಿಟ್ಟಿದ್ದೀರಿ: ನಿಮ್ಮ ಕನ್ನಡ ಶುಭಾಶಯದ ನಂತರ ಕಂಪ್ಯೂಟರ್ ಧ್ವನಿ ನಿಮ್ಮನ್ನು ಆ ಭಾಷೆಯಲ್ಲಿ ಪರಿಚಯಿಸುತ್ತದೆ.','Skipped: your Kannada greeting plays, then a computer voice introduces you in that language.')}</p>`:''}
+      <div class="btns"><button class="btn ghost" data-a="toast" data-v="Plays a native speaker saying the line">${ic('vol',18)} ${Ki('ಮೊದಲು ಕೇಳಿ','Listen first')}</button><button class="btn ghost" data-a="lgRec" data-v="${l}">${ic('mic',18)} ${st==='done'?Ki('ಮತ್ತೆ ದಾಖಲಿಸಿ','Record again'):Ki('ದಾಖಲಿಸಿ','Record')}</button>${st==='done'?`<button class="btn ghost" data-a="lgDel" data-v="${l}" aria-label="${Kt('ಅಳಿಸಿ','Delete')}">${ic('trash',18)}</button>`:`<button class="btn ghost" data-a="lgSkip" data-v="${l}">${Ki('ಈಗ ಬೇಡ','Skip for now')}</button>`}</div></div>`; }).join('');
+}
+function tGreetings(){
+  const g=S.greet;
+  let b=`<p class="muted small" style="margin:0 0 10px">${K('ಪ್ರತಿ ಸಂದೇಶ ಕುಟುಂಬದ ಭಾಷೆಯ ನಿಮ್ಮ ಶುಭಾಶಯದಿಂದ ಆರಂಭವಾಗುತ್ತದೆ. ಕಂಪ್ಯೂಟರ್ ಧ್ವನಿ ಹೆಸರುಗಳನ್ನು ಹೇಳುವುದಿಲ್ಲ.','Every message starts with your greeting in the family’s language. The computer voice never says names.')}</p>
+    <div class="card"><div class="row"><b class="sp">${K('ಕನ್ನಡ (ಮುಖ್ಯ)','Kannada (main)')}</b>${g==='done'?tag('approved').replace(Ki('ಅನುಮೋದಿಸಿದ್ದೀರಿ','Approved'),Ki('ದಾಖಲಾಗಿದೆ','Recorded')):`<span class="small muted">${Ki('ದಾಖಲಾಗಿಲ್ಲ','Not recorded')}</span>`}</div>
+      <div class="btns"><button class="btn ghost" data-a="toast" data-v="Plays your Kannada greeting" ${g==='done'?'':'disabled'}>${ic('play',18)} ${Ki('ಕೇಳಿ','Play')}</button><button class="btn ghost" data-a="greetAgainS">${ic('mic',18)} ${g==='done'?Ki('ಮತ್ತೆ ದಾಖಲಿಸಿ','Record again'):Ki('ದಾಖಲಿಸಿ','Record')}</button></div></div>
+    ${greetRows()}
+    <p class="small muted">${K('ಒಪ್ಪಿಗೆ ಆವೃತ್ತಿ 1 · 20 ಅಕ್ಟೋಬರ್','Consent version 1 · 20 Oct')}</p>
+    <button class="btn danger-outline" data-a="wdAsk">${ic('trash',18)} ${K('ಧ್ವನಿ ಒಪ್ಪಿಗೆ ಹಿಂಪಡೆಯಿರಿ','Withdraw voice consent')}</button>`;
+  const sheet=S.wdAsk?`<div class="scrim" data-a="wdNo"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="wdH" data-stop><h3 class="t" id="wdH">${K('ಧ್ವನಿ ಒಪ್ಪಿಗೆ ಹಿಂಪಡೆಯಬೇಕೆ?','Withdraw voice consent?')}</h3><p class="muted">${K('ನಿಮ್ಮ ಎಲ್ಲಾ ಶುಭಾಶಯ ಧ್ವನಿಮುದ್ರಣಗಳು ಅಳಿಯುತ್ತವೆ. ಸಂದೇಶಗಳು ನಿಮ್ಮ ಧ್ವನಿ ಇಲ್ಲದೆ ಹೋಗುತ್ತವೆ. ನಂತರ ಮತ್ತೆ ಒಪ್ಪಿ ದಾಖಲಿಸಬಹುದು.','All your greeting recordings are deleted. Messages go without your voice. You can agree and record again later.')}</p><button class="btn primary" data-a="wdNo" data-focus>${K('ಬೇಡ, ಇರಲಿ','Keep')}</button><div style="height:8px"></div><button class="btn danger-outline" data-a="wdDo">${K('ಹಿಂಪಡೆಯಿರಿ ಮತ್ತು ಅಳಿಸಿ','Withdraw and delete')}</button></div></div>`:'';
+  return sbar(S.clock.h)+appbar('ನನ್ನ ಶುಭಾಶಯಗಳು','My greetings','toSettings')+body(Kt('ನನ್ನ ಶುಭಾಶಯಗಳು','My greetings'), b)+nav()+sheet;
+}
+function tFamily(){
+  const r=S.famChild, v=S.cons[r];
+  const seg=(act,cur,opts,label)=>`<div class="segbtn" role="group" aria-label="${label}" style="width:100%">${opts.map(([k,kn,en])=>`<button data-a="${act}" data-v="${r}:${k}" aria-pressed="${cur===k}" style="flex:1">${Ki(kn,en)}</button>`).join('')}</div>`;
+  const b=`${r===12&&S.stopped?`<div style="margin-bottom:10px">${tag('stopped')}</div>`:''}
+    <h3 class="section-h" style="margin-top:4px">${K('ಸಂದೇಶಗಳು (ಕಾಗದದ ಒಪ್ಪಿಗೆ ಪತ್ರ)','Messages (paper consent form)')}</h3>
+    ${seg('cons',v,[['yes','ಹೌದು','Yes'],['no','ಬೇಡ','No'],['nophone','ಫೋನ್ ಇಲ್ಲ','No phone']],Kt('ಒಪ್ಪಿಗೆ','Consent'))}
+    <p class="small muted" style="margin:6px 0 0">${K('ಪತ್ರ ಇನ್ನೂ ಬರದಿದ್ದರೆ “ಬೇಡ” ಎಂದೇ ಪರಿಗಣಿಸುತ್ತೇವೆ.','A form not yet returned counts as No.')}</p>
+    <h3 class="section-h"><label for="famPhone">${K('ಪೋಷಕರ ಫೋನ್ ನಂಬರ್','Parent’s phone number')}</label></h3>
+    <input id="famPhone" data-phone="${r}" type="tel" inputmode="tel" value="${S.phone[r]||''}" ${v==='nophone'?'disabled':''} placeholder="${v==='nophone'?Kt('ಫೋನ್ ಇಲ್ಲ','No phone'):''}" style="width:100%;min-height:48px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;font:inherit;background:var(--surface);color:var(--ink)">
+    <p class="small muted" style="margin:6px 0 0">${K('ಸಂದೇಶ ಕಳುಹಿಸಲು ಮಾತ್ರ. AI ಸೇವೆಗಳಿಗೆ ಎಂದೂ ಕಳುಹಿಸುವುದಿಲ್ಲ.','Used only to send messages. Never shared with AI services.')}</p>
+    <h3 class="section-h">${K('ಮನೆ ಭಾಷೆ (ಸಂದೇಶದ ಭಾಷೆ)','Home language (language of messages)')}</h3>
+    ${seg('hl',S.hl[r],[['kn','ಕನ್ನಡ','Kannada'],['te','ತೆಲುಗು','Telugu'],['ta','ತಮಿಳು','Tamil']],Kt('ಮನೆ ಭಾಷೆ','Home language'))}
+    <button class="btn primary" data-a="famSave" style="margin-top:18px">${K('ಉಳಿಸಿ','Save')}</button>`;
+  return sbar(S.clock.h)+appbar(kid(r)[0],kid(r)[1],'famBack')+body(Kt(kid(r)[0],kid(r)[1]), b)+(S.famFrom==='ob'?'':nav());
+}
 function tOnboard(){
   const steps = [
   () => `<div style="text-align:center;margin:18px 0 8px">${ic('book',44,1.6)}</div>
@@ -469,28 +551,24 @@ function tOnboard(){
   () => {
     const g=S.greet;
     return `${S.obOffline?`<div class="banner" role="status">${ic('cloudoff',18)}<div>${K('ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ನಿಮ್ಮ ಶುಭಾಶಯ ಫೋನಿನಲ್ಲಿ ಉಳಿದಿದೆ, ನಂತರ ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತದೆ.','No network. Your greeting is saved on the phone and will upload later.')}</div></div>`:''}<p class="small muted" style="margin:0 0 4px">${K('ಹಂತ 1 / 2','Step 1 of 2')}</p>
-      <h3 class="t">${K('ನಿಮ್ಮ ಧ್ವನಿಯಲ್ಲಿ 10 ಸೆಕೆಂಡು ಶುಭಾಶಯ','A 10-second greeting in your voice')}</h3>
+      <h3 class="t">${K('ನಿಮ್ಮ ಧ್ವನಿಯಲ್ಲಿ 10 ಸೆಕೆಂಡು ಶುಭಾಶಯ (ಕನ್ನಡ)','A 10-second greeting in your voice (Kannada)')}</h3>
       <p class="muted small" style="margin:4px 0 12px">${K('ಪ್ರತಿ ಸಂದೇಶ ನಿಮ್ಮ ಧ್ವನಿಯಿಂದ ಆರಂಭವಾಗುತ್ತದೆ. ಒಮ್ಮೆ ಮಾತ್ರ ದಾಖಲಿಸಿ.','Every message starts with your voice. Record it once.')}</p>
       <div class="card panel"><p class="small muted" style="margin:0 0 4px">${K('ಹೀಗೆ ಹೇಳಬಹುದು:','You could say:')}</p><div class="teal" style="font-weight:600">${K('“ನಮಸ್ಕಾರ, ನಾನು ಲಕ್ಷ್ಮಿ ಟೀಚರ್. ನಿಮ್ಮ ಮಗು ನಮಗೆ ನೆನಪಾಗುತ್ತಿದೆ. ಈ ಸಂದೇಶ ಕೇಳಿ.”','“Namaskara, this is Lakshmi teacher. We miss your child. Please listen to this message.”')}</div></div>
       ${g==='done'
         ? `<div class="card"><div class="player"><button class="play" data-a="toast" data-v="Plays the teacher’s greeting" aria-label="${Kt('ನಿಮ್ಮ ಶುಭಾಶಯ ಕೇಳಿ','Play your greeting')}">${ic('play',22)}</button><div class="sp"><div class="bar"><i style="width:0"></i></div><div class="small muted" style="margin-top:4px">0:09</div></div></div><div class="btns"><button class="btn ghost" data-a="greetAgain">${K('ಮತ್ತೆ ದಾಖಲಿಸಿ','Record again')}</button><button class="btn ghost" data-a="greetDelete">${ic('trash',18)} ${K('ಅಳಿಸಿ','Delete')}</button></div></div>`
         : S.obDenied ? `<div class="card"><div class="row" style="align-items:flex-start"><span style="color:var(--warning)">${ic('alert',22)}</span><p class="small" style="margin:0">${K('ಈ ಆಪ್‌ಗೆ ಮೈಕ್ರೊಫೋನ್ ಆಫ್ ಆಗಿದೆ. ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಆನ್ ಮಾಡಿ. ಶುಭಾಶಯ ಇಲ್ಲದೆಯೂ ಮುಂದುವರಿಯಬಹುದು; ನಂತರ ದಾಖಲಿಸಿ.','The microphone is off for this app. Turn it on in Settings. You can continue without a greeting and record it later.')}</p></div><button class="btn text full" data-a="toast" data-v="Opens the phone’s app settings">${K('ಸೆಟ್ಟಿಂಗ್ಸ್ ತೆರೆಯಿರಿ','Open settings')}</button></div>`
         : `<div style="text-align:center">${S.greetDeleted?`<div class="banner" role="status" style="text-align:left">${ic('trash',18)}<div>${K('ಶುಭಾಶಯ ಅಳಿಸಲಾಗಿದೆ. ಹೊಸದನ್ನು ದಾಖಲಿಸುವವರೆಗೆ ಸಂದೇಶಗಳು ನಿಮ್ಮ ಧ್ವನಿ ಇಲ್ಲದೆ ಹೋಗುತ್ತವೆ.','Greeting deleted. Messages go without your voice until you record a new one.')}</div></div>`:''}${micButton('greet')}${g==='rec'?micStatus('greet'):`<p class="hint">${K('ಒತ್ತಿ ಮಾತನಾಡಿ. ಮುಗಿದಾಗ ಮತ್ತೆ ಒತ್ತಿ.','Tap and speak. Tap again when you finish.')}</p>`}</div>`}
-      <label class="checkrow"><input type="checkbox" data-a="consent" ${S.consent?'checked':''}><span class="small">${K('ನನ್ನ ಧ್ವನಿಯನ್ನು ಪೋಷಕರಿಗೆ ಕಳುಹಿಸುವ ಸಂದೇಶಗಳಲ್ಲಿ ಮಾತ್ರ ಬಳಸಲು ಒಪ್ಪುತ್ತೇನೆ. ಯಾವಾಗ ಬೇಕಾದರೂ ಅಳಿಸಬಹುದು.','I agree my voice is used only in messages to parents. I can delete it any time.')}</span></label>
-      <div class="sticky">${S.obErr?`<p class="hint err" role="alert">${S.obErr==='rec'?K('ಮೊದಲು ಶುಭಾಶಯ ದಾಖಲಿಸಿ.','Record your greeting first.'):K('ಒಪ್ಪಿಗೆಗೆ ಗುರುತು ಹಾಕಿ.','Tick the box to agree.')}</p>`:''}<button class="btn primary" data-a="obSave">${K('ಉಳಿಸಿ, ಮುಂದೆ','Save and continue')}</button></div>`;},
+      <h3 class="section-h">${K('ಬೇರೆ ಭಾಷೆಯ ಕುಟುಂಬಗಳಿಗೆ (ನಿಮ್ಮ ತರಗತಿಯಲ್ಲಿ)','For families who speak other languages (in your class)')}</h3>
+      <p class="small muted" style="margin:0 0 8px">${K('ನಿಮಗೆ ಆ ಭಾಷೆ ಬರಬೇಕಿಲ್ಲ: ಕನ್ನಡ ಅಕ್ಷರದಲ್ಲಿ ಬರೆದ ಸಾಲನ್ನು ಓದಿ. ಬಿಟ್ಟರೆ, ಕಂಪ್ಯೂಟರ್ ಧ್ವನಿ ನಿಮ್ಮನ್ನು ಪರಿಚಯಿಸುತ್ತದೆ.','You don’t need to know the language: read the line written in Kannada letters. If you skip, a computer voice introduces you.')}</p>
+      ${greetRows()}
+      <div class="sticky"><label class="checkrow" style="padding-top:0"><input type="checkbox" data-a="consent" ${S.consent?'checked':''}><span class="small">${K('ನನ್ನ ಧ್ವನಿಯನ್ನು ಪೋಷಕರಿಗೆ ಕಳುಹಿಸುವ ಸಂದೇಶಗಳಲ್ಲಿ ಮಾತ್ರ ಬಳಸಲು ಒಪ್ಪುತ್ತೇನೆ. ಯಾವಾಗ ಬೇಕಾದರೂ ಒಪ್ಪಿಗೆ ಹಿಂಪಡೆಯಬಹುದು; ಆಗ ನನ್ನ ಧ್ವನಿಮುದ್ರಣಗಳು ಅಳಿಯುತ್ತವೆ. (ಒಪ್ಪಿಗೆ ಆವೃತ್ತಿ 1)','I agree my voice is used only in messages to parents. I can withdraw this any time, and my recordings are then deleted. (Consent version 1)')}</span></label>${S.obErr?`<p class="hint err" role="alert">${S.obErr==='rec'?K('ಮೊದಲು ಶುಭಾಶಯ ದಾಖಲಿಸಿ.','Record your greeting first.'):K('ಒಪ್ಪಿಗೆಗೆ ಗುರುತು ಹಾಕಿ.','Tick the box to agree.')}</p>`:''}<button class="btn primary" data-a="obSave">${K('ಉಳಿಸಿ, ಮುಂದೆ','Save and continue')}</button></div>`;},
   () => `<p class="small muted" style="margin:0 0 4px">${K('ಹಂತ 2 / 2','Step 2 of 2')}</p>
       <h3 class="t">${K('ಗೈರಾದ ದಿನದ ಸಂಜೆಯ ಸಂದೇಶ','The evening message on a day of absence')}</h3>
-      <p class="muted small" style="margin:4px 0 12px">${K('ಇದನ್ನು ಒಮ್ಮೆ ಒಪ್ಪಿ. ಪ್ರತಿ ಸಂಜೆ ಗೆರೆ ಹಾಕಿದ ಪದಗಳು ನಿಮ್ಮ ದಾಖಲೆಯಿಂದ ತುಂಬುತ್ತವೆ. AI ಬರೆಯುವುದಿಲ್ಲ.','Approve this once. Each evening the underlined words are filled from your records. No AI writing.')}</p>
-      <div class="card" style="line-height:1.9">
-        <div class="vn" style="margin-bottom:10px"><span style="padding:0 6px">${ic('mic',18)}</span><span class="small">${K('ನಿಮ್ಮ ಶುಭಾಶಯ','Your greeting')}</span></div>
-        ${S.lang==='en'
-          ? `We missed <span class="slot">Ravi</span> today. In class we learned <span class="slot">subtraction with borrowing</span>. Homework: textbook <span class="slot">Part 2, page 15</span>. Tomorrow: <span class="slot">word problems</span>. A classmate is keeping <span class="slot">Ravi</span>’s seat.`
-          : `<span lang="kn">ಇಂದು <span class="slot">ರವಿ</span> ನಮಗೆ ನೆನಪಾದರು. ಇಂದು ತರಗತಿಯಲ್ಲಿ <span class="slot">ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ</span> ಕಲಿತೆವು. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ <span class="slot">ಭಾಗ 2, ಪುಟ 15</span>. ನಾಳೆ: <span class="slot">ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು</span>. ಒಬ್ಬ ಸಹಪಾಠಿ <span class="slot">ರವಿ</span>ಯ ಜಾಗ ಕಾಯುತ್ತಿದ್ದಾರೆ.</span>${S.lang==='both'?`<span class="cap" lang="en" style="margin-top:6px">We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat.</span>`:''}`}
-      </div>
-      <p class="small muted">${K('ಉದಾಹರಣೆ: ರವಿ, ಮಂಗಳವಾರ. ಪೋಷಕರು ಇದನ್ನು ತೆಲುಗು, ತಮಿಳು ಅಥವಾ ಕನ್ನಡದಲ್ಲಿ ಕೇಳುತ್ತಾರೆ.','Example: Ravi, Tuesday. Parents hear it in Telugu, Tamil or Kannada.')}</p>
+      <p class="muted small" style="margin:4px 0 12px">${K('ಇದನ್ನು ಒಮ್ಮೆ ಒಪ್ಪಿ. ಪ್ರತಿ ಸಂಜೆ ಬಣ್ಣ ಹಚ್ಚಿದ ಪದಗಳು ಮಾತ್ರ ನಿಮ್ಮ ದಾಖಲೆಯಿಂದ ಬದಲಾಗುತ್ತವೆ. ಈ ಸಂದೇಶವನ್ನು AI ಬರೆಯುವುದಿಲ್ಲ.','Approve this once. Only the highlighted words change each evening, filled from your records. No AI writes this message.')}</p>
+      ${tplBlock()}
       <button class="btn ghost full" data-a="toast" data-v="Plays the Telugu version, filled by code">${ic('vol',18)} ${K('ತೆಲುಗು ಆವೃತ್ತಿ ಕೇಳಿ','Listen to the Telugu version')}</button>
       <div class="sticky"><button class="btn primary" data-a="ob" data-v="3">${K('ಈ ಸಂದೇಶ ಒಪ್ಪಿ','Approve this message')}</button>
-      <button class="btn text full" data-a="toast" data-v="Saved for later. No evening messages until approved.">${K('ಈಗ ಬೇಡ · ನಂತರ ಬದಲಿಸಬಹುದು','Not now · you can change it later')}</button></div>`,
+      <button class="btn text full" data-a="toast" data-v="No evening messages until you approve it in Settings.">${K('ಈಗ ಬೇಡ · ನಂತರ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಬದಲಿಸಬಹುದು','Not now · you can change it in Settings')}</button></div>`,
   () => `<div style="text-align:center"><div style="margin:40px 0 10px;color:var(--primary)">${ic('checkc',64,1.6)}</div>
       <h3 class="t" style="font-size:22px">${K('ಸಿದ್ಧ','All set')}</h3>
       <p class="muted">${(()=>{const c=consCount(); return K(`36 ರಲ್ಲಿ ${c.yes} ಕುಟುಂಬಗಳು ಸಂದೇಶಗಳಿಗೆ ಒಪ್ಪಿವೆ (ಕಾಗದದ ಒಪ್ಪಿಗೆ ಪತ್ರ). ${c.nophone} ಕುಟುಂಬಗಳಿಗೆ ಫೋನ್ ಇಲ್ಲ: ಅವರ ಮಕ್ಕಳಿಗೆ ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್.`,`${c.yes} of 36 families agreed to messages (paper consent form). ${c.nophone} families have no phone: their children get a buddy card on return.`);})()}</p>
@@ -521,6 +599,7 @@ function updatesCard(){
   const ICON={caught:['checkc','var(--s-caught)'],buddy:['users','var(--s-buddy)'],listened:['head','var(--s-listened)'],stopped:['belloff','var(--s-stopped)']};
   return `<div class="card" style="border-left:4px solid var(--primary)">
     <div class="row"><h3 class="t sp">${K('ನಿನ್ನೆಯಿಂದ','Since yesterday')}</h3><span class="small muted">${Ki(`${u.length} ಹೊಸ ಸುದ್ದಿ`,`${u.length} updates`)}</span></div>
+    <p class="small muted" style="margin:0">${K('ನೀವು ಕೊನೆಯ ಬಾರಿ ನೋಡಿದಂದಿನಿಂದ (ಕನಿಷ್ಠ ಹಿಂದಿನ ಶಾಲಾ ದಿನದಿಂದ)','Since you last looked (at least since the previous school day)')}</p>
     <ul style="list-style:none;margin:4px 0 0;padding:0">${u.slice(0,4).map(x=>{ const [i,c]=x.t?ICON[x.t]:[x.i,'var(--ink-muted)'];
       return `<li><button class="li" data-a="openChild" data-v="${x.r}" style="padding:8px 0;align-items:flex-start"><span style="color:${c};margin-top:2px">${ic(i,20)}</span><span class="sp"><b>${knameH(x.r)}</b>: ${Ki(x.kn,x.en)}${S.lang==='both'?`<span class="cap" lang="en">${x.en}</span>`:''}</span>${ic('right',16)}</button></li>`; }).join('')}</ul>
     <button class="btn text full" data-a="toChildView">${K(`ಎಲ್ಲಾ ${u.length} ಸುದ್ದಿ ನೋಡಿ`,`See all ${u.length} updates`)}</button>
@@ -543,8 +622,8 @@ function tToday(){
       <div class="btns" style="margin-top:0"><button class="btn ghost" data-a="attCancel">${K('ರದ್ದು','Cancel')}</button><button class="btn primary" style="min-height:48px" data-a="saveAtt">${K('ಉಳಿಸಿ','Save')}</button></div></div>`;
   } else {
     h += S.attSrc==='waiting'
-      ? `<div class="card"><div class="row" style="align-items:flex-start">${ic('clock',22)}<div class="sp"><b>${K('SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ','SATS attendance has not come in yet')}</b><div class="small muted">${K('10:00 ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ.','We will check again at 10:00. You do not need to do anything.')}</div></div></div><button class="btn text full" data-a="editAtt">${K('ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ','Mark it here if you prefer')}</button></div>`
-      : `<div class="card"><div class="row" style="align-items:flex-start">${ic('checkc',22)}<div class="sp"><div class="small muted">${S.attSrc==='manual'?K('ಹಾಜರಾತಿ · ನೀವು ಗುರುತಿಸಿದ್ದು','Attendance · marked by you'):K('ಹಾಜರಾತಿ · SATS (ಅನುಕರಣೆ), 9:05','Attendance · SATS (simulated), 9:05')}${S.attCorrected?' · '+Ki('ನೀವು ಸರಿಪಡಿಸಿದ್ದು','corrected by you'):''}</div><b>${K(`${n} ಗೈರು`,`${n} absent`)}</b><div class="small muted">${[...S.absent].sort((a,b)=>a-b).map(knameH).join(', ')||'—'}</div></div></div><button class="btn text full" data-a="editAtt">${K('ತಪ್ಪಿದೆಯೇ? ಸರಿಪಡಿಸಿ','Wrong? Correct it')}</button></div>`;
+      ? `<div class="card"><div class="row" style="align-items:flex-start">${ic('clock',22)}<div class="sp"><b>${K('SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ','SATS attendance has not come in yet')}</b><div class="small muted">${K('ಮಧ್ಯಾಹ್ನ 12:00 ಕ್ಕೆ ಬರುತ್ತದೆ. ತಡವಾದರೆ 2:00 ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ.','It comes in at 12:00. If it is late, we check again at 2:00 pm. You do not need to do anything.')}</div></div></div><button class="btn text full" data-a="editAtt">${K('ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ','Mark it here if you prefer')}</button></div>`
+      : `<div class="card"><div class="row" style="align-items:flex-start">${ic('checkc',22)}<div class="sp"><div class="small muted">${S.attSrc==='manual'?K('ಹಾಜರಾತಿ · ನೀವು ಗುರುತಿಸಿದ್ದು','Attendance · marked by you'):K('ಹಾಜರಾತಿ · SATS (ಅನುಕರಣೆ), 12:00','Attendance · SATS (simulated), 12:00')}${S.attCorrected?' · '+Ki('ನೀವು ಸರಿಪಡಿಸಿದ್ದು','corrected by you'):''}</div><b>${n?K(`${n} ಗೈರು`,`${n} absent`):K('ಇಂದು ಎಲ್ಲರೂ ಹಾಜರು.','Everyone is here today.')}</b>${n?`<div class="small muted">${[...S.absent].sort((a,b)=>a-b).map(knameH).join(', ')}</div>`:''}</div></div><button class="btn text full" data-a="editAtt">${K('ತಪ್ಪಿದೆಯೇ? ಸರಿಪಡಿಸಿ','Wrong? Correct it')}</button></div>`;
     if((S.lesson==='none' || S.lesson==='rec') && S.micBlocked){
       h += `<div class="card"><h3 class="t">${K('ಇಂದಿನ ಪಾಠ','Today’s lesson')}</h3><div class="row" style="align-items:flex-start;margin:6px 0 10px"><span style="color:var(--warning)">${ic('alert',22)}</span><p class="small" style="margin:0">${K('ಈ ಆಪ್‌ಗೆ ಮೈಕ್ರೊಫೋನ್ ಆಫ್ ಆಗಿದೆ. ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಆನ್ ಮಾಡಿ, ಅಥವಾ ಇಂದಿನ ಪಾಠವನ್ನು ಪಟ್ಟಿಯಿಂದ ಆರಿಸಿ.','The microphone is off for this app. Turn it on in Settings, or pick today’s lesson from the list.')}</p></div>
         <button class="btn primary" data-a="pick">${K('ಪಟ್ಟಿಯಿಂದ ಆರಿಸಿ','Pick from the list')}</button><button class="btn text full" data-a="toast" data-v="Opens the phone’s app settings">${K('ಸೆಟ್ಟಿಂಗ್ಸ್ ತೆರೆಯಿರಿ','Open settings')}</button></div>`;
@@ -563,17 +642,17 @@ function tToday(){
       const l=lesson(S.lessonId); const ls=S.lessonIds.map(lesson); const canSend=r=>S.cons[r]==='yes' && !(r===12&&S.stopped); const fam=[...S.absent].filter(canSend).length;
       h += `<div class="card"><div class="small muted">${ls.length>1?K('ಇಂದಿನ ಪಾಠಗಳು','Today’s lessons'):K('ಇಂದಿನ ಪಾಠ','Today’s lesson')}</div>${ls.map(x=>`<div class="row" style="margin-top:4px"><div class="sp"><b>${K(x.kn,x.en)}</b><div class="small muted">${Ki(x.page,x.pageEn)}</div></div>${ic('checkc',22)}</div>`).join('')}
         <button class="btn text full" data-a="changeLessons">${K('ಬದಲಿಸಿ','Change')}</button></div>
-      <div class="card"><div class="row" style="align-items:flex-start">${ic('list',20)}<div class="sp"><b>${K(`ತಪ್ಪಿದ ಪಾಠಗಳಿಗೆ ಸೇರಿಸಲಾಗಿದೆ: ${n} ಮಕ್ಕಳು`,`Added to missed lessons: ${n} children`)}</b><div class="small muted">${K(`${ls.map(x=>x.kn).join(' + ')} ತಪ್ಪಿಸಿಕೊಂಡವರು`,`who missed ${ls.map(x=>x.en.toLowerCase()).join(' + ')}`)}</div></div></div><button class="btn text full" data-a="toLessonView">${K(`ಆ ${n} ಮಕ್ಕಳನ್ನು ನೋಡಿ`,`See the ${n} children`)}</button></div>
+      ${n?`<div class="card"><div class="row" style="align-items:flex-start">${ic('list',20)}<div class="sp"><b>${K(`ತಪ್ಪಿದ ಪಾಠಗಳಿಗೆ ಸೇರಿಸಲಾಗಿದೆ: ${n} ಮಕ್ಕಳು`,`Added to missed lessons: ${n} children`)}</b><div class="small muted">${K(`${ls.map(x=>x.kn).join(' + ')} ತಪ್ಪಿಸಿಕೊಂಡವರು`,`who missed ${ls.map(x=>x.en.toLowerCase()).join(' + ')}`)}</div></div></div><button class="btn text full" data-a="toLessonView">${K(`ಆ ${n} ಮಕ್ಕಳನ್ನು ನೋಡಿ`,`See the ${n} children`)}</button></div>
       <div class="card panel"><div class="row" style="align-items:flex-start">${ic('send',20)}<div class="sp"><b class="teal">${K(`ಇಂದು ಸಂಜೆ 6 ರ ನಂತರ: ${n} ರಲ್ಲಿ ${fam} ಕುಟುಂಬಗಳಿಗೆ ಸಂದೇಶ`,`After 6 pm tonight: message to ${fam} of ${n} families`)}</b>
         <p class="small" style="margin:4px 0 0">${K('ನೀವು ಒಮ್ಮೆ ಒಪ್ಪಿದ ಸಂದೇಶ, ಇಂದಿನ ಪಾಠ ಮತ್ತು ಪುಟದೊಂದಿಗೆ.','The message you approved once, with today’s lesson and page.')}</p>
         ${[...S.absent].filter(r=>!canSend(r)).map(r=>`<p class="small" style="margin:6px 0 0">${tag(S.cons[r]==='nophone'?'nophone':S.cons[r]==='no'?'noconsent':'stopped')} ${knameH(r)}</p>`).join('')}</div></div>
-        <button class="btn ghost full" data-a="step" data-v="6" style="margin-top:10px">${K('ಸಂದೇಶ ನೋಡಿ','See the message')}</button></div>`;
+        <button class="btn ghost full" data-a="step" data-v="6" style="margin-top:10px">${K('ಸಂದೇಶ ನೋಡಿ','See the message')}</button></div>`:`<div class="card"><div class="row">${ic('checkc',20)}<b class="sp">${K('ಇಂದು ಸಂಜೆ ಯಾವ ಸಂದೇಶವೂ ಇಲ್ಲ.','No messages tonight.')}</b></div></div>`}`;
     } else {
       h += `<div class="card"><div class="row">${ic('clock',20)}<span class="sp">${K('ಟಿಪ್ಪಣಿ ಉಳಿಸಲಾಗಿದೆ','Note saved')}</span><button class="btn text" data-a="go" data-v="confirm">${K('ನೋಡಿ','Open')}</button></div></div>`;
     }
     h += updatesCard();
   }
-  return sbar(S.clock.h, S.offline) + appbar('ಇಂದು, 20 ಅಕ್ಟೋಬರ್','Today, 20 Oct', null, syncBadge()) + body(Kt('ಇಂದು','Today'), h) + nav() + (S.pickOpen?pickSheet():'');
+  return sbar(S.clock.h, S.offline) + appbar('ಇಂದು, 20 ಅಕ್ಟೋಬರ್','Today, 20 Oct', null, syncBadge()+`<button class="btn" style="padding:8px;margin-right:-8px" data-a="go" data-v="settings" aria-label="${Kt('ಸೆಟ್ಟಿಂಗ್ಸ್','Settings')}">${ic('gear',22)}</button>`) + body(Kt('ಇಂದು','Today'), h) + nav() + (S.pickOpen?pickSheet():'');
 }
 
 function pickSheet(){
@@ -640,7 +719,7 @@ function tApprove(){
   b += `<ul style="list-style:none;margin:0;padding:0">`+keys.map(k=>{
     const p=PKGS[k], st=shownStatus(k);
     return `<li><button class="card li" style="display:block;border:1px solid var(--border);margin-bottom:10px" data-a="openPkg" data-v="${k}" ${st==='gen'?'disabled':''}>
-      <div class="row"><b class="sp">${K(`${p.langKn} · ${p.kids.length} ಮಕ್ಕಳು`,`${p.langEn} · ${p.kids.length} ${p.kids.length>1?'children':'child'}`)}</b>${ic('right',18)}</div>
+      <div class="row"><b class="sp">${K(`${p.langKnIn} · ${p.kids.length} ${p.kids.length>1?'ಮಕ್ಕಳು':'ಮಗು'}`,`In ${p.langEn} · ${p.kids.length} ${p.kids.length>1?'children':'child'}`)}</b>${ic('right',18)}</div>
       <div class="small" style="margin:2px 0">${p.kids.map(knameH).join(', ')}</div>
       <div class="small muted" style="margin:0 0 8px">${p.targets.map(t=>Ki(lesson(t).kn,lesson(t).en)).join(' + ')}${st==='failed'?'':` · ${p.dur}`}</div>
       <div class="row" style="flex-wrap:wrap">${tag(S.tVar==='offline'&&st==='approved'?'queued':st)}${st==='sent'?`<span class="small muted">${Ki('ಸಂಜೆ 6:02','6:02 pm')}</span>`:''}${st==='ready'&&S.reviewed[k]?`<span class="small">${ic('check',14)} ${Ki('ಪರಿಶೀಲಿಸಿದ್ದೀರಿ','Checked')}</span>`:''}${st==='approved'?`<span class="small muted">${Ki('ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ','Goes after 6 pm')}</span>`:''}</div></button></li>`;}).join('')+`</ul>`;
@@ -661,11 +740,11 @@ function tPkg(){
   if(st==='gen') b+=`<div class="banner" role="status">${ic('clock',18)}<div>${K('ಹೊಸ ಆವೃತ್ತಿ ಸಿದ್ಧಪಡಿಸುತ್ತಿದೆ… ಸಿದ್ಧವಾದಾಗ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ.','Writing a new version… Check it again when it’s ready.')}</div></div>`;
   b+=`<div class="small muted">${K(`${p.langKn} · ಮಕ್ಕಳು`,`${p.langEn} · children`)}</div><div style="margin-bottom:10px;font-weight:600">${p.kids.map(knameH).join(', ')}</div>
   <div class="card"><div class="player"><button class="play" data-a="pkgPlay" aria-label="${a.playing?Kt('ನಿಲ್ಲಿಸಿ','Pause'):Kt('ಕೇಳಿ','Play')}">${ic(a.playing?'pause':'play',22)}</button><div class="sp"><div class="bar"><i style="width:${a.pos}%"></i></div>
-    <div class="segs"><span class="${a.pos<12?'on':''}">${Ki('ನಿಮ್ಮ ಧ್ವನಿ','Your voice')}</span><span class="${a.pos>=12&&a.pos<18?'on':''}">${Ki('ಸೂಚನೆ','Notice')}</span><span class="${a.pos>=18?'on':''}" style="flex:2.5 1 0">${Ki('ಪಾಠ','Lesson')} · ${p.dur}</span></div></div></div></div>
+    <div class="segs"><span class="${a.pos<12?'on':''}">${Ki('ನಿಮ್ಮ ಶುಭಾಶಯ','Your greeting')}</span><span class="${a.pos>=12&&a.pos<18?'on':''}">${Ki('ಕಂಪ್ಯೂಟರ್ ಧ್ವನಿ','Computer voice')}</span><span class="${a.pos>=18?'on':''}" style="flex:2.5 1 0">${Ki('ಪಾಠ','Lesson')} · ${p.dur}</span></div></div></div></div>
   <div class="card panel"><div class="small teal" style="font-weight:700">${K('ಕನ್ನಡ ಸಾರಾಂಶ','Kannada summary')}</div>
     <p style="margin:4px 0 0">${p.check==='borrow'
-      ? K('ಮಗುವಿಗೆ ದಶಕ ಪಡೆದು ಕಳೆಯುವುದನ್ನು ಪುಲ್ಲೆ ಕಟ್ಟುಗಳಿಂದ ತೋರಿಸುತ್ತದೆ: 43 ರಲ್ಲಿ 18. ಒಂದು ಕಟ್ಟು ಬಿಚ್ಚಿ 10 ಬಿಡಿ ಪುಲ್ಲೆ ಮಾಡುತ್ತದೆ. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ಕೊನೆಗೆ: “ಲಕ್ಷ್ಮಿ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.”','Shows the child subtracting by getting a ten, with bundles of sticks: 18 from 43. Opens one bundle into 10 loose sticks. Homework: textbook Part 2, page 15. Ends: “Show Lakshmi teacher.”')
-      : K('ಮಗುವಿಗೆ ದಶಕ ಪಡೆಯದೆ ಕಳೆಯುವುದನ್ನು ತೋರಿಸುತ್ತದೆ: 47 ರಲ್ಲಿ 23, ಮೊದಲು ಬಿಡಿ, ನಂತರ ಹತ್ತು. ಮನೆಕೆಲಸ: ಭಾಗ 2, ಪುಟ 6. ಕೊನೆಗೆ: “ಲಕ್ಷ್ಮಿ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.”','Shows the child subtracting without borrowing: 23 from 47, ones first, then tens. Homework: Part 2, page 6. Ends: “Show Lakshmi teacher.”')}</p>
+      ? K('ಮಗುವಿಗೆ ದಶಕ ಪಡೆದು ಕಳೆಯುವುದನ್ನು ಪುಲ್ಲೆ ಕಟ್ಟುಗಳಿಂದ ತೋರಿಸುತ್ತದೆ: 43 ರಲ್ಲಿ 18. ಒಂದು ಕಟ್ಟು ಬಿಚ್ಚಿ 10 ಬಿಡಿ ಪುಲ್ಲೆ ಮಾಡುತ್ತದೆ. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ಕೊನೆಗೆ: “ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.”','Shows the child subtracting by getting a ten, with bundles of sticks: 18 from 43. Opens one bundle into 10 loose sticks. Homework: textbook Part 2, page 15. Ends: “Show your teacher.”')
+      : K('ಮಗುವಿಗೆ ದಶಕ ಪಡೆಯದೆ ಕಳೆಯುವುದನ್ನು ತೋರಿಸುತ್ತದೆ: 47 ರಲ್ಲಿ 23, ಮೊದಲು ಬಿಡಿ, ನಂತರ ಹತ್ತು. ಮನೆಕೆಲಸ: ಭಾಗ 2, ಪುಟ 6. ಕೊನೆಗೆ: “ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.”','Shows the child subtracting without borrowing: 23 from 47, ones first, then tens. Homework: Part 2, page 6. Ends: “Show your teacher.”')}</p>
     <div style="margin-top:8px"><span class="small muted">${K('ಕನ್ನಡ ಪದಗಳು','Kannada words')}</span><br><span class="kw" lang="kn">ದಶಕ</span><span class="kw" lang="kn">ವ್ಯತ್ಯಾಸ</span><span class="kw" lang="kn">ಬಿಡಿ</span></div></div>
   <div class="card"><div class="small muted">${K('ಏಕೆ ಇದು','Why this')}</div>
     <div class="row" style="align-items:flex-start;margin-top:4px">${ic('check',18)}<div class="small">${K(`<b>${lesson(p.targets[0]).kn}</b>: ಮುಂದಿನ ವಾರದ ಹೇಳಿಕೆ ಲೆಕ್ಕಗಳಿಗೆ ಬೇಕು.`,`<b>${lesson(p.targets[0]).en}</b>: next week’s word problems need it.`)}</div></div>
@@ -762,9 +841,9 @@ function tFamilies(){
   let b=`<p class="small muted" style="margin:0 0 8px">${K('ಕಾಗದದ ಒಪ್ಪಿಗೆ ಪತ್ರದಿಂದ. “ಬೇಡ” ಅಥವಾ “ಫೋನ್ ಇಲ್ಲ” ಎಂದಿರುವ ಕುಟುಂಬಗಳಿಗೆ ಏನೂ ಕಳುಹಿಸುವುದಿಲ್ಲ. ಕುಟುಂಬಗಳು ತಾವೇ ಯಾವಾಗ ಬೇಕಾದರೂ ನಿಲ್ಲಿಸಬಹುದು.','From the paper consent form. Nothing is sent to families marked No or No phone. Families can also stop messages themselves at any time.')}</p>
   <div class="card" style="padding:10px 14px"><b>${K(`${c.yes} ಒಪ್ಪಿದ್ದಾರೆ · ${c.no} ಬೇಡ ಎಂದಿದ್ದಾರೆ · ${c.nophone} ಫೋನ್ ಇಲ್ಲ`,`${c.yes} agreed · ${c.no} said no · ${c.nophone} no phone`)}</b><div class="small muted">${S.consChanged?K('ಕೊನೆಯ ಬದಲಾವಣೆ: ಇಂದು','Last changed: today'):K('ಕೊನೆಯ ಬದಲಾವಣೆ: 18 ಅಕ್ಟೋಬರ್','Last changed: 18 Oct')}</div></div>
   <ul class="list" style="list-style:none;padding:0">${KIDS.map((_,i)=>{ const r=i+1, v=S.cons[r];
-    const opt=(k,kn,en)=>`<button data-a="cons" data-v="${r}:${k}" aria-pressed="${v===k}" aria-label="${kname(r)}: ${Kt(kn,en)}">${Ki(kn,en)}</button>`;
-    return `<li class="li" style="cursor:default;gap:8px"><span class="no">${r}</span><div class="sp"><div class="nm">${knameH(r)}</div>${r===12&&S.stopped?tag('stopped'):''}</div><div class="segbtn" role="group" aria-label="${Kt('ಒಪ್ಪಿಗೆ','Consent')}: ${kname(r)}">${opt('yes','ಹೌದು','Yes')}${opt('no','ಬೇಡ','No')}${opt('nophone','ಫೋನ್ ಇಲ್ಲ','No phone')}</div></li>`; }).join('')}</ul>`;
-  return sbar(S.clock.h)+appbar('ಕುಟುಂಬಗಳು ಮತ್ತು ಒಪ್ಪಿಗೆ','Families and consent', S.famFrom==='ob'?'famBackOb':'toLedger')+body(Kt('ಕುಟುಂಬಗಳು','Families'), b)+(S.famFrom==='ob'?'':nav());
+    const cw={yes:['ಹೌದು','Yes'],no:['ಬೇಡ','No'],nophone:['ಫೋನ್ ಇಲ್ಲ','No phone']}[v]; const ph=S.phone[r]?S.phone[r].slice(0,2)+'•••••'+S.phone[r].slice(-3):Kt('ಫೋನ್ ಇಲ್ಲ','No phone');
+    return `<li><button class="li" data-a="openFamily" data-v="${r}"><span class="no">${r}</span><div class="sp"><div class="nm">${knameH(r)}</div><div class="small muted">${Ki(LANGS[S.hl[r]][0],LANGS[S.hl[r]][1])} · ${Ki(cw[0],cw[1])}${v==='nophone'?'':' · '+ph}</div>${r===12&&S.stopped?tag('stopped'):''}</div>${ic('right',18)}</button></li>`; }).join('')}</ul>`;
+  return sbar(S.clock.h)+appbar('ಕುಟುಂಬಗಳು ಮತ್ತು ಒಪ್ಪಿಗೆ','Families and consent', S.famFrom==='ob'?'famBackOb':S.famFrom==='settings'?'toSettings':'toLedger')+body(Kt('ಕುಟುಂಬಗಳು','Families'), b)+(S.famFrom==='ob'?'':nav());
 }
 function tRet(){
   if(S.tVar==='none') return sbar(S.clock.h)+appbar('ಇಂದು ಮರಳಿದವರು','Back today',null)+body(Kt('ಇಂದು ಮರಳಿದವರು','Back today'),`<div style="text-align:center"><div class="muted" style="margin:60px 0 10px">${ic('users',48,1.5)}</div><h3 class="t">${K('ಇಂದು ಯಾರೂ ಮರಳಿಲ್ಲ','No one is back today')}</h3><p class="muted">${K('ಗೈರಾದ ಮಗು ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್ ಇಲ್ಲಿ ಬರುತ್ತದೆ.','A buddy card appears here on the day an absent child comes back.')}</p></div>`)+nav();
@@ -834,7 +913,7 @@ function pHome(){
   S.msgs.forEach(m=>{
     if(m==='evening') b+=`<div class="daysep"><span>${Pi('మంగళవారం','Tuesday')}</span></div><div class="bubble">
       <div class="vn"><button class="play" data-a="toast" data-v="Plays Lakshmi teacher’s own greeting" aria-label="${Pt('లక్ష్మి టీచర్ గొంతు వినండి','Play Lakshmi teacher’s voice')}">${ic('play',18)}</button><span class="small">${P('లక్ష్మి టీచర్ గొంతు · 0:09','Lakshmi teacher’s voice · 0:09')}</span></div>
-      ${P('ఈ రోజు రవి మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో పది తీసుకుని తీసివేత నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం భాగం 2, పేజీ 15. రేపు: మాటల లెక్కలు. ఒక సహవిద్యార్థి రవి సీటు కాపాడుతోంది.','We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat.')}
+      ${P('ఈ రోజు రవి మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో పది తీసుకుని తీసివేత నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం భాగం 2, పేజీ 15. ఒక సహవిద్యార్థి రవి సీటు కాపాడుతోంది.','We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. A classmate is keeping Ravi’s seat.')}
       <button class="linkbtn" data-a="pgo" data-v="reason">${P('అంతా బాగుందా? చెప్పండి','Is everything OK? Tell us')}</button>
       ${stopLink()}
       <div class="time">6:05 pm</div></div>`;
@@ -877,10 +956,11 @@ function pListen(){
     <button class="bigplay" data-a="pPlay" aria-pressed="${a.playing}">${ic(a.loading?'clock':a.playing?'pause':'play',52)}<span>${label}</span></button>
     <div class="bar" style="margin:8px 4px 0"><i style="width:${a.pos}%"></i></div>
     <div class="row small muted" style="justify-content:space-between;margin:4px 4px 0"><span>${fmt(el)}</span><span>${fmt(tot)}</span></div>
-    <div class="segs" style="text-align:left"><span class="${seg===0?'on':''}">${Pi('టీచర్ గొంతు','Teacher')}</span><span class="${seg===1?'on':''}">${Pi('కంప్యూటర్ గొంతు','Computer voice')}</span><span class="${seg===2?'on':''}" style="flex:2 1 0">${Pi('పాఠం','Lesson')}</span></div>
+    <div class="segs" style="text-align:left"><span class="${seg===0?'on':''}">${Pi('టీచర్ శుభాకాంక్ష','Teacher’s greeting')}</span><span class="${seg===1?'on':''}">${Pi('కంప్యూటర్ గొంతు','Computer voice')}</span><span class="${seg===2?'on':''}" style="flex:2 1 0">${Pi('పాఠం','Lesson')}</span></div>
     <details style="text-align:left;margin-top:14px" class="card"><summary style="cursor:pointer;font-weight:600;min-height:48px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start">${P('రాసినది చూడండి','Read the words')}</summary>
-      <p class="small" style="margin:8px 0 0">${P('మిగిలిన సందేశాన్ని కంప్యూటర్ గొంతు చదువుతుంది, లక్ష్మి టీచర్ పాఠం నుండి.','The rest of this message is read by a computer voice, from Lakshmi teacher’s lesson.')}</p>
-      <p class="small">${S.plang==='en'?'Ravi, today let’s learn to subtract by taking a ten. From 43 sticks, take away 18. You can’t take 8 from 3, can you? Open one bundle and you get 10 loose sticks… In Kannada we say “<span lang="kn">ದಶಕ ಪಡೆಯೋಣ</span>”.':`<span lang="te">రవీ, ఈ రోజు పది తీసుకుని తీసివేయడం నేర్చుకుందాం. 43 పుల్లల్లో 18 తీసేయాలి. 3 లో 8 రాదు, కదా? ఒక కట్ట విప్పు, 10 విడి పుల్లలు వస్తాయి… కన్నడలో దీన్ని “</span><span lang="kn">ದಶಕ ಪಡೆಯೋಣ</span><span lang="te">” అంటారు.</span>`}</p></details>
+      <p class="small" style="margin:8px 0 0">${P('టీచర్ (తన గొంతులో): “నమస్కారం, నేను లక్ష్మి టీచర్.”','Teacher (her own voice): “Namaskaram, I am Lakshmi teacher.”')}</p>
+      <p class="small">${P('ఇది మీ బిడ్డ టీచర్ పంపిన పాఠం. మిగిలినది కంప్యూటర్ గొంతు చదువుతుంది.','This is a lesson from your child’s teacher. The rest is read by a computer voice.')}</p>
+      <p class="small">${S.plang==='en'?'Today let’s learn to subtract by taking a ten. From 43 sticks, take away 18. You can’t take 8 from 3, can you? Open one bundle and you get 10 loose sticks… In Kannada we say “<span lang="kn">ದಶಕ ಪಡೆಯೋಣ</span>”.':`<span lang="te">ఈ రోజు పది తీసుకుని తీసివేయడం నేర్చుకుందాం. 43 పుల్లల్లో 18 తీసేయాలి. 3 లో 8 రాదు, కదా? ఒక కట్ట విప్పు, 10 విడి పుల్లలు వస్తాయి… కన్నడలో దీన్ని “</span><span lang="kn">ದಶಕ ಪಡೆಯೋಣ</span><span lang="te">” అంటారు.</span>`}</p></details>
     <button class="btn primary" data-a="pgo" data-v="activity" style="margin-top:6px">${P('తరువాత','Next')}</button>
     ${stopLink()}
   </div>`)+stopSheet();
@@ -938,7 +1018,7 @@ function pDone(){
 /* ================= Shell: steps & states ================= */
 const STEPS = [
  {ph:'Once, at setup'},
- {who:'Teacher', t:'Set up: greeting + evening message', go(){ S.t='onboard'; S.ob=1; S.clock.h='4:30 pm'; }},
+ {who:'Teacher', t:'Sign in, then set up: greetings + evening message', go(){ S.t='login'; S.ob=0; S.clock.h='4:30 pm'; }},
  {ph:'Tuesday: Ravi is absent'},
  {who:'Teacher', t:'Morning: attendance arrives from SATS; nothing to mark', go(){ day1(); S.lesson='none'; }},
  {who:'Teacher', t:'Tap the mic, say what you taught, tap again', go(){ day1(); S.lesson='none'; }},
@@ -956,11 +1036,11 @@ const STEPS = [
  {ph:'Any time'},
  {who:'Parent', t:'Family stops the messages (from any screen)', go(){ if(S.ansState!=='sent'){ STEPS[12].go(); } S.p='done'; S.stopAsk=true; S.t='ledger'; }},
 ];
-function day1(){ S.lessonIds=['M3.SUB.BORROW']; S.lessonId='M3.SUB.BORROW'; S.mapped=['M3.SUB.BORROW','M3.SUB.CHECK']; S.sel=new Set(S.mapped); S.micBlocked=false; S.t='today'; S.tVar=null; S.ob=3; S.greet='done'; S.consent=true; S.clock={t:'Tue 20 Oct',h:'9:10'}; S.attEdit=false; S.attSrc='sats'; S.attCorrected=false; S.absent=new Set([10,12,13,19]); S.offline=false; S.pickOpen=false; S.dayDone=false; if(S.msgs.length===0) S.p='empty'; }
+function day1(){ S.lessonIds=['M3.SUB.BORROW']; S.lessonId='M3.SUB.BORROW'; S.mapped=['M3.SUB.BORROW','M3.SUB.CHECK']; S.sel=new Set(S.mapped); S.micBlocked=false; S.t='today'; S.tVar=null; S.ob=3; S.greet='done'; S.consent=true; S.clock={t:'Tue 20 Oct',h:'12:15 pm'}; S.attEdit=false; S.attSrc='sats'; S.attCorrected=false; S.absent=new Set([10,12,13,19]); S.offline=false; S.pickOpen=false; S.dayDone=false; if(S.msgs.length===0) S.p='empty'; }
 function friday(){ STEPS[6].go(); S.clock={t:'Fri 23 Oct',h:'3:10 pm'}; S.pk={A:'ready',B:'ready',C:'review'}; S.reviewed={}; S.glossOk=false; S.pkOpen=null; S.msgs=['evening']; S.p='home'; S.pclock='3:10 pm'; }
 
 const TSTATES = {
-  today:[['default','From SATS'],['micblocked','Mic blocked'],['sending','Sending note'],['waiting','SATS not in yet'],['correct','Correcting'],['corrected','Corrected by teacher'],['offline','Offline'],['nolesson','Lesson not yet recorded'],['queued','Note queued offline'],['done','Done for today'],['noupdates','No updates yet']],
+  today:[['default','From SATS'],['noabsent','Nobody absent'],['micblocked','Mic blocked'],['sending','Sending note'],['waiting','SATS not in yet'],['correct','Correcting'],['corrected','Corrected by teacher'],['offline','Offline'],['nolesson','Lesson not yet recorded'],['queued','Note queued offline'],['done','Done for today'],['noupdates','No updates yet']],
   confirm:[['offline','Offline'],['proc','Processing'],['slow','Slow (>20 s)'],['confident','Confident'],['low','Low confidence'],['unclear','Could not hear']],
   approve:[['default','Default'],['gen','Generating'],['offline','Offline'],['sent','Sent'],['failed','Generation failed']],
   families:[['default','Default']],
@@ -969,6 +1049,11 @@ const TSTATES = {
   child:[['default','Default'],['delete','Delete: confirm']],
   ret:[['default','Cards'],['done','Marked done'],['none','None today'],['offline','Offline']],
   week:[['default','Nudge'],['decided','Decided (recap planned)'],['nonudge','No nudge this week']],
+  login:[['default','First sign-in'],['remembered','Phone remembered'],['wrongpin','Wrong PIN'],['locked','Locked (5 wrong PINs)']],
+  settings:[['default','Default']],
+  tpl:[['default','Approved']],
+  greetings:[['default','Default'],['withdraw','Withdraw: confirm']],
+  family:[['default','Default'],['nophone','No phone']],
   onboard:[['0','Welcome'],['1','Greeting'],['1off','Offline'],['1del','Greeting deleted'],['1deny','Mic permission denied'],['1rec','Recording'],['1done','Recorded'],['1err','Missing step'],['2','Evening message'],['3','All set']],
 };
 const PSTATES = {
@@ -981,7 +1066,7 @@ const PSTATES = {
 };
 function applyT(k){
   S.tVar=null; const t=S.t;
-  if(t==='today'){ S.micBlocked=k==='micblocked'; if(k==='sending'){ S.lesson='sending'; } clearInterval(recTimer); S.offline=(k==='offline'||k==='queued'); S.dayDone=k==='done'; S.tVar=k==='noupdates'?'noupdates':null;
+  if(t==='today'){ if(k==='noabsent'){ S.micBlocked=false; S.offline=false; S.attEdit=false; S.attSrc='sats'; S.absent=new Set(); S.lesson='confirmed'; S.dayDone=true; S.tVar=null; S._tk=k; return; } if(!S.absent.size) S.absent=new Set([10,12,13,19]); S.micBlocked=k==='micblocked'; if(k==='sending'){ S.lesson='sending'; } clearInterval(recTimer); S.offline=(k==='offline'||k==='queued'); S.dayDone=k==='done'; S.tVar=k==='noupdates'?'noupdates':null;
     S.attSrc = k==='waiting'?'waiting':'sats'; S.attCorrected = k==='corrected'; S.attEdit = k==='correct'; if(S.attEdit) S.draft=new Set(S.absent);
     if(k==='nolesson'||k==='offline'||k==='micblocked') S.lesson='none'; if(k==='queued') S.lesson='queued'; if(k==='done') S.lesson='confirmed'; }
   if(t==='confirm'){ S.sel=new Set(S.mapped); if(k==='offline'){ S.tVar='offline'; S.lowConf=false; S.lesson='queued'; S._tk=k; return; } S.lowConf=k==='low'; if(k==='proc'||k==='slow'){ S.lesson='proc'; S.tVar=k==='slow'?'slow':null; } else if(k==='unclear') S.lesson='unclear'; else S.lesson='mapped'; }
@@ -991,6 +1076,9 @@ function applyT(k){
   if(t==='week'){ S.recap = k==='decided'?'yes':null; S.tVar=k==='nonudge'?k:null; }
   if(t==='pkg'){ S.pk[S.pkOpen]=k; S.glossOk=false; }
   if(t==='child') S.delAsk=k==='delete';
+  if(t==='login'){ S.loginErr=k==='wrongpin'; S.loginMode = k==='remembered'?'remembered':k==='locked'?'locked':'first'; }
+  if(t==='greetings') S.wdAsk=k==='withdraw';
+  if(t==='family' && k==='nophone') S.cons[S.famChild]='nophone';
   if(t==='onboard'){ clearInterval(recTimer); S.obOffline=k==='1off'; S.greetDeleted=k==='1del'; S.obDenied=k==='1deny'; S.ob=+k[0]; S.obErr=k==='1err'?'rec':null; S.greet = k==='1rec'?'rec':(k==='1done'||k==='1off'||+k[0]>1)?'done':'none'; if(k==='1done') S.consent=true; }
   S._tk=k;
 }
@@ -1034,6 +1122,23 @@ const A = {
   changeLessons(){ S.mapped=[...S.lessonIds]; S.sel=new Set(S.lessonIds); S.lesson='mapped'; S.lowConf=false; S.tVar=null; S.t='confirm'; },
   selLesson(v){ S.sel.has(v)?S.sel.delete(v):S.sel.add(v); },
   famBackOb(){ S.t='onboard'; S.ob=3; },
+  loginChange(){ S.loginMode='first'; },
+  login(){ S.loginErr=false; S.t='onboard'; S.ob=0; announce('t',Kt('ಒಳಗೆ ಬಂದಿದ್ದೀರಿ','Signed in')); },
+  toSettings(){ S.t='settings'; S.wdAsk=false; },
+  famFromSettings(){ S.famFrom='settings'; S.t='families'; },
+  openFamily(v){ S.famChild=+v; S.t='family'; },
+  famBack(){ S.t='families'; },
+  famSave(){ S.consChanged=true; S.t='families'; announce('t',Kt('ಉಳಿಸಲಾಗಿದೆ','Saved')); },
+  hl(v){ const [r,l]=v.split(':'); S.hl[+r]=l; },
+  openTpl(){ S.t='tpl'; },
+  openGreetings(){ S.t='greetings'; },
+  appLang(v){ S.lang=v; },
+  lgRec(v){ S.lg[v]='done'; announce('t',Kt('ಶುಭಾಶಯ ಉಳಿಸಲಾಗಿದೆ','Greeting saved')); },
+  lgSkip(v){ S.lg[v]='skip'; },
+  lgDel(v){ S.lg[v]='none'; announce('t',Kt('ಅಳಿಸಲಾಗಿದೆ','Deleted')); },
+  greetAgainS(){ if(!S.consent){ S.t='onboard'; S.ob=1; S.greet='none'; announce('t',Kt('ಮೊದಲು ಒಪ್ಪಿಗೆ ನೀಡಿ','Agree to voice use first')); return; } toast('Records your Kannada greeting again (same recorder as setup)'); },
+  wdAsk(){ S.wdAsk=true; }, wdNo(){ S.wdAsk=false; },
+  wdDo(){ S.wdAsk=false; S.greet='none'; S.lg={te:'none',ta:'none'}; S.consent=false; announce('t',Kt('ಒಪ್ಪಿಗೆ ಹಿಂಪಡೆಯಲಾಗಿದೆ. ಧ್ವನಿಮುದ್ರಣಗಳು ಅಳಿಸಲಾಗಿದೆ.','Consent withdrawn. Recordings deleted.')); },
   famFromOb(){ S.famFrom='ob'; S.t='families'; },
   famFromLedger(){ S.famFrom='ledger'; S.t='families'; },
   cons(v){ const [r,k]=v.split(':'); S.cons[+r]=k; S.consChanged=true; announce('t',Kt('ಉಳಿಸಲಾಗಿದೆ','Saved')); },
@@ -1083,9 +1188,9 @@ A.tstate=v=>applyT(v); A.pstate=v=>applyP(v);
 function onApproved(){ if(S.pk.A==='approved' && !S.msgs.includes('catchup')){ S.msgs.push('catchup'); S.pclock='6:10 pm'; if(S.p==='empty') S.p='home'; if(S.ravi==='missed') S.ravi='sent'; } }
 
 /* ================= Render, with focus management ================= */
-const TSCREENS={onboard:tOnboard,today:tToday,confirm:tConfirm,approve:tApprove,pkg:tPkg,ledger:tLedger,child:tChild,families:tFamilies,ret:tRet,week:tWeek};
+const TSCREENS={login:tLogin,settings:tSettings,tpl:tTpl,greetings:tGreetings,family:tFamily,onboard:tOnboard,today:tToday,confirm:tConfirm,approve:tApprove,pkg:tPkg,ledger:tLedger,child:tChild,families:tFamilies,ret:tRet,week:tWeek};
 const PSCREENS={empty:pHome,home:pHome,reason:pReason,listen:pListen,activity:pActivity,answer:pAnswer,done:pDone};
-const TNAMES={onboard:'T0 Set up',today:'T1 Today',confirm:'T2 Lesson confirm',approve:'T3 Approve',pkg:'T3 Approve · detail',ledger:'T4 Missed lessons (ledger)',child:'T4 Child',families:'T8 Families and consent',ret:'T5 Back today (buddy card)',week:'T6 Week (return speed + pacing)'};
+const TNAMES={login:'T9 Sign in',settings:'T10 Settings',tpl:'T10 Settings · Evening message',greetings:'T10 Settings · My greetings',family:'T8 Family details',onboard:'T0 Set up',today:'T1 Today',confirm:'T2 Lesson confirm',approve:'T3 Approve',pkg:'T3 Approve · detail',ledger:'T4 Missed lessons (ledger)',child:'T4 Child',families:'T8 Families and consent',ret:'T5 Back today (buddy card)',week:'T6 Week (return speed + pacing)'};
 const PNAMES={empty:'Phone · no messages',home:'Messages (WhatsApp stand-in)',reason:'Reason for absence (FR-21)',listen:'P1 Listen',activity:'P2 Activity',answer:'P3 Answer',done:'P4 Done'};
 const opener={};
 function keyOf(el){ if(!el||!el.dataset) return null; if(el.dataset.mic) return 'mic|'+el.dataset.mic; if(el.dataset.a) return el.dataset.a+'|'+(el.dataset.v||''); return null; }
@@ -1105,7 +1210,7 @@ function render(){
   document.body.classList.toggle('dark', S.theme==='dark');
   const T=document.getElementById('teacher'), Pp=document.getElementById('parent');
   T.setAttribute('lang', S.lang==='en'?'en':'kn'); Pp.setAttribute('lang', S.plang==='en'?'en':'te');
-  renderSide('teacher', TSCREENS[S.t](), S.t+S.ob+(S.t==='child'?S.child:''), S.pickOpen||S.delAsk);
+  renderSide('teacher', TSCREENS[S.t](), S.t+S.ob+(S.t==='child'?S.child:'')+(S.t==='family'?S.famChild:''), S.pickOpen||S.delAsk||S.wdAsk);
   renderSide('parent', PSCREENS[S.p](), S.p, S.stopAsk);
   document.getElementById('tLabel').innerHTML=`Teacher · Lakshmi · <b>${S.clock.t}, ${S.clock.h}</b><br>${TNAMES[S.t]}`;
   document.getElementById('pLabel').innerHTML=`Ravi’s family · shared phone · <b>${S.pclock}</b><br>${PNAMES[S.p]}`;
@@ -1127,7 +1232,7 @@ document.addEventListener('click',e=>{
   if(el.classList.contains('scrim') && e.target.closest('[data-stop]')) return; // clicks inside a sheet don't close it
   const a=el.dataset.a; if(!A[a]) return;
   const side = el.closest('#teacher')?'teacher':el.closest('#parent')?'parent':null;
-  if(side && ['pick','delAsk','stopAsk'].includes(a)) opener[side]=a;
+  if(side && ['pick','delAsk','stopAsk','wdAsk'].includes(a)) opener[side]=a;
   if(el.tagName==='INPUT'){ A[a](el.dataset.v); render(); return; }
   e.preventDefault(); A[a](el.dataset.v); render();
 });
@@ -1141,10 +1246,11 @@ document.addEventListener('click',e=>{ const m=e.target.closest('[data-mic]'); i
   if(startedByDown||suppressClick){ startedByDown=false; suppressClick=false; return; }
   if(isRec(k)) stopRec(k); else startRec(k); render(); });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden){ let any=false; ['lesson','greet'].forEach(k=>{ if(isRec(k)){ cancelRec(k); any=true; } }); if(any) render(); } });
+document.addEventListener('change',e=>{ const el=e.target.closest('[data-phone]'); if(el){ S.phone[+el.dataset.phone]=el.value.trim(); } });
 // Dialogs: Esc closes, Tab is trapped inside
 document.addEventListener('keydown',e=>{
   const sheet=document.querySelector('.sheet[role=dialog]'); if(!sheet) return;
-  if(e.key==='Escape'){ if(S.pickOpen) A.pickClose(); else if(S.delAsk) A.delNo(); else if(S.stopAsk) A.stopNo(); render(); return; }
+  if(e.key==='Escape'){ if(S.pickOpen) A.pickClose(); else if(S.delAsk) A.delNo(); else if(S.wdAsk) A.wdNo(); else if(S.stopAsk) A.stopNo(); render(); return; }
   if(e.key==='Tab'){ const f=[...sheet.querySelectorAll('button,input,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled); if(!f.length) return;
     const first=f[0], last=f[f.length-1]; if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); } }
 });
