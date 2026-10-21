@@ -1,6 +1,6 @@
 # T4 Missed lessons (ledger, by child, by lesson, child history, delete)
 
-Spec: FR-05, FR-11, FR-15, FR-19 (status), FR-21 (reason, teacher only) · Tier: MVP · Task: T-13 (screen), T-06 (ledger query), T-19 (consent + delete), T-15 (status updates) · Prototype: prototype/index.html (step 10; step 13 for "stopped"; states via the chips under each phone)
+Spec: FR-05, FR-11, FR-15, FR-19 (status), FR-21 (reason, teacher only) · Tier: MVP · Task: T-13 (screen), T-06 (ledger query), T-19 (consent + delete), T-15 (status updates) · Prototype: prototype/index.html (step 10; step 13 for "stopped") · PNG: screenshots/T4-missed-by-child-360-light.png
 Decisions: D-19, D-20, D-27, D-30, D-17
 
 Nav tab "Missed". Segmented control: By child / By lesson. Tapping a child opens child history, which holds the "Child’s data" delete action.
@@ -30,13 +30,13 @@ Nav tab "Missed". Segmented control: By child / By lesson. Tapping a child opens
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| By child (`default`) | Segmented control (By child pressed); filter chips "Absent this week · 7" / "Everyone · 36"; list rows: roll, name, "2 days away", "Missed: …", learning tag + channel tag, chevron; footer. | "Filled automatically from attendance × your lesson records. No AI in this." |
-| By lesson (`lesson`) | One card per lesson this week (newest first): date · page, lesson name, "4 of 36 children missed it", status-count tags; expander (chevron, `aria-expanded`) lists children with tags; "Move on or recap? See the week". | "4 of 36 children missed it" |
+| By child (`default`) | Segmented control (By child pressed); filter chips "Absent this week · 7" / "Everyone · 36"; list rows: roll, name, "2 days away", "Missed: …", learning tag + channel tag, chevron; footer. ![](screenshots/T4-missed-by-child-360-light.png) Dark: ![](screenshots/T4-missed-by-child-360-dark.png) | "Filled automatically from attendance × your lesson records. No AI in this." |
+| By lesson (`lesson`) | One card per lesson this week (newest first): date · page, lesson name, "4 of 36 children missed it", status-count tags; expander (chevron, `aria-expanded`) lists children with tags; "Move on or recap? See the week". ![](screenshots/T4-missed-by-lesson-360-light.png) | "4 of 36 children missed it" |
 | Everyone filter | All 36 children; rows with no missed lesson show "No missed lessons this week" | "No missed lessons this week" |
-| Empty, first week (`empty`) | Large list icon, heading, explanation, ghost "Go to Today". | "No missed lessons yet" |
-| Offline (`offline`) | Warning banner with snapshot time above the list; Wi-Fi-off in status bar. | "No network. Showing the saved list (today 9:12). It updates when the network returns." |
-| Child history (`child` · `default`) | App bar: child's name as title, Back. "Roll 12 · home language: Telugu", tags, "This week" timeline (`<ol>`, day on every event), "Child’s data" section with outlined Delete. | "This week" |
-| Delete: confirm (`child` · `delete`) | Modal sheet: title, 4 consequence bullets, primary "Keep" (focused), outlined "Delete". | "Delete Ravi’s data?" |
+| Empty, first week (`empty`) | Large list icon, heading, explanation, ghost "Go to Today". ![](screenshots/T4-missed-empty-360-light.png) | "No missed lessons yet" |
+| Offline (`offline`) | Warning banner with snapshot time above the list; Wi-Fi-off in status bar. ![](screenshots/T4-missed-offline-360-light.png) | "No network. Showing the saved list (today 9:12). It updates when the network returns." |
+| Child history (`child` · `default`) | App bar: child's name as title, Back. "Roll 12 · home language: Telugu", tags, "This week" timeline (`<ol>`, day on every event), "Child’s data" section with outlined Delete. ![](screenshots/T4-child-history-360-light.png) | "This week" |
+| Delete: confirm (`child` · `delete`) | Modal sheet: title, 4 consequence bullets, primary "Keep" (focused), outlined "Delete". ![](screenshots/T4-child-delete-confirm-360-light.png) | "Delete Ravi’s data?" |
 | Deleted | Back to the list; child removed; counts update; announcement | "Deleted: name, answers and audio" |
 | Delete offline | Delete queued; happens when the network returns (copy in the dialog) | "This can’t be undone. If offline, it happens when the network returns." |
 | Loading | Not designed. Show the cached snapshot; no blank screen | — |

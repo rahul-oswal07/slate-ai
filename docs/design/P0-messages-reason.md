@@ -1,6 +1,6 @@
 # P0 Messages (chat stand-in) + Reason for absence
 
-Spec: FR-20, FR-21, FR-19, FR-16 (stretch), NFR-05 · Tier: MVP (chat is the demo stand-in; real WhatsApp is FR-16 / T-40, stretch) · Task: T-44 (evening message), T-45 (reason + A7), T-15 (catch-up link) · Prototype: prototype/index.html (steps 5, 6; stopped bubble step 13; states via the chips under each phone)
+Spec: FR-20, FR-21, FR-19, FR-16 (stretch), NFR-05 · Tier: MVP (chat is the demo stand-in; real WhatsApp is FR-16 / T-40, stretch) · Task: T-44 (evening message), T-45 (reason + A7), T-15 (catch-up link) · Prototype: prototype/index.html (steps 5, 6; stopped bubble step 13) · PNG: screenshots/P0-messages-evening-360-light.png
 
 Decisions: D-05 (simulated parent phone primary), D-21 (template approved once, slots by code), D-23 (reason optional, caring, category only), D-29 ("a classmate is keeping Ravi's seat"), D-30 (stop link everywhere, STOP reply, confirmation with restart). Review: C-06, C-14, C-15, C-16, C-21, C-22, C-30.
 
@@ -32,13 +32,13 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Messages · empty | Chat header; empty icon; demo-only English line. | "No messages yet" · (demo) "Ravi’s mother’s phone. Messages from Lakshmi teacher arrive here." |
-| Messages · evening message | Day separator; bubble: greeting voice note (play, "0:09"), text with slots, "Is everything OK? Tell us" link, stop link, time. | "We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat." |
+| Messages · empty | Chat header; empty icon; demo-only English line. `screenshots/P0-messages-empty-360-light.png` | "No messages yet" · (demo) "Ravi’s mother’s phone. Messages from Lakshmi teacher arrive here." |
+| Messages · evening message | Day separator; bubble: greeting voice note (play, "0:09"), text with slots, "Is everything OK? Tell us" link, stop link, time. `screenshots/P0-messages-evening-360-light.png`, dark: `screenshots/P0-messages-evening-360-dark.png`, Telugu only: `screenshots/P0-messages-telugu-only-360-light.png` | "We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. Tomorrow: word problems. A classmate is keeping Ravi’s seat." |
 | Messages · catch-up link | Second bubble (Friday) appears only after the teacher approves the package: text + "Open" link to P1. No PNG exported | "A short lesson for Ravi from Lakshmi teacher. 2 minutes." · "Open" |
 | Messages · stopped | Confirmation bubble with restart link; stop links disappear. No PNG exported (see P4) | "Messages for Ravi are stopped. You can start them again any time." · "Start them again" |
-| Reason · default | Teacher initial; question + replay; 2-column grid of 5 picture buttons; "Say it instead"; disclosure hint; sticky Send (disabled) + hint; Skip; stop link. | "We missed Ravi today. Is everything OK?" · "Tap one picture" · "Skip" |
-| Reason · picture chosen | Chosen button pressed (thick border, panel fill); Send enabled. | "Send" |
-| Reason · sent | Check icon, thanks, privacy line, OK. | "Thank you" · "Only Lakshmi teacher sees this." |
+| Reason · default | Teacher initial; question + replay; 2-column grid of 5 picture buttons; "Say it instead"; disclosure hint; sticky Send (disabled) + hint; Skip; stop link. `screenshots/P0-reason-default-360-light.png`, dark: `screenshots/P0-reason-default-360-dark.png` | "We missed Ravi today. Is everything OK?" · "Tap one picture" · "Skip" |
+| Reason · picture chosen | Chosen button pressed (thick border, panel fill); Send enabled. `screenshots/P0-reason-chosen-360-light.png` | "Send" |
+| Reason · sent | Check icon, thanks, privacy line, OK. `screenshots/P0-reason-sent-360-light.png` | "Thank you" · "Only Lakshmi teacher sees this." |
 | Reason · recording voice note | Not designed (prototype shows a toast). Same mic model as D-31: tap to start, tap to stop, timer, auto-stop | Open item |
 | Reason · "Is it this?" | Not designed. A7 result shown as the pre-selected picture with "Is it this?"; parent confirms or taps another | Open item |
 | Reason · mic permission denied | Not designed. Fall back to the picture buttons | Open item |

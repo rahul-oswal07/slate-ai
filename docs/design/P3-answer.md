@@ -1,6 +1,6 @@
 # P3 Answer (picture check)
 
-Spec: FR-07, FR-10, FR-11, FR-19, NFR-04 · Tier: MVP · Task: T-15 (check content: T-09, T-10) · Prototype: prototype/index.html (step 9; states via the chips under each phone)
+Spec: FR-07, FR-10, FR-11, FR-19, NFR-04 · Tier: MVP · Task: T-15 (check content: T-09, T-10) · Prototype: prototype/index.html (step 9) · PNG: screenshots/P3-answer-default-360-light.png
 
 Decisions: D-07 (pictures are the answer; the numeral shows only after the tap; options shuffled by code; distractors visibly different), D-08 (four steps), D-20 (learning check is a secondary signal), D-30 (stop link). Review: C-03, C-04, C-08, C-09, C-10, C-11, C-12, C-13, C-16, C-23, C-24.
 
@@ -27,12 +27,12 @@ Decisions: D-07 (pictures are the answer; the numeral shows only after the tap; 
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Default | Header "Question" with Back; step dots 3 of 4; prompt + replay; "43 − 18 = ?"; three full-width picture tiles (bundles + loose sticks, no numerals); sticky hint; stop link. | "Ravi, tap the right picture" · "Tap one picture" |
-| Chosen | Picked tile: thick primary border, panel fill, numeral on the right; sticky "This one, send" + change hint. | "This one, send" · "To change, tap another picture" |
-| Sending | Button "Sending…", button and tiles disabled. | "Sending…" |
-| Could not send | Error banner (assertive); button "Try again"; tapping another picture is allowed again. | "Could not send. Your answer is saved. We’ll send it again when the network is back." · "Try again" |
+| Default | Header "Question" with Back; step dots 3 of 4; prompt + replay; "43 − 18 = ?"; three full-width picture tiles (bundles + loose sticks, no numerals); sticky hint; stop link. `screenshots/P3-answer-default-360-light.png`, Telugu only: `screenshots/P3-answer-telugu-only-360-light.png` | "Ravi, tap the right picture" · "Tap one picture" |
+| Chosen | Picked tile: thick primary border, panel fill, numeral on the right; sticky "This one, send" + change hint. `screenshots/P3-answer-chosen-360-light.png` | "This one, send" · "To change, tap another picture" |
+| Sending | Button "Sending…", button and tiles disabled. `screenshots/P3-answer-sending-360-light.png` | "Sending…" |
+| Could not send | Error banner (assertive); button "Try again"; tapping another picture is allowed again. `screenshots/P3-answer-could-not-send-360-light.png` | "Could not send. Your answer is saved. We’ll send it again when the network is back." · "Try again" |
 | Sent | Goes to P4 Done | — |
-| Stop dialog open over P3 | P4 stop dialog on top of the question. | see P4 |
+| Stop dialog open over P3 | P4 stop dialog on top of the question. `screenshots/P3-answer-stop-confirm-360-dark.png` | see P4 |
 | Already answered (reopened link) | Not designed. Recommend going straight to P4 | Open item |
 | Empty / Loading | none: the check arrives with the P1 payload | — |
 | Permission denied | none | — |

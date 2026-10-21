@@ -1,6 +1,6 @@
 # P4 Done + Stop these messages (shared component)
 
-Spec: FR-10, FR-11, FR-19, NFR-04 · Tier: MVP · Task: T-15 · Prototype: prototype/index.html (steps 9–10 for Done; step 13 for stop; states via the chips under each phone)
+Spec: FR-10, FR-11, FR-19, NFR-04 · Tier: MVP · Task: T-15 · Prototype: prototype/index.html (steps 9–10 for Done; step 13 for stop) · PNG: screenshots/P4-done-default-360-light.png
 
 Decisions: D-08 (four steps), D-19 (`ParentStoppedAt`, send refuses stopped children), D-20 (no score for the family), D-30 (stop link on every parent screen and in the evening message, STOP reply, confirmation message with restart). Review: C-06, C-18, C-22, C-25, C-26, C-27.
 
@@ -29,9 +29,9 @@ This card defines the **stop link, stop dialog and stopped state** once. P0, P1,
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| Done (default) | Header "Lakshmi teacher" with Back; step dots 4 of 4; filled star; "Well done, Ravi"; teacher line; homework line; Finish; stop link. | "Well done, Ravi" · "Lakshmi teacher will see this." · "Bring page 15 to school." · "Finish" |
-| Stop: confirm (dialog) | Modal sheet over any parent screen: title, body, "Stop messages", "No, keep them coming" (focused first).; over P3 in | "Stop messages for Ravi?" · "No more messages will come. You can start them again any time." |
-| Stopped | Bell-off icon, heading, reassurance, "Start them again"; no stop link; no step dots. | "Messages stopped" · "When Ravi comes back, his teacher will help him as usual." · "Start them again" |
+| Done (default) | Header "Lakshmi teacher" with Back; step dots 4 of 4; filled star; "Well done, Ravi"; teacher line; homework line; Finish; stop link. `screenshots/P4-done-default-360-light.png`, dark: `screenshots/P4-done-default-360-dark.png` | "Well done, Ravi" · "Lakshmi teacher will see this." · "Bring page 15 to school." · "Finish" |
+| Stop: confirm (dialog) | Modal sheet over any parent screen: title, body, "Stop messages", "No, keep them coming" (focused first). `screenshots/P4-done-stop-confirm-360-light.png`; over P3 in dark: `screenshots/P3-answer-stop-confirm-360-dark.png` | "Stop messages for Ravi?" · "No more messages will come. You can start them again any time." |
+| Stopped | Bell-off icon, heading, reassurance, "Start them again"; no stop link; no step dots. `screenshots/P4-done-stopped-360-light.png` | "Messages stopped" · "When Ravi comes back, his teacher will help him as usual." · "Start them again" |
 | Stopped from another screen | Dialog closes and the phone returns to the chat, which shows the stopped bubble (see P0) | "Messages for Ravi are stopped. You can start them again any time." |
 | Restarted | Stop links return; chat bubble removed; announcement | "Messages started again" (announce) |
 | Empty / Loading / Offline / Error | Stop and restart offline: not designed. Recommend queue + "Saved · will send" pattern | Open item |

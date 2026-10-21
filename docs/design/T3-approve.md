@@ -1,6 +1,6 @@
 # T3 Approve (list + catch-up detail)
 
-Spec: FR-06, FR-07, FR-08, FR-09, NFR-08 · Tier: MVP · Task: T-14 (pipeline: T-08, T-09, T-10, T-11) · Prototype: prototype/index.html (step 7; states via the chips under each phone)
+Spec: FR-06, FR-07, FR-08, FR-09, NFR-08 · Tier: MVP · Task: T-14 (pipeline: T-08, T-09, T-10, T-11) · Prototype: prototype/index.html (step 7) · PNG: screenshots/T3-approve-list-360-light.png
 
 Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenerate), D-18 (spoken AI disclosure), D-28 (bulk approve only for opened and ticked; Withdraw until the send). Review: B-01, B-02, B-03, B-10, B-11, B-12, B-13, B-14, B-15, B-28, B-29.
 
@@ -29,14 +29,14 @@ Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenera
 ## 4. States
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| List · default | Intro line; one card per catch-up: language · children count, names, lessons · duration, status tag; "Checked" mark when ticked; bulk button disabled at 0 with hint. | "One approval per catch-up, not per child. Nothing is sent until you approve." · "Approve the 0 you checked" · "Open each one and tick the Kannada summary first." |
-| List · generating | The generating card shows the Generating tag and is disabled; not counted in the button. | "Generating…" |
-| List · offline (approval queued) | Warning banner on top; approved cards show the "Saved · will send" tag. | "No network. Your approval is saved on the phone and will send when you have network." |
+| List · default | Intro line; one card per catch-up: language · children count, names, lessons · duration, status tag; "Checked" mark when ticked; bulk button disabled at 0 with hint. `screenshots/T3-approve-list-360-light.png`, dark: `screenshots/T3-approve-list-360-dark.png` | "One approval per catch-up, not per child. Nothing is sent until you approve." · "Approve the 0 you checked" · "Open each one and tick the Kannada summary first." |
+| List · generating | The generating card shows the Generating tag and is disabled; not counted in the button. `screenshots/T3-approve-generating-360-light.png` | "Generating…" |
+| List · offline (approval queued) | Warning banner on top; approved cards show the "Saved · will send" tag. `screenshots/T3-approve-offline-360-light.png` | "No network. Your approval is saved on the phone and will send when you have network." |
 | List · some checked | Button counts only Ready + ticked cards; hint switches to needs-review advice | "Approve the 2 you checked" · "Open “Needs review” ones one at a time." |
 | List · all approved | Success banner; bulk button and hint hidden (B-29). No PNG exported | "All {packages} approved. {families} families get them after 6 pm. (counts from code)" (counts from code; see Open items) |
 | List · empty | Not designed. No catch-ups this week | Open item |
-| Detail · ready | Status tag + AI label; children; player with segments; Kannada summary panel with key words; "Why this"; picture question with the correct option marked; tick; Approve (disabled until ticked); Simpler / Shorter. | "I’ve checked the Kannada summary" · "Approve" · "Tick the summary box to approve." |
-| Detail · needs review (verifier failed) | Error banner with the reason in numbers; no tick; "Make it shorter" primary; reason next to it. | "Didn’t pass the check: audio is 104 seconds, limit is 90." · "Can’t approve: the audio is too long." |
+| Detail · ready | Status tag + AI label; children; player with segments; Kannada summary panel with key words; "Why this"; picture question with the correct option marked; tick; Approve (disabled until ticked); Simpler / Shorter. `screenshots/T3-approve-detail-ready-360-light.png` | "I’ve checked the Kannada summary" · "Approve" · "Tick the summary box to approve." |
+| Detail · needs review (verifier failed) | Error banner with the reason in numbers; no tick; "Make it shorter" primary; reason next to it. `screenshots/T3-approve-detail-needs-review-360-light.png` | "Didn’t pass the check: audio is 104 seconds, limit is 90." · "Can’t approve: the audio is too long." |
 | Detail · regenerating | Status banner; tick, Approve, Simpler, Shorter disabled. No PNG exported | "Writing a new version… Check it again when it’s ready." |
 | Detail · approved | Success banner + "Withdraw (until 6 pm)". No PNG exported | "Approved. Goes to the families after 6 pm." |
 | Sent | Not yet designed (B-14). Needs the real send job | — |
