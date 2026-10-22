@@ -33,6 +33,10 @@ Rules from the playbook we adopt:
 
 Store cases in `evals/cases/*.json`; results (date, model, prompt version, score) in `evals/results/`. Quote these numbers in the deck.
 
+**A1 case format** (`evals/cases/a1-lesson-mapping.json`): `{ id, transcript, expected?, alsoAcceptable?, expectLow? }`. A case passes when A1's first lesson is `expected` or in `alsoAcceptable`; an `expectLow` case (vague, off-topic) passes when the result is low confidence or unclear. The eval runs production's path minus speech-to-text: name scrubber → A1 prompt → validator (`tests/api/.../Evals/A1LessonMappingEvals.cs`, `dotnet test --filter Category=Eval`).
+
+**First run** (22 Oct, prompt `a1-lesson-mapping` v1, Sonnet 5.5): **10/10** on 10 draft cases (`evals/results/2026-10-22-a1-lesson-mapping.json`). The cases were drafted by Claude and are cleaner than real speech; Monika / teachers to replace them with real transcripts and grow to 25 (T-38).
+
 ## 3. Usability testing with representative users
 
 **Participants:** 3 government primary teachers (Grade 2–3, Kannada medium) or close proxies; 2 parents from Telugu-speaking families. Monika recruits; consent form signed; first names only in the repo.

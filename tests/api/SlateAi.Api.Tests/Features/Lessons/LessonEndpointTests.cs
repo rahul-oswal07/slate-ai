@@ -144,30 +144,4 @@ public sealed class LessonEndpointTests
 
     private static Competency Item(string id, int chapter, int sequence) =>
         new(id, "ಕ", id, [], null, chapter, sequence, [], null);
-
-    private sealed class FakeLessonStore : ILessonStore
-    {
-        private readonly HashSet<Guid> _processed = [];
-
-        public Dictionary<DateOnly, LessonRecord> Lessons { get; } = [];
-
-        public Task<LessonRecord?> GetDayAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-            Task.FromResult(Lessons.GetValueOrDefault(date));
-
-        public Task<IReadOnlyList<string>> LastConfirmedBeforeAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-            Task.FromResult(Lessons.Where(l => l.Key < date && l.Value.Status == "confirmed")
-                .OrderByDescending(l => l.Key).Select(l => l.Value.CompetencyIds).FirstOrDefault() ?? []);
-
-        public Task<LessonRecord> SaveConfirmedAsync(
-            Guid classId, Guid clientRequestId, DateOnly date, IReadOnlyList<string> competencyIds, string source,
-            CancellationToken cancellationToken)
-        {
-            if (_processed.Add(clientRequestId))
-            {
-                Lessons[date] = new LessonRecord(competencyIds, source, "confirmed");
-            }
-
-            return Task.FromResult(Lessons[date]);
-        }
-    }
 }

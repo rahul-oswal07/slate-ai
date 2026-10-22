@@ -55,6 +55,46 @@ public sealed class SarvamSpeechToTextTests
     }
 
     [Fact]
+    public async Task Sends_the_bare_content_type_because_sarvam_rejects_codec_parameters()
+    {
+        // Chrome records "audio/webm;codecs=opus"; Sarvam answers 400 "Invalid file type" for that.
+        var handler = new StubHttpHandler(() => StubHttpHandler.Json("""{"transcript":"x"}"""));
+
+        await Sarvam(handler).TranscribeAsync(
+            new MemoryStream([1]), "note.webm", "audio/webm;codecs=opus", "kn-IN", [], TestContext.Current.CancellationToken);
+
+        var body = Assert.Single(handler.Requests).Body;
+        Assert.Contains("Content-Type: audio/webm\r\n", body);
+        Assert.DoesNotContain("codecs", body);
+    }
+
+    [Fact]
+    public async Task Key_terms_never_contain_commas_or_semicolons()
+    {
+        // Sarvam answers 400 "Send each keyterm as a separate array item" when any term contains , or ;
+        // (e.g. the lesson name "Compare 3-digit numbers (>, <, =)").
+        var handler = new StubHttpHandler(() => StubHttpHandler.Json("""{"transcript":"x"}"""));
+
+        await Transcribe(handler, keyTerms: ["Compare 3-digit numbers (>, <, =)", "a; b", " , ", "Expanded form"]);
+
+        var body = Assert.Single(handler.Requests).Body;
+        var part = body[body.IndexOf("name=keyterms", StringComparison.Ordinal)..];
+        var json = part[(part.IndexOf("\r\n\r\n", StringComparison.Ordinal) + 4)..part.IndexOf("\r\n--", StringComparison.Ordinal)];
+        Assert.Equal(["Compare 3-digit numbers (> < =)", "a b", "Expanded form"], System.Text.Json.JsonSerializer.Deserialize<string[]>(json)!);
+    }
+
+    [Fact]
+    public async Task A_rejection_keeps_sarvams_reason_for_the_log()
+    {
+        var handler = new StubHttpHandler(() => StubHttpHandler.Json(
+            """{"error":{"message":"Invalid file type: audio/x-foo. Only ['audio/wav']"}}""", HttpStatusCode.BadRequest));
+
+        var error = await Assert.ThrowsAsync<SpeechException>(() => Transcribe(handler, keyTerms: []));
+
+        Assert.Equal("Sarvam returned 400: Invalid file type: audio/x-foo. Only ['audio/wav']", error.Message);
+    }
+
+    [Fact]
     public async Task Without_an_api_key_nothing_is_sent()
     {
         var handler = new StubHttpHandler(() => StubHttpHandler.Json("{}"));

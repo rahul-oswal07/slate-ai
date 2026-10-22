@@ -48,6 +48,21 @@ public sealed class DemoClassApi : IAsyncDisposable
         return await query(scope.ServiceProvider.GetRequiredService<AppDbContext>());
     }
 
+    /// <summary>Runs <paramref name="work"/> with a service from a fresh scope (e.g. a store).</summary>
+    public async Task ScopedAsync<TService>(Func<TService, Task> work)
+        where TService : notnull
+    {
+        await using var scope = _factory.Services.CreateAsyncScope();
+        await work(scope.ServiceProvider.GetRequiredService<TService>());
+    }
+
+    public async Task<TResult> ScopedAsync<TService, TResult>(Func<TService, Task<TResult>> work)
+        where TService : notnull
+    {
+        await using var scope = _factory.Services.CreateAsyncScope();
+        return await work(scope.ServiceProvider.GetRequiredService<TService>());
+    }
+
     public async ValueTask DisposeAsync()
     {
         Client.Dispose();

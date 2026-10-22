@@ -22,7 +22,9 @@
     "tryAgain": "Try again",
     "cancel": "Cancel",
     "save": "Save",
-    "close": "Close"
+    "close": "Close",
+    "back": "Back",
+    "goToday": "Go to Today"
   },
   "auth": {
     "title": "Sign in",
@@ -95,10 +97,17 @@
     "lesson": {
       "title": "Today’s lesson",
       "prompt": "Tap and say what you taught today",
-      "notYet": "Recording your note comes in the next update.",
       "pickInstead": "Or pick the lesson from the list",
       "titlePlural": "Today’s lessons",
-      "change": "Change"
+      "change": "Change",
+      "hint": "Up to 30 seconds · in Kannada · holding also works",
+      "tooShort": "Too short. Tap, speak, then tap again.",
+      "micBlocked": "The microphone is off for this app. Turn it on in Settings, or pick today’s lesson from the list.",
+      "sending": "Sending your note…",
+      "sendingRule": "If it takes more than 3 seconds, it is saved on the phone and sent when there is network.",
+      "queued": "Note saved · it will be matched when you have network",
+      "processing": "Note saved",
+      "open": "Open"
     },
     "done": "Done for today. Thank you.",
     "added": {
@@ -114,10 +123,20 @@
   "announce": {
     "attDiscarded": "Changes discarded",
     "attSaved": "Attendance saved",
-    "lessonSaved": "Lesson saved. You can change it."
+    "lessonSaved": "Lesson saved. You can change it.",
+    "recording": "Recording",
+    "sending": "Sending your note",
+    "recCancelled": "Recording stopped. Nothing was sent.",
+    "lessonReady": "Lesson ready. Please confirm.",
+    "lessonConfirmed": "Lesson confirmed",
+    "lessonAdded": "Lesson added"
   },
   "mic": {
-    "record": "Record"
+    "record": "Record",
+    "stop": "Stop recording",
+    "recHint": "Tap again when you finish",
+    "timer": "0:{{ss}} / 0:30",
+    "openSettings": "Open settings"
   },
   "nav": {
     "label": "Main",
@@ -137,11 +156,42 @@
   "pick": {
     "title": "Chapter {{n}} · {{chapter}}",
     "nextInBook": "Next in the book",
-    "anotherChapter": "Another chapter"
+    "anotherChapter": "Another chapter",
+    "max": "Up to 3 lessons",
+    "done": "Done"
   },
   "lesson": {
     "partPage": "Part {{part}}, page {{page}}",
     "page": "Page {{page}}",
     "workbookPage": "Workbook page {{page}}"
+  },
+  "confirm": {
+    "title": "Today’s lesson",
+    "processing": "Matching your note to the textbook…",
+    "processingHint": "Usually under 20 seconds. You can carry on; we’ll show it on Today.",
+    "slow": "Taking longer than usual. Your note is saved.",
+    "pickFromList": "Pick from the list",
+    "wait": "Wait; we’ll show it on Today when ready",
+    "unclear": "Could not hear the note clearly. Your note is saved. Pick the lesson from the list.",
+    "sayAgain": "Say it again",
+    "lowConf": "Looks like one of these. Please choose.",
+    "choices": "Today’s lesson",
+    "anotherLesson": "Another lesson",
+    "lessonIs": "Today’s lesson is:",
+    "lessonsAre": "Today’s lessons. Untick any that are wrong:",
+    "lessons": "Today’s lessons",
+    "confirm": "Confirm",
+    "confirmN": "Confirm {{n}} lessons",
+    "keepOne": "Keep at least one lesson",
+    "addLesson": "Add another lesson",
+    "offline": "No network. Your note is saved on the phone. It will be matched when you have network.",
+    "note": {
+      "label": "What you said",
+      "play": "Play your note",
+      "examples": "Examples you used"
+    }
+  },
+  "ai": {
+    "label": "AI-assisted"
   }
 }

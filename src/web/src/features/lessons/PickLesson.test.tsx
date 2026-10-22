@@ -59,7 +59,7 @@ function today(lesson: LessonDay | (() => LessonDay), extra: Record<string, Fake
 const noLesson: LessonDay = { date, lesson: null, nextInBook: 'M3.SUB.BORROW' }
 const confirmed = (...ids: string[]): LessonDay => ({
   date,
-  lesson: { competencyIds: ids, source: 'picked', status: 'confirmed' },
+  lesson: { competencyIds: ids, source: 'picked', status: 'confirmed', summaryKn: null, summaryEn: null, examplesUsed: [] },
   nextInBook: 'M3.SUB.BORROW',
 })
 

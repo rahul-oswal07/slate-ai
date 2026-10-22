@@ -1,0 +1,58 @@
+{
+  "_note": "DRAFT cases written by Claude for T-07 PR 2b, to be reviewed and replaced by Monika / a teacher (T-38 grows this to 25). Transcripts imitate a Sarvam transcript of a Grade 3 teacher's voice note: Kannada with English words. Names are fictional (seed roster) and must be scrubbed before Claude sees them. expected = the lesson that must come first; alsoAcceptable = other lessons that count as a correct first choice; expectLow = vague or off-topic, must come back low or unclear.",
+  "cases": [
+    {
+      "id": "add-carry",
+      "transcript": "ಇವತ್ತು ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ ಮಾಡಿದೆವು, ದಶಕ ವರ್ಗಾವಣೆ ಜೊತೆ. 456 plus 278, ಬಿಡಿ ಸ್ಥಾನದಲ್ಲಿ 14 ಬಂತು, ಒಂದು ಹತ್ತು carry ಮಾಡಿದೆವು. ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಬಳಸಿದೆವು.",
+      "expected": "M3.ADD.CARRY"
+    },
+    {
+      "id": "sub-borrow",
+      "transcript": "ಇವತ್ತು ಕಳೆಯುವಿಕೆ, borrowing ಜೊತೆ. 523 minus 168. ಬಿಡಿಯಲ್ಲಿ 3 ರಿಂದ 8 ಕಳೆಯಲು ಆಗಲ್ಲ, ಹತ್ತರ ಸ್ಥಾನದಿಂದ ಒಂದು ಹತ್ತು ಎರವಲು ತಗೊಂಡೆವು.",
+      "expected": "M3.SUB.BORROW"
+    },
+    {
+      "id": "sub-noborrow-and-check",
+      "transcript": "ಮೊದಲು 865 minus 432 ಮಾಡಿದೆವು, ಎರವಲು ಬೇಕಿರಲಿಲ್ಲ. ನಂತರ ಉತ್ತರಕ್ಕೆ 432 ಕೂಡಿಸಿ ಸರಿ ಇದೆಯಾ ಅಂತ ನೋಡಿದೆವು.",
+      "expected": "M3.SUB.NOBORROW",
+      "alsoAcceptable": ["M3.SUB.CHECK"]
+    },
+    {
+      "id": "pv-hto",
+      "transcript": "ನೂರು, ಹತ್ತು, ಬಿಡಿ ಸ್ಥಾನ ಕಲಿಸಿದೆ. 347 ರಲ್ಲಿ 3 ನೂರು, 4 ಹತ್ತು, 7 ಬಿಡಿ. ಮಕ್ಕಳು place value chart ನಲ್ಲಿ ಬರೆದರು.",
+      "expected": "M3.PV.HTO"
+    },
+    {
+      "id": "pv-expand",
+      "transcript": "ವಿಸ್ತೃತ ರೂಪ ಮಾಡಿದೆವು. 582 ಅಂದ್ರೆ 500 plus 80 plus 2 ಅಂತ ಬರೆಯೋದು. expanded form practice ಮಾಡಿಸಿದೆ.",
+      "expected": "M3.PV.EXPAND"
+    },
+    {
+      "id": "compare-with-names",
+      "transcript": "ಇಂದು ರವಿ ಮತ್ತು ಅನನ್ಯ ಬೋರ್ಡ್ ಮೇಲೆ ದೊಡ್ಡದು ಚಿಕ್ಕದು ಮಾಡಿದರು. 456 ಮತ್ತು 465 ಯಾವುದು ದೊಡ್ಡದು, greater than less than ಚಿಹ್ನೆ ಹಾಕಿದೆವು.",
+      "expected": "M3.NUM.COMPARE"
+    },
+    {
+      "id": "sub-word",
+      "transcript": "ಹೇಳಿಕೆ ಲೆಕ್ಕ ಮಾಡಿದೆವು. ಒಂದು ಅಂಗಡಿಯಲ್ಲಿ 650 ಬಾಳೆಹಣ್ಣು ಇದ್ವು, 275 ಮಾರಾಟ ಆದ್ವು, ಎಷ್ಟು ಉಳಿದವು ಅಂತ.",
+      "expected": "M3.SUB.WORD",
+      "alsoAcceptable": ["M3.SUB.BORROW"]
+    },
+    {
+      "id": "add-word",
+      "transcript": "ಶಾಲೆಯಲ್ಲಿ 345 ಹುಡುಗರು, 287 ಹುಡುಗಿಯರು, ಒಟ್ಟು ಎಷ್ಟು ಮಕ್ಕಳು ಅಂತ story sum ಮಾಡಿದೆವು.",
+      "expected": "M3.ADD.WORD",
+      "alsoAcceptable": ["M3.ADD.CARRY"]
+    },
+    {
+      "id": "vague",
+      "transcript": "ಇವತ್ತು ಗಣಿತ ಮಾಡಿದೆವು, ಮಕ್ಕಳು ಚೆನ್ನಾಗಿ ಮಾಡಿದರು.",
+      "expectLow": true
+    },
+    {
+      "id": "off-topic",
+      "transcript": "ಇವತ್ತು ಶಾಲೆಯಲ್ಲಿ ಆರೋಗ್ಯ ತಪಾಸಣೆ ಇತ್ತು, ಪಾಠ ಆಗಲಿಲ್ಲ.",
+      "expectLow": true
+    }
+  ]
+}

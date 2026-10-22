@@ -20,7 +20,7 @@ export function flush(): Promise<number> {
     try {
       for (const item of await db.outbox.orderBy('createdAt').toArray()) {
         try {
-          await api(item.url, { method: item.method ?? 'POST', body: item.body })
+          await api(item.url, item.audio ? { method: 'POST', form: toForm(item) } : { method: item.method ?? 'POST', body: item.body })
           await db.outbox.delete(item.id)
           sent++
         } catch (error) {
@@ -40,6 +40,16 @@ export function flush(): Promise<number> {
     return sent
   })()
   return running
+}
+
+function toForm(item: OutboxItem) {
+  const form = new FormData()
+  const audio = item.audio
+  if (audio) {
+    form.append('file', new Blob([audio.data], { type: audio.type }), audio.fileName)
+  }
+  form.append('clientRequestId', item.id)
+  return form
 }
 
 /** Writes still waiting to send; drives the sync badge. */

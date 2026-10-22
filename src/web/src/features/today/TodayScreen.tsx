@@ -102,7 +102,7 @@ export function TodayScreen() {
         ))}
 
       {!editing && (
-        <LessonCard day={lesson.data} chapters={chapters} onPick={() => setPicking(true)} />
+        <LessonCard classId={classId} date={date} day={lesson.data} chapters={chapters} onPick={() => setPicking(true)} />
       )}
 
       {!editing && confirmed.length > 0 && absent > 0 && (

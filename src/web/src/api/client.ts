@@ -19,15 +19,18 @@ export class NetworkError extends Error {
 
 type Method = 'GET' | 'POST' | 'PUT'
 
-/** JSON over fetch with the session cookie. 204 resolves to undefined. */
-export async function api<T>(path: string, options: { method?: Method; body?: unknown } = {}): Promise<T> {
+/** JSON (or a multipart `form`) over fetch with the session cookie. 204 resolves to undefined. */
+export async function api<T>(
+  path: string,
+  options: { method?: Method; body?: unknown; form?: FormData } = {},
+): Promise<T> {
   let response: Response
   try {
     response = await fetch(path, {
       method: options.method ?? 'GET',
       credentials: 'same-origin',
       headers: options.body === undefined ? undefined : { 'Content-Type': 'application/json' },
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body: options.form ?? (options.body === undefined ? undefined : JSON.stringify(options.body)),
     })
   } catch {
     throw new NetworkError()

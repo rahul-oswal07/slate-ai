@@ -2,12 +2,22 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.Lessons.Voice;
 
 namespace SlateAi.Api.Features.Lessons;
 
-public sealed record SaveLessonRequest(Guid ClientRequestId, IReadOnlyList<string> CompetencyIds);
+/// <param name="Source">"voice" when she confirms a voice match (T2); otherwise picked from the list.</param>
+public sealed record SaveLessonRequest(Guid ClientRequestId, IReadOnlyList<string> CompetencyIds, string? Source = null);
 
-public sealed record LessonView(IReadOnlyList<string> CompetencyIds, string Source, string Status);
+/// <summary>The day's lesson. Before she confirms a voice note, <c>CompetencyIds</c> is A1's ranked match.</summary>
+/// <param name="Status">processing | mapped | low | unclear | confirmed. A confidence number is never sent.</param>
+public sealed record LessonView(
+    IReadOnlyList<string> CompetencyIds,
+    string Source,
+    string Status,
+    string? SummaryKn,
+    string? SummaryEn,
+    IReadOnlyList<string> ExamplesUsed);
 
 /// <summary>A day's lesson for T1/T2, plus the picker's suggestion.</summary>
 /// <param name="NextInBook">Competency the picker lists first (T2 "Next in the book"); null at the end of the book.</param>
@@ -26,9 +36,21 @@ public sealed record CurriculumResponse(IReadOnlyList<ChapterView> Chapters);
 public static class LessonEndpoints
 {
     public const int MaxLessonsPerDay = 3;
+    public const long MaxAudioBytes = 1024 * 1024;
 
-    public static IServiceCollection AddLessons(this IServiceCollection services) =>
+    /// <summary>A note still "processing" after this (app restarted mid-way) reads as unclear.</summary>
+    public static readonly TimeSpan StaleProcessing = TimeSpan.FromMinutes(2);
+
+    private static readonly string[] AudioTypes = ["audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav", "audio/x-wav"];
+
+    public static IServiceCollection AddLessons(this IServiceCollection services)
+    {
         services.AddScoped<ILessonStore, LessonStore>();
+        services.AddScoped<LessonMapper>();
+        services.AddSingleton<LessonMappingQueue>();
+        services.AddHostedService<LessonMappingWorker>();
+        return services;
+    }
 
     public static IEndpointRouteBuilder MapLessonEndpoints(this IEndpointRouteBuilder app)
     {
@@ -49,6 +71,16 @@ public static class LessonEndpoints
             .WithDescription(
                 "Creates or replaces the day's lesson (one per day, D-55) as picked and confirmed. 1–3 curriculum IDs. " +
                 "Replaying the same clientRequestId is a no-op (offline outbox).");
+
+        app.MapPost("/api/classes/{classId:guid}/lessons/{date}/audio", UploadAudioAsync)
+            .RequireClassOwner()
+            .DisableAntiforgery() // JSON-only app; the session cookie is SameSite=Strict
+            .WithTags("Lessons")
+            .WithSummary("Send today's voice note to be matched to lessons (T2)")
+            .WithDescription(
+                "multipart: file (≤ 1 MB audio), clientRequestId. Returns 202 at once; speech-to-text and A1 run in " +
+                "the background and the day's lesson moves from processing to mapped, low or unclear. The audio is " +
+                "not stored. 409 if the day's lesson is already confirmed (D-55).");
         return app;
     }
 
@@ -80,7 +112,74 @@ public static class LessonEndpoints
             return FutureDate();
         }
 
-        return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, cancellationToken));
+        return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
+    }
+
+    private static async Task<Results<Accepted<LessonDayResponse>, ValidationProblem, Conflict, StatusCodeHttpResult>>
+        UploadAudioAsync(
+            Guid classId,
+            DateOnly date,
+            IFormFile? file,
+            [Microsoft.AspNetCore.Mvc.FromForm] Guid clientRequestId,
+            ILessonStore store,
+            LessonMappingQueue queue,
+            CurriculumGraph curriculum,
+            TimeProvider clock,
+            CancellationToken cancellationToken)
+    {
+        var errors = new Dictionary<string, string[]>();
+        if (clientRequestId == Guid.Empty)
+        {
+            errors["clientRequestId"] = ["Required."];
+        }
+
+        if (file is null || file.Length == 0)
+        {
+            errors["file"] = ["Send the recording."];
+        }
+
+        if (date > SchoolClock.Today(clock))
+        {
+            errors["date"] = ["Can't use a future date."];
+        }
+
+        if (errors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(errors);
+        }
+
+        if (file!.Length > MaxAudioBytes)
+        {
+            return TypedResults.StatusCode(StatusCodes.Status413PayloadTooLarge);
+        }
+
+        var contentType = (file.ContentType ?? "").Split(';')[0].Trim().ToLowerInvariant();
+        if (!AudioTypes.Contains(contentType))
+        {
+            return TypedResults.StatusCode(StatusCodes.Status415UnsupportedMediaType);
+        }
+
+        var startedAt = clock.GetUtcNow();
+        switch (await store.StartVoiceAsync(classId, clientRequestId, date, startedAt, cancellationToken))
+        {
+            case VoiceStart.AlreadyConfirmed:
+                return TypedResults.Conflict();
+            case VoiceStart.Started:
+                using (var buffer = new MemoryStream())
+                {
+                    await file.CopyToAsync(buffer, cancellationToken);
+                    var job = new MappingJob(classId, date, startedAt, buffer.ToArray(), file.FileName ?? "note", contentType);
+                    if (!queue.TryEnqueue(job))
+                    {
+                        await store.SaveMappingAsync(classId, date, startedAt, A1Validator.Unclear("error:queue-full"), cancellationToken);
+                    }
+                }
+
+                break;
+        }
+
+        return TypedResults.Accepted(
+            (string?)null, await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
     }
 
     private static async Task<Results<Ok<LessonDayResponse>, ValidationProblem>> SaveAsync(
@@ -113,6 +212,11 @@ public static class LessonEndpoints
             errors["date"] = ["Can't use a future date."];
         }
 
+        if (request.Source is not (null or LessonValues.Picked or LessonValues.Voice))
+        {
+            errors["source"] = ["Use \"voice\" or \"picked\"."];
+        }
+
         if (errors.Count > 0)
         {
             return TypedResults.ValidationProblem(errors);
@@ -120,12 +224,18 @@ public static class LessonEndpoints
 
         // Teaching order, so the done card and missed lessons read in book order.
         var ordered = ids.OrderBy(id => curriculum.Get(id)!.Sequence).ToList();
-        await store.SaveConfirmedAsync(classId, request.ClientRequestId, date, ordered, LessonValues.Picked, cancellationToken);
-        return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, cancellationToken));
+        await store.SaveConfirmedAsync(
+            classId, request.ClientRequestId, date, ordered, request.Source ?? LessonValues.Picked, cancellationToken);
+        return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
     }
 
     private static async Task<LessonDayResponse> DayAsync(
-        Guid classId, DateOnly date, ILessonStore store, CurriculumGraph curriculum, CancellationToken cancellationToken)
+        Guid classId,
+        DateOnly date,
+        ILessonStore store,
+        CurriculumGraph curriculum,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
     {
         var lesson = await store.GetDayAsync(classId, date, cancellationToken);
         var last = (await store.LastConfirmedBeforeAsync(classId, date, cancellationToken))
@@ -133,8 +243,21 @@ public static class LessonEndpoints
             .MaxBy(id => curriculum.Get(id)!.Sequence);
         return new LessonDayResponse(
             date,
-            lesson is null ? null : new LessonView(lesson.CompetencyIds, lesson.Source, lesson.Status),
+            lesson is null ? null : View(lesson, clock.GetUtcNow()),
             curriculum.NextInBook(last)?.Id);
+    }
+
+    private static LessonView View(LessonRecord lesson, DateTimeOffset now)
+    {
+        var stale = lesson.Status == LessonValues.Processing
+            && lesson.MappingStartedAt is { } started && now - started > StaleProcessing;
+        return new LessonView(
+            lesson.CompetencyIds,
+            lesson.Source,
+            stale ? LessonValues.Unclear : lesson.Status,
+            lesson.SummaryKn,
+            lesson.SummaryEn,
+            lesson.ExamplesUsed ?? []);
     }
 
     private static ValidationProblem FutureDate() =>
