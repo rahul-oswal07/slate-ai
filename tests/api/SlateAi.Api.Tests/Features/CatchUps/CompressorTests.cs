@@ -98,6 +98,30 @@ public sealed class CompressorTests
         Assert.Equal(Ravi, Assert.Single(results).ChildId);
     }
 
+    [Fact]
+    public async Task Children_who_missed_the_same_lessons_on_the_same_days_share_one_claude_call()
+    {
+        var asha = Guid.NewGuid();
+        var kiran = Guid.NewGuid();
+        var wednesday = Tuesday.AddDays(1);
+        _ledger.Data = new LedgerData(
+            [new LedgerChildRow(Ravi, 4, "Ravi"), new LedgerChildRow(asha, 1, "Asha"), new LedgerChildRow(kiran, 9, "Kiran")],
+            [
+                new RegisterRow(Ravi, Tuesday, false), new RegisterRow(asha, Tuesday, false), new RegisterRow(kiran, Tuesday, false),
+                new RegisterRow(Ravi, wednesday, true), new RegisterRow(asha, wednesday, true), new RegisterRow(kiran, wednesday, false),
+            ],
+            [new LessonRow(Guid.NewGuid(), Tuesday, ["M3.SUB.NOBORROW"]), new LessonRow(Guid.NewGuid(), wednesday, ["M3.SUB.CHECK"])]);
+
+        var results = await Create().CompressClassAsync(ClassId, Friday, Ct);
+
+        // Ravi and Asha missed Tuesday only (one call); Kiran also missed Wednesday (a second call).
+        Assert.Equal(2, _llm.Requests.Count);
+        Assert.Equal(new HashSet<Guid> { Ravi, asha, kiran }, results.Select(r => r.ChildId).ToHashSet());
+        Assert.Equal(
+            results.Single(r => r.ChildId == Ravi).Targets.Select(t => t.Id),
+            results.Single(r => r.ChildId == asha).Targets.Select(t => t.Id));
+    }
+
     private Compressor Create() => new(
         _llm,
         _aiCalls,

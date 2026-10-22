@@ -22,7 +22,9 @@ public sealed class Compressor(
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     /// <summary>One result per child who missed a lesson in the school week up to <paramref name="date"/>.</summary>
-    public async Task<IReadOnlyList<A2Result>> CompressClassAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    /// <param name="skip">Children who already have this week's catch-up: no LLM call for them.</param>
+    public async Task<IReadOnlyList<A2Result>> CompressClassAsync(
+        Guid classId, DateOnly date, CancellationToken cancellationToken, IReadOnlySet<Guid>? skip = null)
     {
         if (await ledger.LoadAsync(classId, cancellationToken) is not { } data)
         {
@@ -30,10 +32,20 @@ public sealed class Compressor(
         }
 
         var inputs = CompressionPlanner.Plan(LedgerBuilder.Build(classId, data), data.Lessons, date, curriculum);
+
+        // Children who missed the same lessons on the same days get the same request: ask Claude once per request.
+        var answers = new Dictionary<string, A2Result>(StringComparer.Ordinal);
         var results = new List<A2Result>();
-        foreach (var input in inputs)
+        foreach (var input in inputs.Where(i => skip?.Contains(i.ChildId) != true))
         {
-            results.Add(await CompressAsync(input, cancellationToken));
+            var key = UserContent(input);
+            if (!answers.TryGetValue(key, out var answer))
+            {
+                answer = await CompressAsync(input, cancellationToken);
+                answers[key] = answer;
+            }
+
+            results.Add(answer with { ChildId = input.ChildId });
         }
 
         return results;

@@ -128,6 +128,35 @@ public static partial class CurriculumLoader
             yield return "nameTe and nameTa can be left out but not blank";
         }
 
+        if (c.KeyWordsKn is { } words && (words.Count == 0 || words.Any(string.IsNullOrWhiteSpace)))
+        {
+            yield return "keyWordsKn can be left out but not empty or blank";
+        }
+
+        if (c.Practice is { } rule)
+        {
+            if (!PracticeRule.Kinds.Contains(rule.Kind))
+            {
+                yield return $"practice.kind must be one of {string.Join(", ", PracticeRule.Kinds)}";
+            }
+
+            if (rule.Digits is < 2 or > 4)
+            {
+                yield return "practice.digits must be 2, 3 or 4";
+            }
+
+            if (rule.Kind == "add" && rule.Carry is not ("none" or "ones" or "any")
+                || rule.Kind == "sub" && rule.Borrow is not ("none" or "tens"))
+            {
+                yield return "practice: add needs carry none|ones|any, sub needs borrow none|tens";
+            }
+
+            if (rule.Kind is "add" or "sub" && rule.Digits > 3)
+            {
+                yield return "practice: add and sub stay within 3 digits (≤ 999)";
+            }
+        }
+
         if (c.Prerequisites.Contains(c.Id))
         {
             yield return "lists itself as a prerequisite";

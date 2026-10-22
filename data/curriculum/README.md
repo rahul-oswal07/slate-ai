@@ -28,6 +28,8 @@ Source: Karnataka state Grade 2–3 maths textbook (Kannada medium) and NIPUN Bh
 |---|---|
 | `id` | Like `M3.ADD.CARRY`: `M` + grade 1–5, then dot-separated upper-case parts. Unique across all files |
 | `nameKn`, `nameEn` | Required |
+| `keyWordsKn` | Optional; 3+ textbook Kannada words for the lesson (docs/design/curriculum.md word table). A3 picks a catch-up's 3 key words from them (FR-07); drafts for Monika's review (T-09) |
+| `practice` | Optional; how code makes the lesson's numbers: `{ kind, digits, carry?, borrow? }`, kind = count · expanded · placeValue · biggest · smallest · add (carry none/ones/any) · sub (borrow none/tens). Add/sub stay ≤ 999; borrowing never crosses a zero |
 | `nameTe`, `nameTa` | Optional; not blank when given. Fill `{lesson}` in the evening message for Telugu / Tamil families (FR-20); a family whose language has no name gets no message that evening (logged, never half-filled) |
 | `prerequisites` | IDs that must be learnt first. Each must exist (in any file); no self-reference; no cycles |
 | `chapter`, `sequence` | Chapter number and teaching order (sequence orders the chapter list and breaks ties). `0` = the Part 1 bridge course (Grade 2 revision) |

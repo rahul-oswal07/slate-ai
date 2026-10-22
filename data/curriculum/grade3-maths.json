@@ -47,6 +47,15 @@
         "book": "textbook",
         "part": 1,
         "page": 6
+      },
+      "keyWordsKn": [
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ಸ್ಥಾನಬೆಲೆ"
+      ],
+      "practice": {
+        "kind": "count",
+        "digits": 2
       }
     },
     {
@@ -69,6 +78,17 @@
         "book": "textbook",
         "part": 1,
         "page": 10
+      },
+      "keyWordsKn": [
+        "ಕೂಡಿಸು",
+        "ಮೊತ್ತ",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 2,
+        "carry": "ones"
       }
     },
     {
@@ -90,6 +110,17 @@
         "book": "textbook",
         "part": 1,
         "page": 13
+      },
+      "keyWordsKn": [
+        "ಕಳೆ",
+        "ವ್ಯತ್ಯಾಸ",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
+      ],
+      "practice": {
+        "kind": "sub",
+        "digits": 2,
+        "borrow": "tens"
       }
     },
     {
@@ -112,6 +143,16 @@
         "book": "textbook",
         "part": 1,
         "page": 42
+      },
+      "keyWordsKn": [
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ಸ್ಥಾನಬೆಲೆ"
+      ],
+      "practice": {
+        "kind": "count",
+        "digits": 3
       }
     },
     {
@@ -135,6 +176,16 @@
         "book": "textbook",
         "part": 1,
         "page": 45
+      },
+      "keyWordsKn": [
+        "ಬಿಡಿಸಿ ಬರೆ",
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
+      ],
+      "practice": {
+        "kind": "expanded",
+        "digits": 3
       }
     },
     {
@@ -157,6 +208,17 @@
         "book": "textbook",
         "part": 1,
         "page": 49
+      },
+      "keyWordsKn": [
+        "ಸ್ಥಾನಬೆಲೆ",
+        "ಮುಖಬೆಲೆ",
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
+      ],
+      "practice": {
+        "kind": "placeValue",
+        "digits": 3
       }
     },
     {
@@ -179,6 +241,16 @@
         "book": "textbook",
         "part": 1,
         "page": 55
+      },
+      "keyWordsKn": [
+        "ಸಾವಿರ",
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
+      ],
+      "practice": {
+        "kind": "count",
+        "digits": 4
       }
     },
     {
@@ -201,6 +273,16 @@
         "book": "textbook",
         "part": 1,
         "page": 65
+      },
+      "keyWordsKn": [
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ಸ್ಥಾನಬೆಲೆ"
+      ],
+      "practice": {
+        "kind": "biggest",
+        "digits": 3
       }
     },
     {
@@ -223,6 +305,16 @@
         "book": "textbook",
         "part": 1,
         "page": 68
+      },
+      "keyWordsKn": [
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ಸ್ಥಾನಬೆಲೆ"
+      ],
+      "practice": {
+        "kind": "smallest",
+        "digits": 3
       }
     },
     {
@@ -246,6 +338,17 @@
         "book": "textbook",
         "part": 1,
         "page": 80
+      },
+      "keyWordsKn": [
+        "ಕೂಡಿಸು",
+        "ಮೊತ್ತ",
+        "ಒಟ್ಟು",
+        "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 3,
+        "carry": "none"
       }
     },
     {
@@ -269,6 +372,17 @@
         "book": "textbook",
         "part": 1,
         "page": 85
+      },
+      "keyWordsKn": [
+        "ಕೂಡಿಸು",
+        "ಮೊತ್ತ",
+        "ದಶಕ",
+        "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 3,
+        "carry": "ones"
       }
     },
     {
@@ -291,6 +405,17 @@
         "book": "textbook",
         "part": 1,
         "page": 88
+      },
+      "keyWordsKn": [
+        "ಕೂಡಿಸು",
+        "ಒಟ್ಟು",
+        "ಮೊತ್ತ",
+        "ದಶಕ"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 3,
+        "carry": "any"
       }
     },
     {
@@ -314,6 +439,17 @@
         "book": "textbook",
         "part": 2,
         "page": 6
+      },
+      "keyWordsKn": [
+        "ಕಳೆ",
+        "ವ್ಯತ್ಯಾಸ",
+        "ಉಳಿದ",
+        "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
+      ],
+      "practice": {
+        "kind": "sub",
+        "digits": 3,
+        "borrow": "none"
       }
     },
     {
@@ -336,6 +472,17 @@
         "book": "textbook",
         "part": 2,
         "page": 4
+      },
+      "keyWordsKn": [
+        "ತಾಳೆ ನೋಡು",
+        "ಕಳೆ",
+        "ಕೂಡಿಸು",
+        "ವ್ಯತ್ಯಾಸ"
+      ],
+      "practice": {
+        "kind": "sub",
+        "digits": 3,
+        "borrow": "none"
       }
     },
     {
@@ -359,6 +506,18 @@
         "book": "textbook",
         "part": 2,
         "page": 15
+      },
+      "keyWordsKn": [
+        "ಕಳೆ",
+        "ದಶಕ",
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ವ್ಯತ್ಯಾಸ"
+      ],
+      "practice": {
+        "kind": "sub",
+        "digits": 3,
+        "borrow": "tens"
       }
     },
     {
@@ -381,6 +540,17 @@
         "book": "textbook",
         "part": 2,
         "page": 18
+      },
+      "keyWordsKn": [
+        "ಕಳೆ",
+        "ಉಳಿದ",
+        "ವ್ಯತ್ಯಾಸ",
+        "ದಶಕ"
+      ],
+      "practice": {
+        "kind": "sub",
+        "digits": 3,
+        "borrow": "tens"
       }
     }
   ]

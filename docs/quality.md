@@ -41,6 +41,10 @@ Store cases in `evals/cases/*.json`; results (date, model, prompt version, score
 
 **First run** (22 Oct, prompt `a2-compression` v1, Sonnet 5.5): **10/10** on 10 draft cases (`evals/results/2026-10-22-a2-compression.json`). A first attempt scored 9/10: the five-day case hit the 1024-token output limit, so the rule fallback answered; A2 now uses the default 4096. Cases drafted by Claude; Monika / a teacher to review the "best" labels and grow to 25 (include already-mastered items once check results exist, T-15).
 
+**A3 case format** (`evals/cases/a3-script.json`): `{ id, language, targets[], teacherExamples[] }`. The eval makes the numbers with production's code (seeded by the case id) and passes a case when A3's output passes the validator (3 distinct key words from the lesson's textbook words, no placeholders, markup or class names, lengths), each key word appears in the script, at least 80% of the script's letters (Kannada key words aside) are in the family's script, and the script has at most 120 words (`tests/api/.../Evals/A3ScriptEvals.cs`). The Haiku rubric (teaches the target, age-appropriate, no shaming, gloss matches) comes with the verifier (T-10).
+
+**First run** (22 Oct, prompt `a3-script` v1, Opus 5.5): **10/10** on 10 draft cases across kn / te / ta (`evals/results/2026-10-22-a3-script.json`, every script included for Monika and native speakers). Two fixes on the way: the validator first capped the script at 600 characters, which a 120-word Tamil or Telugu script exceeds (now a word limit); one case hit the 4096-token output limit (A3 now 8192).
+
 ## 3. Usability testing with representative users
 
 **Participants:** 3 government primary teachers (Grade 2–3, Kannada medium) or close proxies; 2 parents from Telugu-speaking families. Monika recruits; consent form signed; first names only in the repo.
