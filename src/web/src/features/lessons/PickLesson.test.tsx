@@ -107,7 +107,8 @@ describe('picking today’s lesson', () => {
     const card = screen.getByRole('region', { name: 'Today’s lesson' })
     expect(within(card).getByText('3-digit subtraction with borrowing')).toBeInTheDocument()
     expect(within(card).getByText('Part 2, page 15')).toBeInTheDocument()
-    expect(saved).toMatchObject({ competencyIds: ['M3.SUB.BORROW'] })
+    // Today shows the pick at once; the request goes out right after.
+    await waitFor(() => expect(saved).toMatchObject({ competencyIds: ['M3.SUB.BORROW'] }))
     await waitFor(() => expect(screen.getByTestId('announcer')).toHaveTextContent('Lesson saved. You can change it.'))
   })
 

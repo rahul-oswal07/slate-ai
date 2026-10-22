@@ -94,7 +94,7 @@ describe('T2 Lesson confirm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Confirm' }))
 
     expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
-    expect(saved).toMatchObject({ competencyIds: ['M3.SUB.NOBORROW'], source: 'voice' })
+    await waitFor(() => expect(saved).toMatchObject({ competencyIds: ['M3.SUB.NOBORROW'], source: 'voice' }))
   })
 
   it('"Add another lesson" ticks more, up to 3', async () => {
