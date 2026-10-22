@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261022170730_EveningMessages` (T-44) |
+| Last migration | `20261022181500_CatchUpPackages` (T-09) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -21,6 +21,9 @@ erDiagram
     Children ||--o{ EveningMessages : "one per day absent"
     MessageTemplates ||--o{ EveningMessages : "filled from"
     Lessons ||--o{ EveningMessages : "slots from"
+    Classes ||--o{ CatchUpPackages : "one per targets + language per week"
+    CatchUpPackages ||--o{ CatchUpAssignments : "for"
+    Children ||--o{ CatchUpAssignments : "one per week"
 
     Teachers {
         uuid Id PK
@@ -117,6 +120,42 @@ erDiagram
         timestamptz SentAt
         timestamptz ExpiresAt
     }
+    CatchUpPackages {
+        uuid Id PK
+        uuid ClassId FK
+        date WeekOf "Monday"
+        text_array TargetCompetencyIds "1-2, first = tested"
+        varchar100 TargetKey "unique with ClassId, WeekOf, Language"
+        varchar5 Language
+        varchar20 Status "generating, ready, needsReview, approved, sent, failed"
+        int ScriptVersion
+        int PromptVersion "nullable"
+        varchar20 Hint "nullable"
+        varchar100 Verdict "nullable"
+        text Script "nullable"
+        text_array KeyWordsKn
+        text GlossKn "nullable"
+        text GlossEn "nullable"
+        jsonb Activity
+        jsonb CheckItem "options + correctIndex"
+        varchar500 AudioUrl "nullable"
+        timestamptz CreatedAt
+        timestamptz UpdatedAt
+    }
+    CatchUpAssignments {
+        uuid Id PK
+        uuid ClassId FK
+        uuid ChildId FK "unique with WeekOf"
+        uuid PackageId FK
+        date WeekOf
+        text_array MissedCompetencyIds
+        jsonb CompressionRationale
+        varchar30 Token "nullable, unique"
+        timestamptz ScheduledAt "nullable"
+        timestamptz SentAt "nullable"
+        timestamptz OpenedAt "nullable"
+        timestamptz CreatedAt
+    }
 ```
 
 ### Tables
@@ -137,6 +176,10 @@ erDiagram
 
 **`EveningMessages`** — one row per family message sent on a day of absence (FR-20), written by the 6 pm job or the send endpoint (`Features/EveningMessages/EveningSender.cs`). **Unique `(ChildId, Date)`**: the send is idempotent, so the job can run every minute after 6 pm and a lesson confirmed late still goes once. `SlotValues` holds the code-filled `lesson` and `page` (never the child's name); the parent view re-renders the text from the template. `Token` (128-bit random, base64url, unique) is the only key to `GET /api/p/{token}`, which answers 410 after `ExpiresAt` (14 days). Listens are not tracked (D-36). FKs: `ChildId → Children` (cascade, FR-15), `ClassId`, `TemplateId`, `LessonId`. Index `(ClassId, Date)` for Today's tonight card.
 
+**`CatchUpPackages`** — one catch-up per (targets, home language) per school week (FR-07; migration `CatchUpPackages`, T-09). Unique `(ClassId, WeekOf, Language, TargetKey)`, so `POST catchups/generate` can be re-run safely (advisory lock `catchups:{classId}:{week}` around the write). `TargetCompetencyIds` comes from A2, most important first; the learning check tests the first. **Numbers are made by code** (`Features/CatchUps/Practice/`, seeded by class + week + targets + language so a regenerate keeps them): `Activity` holds the activity sum (kind, question, numbers, answer) plus A3's instruction and household-object option; `CheckItem` holds the check's question, three options, **`correctIndex`** and answer plus A3's prompt. `correctIndex` is shown to the teacher (T3) but never sent to a parent's browser (P3, T-15). A3's words: `Script` (spoken, family's language, no names, D-50), `KeyWordsKn` (3, from the lesson's textbook words), `GlossKn` / `GlossEn`. `Status`: `generating` → `ready` or `failed` (T-09); `needsReview` (T-10 verifier), `approved` / `sent` (T-14). A package still `generating` after 5 minutes reads as failed (restart mid-way). `ScriptVersion` goes up on every generation; approval is bound to it (T3). **Nothing reaches a parent unless `Status = approved`** (guardrail 3, T-14). No buddy content: buddy sums come from code (T-16). FK `ClassId` (cascade).
+
+**`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). `Token` (unique), `ScheduledAt`, `SentAt`, `OpenedAt` are set by T-14/T-15. FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
+
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
 
 **`AiCalls`** — one row per Claude or Sarvam call, successful or not, written by `Ai/LoggedLlmClient` and `Speech/LoggedSpeechToText` (CLAUDE.md: every call is logged). `Purpose` is the prompt ID (e.g. `a1-lesson-mapping`) with its `PromptVersion`, or `stt`. The caller sets `Verdict` after validating the output (e.g. `valid`, `fallback:low-confidence`); `Error` holds the failure kind (`Refused`, `Truncated`, `Unavailable`, `NotConfigured`, `Rejected`). **Never stores prompt text, transcripts or names.** No FKs: it is an audit log that outlives the rows it describes. Index on `CreatedAt` for the "Under the hood" panel (T-18) and cost totals.
@@ -145,7 +188,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages, and Child → Attendance / EveningMessages. Deleting a child (FR-15, T-19) removes their attendance automatically; future child-linked tables must cascade too, and audio blobs must be deleted in code.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments, and Child → Attendance / EveningMessages / CatchUpAssignments. Deleting a child (FR-15, T-19) removes their attendance automatically; future child-linked tables must cascade too, and audio blobs must be deleted in code.
 
 ## 2. Concurrency and idempotency
 
@@ -155,6 +198,7 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: T
 | Replay racing its original, or two corrections for the same day | `pg_advisory_xact_lock(hashtextextended('attendance:{classId}:{date}', 0))` for the transaction | same |
 | Two app instances migrating at once (slot swap) | session `pg_advisory_lock(0x5EED_0002)` around `MigrateAsync` | `Data/DatabaseStartup.cs` |
 | Two instances seeding at once | `pg_advisory_xact_lock(0x5EED_0001)` around the seed | `Data/Seed/DemoSeeder.cs` |
+| Two catch-up generates for the same week | `pg_advisory_xact_lock(hashtextextended('catchups:{classId}:{week}', 0))` + unique `(ClassId, WeekOf, Language, TargetKey)` and `(ChildId, WeekOf)` | `Features/CatchUps/CatchUpStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
 
 All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tests/Db/`), which runs in CI.
@@ -167,7 +211,7 @@ All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api
 - **Absence spells**: runs of consecutive absent *school days* (dates with a register), with the day the child came back.
 - **Return speed** (mentor review, D-20/D-24 pending): spells that started in the 7 days up to the latest school day, bucketed 1 / 2 / 3 / 4+ days, and how many were back within 2 school days.
 
-Statuses beyond `missed` (sent · caught up · needs buddy · stopped by family) will come from the planned `CatchUpAssignment` and `CheckResponse` below and from `Children.ParentStoppedAt`. Nothing is stored for the ledger itself, so it can't drift from attendance.
+Statuses beyond `missed` (sent · caught up · needs buddy · stopped by family) will come from `CatchUpAssignments`, the planned `CheckResponses` below and `Children.ParentStoppedAt`. Nothing is stored for the ledger itself, so it can't drift from attendance.
 
 ## 4. Planned tables (not built yet)
 
@@ -175,36 +219,8 @@ From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 
 ```mermaid
 erDiagram
-    Classes ||--o{ CatchUpPackages : "drafts per target set + language"
-    CatchUpPackages ||--o{ CatchUpAssignments : "sent to"
-    Children ||--o{ CatchUpAssignments : receives
     CatchUpAssignments ||--o| CheckResponses : "answered with"
 
-    CatchUpPackages {
-        uuid Id PK
-        uuid ClassId FK
-        text_array TargetCompetencyIds "max 2, subset of candidate set"
-        varchar5 Language
-        text Script
-        text GlossKn
-        jsonb Activity
-        jsonb CheckItem
-        jsonb BuddyContent
-        varchar500 AudioUrl
-        varchar20 Status "Draft, Verified, Approved, Rejected"
-        varchar20 PromptVersion
-    }
-    CatchUpAssignments {
-        uuid Id PK
-        uuid ChildId FK
-        uuid PackageId FK
-        uuid_array MissedLessonIds
-        jsonb CompressionRationale
-        varchar Token "128-bit, parent link, expires 14 days"
-        timestamptz ScheduledAt
-        timestamptz SentAt
-        timestamptz OpenedAt
-    }
     CheckResponses {
         uuid AssignmentId PK,FK
         varchar ChoiceId
@@ -216,8 +232,6 @@ erDiagram
 | Table / column | Task | Notes |
 |---|---|---|
 | `Lessons` + `Transcript`, `ExamplesUsed`, `Confidence` | T-07 | Confidence < 0.7 → teacher picks from the chapter list |
-| `CatchUpPackages` | T-08–T-11 | **Nothing reaches a parent unless `Status = Approved`** (guardrail 3, enforced in the API, T-14) |
-| `CatchUpAssignments` | T-14 | `Token` is the only key on the public parent page |
 | `CheckResponses` | T-15 | Scored by code (FR-11); no spoken-answer fields (T-42 dropped, D-26) |
 | Stop / restart endpoints for `Children.ParentStoppedAt` | T-15 (D-19) | Column and send filter built in T-44; the parent's stop link comes with P4 |
 | `AbsenceReasons` | T-45 (FR-21, D-23) | Category only; no transcript or audio kept |

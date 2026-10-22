@@ -1,0 +1,15 @@
+{
+  "_note": "DRAFT cases written by Claude for T-09, to be reviewed by Monika and native speakers (quality.md asks for 25 (target, language) pairs; T-26 native review). Each case is one catch-up: targets from A2 (most important first), the family's language, and examples the teacher used. Numbers are made by code (PackagePractice, seeded by the case id). Pass (code checks only; the Haiku rubric comes with T-10): A3's output passes the validator, each of its 3 Kannada key words appears in the script, at least 80% of the script's letters (Kannada key words aside) are in the family's script, and the script is at most 120 words. The results file keeps every script for human review.",
+  "cases": [
+    { "id": "ravi-sub-borrow-te", "language": "te", "targets": ["M3.SUB.BORROW"], "teacherExamples": ["523 − 168", "bundles of sticks"] },
+    { "id": "sub-borrow-kn", "language": "kn", "targets": ["M3.SUB.BORROW"], "teacherExamples": [] },
+    { "id": "sub-borrow-ta", "language": "ta", "targets": ["M3.SUB.BORROW"], "teacherExamples": ["bundles of sticks"] },
+    { "id": "add-carry-two-targets-te", "language": "te", "targets": ["M3.ADD.CARRY", "M3.ADD.NOCARRY"], "teacherExamples": ["456 + 278"] },
+    { "id": "add-carry-kn", "language": "kn", "targets": ["M3.ADD.CARRY"], "teacherExamples": [] },
+    { "id": "pv-hto-te", "language": "te", "targets": ["M3.PV.HTO"], "teacherExamples": ["347 on the place value chart"] },
+    { "id": "pv-expand-ta", "language": "ta", "targets": ["M3.PV.EXPAND"], "teacherExamples": [] },
+    { "id": "sub-noborrow-kn", "language": "kn", "targets": ["M3.SUB.NOBORROW"], "teacherExamples": ["865 − 432"] },
+    { "id": "compare-te", "language": "te", "targets": ["M3.NUM.COMPARE"], "teacherExamples": [] },
+    { "id": "pv-face-two-targets-kn", "language": "kn", "targets": ["M3.PV.FACE", "M3.PV.HTO"], "teacherExamples": [] }
+  ]
+}

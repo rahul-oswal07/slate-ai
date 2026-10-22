@@ -15,6 +15,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<AiCall> AiCalls => Set<AiCall>();
     public DbSet<MessageTemplate> MessageTemplates => Set<MessageTemplate>();
     public DbSet<EveningMessage> EveningMessages => Set<EveningMessage>();
+    public DbSet<CatchUpPackage> CatchUpPackages => Set<CatchUpPackage>();
+    public DbSet<CatchUpAssignment> CatchUpAssignments => Set<CatchUpAssignment>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -100,6 +102,32 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasIndex(m => new { m.ChildId, m.Date }).IsUnique(); // one message per child per day: the send is idempotent
             e.HasIndex(m => m.Token).IsUnique();
             e.HasIndex(m => new { m.ClassId, m.Date });
+        });
+
+        modelBuilder.Entity<CatchUpPackage>(e =>
+        {
+            e.Property(p => p.TargetKey).HasMaxLength(100);
+            e.Property(p => p.Language).HasMaxLength(5);
+            e.Property(p => p.Status).HasMaxLength(20);
+            e.Property(p => p.Hint).HasMaxLength(20);
+            e.Property(p => p.Verdict).HasMaxLength(100);
+            e.Property(p => p.Activity).HasColumnType("jsonb");
+            e.Property(p => p.CheckItem).HasColumnType("jsonb");
+            e.Property(p => p.AudioUrl).HasMaxLength(500);
+            e.HasOne<Class>().WithMany().HasForeignKey(p => p.ClassId);
+            e.HasIndex(p => new { p.ClassId, p.WeekOf, p.Language, p.TargetKey }).IsUnique();
+        });
+
+        modelBuilder.Entity<CatchUpAssignment>(e =>
+        {
+            e.Property(a => a.CompressionRationale).HasColumnType("jsonb");
+            e.Property(a => a.Token).HasMaxLength(30);
+            e.HasOne<Class>().WithMany().HasForeignKey(a => a.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(a => a.ChildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CatchUpPackage>().WithMany().HasForeignKey(a => a.PackageId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(a => new { a.ChildId, a.WeekOf }).IsUnique(); // one catch-up per child per week
+            e.HasIndex(a => a.Token).IsUnique();
+            e.HasIndex(a => new { a.ClassId, a.WeekOf });
         });
     }
 }

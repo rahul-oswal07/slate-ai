@@ -128,6 +128,147 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("Attendance");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompressionRationale")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.PrimitiveCollection<List<string>>("MissedCompetencyIds")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTimeOffset?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateOnly>("WeekOf")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("ChildId", "WeekOf")
+                        .IsUnique();
+
+                    b.HasIndex("ClassId", "WeekOf");
+
+                    b.ToTable("CatchUpAssignments");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpPackage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Activity")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("AudioUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("CheckItem")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GlossEn")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GlossKn")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Hint")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.PrimitiveCollection<List<string>>("KeyWordsKn")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<int?>("PromptVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Script")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ScriptVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.PrimitiveCollection<List<string>>("TargetCompetencyIds")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("TargetKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Verdict")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateOnly>("WeekOf")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId", "WeekOf", "Language", "TargetKey")
+                        .IsUnique();
+
+                    b.ToTable("CatchUpPackages");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Child", b =>
                 {
                     b.Property<Guid>("Id")
@@ -435,6 +576,36 @@ namespace SlateAi.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpAssignment", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Child", null)
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.CatchUpPackage", null)
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpPackage", b =>
+                {
                     b.HasOne("SlateAi.Api.Data.Entities.Class", null)
                         .WithMany()
                         .HasForeignKey("ClassId")

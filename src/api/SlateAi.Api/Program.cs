@@ -55,6 +55,7 @@ app.MapAttendanceEndpoints();
 app.MapLedgerEndpoints();
 app.MapLessonEndpoints();
 app.MapEveningMessageEndpoints();
+app.MapCatchUpEndpoints();
 app.MapDemoEndpoints();
 app.MapApiDocs();
 app.MapSpa();
