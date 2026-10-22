@@ -4,6 +4,8 @@ import Dexie, { type EntityTable } from 'dexie'
 export type OutboxItem = {
   id: string
   url: string
+  /** Defaults to POST. */
+  method?: 'POST' | 'PUT'
   body: unknown
   createdAt: number
 }

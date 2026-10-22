@@ -54,7 +54,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(l => l.Source).HasMaxLength(10);
             e.Property(l => l.Status).HasMaxLength(20);
             e.HasOne<Class>().WithMany().HasForeignKey(l => l.ClassId);
-            e.HasIndex(l => new { l.ClassId, l.Date });
+            e.HasIndex(l => new { l.ClassId, l.Date }).IsUnique(); // one lesson record per day (D-55)
         });
 
         modelBuilder.Entity<ProcessedRequest>(e =>

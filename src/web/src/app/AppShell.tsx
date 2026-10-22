@@ -10,11 +10,11 @@ export function AppShell() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   // Once queued writes reach the server, show the server's view of them.
-  const refreshAttendance = useCallback(
-    () => void queryClient.invalidateQueries({ queryKey: ['attendance'] }),
-    [queryClient],
-  )
-  useOutboxSync(refreshAttendance)
+  const refresh = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: ['attendance'] })
+    void queryClient.invalidateQueries({ queryKey: ['lesson'] })
+  }, [queryClient])
+  useOutboxSync(refresh)
 
   return (
     <AnnouncerProvider>

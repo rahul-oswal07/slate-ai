@@ -40,7 +40,8 @@ public sealed class LedgerStore(AppDbContext db) : ILedgerStore
             .Select(a => new RegisterRow(a.ChildId, a.Date, a.Present))
             .ToListAsync(cancellationToken);
         var lessons = await db.Lessons
-            .Where(l => l.ClassId == classId)
+            // Only lessons the teacher confirmed count as missed (T2 §3).
+            .Where(l => l.ClassId == classId && l.Status == Lessons.LessonValues.Confirmed)
             .Select(l => new LessonRow(l.Id, l.Date, l.CompetencyIds))
             .ToListAsync(cancellationToken);
         return new LedgerData(children, register, lessons);

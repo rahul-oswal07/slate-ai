@@ -20,7 +20,7 @@ export function flush(): Promise<number> {
     try {
       for (const item of await db.outbox.orderBy('createdAt').toArray()) {
         try {
-          await api(item.url, { method: 'POST', body: item.body })
+          await api(item.url, { method: item.method ?? 'POST', body: item.body })
           await db.outbox.delete(item.id)
           sent++
         } catch (error) {
