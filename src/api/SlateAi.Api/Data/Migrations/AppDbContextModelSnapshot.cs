@@ -223,7 +223,8 @@ namespace SlateAi.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassId", "Date");
+                    b.HasIndex("ClassId", "Date")
+                        .IsUnique();
 
                     b.ToTable("Lessons");
                 });

@@ -9,6 +9,7 @@ using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.Docs;
 using SlateAi.Api.Features.Health;
 using SlateAi.Api.Features.Ledger;
+using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.Spa;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,7 @@ builder.Services.AddAi(builder.Configuration);
 builder.Services.AddAuth();
 builder.Services.AddAttendance(builder.Configuration);
 builder.Services.AddLedger();
+builder.Services.AddLessons();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 
@@ -47,6 +49,7 @@ app.MapHealthEndpoints();
 app.MapAuthEndpoints();
 app.MapAttendanceEndpoints();
 app.MapLedgerEndpoints();
+app.MapLessonEndpoints();
 app.MapDemoEndpoints();
 app.MapApiDocs();
 app.MapSpa();

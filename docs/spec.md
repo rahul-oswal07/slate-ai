@@ -214,9 +214,10 @@ POST /api/demo/login                        one-tap demo sign-in (T-18)
 GET  /api/classes/{id}/attendance/{date}    { status: sats|manual|waiting|missing|noSchool, receivedAt, corrected, satsDiffers, syncAt, retryAt, absentChildIds[], children[] } (fetches the simulated SATS feed when due, D-45, D-69)
 POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId; correction or manual marking, never written back to SATS)
 POST /api/demo/sats-feed                    { classId, date, mode: waiting|arrive } (only while Demo:Enabled, D-69)
-POST /api/lessons                           multipart audio|image or { pickedCompetencyId } → 202 { lessonId }
-GET  /api/lessons/{id}                      status + mapping
-PUT  /api/lessons/{id}/competencies         teacher correction
+GET  /api/curriculum                        chapters (titles) with their lessons and textbook pages, for the lesson picker
+GET  /api/classes/{id}/lessons/{date}       { lesson: { competencyIds, source, status } | null, nextInBook } (one lesson record per day, D-55)
+PUT  /api/classes/{id}/lessons/{date}       { clientRequestId, competencyIds[1..3] } → confirmed, source picked; "Change" overwrites (FR-04)
+POST /api/classes/{id}/lessons/{date}/audio multipart voice note → STT → A1 mapping (T-07 PR B; replaces the earlier POST /api/lessons idea)
 GET  /api/classes/{id}/ledger
 POST /api/classes/{id}/catchups/generate    builds assignments + draft packages for the week
 GET  /api/classes/{id}/packages?status=

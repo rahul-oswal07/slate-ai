@@ -8,16 +8,36 @@ public sealed class CurriculumGraph
 {
     private readonly Dictionary<string, Competency> _byId;
 
-    public CurriculumGraph(IEnumerable<Competency> competencies)
+    public CurriculumGraph(IEnumerable<Competency> competencies, IEnumerable<Chapter>? chapters = null)
     {
         _byId = competencies.ToDictionary(c => c.Id, StringComparer.Ordinal);
         All = _byId.Values.OrderBy(c => c.Sequence).ThenBy(c => c.Id, StringComparer.Ordinal).ToList();
+        Chapters = (chapters ?? []).OrderBy(c => c.Number).ToList();
     }
 
     public static CurriculumGraph Empty { get; } = new([]);
 
     /// <summary>Every competency in teaching order.</summary>
     public IReadOnlyList<Competency> All { get; }
+
+    /// <summary>Chapter titles in book order (may be empty for test data).</summary>
+    public IReadOnlyList<Chapter> Chapters { get; }
+
+    /// <summary>
+    /// The lesson the picker suggests first ("Next in the book", T2): the competency after the last one taught,
+    /// in teaching order. With nothing taught yet, the first competency after the bridge course (chapter 0,
+    /// Grade 2 revision). Null at the end of the book or for an empty graph.
+    /// </summary>
+    public Competency? NextInBook(string? lastTaughtId)
+    {
+        if (lastTaughtId is null || Get(lastTaughtId) is not { } last)
+        {
+            return All.FirstOrDefault(c => c.Chapter > 0) ?? All.FirstOrDefault();
+        }
+
+        var index = All.ToList().IndexOf(last);
+        return index + 1 < All.Count ? All[index + 1] : null;
+    }
 
     public bool Contains(string id) => _byId.ContainsKey(id);
 

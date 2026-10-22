@@ -33,6 +33,7 @@ public static partial class CurriculumLoader
     {
         var errors = new List<string>();
         var competencies = new List<Competency>();
+        var chapters = new Dictionary<int, Chapter>();
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (var (name, json) in files)
@@ -48,10 +49,29 @@ public static partial class CurriculumLoader
                 continue;
             }
 
+            foreach (var chapter in file?.Chapters ?? [])
+            {
+                if (string.IsNullOrWhiteSpace(chapter.NameKn) || string.IsNullOrWhiteSpace(chapter.NameEn))
+                {
+                    errors.Add($"{name}: chapter {chapter.Number}: nameKn and nameEn are required");
+                }
+
+                if (!chapters.TryAdd(chapter.Number, chapter))
+                {
+                    errors.Add($"{name}: chapter {chapter.Number}: listed twice");
+                }
+            }
+
+            var declared = file?.Chapters?.Select(c => c.Number).ToHashSet();
             foreach (var raw in file?.Competencies ?? [])
             {
                 var c = Normalise(raw);
                 errors.AddRange(Check(c).Select(e => $"{name}: {c.Id}: {e}"));
+                if (declared is not null && !declared.Contains(c.Chapter))
+                {
+                    errors.Add($"{name}: {c.Id}: chapter {c.Chapter} is not in this file's chapters");
+                }
+
                 if (!seen.TryAdd(c.Id, name))
                 {
                     errors.Add($"{name}: {c.Id}: duplicate ID (also in {seen[c.Id]})");
@@ -72,7 +92,7 @@ public static partial class CurriculumLoader
 
         errors.AddRange(FindCycles(competencies).Select(cycle => $"prerequisite cycle: {string.Join(" → ", cycle)}"));
 
-        return errors.Count > 0 ? throw new CurriculumException(errors) : new CurriculumGraph(competencies);
+        return errors.Count > 0 ? throw new CurriculumException(errors) : new CurriculumGraph(competencies, chapters.Values);
     }
 
     // JSON can omit arrays or send nulls; the graph relies on non-null lists.

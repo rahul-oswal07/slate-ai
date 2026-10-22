@@ -21,7 +21,8 @@
   "common": {
     "tryAgain": "Try again",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "close": "Close"
   },
   "auth": {
     "title": "Sign in",
@@ -94,7 +95,16 @@
     "lesson": {
       "title": "Today’s lesson",
       "prompt": "Tap and say what you taught today",
-      "notYet": "Recording your note comes in the next update."
+      "notYet": "Recording your note comes in the next update.",
+      "pickInstead": "Or pick the lesson from the list",
+      "titlePlural": "Today’s lessons",
+      "change": "Change"
+    },
+    "done": "Done for today. Thank you.",
+    "added": {
+      "title": "Added to missed lessons: {{n}} children",
+      "sub": "who missed {{lessons}}",
+      "see": "See the {{n}} children"
     }
   },
   "sync": {
@@ -103,7 +113,8 @@
   },
   "announce": {
     "attDiscarded": "Changes discarded",
-    "attSaved": "Attendance saved"
+    "attSaved": "Attendance saved",
+    "lessonSaved": "Lesson saved. You can change it."
   },
   "mic": {
     "record": "Record"
@@ -122,5 +133,15 @@
   "offline": {
     "showingSaved": "No network. Showing what was saved at {{time}}. It updates when the network returns.",
     "noNetwork": "No network."
+  },
+  "pick": {
+    "title": "Chapter {{n}} · {{chapter}}",
+    "nextInBook": "Next in the book",
+    "anotherChapter": "Another chapter"
+  },
+  "lesson": {
+    "partPage": "Part {{part}}, page {{page}}",
+    "page": "Page {{page}}",
+    "workbookPage": "Workbook page {{page}}"
   }
 }

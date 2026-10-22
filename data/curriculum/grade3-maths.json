@@ -2,6 +2,33 @@
   "grade": 3,
   "subject": "maths",
   "version": "2026-10-20",
+  "chapters": [
+    {
+      "number": 0,
+      "nameKn": "ಸೇತುಬಂಧ",
+      "nameEn": "Bridge course"
+    },
+    {
+      "number": 2,
+      "nameKn": "ಎಣಿಸೋಣ – ಕುಣಿಯೋಣ",
+      "nameEn": "Let’s count, let’s dance"
+    },
+    {
+      "number": 3,
+      "nameKn": "ಸಂಖ್ಯೆಗಳೊಂದಿಗೆ ಆಟ",
+      "nameEn": "Playing with numbers"
+    },
+    {
+      "number": 4,
+      "nameKn": "ಕೂಡಿ ನಲಿಯೋಣ",
+      "nameEn": "Let’s add and enjoy"
+    },
+    {
+      "number": 5,
+      "nameKn": "ಕಳೆಯುವ ಮೋಜು",
+      "nameEn": "The fun of subtracting"
+    }
+  ],
   "competencies": [
     {
       "id": "M2.PV.TENS",

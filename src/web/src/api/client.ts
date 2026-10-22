@@ -17,7 +17,7 @@ export class NetworkError extends Error {
   }
 }
 
-type Method = 'GET' | 'POST'
+type Method = 'GET' | 'POST' | 'PUT'
 
 /** JSON over fetch with the session cookie. 204 resolves to undefined. */
 export async function api<T>(path: string, options: { method?: Method; body?: unknown } = {}): Promise<T> {

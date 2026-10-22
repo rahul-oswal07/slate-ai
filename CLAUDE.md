@@ -51,6 +51,7 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 - **Db suite** (`tests/api/.../Db/`, `[Trait("Category", "Db")]` + `[Collection(DbCollection.Name)]`): only what a real Postgres can prove, each test on its own throwaway database. Keep it small: offline replay idempotency, store queries translating to SQL, migrations + seed, and when built the approval rule (guardrail 3, T-14) and child deletion (FR-15, T-19). Ask before adding anything else to it. Excluded from `verify.sh`; CI runs it.
 - Bug fix: write the failing test first; don't edit the test to make it pass.
 - UI change: attach screenshots (phone width 360 px) to the PR; run axe.
+- **No new Playwright end-to-end tests for now** (Rahul, 22 Oct): cover new screens with Vitest component tests; keep the existing `src/web/e2e/` specs passing. Take PR screenshots from a local run and say in the PR when axe wasn't run on a new screen.
 - Run `./scripts/verify.sh` and report its result before declaring a task complete.
 
 ## Collaboration
