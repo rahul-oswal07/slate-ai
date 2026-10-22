@@ -5,6 +5,7 @@ using SlateAi.Api.Data;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.Docs;
 using SlateAi.Api.Features.EveningMessages;
@@ -34,6 +35,7 @@ builder.Services.AddAttendance(builder.Configuration);
 builder.Services.AddLedger();
 builder.Services.AddLessons();
 builder.Services.AddEveningMessages(builder.Configuration);
+builder.Services.AddCatchUps();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 

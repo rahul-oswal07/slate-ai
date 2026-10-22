@@ -1,0 +1,283 @@
+{
+  "runAt": "2026-10-22T17:42:03.663444+00:00",
+  "prompt": "a2-compression",
+  "promptVersion": 1,
+  "model": "claude-sonnet-5-5",
+  "cases": 10,
+  "score": 1,
+  "target": 0.8,
+  "results": [
+    {
+      "id": "ravi-sub-tue-thu",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.BORROW",
+        "M3.SUB.NOBORROW"
+      ],
+      "targets": [
+        "M3.SUB.BORROW"
+      ],
+      "best": "M3.SUB.BORROW",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.SUB.BORROW",
+          "reason": "Subtraction word problems next week build directly on 3-digit subtraction with borrowing, so the child needs it first."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Subtraction with borrowing covers this idea, so it is revised within that lesson and needs no separate catch-up."
+        },
+        {
+          "id": "M3.SUB.CHECK",
+          "reason": "Next week\u0027s lessons do not build on checking subtraction by adding, so it can wait."
+        }
+      ]
+    },
+    {
+      "id": "add-week",
+      "pass": true,
+      "candidates": [
+        "M3.ADD.NOCARRY",
+        "M3.ADD.CARRY"
+      ],
+      "targets": [
+        "M3.ADD.CARRY",
+        "M3.ADD.NOCARRY"
+      ],
+      "best": "M3.ADD.CARRY",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.ADD.CARRY",
+          "reason": "Addition word problems next week build directly on 3-digit addition with carrying, which also uses the no-carrying idea."
+        },
+        {
+          "id": "M3.ADD.NOCARRY",
+          "reason": "Check subtraction by adding needs 3-digit addition without carrying on its own, and it fits briefly alongside carrying."
+        }
+      ],
+      "dropped": []
+    },
+    {
+      "id": "one-day-hto",
+      "pass": true,
+      "candidates": [
+        "M3.PV.HTO"
+      ],
+      "targets": [
+        "M3.PV.HTO"
+      ],
+      "best": "M3.PV.HTO",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Next week\u0027s expanded form, place value and face value, and comparing 3-digit numbers all build directly on Hundreds, tens and ones."
+        }
+      ],
+      "dropped": []
+    },
+    {
+      "id": "expand-and-face",
+      "pass": true,
+      "candidates": [
+        "M3.PV.EXPAND"
+      ],
+      "targets": [
+        "M3.PV.EXPAND"
+      ],
+      "best": "M3.PV.EXPAND",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "Next week\u0027s Numbers to 9999 and 3-digit addition with carrying both build directly on Expanded form."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.FACE",
+          "reason": "Next week\u0027s lessons do not build on Place value and face value, so it can wait."
+        }
+      ]
+    },
+    {
+      "id": "five-days-place-value",
+      "pass": true,
+      "candidates": [
+        "M3.PV.HTO",
+        "M3.PV.EXPAND",
+        "M3.NUM.COMPARE"
+      ],
+      "targets": [
+        "M3.PV.HTO",
+        "M3.PV.EXPAND"
+      ],
+      "best": "M3.PV.HTO",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Next week\u0027s 3-digit addition and subtraction without carrying or borrowing both need hundreds, tens and ones directly."
+        },
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "Addition with carrying next week builds directly on expanded form, and it fits with hundreds, tens and ones."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.FACE",
+          "reason": "Next week\u0027s lessons do not build on place value and face value, so it can wait."
+        },
+        {
+          "id": "M3.PV.4D",
+          "reason": "Nothing next week needs numbers to 9999, so it can wait."
+        },
+        {
+          "id": "M3.NUM.COMPARE",
+          "reason": "Only ascending and descending order needs it; it can wait until the child is secure with hundreds, tens and ones."
+        }
+      ]
+    },
+    {
+      "id": "hto-and-noborrow",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.NOBORROW",
+        "M3.PV.HTO"
+      ],
+      "targets": [
+        "M3.SUB.NOBORROW"
+      ],
+      "best": "M3.SUB.NOBORROW",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Next week\u0027s checking subtraction by adding and subtraction with borrowing both build directly on 3-digit subtraction without borrowing."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Next week needs it only indirectly, and the subtraction catch-up revisits its place value idea."
+        }
+      ]
+    },
+    {
+      "id": "check-and-borrow",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.BORROW"
+      ],
+      "targets": [
+        "M3.SUB.BORROW"
+      ],
+      "best": "M3.SUB.BORROW",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.SUB.BORROW",
+          "reason": "Next week\u0027s subtraction word problems build directly on 3-digit subtraction with borrowing, so the child needs this first."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.SUB.CHECK",
+          "reason": "Next week\u0027s lessons do not build on checking subtraction by adding, so it can wait."
+        }
+      ]
+    },
+    {
+      "id": "expand-nocarry-noborrow",
+      "pass": true,
+      "candidates": [
+        "M3.PV.EXPAND",
+        "M3.ADD.NOCARRY",
+        "M3.SUB.NOBORROW"
+      ],
+      "targets": [
+        "M3.SUB.NOBORROW",
+        "M3.PV.EXPAND"
+      ],
+      "best": "M3.SUB.NOBORROW",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Both Check subtraction by adding and 3-digit subtraction with borrowing build directly on it."
+        },
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "3-digit subtraction with borrowing needs it, and Subtraction word problems then build on that lesson."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.ADD.NOCARRY",
+          "reason": "Only Check subtraction by adding needs it next week, so it can wait until after the two main lessons."
+        }
+      ]
+    },
+    {
+      "id": "pv-and-adding",
+      "pass": true,
+      "candidates": [
+        "M3.PV.HTO",
+        "M3.PV.EXPAND",
+        "M3.ADD.NOCARRY"
+      ],
+      "targets": [
+        "M3.PV.EXPAND",
+        "M3.ADD.NOCARRY"
+      ],
+      "best": "M3.ADD.NOCARRY",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "Addition with carrying and subtraction with borrowing both need expanded form, and it also revisits the hundreds, tens and ones idea."
+        },
+        {
+          "id": "M3.ADD.NOCARRY",
+          "reason": "Addition with carrying and checking subtraction by adding both build directly on adding 3-digit numbers without carrying."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Expanded form and 3-digit addition both use hundreds, tens and ones, so the idea is revisited and can be reinforced in class."
+        }
+      ]
+    },
+    {
+      "id": "sub-two-days",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.BORROW",
+        "M3.SUB.NOBORROW"
+      ],
+      "targets": [
+        "M3.SUB.BORROW"
+      ],
+      "best": "M3.SUB.BORROW",
+      "verdict": "valid",
+      "targetReasons": [
+        {
+          "id": "M3.SUB.BORROW",
+          "reason": "Next week\u0027s subtraction word problems build directly on 3-digit subtraction with borrowing."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Subtraction with borrowing already covers this idea, so it can be revisited briefly within that lesson."
+        }
+      ]
+    }
+  ]
+}
