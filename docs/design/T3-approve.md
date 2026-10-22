@@ -1,5 +1,7 @@
 # T3 Approve (list + catch-up detail)
 
+> **MVP scope (D-70):** approve one catch-up at a time (tick → Approve). Bulk approve and Withdraw are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-06, FR-07, FR-08, FR-09, NFR-08 · Tier: MVP · Task: T-14 (pipeline: T-08, T-09, T-10, T-11) · Prototype: prototype/index.html (step 7) · PNG: screenshots/T3-approve-list-360-light.png
 
 Decisions: D-09 (Kannada summary + audio, tick required, cleared by any regenerate), D-18 (spoken AI disclosure), D-28 (bulk approve only for opened and ticked; Withdraw until the send), D-35 (tag colours reuse status tokens), D-37 (Withdraw label and cut-off), D-38 (Sent and Generation failed states), D-50 (no names in the computer voice; summary ends "Show your teacher"), D-52 (greeting per language). Card titles read "In Telugu · 3 children" (21 Oct). Review: B-01, B-02, B-03, B-10, B-11, B-12, B-13, B-14, B-15, B-28, B-29.

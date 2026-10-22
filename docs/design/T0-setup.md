@@ -1,5 +1,7 @@
 # T0 Set up
 
+> **MVP scope (D-70):** Welcome is built. Build only: one Kannada greeting (record / play / record again) + consent tick, then approve the evening template. Per-language greetings, delete / withdraw, consent version and setup offline state are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-09 (greeting), FR-15 (consent), FR-20 (evening template), FR-02 (mic gesture) · Tier: MVP · Task: T-44, T-19, T-11 · Prototype: prototype/index.html (step 1) · PNG: screenshots/T0-setup-greeting-360-light.png
 Decisions: D-21, D-27, D-29, D-31, D-04, D-17, D-34 (mic permission denied), D-38 (offline, greeting deleted), D-39 (family consent on T8), D-40 (reached after T9 sign-in), D-44 (consent version), D-48 (no {tomorrow}), D-49 (template changed in Settings), D-50 (no names in the computer voice), D-52 (greeting per language)
 

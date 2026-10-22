@@ -1,5 +1,7 @@
 # T1 Today
 
+> **MVP scope (D-70):** attendance is built (#81), no change. For the lesson part build: tap-to-start / tap-to-stop mic with 30 s auto-stop, "Or pick from the list", done card with Change, Added to missed lessons, tonight card, Since yesterday. Mic-blocked and Sending states and the Settings gear are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-01, FR-02, FR-05, FR-20 (tonight card), NFR-01, NFR-02 · Tier: MVP · Task: T-12 (screen), T-06 (attendance API), T-07 (lesson upload), T-44 (tonight count) · Prototype: prototype/index.html (steps 2, 3; step 5 for "done") · PNG: screenshots/T1-today-from-sats-360-light.png
 Decisions: D-03, D-21, D-27, D-31, D-17, D-33 (lesson card lists every confirmed lesson), D-34 (mic blocked, sending), D-39 (tonight counts only families marked Yes), D-45 (attendance sync 12:00, retry 2:00 pm), D-46 (one school, one class, one teacher), D-51 (gear opens T10 Settings)
 

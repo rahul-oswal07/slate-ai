@@ -1,5 +1,7 @@
 # T8 Families and consent + Family details
 
+> **MVP scope (D-70): not in the MVP.** Consent, phone and home language come from the demo seed; the send filter (409 unless Yes and not stopped) is enforced in code. Family-details editing is roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-15 (opt-in), FR-19 (stop), FR-20 (evening message send rule) · Tier: MVP · Task: T-19 (consent + delete), T-44 (send filter) · Prototype: prototype/index.html (T0 "All set" → "Review families", T10 Settings → "Families and consent", or Missed lessons → "Families and consent"; tap a row for Family details) · PNG: none exported
 Decisions: D-39 (parent opt-in screen), D-30 (families stop messages themselves), D-21 (evening message), D-35 (tag colours), D-43 (parent phone entered here), D-47 (home language), D-51 (list + Family details, back to where opened)
 

@@ -1,5 +1,7 @@
 # P0 Messages (chat stand-in) + Reason for absence
 
+> **MVP scope (D-70):** evening message = written text from the approved template + her greeting audio (no stitched clips); reason = picture buttons + Skip; stop link in the message. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-20, FR-21, FR-19, FR-16 (stretch), NFR-05 · Tier: MVP (chat is the demo stand-in; real WhatsApp is FR-16 / T-40, stretch) · Task: T-44 (evening message), T-45 (reason + A7), T-15 (catch-up link) · Prototype: prototype/index.html (steps 5, 6; stopped bubble step 13) · PNG: screenshots/P0-messages-evening-360-light.png
 
 Decisions: D-05 (simulated parent phone primary), D-21 (template approved once, slots by code), D-23 (reason optional, caring, category only), D-29 ("a classmate is keeping Ravi's seat"), D-30 (stop link everywhere, STOP reply, confirmation with restart), D-43 (parent phone from T8, never shared with AI), D-47 (home language sets the message language), D-48 (no "Tomorrow"), D-50 (no names in the computer voice), D-52 (greeting per language). Review: C-06, C-14, C-15, C-16, C-21, C-22, C-30.
