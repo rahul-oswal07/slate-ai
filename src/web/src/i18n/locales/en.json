@@ -24,7 +24,8 @@
     "save": "Save",
     "close": "Close",
     "back": "Back",
-    "goToday": "Go to Today"
+    "goToday": "Go to Today",
+    "conflict": "This changed on another device. Showing the latest."
   },
   "auth": {
     "title": "Sign in",
@@ -57,6 +58,21 @@
       "privacy": "Only you can see these records.",
       "start": "Start",
       "offline": "No network. Connect and tap Start again."
+    },
+    "step2": {
+      "progress": "Step 2 of 2"
+    },
+    "template": {
+      "heading": "The evening message on a day of absence",
+      "lead": "Approve this once. Only the highlighted words change each evening, filled from your records. No AI writes this message.",
+      "greetingChip": "Your greeting (in the family’s language)",
+      "audioNote": "The audio says “your child”, not the name; the name is only in the written text. Parents hear it in Telugu, Tamil or Kannada.",
+      "teluguVersion": "Telugu version",
+      "approve": "Approve this message",
+      "notNow": "Not now · you can change it in Settings",
+      "approved": "You approved this message. It goes after 6 pm on each day a child is absent.",
+      "offline": "No network. Nothing was approved. Connect and tap Approve again.",
+      "error": "Could not approve. Nothing was sent to parents. Try again."
     }
   },
   "today": {
@@ -114,6 +130,21 @@
       "title": "Added to missed lessons: {{n}} children",
       "sub": "who missed {{lessons}}",
       "see": "See the {{n}} children"
+    },
+    "tonight": {
+      "title": "After 6 pm tonight: message to {{families}} of {{absent}} families",
+      "body": "The message you approved once, with today’s lesson and page.",
+      "see": "See the message",
+      "sent": "Sent tonight to {{families}} of {{absent}} families",
+      "none": "No messages tonight.",
+      "notApproved": "The evening message is not approved yet, so no messages go tonight.",
+      "review": "Review and approve",
+      "tag": {
+        "noPhone": "No phone · buddy card",
+        "noConsent": "No consent",
+        "stopped": "Stopped by family",
+        "noWording": "No message in their language yet"
+      }
     }
   },
   "sync": {

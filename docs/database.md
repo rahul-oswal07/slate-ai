@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261020183655_AiCalls` (T-07) |
+| Last migration | `20261022170730_EveningMessages` (T-44) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -17,6 +17,10 @@ erDiagram
     Classes ||--o{ Attendance : "register per day"
     Children ||--o{ Attendance : "marked in"
     Classes ||--o{ Lessons : "taught on a day"
+    Classes ||--o{ MessageTemplates : "approves once"
+    Children ||--o{ EveningMessages : "one per day absent"
+    MessageTemplates ||--o{ EveningMessages : "filled from"
+    Lessons ||--o{ EveningMessages : "slots from"
 
     Teachers {
         uuid Id PK
@@ -43,6 +47,9 @@ erDiagram
         varchar20 ParentPhone "nullable"
         timestamptz ParentConsentAt "nullable"
         bool HasPhone
+        varchar10 Consent "yes, no, nophone (default no)"
+        timestamptz ConsentChangedAt "nullable"
+        timestamptz ParentStoppedAt "nullable"
     }
     Attendance {
         uuid ClassId PK,FK
@@ -85,6 +92,31 @@ erDiagram
         varchar100 Verdict "nullable"
         varchar300 Error "nullable"
     }
+    MessageTemplates {
+        uuid Id PK
+        uuid ClassId FK
+        varchar5 Language "unique per class"
+        varchar20 Version
+        varchar1000 Text "slots child, lesson, page"
+        varchar100 PageFormat
+        varchar100 PageFormatNoPart
+        varchar10 Status "draft, approved"
+        timestamptz ApprovedAt "nullable"
+        uuid ApprovedByTeacherId FK "nullable"
+    }
+    EveningMessages {
+        uuid Id PK
+        uuid ClassId FK
+        uuid ChildId FK
+        date Date "unique with ChildId"
+        uuid TemplateId FK
+        uuid LessonId FK
+        varchar5 Language
+        jsonb SlotValues "lesson, page"
+        varchar30 Token "unique"
+        timestamptz SentAt
+        timestamptz ExpiresAt
+    }
 ```
 
 ### Tables
@@ -93,13 +125,17 @@ erDiagram
 
 **`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`.
 
-**`Children`** — `RollNo` is unique within a class (`IX_Children_ClassId_RollNo`). `HomeLanguage` picks the catch-up audio language. `HasPhone = false` children still get the return-day buddy card (FR-12). FK `ClassId → Classes` (cascade).
+**`Children`** — `RollNo` is unique within a class (`IX_Children_ClassId_RollNo`). `HomeLanguage` picks the catch-up audio language. `HasPhone = false` children still get the return-day buddy card (FR-12). FK `ClassId → Classes` (cascade). `Consent` is the family's paper form as the teacher recorded it (D-39): `yes`, `no` or `nophone`; a form not back is `no` (column default). Nothing is sent unless `yes`. In the MVP it comes from `data/seed/demo-class.json`; the seeder keeps it in step until `ConsentChangedAt` is set (the T8 editing screen is roadmap, D-70). `ParentStoppedAt` is the family's "Stop these messages" (D-19), separate from consent; every send path refuses a stopped child (migration `EveningMessages`).
 
 **`Attendance`** — one row per child per school day. Composite PK `(ClassId, Date, ChildId)`, which also serves "register for a class on a date" lookups; extra index on `ChildId`. FKs to `Classes` and `Children` (cascade, so deleting a child removes their attendance: FR-15). Provenance (D-27, D-69): `Present` is the effective value everything reads (ledger, missed lessons). `Source` is `sats` when the row came from the SATS feed (simulated in the MVP) and `manual` when the teacher marked the day before SATS arrived (existing rows default to `manual`). `SourcePresent` is what SATS said (null until it arrives) and `ReceivedAt` when it arrived; both are kept even when her marking wins. `CorrectedAt` is set on a SATS row only while it differs from SATS (putting it back clears it), and on manual rows when she marked them. Rules live in `Features/Attendance/RegisterMerge.cs`; nothing is written back to SATS. Timestamps are stored in UTC.
 - A `POST /api/classes/{id}/attendance` writes the **full register** for that date: every child in the class gets a row, absent ones with `Present = false`. A correction deletes and rewrites the date.
 - **No rows for a date = not a school day** (holiday, Dasara break). Such days never count as absences.
 
 **`Lessons`** — what was taught on a day: one row per class per day (D-55; "Change" overwrites it). Only rows with `Status = confirmed` reach the ledger and missed lessons (T2 §3); picking from the list (FR-04) writes `Source = picked`, `Status = confirmed` directly. T-07 PR B adds `Transcript`, `ExamplesUsed`, `Confidence` and the capture endpoint. `CompetencyIds` is a Postgres `text[]` of curriculum IDs (1–3, validated against the curriculum in code, never trusted from the LLM). FK `ClassId → Classes` (cascade). **Unique** index `(ClassId, Date)` (migration `LessonOnePerDay`). Writes are idempotent by `clientRequestId` (`ProcessedRequests`, endpoint `lesson`) under a per-class-and-date advisory lock. Voice notes (T-07 PR 2b, migration `LessonVoiceMapping`): the upload sets `Status = processing` and `MappingStartedAt`; the background worker stores A1's ranked `CompetencyIds`, `SummaryKn`/`SummaryEn` (D-56), `ExamplesUsed` and `Confidence`, and `Status` `mapped` / `low` (< 0.7) / `unclear`, but only if the lesson is still processing that note. A note still processing after 2 minutes reads as `unclear`. **Neither the transcript nor the audio is stored** (her recording stays on her phone until she confirms).
+
+**`MessageTemplates`** — the evening message the teacher approves once (FR-20, D-21): one row per class and language (unique `(ClassId, Language)`), created as `draft` from `data/seed/evening-message.json` on first use. When that file's `version` changes, the rows take the new text and go back to `draft` (a change needs approval again, D-49). Approval sets every language to `approved` with `ApprovedAt` / `ApprovedByTeacherId` (FK → Teachers), idempotent by `clientRequestId` (`ProcessedRequests`, endpoint `message-template-approve`) under a per-class advisory lock; approving a stale version is refused (409). FK `ClassId → Classes` (cascade).
+
+**`EveningMessages`** — one row per family message sent on a day of absence (FR-20), written by the 6 pm job or the send endpoint (`Features/EveningMessages/EveningSender.cs`). **Unique `(ChildId, Date)`**: the send is idempotent, so the job can run every minute after 6 pm and a lesson confirmed late still goes once. `SlotValues` holds the code-filled `lesson` and `page` (never the child's name); the parent view re-renders the text from the template. `Token` (128-bit random, base64url, unique) is the only key to `GET /api/p/{token}`, which answers 410 after `ExpiresAt` (14 days). Listens are not tracked (D-36). FKs: `ChildId → Children` (cascade, FR-15), `ClassId`, `TemplateId`, `LessonId`. Index `(ClassId, Date)` for Today's tonight card.
 
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
 
@@ -109,7 +145,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE`: Teacher → Classes → Children / Attendance / Lessons, and Child → Attendance. Deleting a child (FR-15, T-19) removes their attendance automatically; future child-linked tables must cascade too, and audio blobs must be deleted in code.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages, and Child → Attendance / EveningMessages. Deleting a child (FR-15, T-19) removes their attendance automatically; future child-linked tables must cascade too, and audio blobs must be deleted in code.
 
 ## 2. Concurrency and idempotency
 
@@ -119,8 +155,9 @@ Every FK is `ON DELETE CASCADE`: Teacher → Classes → Children / Attendance /
 | Replay racing its original, or two corrections for the same day | `pg_advisory_xact_lock(hashtextextended('attendance:{classId}:{date}', 0))` for the transaction | same |
 | Two app instances migrating at once (slot swap) | session `pg_advisory_lock(0x5EED_0002)` around `MigrateAsync` | `Data/DatabaseStartup.cs` |
 | Two instances seeding at once | `pg_advisory_xact_lock(0x5EED_0001)` around the seed | `Data/Seed/DemoSeeder.cs` |
+| The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
 
-All four are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tests/Db/`), which runs in CI.
+All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tests/Db/`), which runs in CI.
 
 ## 3. The ledger is a query, not a table
 
@@ -130,7 +167,7 @@ All four are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tes
 - **Absence spells**: runs of consecutive absent *school days* (dates with a register), with the day the child came back.
 - **Return speed** (mentor review, D-20/D-24 pending): spells that started in the 7 days up to the latest school day, bucketed 1 / 2 / 3 / 4+ days, and how many were back within 2 school days.
 
-Statuses beyond `missed` (sent · caught up · needs buddy · stopped by family) will come from the planned `CatchUpAssignment`, `CheckResponse` and `Child.ParentStoppedAt` below. Nothing is stored for the ledger itself, so it can't drift from attendance.
+Statuses beyond `missed` (sent · caught up · needs buddy · stopped by family) will come from the planned `CatchUpAssignment` and `CheckResponse` below and from `Children.ParentStoppedAt`. Nothing is stored for the ledger itself, so it can't drift from attendance.
 
 ## 4. Planned tables (not built yet)
 
@@ -182,8 +219,7 @@ erDiagram
 | `CatchUpPackages` | T-08–T-11 | **Nothing reaches a parent unless `Status = Approved`** (guardrail 3, enforced in the API, T-14) |
 | `CatchUpAssignments` | T-14 | `Token` is the only key on the public parent page |
 | `CheckResponses` | T-15 | Scored by code (FR-11); no spoken-answer fields (T-42 dropped, D-26) |
-| `Children.ParentStoppedAt` | T-15 (D-19 proposed) | Send endpoint refuses stopped children |
-| `MessageTemplates`, `EveningMessages` | T-44 (FR-20, D-21) | Template approved once; send refused unless Approved + lesson confirmed + consent (guardrail 3) |
+| Stop / restart endpoints for `Children.ParentStoppedAt` | T-15 (D-19) | Column and send filter built in T-44; the parent's stop link comes with P4 |
 | `AbsenceReasons` | T-45 (FR-21, D-23) | Category only; no transcript or audio kept |
 | `BuddyCards.HomeworkReturnedAt` | T-16 (D-22) | "Brought homework" tap |
 | `textbookPage` on competencies | T-05 (D-22) | In `data/curriculum/*.json`, not a table |

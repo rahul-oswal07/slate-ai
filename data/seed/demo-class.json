@@ -1,5 +1,5 @@
 {
-  "_note": "Fictional demo class. No real children. Phone numbers are placeholders and must never be messaged.",
+  "_note": "Fictional demo class. No real children. Phone numbers are placeholders and must never be messaged. consent = the family's paper form as the teacher recorded it (D-39): yes, no or nophone.",
   "teacher": {
     "id": "6abf3cc9-9aa8-5786-a833-62325a6418f4",
     "displayName": "Shobha",
@@ -17,7 +17,8 @@
       "firstName": "Ananya",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000001"
+      "parentPhone": "+919000000001",
+      "consent": "yes"
     },
     {
       "id": "09e86c1d-8d7e-50aa-ab65-fd9a3afaf9b5",
@@ -25,7 +26,8 @@
       "firstName": "Bhavana",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000002"
+      "parentPhone": "+919000000002",
+      "consent": "yes"
     },
     {
       "id": "4cb78153-e1ac-56e5-aca1-e4aa8537b018",
@@ -33,7 +35,8 @@
       "firstName": "Chetan",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000003"
+      "parentPhone": "+919000000003",
+      "consent": "yes"
     },
     {
       "id": "1e95443f-d2d9-5c22-8401-fcd0aeaa9395",
@@ -41,7 +44,8 @@
       "firstName": "Ravi",
       "homeLanguage": "te",
       "hasPhone": true,
-      "parentPhone": "+919000000004"
+      "parentPhone": "+919000000004",
+      "consent": "yes"
     },
     {
       "id": "9c0761f5-f8df-55a3-a60d-088d4636266d",
@@ -49,7 +53,8 @@
       "firstName": "Darshan",
       "homeLanguage": "kn",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "16cd8b1d-00b6-57e8-9bab-e50b198c7966",
@@ -57,7 +62,8 @@
       "firstName": "Deepa",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000006"
+      "parentPhone": "+919000000006",
+      "consent": "yes"
     },
     {
       "id": "c4cd0c5f-daaa-579d-bf1b-0e63edad57a3",
@@ -65,7 +71,8 @@
       "firstName": "Arun",
       "homeLanguage": "ta",
       "hasPhone": true,
-      "parentPhone": "+919000000007"
+      "parentPhone": "+919000000007",
+      "consent": "yes"
     },
     {
       "id": "3811b5b9-e9d4-53e4-9dd5-594829195f35",
@@ -73,7 +80,8 @@
       "firstName": "Ganesh",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000008"
+      "parentPhone": "+919000000008",
+      "consent": "yes"
     },
     {
       "id": "67fbe7ee-f2a1-532c-a5a9-728553980b06",
@@ -81,7 +89,8 @@
       "firstName": "Harsha",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000009"
+      "parentPhone": "+919000000009",
+      "consent": "yes"
     },
     {
       "id": "72a7e49f-dd54-548e-8b93-cfe66adeb1ff",
@@ -89,7 +98,8 @@
       "firstName": "Sai Teja",
       "homeLanguage": "te",
       "hasPhone": true,
-      "parentPhone": "+919000000010"
+      "parentPhone": "+919000000010",
+      "consent": "yes"
     },
     {
       "id": "4f0bfb1e-5a58-5adf-8603-a8130d1bf312",
@@ -97,7 +107,8 @@
       "firstName": "Kavya",
       "homeLanguage": "kn",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "9ce2bf3a-9008-5c80-8e85-6af75762a8ef",
@@ -105,7 +116,8 @@
       "firstName": "Kiran",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000012"
+      "parentPhone": "+919000000012",
+      "consent": "no"
     },
     {
       "id": "8352c0e3-89c5-5416-a6f6-d4ebe57bf6b2",
@@ -113,7 +125,8 @@
       "firstName": "Lakshmi",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000013"
+      "parentPhone": "+919000000013",
+      "consent": "yes"
     },
     {
       "id": "2abf78e2-d47b-5e3b-89c2-aa8fe3056ec6",
@@ -121,7 +134,8 @@
       "firstName": "Lavanya",
       "homeLanguage": "te",
       "hasPhone": true,
-      "parentPhone": "+919000000014"
+      "parentPhone": "+919000000014",
+      "consent": "yes"
     },
     {
       "id": "fd174b93-e58c-58cf-a2fd-c961415bc3f2",
@@ -129,7 +143,8 @@
       "firstName": "Manjunath",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000015"
+      "parentPhone": "+919000000015",
+      "consent": "yes"
     },
     {
       "id": "bdd11010-5ffb-58b5-9786-3334e7dfd4e0",
@@ -137,7 +152,8 @@
       "firstName": "Meghana",
       "homeLanguage": "kn",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "35fbe664-8013-5b0b-9497-08a999955bc1",
@@ -145,7 +161,8 @@
       "firstName": "Nandini",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000017"
+      "parentPhone": "+919000000017",
+      "consent": "yes"
     },
     {
       "id": "a9bb90cb-26e5-5d1a-8f13-ce8f24b5c43c",
@@ -153,7 +170,8 @@
       "firstName": "Pavan",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000018"
+      "parentPhone": "+919000000018",
+      "consent": "yes"
     },
     {
       "id": "e8378ca1-e822-5cea-b7ed-1f27f6bc6ba4",
@@ -161,7 +179,8 @@
       "firstName": "Srinivas",
       "homeLanguage": "te",
       "hasPhone": true,
-      "parentPhone": "+919000000019"
+      "parentPhone": "+919000000019",
+      "consent": "yes"
     },
     {
       "id": "cb9fb6c2-6941-531b-b086-46d9000cda50",
@@ -169,7 +188,8 @@
       "firstName": "Pooja",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000020"
+      "parentPhone": "+919000000020",
+      "consent": "yes"
     },
     {
       "id": "ea28aa4d-d098-5abf-a6f6-0db42c5335e3",
@@ -177,7 +197,8 @@
       "firstName": "Divya",
       "homeLanguage": "ta",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "3af47366-d0cf-5e4b-bead-87d3e330532d",
@@ -185,7 +206,8 @@
       "firstName": "Prajwal",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000022"
+      "parentPhone": "+919000000022",
+      "consent": "yes"
     },
     {
       "id": "6ca1af7f-32c5-5ffa-ba1b-6658353c0116",
@@ -193,7 +215,8 @@
       "firstName": "Rakshitha",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000023"
+      "parentPhone": "+919000000023",
+      "consent": "yes"
     },
     {
       "id": "b559533d-f012-5bad-aed1-f9ef20b5b66d",
@@ -201,7 +224,8 @@
       "firstName": "Rohan",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000024"
+      "parentPhone": "+919000000024",
+      "consent": "yes"
     },
     {
       "id": "015d1c6b-30ad-54c8-92e2-6e89cfe9753a",
@@ -209,7 +233,8 @@
       "firstName": "Keerthi",
       "homeLanguage": "te",
       "hasPhone": true,
-      "parentPhone": "+919000000025"
+      "parentPhone": "+919000000025",
+      "consent": "yes"
     },
     {
       "id": "ab1ed7c3-0700-58a0-80d8-5ff5e72b5b26",
@@ -217,7 +242,8 @@
       "firstName": "Sahana",
       "homeLanguage": "kn",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "27607212-6419-5480-bccc-d377721e19ea",
@@ -225,7 +251,8 @@
       "firstName": "Sanjay",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000027"
+      "parentPhone": "+919000000027",
+      "consent": "yes"
     },
     {
       "id": "dcaa11b4-e777-5199-ae36-63de19d1e280",
@@ -233,7 +260,8 @@
       "firstName": "Shreya",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000028"
+      "parentPhone": "+919000000028",
+      "consent": "yes"
     },
     {
       "id": "9752c169-9ddf-56e6-938b-35e20b4d04f3",
@@ -241,7 +269,8 @@
       "firstName": "Sneha",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000029"
+      "parentPhone": "+919000000029",
+      "consent": "no"
     },
     {
       "id": "08302697-79d9-5a24-928a-f52ee74fd9b4",
@@ -249,7 +278,8 @@
       "firstName": "Sudeep",
       "homeLanguage": "kn",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "7dc1e43a-c26b-559d-97b3-aac78c00e7db",
@@ -257,7 +287,8 @@
       "firstName": "Tejas",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000031"
+      "parentPhone": "+919000000031",
+      "consent": "yes"
     },
     {
       "id": "e501bf1a-8d95-5262-812d-e8cd7277c10c",
@@ -265,7 +296,8 @@
       "firstName": "Mahesh",
       "homeLanguage": "te",
       "hasPhone": true,
-      "parentPhone": "+919000000032"
+      "parentPhone": "+919000000032",
+      "consent": "yes"
     },
     {
       "id": "449321dc-67f2-5299-8d87-3bbc3e308923",
@@ -273,7 +305,8 @@
       "firstName": "Varun",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000033"
+      "parentPhone": "+919000000033",
+      "consent": "yes"
     },
     {
       "id": "48b872c4-5dba-58bf-9a85-5c4901a1c200",
@@ -281,7 +314,8 @@
       "firstName": "Karthik",
       "homeLanguage": "ta",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     },
     {
       "id": "ffe7df8e-8cfe-5c0a-8c1e-f893445f3e83",
@@ -289,7 +323,8 @@
       "firstName": "Vidya",
       "homeLanguage": "kn",
       "hasPhone": true,
-      "parentPhone": "+919000000035"
+      "parentPhone": "+919000000035",
+      "consent": "yes"
     },
     {
       "id": "43ec36de-2337-5084-9b21-6d54b8e72f37",
@@ -297,7 +332,8 @@
       "firstName": "Yashas",
       "homeLanguage": "kn",
       "hasPhone": false,
-      "parentPhone": null
+      "parentPhone": null,
+      "consent": "nophone"
     }
   ]
 }

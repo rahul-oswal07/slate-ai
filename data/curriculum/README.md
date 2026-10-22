@@ -28,6 +28,7 @@ Source: Karnataka state Grade 2–3 maths textbook (Kannada medium) and NIPUN Bh
 |---|---|
 | `id` | Like `M3.ADD.CARRY`: `M` + grade 1–5, then dot-separated upper-case parts. Unique across all files |
 | `nameKn`, `nameEn` | Required |
+| `nameTe`, `nameTa` | Optional; not blank when given. Fill `{lesson}` in the evening message for Telugu / Tamil families (FR-20); a family whose language has no name gets no message that evening (logged, never half-filled) |
 | `prerequisites` | IDs that must be learnt first. Each must exist (in any file); no self-reference; no cycles |
 | `chapter`, `sequence` | Chapter number and teaching order (sequence orders the chapter list and breaks ties). `0` = the Part 1 bridge course (Grade 2 revision) |
 | `nipunOutcome`, `examples` | Optional. 1–2 textbook example problems each, used as A1/A3 grounding |
@@ -37,4 +38,4 @@ A bad file stops the app at startup with every problem listed, and `CurriculumSt
 
 ## `grade3-maths.json`
 
-Built from Monika's competency list (T-22, `docs/design/curriculum.md`): 16 competencies from the 2026–27 Kannada-medium textbook, 3-digit numbers (D-01 revised), with 2-digit skills as Grade 2 prerequisites (`M2.*`). Pages are printed page numbers. Still open there: Kannada names marked † (proposed wording, to confirm with a teacher, D-14) and NIPUN codes (`nipunOutcome` is null; nothing reads it yet). Change names and pages in `curriculum.md` first, then here.
+Built from Monika's competency list (T-22, `docs/design/curriculum.md`): 16 competencies from the 2026–27 Kannada-medium textbook, 3-digit numbers (D-01 revised), with 2-digit skills as Grade 2 prerequisites (`M2.*`). Pages are printed page numbers. `nameTe` / `nameTa` are drafts (22 Oct, T-44) awaiting native review (T-26). Still open there: Kannada names marked † (proposed wording, to confirm with a teacher, D-14) and NIPUN codes (`nipunOutcome` is null; nothing reads it yet). Change names and pages in `curriculum.md` first, then here.

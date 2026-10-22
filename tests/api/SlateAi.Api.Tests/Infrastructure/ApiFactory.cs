@@ -34,6 +34,8 @@ public sealed class ApiFactory(
                 ["Database:MigrateOnStartup"] = initialiseDatabase.ToString(),
                 // Tests never reach Claude or Sarvam; live calls are the Eval suite only.
                 ["Ai:Provider"] = "Fake",
+                // The 6 pm job would run on the wall clock; tests call the sender or the worker's tick directly.
+                ["EveningMessages:SchedulerEnabled"] = "false",
             });
             if (settings is not null)
             {

@@ -122,6 +122,12 @@ public static partial class CurriculumLoader
             yield return "nameKn is required";
         }
 
+        if (c.NameTe is not null && string.IsNullOrWhiteSpace(c.NameTe)
+            || c.NameTa is not null && string.IsNullOrWhiteSpace(c.NameTa))
+        {
+            yield return "nameTe and nameTa can be left out but not blank";
+        }
+
         if (c.Prerequisites.Contains(c.Id))
         {
             yield return "lists itself as a prerequisite";

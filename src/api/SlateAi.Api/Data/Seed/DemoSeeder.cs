@@ -10,7 +10,8 @@ namespace SlateAi.Api.Data.Seed;
 /// <summary>
 /// Loads the fictional demo class from JSON. Idempotent: rows are keyed by the fixed IDs in the
 /// file and only missing rows are inserted. Logs counts only, never names (NFR-05). The demo teacher's
-/// phone and PIN are filled in only while empty, so a PIN changed later is never overwritten.
+/// phone and PIN are filled in only while empty, so a PIN changed later is never overwritten. A child's consent comes
+/// from the file until the teacher records it herself (<c>ConsentChangedAt</c> set), so existing databases get it too.
 /// </summary>
 public sealed class DemoSeeder(
     AppDbContext db,
@@ -55,14 +56,22 @@ public sealed class DemoSeeder(
             added++;
         }
 
-        var existing = (await db.Children
-                .Where(c => c.ClassId == seed.Class.Id)
-                .Select(c => c.Id)
-                .ToListAsync(cancellationToken))
-            .ToHashSet();
+        var existing = await db.Children
+            .Where(c => c.ClassId == seed.Class.Id)
+            .ToDictionaryAsync(c => c.Id, cancellationToken);
 
-        foreach (var child in seed.Children.Where(c => !existing.Contains(c.Id)))
+        foreach (var child in seed.Children)
         {
+            if (existing.TryGetValue(child.Id, out var stored))
+            {
+                if (stored.ConsentChangedAt is null)
+                {
+                    stored.Consent = child.Consent ?? "no";
+                }
+
+                continue;
+            }
+
             db.Children.Add(new Child
             {
                 Id = child.Id,
@@ -72,6 +81,7 @@ public sealed class DemoSeeder(
                 HomeLanguage = child.HomeLanguage,
                 HasPhone = child.HasPhone,
                 ParentPhone = child.ParentPhone,
+                Consent = child.Consent ?? "no",
             });
             added++;
         }
@@ -115,5 +125,5 @@ public sealed class DemoSeeder(
     private sealed record SeedClass(Guid Id, int Grade, string Medium);
 
     private sealed record SeedChild(
-        Guid Id, int RollNo, string FirstName, string HomeLanguage, bool HasPhone, string? ParentPhone);
+        Guid Id, int RollNo, string FirstName, string HomeLanguage, bool HasPhone, string? ParentPhone, string? Consent);
 }

@@ -137,6 +137,16 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<Guid>("ClassId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Consent")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("no");
+
+                    b.Property<DateTimeOffset?>("ConsentChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -156,6 +166,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<string>("ParentPhone")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset?>("ParentStoppedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RollNo")
                         .HasColumnType("integer");
@@ -190,6 +203,64 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Classes");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.EveningMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SlotValues")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("ChildId", "Date")
+                        .IsUnique();
+
+                    b.HasIndex("ClassId", "Date");
+
+                    b.ToTable("EveningMessages");
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Lesson", b =>
@@ -240,6 +311,61 @@ namespace SlateAi.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.MessageTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedByTeacherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("PageFormat")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PageFormatNoPart")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByTeacherId");
+
+                    b.HasIndex("ClassId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("MessageTemplates");
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.ProcessedRequest", b =>
@@ -334,8 +460,48 @@ namespace SlateAi.Api.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.EveningMessage", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Child", null)
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Lesson", null)
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.MessageTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Lesson", b =>
                 {
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.MessageTemplate", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedByTeacherId");
+
                     b.HasOne("SlateAi.Api.Data.Entities.Class", null)
                         .WithMany()
                         .HasForeignKey("ClassId")

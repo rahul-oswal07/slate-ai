@@ -223,11 +223,13 @@ POST /api/classes/{id}/catchups/generate    builds assignments + draft packages 
 GET  /api/classes/{id}/packages?status=
 POST /api/packages/{id}/approve | /regenerate { hint }
 POST /api/assignments/{id}/send             (demo: immediate; prod: schedule 18:00 IST)
-GET  /api/p/{token}                         parent payload (no auth; 128-bit token; expires 14 days)
+GET  /api/p/{token}                         parent payload (no auth; 128-bit token; expires 14 days → 410). T-44: the evening message { date, language, childName, teacherName, text, greetingAudioUrl, sentAt, stopped }; T-15 adds the catch-up
 POST /api/p/{token}/answer                  { choiceId }
 POST /api/p/{token}/reason                  { category } or audio → A7 (FR-21)
-PUT  /api/classes/{id}/message-template     draft evening template (FR-20) · POST …/message-template/approve
-POST /api/classes/{id}/evening-messages/send   today's absentees; 409 unless template Approved + lesson confirmed
+GET  /api/classes/{id}/message-template     evening template per language, filled with an example (text parts, slots marked); drafts created from data/seed/evening-message.json (FR-20)
+POST /api/classes/{id}/message-template/approve { clientRequestId, version } → all languages Approved; 409 + latest if the version is stale (D-49)
+GET  /api/classes/{id}/evening-messages/{date} tonight's card: { blocked, templateApproved, lessonConfirmed, absent, families, sent, sendsAt, children[{ childId, outcome }] }
+POST /api/classes/{id}/evening-messages/send   { clientRequestId } today's absentees; 409 before 18:00 IST (unless Demo:Enabled), unless template Approved + lesson confirmed + attendance in; per child: willSend|sent|noConsent|noPhone|stopped|noWording; one per child per day. The 6 pm job (EveningSendWorker) calls the same path
 GET  /api/classes/{id}/buddy-cards?date=
 POST /api/buddy-cards/{id}/homework-returned   "Brought homework" tap (D-22)
 GET  /api/classes/{id}/return-speed?week=   FR-22
