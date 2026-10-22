@@ -1,5 +1,7 @@
 # T10 Settings
 
+> **MVP scope (D-70): not in the MVP.** Whole screen is roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-09 (greeting), FR-15 (consent), FR-20 (evening template) · Tier: MVP · Task: T-44, T-19, T-11 · Prototype: prototype/index.html (gear on T1 Today; TNAMES "T10 Settings", "T10 Settings · Evening message", "T10 Settings · My greetings") · PNG: none exported
 Decisions: D-51 (Settings + Families rework), D-49 (evening message changed from Settings), D-44 (consent version, withdraw deletes recordings), D-52 (greeting per language), D-50 (no names in the computer voice), D-48 (no "Tomorrow"), D-43, D-47 (via Families)
 

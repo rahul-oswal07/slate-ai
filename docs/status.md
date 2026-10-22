@@ -34,13 +34,15 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
 - [x] Mentor's 6 interview questions added to `user-testing.md`
 
+**Build scope: [`docs/design/mvp-build-flow.md`](design/mvp-build-flow.md) (D-70).** Build screens in its order; skip its "Not in the MVP" list (Settings, per-language greetings, family-details editing, bulk approve / withdraw, mic-blocked / sending states, stitched evening audio, parent-page polish, offline beyond attendance + voice note). Nothing already built changes.
+
 ## Next session (Day 4, Thu 22 Oct)
 
 - T1 attendance slice merged (#81). #81 was merged before its D-45/D-67/D-68 fix commit landed; the follow-up PR (`fix/T-12-d45-alignment`) brings 12:00 / 2:00 pm, the D-67 "missing" card, the D-68 offline banner, D-69 numbering and removes the duplicated D-40/D-41 rows from `spec.md`.
-- T2 part A (`feat/T-07-lesson-capture`): pick today's lesson from the list, Today done card, "Added to missed lessons". Next: part B (mic, audio upload, Sarvam + name scrubber + A1, T2 confirm states, 10 evals). Monika: English chapter titles in `data/curriculum/grade3-maths.json` are drafts except Ch 5.
-- Monika: copy for two lines marked [DECIDE: Monika] in D-69: "SATS came in at {time}. Your marking is kept." and "No school today in SATS".
+- T2 part A (`feat/T-07-lesson-capture`): pick today's lesson from the list, Today done card, "Added to missed lessons". Next: part B (mic, audio upload, Sarvam + name scrubber + A1, T2 confirm states, 10 evals). English chapter titles in `grade3-maths.json` confirmed by Monika (D-71).
+- [x] Monika: copy for the two D-69 lines decided in D-71: "SATS attendance came in at {time}. We kept your marking." / "No school today (holiday in SATS)."
 - Then T2 Lesson confirm = T-07 PR 2 (capture endpoints, A1 prompt + validator returning 1–3 lessons per D-33, name scrubber, 10 evals).
-- Monika: D-40 login screen UX/copy review; te/ta strings for login and Welcome are drafts.
+- [x] Monika: D-40 sign-in approved as built (D-71); te/ta strings go to the native review (T-26), not blocking.
 - Use plan mode first; one branch per task.
 
 ## Local dev
@@ -90,3 +92,4 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 21 Oct | Monika + Claude | Closed the open design gaps (D-33–D-39): multi-lesson checklist confirm, mic blocked + sending, tag colours (tokens.md), no evening-message listens, Withdraw until 6 pm, Sent / Generation failed / offline states, parent opt-in on new T8 Families screen. Prototype checked against every spec §3.1 state (83 states, axe 0 violations); FR-03/08/15 and §3.1 updated; cards updated, T8 card added |
 | 22 Oct | Monika + Claude | Decisions D-41–D-54 (setup, phone/consent/language on Family details, voice consent version, 12:00 attendance sync, no "Tomorrow", no names in computer voice, Settings, greeting per language, T1 answers). Spec FR-01/09/15/20 + data model (`TeacherGreeting`, `Child` consent/phone/language) updated. Prototype + cards follow in the next design PR |
 | 22 Oct | Monika + Claude | Pre-empted screen-build questions: D-55–D-68 (one note a day, summaryEn in the same A1 call, bulk approve = tick, audio labels, buddy fallback, nudge threshold 5, empty week, reopened link → Done, reason = pictures only (A7 voice cut), no STOP in demo, Help page, phone required for Yes, attendance missing after 2 pm, blanket loading/offline/error/409 rule). Prototype + cards updated |
+| 22 Oct | Monika + Claude | D-70 MVP build scope: `docs/design/mvp-build-flow.md` (judging criteria → screens in build order → MVP bullets → global simplifications → roadmap list); banners on unbuilt cards. D-71 answers Rahul's open copy/data questions (two SATS lines, chapter titles, sign-in approved) |
