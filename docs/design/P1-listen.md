@@ -1,5 +1,7 @@
 # P1 Listen
 
+> **MVP scope (D-70):** one big Listen, AI label, Next never blocked, step dots. Resume after a drop, auto-play prompts and back-10 s are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-09, FR-10, FR-19, NFR-03, NFR-04, NFR-05, NFR-08 · Tier: MVP · Task: T-15 (audio: T-11) · Prototype: prototype/index.html (step 8) · PNG: screenshots/P1-listen-default-360-light.png
 
 Decisions: D-08 (four steps, step dots, Next never blocked by audio), D-18 (spoken AI disclosure after the greeting), D-30 (stop link on every parent screen), D-50 (no names in the computer voice), D-52 (greeting per language; segments "Teacher’s greeting · Computer voice · Lesson"). Review: C-01, C-02, C-05, C-07, C-08, C-16, C-18, C-19, C-20, C-23, C-25, C-28, C-29.

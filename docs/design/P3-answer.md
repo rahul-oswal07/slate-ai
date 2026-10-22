@@ -1,5 +1,7 @@
 # P3 Answer (picture check)
 
+> **MVP scope (D-70):** shuffled positions with the stored correct index; distractors from seed data. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-07, FR-10, FR-11, FR-19, NFR-04 · Tier: MVP · Task: T-15 (check content: T-09, T-10) · Prototype: prototype/index.html (step 9) · PNG: screenshots/P3-answer-default-360-light.png
 
 Decisions: D-07 (pictures are the answer; the numeral shows only after the tap; options shuffled by code; distractors visibly different), D-08 (four steps), D-20 (learning check is a secondary signal), D-30 (stop link). Review: C-03, C-04, C-08, C-09, C-10, C-11, C-12, C-13, C-16, C-23, C-24.

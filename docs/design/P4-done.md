@@ -1,5 +1,7 @@
 # P4 Done + Stop these messages (shared component)
 
+> **MVP scope (D-70):** stop link on Done and in the evening message (not on every screen); one confirm; restart on the same page; no chat confirmation message. See [mvp-build-flow.md](mvp-build-flow.md).
+
 Spec: FR-10, FR-11, FR-19, NFR-04 · Tier: MVP · Task: T-15 · Prototype: prototype/index.html (steps 9–10 for Done; step 13 for stop) · PNG: screenshots/P4-done-default-360-light.png
 
 Decisions: D-08 (four steps), D-19 (`ParentStoppedAt`, send refuses stopped children), D-20 (no score for the family), D-30 (stop link on every parent screen and in the evening message, STOP reply, confirmation message with restart). Review: C-06, C-18, C-22, C-25, C-26, C-27.

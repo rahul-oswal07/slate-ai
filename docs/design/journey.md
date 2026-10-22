@@ -1,5 +1,7 @@
 # Journey: Tappida Paatha, end to end
 
+> **For the MVP build, use [mvp-build-flow.md](mvp-build-flow.md) (D-70).** This page describes the full designed product, including roadmap parts.
+
 Spec: FR-01–FR-22 · Tier: MVP · Prototype: [prototype/index.html](prototype/index.html) (steps 1–13) · Review: [ux-review.md](ux-review.md)
 Decisions: D-03, D-07, D-08, D-09, D-20–D-24, D-27–D-52
 
