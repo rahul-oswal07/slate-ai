@@ -35,7 +35,7 @@ Owner: **R** = Rahul, **M** = Monika. Day refers to `plan.md` §4. Create one Gi
 | T-16 | Buddy cards + pacing nudge | R | 6 | T-06, T-09 | FR-12, FR-13; numbers by code only; "Brought homework" tap stored (D-22) | xUnit: buddy was present for the missed lessons; nudge numbers = ledger; endpoint test for the homework tap |
 | T-46 | Return-speed card (FR-22, D-24) | R | 4 | T-13 | Absences by length (1, 2, 3, 4+ days) this week vs last, share back within 2 school days, reason categories; teacher-only | xUnit on fixtures (numbers = ledger spells); Vitest component test |
 | T-44 | Evening message on each day of absence (FR-20, D-21): `MessageTemplate` + one-time approval, code slot filler, send endpoint, pre-synthesised audio segments | R | 5–6 | T-14, T-15, T-16 | No LLM on this path; send only after 6 pm to opted-in, not-stopped families with a confirmed lesson; guardrail 3 | xUnit: slot filler from fixtures; endpoint tests: unapproved template → 409, unconfirmed lesson → 409, stopped child → 409 |
-| T-45 | Reason for absence on the parent page + A7 classification (FR-21, D-23) | R (copy: M) | 5–6 | T-15, T-07 (STT) | 5 picture buttons; optional voice note → A7; category only stored; skipping never blocks the page | Fake-LLM tests: invalid category or low confidence → other, transcript not stored; 10 A7 eval cases |
+| T-45 | Reason for absence on the parent page (FR-21, D-23); voice note + A7 classification cut (D-63) | R (copy: M) | 5–6 | T-15 | 5 picture buttons + Skip; category only stored; skipping never blocks the page | Endpoint tests: category stored, invalid category rejected, skip stores nothing |
 | T-17 | Fix round-1 P0 findings | R + M | 7 | T-28 | Each fix PR links the finding ID | Re-test with the same task |
 | T-18 | Demo mode: split screen, Ravi story seed, Reset, "Under the hood" AI call panel | R | 7 | T-15, T-16 | FR-14; reset < 5 s; AI panel lists each call with model, prompt version, verdict | Outsider test: loop in ≤ 5 min |
 | T-19 | Consent capture + delete child data | R | 7 | T-02 | FR-15 | Integration test: delete removes rows + audio |
@@ -47,7 +47,7 @@ Owner: **R** = Rahul, **M** = Monika. Day refers to `plan.md` §4. Create one Gi
 |---|---|---|---|---|---|---|
 | T-30 | Accessibility + performance pass | R + M | 8 | T-18 | axe 0 serious/critical; targets ≥ 48 px; Slow 3G usable | Playwright + axe; Lighthouse; manual TalkBack check |
 | T-31 | **Usability round 2** (2 teachers, ideally one real class) | M | 8 | T-17 | Before/after timing; findings logged | — |
-| T-38 | Eval suite to 25 cases each for A1–A3 (A7 stays at 10); results committed | R | 8 | T-07–T-10 | Targets in `intent.md` met or gap explained | `dotnet test --filter Category=Eval` |
+| T-38 | Eval suite to 25 cases each for A1–A3 (A7 cut, D-63); results committed | R | 8 | T-07–T-10 | Targets in `intent.md` met or gap explained | `dotnet test --filter Category=Eval` |
 | T-32 | Round-2 fixes | R | 9 | T-31 | Each fix links finding | Re-test |
 | T-33 | Privacy/security pass (no PII to providers, token expiry, secrets, headers) | R | 9 | T-18 | Checklist in `REVIEW.md` passes | Unit test: prompt builder rejects real names; manual header check |
 | T-34 | README final, LICENSE, open-source prep | R | 9 | D-15 | A stranger can run locally in ≤ 15 min | Outsider follows README |
