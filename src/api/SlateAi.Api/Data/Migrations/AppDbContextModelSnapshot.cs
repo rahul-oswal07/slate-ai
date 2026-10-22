@@ -205,8 +205,18 @@ namespace SlateAi.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.Property<double?>("Confidence")
+                        .HasColumnType("double precision");
+
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.PrimitiveCollection<List<string>>("ExamplesUsed")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTimeOffset?>("MappingStartedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -217,6 +227,9 @@ namespace SlateAi.Api.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SummaryEn")
+                        .HasColumnType("text");
 
                     b.Property<string>("SummaryKn")
                         .HasColumnType("text");

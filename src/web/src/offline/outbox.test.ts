@@ -62,3 +62,29 @@ describe('outbox', () => {
     expect(calls).toHaveLength(1)
   })
 })
+
+describe('outbox voice notes', () => {
+  beforeEach(async () => {
+    await db.outbox.clear()
+  })
+
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('sends a voice note as multipart with its clientRequestId', async () => {
+    let sent: FormData | undefined
+    vi.stubGlobal('fetch', vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      sent = init?.body as FormData
+      return new Response('{}', { status: 202, headers: { 'Content-Type': 'application/json' } })
+    }))
+    await enqueue({
+      id: 'note-1',
+      url: '/api/classes/c/lessons/2026-10-22/audio',
+      body: undefined,
+      audio: { data: new Uint8Array([1, 2, 3]).buffer, type: 'audio/webm', fileName: 'note.webm' },
+    })
+
+    expect(await flush()).toBe(1)
+    expect(sent?.get('clientRequestId')).toBe('note-1')
+    expect(sent?.get('file')).toBeInstanceOf(Blob)
+  })
+})

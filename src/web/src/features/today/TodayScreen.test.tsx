@@ -58,7 +58,7 @@ describe('TodayScreen', () => {
     expect(within(card).getByText('Chetan')).toBeInTheDocument()
     expect(within(card).getByText('Ravi')).toBeInTheDocument()
     expect(screen.getByText('Saved')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Record' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Record' })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('a correction edits a draft, saves through the outbox and shows "corrected by you"', async () => {

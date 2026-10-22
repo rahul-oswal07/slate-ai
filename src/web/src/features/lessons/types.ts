@@ -15,8 +15,18 @@ export type Chapter = { number: number; nameKn: string; nameEn: string; competen
 export type Curriculum = { chapters: Chapter[] }
 
 /** GET/PUT /api/classes/{id}/lessons/{date} */
+export type LessonStatus = 'processing' | 'mapped' | 'low' | 'unclear' | 'confirmed'
+
 export type LessonDay = {
   date: string
-  lesson: { competencyIds: string[]; source: string; status: string } | null
+  lesson: {
+    /** A1's ranked match until she confirms; then what she confirmed. */
+    competencyIds: string[]
+    source: string
+    status: LessonStatus
+    summaryKn: string | null
+    summaryEn: string | null
+    examplesUsed: string[]
+  } | null
   nextInBook: string | null
 }

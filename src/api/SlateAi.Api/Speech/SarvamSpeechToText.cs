@@ -25,16 +25,18 @@ public sealed class SarvamSpeechToText(HttpClient http, IOptions<SarvamOptions> 
         }
 
         using var file = new StreamContent(audio);
-        file.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+        // Sarvam rejects parameters such as Chrome's "audio/webm;codecs=opus" ("Invalid file type").
+        file.Headers.ContentType = new MediaTypeHeaderValue(contentType.Split(';')[0].Trim());
         using var form = new MultipartFormDataContent
         {
             { file, "file", fileName },
             { new StringContent(settings.SttModel), "model" },
             { new StringContent(languageCode), "language_code" },
         };
-        if (keyTerms.Count > 0)
+        var terms = CleanKeyTerms(keyTerms);
+        if (terms.Count > 0)
         {
-            form.Add(new StringContent(JsonSerializer.Serialize(keyTerms.Take(50))), "keyterms");
+            form.Add(new StringContent(JsonSerializer.Serialize(terms)), "keyterms");
         }
 
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(new Uri(settings.BaseUrl), "speech-to-text"))
@@ -61,7 +63,10 @@ public sealed class SarvamSpeechToText(HttpClient http, IOptions<SarvamOptions> 
                 var failure = response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.UnprocessableEntity
                     ? SpeechFailure.Rejected
                     : SpeechFailure.Unavailable;
-                throw new SpeechException(failure, $"Sarvam returned {(int)response.StatusCode}.");
+                var reason = await ReadErrorAsync(response, cancellationToken);
+                throw new SpeechException(
+                    failure,
+                    reason is null ? $"Sarvam returned {(int)response.StatusCode}." : $"Sarvam returned {(int)response.StatusCode}: {reason}");
             }
 
             var body = await response.Content.ReadFromJsonAsync<SarvamTranscript>(Json, cancellationToken)
@@ -70,5 +75,35 @@ public sealed class SarvamSpeechToText(HttpClient http, IOptions<SarvamOptions> 
         }
     }
 
+    /// <summary>
+    /// Sarvam rejects any key term containing a comma or semicolon (it reads them as lists), e.g. the lesson
+    /// name "Compare 3-digit numbers (>, <, =)". Those become spaces; empty and duplicate terms are dropped.
+    /// </summary>
+    private static List<string> CleanKeyTerms(IReadOnlyList<string> keyTerms) =>
+        keyTerms
+            .Select(term => string.Join(' ', term.Split([',', ';', ' '], StringSplitOptions.RemoveEmptyEntries)))
+            .Where(term => term.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .Take(50)
+            .ToList();
+
+    /// <summary>Sarvam's error message (about the request, never the audio's content), for the AiCall log.</summary>
+    private static async Task<string?> ReadErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var body = await response.Content.ReadFromJsonAsync<SarvamError>(Json, cancellationToken);
+            return string.IsNullOrWhiteSpace(body?.Error?.Message) ? null : body.Error.Message.Trim();
+        }
+        catch (Exception e) when (e is JsonException or NotSupportedException or InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
     private sealed record SarvamTranscript(string? Transcript, string? LanguageCode, string? RequestId);
+
+    private sealed record SarvamError(SarvamErrorDetail? Error);
+
+    private sealed record SarvamErrorDetail(string? Message);
 }

@@ -215,9 +215,9 @@ GET  /api/classes/{id}/attendance/{date}    { status: sats|manual|waiting|missin
 POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId; correction or manual marking, never written back to SATS)
 POST /api/demo/sats-feed                    { classId, date, mode: waiting|arrive } (only while Demo:Enabled, D-69)
 GET  /api/curriculum                        chapters (titles) with their lessons and textbook pages, for the lesson picker
-GET  /api/classes/{id}/lessons/{date}       { lesson: { competencyIds, source, status } | null, nextInBook } (one lesson record per day, D-55)
-PUT  /api/classes/{id}/lessons/{date}       { clientRequestId, competencyIds[1..3] } → confirmed, source picked; "Change" overwrites (FR-04)
-POST /api/classes/{id}/lessons/{date}/audio multipart voice note → STT → A1 mapping (T-07 PR B; replaces the earlier POST /api/lessons idea)
+GET  /api/classes/{id}/lessons/{date}       { lesson: { competencyIds, source, status: processing|mapped|low|unclear|confirmed, summaryKn, summaryEn, examplesUsed } | null, nextInBook } (one lesson record per day, D-55; no confidence number)
+PUT  /api/classes/{id}/lessons/{date}       { clientRequestId, competencyIds[1..3], source?: voice|picked } → confirmed; "Change" overwrites (FR-03, FR-04)
+POST /api/classes/{id}/lessons/{date}/audio multipart { file ≤ 1 MB, clientRequestId } → 202 at once; STT → name scrubber → A1 in the background; 409 once confirmed (D-55); audio not stored
 GET  /api/classes/{id}/ledger
 POST /api/classes/{id}/catchups/generate    builds assignments + draft packages for the week
 GET  /api/classes/{id}/packages?status=

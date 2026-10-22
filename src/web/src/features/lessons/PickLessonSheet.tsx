@@ -4,23 +4,30 @@ import { chapterTitle, findLesson, lessonName, pageText } from './lessonText'
 import type { Chapter } from './types'
 
 /**
- * Pick today's lesson from the chapter list (T2 pick sheet, FR-04), single-choice mode: one tap saves.
+ * Pick today's lesson from the chapter list (T2 pick sheet, FR-04). Single-choice mode (from Today, "Pick from
+ * the list", low confidence): one tap saves. Add mode ("Add another lesson" on T2): checkboxes, the lessons
+ * already chosen are ticked, at most 3, "Done" returns the selection (D-33).
  * A native modal <dialog> (focus trapped, page behind inert); Esc, the backdrop or Close shut it and focus
  * goes back to the opener. "Next in the book" (from the server) is listed first; "Another chapter" is never
  * a dead end.
  */
+export const MAX_LESSONS = 3
+
 export function PickLessonSheet({
   chapters,
   nextInBook,
   currentId,
   onPick,
   onClose,
+  add,
 }: {
   chapters: Chapter[]
   nextInBook: string | null
   currentId: string | null
   onPick: (id: string) => void
   onClose: () => void
+  /** Add mode: the lessons already chosen, and what to do with the new selection. */
+  add?: { selected: string[]; onDone: (ids: string[]) => void }
 }) {
   const { t, i18n } = useTranslation()
   const sheetRef = useRef<HTMLDialogElement>(null)
@@ -34,6 +41,8 @@ export function PickLessonSheet({
     () => (startId && findLesson(chapters, startId)?.chapter.number) ?? chapters[0]?.number ?? 0,
   )
   const [choosingChapter, setChoosingChapter] = useState(false)
+  const [selected, setSelected] = useState(() => add?.selected ?? [])
+  const full = selected.length >= MAX_LESSONS
   const chapter = chapters.find((c) => c.number === chapterNumber) ?? chapters[0]
 
   useEffect(() => {
@@ -126,19 +135,34 @@ export function PickLessonSheet({
           <>
             <fieldset className="flex flex-col gap-2">
               <legend className="sr-only">{title}</legend>
-              {lessons.map((lesson) => (
+              {lessons.map((lesson) => {
+                const ticked = selected.includes(lesson.id)
+                return (
                 <label
                   key={lesson.id}
                   className="flex min-h-target cursor-pointer items-center gap-3 rounded-md border border-border bg-surface px-3 py-2 has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus"
                 >
-                  <input
-                    type="radio"
-                    name="pick-lesson"
-                    value={lesson.id}
-                    checked={lesson.id === currentId}
-                    onChange={() => onPick(lesson.id)}
-                    className="size-6 shrink-0 accent-primary"
-                  />
+                  {add ? (
+                    <input
+                      type="checkbox"
+                      value={lesson.id}
+                      checked={ticked}
+                      disabled={full && !ticked}
+                      onChange={() =>
+                        setSelected((ids) => (ticked ? ids.filter((id) => id !== lesson.id) : [...ids, lesson.id]))
+                      }
+                      className="size-6 shrink-0 accent-primary"
+                    />
+                  ) : (
+                    <input
+                      type="radio"
+                      name="pick-lesson"
+                      value={lesson.id}
+                      checked={lesson.id === currentId}
+                      onChange={() => onPick(lesson.id)}
+                      className="size-6 shrink-0 accent-primary"
+                    />
+                  )}
                   <span className="min-w-0">
                     {lesson.id === nextInBook && (
                       <span className="block text-caption text-primary-strong">{t('pick.nextInBook')}</span>
@@ -147,8 +171,10 @@ export function PickLessonSheet({
                     <span className="block text-caption text-ink-muted">{pageText(t, lesson.textbookPage)}</span>
                   </span>
                 </label>
-              ))}
+                )
+              })}
             </fieldset>
+            {add && full && <p className="mt-2 text-caption text-ink-muted">{t('pick.max')}</p>}
             <button
               type="button"
               onClick={() => setChoosingChapter(true)}
@@ -156,6 +182,15 @@ export function PickLessonSheet({
             >
               {t('pick.anotherChapter')}
             </button>
+            {add && (
+              <button
+                type="button"
+                onClick={() => add.onDone(selected)}
+                className="mt-2 min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary"
+              >
+                {t('pick.done')}
+              </button>
+            )}
           </>
         )}
     </dialog>
