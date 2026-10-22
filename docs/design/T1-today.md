@@ -204,6 +204,10 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 
 Open items:
 
+**Resolved 23 Oct (D-72):**
+- While the evening template is not approved, Today shows a card that opens the approve step (Rahul's build, accepted).
+- Tonight card copy: "Sent tonight to {families} of {absent} families"; tag "No message in their language yet".
+
 **Resolved 22 Oct:**
 - Second voice note on the same day: not in the MVP; use Change (D-55).
 - Attendance still missing after the 2:00 pm retry: warning card "Attendance didn’t come in today. Mark it here so tonight’s messages can go." with "Mark attendance"; state chip "Still missing after 2 pm" (D-67).
