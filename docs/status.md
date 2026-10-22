@@ -18,7 +18,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: merge #59 (Db test suite)
 - [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
-- [ ] Rahul: confirm D-18 / D-19 before T-11 / T-15
+- [x] Rahul: confirmed D-18 / D-19 (22 Oct): static disclosure clip per language via Sarvam TTS, played as segments; `Child.ParentStoppedAt` separate from consent, stop by link token, 409 on every send
 - [ ] Rahul: technical mentor call moved from 21 Oct to next week (brief ready in `docs/mentor-technical-2026-10-21.md`; fill in part C after the call)
 - [x] Monika: T-22 competency list drafted in `docs/design/curriculum.md` (16 competencies, textbook page each). D-01 revised to 3-digit. Open: † Kannada names to confirm with a teacher; NIPUN codes have no source yet
 - [x] Rahul: D-27 attendance source, decided as D-69 (21 Oct; times from D-45): fetched when needed, repeatable simulation + demo overrides, provenance columns on `Attendance`, teacher marking wins over late SATS. Was: Put attendance behind a source interface (`DemoSource` simulated SATS feed now; file import / state API later) feeding the existing T-06 register endpoint; store source + time per record; teacher corrections overlay, never written back. Update `plan.md` / `tasks.md` (T-12: grid becomes corrections + fallback only) and the demo label "simulated"

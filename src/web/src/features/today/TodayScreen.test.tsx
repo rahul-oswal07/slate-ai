@@ -82,7 +82,7 @@ describe('TodayScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByRole('region', { name: /corrected by you/ })).toBeInTheDocument()
-    expect(saved).toMatchObject({ date, absentChildIds: ['child-3'] })
+    await waitFor(() => expect(saved).toMatchObject({ date, absentChildIds: ['child-3'] }))
     await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument())
     await waitFor(() => expect(screen.getByTestId('announcer')).toHaveTextContent('Attendance saved'))
   })
@@ -118,7 +118,7 @@ describe('TodayScreen', () => {
     renderApp('/')
 
     expect(await screen.findByRole('region', { name: 'Attendance · marked by you' })).toBeInTheDocument()
-    expect(screen.getByText(/SATS came in at 12:00.*Your marking is kept\./)).toBeInTheDocument()
+    expect(screen.getByText(/SATS attendance came in at 12:00.*We kept your marking\./)).toBeInTheDocument()
   })
 
   it('says so when nobody is absent', async () => {
