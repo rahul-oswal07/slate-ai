@@ -12,10 +12,10 @@ public sealed class DemoClassApi : IAsyncDisposable
 {
     private readonly ApiFactory _factory;
 
-    private DemoClassApi(ApiFactory factory, Guid classId, IReadOnlyList<Guid> childIds)
+    private DemoClassApi(ApiFactory factory, Guid classId, Guid teacherId, IReadOnlyList<Guid> childIds)
     {
         _factory = factory;
-        Client = factory.CreateTeacherClient(classId);
+        Client = factory.CreateTeacherClient(classId, teacherId);
         ClassId = classId;
         ChildIds = childIds;
     }
@@ -33,9 +33,9 @@ public sealed class DemoClassApi : IAsyncDisposable
         var factory = new ApiFactory(await postgres.CreateEmptyDatabaseAsync(Ct));
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var classId = await db.Classes.Select(c => c.Id).SingleAsync(Ct);
+        var demoClass = await db.Classes.SingleAsync(Ct);
         var childIds = await db.Children.OrderBy(c => c.RollNo).Select(c => c.Id).ToListAsync(Ct);
-        return new DemoClassApi(factory, classId, childIds);
+        return new DemoClassApi(factory, demoClass.Id, demoClass.TeacherId, childIds);
     }
 
     public Task<HttpResponseMessage> MarkAsync(Guid clientRequestId, DateOnly date, params Guid[] absent) =>

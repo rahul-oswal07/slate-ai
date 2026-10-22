@@ -16,7 +16,7 @@ const promises: { icon: IconName; key: string }[] = [
 
 /**
  * T0 Set up, Welcome (state `0`, docs/design/T0-setup.md). Shown once, until Teacher.ConsentAt is
- * set. For now Start finishes setup; the greeting and template steps come later (T-47 scope).
+ * set. Start finishes setup and opens the evening-message step (T-44); the greeting step comes later.
  */
 export function WelcomeScreen() {
   const { t } = useTranslation()
@@ -33,7 +33,7 @@ export function WelcomeScreen() {
     onSuccess: (updated) => {
       saveCachedMe(updated)
       queryClient.setQueryData(meQueryKey, updated)
-      void navigate('/', { replace: true })
+      void navigate('/setup/evening', { replace: true })
     },
   })
 

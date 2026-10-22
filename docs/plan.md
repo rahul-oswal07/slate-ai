@@ -62,14 +62,14 @@ slate-ai/
 | 5 | A2 compression + A3 script + A4 verifier + TTS | FR-06, 07, 09 | Validator unit tests; 10 A2/A3 eval cases |
 | 6 | Approval flow | FR-08 | API refuses to send unapproved package (test) |
 | 7 | Parent page + picture scoring + ledger update, incl. the optional reason for absence (A7) | FR-10, 11, 19, 21 | Playwright happy path; A7 fake-LLM tests + 10 evals |
-| 7b | Evening message on each day of absence from an approved template, slots filled by code | FR-20 | Endpoint tests: send refused without approved template / confirmed lesson / consent |
+| 7b | Evening message on each day of absence from an approved template, slots filled by code. **Built first (T-44 PR 1, 22 Oct, per D-70):** T0 approve step, tonight card, `EveningSendWorker` (every minute from 18:00 IST, idempotent per child and day), consent + stop filter, `GET /api/p/{token}`. The demo-chat bubble follows with T-18 | FR-20 | Endpoint tests: send refused without approved template / confirmed lesson / attendance / before 6 pm; no-consent and stopped families refused; no LLM; one Db test (race + seed consent) |
 | 8 | Buddy cards + pacing nudge | FR-12, 13 | Unit tests; snapshot of card |
 | 9 | Offline outbox | NFR-02 | Playwright offline test |
 | 10 | Demo mode + reset + "Under the hood" AI panel | FR-14 | Outsider completes loop in ≤ 5 min |
 | 11 | Consent + delete | FR-15 | Integration test |
 | 12 | Stretch: WhatsApp only (board photo and spoken answers dropped, D-26) | FR-16 | Only after Day 7 freeze |
 
-**Build order from Day 3 (21 Oct): screen by screen.** Each screen is one vertical slice (UI + API + any AI step) built against its design card: sign-in + Welcome (T-47) → T1 Today → T2 Lesson confirm → T4 Missed lessons → T0 setup steps + T8 Families → T3 Approve → P1–P4 parent page → P0 evening message + reason → T5 Back today → T6 Week → demo shell (`POST /api/demo/login` stays with T-18). Cut T6 and T5 first if time runs short.
+**Build order from Day 3 (21 Oct): screen by screen.** Each screen is one vertical slice (UI + API + any AI step) built against its design card: sign-in + Welcome (T-47) → T1 Today → T2 Lesson confirm → T4 Missed lessons → T0 setup steps + T8 Families → T3 Approve → P1–P4 parent page → P0 evening message + reason → T5 Back today → T6 Week → demo shell (`POST /api/demo/login` stays with T-18). Cut T6 and T5 first if time runs short. **From 22 Oct the order is D-70's** ([`mvp-build-flow.md`](design/mvp-build-flow.md) §2): T-44 (evening message) was built before T-14/T-15 because it is in the demo loop.
 
 ## 4. Ten-day delivery plan
 

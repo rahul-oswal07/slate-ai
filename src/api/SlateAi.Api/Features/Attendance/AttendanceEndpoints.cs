@@ -19,6 +19,7 @@ public static class AttendanceEndpoints
         services.AddSingleton<SimulatedSatsSource>();
         services.AddSingleton<IAttendanceSource>(sp => sp.GetRequiredService<SimulatedSatsSource>());
         services.AddSingleton<SatsDemoHolds>();
+        services.AddScoped<AttendanceDayLoader>();
         return services;
     }
 
@@ -46,10 +47,7 @@ public static class AttendanceEndpoints
     private static async Task<Results<Ok<AttendanceDayResponse>, NotFound, ValidationProblem>> GetDayAsync(
         Guid classId,
         DateOnly date,
-        IAttendanceStore store,
-        IAttendanceSource source,
-        SatsDemoHolds holds,
-        IOptions<SatsOptions> options,
+        AttendanceDayLoader loader,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -58,31 +56,9 @@ public static class AttendanceEndpoints
             return FutureDate();
         }
 
-        var roster = await store.GetRosterAsync(classId, cancellationToken);
-        if (roster is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var now = clock.GetUtcNow();
-        var rows = await store.GetDayAsync(classId, date, cancellationToken);
-        var noSchool = false;
-        var satsDue = now >= SchoolClock.At(date, options.Value.ArrivesAt) && !holds.IsHeld(classId, date);
-        if (satsDue && rows.All(r => r.SourcePresent is null))
-        {
-            switch (await source.FetchAsync(classId, date, roster, cancellationToken))
-            {
-                case SourceResult.Arrived register:
-                    rows = await store.SaveSourceRegisterAsync(
-                        classId, date, roster.Select(c => c.Id).ToList(), register, cancellationToken);
-                    break;
-                case SourceResult.NoSchool:
-                    noSchool = true;
-                    break;
-            }
-        }
-
-        return TypedResults.Ok(AttendanceDay.Describe(date, roster, rows, noSchool, now, options.Value));
+        return await loader.LoadAsync(classId, date, cancellationToken) is { } day
+            ? TypedResults.Ok(day)
+            : TypedResults.NotFound();
     }
 
     private static async Task<Results<Ok<MarkAttendanceResponse>, NotFound, ValidationProblem>> MarkAsync(

@@ -13,6 +13,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<ProcessedRequest> ProcessedRequests => Set<ProcessedRequest>();
     public DbSet<AiCall> AiCalls => Set<AiCall>();
+    public DbSet<MessageTemplate> MessageTemplates => Set<MessageTemplate>();
+    public DbSet<EveningMessage> EveningMessages => Set<EveningMessage>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +39,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(c => c.FirstName).HasMaxLength(50);
             e.Property(c => c.HomeLanguage).HasMaxLength(5);
             e.Property(c => c.ParentPhone).HasMaxLength(20);
+            e.Property(c => c.Consent).HasMaxLength(10).HasDefaultValue("no");
             e.HasOne<Class>().WithMany().HasForeignKey(c => c.ClassId);
             e.HasIndex(c => new { c.ClassId, c.RollNo }).IsUnique();
         });
@@ -70,6 +73,33 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(c => c.Verdict).HasMaxLength(100);
             e.Property(c => c.Error).HasMaxLength(300);
             e.HasIndex(c => c.CreatedAt);
+        });
+
+        modelBuilder.Entity<MessageTemplate>(e =>
+        {
+            e.Property(t => t.Language).HasMaxLength(5);
+            e.Property(t => t.Version).HasMaxLength(20);
+            e.Property(t => t.Text).HasMaxLength(1000);
+            e.Property(t => t.PageFormat).HasMaxLength(100);
+            e.Property(t => t.PageFormatNoPart).HasMaxLength(100);
+            e.Property(t => t.Status).HasMaxLength(10);
+            e.HasOne<Class>().WithMany().HasForeignKey(t => t.ClassId);
+            e.HasOne<Teacher>().WithMany().HasForeignKey(t => t.ApprovedByTeacherId);
+            e.HasIndex(t => new { t.ClassId, t.Language }).IsUnique();
+        });
+
+        modelBuilder.Entity<EveningMessage>(e =>
+        {
+            e.Property(m => m.Language).HasMaxLength(5);
+            e.Property(m => m.SlotValues).HasColumnType("jsonb");
+            e.Property(m => m.Token).HasMaxLength(30);
+            e.HasOne<Class>().WithMany().HasForeignKey(m => m.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(m => m.ChildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<MessageTemplate>().WithMany().HasForeignKey(m => m.TemplateId);
+            e.HasOne<Lesson>().WithMany().HasForeignKey(m => m.LessonId);
+            e.HasIndex(m => new { m.ChildId, m.Date }).IsUnique(); // one message per child per day: the send is idempotent
+            e.HasIndex(m => m.Token).IsUnique();
+            e.HasIndex(m => new { m.ClassId, m.Date });
         });
     }
 }

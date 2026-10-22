@@ -34,6 +34,8 @@
       "id": "M2.PV.TENS",
       "nameKn": "ಹತ್ತು ಮತ್ತು ಬಿಡಿ (ಸ್ಥಾನ ಬೆಲೆ)",
       "nameEn": "Place value: tens and ones",
+      "nameTe": "పదులు, ఒకట్లు (స్థాన విలువ)",
+      "nameTa": "பத்துகள், ஒன்றுகள் (இட மதிப்பு)",
       "prerequisites": [],
       "nipunOutcome": null,
       "chapter": 0,
@@ -51,6 +53,8 @@
       "id": "M2.ADD.2D",
       "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ",
       "nameEn": "2-digit addition",
+      "nameTe": "రెండు అంకెల సంఖ్యల కూడిక",
+      "nameTa": "இரண்டு இலக்க எண்களின் கூட்டல்",
       "prerequisites": [
         "M2.PV.TENS"
       ],
@@ -71,6 +75,8 @@
       "id": "M2.SUB.2D",
       "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ವ್ಯವಕಲನ",
       "nameEn": "2-digit subtraction",
+      "nameTe": "రెండు అంకెల సంఖ్యల తీసివేత",
+      "nameTa": "இரண்டு இலக்க எண்களின் கழித்தல்",
       "prerequisites": [
         "M2.PV.TENS"
       ],
@@ -90,6 +96,8 @@
       "id": "M3.PV.HTO",
       "nameKn": "ನೂರು, ಹತ್ತು, ಬಿಡಿ",
       "nameEn": "Hundreds, tens and ones (to 999)",
+      "nameTe": "వందలు, పదులు, ఒకట్లు",
+      "nameTa": "நூறுகள், பத்துகள், ஒன்றுகள்",
       "prerequisites": [
         "M2.PV.TENS"
       ],
@@ -110,6 +118,8 @@
       "id": "M3.PV.EXPAND",
       "nameKn": "ಸಂಖ್ಯೆಗಳನ್ನು ಬಿಡಿಸಿ ಬರೆಯೋಣ",
       "nameEn": "Expanded form",
+      "nameTe": "సంఖ్యలను విస్తరించి రాయడం",
+      "nameTa": "எண்களை விரித்து எழுதுதல்",
       "prerequisites": [
         "M3.PV.HTO"
       ],
@@ -131,6 +141,8 @@
       "id": "M3.PV.FACE",
       "nameKn": "ಸ್ಥಾನಬೆಲೆ ಮತ್ತು ಮುಖಬೆಲೆ",
       "nameEn": "Place value and face value",
+      "nameTe": "స్థాన విలువ, ముఖ విలువ",
+      "nameTa": "இட மதிப்பு, முக மதிப்பு",
       "prerequisites": [
         "M3.PV.HTO"
       ],
@@ -151,6 +163,8 @@
       "id": "M3.PV.4D",
       "nameKn": "9999 ರವರೆಗಿನ ಸಂಖ್ಯೆಗಳು (ಸಾವಿರ)",
       "nameEn": "Numbers to 9999 (thousands)",
+      "nameTe": "9999 వరకు సంఖ్యలు (వేలు)",
+      "nameTa": "9999 வரை எண்கள் (ஆயிரங்கள்)",
       "prerequisites": [
         "M3.PV.EXPAND"
       ],
@@ -171,6 +185,8 @@
       "id": "M3.NUM.COMPARE",
       "nameKn": "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ",
       "nameEn": "Compare 3-digit numbers (>, <, =)",
+      "nameTe": "ఎక్కువ – తక్కువ – సమానం",
+      "nameTa": "அதிகம் – குறைவு – சமம்",
       "prerequisites": [
         "M3.PV.HTO"
       ],
@@ -191,6 +207,8 @@
       "id": "M3.NUM.ORDER",
       "nameKn": "ಏರಿಕೆ ಕ್ರಮ – ಇಳಿಕೆ ಕ್ರಮ",
       "nameEn": "Ascending and descending order",
+      "nameTe": "ఆరోహణ క్రమం – అవరోహణ క్రమం",
+      "nameTa": "ஏறுவரிசை – இறங்குவரிசை",
       "prerequisites": [
         "M3.NUM.COMPARE"
       ],
@@ -211,6 +229,8 @@
       "id": "M3.ADD.NOCARRY",
       "nameKn": "ದಶಕ ರಹಿತ ಸಂಕಲನ",
       "nameEn": "3-digit addition without carrying",
+      "nameTe": "పది తీసుకువెళ్లకుండా కూడిక",
+      "nameTa": "எடுத்துச் செல்லாத கூட்டல்",
       "prerequisites": [
         "M3.PV.HTO",
         "M2.ADD.2D"
@@ -232,6 +252,8 @@
       "id": "M3.ADD.CARRY",
       "nameKn": "ದಶಕ ಸಹಿತ ಸಂಕಲನ",
       "nameEn": "3-digit addition with carrying",
+      "nameTe": "పది తీసుకువెళ్లి కూడిక",
+      "nameTa": "எடுத்துச் செல்லும் கூட்டல்",
       "prerequisites": [
         "M3.ADD.NOCARRY",
         "M3.PV.EXPAND"
@@ -253,6 +275,8 @@
       "id": "M3.ADD.WORD",
       "nameKn": "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ಸಂಕಲನ)",
       "nameEn": "Addition word problems",
+      "nameTe": "కూడిక మాటల లెక్కలు",
+      "nameTa": "கூட்டல் சொற்கணக்குகள்",
       "prerequisites": [
         "M3.ADD.CARRY"
       ],
@@ -273,6 +297,8 @@
       "id": "M3.SUB.NOBORROW",
       "nameKn": "ದಶಕ ರಹಿತ ವ್ಯವಕಲನ",
       "nameEn": "3-digit subtraction without borrowing",
+      "nameTe": "పది తీసుకోకుండా తీసివేత",
+      "nameTa": "கடன் வாங்காத கழித்தல்",
       "prerequisites": [
         "M3.PV.HTO",
         "M2.SUB.2D"
@@ -294,6 +320,8 @@
       "id": "M3.SUB.CHECK",
       "nameKn": "ತಾಳೆ ನೋಡುವುದು (ಕೂಡಿಸುವುದು ಮತ್ತು ಕಳೆಯುವುದರ ಸಹಸಂಬಂಧ)",
       "nameEn": "Check subtraction by adding",
+      "nameTe": "కూడిక ద్వారా తీసివేతను సరిచూడటం",
+      "nameTa": "கூட்டல் மூலம் கழித்தலைச் சரிபார்த்தல்",
       "prerequisites": [
         "M3.SUB.NOBORROW",
         "M3.ADD.NOCARRY"
@@ -314,6 +342,8 @@
       "id": "M3.SUB.BORROW",
       "nameKn": "ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ",
       "nameEn": "3-digit subtraction with borrowing",
+      "nameTe": "పది తీసుకుని తీసివేత",
+      "nameTa": "கடன் வாங்கும் கழித்தல்",
       "prerequisites": [
         "M3.SUB.NOBORROW",
         "M3.PV.EXPAND"
@@ -335,6 +365,8 @@
       "id": "M3.SUB.WORD",
       "nameKn": "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ)",
       "nameEn": "Subtraction word problems",
+      "nameTe": "తీసివేత మాటల లెక్కలు",
+      "nameTa": "கழித்தல் சொற்கணக்குகள்",
       "prerequisites": [
         "M3.SUB.BORROW"
       ],

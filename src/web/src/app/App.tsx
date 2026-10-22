@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router'
 import { LoginScreen } from '../features/auth/LoginScreen'
 import { TeacherGate } from '../features/auth/TeacherGate'
 import { ConfirmLessonScreen } from '../features/lessons/ConfirmLessonScreen'
+import { EveningTemplateScreen } from '../features/setup/EveningTemplateScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
 import { AppShell } from './AppShell'
@@ -18,6 +19,7 @@ export function App() {
           <Route path="welcome" element={<WelcomeScreen />} />
         </Route>
         <Route element={<TeacherGate need="ready" />}>
+          <Route path="setup/evening" element={<EveningTemplateScreen />} />
           <Route element={<TeacherLayout />}>
             <Route index element={<TodayScreen />} />
             <Route path="lesson" element={<ConfirmLessonScreen />} />

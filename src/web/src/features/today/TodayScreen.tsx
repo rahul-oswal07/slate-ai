@@ -5,6 +5,7 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useOnline } from '../../components/useOnline'
 import { useMe } from '../auth/useMe'
+import { useEveningDay } from '../evening/useEvening'
 import { PickLessonSheet } from '../lessons/PickLessonSheet'
 import { useCurriculum, useLessonDay, useSaveLesson } from '../lessons/useLessons'
 import { AddedCard } from './AddedCard'
@@ -13,12 +14,13 @@ import { AttendanceGrid } from './AttendanceGrid'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
+import { TonightCard } from './TonightCard'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
 
 /**
  * T1 Today (docs/design/T1-today.md): register from the simulated SATS feed with corrections and manual
  * fallback; today's lesson picked from the list (FR-04) with Change; "Added to missed lessons"; offline outbox
- * and sync badge. Voice capture comes with T-07 PR B.
+ * and sync badge; tonight's evening-message card (T-44).
  */
 export function TodayScreen() {
   const { t, i18n } = useTranslation()
@@ -38,6 +40,8 @@ export function TodayScreen() {
   const chapters = curriculum.data?.chapters ?? []
   const confirmed = lesson.data?.lesson?.status === 'confirmed' ? lesson.data.lesson.competencyIds : []
   const absent = day.data && (day.data.status === 'sats' || day.data.status === 'manual') ? day.data.absentChildIds.length : 0
+  const done = confirmed.length > 0 && absent > 0
+  const evening = useEveningDay(classId, date, done)
   // D-68: when the copy on screen was saved (snapshot) or last fetched.
   const savedAt = day.data ? (day.data.savedAt ?? day.dataUpdatedAt) : null
 
@@ -105,8 +109,10 @@ export function TodayScreen() {
         <LessonCard classId={classId} date={date} day={lesson.data} chapters={chapters} onPick={() => setPicking(true)} />
       )}
 
-      {!editing && confirmed.length > 0 && absent > 0 && (
-        <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
+      {!editing && done && <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />}
+
+      {!editing && done && evening.data && day.data && (
+        <TonightCard day={evening.data} roster={day.data.children} />
       )}
 
       {picking && (
