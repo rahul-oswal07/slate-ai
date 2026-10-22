@@ -14,7 +14,7 @@ public sealed class DemoEndpointTests
     private static readonly Guid ClassId = Guid.NewGuid();
     private static readonly Guid[] Children = Enumerable.Range(0, 36).Select(_ => Guid.NewGuid()).ToArray();
     private static readonly DateOnly Today = new(2026, 10, 21);
-    private static readonly DateTimeOffset Now = SchoolClock.At(Today, new TimeOnly(11, 0));
+    private static readonly DateTimeOffset Now = SchoolClock.At(Today, new TimeOnly(13, 0));
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
 
     private readonly FakeAttendanceStore _store = new(ClassId, Children);

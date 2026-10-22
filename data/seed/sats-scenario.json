@@ -1,5 +1,5 @@
 {
-  "_note": "Scripted absences for the simulated SATS feed (D-41), on top of the repeatable random ones. By roll number, every week. Fictional.",
+  "_note": "Scripted absences for the simulated SATS feed (D-69), on top of the repeatable random ones. By roll number, every week. Fictional.",
   "weekly": [
     { "rollNo": 4, "days": ["Tuesday", "Wednesday", "Thursday"] }
   ]

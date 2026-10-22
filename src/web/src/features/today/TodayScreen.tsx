@@ -7,7 +7,7 @@ import { useMe } from '../auth/useMe'
 import { AttendanceCard } from './AttendanceCard'
 import { AttendanceGrid } from './AttendanceGrid'
 import { LessonCard } from './LessonCard'
-import { formatSchoolDate, istToday } from './schoolTime'
+import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
 
@@ -25,6 +25,8 @@ export function TodayScreen() {
   const day = useAttendanceDay(classId, date)
   const save = useSaveAttendance(classId, date)
   const [editing, setEditing] = useState(false)
+  // D-68: when the copy on screen was saved (snapshot) or last fetched.
+  const savedAt = day.data ? (day.data.savedAt ?? day.dataUpdatedAt) : null
 
   function finishEdit() {
     setEditing(false)
@@ -43,7 +45,11 @@ export function TodayScreen() {
       {!online && (
         <output className="flex items-start gap-2 rounded-md border border-border border-l-4 border-l-warning bg-surface p-3">
           <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
-          <span className="text-body text-ink">{t('today.offline.banner')}</span>
+          <span className="text-body text-ink">
+            {savedAt
+              ? t('offline.showingSaved', { time: formatSchoolTime(new Date(savedAt).toISOString(), i18n.language) })
+              : t('offline.noNetwork')}
+          </span>
         </output>
       )}
 

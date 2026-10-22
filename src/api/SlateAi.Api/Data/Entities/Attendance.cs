@@ -2,7 +2,7 @@ namespace SlateAi.Api.Data.Entities;
 
 /// <summary>
 /// One row per child per school day. A date with no rows for a class is not a school day
-/// (holiday, break), so it never counts as an absence. Provenance rules: D-41, <c>RegisterMerge</c>.
+/// (holiday, break), so it never counts as an absence. Provenance rules: D-69, <c>RegisterMerge</c>.
 /// </summary>
 public sealed class Attendance
 {

@@ -58,9 +58,6 @@
   },
   "today": {
     "title": "Today, {{date}}",
-    "offline": {
-      "banner": "No network. What you save stays on the phone and sends when there is network."
-    },
     "attendance": {
       "source": {
         "sats": "Attendance · SATS (simulated), {{time}}",
@@ -68,13 +65,13 @@
       },
       "corrected": "corrected by you",
       "absentCount": "{{n}} absent",
-      "noneAbsent": "Everyone is here today",
+      "noneAbsent": "Everyone is here today.",
       "correctAction": "Wrong? Correct it",
       "satsLater": "SATS came in at {{time}}. Your marking is kept.",
       "noSchool": "No school today in SATS",
       "waiting": {
         "title": "SATS attendance has not come in yet",
-        "body": "We will check again at {{time}}. You do not need to do anything.",
+        "body": "It comes in at {{syncTime}}. If it is late, we check again at {{retryTime}}. You do not need to do anything.",
         "markHere": "Mark it here if you prefer"
       },
       "edit": {
@@ -87,7 +84,12 @@
       "grid": "Absent children",
       "tile": "{{roll}} {{name}}, {{state}}",
       "absent": "absent",
-      "present": "present"
+      "present": "present",
+      "missing": {
+        "chip": "Still missing after 2 pm",
+        "title": "Attendance didn’t come in today. Mark it here so tonight’s messages can go.",
+        "action": "Mark attendance"
+      }
     },
     "lesson": {
       "title": "Today’s lesson",
@@ -116,5 +118,9 @@
   },
   "comingSoon": {
     "body": "This screen is coming in a later update."
+  },
+  "offline": {
+    "showingSaved": "No network. Showing what was saved at {{time}}. It updates when the network returns.",
+    "noNetwork": "No network."
   }
 }

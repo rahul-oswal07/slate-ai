@@ -6,7 +6,7 @@ public static class AttendanceSources
     public const string Manual = "manual";
 }
 
-/// <summary>One child's stored attendance for a date, with where it came from (D-41).</summary>
+/// <summary>One child's stored attendance for a date, with where it came from (D-69).</summary>
 /// <param name="Present">The value everything uses (ledger, missed lessons).</param>
 /// <param name="Source">"sats" when the row came from SATS (maybe corrected), "manual" when the teacher marked it first.</param>
 /// <param name="SourcePresent">What SATS said; null until SATS has sent this date.</param>
@@ -20,7 +20,7 @@ public sealed record AttendanceRow(
     DateTimeOffset? ReceivedAt,
     DateTimeOffset? CorrectedAt);
 
-/// <summary>How SATS registers and teacher markings combine (D-41). Pure, so the rules are unit-tested.</summary>
+/// <summary>How SATS registers and teacher markings combine (D-69). Pure, so the rules are unit-tested.</summary>
 public static class RegisterMerge
 {
     /// <summary>

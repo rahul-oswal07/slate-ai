@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace SlateAi.Api.Features.Attendance.Source;
 
 /// <summary>
-/// Stand-in for the SATS feed (D-41). The same class and date always give the same register: a stable hash
+/// Stand-in for the SATS feed (D-69). The same class and date always give the same register: a stable hash
 /// per child marks about <see cref="SatsOptions.AbsenceRate"/> absent, plus the scripted weekly absences
 /// for the demo story. Labelled "SATS (simulated)" in the app.
 /// </summary>

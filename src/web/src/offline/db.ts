@@ -29,7 +29,3 @@ db.version(1).stores({
 export async function saveSnapshot(key: string, value: unknown) {
   await db.snapshots.put({ key, value, savedAt: Date.now() })
 }
-
-export async function loadSnapshot<T>(key: string): Promise<T | null> {
-  return ((await db.snapshots.get(key))?.value as T | undefined) ?? null
-}

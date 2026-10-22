@@ -31,7 +31,7 @@ export async function fakeTeacherApi(page: Page, { pin = '2468' }: { pin?: strin
   })
   // Today needs a register; tests that care about attendance replace this with fakeAttendance().
   await page.route('**/api/classes/*/attendance/*', (route) =>
-    route.fulfill({ json: attendanceDay({ status: 'waiting', receivedAt: null, recheckAt: '10:00:00', absentChildIds: [] }) }),
+    route.fulfill({ json: attendanceDay({ status: 'waiting', receivedAt: null, syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [] }) }),
   )
   await page.route('**/api/auth/logout', (route) => {
     me = null
@@ -50,10 +50,11 @@ export function attendanceDay(overrides: Record<string, unknown> = {}) {
   return {
     date,
     status: 'sats',
-    receivedAt: `${date}T09:05:00+05:30`,
+    receivedAt: `${date}T12:00:00+05:30`,
     corrected: false,
     satsDiffers: false,
-    recheckAt: null,
+    syncAt: null,
+    retryAt: null,
     absentChildIds: ['child-3', 'child-4', 'child-10'],
     children,
     ...overrides,
