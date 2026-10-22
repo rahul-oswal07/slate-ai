@@ -4,7 +4,7 @@ namespace SlateAi.Api.Tests.Ai;
 
 public sealed class PromptLibraryTests
 {
-    private static readonly string[] ModelKeys = ["Mapping", "Script", "Check"];
+    private static readonly string[] ModelKeys = ["Mapping", "Compression", "Script", "Check"];
 
     [Fact]
     public void Loads_the_header_and_the_prompt_text()

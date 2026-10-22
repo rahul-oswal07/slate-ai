@@ -37,6 +37,10 @@ Store cases in `evals/cases/*.json`; results (date, model, prompt version, score
 
 **First run** (22 Oct, prompt `a1-lesson-mapping` v1, Sonnet 5.5): **10/10** on 10 draft cases (`evals/results/2026-10-22-a1-lesson-mapping.json`). The cases were drafted by Claude and are cleaner than real speech; Monika / teachers to replace them with real transcripts and grow to 25 (T-38).
 
+**A2 case format** (`evals/cases/a2-compression.json`): `{ id, missed[], lastTaught[], best, alsoAcceptable? }` on the real curriculum graph. The eval builds the input with production's planner code (next week = the 5 lessons after `lastTaught`, candidate set from the graph) and passes a case when the result is Claude's (not the rule), every target is a candidate, and `best` or an `alsoAcceptable` lesson is among the targets (`tests/api/.../Evals/A2CompressionEvals.cs`). The results file keeps Claude's "Why this" reasons for review.
+
+**First run** (22 Oct, prompt `a2-compression` v1, Sonnet 5.5): **10/10** on 10 draft cases (`evals/results/2026-10-22-a2-compression.json`). A first attempt scored 9/10: the five-day case hit the 1024-token output limit, so the rule fallback answered; A2 now uses the default 4096. Cases drafted by Claude; Monika / a teacher to review the "best" labels and grow to 25 (include already-mastered items once check results exist, T-15).
+
 ## 3. Usability testing with representative users
 
 **Participants:** 3 government primary teachers (Grade 2–3, Kannada medium) or close proxies; 2 parents from Telugu-speaking families. Monika recruits; consent form signed; first names only in the repo.

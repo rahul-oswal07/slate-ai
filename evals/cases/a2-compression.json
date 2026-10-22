@@ -1,0 +1,15 @@
+{
+  "_note": "DRAFT cases written by Claude for T-08, to be reviewed by Monika / a teacher (quality.md asks for 25 patterns). Each case is one child's week on the real curriculum graph (data/curriculum/grade3-maths.json): missed = lessons missed this week in teaching order; lastTaught = the class's latest confirmed lesson (next week = the 5 lessons after it in the book). Code computes the candidate set; best = the target a teacher would pick first; alsoAcceptable = other targets that count. Pass = Claude's choice (not the rule), targets ⊆ candidates, and best or an acceptable one among the targets.",
+  "cases": [
+    { "id": "ravi-sub-tue-thu", "missed": ["M3.SUB.NOBORROW", "M3.SUB.CHECK", "M3.SUB.BORROW"], "lastTaught": ["M3.SUB.BORROW"], "best": "M3.SUB.BORROW" },
+    { "id": "add-week", "missed": ["M3.ADD.NOCARRY", "M3.ADD.CARRY"], "lastTaught": ["M3.ADD.CARRY"], "best": "M3.ADD.CARRY", "alsoAcceptable": ["M3.ADD.NOCARRY"] },
+    { "id": "one-day-hto", "missed": ["M3.PV.HTO"], "lastTaught": ["M3.PV.HTO"], "best": "M3.PV.HTO" },
+    { "id": "expand-and-face", "missed": ["M3.PV.EXPAND", "M3.PV.FACE"], "lastTaught": ["M3.PV.FACE"], "best": "M3.PV.EXPAND" },
+    { "id": "five-days-place-value", "missed": ["M3.PV.HTO", "M3.PV.EXPAND", "M3.PV.FACE", "M3.PV.4D", "M3.NUM.COMPARE"], "lastTaught": ["M3.NUM.COMPARE"], "best": "M3.PV.HTO", "alsoAcceptable": ["M3.PV.EXPAND"] },
+    { "id": "hto-and-noborrow", "missed": ["M3.PV.HTO", "M3.SUB.NOBORROW"], "lastTaught": ["M3.SUB.NOBORROW"], "best": "M3.SUB.NOBORROW" },
+    { "id": "check-and-borrow", "missed": ["M3.SUB.CHECK", "M3.SUB.BORROW"], "lastTaught": ["M3.SUB.BORROW"], "best": "M3.SUB.BORROW" },
+    { "id": "expand-nocarry-noborrow", "missed": ["M3.PV.EXPAND", "M3.ADD.NOCARRY", "M3.SUB.NOBORROW"], "lastTaught": ["M3.SUB.NOBORROW"], "best": "M3.SUB.NOBORROW", "alsoAcceptable": ["M3.PV.EXPAND"] },
+    { "id": "pv-and-adding", "missed": ["M3.PV.HTO", "M3.PV.EXPAND", "M3.ADD.NOCARRY"], "lastTaught": ["M3.ADD.NOCARRY"], "best": "M3.ADD.NOCARRY", "alsoAcceptable": ["M3.PV.EXPAND"] },
+    { "id": "sub-two-days", "missed": ["M3.SUB.NOBORROW", "M3.SUB.BORROW"], "lastTaught": ["M3.SUB.BORROW"], "best": "M3.SUB.BORROW" }
+  ]
+}
