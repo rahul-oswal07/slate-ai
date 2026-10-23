@@ -8,6 +8,9 @@ public static class SchoolClock
 
     public static DateOnly Today(TimeProvider clock) => DateOnly.FromDateTime(clock.GetUtcNow().ToOffset(Ist).DateTime);
 
+    /// <summary>The school day (IST) an instant falls on.</summary>
+    public static DateOnly DateOf(DateTimeOffset instant) => DateOnly.FromDateTime(instant.ToOffset(Ist).DateTime);
+
     /// <summary>The instant <paramref name="time"/> IST on <paramref name="date"/>.</summary>
     public static DateTimeOffset At(DateOnly date, TimeOnly time) => new(date.ToDateTime(time), Ist);
 }

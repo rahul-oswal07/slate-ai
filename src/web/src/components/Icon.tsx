@@ -139,6 +139,23 @@ const paths = {
     <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
   ),
   messageCircle: <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />,
+  calendarX: (
+    <>
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M16 2v4" />
+      <path d="M8 2v4" />
+      <path d="M3 10h18" />
+      <path d="m14 14-4 4" />
+      <path d="m10 14 4 4" />
+    </>
+  ),
+  smartphoneOff: (
+    <>
+      <path d="M8 2h8a2 2 0 0 1 2 2v9" />
+      <path d="M18 18v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6" />
+      <path d="m2 2 20 20" />
+    </>
+  ),
 } as const
 
 export type IconName = keyof typeof paths
