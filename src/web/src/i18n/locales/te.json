@@ -180,9 +180,6 @@
     "week": "వారం",
     "approveWaiting": ", {{n}} waiting"
   },
-  "comingSoon": {
-    "body": "ఈ స్క్రీన్ తదుపరి అప్‌డేట్‌లో వస్తుంది."
-  },
   "offline": {
     "showingSaved": "నెట్‌వర్క్ లేదు. {{time}}కి సేవ్ చేసినది చూపిస్తున్నాం. నెట్‌వర్క్ వచ్చినప్పుడు అప్‌డేట్ అవుతుంది.",
     "noNetwork": "నెట్‌వర్క్ లేదు."
@@ -517,5 +514,40 @@
     "prev": "Previous card",
     "print": "Print or share card",
     "nextCard": "Next card"
+  },
+  "week": {
+    "title": "This week",
+    "returnTitle": "How quickly children came back",
+    "headline": "{{within}} of {{total}}",
+    "sentence": "absent children were back within 2 school days. Last week: {{lastWithin}} of {{lastTotal}}.",
+    "sentenceLastNone": "absent children were back within 2 school days. Last week: no absences.",
+    "daysAway": "Days away",
+    "bucket1": "1 day",
+    "bucket2": "2 days",
+    "bucket3": "3 days",
+    "bucket4": "4+ days",
+    "thisWeek": "this week",
+    "lastWeek": "last week",
+    "tableCaption": "Absent children by days away",
+    "empty": "No absences this week.",
+    "reasonsTitle": "Reasons (from parents)",
+    "notGiven": "Not given",
+    "private": "Only for you. Not sent to anyone.",
+    "nudgeTitle": "Before next week",
+    "nudge": "{{n}} of {{total}} children missed {{lesson}}. Recap {{minutes}} minutes before {{next}}.",
+    "nudgeNoNext": "{{n}} of {{total}} children missed {{lesson}}. Recap {{minutes}} minutes next week.",
+    "plan": "Plan recap",
+    "skip": "Not this week",
+    "planned": "We’ll remind you on Today next week.",
+    "skipped": "OK. Skipped this week.",
+    "change": "Change",
+    "onTrack": "Most children are on track. No recap needed this week.",
+    "footer": "Numbers are counted from attendance.",
+    "offline": "No network. Showing the saved week (today {{time}}).",
+    "loadFailed": "Could not load the week. Nothing was lost. Try again.",
+    "saveFailed": "Could not save. Nothing changed. Check the network and try again.",
+    "recapTitle": "Recap planned this week",
+    "recapBody": "{{lesson}}: 10 minutes before {{next}}.",
+    "recapBodyNoNext": "{{lesson}}: 10 minutes this week."
   }
 }

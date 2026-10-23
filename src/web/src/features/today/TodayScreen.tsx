@@ -15,6 +15,7 @@ import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
 import { TonightCard } from './TonightCard'
+import { RecapCard } from '../week/RecapCard'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
 
 /**
@@ -64,6 +65,8 @@ export function TodayScreen() {
           {t('today.done')}
         </output>
       )}
+
+      <RecapCard classId={classId} date={date} chapters={chapters} />
 
       {!online && (
         <output className="flex items-start gap-2 rounded-md border border-border border-l-4 border-l-warning bg-surface p-3">

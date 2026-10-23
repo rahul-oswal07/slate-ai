@@ -21,6 +21,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<CheckResponse> CheckResponses => Set<CheckResponse>();
     public DbSet<AbsenceReason> AbsenceReasons => Set<AbsenceReason>();
     public DbSet<BuddyCard> BuddyCards => Set<BuddyCard>();
+    public DbSet<PacingDecision> PacingDecisions => Set<PacingDecision>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -160,6 +161,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<Child>().WithMany().HasForeignKey(c => c.ChildId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(c => new { c.ChildId, c.Date }).IsUnique(); // one card per child per return day
             e.HasIndex(c => new { c.ClassId, c.Date });
+        });
+
+        modelBuilder.Entity<PacingDecision>(e =>
+        {
+            e.Property(d => d.Decision).HasMaxLength(10);
+            e.HasOne<Class>().WithMany().HasForeignKey(d => d.ClassId);
+            e.HasOne<Lesson>().WithMany().HasForeignKey(d => d.LessonId);
+            e.HasIndex(d => new { d.ClassId, d.WeekOf }).IsUnique(); // one decision per class per week
         });
 
         modelBuilder.Entity<AudioClip>(e =>

@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261023073645_BuddyCards` (T-16) |
+| Last migration | `20261023082251_PacingDecisions` (T-46) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -28,6 +28,8 @@ erDiagram
     CatchUpAssignments ||--o| CheckResponses : "answered with"
     Children ||--o{ AbsenceReasons : "one per absent day"
     Children ||--o{ BuddyCards : "ticks per return day"
+    Classes ||--o{ PacingDecisions : "one per week"
+    Lessons ||--o{ PacingDecisions : "the nudge's lesson"
 
     Teachers {
         uuid Id PK
@@ -185,6 +187,15 @@ erDiagram
         timestamptz DoneAt "nullable"
         timestamptz UpdatedAt
     }
+    PacingDecisions {
+        uuid Id PK
+        uuid ClassId FK "unique with WeekOf"
+        date WeekOf
+        uuid LessonId FK
+        varchar10 Decision "recap, skip"
+        timestamptz DecidedAt
+        timestamptz UpdatedAt
+    }
     CheckResponses {
         uuid AssignmentId PK,FK
         int ChoiceId
@@ -236,6 +247,8 @@ erDiagram
 
 **`BuddyCards`** — the teacher's two ticks on a return-day buddy card (T5, FR-12, D-22, T-16): `HomeworkReturnedAt` ("Brought homework") and `DoneAt` ("Buddy time done"; Undo clears it). Unique `(ChildId, Date)`; rows appear on the first tap. The card itself is not stored: the buddy (D-59), the 3 sums (code, guardrail 4), the textbook key words and the page are computed by `BuddyCardBuilder` from attendance, confirmed lessons, catch-up targets and the curriculum, so a register correction changes the card. Replays are caught by `ProcessedRequests` (endpoint `buddy-card`). FKs `ChildId` (cascade, FR-15), `ClassId`.
 
+**`PacingDecisions`** — the teacher's answer to a week's pacing nudge (T6, FR-13, T-46): `recap` or `skip` for the nudge's `LessonId`; unique `(ClassId, WeekOf)`, Change replaces it (advisory lock `pacing:{classId}:{week}`, replays via `ProcessedRequests`, endpoint `pacing-decision`). The nudge itself is computed from attendance each time; a stored decision shows only while it still names the nudge's lesson. A `recap` shows a reminder card on Today all the following week. FKs `ClassId` (cascade), `LessonId`.
+
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
 
 **`AiCalls`** — one row per Claude or Sarvam call, successful or not, written by `Ai/LoggedLlmClient` and `Speech/LoggedSpeechToText` (CLAUDE.md: every call is logged). `Purpose` is the prompt ID (e.g. `a1-lesson-mapping`) with its `PromptVersion`, or `stt`. The caller sets `Verdict` after validating the output (e.g. `valid`, `fallback:low-confidence`); `Error` holds the failure kind (`Refused`, `Truncated`, `Unavailable`, `NotConfigured`, `Rejected`). **Never stores prompt text, transcripts or names.** No FKs: it is an audit log that outlives the rows it describes. Index on `CreatedAt` for the "Under the hood" panel (T-18) and cost totals.
@@ -258,6 +271,7 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: T
 | Two catch-up generates for the same week | `pg_advisory_xact_lock(hashtextextended('catchups:{classId}:{week}', 0))` + unique `(ClassId, WeekOf, Language, TargetKey)` and `(ChildId, WeekOf)` | `Features/CatchUps/CatchUpStore.cs` |
 | Two picture answers racing (a retry while the first is in flight) | `pg_advisory_xact_lock(hashtextextended('answer:{assignmentId}', 0))` + primary key `AssignmentId` | `Features/Parent/ParentStore.cs` |
 | A reason tap racing its retry, or a late replay after a newer tap | `pg_advisory_xact_lock(hashtextextended('reason:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Parent/ParentStore.cs` |
+| Two pacing decisions for the same week racing | `pg_advisory_xact_lock(hashtextextended('pacing:{classId}:{week}', 0))` + `ProcessedRequests` + unique `(ClassId, WeekOf)` | `Features/Week/WeekStore.cs` |
 | Two taps on the same buddy card racing | `pg_advisory_xact_lock(hashtextextended('buddy:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Buddy/BuddyStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
 
@@ -269,7 +283,7 @@ All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api
 
 - **Missed lessons**: lessons whose `Date` is a day the child has `Present = false`.
 - **Absence spells**: runs of consecutive absent *school days* (dates with a register), with the day the child came back.
-- **Return speed** (mentor review, D-20/D-24 pending): spells that started in the 7 days up to the latest school day, bucketed 1 / 2 / 3 / 4+ days, and how many were back within 2 school days.
+- **Return speed** (D-20/D-24): a **spell** is consecutive absent school days (a holiday with no register neither breaks nor lengthens it); it **belongs to the school week (Mon–Sat) it started in**; a child still away counts in the total by the days so far and is never "back within 2 school days" until they return; "back within 2" = returned and length ≤ 2 (Rahul, 23 Oct). Buckets 1 / 2 / 3 / 4+ days and the headline come from the same list of spells, so they always reconcile (B-09). The ledger's `returnSpeed` field keeps a rolling 7-day window; T6 uses `GET /api/classes/{id}/week/{date}` (`Features/Week/WeekBuilder.cs`), which also counts reasons (one per child absent that week: latest, else "not given") and the pacing nudge (the confirmed lesson with the most children absent that day, if ≥ 5, D-60).
 
 A missed lesson's `status` is **learning only** (B-08, T-13), from the child's catch-up for that week (the assignment whose `MissedCompetencyIds` include one of the lesson's competencies): `caughtUp` / `needsBuddy` from `CheckResponses` once answered (FR-11), else `sent` when the link went out, else `missed`. The family's **`channel`** is a separate per-child field: `stopped` (`Children.ParentStoppedAt`, FR-19), else `noPhone` / `noConsent` from `Consent`, else null. The ledger also returns this school week (`weekOf`, Monday to today IST): the week's confirmed lessons, `daysAwayThisWeek` and a per-child `history` (away with the lessons, reason from `AbsenceReasons`, catch-up sent with its language, picture answer, stop), all in `LedgerBuilder`. Nothing is stored for the ledger itself, so it can't drift from attendance.
 

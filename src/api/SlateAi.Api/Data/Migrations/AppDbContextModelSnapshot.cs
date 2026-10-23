@@ -678,6 +678,42 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("MessageTemplates");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.PacingDecision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("WeekOf")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId");
+
+                    b.HasIndex("ClassId", "WeekOf")
+                        .IsUnique();
+
+                    b.ToTable("PacingDecisions");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.ProcessedRequest", b =>
                 {
                     b.Property<Guid>("ClientRequestId")
@@ -896,6 +932,21 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasOne("SlateAi.Api.Data.Entities.Class", null)
                         .WithMany()
                         .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.PacingDecision", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Lesson", null)
+                        .WithMany()
+                        .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
