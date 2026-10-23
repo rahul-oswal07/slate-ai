@@ -19,6 +19,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<CatchUpAssignment> CatchUpAssignments => Set<CatchUpAssignment>();
     public DbSet<AudioClip> AudioClips => Set<AudioClip>();
     public DbSet<CheckResponse> CheckResponses => Set<CheckResponse>();
+    public DbSet<AbsenceReason> AbsenceReasons => Set<AbsenceReason>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -141,6 +142,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(r => r.Outcome).HasMaxLength(20);
             e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<CheckResponse>(r => r.AssignmentId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AbsenceReason>(e =>
+        {
+            e.Property(r => r.Category).HasMaxLength(20);
+            e.HasOne<Class>().WithMany().HasForeignKey(r => r.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(r => r.ChildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(r => new { r.ChildId, r.Date }).IsUnique(); // one reason per absent day
+            e.HasIndex(r => new { r.ClassId, r.Date }); // T6 counts per week
         });
 
         modelBuilder.Entity<AudioClip>(e =>

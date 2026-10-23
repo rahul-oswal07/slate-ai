@@ -78,13 +78,13 @@ export function AnswerStep({ token, page, onSent }: { token: string; page: Paren
         })}
       </ul>
 
-      {answer.isError && (
-        <p role="alert" className="border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
-          {t('parent.answer.failed')}
-        </p>
-      )}
-
       <div className="sticky bottom-0 -mx-4 flex flex-col gap-1 border-t border-divider bg-canvas px-4 py-3">
+        {/* In the sticky footer, so the failure is never hidden behind it under tall picture tiles. */}
+        {answer.isError && (
+          <p role="alert" className="mb-2 border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
+            {t('parent.answer.failed')}
+          </p>
+        )}
         {chosen === null ? (
           <p className="text-center text-caption text-ink-muted">{t('parent.answer.hintTap')}</p>
         ) : (

@@ -7,12 +7,15 @@ namespace SlateAi.Api.Tests.Features.Parent;
 public sealed class FakeParentStore : IParentStore
 {
     private readonly Lock _gate = new();
+    private readonly HashSet<Guid> _processed = [];
 
     /// <summary>Catch-up links by token. <c>Stopped</c> and <c>Answered</c> are taken from this store's state.</summary>
     public Dictionary<string, ParentCatchUpRecord> CatchUps { get; } = [];
 
-    /// <summary>Evening-message links by token → child.</summary>
-    public Dictionary<string, Guid> EveningTokens { get; } = [];
+    /// <summary>Evening-message links by token. <c>Stopped</c> and <c>Reason</c> are taken from this store's state.</summary>
+    public Dictionary<string, EveningLink> EveningLinks { get; } = [];
+
+    public List<AbsenceReason> Reasons { get; } = [];
 
     public Dictionary<Guid, DateTimeOffset> Stopped { get; } = [];
 
@@ -37,7 +40,7 @@ public sealed class FakeParentStore : IParentStore
         lock (_gate)
         {
             return Task.FromResult(CatchUps.TryGetValue(token, out var record) ? record.ChildId
-                : EveningTokens.TryGetValue(token, out var child) ? child
+                : EveningLinks.TryGetValue(token, out var link) ? link.ChildId
                 : (Guid?)null);
         }
     }
@@ -53,6 +56,44 @@ public sealed class FakeParentStore : IParentStore
 
             Answers.Add(response);
             return Task.FromResult(true);
+        }
+    }
+
+    public Task<EveningLink?> FindEveningAsync(string token, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            return Task.FromResult(EveningLinks.TryGetValue(token, out var link)
+                ? link with
+                {
+                    Stopped = Stopped.ContainsKey(link.ChildId),
+                    Reason = Reasons.SingleOrDefault(r => r.ChildId == link.ChildId && r.Date == link.Date)?.Category,
+                }
+                : null);
+        }
+    }
+
+    public Task SaveReasonAsync(AbsenceReason reason, Guid clientRequestId, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (!_processed.Add(clientRequestId))
+            {
+                return Task.CompletedTask;
+            }
+
+            var stored = Reasons.SingleOrDefault(r => r.ChildId == reason.ChildId && r.Date == reason.Date);
+            if (stored is null)
+            {
+                Reasons.Add(reason);
+            }
+            else
+            {
+                stored.Category = reason.Category;
+                stored.UpdatedAt = reason.UpdatedAt;
+            }
+
+            return Task.CompletedTask;
         }
     }
 

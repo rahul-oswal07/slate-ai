@@ -385,7 +385,32 @@
       "sending": "పంపుతోంది",
       "sent": "పంపాము",
       "stopped": "సందేశాలు ఆపేశాం",
-      "restarted": "మళ్ళీ మొదలైంది"
+      "restarted": "మళ్ళీ మొదలైంది",
+      "reasonSent": "పంపాము. ధన్యవాదాలు."
+    },
+    "reason": {
+      "entry": "అంతా బాగుందా? చెప్పండి",
+      "given": "Thank you for telling us.",
+      "change": "Change",
+      "title": "{{teacher}} టీచర్",
+      "question": "ఈ రోజు మేము {{child}}ని గుర్తు చేసుకున్నాం. అంతా బాగుందా?",
+      "options": "కారణం",
+      "category": {
+        "unwell": "ఒంట్లో బాగాలేదు",
+        "travelOrWork": "కుటుంబ ప్రయాణం లేదా పని",
+        "festival": "పండుగ లేదా శుభకార్యం",
+        "neededAtHome": "ఇంట్లో అవసరం",
+        "other": "ఇంకేదైనా"
+      },
+      "hint": "ఒక బొమ్మను నొక్కండి",
+      "send": "పంపండి",
+      "sending": "పంపుతోంది…",
+      "skip": "వద్దు, వదిలేయండి",
+      "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
+      "retry": "మళ్ళీ ప్రయత్నించండి",
+      "thanks": "ధన్యవాదాలు",
+      "private": "ఇది {{teacher}} టీచర్‌కు మాత్రమే కనిపిస్తుంది.",
+      "ok": "సరే"
     }
   }
 }

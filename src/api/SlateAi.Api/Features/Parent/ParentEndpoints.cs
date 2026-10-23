@@ -7,8 +7,8 @@ using SlateAi.Api.Features.EveningMessages;
 namespace SlateAi.Api.Features.Parent;
 
 /// <summary>
-/// The family's side (P1–P4, FR-10, FR-11, FR-19): the page behind a link token, the picture answer and stop /
-/// restart. No sign-in: the 128-bit token is the key. Nothing here calls an LLM; a lesson is shown only from a
+/// The family's side (P1–P4, FR-10, FR-11, FR-19, FR-21): the page behind a link token, the picture answer, the
+/// reason for absence and stop / restart. No sign-in: the 128-bit token is the key. Nothing here calls an LLM; a lesson is shown only from a
 /// catch-up she approved (guardrail 3).
 /// </summary>
 public static class ParentEndpoints
@@ -38,6 +38,14 @@ public static class ParentEndpoints
                 "correct → caught up, wrong → needs buddy, on the teacher's ledger. The first answer counts (D-62): " +
                 "later answers and replays return 200 and change nothing. The response never says right or wrong. " +
                 "409 when the family stopped messages, the link expired or the catch-up isn't approved.");
+
+        group.MapPost("/reason", ReasonAsync)
+            .WithSummary("Why the child was away, from the evening message (FR-21, D-23)")
+            .WithDescription(
+                "Evening-message links only (a reason belongs to one absent day); 404 for a catch-up link. One of " +
+                "unwell, travelOrWork, festival, neededAtHome, other; anything else is 400. Category only. A later " +
+                "tap replaces it; replaying the same clientRequestId changes nothing. 409 once the link expired or " +
+                "the family stopped messages. Skipping sends nothing.");
 
         group.MapPost("/stop", StopAsync)
             .WithSummary("Stop these messages (FR-19, D-19)")
@@ -98,9 +106,10 @@ public static class ParentEndpoints
         }
 
         var text = EveningSlots.Render(message.TemplateText, message.ChildName, message.Slots).Text;
+        var reason = (await parents.FindEveningAsync(token, cancellationToken))?.Reason;
         return TypedResults.Ok(new ParentEveningResponse(
             message.Date, message.Language, message.ChildName, message.TeacherName, text, message.GreetingAudioUrl,
-            message.SentAt, message.Stopped));
+            message.SentAt, message.Stopped, reason));
     }
 
     private static async Task<Results<FileContentHttpResult, NotFound>> GetAudioAsync(
@@ -183,6 +192,49 @@ public static class ParentEndpoints
         }
 
         return TypedResults.Ok(new AnswerResponse(true));
+    }
+
+    private static async Task<Results<Ok<ReasonResponse>, Conflict, NotFound, ValidationProblem>> ReasonAsync(
+        string token,
+        ReasonRequest request,
+        IParentStore parents,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        if (request.ClientRequestId == Guid.Empty || !ReasonCategory.All.Contains(request.Category ?? ""))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                [request.ClientRequestId == Guid.Empty ? "clientRequestId" : "category"] =
+                    [request.ClientRequestId == Guid.Empty ? "Required." : $"Must be one of {string.Join(", ", ReasonCategory.All)}."],
+            });
+        }
+
+        if (!LooksLikeToken(token) || await parents.FindEveningAsync(token, cancellationToken) is not { } link)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var now = clock.GetUtcNow();
+        if (now >= link.ExpiresAt || link.Stopped)
+        {
+            return TypedResults.Conflict();
+        }
+
+        await parents.SaveReasonAsync(
+            new AbsenceReason
+            {
+                Id = Guid.NewGuid(),
+                ClassId = link.ClassId,
+                ChildId = link.ChildId,
+                Date = link.Date,
+                Category = request.Category!,
+                CreatedAt = now,
+                UpdatedAt = now,
+            },
+            request.ClientRequestId,
+            cancellationToken);
+        return TypedResults.Ok(new ReasonResponse(request.Category!));
     }
 
     private static Task<Results<Ok<StopResponse>, NotFound, ValidationProblem>> StopAsync(

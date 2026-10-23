@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Audio;
@@ -25,7 +26,10 @@ public sealed class ParentEndpointTests
 
     private readonly MovableClock _clock = new() { Now = SchoolClock.At(Friday, new TimeOnly(19, 0)) };
     private readonly FakeParentStore _parents = new();
+    private static readonly Guid ClassId = Guid.NewGuid();
+    private static readonly Guid TemplateId = Guid.NewGuid();
     private readonly FakeAudioStore _audio = new();
+    private readonly FakeEveningStore _evening = new(ClassId, Guid.NewGuid());
     private readonly Guid _assignmentId = Guid.NewGuid();
     private readonly Guid _script;
     private readonly Guid _disclosure;
@@ -39,7 +43,11 @@ public sealed class ParentEndpointTests
         _disclosure = _audio.SaveSharedAsync(AudioKind.Disclosure, "te", "hash", silence, Ct).GetAwaiter().GetResult().Id;
         _otherScript = _audio.ReplaceScriptAsync(Guid.NewGuid(), "te", silence, Ct).GetAwaiter().GetResult().Id;
         _parents.CatchUps[Token] = Record();
-        _parents.EveningTokens[EveningToken] = Ravi;
+        _parents.EveningLinks[EveningToken] = new EveningLink(Ravi, ClassId, Friday, _clock.Now.AddDays(14), false, null);
+        _evening.Children.Add(new EveningChild(Ravi, 4, "Ravi", "te", "yes", false));
+        _evening.Templates.Add(new TemplateRecord(TemplateId, "te", "2", "ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం.", "", "", "approved", _clock.Now));
+        _evening.Messages.Add((Friday, new NewEveningMessage(
+            Ravi, TemplateId, Guid.NewGuid(), "te", new SlotValues("", ""), EveningToken, _clock.Now, _clock.Now.AddDays(14))));
     }
 
     [Fact]
@@ -266,6 +274,109 @@ public sealed class ParentEndpointTests
         Assert.Equal(HttpStatusCode.BadRequest, noRequestId.StatusCode);
     }
 
+    [Theory]
+    [InlineData(ReasonCategory.Unwell)]
+    [InlineData(ReasonCategory.TravelOrWork)]
+    [InlineData(ReasonCategory.Festival)]
+    [InlineData(ReasonCategory.NeededAtHome)]
+    [InlineData(ReasonCategory.Other)]
+    public async Task Reason_is_stored_as_a_category_for_that_child_and_day(string category)
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var response = await client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", new ReasonRequest(category, Guid.NewGuid()), Ct);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal($"{{\"category\":\"{category}\"}}", await response.Content.ReadAsStringAsync(Ct));
+        var stored = Assert.Single(_parents.Reasons);
+        Assert.Equal((Ravi, ClassId, Friday, category), (stored.ChildId, stored.ClassId, stored.Date, stored.Category));
+    }
+
+    [Theory]
+    [InlineData("fever")]
+    [InlineData("Unwell")]
+    [InlineData("")]
+    public async Task Reason_outside_the_five_pictures_is_400_and_nothing_is_stored(string category)
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var response = await client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", new ReasonRequest(category, Guid.NewGuid()), Ct);
+        var noRequestId = await client.PostAsJsonAsync(
+            $"/api/p/{EveningToken}/reason", new ReasonRequest(ReasonCategory.Other, Guid.Empty), Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, noRequestId.StatusCode);
+        Assert.Empty(_parents.Reasons);
+    }
+
+    [Fact]
+    public async Task Reason_belongs_to_an_evening_link_not_a_catch_up()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var catchUp = await client.PostAsJsonAsync($"/api/p/{Token}/reason", new ReasonRequest(ReasonCategory.Other, Guid.NewGuid()), Ct);
+        var unknown = await client.PostAsJsonAsync(
+            "/api/p/AAAAAAAAAAAAAAAAAAAAAA/reason", new ReasonRequest(ReasonCategory.Other, Guid.NewGuid()), Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, catchUp.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+        Assert.Empty(_parents.Reasons);
+    }
+
+    [Fact]
+    public async Task Reason_is_refused_once_expired_or_stopped()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+        Task<HttpResponseMessage> Send() =>
+            client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", new ReasonRequest(ReasonCategory.Unwell, Guid.NewGuid()), Ct);
+
+        _parents.Stopped[Ravi] = _clock.Now;
+        var stopped = await Send();
+        _parents.Stopped.Clear();
+        _clock.Now = _clock.Now.AddDays(15);
+        var expired = await Send();
+
+        Assert.Equal(HttpStatusCode.Conflict, stopped.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, expired.StatusCode);
+        Assert.Empty(_parents.Reasons);
+    }
+
+    [Fact]
+    public async Task A_later_tap_replaces_the_reason_and_a_replay_changes_nothing()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+        var first = new ReasonRequest(ReasonCategory.Unwell, Guid.NewGuid());
+
+        await client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", first, Ct);
+        await client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", new ReasonRequest(ReasonCategory.Festival, Guid.NewGuid()), Ct);
+        var replay = await client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", first, Ct);
+
+        Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+        Assert.Equal(ReasonCategory.Festival, Assert.Single(_parents.Reasons).Category);
+    }
+
+    [Fact]
+    public async Task Evening_link_shows_the_reason_already_given()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var before = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+        await client.PostAsJsonAsync($"/api/p/{EveningToken}/reason", new ReasonRequest(ReasonCategory.NeededAtHome, Guid.NewGuid()), Ct);
+        var raw = await client.GetStringAsync($"/api/p/{EveningToken}", Ct);
+        var after = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+
+        Assert.Null(before.Reason);
+        Assert.Equal(ReasonCategory.NeededAtHome, after.Reason);
+        Assert.Contains("\"kind\":\"evening\"", raw);
+        Assert.Equal("ఈ రోజు మేము Raviని గుర్తు చేసుకున్నాం.", after.Text);
+    }
+
     private ParentCatchUpRecord Record() => new(
         _assignmentId,
         Ravi,
@@ -294,7 +405,8 @@ public sealed class ParentEndpointTests
         FakeApi.Create(services =>
         {
             services.AddSingleton<IParentStore>(_parents);
-            services.AddSingleton<IEveningStore>(new FakeEveningStore(Guid.NewGuid(), Guid.NewGuid()));
+            services.AddSingleton<IEveningStore>(_evening);
+            services.AddSingleton<ILlmClient>(new ThrowingLlmClient()); // no AI anywhere on the family's side
             services.AddSingleton<IAudioStore>(_audio);
             services.AddSingleton(A3ValidatorTests.Book);
             services.AddSingleton<TimeProvider>(_clock);

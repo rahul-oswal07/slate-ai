@@ -337,10 +337,4 @@ public sealed class EveningEndpointTests
             Guid classId, DateOnly date, IReadOnlyList<RosterChild> roster, CancellationToken cancellationToken) =>
             Task.FromResult<SourceResult>(new SourceResult.NotYet());
     }
-
-    private sealed class ThrowingLlmClient : ILlmClient
-    {
-        public Task<LlmResponse> CompleteJsonAsync(LlmRequest request, CancellationToken cancellationToken) =>
-            throw new InvalidOperationException("The evening message must not call an LLM (FR-20, guardrail 3).");
-    }
 }
