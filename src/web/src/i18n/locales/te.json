@@ -296,5 +296,96 @@
       "regenStarted": "Writing a new version",
       "regenReady": "New version ready. Check it again."
     }
+  },
+  "parent": {
+    "title": "{{child}} కోసం పాఠం",
+    "from": "{{teacher}} టీచర్ నుండి",
+    "aiLabel": "AI సహాయంతో · {{teacher}} టీచర్ ఆమోదించారు",
+    "steps": "4 లో {{n}}వ అడుగు",
+    "back": "వెనక్కి",
+    "next": "తరువాత",
+    "loading": "వస్తోంది…",
+    "notFound": "This link doesn’t work. Ask the teacher to send it again.",
+    "offline": "No network. Nothing was lost. Connect to the internet and try again.",
+    "retry": "మళ్ళీ ప్రయత్నించండి",
+    "listen": {
+      "listen": "వినండి",
+      "loading": "వస్తోంది…",
+      "pause": "ఆపు",
+      "resume": "కొనసాగించు",
+      "again": "మళ్ళీ వినండి",
+      "error": "Could not play the lesson. Check the network and tap Resume.",
+      "parts": "Parts of the lesson",
+      "seg": {
+        "greeting": "టీచర్ శుభాకాంక్ష",
+        "disclosure": "కంప్యూటర్ గొంతు",
+        "script": "పాఠం"
+      },
+      "readWords": "రాసినది చూడండి",
+      "greetingLine": "టీచర్ (తన గొంతులో): “నమస్కారం, నేను {{teacher}} టీచర్.”",
+      "keyWords": "Kannada words"
+    },
+    "sticks": {
+      "hundreds_one": "{{count}} bundle of a hundred",
+      "hundreds_other": "{{count}} bundles of a hundred",
+      "tens_one": "{{count}} bundle of ten",
+      "tens_other": "{{count}} bundles of ten",
+      "ones_one": "{{count}} loose stick",
+      "ones_other": "{{count}} loose sticks",
+      "none": "No sticks"
+    },
+    "activity": {
+      "title": "ఇంట్లో చేసే ఆట",
+      "next": "తరువాత: ప్రశ్న",
+      "homeworkTitle": "ఇంటి పని: పేజీ {{page}}",
+      "homeworkBody": "పాఠ్యపుస్తకం భాగం {{part}} · బడికి వచ్చినప్పుడు {{teacher}} టీచర్‌కు చూపించు.",
+      "homeworkBodyNoPart": "Textbook · show {{teacher}} teacher when you come back."
+    },
+    "answer": {
+      "title": "ప్రశ్న",
+      "prompt": "{{child}}, సరైన బొమ్మను నొక్కు",
+      "options": "జవాబులు",
+      "hintTap": "ఒక బొమ్మను నొక్కు",
+      "send": "ఇదే, పంపు",
+      "hintChange": "మార్చాలంటే వేరే బొమ్మను నొక్కు",
+      "sending": "పంపుతోంది…",
+      "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
+      "retry": "మళ్ళీ ప్రయత్నించండి"
+    },
+    "done": {
+      "title": "{{teacher}} టీచర్",
+      "wellDone": "బాగుంది {{child}}",
+      "teacherSees": "{{teacher}} టీచర్ ఇది చూస్తారు.",
+      "bringPage": "పేజీ {{page}} బడికి తీసుకురా.",
+      "finish": "అయిపోయింది",
+      "closeHint": "You can close this page now."
+    },
+    "stop": {
+      "link": "ఈ సందేశాలు ఆపండి",
+      "title": "{{child}} కోసం సందేశాలు ఆపాలా?",
+      "body": "ఇక సందేశాలు రావు. ఎప్పుడైనా మళ్ళీ మొదలుపెట్టవచ్చు.",
+      "confirm": "సందేశాలు ఆపండి",
+      "cancel": "వద్దు, వస్తూ ఉండనీ",
+      "failed": "Could not stop the messages. Check the network and try again.",
+      "doneTitle": "సందేశాలు ఆపేశాం",
+      "doneBody": "When {{child}} comes back, the teacher will help as usual.",
+      "restart": "మళ్ళీ మొదలుపెట్టండి",
+      "restartFailed": "Could not start the messages. Check the network and try again."
+    },
+    "expired": {
+      "title": "ఈ లింక్ పాతది",
+      "body": "{{teacher}} టీచర్ కొత్తది పంపుతారు. మీరు ఏమీ చేయనక్కర్లేదు."
+    },
+    "evening": {
+      "title": "Message from {{teacher}} teacher"
+    },
+    "announce": {
+      "playing": "వినిపిస్తోంది",
+      "paused": "ఆపారు",
+      "sending": "పంపుతోంది",
+      "sent": "పంపాము",
+      "stopped": "సందేశాలు ఆపేశాం",
+      "restarted": "మళ్ళీ మొదలైంది"
+    }
   }
 }

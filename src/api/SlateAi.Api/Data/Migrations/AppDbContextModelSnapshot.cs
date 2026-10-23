@@ -341,6 +341,33 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("CatchUpPackages");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CheckResponse", b =>
+                {
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AnsweredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ChoiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ClientRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Correct")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("AssignmentId");
+
+                    b.ToTable("CheckResponses");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Child", b =>
                 {
                     b.Property<Guid>("Id")
@@ -693,6 +720,15 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasOne("SlateAi.Api.Data.Entities.Class", null)
                         .WithMany()
                         .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CheckResponse", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.CatchUpAssignment", null)
+                        .WithOne()
+                        .HasForeignKey("SlateAi.Api.Data.Entities.CheckResponse", "AssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -9,6 +9,8 @@ using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Attendance.Source;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Tests.Features.Attendance;
+using SlateAi.Api.Features.Parent;
+using SlateAi.Api.Tests.Features.Parent;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.EveningMessages;
@@ -312,6 +314,7 @@ public sealed class EveningEndpointTests
             services =>
             {
                 services.AddSingleton<IEveningStore>(_store);
+                services.AddSingleton<IParentStore>(new FakeParentStore());
                 services.AddSingleton<IAttendanceStore>(_attendance);
                 services.AddSingleton<IAttendanceSource>(new NotYetSource());
                 services.AddSingleton(Book);

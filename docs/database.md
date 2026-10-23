@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261023042029_CatchUpApproval` (T-14) |
+| Last migration | `20261023045931_CheckResponses` (T-15) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -25,6 +25,7 @@ erDiagram
     CatchUpPackages ||--o{ CatchUpAssignments : "for"
     Children ||--o{ CatchUpAssignments : "one per week"
     CatchUpPackages ||--o{ AudioClips : "script audio"
+    CatchUpAssignments ||--o| CheckResponses : "answered with"
 
     Teachers {
         uuid Id PK
@@ -164,6 +165,14 @@ erDiagram
         timestamptz ExpiresAt "nullable"
         timestamptz CreatedAt
     }
+    CheckResponses {
+        uuid AssignmentId PK,FK
+        int ChoiceId
+        bool Correct
+        varchar20 Outcome "caughtUp, needsBuddy"
+        uuid ClientRequestId
+        timestamptz AnsweredAt
+    }
     AudioClips {
         uuid Id PK
         varchar20 Kind "script, disclosure, greeting"
@@ -199,7 +208,9 @@ erDiagram
 
 **`AudioClips`** — every playable audio segment (migration `AudioClips`, T-11), kept in Postgres for the MVP behind `IAudioStore` (Azure Blob can replace it). Ogg Opus at 24 kbps, encoded from Sarvam's 16 kHz WAV (~3 KB a second). `Kind = script` rows belong to a package (`PackageId`, cascade, so deleting a package or its class removes the audio; a regenerate replaces the old clip). `Kind = disclosure` rows are shared and keyed by `(Kind, Language, TextHash)` (filtered unique index; SHA-256 of the wording in `data/seed/disclosure.json`), so each language's disclosure is synthesised once and a changed wording makes a new clip (D-18). `greeting` is reserved for T0's recorded greeting. Served by `GET /api/audio/{id}` with range support. `CatchUpPackages.AudioSegments` lists a package's segments in playing order (greeting when recorded → disclosure → script) with seconds and total size; `AudioUrl` points at the script clip.
 
-**`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). The send step gives a `Token` (128-bit, unique), `ScheduledAt`, `SentAt` and `ExpiresAt` (+14 days) only to assignments whose child has consent `yes` and no `ParentStoppedAt`; the others stay on the buddy-card path. `OpenedAt` comes with the parent page (T-15). FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
+**`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). The send step gives a `Token` (128-bit, unique), `ScheduledAt`, `SentAt` and `ExpiresAt` (+14 days) only to assignments whose child has consent `yes` and no `ParentStoppedAt`; the others stay on the buddy-card path. `OpenedAt` is not written: opens are never counted (D-20). The parent page (`/api/p/{token}`, T-15) shows the lesson only while the package is approved or sent at its approved version, the link hasn't expired and the child isn't stopped. FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
+
+**`CheckResponses`** — the family's picture tap on P3, scored by code (FR-11): `ChoiceId` is the position shown (0–2), `Correct` compares it with the package's stored correct index, `Outcome` is `caughtUp` or `needsBuddy`. Primary key `AssignmentId`, so one answer per assignment: the first counts (D-62), later taps and replays change nothing. The family never sees the outcome (D-20); the ledger does. FK `AssignmentId` (cascade, so a deleted child's answers go too).
 
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
 
@@ -209,7 +220,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments, and Child → Attendance / EveningMessages / CatchUpAssignments. Deleting a child (FR-15, T-19) removes their attendance automatically; future child-linked tables must cascade too, and audio blobs must be deleted in code.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / CatchUpAssignments → CheckResponses. Deleting a child (FR-15, T-19) removes their attendance automatically; future child-linked tables must cascade too, and audio blobs must be deleted in code.
 
 ## 2. Concurrency and idempotency
 
@@ -221,6 +232,7 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: T
 | Two instances seeding at once | `pg_advisory_xact_lock(0x5EED_0001)` around the seed | `Data/Seed/DemoSeeder.cs` |
 | Two approvals / an approval racing a regenerate or send | `pg_advisory_xact_lock(hashtextextended('package:{id}', 0))`; status + version re-read inside the lock | `Features/CatchUps/CatchUpStore.cs` |
 | Two catch-up generates for the same week | `pg_advisory_xact_lock(hashtextextended('catchups:{classId}:{week}', 0))` + unique `(ClassId, WeekOf, Language, TargetKey)` and `(ChildId, WeekOf)` | `Features/CatchUps/CatchUpStore.cs` |
+| Two picture answers racing (a retry while the first is in flight) | `pg_advisory_xact_lock(hashtextextended('answer:{assignmentId}', 0))` + primary key `AssignmentId` | `Features/Parent/ParentStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
 
 All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tests/Db/`), which runs in CI.
@@ -233,29 +245,15 @@ All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api
 - **Absence spells**: runs of consecutive absent *school days* (dates with a register), with the day the child came back.
 - **Return speed** (mentor review, D-20/D-24 pending): spells that started in the 7 days up to the latest school day, bucketed 1 / 2 / 3 / 4+ days, and how many were back within 2 school days.
 
-Statuses beyond `missed` (sent · caught up · needs buddy · stopped by family) will come from `CatchUpAssignments`, the planned `CheckResponses` below and `Children.ParentStoppedAt`. Nothing is stored for the ledger itself, so it can't drift from attendance.
+A missed lesson's `status` comes from the child's catch-up for that week (the assignment whose `MissedCompetencyIds` include one of the lesson's competencies): `caughtUp` / `needsBuddy` from `CheckResponses` once answered (FR-11), else `stopped` when `Children.ParentStoppedAt` is set (FR-19), else `sent` when the link went out, else `missed`. Nothing is stored for the ledger itself, so it can't drift from attendance.
 
 ## 4. Planned tables (not built yet)
 
 From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 
-```mermaid
-erDiagram
-    CatchUpAssignments ||--o| CheckResponses : "answered with"
-
-    CheckResponses {
-        uuid AssignmentId PK,FK
-        varchar ChoiceId
-        bool Correct
-        varchar Outcome "CaughtUp, NeedsBuddy, Review"
-    }
-```
-
 | Table / column | Task | Notes |
 |---|---|---|
 | `Lessons` + `Transcript`, `ExamplesUsed`, `Confidence` | T-07 | Confidence < 0.7 → teacher picks from the chapter list |
-| `CheckResponses` | T-15 | Scored by code (FR-11); no spoken-answer fields (T-42 dropped, D-26) |
-| Stop / restart endpoints for `Children.ParentStoppedAt` | T-15 (D-19) | Column and send filter built in T-44; the parent's stop link comes with P4 |
 | `AbsenceReasons` | T-45 (FR-21, D-23) | Category only; no transcript or audio kept |
 | `BuddyCards.HomeworkReturnedAt` | T-16 (D-22) | "Brought homework" tap |
 | `textbookPage` on competencies | T-05 (D-22) | In `data/curriculum/*.json`, not a table |

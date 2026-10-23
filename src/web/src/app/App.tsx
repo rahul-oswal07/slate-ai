@@ -4,6 +4,7 @@ import { TeacherGate } from '../features/auth/TeacherGate'
 import { ApproveScreen } from '../features/approve/ApproveScreen'
 import { PackageScreen } from '../features/approve/PackageScreen'
 import { ConfirmLessonScreen } from '../features/lessons/ConfirmLessonScreen'
+import { ParentScreen } from '../features/parent/ParentScreen'
 import { EveningTemplateScreen } from '../features/setup/EveningTemplateScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
@@ -15,6 +16,8 @@ import { TeacherLayout } from './TeacherLayout'
 export function App() {
   return (
     <Routes>
+      {/* The family's page: no teacher header, sign-in or language switcher (P1–P4). */}
+      <Route path="p/:token" element={<ParentScreen />} />
       <Route element={<AppShell />}>
         <Route path="login" element={<LoginScreen />} />
         <Route element={<TeacherGate need="setup" />}>

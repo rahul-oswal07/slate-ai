@@ -47,6 +47,7 @@ const pairs: [string, string, number][] = [
     ['border', bg, UI],
     ['focus', bg, UI],
     ['warning', bg, UI],
+    ['stick', bg, UI],
   ]),
   // Rule 1: primary text only on canvas and surface, never on panel.
   ['primary', 'canvas', TEXT],

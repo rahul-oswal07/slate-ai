@@ -222,14 +222,17 @@ POST /api/classes/{id}/lessons/{date}/audio multipart { file ≤ 1 MB, clientReq
 GET  /api/classes/{id}/ledger
 POST /api/classes/{id}/catchups/generate    { clientRequestId } → 202: A2 per absent child → one package per (targets, language) with code numbers → A3 in the background (generating → ready | failed); re-run keeps existing ones (T-09)
 GET  /api/classes/{id}/packages?week=       the week's packages with children, A2 reasons and the check's correct option (teacher only); `audio.segments` in playing order with seconds, total seconds and bytes, disclosure text (T-11)
-GET  /api/audio/{id}                        one audio segment (Ogg Opus), range requests; her class's catch-up audio or a shared disclosure clip (teacher only; parents via the link token in T-15)
+GET  /api/audio/{id}                        one audio segment (Ogg Opus), range requests; her class's catch-up audio or a shared disclosure clip (teacher only; parents use /api/p/{token}/audio/{clipId})
 GET  /api/packages/{id}                     one catch-up for T3's detail (teacher's own class)
 POST /api/packages/{id}/approve             { clientRequestId, scriptVersion } → only when ready and scriptVersion is current; 409 + latest otherwise (T-14)
 POST /api/packages/{id}/regenerate          { clientRequestId, hint: simpler|shorter|null } → 202, generating, comes back as scriptVersion + 1 (voids any tick); 409 once approved/sent or while generating (T-14)
 POST /api/packages/{id}/send                { clientRequestId } → 409 unless approved at the current version (guardrail 3) and, outside demo mode, before 18:00 IST; links only for consent Yes + not stopped; the 6 pm job sends approved catch-ups itself (T-14). Bulk approve and Withdraw: roadmap (D-70)
 POST /api/assignments/{id}/send             superseded by POST /api/packages/{id}/send (T-14)
-GET  /api/p/{token}                         parent payload (no auth; 128-bit token; expires 14 days → 410). T-44: the evening message { date, language, childName, teacherName, text, greetingAudioUrl, sentAt, stopped }; T-15 adds the catch-up
-POST /api/p/{token}/answer                  { choiceId }
+GET  /api/p/{token}                         parent payload (no auth; 128-bit token; expires 14 days → 410). kind "evening" (T-44): { date, language, childName, teacherName, text, greetingAudioUrl, sentAt, stopped }. kind "catchUp" (T-15): { language, childName, teacherName, stopped, answered, expiresAt, homework, audio.segments (token URLs), transcript, activity, check.options[{ id, number }] } — never the correct index; 404 unless approved/sent at the approved version; lesson fields null when stopped; 410 body { language, childName, teacherName, homework }
+GET  /api/p/{token}/audio/{clipId}          one segment of this link's catch-up (range requests); 404 for any other clip, or once expired/stopped
+POST /api/p/{token}/answer                  { choiceId, clientRequestId } → 200 { answered: true }, never right/wrong; scored by code (FR-11); first answer counts (D-62); 409 when stopped, expired or not approved
+POST /api/p/{token}/stop                    { clientRequestId } → sets Child.ParentStoppedAt (D-19); catch-up or evening link, also after expiry; idempotent
+POST /api/p/{token}/restart                 { clientRequestId } → clears it (D-30); idempotent
 POST /api/p/{token}/reason                  { category } or audio → A7 (FR-21)
 GET  /api/classes/{id}/message-template     evening template per language, filled with an example (text parts, slots marked); drafts created from data/seed/evening-message.json (FR-20)
 POST /api/classes/{id}/message-template/approve { clientRequestId, version } → all languages Approved; 409 + latest if the version is stale (D-49)
