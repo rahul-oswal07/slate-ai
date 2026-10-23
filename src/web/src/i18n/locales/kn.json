@@ -160,7 +160,8 @@
     "recCancelled": "ದಾಖಲಿಸುವುದು ನಿಂತಿತು. ಏನೂ ಕಳುಹಿಸಿಲ್ಲ.",
     "lessonReady": "ಪಾಠ ಸಿದ್ಧ. ಖಚಿತಪಡಿಸಿ.",
     "lessonConfirmed": "ಪಾಠ ಖಚಿತವಾಗಿದೆ",
-    "lessonAdded": "ಪಾಠ ಸೇರಿಸಲಾಗಿದೆ"
+    "lessonAdded": "ಪಾಠ ಸೇರಿಸಲಾಗಿದೆ",
+    "deleted": "ಅಳಿಸಲಾಗಿದೆ: ಹೆಸರು, ಉತ್ತರಗಳು, ಆಡಿಯೋ"
   },
   "mic": {
     "record": "ದಾಖಲಿಸಿ",
@@ -411,6 +412,69 @@
       "thanks": "Thank you",
       "private": "Only {{teacher}} teacher sees this.",
       "ok": "OK"
+    }
+  },
+  "missed": {
+    "title": "ತಪ್ಪಿದ ಪಾಠಗಳು",
+    "view": "ನೋಟ",
+    "viewChild": "ಮಗುವಿನಂತೆ",
+    "viewLesson": "ಪಾಠದಂತೆ",
+    "filter": "ಫಿಲ್ಟರ್",
+    "filterWeek": "ಈ ವಾರ ಗೈರು · {{n}}",
+    "filterAll": "ಎಲ್ಲರೂ · {{n}}",
+    "daysAway_one": "· {{count}} ದಿನ ಗೈರು",
+    "daysAway_other": "· {{count}} ದಿನ ಗೈರು",
+    "missed": "ತಪ್ಪಿದ್ದು: {{lessons}}",
+    "noneMissed": "ಈ ವಾರ ಯಾವ ಪಾಠವೂ ತಪ್ಪಿಲ್ಲ",
+    "lessonMeta": "{{day}} · {{page}}",
+    "lessonCount": "{{total}} ರಲ್ಲಿ {{n}} ಮಕ್ಕಳು ತಪ್ಪಿಸಿಕೊಂಡರು",
+    "showChildren": "Show the children",
+    "footer": "ಹಾಜರಾತಿ × ನಿಮ್ಮ ಪಾಠ ದಾಖಲೆಯಿಂದ ತಾನೇ ತುಂಬುತ್ತದೆ. ಇದರಲ್ಲಿ AI ಇಲ್ಲ.",
+    "emptyTitle": "ಇನ್ನೂ ಯಾರೂ ಪಾಠ ತಪ್ಪಿಸಿಲ್ಲ",
+    "emptyBody": "ಹಾಜರಾತಿ ಬಂದು, ನೀವು ಪಾಠ ದಾಖಲಿಸಿದ ನಂತರ ಇದು ತಾನೇ ತುಂಬುತ್ತದೆ.",
+    "offline": "ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ಉಳಿಸಿದ ಪಟ್ಟಿ ತೋರಿಸುತ್ತಿದೆ (ಇಂದು {{time}}). ನೆಟ್‌ವರ್ಕ್ ಬಂದಾಗ ನವೀಕರಿಸುತ್ತದೆ.",
+    "error": "Could not load the list. Nothing was lost. Try again.",
+    "status": {
+      "missed": "ಪಾಠ ತಪ್ಪಿದೆ",
+      "sent": "ಕಳುಹಿಸಲಾಗಿದೆ",
+      "caughtUp": "ಪಾಠ ಹಿಡಿದಿದ್ದಾರೆ",
+      "needsBuddy": "ಗೆಳೆಯರ ನೆರವು ಬೇಕು"
+    },
+    "channel": {
+      "stopped": "ಕುಟುಂಬ ಸಂದೇಶ ನಿಲ್ಲಿಸಿದೆ",
+      "noPhone": "ಫೋನ್ ಇಲ್ಲ · ಬಡ್ಡಿ ಕಾರ್ಡ್",
+      "noConsent": "No consent"
+    },
+    "child": {
+      "meta": "ಕ್ರಮ ಸಂಖ್ಯೆ {{roll}} · ಮನೆ ಭಾಷೆ: {{language}}",
+      "missing": "This child is no longer in the list.",
+      "thisWeek": "ಈ ವಾರ",
+      "away": "ಗೈರು · ತಪ್ಪಿದ ಪಾಠ: {{lessons}}",
+      "awayNoLesson": "ಗೈರು",
+      "reason": "ಕಾರಣ (ಪೋಷಕರು ತಿಳಿಸಿದ್ದು): {{reason}}",
+      "catchUpSent": "ಪುನರಾವರ್ತನೆ ಕಳುಹಿಸಲಾಗಿದೆ ({{language}})",
+      "checkRight": "ಚಿತ್ರ ಪ್ರಶ್ನೆ: ಸರಿ",
+      "checkPractice": "ಚಿತ್ರ ಪ್ರಶ್ನೆ: ಇನ್ನೂ ಅಭ್ಯಾಸ ಬೇಕು",
+      "stopped": "ಕುಟುಂಬ ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಿದೆ. ಬಡ್ಡಿ ಕಾರ್ಡ್ ಮುಂದುವರಿಯುತ್ತದೆ.",
+      "none": "ಈ ವಾರ ಯಾವ ಪಾಠವೂ ತಪ್ಪಿಲ್ಲ",
+      "dataHeading": "ಮಗುವಿನ ದಾಖಲೆ",
+      "delete": "{{name}} ಅವರ ಎಲ್ಲಾ ದಾಖಲೆ ಅಳಿಸಿ"
+    },
+    "delete": {
+      "title": "{{name}} ಅವರ ದಾಖಲೆ ಅಳಿಸಬೇಕೆ?",
+      "removed": "ಹೆಸರು, ಉತ್ತರಗಳು ಮತ್ತು ಆಡಿಯೋ ಶಾಶ್ವತವಾಗಿ ಅಳಿಯುತ್ತವೆ.",
+      "cancelled": "ಕಳುಹಿಸದ ಸಂದೇಶಗಳು ರದ್ದಾಗುತ್ತವೆ.",
+      "counts": "ತರಗತಿಯ ಸಂಖ್ಯೆಗಳು ಬದಲಾಗುತ್ತವೆ.",
+      "final": "This can’t be undone. It needs the network.",
+      "keep": "ಬೇಡ, ಇರಲಿ",
+      "confirm": "ಅಳಿಸಿ",
+      "deleting": "Deleting…",
+      "failed": "Could not delete. Nothing changed. Check the network and try again."
+    },
+    "language": {
+      "kn": "ಕನ್ನಡ",
+      "te": "ತೆಲುಗು",
+      "ta": "ತಮಿಳು"
     }
   }
 }

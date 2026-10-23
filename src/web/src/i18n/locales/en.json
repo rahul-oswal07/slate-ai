@@ -160,7 +160,8 @@
     "recCancelled": "Recording stopped. Nothing was sent.",
     "lessonReady": "Lesson ready. Please confirm.",
     "lessonConfirmed": "Lesson confirmed",
-    "lessonAdded": "Lesson added"
+    "lessonAdded": "Lesson added",
+    "deleted": "Deleted: name, answers and audio"
   },
   "mic": {
     "record": "Record",
@@ -411,6 +412,69 @@
       "thanks": "Thank you",
       "private": "Only {{teacher}} teacher sees this.",
       "ok": "OK"
+    }
+  },
+  "missed": {
+    "title": "Missed lessons",
+    "view": "View",
+    "viewChild": "By child",
+    "viewLesson": "By lesson",
+    "filter": "Filter",
+    "filterWeek": "Absent this week · {{n}}",
+    "filterAll": "Everyone · {{n}}",
+    "daysAway_one": "· {{count}} day away",
+    "daysAway_other": "· {{count}} days away",
+    "missed": "Missed: {{lessons}}",
+    "noneMissed": "No missed lessons this week",
+    "lessonMeta": "{{day}} · {{page}}",
+    "lessonCount": "{{n}} of {{total}} children missed it",
+    "showChildren": "Show the children",
+    "footer": "Filled automatically from attendance × your lesson records. No AI in this.",
+    "emptyTitle": "No missed lessons yet",
+    "emptyBody": "This fills itself once attendance arrives and you record a lesson.",
+    "offline": "No network. Showing the saved list (today {{time}}). It updates when the network returns.",
+    "error": "Could not load the list. Nothing was lost. Try again.",
+    "status": {
+      "missed": "Missed lesson",
+      "sent": "Sent",
+      "caughtUp": "Caught up",
+      "needsBuddy": "Needs buddy"
+    },
+    "channel": {
+      "stopped": "Stopped by family",
+      "noPhone": "No phone · buddy card",
+      "noConsent": "No consent"
+    },
+    "child": {
+      "meta": "Roll {{roll}} · home language: {{language}}",
+      "missing": "This child is no longer in the list.",
+      "thisWeek": "This week",
+      "away": "away · missed: {{lessons}}",
+      "awayNoLesson": "away",
+      "reason": "reason (from the parent): {{reason}}",
+      "catchUpSent": "catch-up sent ({{language}})",
+      "checkRight": "picture question: right",
+      "checkPractice": "picture question: needs more practice",
+      "stopped": "family stopped messages. Buddy card continues.",
+      "none": "No missed lessons this week",
+      "dataHeading": "Child’s data",
+      "delete": "Delete all of {{name}}’s data"
+    },
+    "delete": {
+      "title": "Delete {{name}}’s data?",
+      "removed": "The name, answers and audio are removed for good.",
+      "cancelled": "Messages not yet sent are cancelled.",
+      "counts": "Class counts update.",
+      "final": "This can’t be undone. It needs the network.",
+      "keep": "Keep",
+      "confirm": "Delete",
+      "deleting": "Deleting…",
+      "failed": "Could not delete. Nothing changed. Check the network and try again."
+    },
+    "language": {
+      "kn": "Kannada",
+      "te": "Telugu",
+      "ta": "Tamil"
     }
   }
 }

@@ -22,7 +22,12 @@ public sealed class LedgerEndpointTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var ledger = await response.Content.ReadFromJsonAsync<LedgerResponse>(TestContext.Current.CancellationToken);
         Assert.Equal(ClassId, ledger!.ClassId);
-        Assert.Equal(1, Assert.Single(ledger.Children).CurrentAbsenceDays);
+        var row = Assert.Single(ledger.Children);
+        Assert.Equal(1, row.CurrentAbsenceDays);
+        // "This week" ends today in IST, not at the latest register day.
+        Assert.Equal(new DateOnly(2026, 10, 19), ledger.WeekOf);
+        Assert.Equal(0, row.DaysAwayThisWeek);
+        Assert.Empty(row.History);
     }
 
     [Fact]
@@ -55,7 +60,10 @@ public sealed class LedgerEndpointTests
     private static async Task<HttpResponseMessage> GetAsync(Guid classId, LedgerData data, Guid? signedInClassId)
     {
         await using var factory = FakeApi.Create(services =>
-            services.AddSingleton<ILedgerStore>(new FakeLedgerStore(ClassId, data)));
+        {
+            services.AddSingleton<ILedgerStore>(new FakeLedgerStore(ClassId, data));
+            services.AddSingleton<TimeProvider>(new FixedClock(new DateTimeOffset(2026, 10, 21, 9, 0, 0, TimeSpan.FromHours(5.5))));
+        });
         using var client = signedInClassId is { } id ? factory.CreateTeacherClient(id) : factory.CreateHttpsClient();
         return await client.GetAsync($"/api/classes/{classId}/ledger", TestContext.Current.CancellationToken);
     }

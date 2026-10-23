@@ -44,7 +44,10 @@ public sealed class DemoSeeder(
 
         SetLogin(teacher, seed.Teacher.Phone);
 
-        if (!await db.Classes.AnyAsync(c => c.Id == seed.Class.Id, cancellationToken))
+        // Children are added only with a new class: a child the teacher deleted (FR-15) must not come back on the next
+        // start or deploy. The demo Reset (T-18) re-seeds on purpose.
+        var newClass = !await db.Classes.AnyAsync(c => c.Id == seed.Class.Id, cancellationToken);
+        if (newClass)
         {
             db.Classes.Add(new Class
             {
@@ -69,6 +72,11 @@ public sealed class DemoSeeder(
                     stored.Consent = child.Consent ?? "no";
                 }
 
+                continue;
+            }
+
+            if (!newClass)
+            {
                 continue;
             }
 
