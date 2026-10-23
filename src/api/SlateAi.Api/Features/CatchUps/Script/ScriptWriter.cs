@@ -79,6 +79,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
             teacherExamples = input.TeacherExamples,
             allowedObjects = A3Validator.AllowedObjects,
             hint = input.Hint,
+            previousAttemptProblems = input.Feedback ?? [],
         }, Json);
     }
 }

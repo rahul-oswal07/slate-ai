@@ -50,7 +50,7 @@ test('SATS register → correct one child → "corrected by you"', async ({ page
   await page.getByRole('button', { name: 'Save' }).click()
 
   await expect(page.getByRole('region', { name: /corrected by you/ })).toContainText('2 absent')
-  await expect(page.getByText('Saved')).toBeVisible()
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
   expect(posts).toHaveLength(1)
   await page.screenshot({ path: testInfo.outputPath('today-corrected-360.png'), fullPage: true })
 })
@@ -97,7 +97,7 @@ test('offline save waits in the outbox, then sends once', async ({ page }, testI
   offline = false
   await page.evaluate(() => window.dispatchEvent(new Event('online')))
 
-  await expect(page.getByText('Saved')).toBeVisible()
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
   expect(posts).toHaveLength(1)
 })
 

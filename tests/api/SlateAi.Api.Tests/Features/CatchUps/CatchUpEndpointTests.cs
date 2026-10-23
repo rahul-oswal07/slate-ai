@@ -32,7 +32,8 @@ public sealed class CatchUpEndpointTests
         Item("M3.SUB.WORD", 16, "tens", "M3.SUB.BORROW"),
     ]);
 
-    private readonly FakeCatchUpStore _store = new(ClassId);
+    private static readonly FixedClock Clock = new(SchoolClock.At(Friday, new TimeOnly(15, 0)));
+    private readonly FakeCatchUpStore _store = new(ClassId, Clock);
     private readonly FakeAiCallStore _aiCalls = new();
     private readonly SchemaLlm _llm;
 
@@ -63,6 +64,8 @@ public sealed class CatchUpEndpointTests
         Assert.Equal(["M3.SUB.BORROW"], telugu.TargetCompetencyIds);
         Assert.Equal(new HashSet<Guid> { Ravi, Kiran }, telugu.Children.Select(c => c.ChildId).ToHashSet());
         Assert.Equal(PackageStatus.Ready, telugu.Status);
+        Assert.True(telugu.Review!.Passed);
+        Assert.Equal(7, telugu.Review.Checks.Count); // 6 code checks + the content check
         Assert.Equal(1, telugu.ScriptVersion);
         Assert.NotNull(telugu.Script);
         Assert.Equal(3, telugu.KeyWordsKn.Count);
@@ -169,12 +172,21 @@ public sealed class CatchUpEndpointTests
             services.AddSingleton<IAiCallStore>(_aiCalls);
             services.AddSingleton<ILlmClient>(_llm);
             services.AddSingleton(Book);
-            services.AddSingleton<TimeProvider>(new FixedClock(SchoolClock.At(Friday, new TimeOnly(15, 0))));
+            services.AddSingleton<TimeProvider>(Clock);
         });
 
     private static Competency Item(string id, int sequence, string borrow, params string[] prerequisites) =>
         new(id, $"ಕ {id}", $"Name of {id}", prerequisites, null, 5, sequence, [], new TextbookPage("textbook", 2, sequence),
             KeyWordsKn: ["ಕಳೆ", "ದಶಕ", "ಹತ್ತು", "ಬಿಡಿ"], Practice: new PracticeRule("sub", 3, Borrow: borrow));
+
+    /// <summary>A script that passes the code checks: the activity's numbers in it, key words twice each.</summary>
+    internal static string PassingScript(string userContent)
+    {
+        using var doc = JsonDocument.Parse(userContent);
+        var numbers = string.Join(" ", doc.RootElement.GetProperty("activity").GetProperty("numbers").EnumerateArray().Select(n => n.GetInt32()));
+        return A3ValidatorTests.Output(
+            script: $"ఈ రోజు ಕಳೆ ಕಳೆ ದಶಕ ದಶಕ ಹತ್ತು ಹತ್ತು నేర్చుకుందాం {numbers}. మీ టీచర్‌కు చూపించండి.");
+    }
 
     private sealed class StubLedger(LedgerData data) : ILedgerStore
     {
@@ -197,13 +209,16 @@ public sealed class CatchUpEndpointTests
             string Enum(params string[] path) =>
                 path.Aggregate(request.Schema, (e, p) => e.GetProperty(p)).EnumerateArray().First().GetString()!;
 
-            var json = request.Prompt.Id == "a2-compression"
-                ? JsonSerializer.Serialize(new
+            var json = request.Prompt.Id switch
+            {
+                "a2-compression" => JsonSerializer.Serialize(new
                 {
                     targets = new[] { new { competencyId = Enum("properties", "targets", "items", "properties", "competencyId", "enum"), reason = "Next week needs it." } },
                     dropped = Array.Empty<object>(),
-                })
-                : ScriptJson ?? A3ValidatorTests.Output();
+                }),
+                "a4-check" => """{"teachesTarget":true,"ageAppropriate":true,"noShaming":true,"glossMatches":true,"reason":"ok"}""",
+                _ => ScriptJson ?? PassingScript(request.UserContent),
+            };
             var call = new AiCall { Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch };
             await calls.AddAsync(call, cancellationToken);
             return new LlmResponse(json, "stub", new LlmUsage(0, 0, 0), call.Id);

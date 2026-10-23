@@ -46,6 +46,9 @@ public sealed class CatchUpPackage
     /// <summary>JSON: the code-made check with its options and correct index, plus A3's prompt (P3).</summary>
     public required string CheckItem { get; set; }
 
+    /// <summary>JSON: the verifier's checks on the stored attempt, with numbers ("Needs review" reason on T3, A4).</summary>
+    public string? Review { get; set; }
+
     /// <summary>Set by text-to-speech (T-11).</summary>
     public string? AudioUrl { get; set; }
 

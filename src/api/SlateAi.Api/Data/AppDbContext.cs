@@ -113,6 +113,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(p => p.Verdict).HasMaxLength(100);
             e.Property(p => p.Activity).HasColumnType("jsonb");
             e.Property(p => p.CheckItem).HasColumnType("jsonb");
+            e.Property(p => p.Review).HasColumnType("jsonb");
             e.Property(p => p.AudioUrl).HasMaxLength(500);
             e.HasOne<Class>().WithMany().HasForeignKey(p => p.ClassId);
             e.HasIndex(p => new { p.ClassId, p.WeekOf, p.Language, p.TargetKey }).IsUnique();

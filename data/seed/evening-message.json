@@ -1,6 +1,6 @@
 {
-  "_note": "Evening message on a day of absence (FR-20, D-21). The teacher approves this once; code fills {child} (written text only, D-50), {lesson} and {page} from her confirmed lesson. No {tomorrow} (D-48); the buddy is never named (D-29). Change the text → bump version (she approves again, D-49). en, te, kn from docs/design/T0-setup.md; ta is a draft. All need native review (T-26); the Telugu verb is masculine (open, P0 card).",
-  "version": "1",
+  "_note": "Evening message on a day of absence (FR-20, D-21). The teacher approves this once; code fills {child} (written text only, D-50), {lesson} and {page} from her confirmed lesson. No {tomorrow} (D-48); the buddy is never named (D-29). Change the text → bump version (she approves again, D-49). en, te, kn from docs/design/T0-setup.md; ta is a draft. All need native review (T-26). v2 (D-72): gender-neutral Telugu lines from Monika.",
+  "version": "2",
   "languages": {
     "en": {
       "text": "We missed {child} today. In class we learned {lesson}. Homework: textbook {page}. A classmate is keeping {child}’s seat.",
@@ -13,7 +13,7 @@
       "pageNoPart": "ಪುಟ {page}"
     },
     "te": {
-      "text": "ఈ రోజు {child} మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం {page}. ఒక సహవిద్యార్థి {child} సీటు కాపాడుతోంది.",
+      "text": "ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం {page}. ఒక సహవిద్యార్థి {child} సీటును కాపాడుతున్నారు.",
       "page": "భాగం {part}, పేజీ {page}",
       "pageNoPart": "పేజీ {page}"
     },

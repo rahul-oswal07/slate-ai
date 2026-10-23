@@ -231,6 +231,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<int?>("PromptVersion")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Review")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Script")
                         .HasColumnType("text");
 

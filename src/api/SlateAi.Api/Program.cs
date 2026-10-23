@@ -35,7 +35,7 @@ builder.Services.AddAttendance(builder.Configuration);
 builder.Services.AddLedger();
 builder.Services.AddLessons();
 builder.Services.AddEveningMessages(builder.Configuration);
-builder.Services.AddCatchUps();
+builder.Services.AddCatchUps(builder.Configuration);
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 

@@ -10,16 +10,19 @@ namespace SlateAi.Api.Features.CatchUps.Script;
 /// <param name="TargetIds">From A2, most important first.</param>
 /// <param name="TeacherExamples">Examples she used in those lessons (A1's ExamplesUsed), already name-scrubbed.</param>
 /// <param name="Hint">"simpler" or "shorter" when she asks to regenerate (FR-08).</param>
+/// <param name="Feedback">The verifier's reasons from the previous attempt (one auto-retry, spec §5.1 A3).</param>
 public sealed record ScriptInput(
     string Language,
     IReadOnlyList<string> TargetIds,
     PackageProblems Problems,
     IReadOnlyList<string> TeacherExamples,
-    string? Hint = null);
+    string? Hint = null,
+    IReadOnlyList<string>? Feedback = null);
 
 /// <summary>A3's words for a catch-up. The numbers stay in code (<see cref="PackageProblems"/>).</summary>
 /// <param name="Script">Spoken in the family's language; no names ("your child", "your teacher", D-50).</param>
 /// <param name="GlossKn">The Kannada summary she reads before approving (T3, D-09).</param>
+/// <param name="Objects">The household objects the activity suggests, from <see cref="A3Validator.AllowedObjects"/> (A4 check 5).</param>
 public sealed record ScriptContent(
     string Script,
     IReadOnlyList<string> KeyWordsKn,
@@ -27,7 +30,8 @@ public sealed record ScriptContent(
     string ObjectOption,
     string CheckPrompt,
     string GlossKn,
-    string GlossEn);
+    string GlossEn,
+    IReadOnlyList<string> Objects);
 
 /// <param name="Content">Null when the output was refused.</param>
 /// <param name="Verdict">Logged on the AiCall: valid, fallback:* or error:*.</param>
@@ -93,27 +97,38 @@ public static partial class A3Validator
             return Refused("fallback:key-words");
         }
 
-        if (texts.Any(t => t!.IndexOfAny(['{', '}', '<', '>']) >= 0))
+        if (UnsafeText(texts!, names) is { } problem)
         {
-            return Refused("fallback:placeholder");
-        }
-
-        var nameSet = names.SelectMany(n => n.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Where(n => n.Length >= 3)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        if (texts.Any(t => LatinWord().Matches(t!).Any(m => nameSet.Contains(m.Value))))
-        {
-            return Refused("fallback:name");
+            return Refused(problem);
         }
 
         return new A3Result(
             new ScriptContent(
                 output.Script!.Trim(), words, output.Activity!.Instruction!.Trim(), output.Activity.ObjectOption!.Trim(),
-                output.CheckPrompt!.Trim(), output.GlossKn!.Trim(), output.GlossEn!.Trim()),
+                output.CheckPrompt!.Trim(), output.GlossKn!.Trim(), output.GlossEn!.Trim(),
+                (output.Activity.Objects ?? []).Select(o => o.Trim()).Distinct().ToList()),
             "valid");
     }
 
     public static A3Result Refused(string verdict) => new(null, verdict);
+
+    /// <summary>
+    /// "fallback:placeholder" if any text has braces or markup, "fallback:name" if it has a class name (Latin words,
+    /// exact), else null. Also A4's names check (spec §5.4 check 6).
+    /// </summary>
+    public static string? UnsafeText(IEnumerable<string> texts, IEnumerable<string> names)
+    {
+        var all = texts.ToList();
+        if (all.Any(t => t.IndexOfAny(['{', '}', '<', '>']) >= 0))
+        {
+            return "fallback:placeholder";
+        }
+
+        var nameSet = names.SelectMany(n => n.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Where(n => n.Length >= 3)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return all.Any(t => LatinWord().Matches(t).Any(m => nameSet.Contains(m.Value))) ? "fallback:name" : null;
+    }
 
     /// <summary>JSON schema for structured output; key words limited to the targets' textbook words.</summary>
     public static JsonElement Schema(IReadOnlyList<string> keyWordChoices)
@@ -136,8 +151,17 @@ public static partial class A3Validator
                 {
                     ["type"] = "object",
                     ["additionalProperties"] = false,
-                    ["required"] = new[] { "instruction", "objectOption" },
-                    ["properties"] = new Dictionary<string, object> { ["instruction"] = text, ["objectOption"] = text },
+                    ["required"] = new[] { "instruction", "objectOption", "objects" },
+                    ["properties"] = new Dictionary<string, object>
+                    {
+                        ["instruction"] = text,
+                        ["objectOption"] = text,
+                        ["objects"] = new Dictionary<string, object>
+                        {
+                            ["type"] = "array",
+                            ["items"] = new Dictionary<string, object> { ["type"] = "string", ["enum"] = AllowedObjects },
+                        },
+                    },
                 },
                 ["checkPrompt"] = text,
                 ["glossKn"] = text,
@@ -154,5 +178,5 @@ public static partial class A3Validator
     private sealed record A3Output(
         string? Script, List<string>? KeyWordsKn, A3Activity? Activity, string? CheckPrompt, string? GlossKn, string? GlossEn);
 
-    private sealed record A3Activity(string? Instruction, string? ObjectOption);
+    private sealed record A3Activity(string? Instruction, string? ObjectOption, List<string>? Objects);
 }

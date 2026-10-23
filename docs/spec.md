@@ -282,6 +282,8 @@ Code checks (deterministic, run first):
 
 LLM check (Haiku): script teaches the target competency; age-appropriate; no shaming; gloss matches script. Output pass/fail + reason.
 
+*Built (T-10, `Features/CatchUps/Verify/`):* check 1 recomputes the code-made question and every "a ± b = c" written in the script, gloss or instruction, and requires the activity's numbers in the script and the check's lesson among the targets; check 3 estimates seconds as words ÷ `Verifier:WordsPerSecond` (kn/te 1.8, ta 1.6; tuned with real audio in T-11) against `Verifier:MaxScriptSeconds` (90); check 4 also requires each key word twice (§3.3); check 5 reads A3's structured `objects` list (prompt v2), since objects named in Telugu/Tamil text can't be checked by code, and pictures are drawn from numbers so their IDs always exist. Haiku runs only when all code checks pass (prompt `a4-check` v1). One retry with the failed checks' details; outcome: `ready` · `needsReview` (words kept, reasons stored on `CatchUpPackages.Review`) · `failed`. Haiku unavailable = not passed (to review, never to ready).
+
 ### 5.5 Evaluation
 
 `evals/` holds 25+ cases per call (A1, A2, A3) with expected outputs or rubrics; run with `dotnet test --filter Category=Eval` against the live API (costs credits; run on demand and nightly, not on every PR). Results are written to `evals/results/` and summarised in the submission deck.

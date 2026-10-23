@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.CatchUps.Script;
+using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Features.Lessons;
 
 namespace SlateAi.Api.Features.CatchUps;
@@ -29,6 +30,14 @@ public sealed record PackageRecord(
     Guid Id, Guid ClassId, DateOnly WeekOf, IReadOnlyList<string> TargetIds, string TargetKey, string Language,
     string Status, int ScriptVersion, string? Hint);
 
+/// <summary>The verifier's review of the stored attempt (A4); null before verification.</summary>
+public sealed record PackageReview(bool Passed, int Attempts, IReadOnlyList<VerifierCheck> Checks);
+
+/// <summary>What writing a catch-up ended with.</summary>
+/// <param name="Status">ready, needsReview or failed.</param>
+/// <param name="Content">The words to store; null when nothing usable came back (failed).</param>
+public sealed record ScriptOutcome(string Status, ScriptContent? Content, string Verdict, int PromptVersion, PackageReview? Review);
+
 public sealed record AssignedChild(
     Guid ChildId, IReadOnlyList<string> MissedCompetencyIds, CompressionRationale Rationale);
 
@@ -47,7 +56,8 @@ public sealed record PackageView(
     ActivityData Activity,
     CheckData Check,
     IReadOnlyList<AssignedChild> Children,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    PackageReview? Review);
 
 /// <summary>Database side of catch-ups, behind an interface so endpoint tests can use a fake.</summary>
 public interface ICatchUpStore
@@ -74,8 +84,8 @@ public interface ICatchUpStore
 
     Task<PackageRecord?> GetPackageAsync(Guid packageId, CancellationToken cancellationToken);
 
-    /// <summary>Stores A3's words (ready) or the refusal (failed), with a new script version.</summary>
-    Task SaveScriptAsync(Guid packageId, A3Result result, int promptVersion, CancellationToken cancellationToken);
+    /// <summary>Stores the outcome (words, status, review) with a new script version.</summary>
+    Task SaveScriptAsync(Guid packageId, ScriptOutcome outcome, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<PackageView>> ListAsync(Guid classId, DateOnly weekOf, CancellationToken cancellationToken);
 }
@@ -175,20 +185,17 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
                 p.Id, p.ClassId, p.WeekOf, p.TargetCompetencyIds, p.TargetKey, p.Language, p.Status, p.ScriptVersion, p.Hint))
             .SingleOrDefaultAsync(cancellationToken);
 
-    public async Task SaveScriptAsync(Guid packageId, A3Result result, int promptVersion, CancellationToken cancellationToken)
+    public async Task SaveScriptAsync(Guid packageId, ScriptOutcome outcome, CancellationToken cancellationToken)
     {
         var package = await db.CatchUpPackages.SingleAsync(p => p.Id == packageId, cancellationToken);
         package.ScriptVersion++;
-        package.PromptVersion = promptVersion;
-        package.Verdict = result.Verdict;
+        package.PromptVersion = outcome.PromptVersion;
+        package.Verdict = outcome.Verdict;
+        package.Status = outcome.Status;
+        package.Review = outcome.Review is null ? null : JsonSerializer.Serialize(outcome.Review, Json);
         package.UpdatedAt = clock.GetUtcNow();
-        if (result.Content is not { } content)
+        if (outcome.Content is { } content)
         {
-            package.Status = PackageStatus.Failed;
-        }
-        else
-        {
-            package.Status = PackageStatus.Ready;
             package.Script = content.Script;
             package.KeyWordsKn = [.. content.KeyWordsKn];
             package.GlossKn = content.GlossKn;
@@ -218,7 +225,8 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
                     .Select(a => new AssignedChild(
                         a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!))
                     .ToList(),
-                p.UpdatedAt))
+                p.UpdatedAt,
+                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json)))
             .ToList();
     }
 
