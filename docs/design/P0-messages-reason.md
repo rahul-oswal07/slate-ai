@@ -135,6 +135,6 @@ The chat screen is a stand-in for WhatsApp in the demo shell. It renders the sam
 - Resolved 21 Oct in the prototype: the delivered text now matches the approved template ("In class we learned …") and "Tomorrow" is gone (D-48).
 - Still open (spec follow-up #4): lesson names in the message are in Telugu ("subtraction by taking a ten"), but `Competency` has only `NameKn` and `NameEn`. Add home-language names (te, ta) plus their pre-made lesson-name audio clips.
 - `MessageTemplate` slots in spec §4.3 include `{buddy}`, which D-29 removed; `{child}` is used but not listed. Update the data model.
-- FR-21 and T-45 say the reason step is "on the parent page"; the prototype reaches it from the evening message. Confirm whether it also appears in the catch-up flow.
+- Resolved 23 Oct (D-76): the reason step is on the evening link only, not in the catch-up flow.
 - Voice-note recording, "Is it this?", mic permission denied, offline and send-error states for the reason are not designed.
 - Telugu verb gender in `evening.body` and `reason.question` (native review).

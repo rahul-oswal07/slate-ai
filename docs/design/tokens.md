@@ -70,7 +70,7 @@ Ratios measured with the WCAG formula. Background order: canvas · surface · pa
 
 The last six rows (D-35) reuse existing pairs, so no new contrast pairs are needed; in `tokens.css` they are aliases of the pair named. The icon and word tell them apart (rule 5). `needs-ear` was for the dropped review queue (FR-18) and is kept only as the colour source for `needs-review`.
 
-**Picture-question sticks (D-07, D-35):** drawn in `warning` (`#B45309` light, `#FBBF24` dark) with the band in `primary`. Illustration only, never text; both meet 3:1 against `surface` (non-text contrast).
+**Picture-question sticks (D-07, D-35, D-76):** token `stick` (`text-stick`), same values as `warning` (`#B45309` light, `#FBBF24` dark), with the band in `primary`. Illustration only, never text; both meet 3:1 against `surface` (non-text contrast).
 
 Words are draft English; Kannada, Telugu and Tamil go into the locale files when the components are built.
 
