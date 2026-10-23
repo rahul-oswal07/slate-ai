@@ -65,7 +65,8 @@ public sealed class CatchUpEndpointTests
         Assert.Equal(new HashSet<Guid> { Ravi, Kiran }, telugu.Children.Select(c => c.ChildId).ToHashSet());
         Assert.Equal(PackageStatus.Ready, telugu.Status);
         Assert.True(telugu.Review!.Passed);
-        Assert.Equal(7, telugu.Review.Checks.Count); // 6 code checks + the content check
+        Assert.Equal(8, telugu.Review.Checks.Count); // 6 code checks + the content check + the real-audio check
+        Assert.Equal(["disclosure", "script"], telugu.Audio!.Segments.Select(s => s.Kind));
         Assert.Equal(1, telugu.ScriptVersion);
         Assert.NotNull(telugu.Script);
         Assert.Equal(3, telugu.KeyWordsKn.Count);
@@ -168,6 +169,7 @@ public sealed class CatchUpEndpointTests
         FakeApi.Create(services =>
         {
             services.AddSingleton<ICatchUpStore>(_store);
+            services.AddSingleton<SlateAi.Api.Features.Audio.IAudioStore>(new SlateAi.Api.Tests.Features.Audio.FakeAudioStore());
             services.AddSingleton<ILedgerStore>(new StubLedger(ledger));
             services.AddSingleton<IAiCallStore>(_aiCalls);
             services.AddSingleton<ILlmClient>(_llm);

@@ -45,4 +45,15 @@ public sealed class SarvamOptions
 
     /// <summary>Sarvam's current default STT model (D-12 named Saarika; Sarvam has since moved to Saaras).</summary>
     public string SttModel { get; set; } = "saaras:v4";
+
+    /// <summary>Text-to-speech model (Bulbul, D-12).</summary>
+    public string TtsModel { get; set; } = "bulbul:v3";
+
+    /// <summary>Bulbul voice; must belong to <see cref="TtsModel"/>. Try others if a language sounds unnatural (plan R2).</summary>
+    public string TtsSpeaker { get; set; } = "priya";
+
+    public double TtsPace { get; set; } = 1.0;
+
+    /// <summary>Sarvam's raw output rate; we encode it to Opus ourselves (Sarvam's own MP3 is a fixed 128 kbps).</summary>
+    public int TtsSampleRate { get; set; } = 16000;
 }

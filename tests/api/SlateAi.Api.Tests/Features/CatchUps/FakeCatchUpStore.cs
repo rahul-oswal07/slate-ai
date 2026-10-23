@@ -91,6 +91,7 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
             p.Verdict = outcome.Verdict;
             p.Status = outcome.Status;
             p.Review = outcome.Review is null ? null : JsonSerializer.Serialize(outcome.Review, Json);
+            p.AudioSegments = outcome.Audio is null ? null : JsonSerializer.Serialize(outcome.Audio, Json);
             if (outcome.Content is { } c)
             {
                 p.Script = c.Script;
@@ -116,7 +117,8 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
                     .Select(a => new AssignedChild(a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!))
                     .ToList(),
                 p.UpdatedAt,
-                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json))).ToList());
+                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json),
+                p.AudioSegments is null ? null : JsonSerializer.Deserialize<SlateAi.Api.Features.Audio.AudioSegments>(p.AudioSegments, Json))).ToList());
         }
     }
 }

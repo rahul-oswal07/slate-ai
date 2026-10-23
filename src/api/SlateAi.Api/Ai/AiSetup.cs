@@ -30,6 +30,14 @@ public static class AiSetup
         services.AddSingleton<FakeLlmClient>();
         services.AddHttpClient<SarvamSpeechToText>(http => http.Timeout = TimeSpan.FromSeconds(30));
         services.AddSingleton<FakeSpeechToText>();
+        services.AddHttpClient<SarvamTextToSpeech>(http => http.Timeout = TimeSpan.FromSeconds(60));
+        services.AddSingleton<FakeTextToSpeech>();
+        services.AddScoped<ITextToSpeech>(sp => new LoggedTextToSpeech(
+            UseFakes(sp) ? sp.GetRequiredService<FakeTextToSpeech>() : sp.GetRequiredService<SarvamTextToSpeech>(),
+            sp.GetRequiredService<IAiCallStore>(),
+            sp.GetRequiredService<IOptions<AiOptions>>(),
+            sp.GetRequiredService<IOptions<SarvamOptions>>(),
+            sp.GetRequiredService<TimeProvider>()));
         services.AddScoped<IAiCallStore, AiCallStore>();
 
         services.AddScoped<ILlmClient>(sp => new LoggedLlmClient(
@@ -67,7 +75,7 @@ public static class AiSetup
 
         if (string.IsNullOrWhiteSpace(app.Services.GetRequiredService<IOptions<SarvamOptions>>().Value.ApiKey))
         {
-            logger.LogWarning("Sarvam:ApiKey is not set; voice capture falls back to the lesson picker");
+            logger.LogWarning("Sarvam:ApiKey is not set; voice capture falls back to the lesson picker and catch-ups get no audio");
         }
     }
 

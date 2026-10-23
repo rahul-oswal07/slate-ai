@@ -1,6 +1,7 @@
 using System.Threading.Channels;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
+using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.CatchUps.Practice;
 using SlateAi.Api.Features.CatchUps.Script;
@@ -45,7 +46,7 @@ public sealed class CatchUpGenerator(
 /// (spec §5.1 A3). Passes → ready; a second verifier failure → needsReview with the reasons; nothing usable → failed.
 /// </summary>
 public sealed class CatchUpWriter(
-    ICatchUpStore store, ScriptWriter writer, Verifier verifier, CurriculumGraph curriculum, PromptLibrary prompts)
+    ICatchUpStore store, ScriptWriter writer, Verifier verifier, PackageAudio audio, CurriculumGraph curriculum, PromptLibrary prompts)
 {
     public const int Attempts = 2;
 
@@ -100,7 +101,22 @@ public sealed class CatchUpWriter(
             feedback = review.Problems;
         }
 
-        await store.SaveScriptAsync(packageId, outcome!, cancellationToken);
+        if (outcome!.Content is { } words && outcome.Review is { } kept)
+        {
+            // Audio for anything she can listen to (ready or needs review); the real length decides ready (FR-09).
+            var (segments, audioCheck) = await audio.MakeAsync(packageId, package.Language, words.Script, cancellationToken);
+            var checks = kept.Checks.Append(audioCheck).ToList();
+            var passed = kept.Passed && audioCheck.Passed;
+            outcome = outcome with
+            {
+                Status = passed ? PackageStatus.Ready : PackageStatus.NeedsReview,
+                Verdict = passed ? outcome.Verdict : new VerifierResult(false, checks).Verdict,
+                Review = kept with { Passed = passed, Checks = checks },
+                Audio = segments,
+            };
+        }
+
+        await store.SaveScriptAsync(packageId, outcome, cancellationToken);
     }
 
     private static ActivityData Activity(PackageProblems p) =>

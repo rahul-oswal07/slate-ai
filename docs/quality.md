@@ -49,6 +49,8 @@ Store cases in `evals/cases/*.json`; results (date, model, prompt version, score
 
 **A4 content check** (`evals/cases/a4-check.json`: 2 good A3 scripts + 4 crafted flaws: wrong topic, shaming, mismatched summary, too hard; pass = Haiku's verdict equals `expectPass`): **6/6** (`evals/results/2026-10-22-a4-check.json`). The first run was 5/6: Haiku failed a good Kannada script because the summary mentioned household objects it hadn't been shown; it now gets the object option and judges "same lesson, numbers and homework", not extra detail.
 
+**Text-to-speech** (23 Oct, `TtsSmokeEvals`, Bulbul v3 "priya", 16 kHz → Opus 24 kbps; `evals/results/2026-10-23-tts.json`, audio in `evals/results/audio/` for a listen on an Android phone): disclosure 4.9–6.7 s; scripts of 94–96 words took 48–51 s, so **1.86 (kn), 1.91 (te), 1.96 (ta) words a second**; whole catch-ups 53–57 s and 139–154 KB, inside 95 s / 300 KB. `Verifier:WordsPerSecond` retuned to kn 1.8, te 1.85, ta 1.9 (rounded down so the estimate errs long). Sarvam's own MP3 (fixed 128 kbps) would have been ~860 KB, hence the Opus re-encoding.
+
 ## 3. Usability testing with representative users
 
 **Participants:** 3 government primary teachers (Grade 2–3, Kannada medium) or close proxies; 2 parents from Telugu-speaking families. Monika recruits; consent form signed; first names only in the repo.
