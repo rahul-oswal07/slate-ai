@@ -213,6 +213,40 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("AudioClips");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.BuddyCard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset?>("DoneAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("HomeworkReturnedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChildId", "Date")
+                        .IsUnique();
+
+                    b.HasIndex("ClassId", "Date");
+
+                    b.ToTable("BuddyCards");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpAssignment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -739,6 +773,21 @@ namespace SlateAi.Api.Data.Migrations
                         .WithMany()
                         .HasForeignKey("PackageId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.BuddyCard", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Child", null)
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpAssignment", b =>

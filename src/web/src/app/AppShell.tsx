@@ -25,7 +25,7 @@ export function AppShell() {
         >
           {t('a11y.skipToContent')}
         </a>
-        <header className="border-b border-border px-4 py-3">
+        <header className="border-b border-border px-4 py-3 print:hidden">
           <p className="text-lg font-semibold">{t('app.name')}</p>
           <p className="text-sm text-ink-muted">{t('app.tagline')}</p>
           <LanguageSwitcher />

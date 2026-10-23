@@ -161,7 +161,8 @@
     "lessonReady": "పాఠం సిద్ధం. దయచేసి నిర్ధారించండి.",
     "lessonConfirmed": "పాఠం నిర్ధారించబడింది",
     "lessonAdded": "పాఠం జోడించబడింది",
-    "deleted": "Deleted: name, answers and audio"
+    "deleted": "Deleted: name, answers and audio",
+    "buddyDone": "Buddy time done"
   },
   "mic": {
     "record": "రికార్డ్ చేయండి",
@@ -476,5 +477,45 @@
       "te": "Telugu",
       "ta": "Tamil"
     }
+  },
+  "back": {
+    "title": "Back today",
+    "position": "Card {{i}} of {{n}}",
+    "next": "next: {{name}}",
+    "daysAway_one": "Back after {{count}} day",
+    "daysAway_other": "Back after {{count}} days",
+    "buddyOneDay": "Buddy (was present that day)",
+    "buddyBothDays": "Buddy (was present both days)",
+    "buddyAllDays": "Buddy (was present all {{count}} days)",
+    "buddySome": "Buddy (was present {{present}} of {{count}} days)",
+    "minutes": "{{n}} min",
+    "teacherLed": "Teacher-led: 10 minutes",
+    "teacherLedWhy": "No classmate was in class on those days.",
+    "sumsTitle": "3 sums to do together",
+    "makeTitle": "3 numbers to make with sticks",
+    "questionsTitle": "3 questions to do together",
+    "task": {
+      "count": "Make {{n}} with sticks",
+      "placeValue": "Value of {{question}} = ?",
+      "biggest": "Which is biggest? {{question}}",
+      "smallest": "Which is smallest? {{question}}"
+    },
+    "answers": "Answers (for you)",
+    "keywordsTitle": "Kannada words (from the textbook)",
+    "noLesson": "No lesson was recorded on the days away.",
+    "homework": "Brought homework",
+    "homeworkPage": "Part {{part}}, page {{page}}",
+    "homeworkPageNoPart": "page {{page}}",
+    "done": "Mark buddy time done",
+    "doneBanner": "Buddy time done",
+    "undo": "Undo",
+    "noneTitle": "No one is back today",
+    "noneBody": "A buddy card appears here on the day an absent child comes back.",
+    "offline": "No network. The cards are saved on your phone.",
+    "saveFailed": "Could not save. Nothing changed. Check the network and try again.",
+    "loadFailed": "Could not load the cards. Nothing was lost. Try again.",
+    "prev": "Previous card",
+    "print": "Print or share card",
+    "nextCard": "Next card"
   }
 }

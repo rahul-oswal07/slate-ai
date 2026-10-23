@@ -21,7 +21,7 @@ export function BottomNav() {
   const waiting = waitingCount(usePackages(useMe().data?.classId ?? '').data)
 
   return (
-    <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface">
+    <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface print:hidden">
       <ul className="mx-auto grid max-w-md grid-cols-5">
         {tabs.map((tab) => (
           <li key={tab.key}>

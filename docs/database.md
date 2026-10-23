@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261023053444_AbsenceReasons` (T-45) |
+| Last migration | `20261023073645_BuddyCards` (T-16) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -27,6 +27,7 @@ erDiagram
     CatchUpPackages ||--o{ AudioClips : "script audio"
     CatchUpAssignments ||--o| CheckResponses : "answered with"
     Children ||--o{ AbsenceReasons : "one per absent day"
+    Children ||--o{ BuddyCards : "ticks per return day"
 
     Teachers {
         uuid Id PK
@@ -175,6 +176,15 @@ erDiagram
         timestamptz CreatedAt
         timestamptz UpdatedAt
     }
+    BuddyCards {
+        uuid Id PK
+        uuid ClassId FK
+        uuid ChildId FK "unique with Date"
+        date Date
+        timestamptz HomeworkReturnedAt "nullable"
+        timestamptz DoneAt "nullable"
+        timestamptz UpdatedAt
+    }
     CheckResponses {
         uuid AssignmentId PK,FK
         int ChoiceId
@@ -224,6 +234,8 @@ erDiagram
 
 **`AbsenceReasons`** — why a child was away, as the family tapped it from the evening message (FR-21, D-23, T-45): the category only, never symptoms, a transcript or audio. Unique `(ChildId, Date)`, where `Date` is the evening message's day; a later tap replaces the category (the family may correct it), and replays are caught by `ProcessedRequests` (endpoint `parent-reason`). Only the teacher sees it: T6 Week counts per category (T-46, index `(ClassId, Date)`). FKs `ChildId` (cascade, FR-15), `ClassId`.
 
+**`BuddyCards`** — the teacher's two ticks on a return-day buddy card (T5, FR-12, D-22, T-16): `HomeworkReturnedAt` ("Brought homework") and `DoneAt` ("Buddy time done"; Undo clears it). Unique `(ChildId, Date)`; rows appear on the first tap. The card itself is not stored: the buddy (D-59), the 3 sums (code, guardrail 4), the textbook key words and the page are computed by `BuddyCardBuilder` from attendance, confirmed lessons, catch-up targets and the curriculum, so a register correction changes the card. Replays are caught by `ProcessedRequests` (endpoint `buddy-card`). FKs `ChildId` (cascade, FR-15), `ClassId`.
+
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
 
 **`AiCalls`** — one row per Claude or Sarvam call, successful or not, written by `Ai/LoggedLlmClient` and `Speech/LoggedSpeechToText` (CLAUDE.md: every call is logged). `Purpose` is the prompt ID (e.g. `a1-lesson-mapping`) with its `PromptVersion`, or `stt`. The caller sets `Verdict` after validating the output (e.g. `valid`, `fallback:low-confidence`); `Error` holds the failure kind (`Refused`, `Truncated`, `Unavailable`, `NotConfigured`, `Rejected`). **Never stores prompt text, transcripts or names.** No FKs: it is an audit log that outlives the rows it describes. Index on `CreatedAt` for the "Under the hood" panel (T-18) and cost totals.
@@ -232,7 +244,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / CatchUpAssignments → CheckResponses. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -246,6 +258,7 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: T
 | Two catch-up generates for the same week | `pg_advisory_xact_lock(hashtextextended('catchups:{classId}:{week}', 0))` + unique `(ClassId, WeekOf, Language, TargetKey)` and `(ChildId, WeekOf)` | `Features/CatchUps/CatchUpStore.cs` |
 | Two picture answers racing (a retry while the first is in flight) | `pg_advisory_xact_lock(hashtextextended('answer:{assignmentId}', 0))` + primary key `AssignmentId` | `Features/Parent/ParentStore.cs` |
 | A reason tap racing its retry, or a late replay after a newer tap | `pg_advisory_xact_lock(hashtextextended('reason:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Parent/ParentStore.cs` |
+| Two taps on the same buddy card racing | `pg_advisory_xact_lock(hashtextextended('buddy:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Buddy/BuddyStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
 
 All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tests/Db/`), which runs in CI.
@@ -267,7 +280,6 @@ From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 | Table / column | Task | Notes |
 |---|---|---|
 | `Lessons` + `Transcript`, `ExamplesUsed`, `Confidence` | T-07 | Confidence < 0.7 → teacher picks from the chapter list |
-| `BuddyCards.HomeworkReturnedAt` | T-16 (D-22) | "Brought homework" tap |
 | `textbookPage` on competencies | T-05 (D-22) | In `data/curriculum/*.json`, not a table |
 
 ## 5. Privacy

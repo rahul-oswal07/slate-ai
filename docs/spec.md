@@ -195,7 +195,7 @@ Built schema, keys, indexes and locking: `docs/database.md`.
 | `AudioClip` | Id, Kind (script/disclosure/greeting), Language, PackageId? (cascade), TextHash? (disclosure cache key), ContentType (audio/ogg), Bytes, Seconds, CreatedAt (built T-11) |
 | `CatchUpAssignment` | Id, ClassId, ChildId, PackageId, WeekOf, MissedCompetencyIds[], CompressionRationale (json), Token, ScheduledAt, SentAt, OpenedAt, ExpiresAt (built T-09; token, sent and expiry set by the send step, T-14) |
 | `CheckResponse` | AssignmentId, ChoiceId, Correct, Outcome (CaughtUp/NeedsBuddy). Spoken-answer fields dropped with FR-18 (D-26) |
-| `BuddyCard` | ChildId, BuddyChildId, Date, Sums[], KeyWords[], HomeworkReturnedAt? (D-22) |
+| `BuddyCard` | ChildId, Date, HomeworkReturnedAt? (D-22), DoneAt?. Only the teacher's ticks are stored; the buddy, sums (code, guardrail 4), key words and page are computed from attendance, lessons and the curriculum each time (T-16) |
 | `MessageTemplate` | Id, ClassId, Language, Text with slots `{child}` (written text only) `{lesson}` `{page}` (D-48, D-29, D-50), Status (Draft/Approved), ApprovedAt, ApprovedByTeacherId (FR-20, D-21) |
 | `EveningMessage` | Id, ChildId, Date, TemplateId, LessonId, SlotValues (json), Token, SentAt (FR-20) |
 | `AbsenceReason` | ChildId, ClassId, Date (the evening message's day), Category (unwell/travelOrWork/festival/neededAtHome/other); unique (ChildId, Date). Category only; no transcript or audio kept (FR-21). Source/Confidence dropped with the voice note (D-63) |
@@ -239,8 +239,8 @@ GET  /api/classes/{id}/message-template     evening template per language, fille
 POST /api/classes/{id}/message-template/approve { clientRequestId, version } → all languages Approved; 409 + latest if the version is stale (D-49)
 GET  /api/classes/{id}/evening-messages/{date} tonight's card: { blocked, templateApproved, lessonConfirmed, absent, families, sent, sendsAt, children[{ childId, outcome }] }
 POST /api/classes/{id}/evening-messages/send   { clientRequestId } today's absentees; 409 before 18:00 IST (unless Demo:Enabled), unless template Approved + lesson confirmed + attendance in; per child: willSend|sent|noConsent|noPhone|stopped|noWording; one per child per day. The 6 pm job (EveningSendWorker) calls the same path
-GET  /api/classes/{id}/buddy-cards?date=
-POST /api/buddy-cards/{id}/homework-returned   "Brought homework" tap (D-22)
+GET  /api/classes/{id}/buddy-cards/{date}    T5 (T-16): a card per child back that day { childId, firstName, rollNo, daysAway, buddy{ childId, firstName, presentDays }|null (D-59 teacher-led), missedDays, competencyId, sums[{ question, answer }] (code), keyWordsKn, homework, homeworkReturned, done }; never the channel or a score (B-20); future date → 400
+PUT  /api/classes/{id}/buddy-cards/{date}/{childId}  { clientRequestId, homeworkReturned?, done? } "Brought homework" (D-22) / "Buddy time done" (false = Undo); replay is a no-op; 404 when the child didn't come back that day (replaces POST /api/buddy-cards/{id}/homework-returned: cards are computed, so there is no ID before a tap)
 GET  /api/classes/{id}/return-speed?week=   FR-22
 GET  /api/classes/{id}/pacing?week=
 DELETE /api/children/{id}                   data deletion
