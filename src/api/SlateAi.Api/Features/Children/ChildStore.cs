@@ -20,7 +20,8 @@ public interface IChildStore
 {
     /// <summary>
     /// Deletes the child and, through the database's cascades, everything about them: attendance, evening messages,
-    /// catch-up assignments and their answers, and reasons. Children have no audio or transcripts of their own.
+    /// catch-up assignments and their answers, and reasons. A catch-up made only for this child goes too, with its audio
+    /// (T-19); one shared with classmates stays. Children have no other audio or transcripts.
     /// </summary>
     Task<ChildDelete> DeleteAsync(Guid classId, Guid childId, Guid clientRequestId, CancellationToken cancellationToken);
 }
@@ -37,11 +38,20 @@ public sealed class ChildStore(AppDbContext db, TimeProvider clock) : IChildStor
             return ChildDelete.Replay;
         }
 
+        var packageIds = await db.CatchUpAssignments
+            .Where(a => a.ChildId == childId && a.ClassId == classId)
+            .Select(a => a.PackageId)
+            .ToListAsync(cancellationToken);
         var deleted = await db.Children.Where(c => c.Id == childId && c.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         if (deleted == 0)
         {
             return ChildDelete.NotFound;
         }
+
+        // The child's assignments are gone with them; a catch-up nobody else has is about them alone.
+        await db.CatchUpPackages
+            .Where(p => packageIds.Contains(p.Id) && !db.CatchUpAssignments.Any(a => a.PackageId == p.Id))
+            .ExecuteDeleteAsync(cancellationToken);
 
         db.ProcessedRequests.Add(new ProcessedRequest
         {

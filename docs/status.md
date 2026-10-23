@@ -36,6 +36,12 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 **Build scope: [`docs/design/mvp-build-flow.md`](design/mvp-build-flow.md) (D-70).** Build screens in its order; skip its "Not in the MVP" list (Settings, per-language greetings, family-details editing, bulk approve / withdraw, mic-blocked / sending states, stitched evening audio, parent-page polish, offline beyond attendance + voice note). Nothing already built changes.
 
+## T-19 consent + delete (23 Oct, branch `fix/T-19-delete-empty-catchup`)
+
+- Checked FR-15 against the build: consent capture on T8 is out of the MVP (D-70: seed holds consent, the send filter is in code); "nothing sent unless Yes" is covered by the evening and catch-up send tests; delete (T-13) with its Db test.
+- Fixed one gap: deleting the only child of a catch-up left the catch-up (and its audio) on Approve for nobody, still approvable. Delete now removes catch-ups with no children left in the same transaction; shared ones stay. Failing Db test first (`ChildDeleteEmptyCatchUpDbTests`), then the fix in `ChildStore`.
+- T-19 is done for the MVP; T8 consent editing stays on the roadmap.
+
 ## T-18 demo shell (23 Oct, branch `feat/T-18-demo-shell`)
 
 - Decided (Rahul, 23 Oct): Reset writes the **school days before the real today** (no demo clock); Reset restores a **pre-made Ready (not approved)** Telugu catch-up for Ravi when `data/seed/demo-catchup.json` exists (R5); **one-tap sign-in** for the demo teacher while `Demo:Enabled`.
