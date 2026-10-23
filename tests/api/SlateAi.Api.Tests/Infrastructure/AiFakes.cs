@@ -39,3 +39,10 @@ public sealed class FakeAiCallStore : IAiCallStore
         return Task.CompletedTask;
     }
 }
+
+/// <summary>Fails the test if anything calls an LLM: for paths with no AI (evening message FR-20, the parent page).</summary>
+public sealed class ThrowingLlmClient : ILlmClient
+{
+    public Task<LlmResponse> CompleteJsonAsync(LlmRequest request, CancellationToken cancellationToken) =>
+        throw new InvalidOperationException("This path must not call an LLM (FR-20, FR-21, guardrail 3).");
+}

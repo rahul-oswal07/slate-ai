@@ -18,7 +18,10 @@ public sealed record TemplateLanguageView(string Language, IReadOnlyList<TextPar
 public sealed record MessageTemplateResponse(
     string Version, string Status, DateTimeOffset? ApprovedAt, IReadOnlyList<TemplateLanguageView> Languages);
 
-/// <summary>What the family sees (demo chat, later WhatsApp): her greeting, then the written message.</summary>
+/// <summary>
+/// What the family sees (demo chat, later WhatsApp): her greeting, then the written message. <c>Reason</c> is the
+/// category they already gave for that day (FR-21), so a reopened link shows it.
+/// </summary>
 public sealed record ParentEveningResponse(
     DateOnly Date,
     string Language,
@@ -27,7 +30,8 @@ public sealed record ParentEveningResponse(
     string Text,
     string? GreetingAudioUrl,
     DateTimeOffset SentAt,
-    bool Stopped)
+    bool Stopped,
+    string? Reason = null)
 {
     /// <summary>The parent link serves catch-ups too (<c>Features/Parent</c>); this tells the page which it got.</summary>
     public string Kind => "evening";

@@ -18,11 +18,13 @@ public sealed class ParentDbTests(PostgresFixture postgres)
     public async Task Family_opens_answers_once_and_a_stop_blocks_every_send()
     {
         // On a real database: the token lookup's joins, the first answer winning a race (advisory lock + primary key),
-        // the ledger reading the answer, and FR-19: after a stop the evening send refuses the child.
+        // the ledger reading the answer, FR-19 (after a stop the evening send refuses the child) and FR-21 (one reason
+        // per child per day, the latest tap wins, a replay after it changes nothing).
         await using var api = await DemoClassApi.StartAsync(postgres);
         var today = SchoolClock.Today(TimeProvider.System);
         var ravi = api.ChildIds[3]; // roll 4, Telugu, consent yes
-        (await api.MarkAsync(Guid.NewGuid(), today, ravi)).EnsureSuccessStatusCode();
+        var saiTeja = api.ChildIds[9]; // roll 10, Telugu, consent yes
+        (await api.MarkAsync(Guid.NewGuid(), today, ravi, saiTeja)).EnsureSuccessStatusCode();
         (await api.Client.PutAsJsonAsync($"/api/classes/{api.ClassId}/lessons/{today:yyyy-MM-dd}",
             new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
         (await api.Client.PostAsJsonAsync($"/api/classes/{api.ClassId}/catchups/generate",
@@ -65,6 +67,15 @@ public sealed class ParentDbTests(PostgresFixture postgres)
         var day = (await evening.Content.ReadFromJsonAsync<EveningDayResponse>(DemoClassApi.Ct))!;
         Assert.Equal(EveningOutcome.Stopped, day.Children.Single(c => c.ChildId == ravi).Outcome);
         Assert.False(await api.QueryAsync(db => db.EveningMessages.AnyAsync(m => m.ChildId == ravi, DemoClassApi.Ct)));
+
+        var eveningToken = await api.QueryAsync(db => db.EveningMessages.Where(m => m.ChildId == saiTeja).Select(m => m.Token).SingleAsync(DemoClassApi.Ct));
+        var unwell = new ReasonRequest(ReasonCategory.Unwell, Guid.NewGuid());
+        (await api.Client.PostAsJsonAsync($"/api/p/{eveningToken}/reason", unwell, DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        (await api.Client.PostAsJsonAsync($"/api/p/{eveningToken}/reason", new ReasonRequest(ReasonCategory.Festival, Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        (await api.Client.PostAsJsonAsync($"/api/p/{eveningToken}/reason", unwell, DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        var reason = Assert.Single(await api.QueryAsync(db => db.AbsenceReasons.ToListAsync(DemoClassApi.Ct)));
+        Assert.Equal((saiTeja, today, ReasonCategory.Festival), (reason.ChildId, reason.Date, reason.Category));
+        Assert.Equal(ReasonCategory.Festival, (await api.Client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{eveningToken}", DemoClassApi.Ct))!.Reason);
 
         (await api.Client.PostAsJsonAsync($"{url}/restart", new StopRequest(Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
         Assert.Null(await api.QueryAsync(db => db.Children.Where(c => c.Id == ravi).Select(c => c.ParentStoppedAt).SingleAsync(DemoClassApi.Ct)));

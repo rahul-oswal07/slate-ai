@@ -7,9 +7,10 @@ import { Icon } from '../../components/Icon'
 import { ActivityStep } from './ActivityStep'
 import { AnswerStep } from './AnswerStep'
 import { DoneStep } from './DoneStep'
+import { EveningView } from './EveningView'
 import { ListenStep } from './ListenStep'
 import { AiLabel, HomeworkCard, ParentHeader, PrimaryButton, StepDots, StopControl, StoppedView } from './ParentParts'
-import type { ParentCatchUp, ParentEvening, ParentExpired } from './types'
+import type { ParentCatchUp, ParentExpired } from './types'
 import { useParentPage } from './useParentPage'
 
 /**
@@ -133,22 +134,6 @@ function ExpiredView({ token, expired }: { token: string; expired: ParentExpired
       {expired.homework && <HomeworkCard homework={expired.homework} teacher={expired.teacherName} />}
       <StopControl token={token} childName={expired.childName} />
     </div>
-  )
-}
-
-/** An evening-message link opened on its own (the demo chat shows it as a bubble, T-18): the text and the stop link. */
-function EveningView({ token, message }: { token: string; message: ParentEvening }) {
-  const { t } = useTranslation()
-  return (
-    <>
-      <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />
-      <div className="flex flex-col gap-4 px-4 py-4">
-        <p lang={message.language} className="rounded-md border border-border bg-surface p-4 text-body">
-          {message.text}
-        </p>
-        <StopControl token={token} childName={message.childName} />
-      </div>
-    </>
   )
 }
 

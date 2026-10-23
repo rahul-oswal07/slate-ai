@@ -198,7 +198,7 @@ Built schema, keys, indexes and locking: `docs/database.md`.
 | `BuddyCard` | ChildId, BuddyChildId, Date, Sums[], KeyWords[], HomeworkReturnedAt? (D-22) |
 | `MessageTemplate` | Id, ClassId, Language, Text with slots `{child}` (written text only) `{lesson}` `{page}` (D-48, D-29, D-50), Status (Draft/Approved), ApprovedAt, ApprovedByTeacherId (FR-20, D-21) |
 | `EveningMessage` | Id, ChildId, Date, TemplateId, LessonId, SlotValues (json), Token, SentAt (FR-20) |
-| `AbsenceReason` | ChildId, Date, Category (Unwell/TravelOrWork/Festival/NeededAtHome/Other), Source (Picture/Voice), Confidence?. Category only; no transcript or audio kept (FR-21) |
+| `AbsenceReason` | ChildId, ClassId, Date (the evening message's day), Category (unwell/travelOrWork/festival/neededAtHome/other); unique (ChildId, Date). Category only; no transcript or audio kept (FR-21). Source/Confidence dropped with the voice note (D-63) |
 | `PacingNudge` | ClassId, WeekStart, Stats (json), TextKn |
 | `AiCall` | Id, Purpose, Model, PromptVersion, InputTokens, OutputTokens, LatencyMs, Verdict, Error |
 
@@ -233,7 +233,7 @@ GET  /api/p/{token}/audio/{clipId}          one segment of this link's catch-up 
 POST /api/p/{token}/answer                  { choiceId, clientRequestId } → 200 { answered: true }, never right/wrong; scored by code (FR-11); first answer counts (D-62); 409 when stopped, expired or not approved
 POST /api/p/{token}/stop                    { clientRequestId } → sets Child.ParentStoppedAt (D-19); catch-up or evening link, also after expiry; idempotent
 POST /api/p/{token}/restart                 { clientRequestId } → clears it (D-30); idempotent
-POST /api/p/{token}/reason                  { category } or audio → A7 (FR-21)
+POST /api/p/{token}/reason                  { category, clientRequestId } (FR-21, T-45): evening links only (404 for a catch-up link); unwell|travelOrWork|festival|neededAtHome|other, else 400; one per child per day, a later tap replaces it, a replayed clientRequestId changes nothing; 409 once expired or stopped; Skip sends nothing. The voice note → A7 route is cut (D-63)
 GET  /api/classes/{id}/message-template     evening template per language, filled with an example (text parts, slots marked); drafts created from data/seed/evening-message.json (FR-20)
 POST /api/classes/{id}/message-template/approve { clientRequestId, version } → all languages Approved; 409 + latest if the version is stale (D-49)
 GET  /api/classes/{id}/evening-messages/{date} tonight's card: { blocked, templateApproved, lessonConfirmed, absent, families, sent, sendsAt, children[{ childId, outcome }] }

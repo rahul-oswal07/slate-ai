@@ -42,6 +42,42 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("DataProtectionKeys");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.AbsenceReason", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChildId", "Date")
+                        .IsUnique();
+
+                    b.HasIndex("ClassId", "Date");
+
+                    b.ToTable("AbsenceReasons");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.AiCall", b =>
                 {
                     b.Property<Guid>("Id")
@@ -665,6 +701,21 @@ namespace SlateAi.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Teachers");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.AbsenceReason", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Child", null)
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Attendance", b =>

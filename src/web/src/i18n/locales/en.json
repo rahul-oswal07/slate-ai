@@ -385,7 +385,32 @@
       "sending": "Sending",
       "sent": "Sent",
       "stopped": "Messages stopped",
-      "restarted": "Messages started again"
+      "restarted": "Messages started again",
+      "reasonSent": "Sent. Thank you."
+    },
+    "reason": {
+      "entry": "Is everything OK? Tell us",
+      "given": "Thank you for telling us.",
+      "change": "Change",
+      "title": "{{teacher}} teacher",
+      "question": "We missed {{child}} today. Is everything OK?",
+      "options": "Reason",
+      "category": {
+        "unwell": "Unwell",
+        "travelOrWork": "Family travel or work",
+        "festival": "Festival or function",
+        "neededAtHome": "Needed at home",
+        "other": "Other"
+      },
+      "hint": "Tap one picture",
+      "send": "Send",
+      "sending": "Sending…",
+      "skip": "Skip",
+      "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
+      "retry": "Try again",
+      "thanks": "Thank you",
+      "private": "Only {{teacher}} teacher sees this.",
+      "ok": "OK"
     }
   }
 }

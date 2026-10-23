@@ -54,6 +54,11 @@ public sealed record AnswerRequest(int ChoiceId, Guid ClientRequestId);
 /// <summary>Never says right or wrong: the family sees "Well done" whatever the answer (D-20).</summary>
 public sealed record AnswerResponse(bool Answered);
 
+/// <param name="Category">One of <see cref="ReasonCategory"/>.</param>
+public sealed record ReasonRequest(string Category, Guid ClientRequestId);
+
+public sealed record ReasonResponse(string Category);
+
 public sealed record StopRequest(Guid ClientRequestId);
 
 public sealed record StopResponse(bool Stopped);

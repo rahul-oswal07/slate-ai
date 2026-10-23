@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { api } from '../../api/client'
-import type { ParentCatchUp, ParentEvening } from './types'
+import type { ParentCatchUp, ParentEvening, ReasonCategory } from './types'
 
 export const parentKey = (token: string) => ['parent', token] as const
 
@@ -44,5 +44,28 @@ export function useStop(token: string) {
         body: { clientRequestId: crypto.randomUUID() },
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: parentKey(token) }),
+  })
+}
+
+/**
+ * Sends why the child was away (FR-21). One clientRequestId per visit, so Try again can't count twice; a later tap
+ * with a different picture replaces the reason on the server.
+ */
+export function useReason(token: string) {
+  const queryClient = useQueryClient()
+  const requestId = useRef(crypto.randomUUID())
+  return useMutation({
+    mutationFn: (category: ReasonCategory) =>
+      api<{ category: ReasonCategory }>(`/api/p/${token}/reason`, {
+        method: 'POST',
+        body: { category, clientRequestId: requestId.current },
+      }),
+    onSuccess: ({ category }) => {
+      // The next change of mind is a new request.
+      requestId.current = crypto.randomUUID()
+      queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
+        page?.kind === 'evening' ? { ...page, reason: category } : page,
+      )
+    },
   })
 }

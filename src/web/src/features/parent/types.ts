@@ -25,4 +25,17 @@ export type ParentCatchUp = {
 export type ParentExpired = { kind: 'catchUp'; language: string; childName: string; teacherName: string; homework: Homework | null }
 
 /** An evening-message link (shown in the demo chat later, T-18); the page only needs to recognise it. */
-export type ParentEvening = { kind: 'evening'; language: string; childName: string; teacherName: string; text: string }
+export type ParentEvening = {
+  kind: 'evening'
+  language: string
+  childName: string
+  teacherName: string
+  text: string
+  stopped: boolean
+  /** The reason the family already gave for this day (FR-21), or null. */
+  reason: ReasonCategory | null
+}
+
+/** The five picture buttons on the reason page (FR-21, D-23): a category, never a diagnosis. */
+export const REASON_CATEGORIES = ['unwell', 'travelOrWork', 'festival', 'neededAtHome', 'other'] as const
+export type ReasonCategory = (typeof REASON_CATEGORIES)[number]
