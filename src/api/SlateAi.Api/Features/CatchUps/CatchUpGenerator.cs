@@ -4,6 +4,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.CatchUps.Practice;
 using SlateAi.Api.Features.CatchUps.Script;
+using SlateAi.Api.Features.CatchUps.Verify;
 
 namespace SlateAi.Api.Features.CatchUps;
 
@@ -39,9 +40,15 @@ public sealed class CatchUpGenerator(
     }
 }
 
-/// <summary>Writes one catch-up's words with A3 and stores the result.</summary>
-public sealed class CatchUpWriter(ICatchUpStore store, ScriptWriter writer, CurriculumGraph curriculum, PromptLibrary prompts)
+/// <summary>
+/// Writes one catch-up: A3 → validator → verifier (A4), with one auto-retry carrying the verifier's reasons
+/// (spec §5.1 A3). Passes → ready; a second verifier failure → needsReview with the reasons; nothing usable → failed.
+/// </summary>
+public sealed class CatchUpWriter(
+    ICatchUpStore store, ScriptWriter writer, Verifier verifier, CurriculumGraph curriculum, PromptLibrary prompts)
 {
+    public const int Attempts = 2;
+
     public async Task WriteAsync(Guid packageId, CancellationToken cancellationToken)
     {
         if (await store.GetPackageAsync(packageId, cancellationToken) is not { Status: PackageStatus.Generating } package)
@@ -55,17 +62,52 @@ public sealed class CatchUpWriter(ICatchUpStore store, ScriptWriter writer, Curr
             CatchUpPlanner.SeedKey(package.ClassId, package.WeekOf, package.TargetKey, package.Language));
         if (problems is null)
         {
-            await store.SaveScriptAsync(packageId, A3Validator.Refused("fallback:no-practice"), promptVersion, cancellationToken);
+            await store.SaveScriptAsync(
+                packageId, new ScriptOutcome(PackageStatus.Failed, null, "fallback:no-practice", promptVersion, null), cancellationToken);
             return;
         }
 
         var (from, to) = (package.WeekOf, package.WeekOf.AddDays(6));
         var examples = await store.GetTeacherExamplesAsync(package.ClassId, from, to, package.TargetIds, cancellationToken);
         var names = await store.GetNamesAsync(package.ClassId, cancellationToken);
-        var result = await writer.WriteAsync(
-            new ScriptInput(package.Language, package.TargetIds, problems, examples, package.Hint), names, cancellationToken);
-        await store.SaveScriptAsync(packageId, result, promptVersion, cancellationToken);
+        var activity = Activity(problems);
+        var check = Check(problems);
+
+        ScriptOutcome? outcome = null;
+        IReadOnlyList<string>? feedback = null;
+        for (var attempt = 1; attempt <= Attempts; attempt++)
+        {
+            var input = new ScriptInput(package.Language, package.TargetIds, problems, examples, package.Hint, feedback);
+            var written = await writer.WriteAsync(input, names, cancellationToken);
+            if (written.Content is not { } content)
+            {
+                // Keep a verified-but-flawed earlier attempt rather than nothing.
+                outcome = outcome?.Content is not null ? outcome : new ScriptOutcome(PackageStatus.Failed, null, written.Verdict, promptVersion, null);
+                feedback = [$"output: {written.Verdict}"];
+                continue;
+            }
+
+            var review = await verifier.VerifyAsync(
+                new VerifyInput(package.Language, package.TargetIds, content, activity, check, names), cancellationToken);
+            outcome = new ScriptOutcome(
+                review.Passed ? PackageStatus.Ready : PackageStatus.NeedsReview, content, review.Verdict, promptVersion,
+                new PackageReview(review.Passed, attempt, review.Checks));
+            if (review.Passed)
+            {
+                break;
+            }
+
+            feedback = review.Problems;
+        }
+
+        await store.SaveScriptAsync(packageId, outcome!, cancellationToken);
     }
+
+    private static ActivityData Activity(PackageProblems p) =>
+        new(p.CompetencyId, p.Activity.Kind, p.Activity.Question, p.Activity.Numbers, p.Activity.Answer, null, null);
+
+    private static CheckData Check(PackageProblems p) =>
+        new(p.CompetencyId, p.Check.Kind, p.Check.Question, p.Check.Options, p.Check.CorrectIndex, p.Check.Answer, null);
 }
 
 /// <summary>
@@ -99,7 +141,7 @@ public sealed class CatchUpWorker(CatchUpQueue queue, IServiceScopeFactory scope
                 // Never let one catch-up stop the worker; it shows as "Generation failed" and she can try again.
                 logger.LogError(e, "Writing catch-up {PackageId} failed", packageId);
                 await scope.ServiceProvider.GetRequiredService<ICatchUpStore>().SaveScriptAsync(
-                    packageId, A3Validator.Refused("error:exception"), 0, stoppingToken);
+                    packageId, new ScriptOutcome(PackageStatus.Failed, null, "error:exception", 0, null), stoppingToken);
             }
         }
     }

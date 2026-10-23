@@ -23,12 +23,13 @@ public sealed class A3ValidatorTests
         string script = "ఈ రోజు మనం ಕಳೆ నేర్చుకుందాం. ಕಳೆ అంటే తీసివేత. ಹತ್ತು నుండి ఒక ದಶಕ తీసుకుందాం. ದಶಕ ಹತ್ತು. మీ టీచర్‌కు చూపించండి.",
         string[]? keyWords = null,
         string instruction = "ఒక కట్టను విప్పి 10 పుల్లలు చేయండి.",
-        string glossKn = "ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು") =>
+        string glossKn = "ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+        string[]? objects = null) =>
         JsonSerializer.Serialize(new
         {
             script,
             keyWordsKn = keyWords ?? ["ಕಳೆ", "ದಶಕ", "ಹತ್ತು"],
-            activity = new { instruction, objectOption = "పుల్లలు లేకపోతే రాళ్ళు వాడండి." },
+            activity = new { instruction, objectOption = "పుల్లలు లేకపోతే రాళ్ళు వాడండి.", objects = objects ?? ["stones"] },
             checkPrompt = "ఏ బొమ్మ సరైనది?",
             glossKn,
             glossEn = "Subtraction with borrowing. Show your teacher.",
@@ -42,6 +43,7 @@ public sealed class A3ValidatorTests
         Assert.Equal("valid", result.Verdict);
         Assert.Equal(["ಕಳೆ", "ದಶಕ", "ಹತ್ತು"], result.Content!.KeyWordsKn);
         Assert.StartsWith("ఈ రోజు", result.Content.Script);
+        Assert.Equal(["stones"], result.Content.Objects);
     }
 
     [Theory]

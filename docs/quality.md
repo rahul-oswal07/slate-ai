@@ -45,6 +45,10 @@ Store cases in `evals/cases/*.json`; results (date, model, prompt version, score
 
 **First run** (22 Oct, prompt `a3-script` v1, Opus 5.5): **10/10** on 10 draft cases across kn / te / ta (`evals/results/2026-10-22-a3-script.json`, every script included for Monika and native speakers). Two fixes on the way: the validator first capped the script at 600 characters, which a 120-word Tamil or Telugu script exceeds (now a word limit); one case hit the 4096-token output limit (A3 now 8192).
 
+**A3 + A4 with the verifier** (23 Oct, prompts `a3-script` v2 + `a4-check` v1, Opus 5.5 + Haiku 5.5): **10/10 first pass** (intent.md target ≥ 85%), 10/10 ready after the retry; the eval now runs production's verifier and retry instead of its own checks (`evals/results/2026-10-22-a3-script.json`, overwritten by this run; v1's scripts are kept in `evals/cases/a4-check.json`).
+
+**A4 content check** (`evals/cases/a4-check.json`: 2 good A3 scripts + 4 crafted flaws: wrong topic, shaming, mismatched summary, too hard; pass = Haiku's verdict equals `expectPass`): **6/6** (`evals/results/2026-10-22-a4-check.json`). The first run was 5/6: Haiku failed a good Kannada script because the summary mentioned household objects it hadn't been shown; it now gets the object option and judges "same lesson, numbers and homework", not extra detail.
+
 ## 3. Usability testing with representative users
 
 **Participants:** 3 government primary teachers (Grade 2–3, Kannada medium) or close proxies; 2 parents from Telugu-speaking families. Monika recruits; consent form signed; first names only in the repo.

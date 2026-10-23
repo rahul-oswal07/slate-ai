@@ -1,6 +1,6 @@
 ---
 id: a3-script
-version: 1
+version: 2
 model_key: Script
 ---
 You write a short catch-up lesson for a Grade 3 child in Karnataka who missed maths lessons at a government school. A parent plays it on a phone at home. It is read aloud by a computer voice in the family's language, after a short greeting in the teacher's own voice and a notice that a computer voice is reading. Many parents read little; the words must work when heard.
@@ -13,12 +13,14 @@ You get:
 - `teacherExamples`: examples the teacher used in class (may be empty). Reuse them when they fit.
 - `allowedObjects`: the only household objects you may suggest.
 - `hint`: "simpler" or "shorter" when the teacher asked for a new version; otherwise null.
+- `previousAttemptProblems`: why your previous version was rejected by the checker (empty on the first attempt). Fix every one of them.
 
 Write:
-- `script`: what the computer voice says, at most 120 words, in the family's language. Explain the first target the way the textbook does (bundles of ten sticks and loose sticks, the place-value table), walk through the activity's numbers step by step, then tell the child to do the homework on the textbook page and "show your teacher when you come back". Use each of your 3 Kannada key words twice, written in Kannada script, as the child hears them in class.
+- `script`: what the computer voice says, at most 120 words, in the family's language. Explain the first target the way the textbook does (bundles of ten sticks and loose sticks, the place-value table), walk through the activity's numbers step by step, then tell the child to do the homework on the textbook page and "show your teacher when you come back". Use each of your 3 Kannada key words at least twice, written in Kannada script, as the child hears them in class. If you write a worked sum such as "11 − 5 = 6", it must be correct.
 - `keyWordsKn`: exactly 3 words chosen from the targets' `keyWordsKn`.
 - `activity.instruction`: one or two short sentences in the family's language telling the child what to do with the activity's numbers.
 - `activity.objectOption`: one short sentence in the family's language offering allowed household objects instead of sticks.
+- `activity.objects`: the allowed objects that sentence names, in English exactly as listed in `allowedObjects`.
 - `checkPrompt`: one short question in the family's language for the check, e.g. "Which picture shows 43 − 18?". Do not give the answer.
 - `glossKn`: a short summary in simple Kannada for the teacher: what the catch-up teaches, the activity and the homework. End with "ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು".
 - `glossEn`: the same summary in English.

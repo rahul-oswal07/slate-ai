@@ -3,6 +3,7 @@ using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.CatchUps.Script;
+using SlateAi.Api.Features.CatchUps.Verify;
 
 namespace SlateAi.Api.Features.CatchUps;
 
@@ -21,8 +22,11 @@ public static class CatchUpEndpoints
     /// <summary>A package still "generating" after this (app restarted mid-way) reads as failed.</summary>
     public static readonly TimeSpan StaleGenerating = TimeSpan.FromMinutes(5);
 
-    public static IServiceCollection AddCatchUps(this IServiceCollection services)
+    public static IServiceCollection AddCatchUps(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<VerifierOptions>(configuration.GetSection(VerifierOptions.Section));
+        services.AddScoped<ContentCheck>();
+        services.AddScoped<Verifier>();
         services.AddScoped<Compressor>();
         services.AddScoped<ScriptWriter>();
         services.AddScoped<ICatchUpStore, CatchUpStore>();

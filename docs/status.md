@@ -36,12 +36,19 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 **Build scope: [`docs/design/mvp-build-flow.md`](design/mvp-build-flow.md) (D-70).** Build screens in its order; skip its "Not in the MVP" list (Settings, per-language greetings, family-details editing, bulk approve / withdraw, mic-blocked / sending states, stitched evening audio, parent-page polish, offline beyond attendance + voice note). Nothing already built changes.
 
+## T-10 verifier + D-72 (23 Oct, branch `feat/T-10-verifier`)
+
+- D-72: gender-neutral Telugu evening template, wording v2 (the teacher approves the evening message again).
+- A4 verifier: 6 code checks (numbers recomputed incl. sums written in the script, family's script ≥ 80%, spoken length ≤ 90 s estimated, key words twice, allowed objects via A3's new `objects` field, no names/placeholders) + Haiku content check (`a4-check` v1). One retry with the failed checks' details; `ready` / `needsReview` (words + reasons kept on `CatchUpPackages.Review`) / `failed`. A3 prompt v2 (objects, feedback). Evals: A3+A4 10/10 first pass; A4 6/6.
+- Next: T-11 audio (Sarvam TTS, segments greeting → disclosure → script; real duration ≤ 95 s; tune words/second), then T-14 Approve screen.
+- For Monika: review the 6 A4 cases (`evals/cases/a4-check.json`).
+
 ## T-09 A3 script writer + catch-up packages (22 Oct, branch `feat/T-09-a3-script`)
 
 - Built: `keyWordsKn` + `practice` per lesson in `grade3-maths.json` (drafts); `ProblemGenerator` / `PackagePractice` (activity sum and 3-option check by code, distractors ≥ 10 apart, shuffled, correct index stored, seeded so a regenerate keeps the numbers); A3 `ScriptWriter` (prompt `a3-script` v1, Opus, words only, no names) + `A3Validator`; tables `CatchUpPackages` / `CatchUpAssignments` (migration `CatchUpPackages`); `POST /api/classes/{id}/catchups/generate` (202, A2 → group by targets + language → A3 in a background worker) and `GET …/packages`. Eval A3 10/10 (kn/te/ta). Buddy sums leave A3 (T-16 makes them in code).
 - Next: T-10 verifier (6 code checks + Haiku, one retry, `needsReview`), then T-11 audio, T-14 Approve screen.
 - For Monika: review the draft `keyWordsKn` per lesson and the 10 A3 scripts in `evals/results/2026-10-22-a3-script.json` (native speakers for te/ta, T-26).
-- Follow-up (small separate PR): D-72 gender-neutral Telugu evening template ("ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం." / "ఒక సహవిద్యార్థి {child} సీటును కాపాడుతున్నారు."); bumps the wording version, so the teacher approves it again.
+- D-72 Telugu evening template: done in T-10's PR.
 
 ## T-08 A2 compression (22 Oct, branch `feat/T-08-a2-compression`)
 
@@ -111,6 +118,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
 | 21 Oct | Rahul + Claude | Technical mentor brief: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
+| 23 Oct | Rahul + Claude | T-10: A4 verifier (6 code checks + Haiku, one retry, needsReview with reasons), A3 prompt v2, D-72 Telugu template v2; evals A3+A4 10/10 first pass, A4 6/6 (after giving Haiku the object option) |
 | 22 Oct | Rahul + Claude | T-09: numbers by code (practice rules, generator), A3 script writer, `CatchUpPackages` / `CatchUpAssignments`, `catchups/generate` + background writer, `GET packages`; A3 eval 10/10 after two fixes (script capped by words not characters; 8192 output tokens); A2 asks Claude once per identical request (8 calls → 1 in a local run where everyone missed the same lesson) |
 | 22 Oct | Rahul + Claude | T-08: A2 compression service (planner, validator + rule fallback, compressor, prompt v1), 25 unit tests, eval 10/10 (a first run hit the 1024-token limit on a 5-day case; now 4096) |
 | 22 Oct | Rahul + Claude | T-44 PR 1: evening message API, 6 pm job, consent + stop filter, parent token view, T0 approve step, tonight card; 21 new API tests + 1 Db test (send race, seeded consent), 13 Vitest tests. Db helper now signs in as the seeded teacher (FK on `ApprovedByTeacherId`) |

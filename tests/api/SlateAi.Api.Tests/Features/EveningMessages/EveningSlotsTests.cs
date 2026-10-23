@@ -95,6 +95,7 @@ public sealed class EveningSlotsTests
         var book = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data/curriculum"));
 
         Assert.Equal(["en", "kn", "ta", "te"], wording.Languages.Keys.Order());
+        Assert.DoesNotContain("గుర్తొచ్చాడు", wording.Languages["te"].Text); // masculine verb replaced (D-72)
         foreach (var (language, text) in wording.Languages)
         {
             Assert.Contains("{child}", text.Text);

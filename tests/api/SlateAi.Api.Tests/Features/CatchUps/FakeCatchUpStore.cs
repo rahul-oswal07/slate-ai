@@ -1,12 +1,12 @@
 using System.Text.Json;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.CatchUps;
-using SlateAi.Api.Features.CatchUps.Script;
 
 namespace SlateAi.Api.Tests.Features.CatchUps;
 
 /// <summary>In-memory <see cref="ICatchUpStore"/>; the worker writes from a background thread, hence the lock.</summary>
-public sealed class FakeCatchUpStore(Guid classId) : ICatchUpStore
+/// <param name="clock">The same clock the API uses, so "stale generating" is judged on one timeline.</param>
+public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) : ICatchUpStore
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private readonly Lock _gate = new();
@@ -43,7 +43,7 @@ public sealed class FakeCatchUpStore(Guid classId) : ICatchUpStore
             var created = new List<Guid>();
             foreach (var planned in packages.Where(p => !Packages.Any(s => s.WeekOf == weekOf && s.Language == p.Language && s.TargetKey == p.TargetKey)))
             {
-                var package = CatchUpStore.NewPackage(id, weekOf, planned, DateTimeOffset.UtcNow);
+                var package = CatchUpStore.NewPackage(id, weekOf, planned, (clock ?? TimeProvider.System).GetUtcNow());
                 Packages.Add(package);
                 if (package.Status == PackageStatus.Generating)
                 {
@@ -79,15 +79,19 @@ public sealed class FakeCatchUpStore(Guid classId) : ICatchUpStore
         }
     }
 
-    public Task SaveScriptAsync(Guid packageId, A3Result result, int promptVersion, CancellationToken cancellationToken)
+    public List<ScriptOutcome> Outcomes { get; } = [];
+
+    public Task SaveScriptAsync(Guid packageId, ScriptOutcome outcome, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
+            Outcomes.Add(outcome);
             var p = Packages.Single(x => x.Id == packageId);
             p.ScriptVersion++;
-            p.Verdict = result.Verdict;
-            p.Status = result.Content is null ? PackageStatus.Failed : PackageStatus.Ready;
-            if (result.Content is { } c)
+            p.Verdict = outcome.Verdict;
+            p.Status = outcome.Status;
+            p.Review = outcome.Review is null ? null : JsonSerializer.Serialize(outcome.Review, Json);
+            if (outcome.Content is { } c)
             {
                 p.Script = c.Script;
                 p.KeyWordsKn = [.. c.KeyWordsKn];
@@ -111,7 +115,8 @@ public sealed class FakeCatchUpStore(Guid classId) : ICatchUpStore
                 Assignments.Where(a => a.PackageId == p.Id)
                     .Select(a => new AssignedChild(a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!))
                     .ToList(),
-                p.UpdatedAt == default ? DateTimeOffset.UtcNow : p.UpdatedAt)).ToList());
+                p.UpdatedAt,
+                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json))).ToList());
         }
     }
 }

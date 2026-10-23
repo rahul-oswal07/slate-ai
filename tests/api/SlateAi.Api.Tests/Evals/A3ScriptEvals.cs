@@ -3,37 +3,33 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
+using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.CatchUps.Practice;
 using SlateAi.Api.Features.CatchUps.Script;
+using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Evals;
 
 /// <summary>
-/// Live A3 evaluation (docs/quality.md §2): real Claude (Opus), the shipped prompt and curriculum, numbers made by the
-/// production code. Code checks only; the Haiku rubric comes with the verifier (T-10). Costs credits; run with
+/// Live A3 + A4 evaluation (docs/quality.md §2): real Claude (Opus writes, Haiku checks), the shipped prompts and
+/// curriculum, numbers made by production code, production's verifier and its one retry. Reports the first-pass
+/// rate (intent.md target ≥ 85%) and the ready rate after the retry. Costs credits; run with
 /// <c>dotnet test --filter Category=Eval</c>. Writes <c>evals/results/&lt;date&gt;-a3-script.json</c> with every script.
 /// </summary>
 [Trait("Category", "Eval")]
 public sealed class A3ScriptEvals
 {
     private const double Target = 0.8;
-    private const int MaxWords = 120;
+    private const double FirstPassTarget = 0.85;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true,
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    private static readonly Dictionary<string, (int From, int To)> Blocks = new()
-    {
-        ["kn"] = (0x0C80, 0x0CFF),
-        ["te"] = (0x0C00, 0x0C7F),
-        ["ta"] = (0x0B80, 0x0BFF),
-    };
-
     [Fact]
-    public async Task Scripts_pass_the_code_checks_on_at_least_80_percent_of_cases()
+    public async Task Catch_ups_are_ready_after_at_most_one_retry_on_at_least_80_percent_of_cases()
     {
         var root = RepoRoot();
         var file = JsonSerializer.Deserialize<CaseFile>(
@@ -45,64 +41,61 @@ public sealed class A3ScriptEvals
         await using var factory = FakeApi.Create(
             services => services.AddSingleton<IAiCallStore>(new FakeAiCallStore()),
             settings: new Dictionary<string, string?> { ["Ai:Provider"] = "Claude", ["Anthropic:ApiKey"] = key });
-        await using var scope = factory.Services.CreateAsyncScope();
-        var writer = scope.ServiceProvider.GetRequiredService<ScriptWriter>();
-        var curriculum = scope.ServiceProvider.GetRequiredService<CurriculumGraph>();
-        var prompt = scope.ServiceProvider.GetRequiredService<PromptLibrary>().Get(ScriptWriter.PromptId);
-        var model = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value.ModelFor(prompt.ModelKey);
+        var services = factory.Services;
+        var curriculum = services.GetRequiredService<CurriculumGraph>();
+        var prompts = services.GetRequiredService<PromptLibrary>();
+        var aiOptions = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value;
         string[] names = ["Ravi", "Ananya", "Bhavana", "Chetan", "Shobha"];
 
         var results = await Task.WhenAll(file.Cases.Select(async c =>
         {
+            await using var scope = services.CreateAsyncScope();
+            var writer = scope.ServiceProvider.GetRequiredService<ScriptWriter>();
+            var verifier = scope.ServiceProvider.GetRequiredService<Verifier>();
             var problems = PackagePractice.For(c.Targets, curriculum, c.Id)!;
-            var result = await writer.WriteAsync(
-                new ScriptInput(c.Language, c.Targets, problems, c.TeacherExamples), names, TestContext.Current.CancellationToken);
-            var reasons = new List<string>();
-            if (result.Content is not { } content)
+            var activity = new ActivityData(problems.CompetencyId, problems.Activity.Kind, problems.Activity.Question, problems.Activity.Numbers, problems.Activity.Answer, null, null);
+            var check = new CheckData(problems.CompetencyId, problems.Check.Kind, problems.Check.Question, problems.Check.Options, problems.Check.CorrectIndex, problems.Check.Answer, null);
+
+            var attempts = new List<Attempt>();
+            IReadOnlyList<string>? feedback = null;
+            for (var i = 0; i < CatchUpWriter.Attempts; i++)
             {
-                reasons.Add(result.Verdict);
-                return new CaseResult(c.Id, false, reasons, result.Verdict, problems.Check.Question, null, 0, 0);
+                var written = await writer.WriteAsync(
+                    new ScriptInput(c.Language, c.Targets, problems, c.TeacherExamples, Feedback: feedback), names, TestContext.Current.CancellationToken);
+                if (written.Content is not { } content)
+                {
+                    attempts.Add(new Attempt(false, written.Verdict, null, []));
+                    feedback = [$"output: {written.Verdict}"];
+                    continue;
+                }
+
+                var review = await verifier.VerifyAsync(
+                    new VerifyInput(c.Language, c.Targets, content, activity, check, names), TestContext.Current.CancellationToken);
+                attempts.Add(new Attempt(review.Passed, review.Verdict, content, review.Checks));
+                if (review.Passed)
+                {
+                    break;
+                }
+
+                feedback = review.Problems;
             }
 
-            var missing = content.KeyWordsKn.Where(w => !content.Script.Contains(w, StringComparison.Ordinal)).ToList();
-            if (missing.Count > 0)
-            {
-                reasons.Add("key word not in script: " + string.Join(", ", missing));
-            }
-
-            var share = ScriptShare(content.Script, c.Language);
-            if (share < 0.8)
-            {
-                reasons.Add($"only {share:P0} in the family's script");
-            }
-
-            var words = content.Script.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
-            if (words > MaxWords)
-            {
-                reasons.Add($"{words} words > {MaxWords}");
-            }
-
-            return new CaseResult(c.Id, reasons.Count == 0, reasons, result.Verdict, problems.Check.Question, content, words, share);
+            return new CaseResult(c.Id, attempts[0].Passed, attempts[^1].Passed, problems.Check.Question, attempts);
         }));
 
-        var score = results.Count(r => r.Pass) / (double)results.Length;
-        var report = new Report(DateTimeOffset.UtcNow, prompt.Id, prompt.Version, model, results.Length, score, Target, results);
+        var firstPass = results.Count(r => r.FirstPass) / (double)results.Length;
+        var ready = results.Count(r => r.Ready) / (double)results.Length;
+        var script = prompts.Get(ScriptWriter.PromptId);
+        var check = prompts.Get(ContentCheck.PromptId);
+        var report = new Report(
+            DateTimeOffset.UtcNow, $"{script.Id} v{script.Version} + {check.Id} v{check.Version}",
+            $"{aiOptions.ModelFor(script.ModelKey)} + {aiOptions.ModelFor(check.ModelKey)}",
+            results.Length, firstPass, FirstPassTarget, ready, Target, results);
         var output = Path.Combine(root, "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-a3-script.json");
         await File.WriteAllTextAsync(output, JsonSerializer.Serialize(report, Json) + "\n", TestContext.Current.CancellationToken);
 
-        Assert.True(score >= Target,
-            $"A3 {score:P0} < {Target:P0}: " + string.Join("; ", results.Where(r => !r.Pass).Select(r => $"{r.Id} ({string.Join(", ", r.Reasons)})")));
-    }
-
-    /// <summary>Share of letters in the family's script, not counting the Kannada key words in a Telugu/Tamil script.</summary>
-    private static double ScriptShare(string script, string language)
-    {
-        var (from, to) = Blocks[language];
-        var kannada = Blocks["kn"];
-        var letters = script.Where(ch => char.IsLetter(ch) || char.GetUnicodeCategory(ch) is System.Globalization.UnicodeCategory.NonSpacingMark or System.Globalization.UnicodeCategory.SpacingCombiningMark)
-            .Where(ch => language == "kn" || ch < kannada.From || ch > kannada.To)
-            .ToList();
-        return letters.Count == 0 ? 0 : letters.Count(ch => ch >= from && ch <= to) / (double)letters.Count;
+        Assert.True(ready >= Target,
+            $"A3+A4 ready {ready:P0} < {Target:P0}: " + string.Join("; ", results.Where(r => !r.Ready).Select(r => $"{r.Id} ({r.Attempts[^1].Verdict})")));
     }
 
     private static string RepoRoot()
@@ -120,11 +113,11 @@ public sealed class A3ScriptEvals
 
     private sealed record EvalCase(string Id, string Language, IReadOnlyList<string> Targets, IReadOnlyList<string> TeacherExamples);
 
-    private sealed record CaseResult(
-        string Id, bool Pass, IReadOnlyList<string> Reasons, string Verdict, string CheckQuestion, ScriptContent? Content,
-        int Words, double ScriptShare);
+    private sealed record Attempt(bool Passed, string Verdict, ScriptContent? Content, IReadOnlyList<VerifierCheck> Checks);
+
+    private sealed record CaseResult(string Id, bool FirstPass, bool Ready, string CheckQuestion, IReadOnlyList<Attempt> Attempts);
 
     private sealed record Report(
-        DateTimeOffset RunAt, string Prompt, int PromptVersion, string Model, int Cases, double Score, double Target,
-        IReadOnlyList<CaseResult> Results);
+        DateTimeOffset RunAt, string Prompts, string Models, int Cases, double FirstPass, double FirstPassTarget,
+        double Ready, double Target, IReadOnlyList<CaseResult> Results);
 }
