@@ -56,13 +56,20 @@ public static class AbsenceSpells
         spells.Count > 0 && spells[^1].ReturnedOn is null ? spells[^1].SchoolDays : 0;
 
     /// <summary>Summarises spells that started in the 7 calendar days ending on <paramref name="asOf"/>.</summary>
-    public static ReturnSpeed Summarise(IEnumerable<AbsenceSpell> spells, DateOnly asOf)
+    public static ReturnSpeed Summarise(IEnumerable<AbsenceSpell> spells, DateOnly asOf) =>
+        Summarise(spells, asOf.AddDays(-6), asOf);
+
+    /// <summary>
+    /// Summarises the spells that <b>started</b> between <paramref name="from"/> and <paramref name="to"/> (T6 uses a
+    /// school week, D-24). A child still away counts in the total by the days so far and is never "back within two
+    /// school days" until they return. All numbers come from the same list, so they always add up (B-09).
+    /// </summary>
+    public static ReturnSpeed Summarise(IEnumerable<AbsenceSpell> spells, DateOnly from, DateOnly to)
     {
-        var from = asOf.AddDays(-6);
-        var inWindow = spells.Where(s => s.From >= from && s.From <= asOf).ToList();
+        var inWindow = spells.Where(s => s.From >= from && s.From <= to).ToList();
         return new ReturnSpeed(
             from,
-            asOf,
+            to,
             OneDay: inWindow.Count(s => s.SchoolDays == 1),
             TwoDays: inWindow.Count(s => s.SchoolDays == 2),
             ThreeDays: inWindow.Count(s => s.SchoolDays == 3),

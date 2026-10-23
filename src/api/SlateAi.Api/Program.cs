@@ -17,6 +17,7 @@ using SlateAi.Api.Features.Ledger;
 using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Features.Spa;
+using SlateAi.Api.Features.Week;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +45,7 @@ builder.Services.AddAudio();
 builder.Services.AddParent();
 builder.Services.AddChildren();
 builder.Services.AddBuddyCards();
+builder.Services.AddWeek();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 
@@ -69,6 +71,7 @@ app.MapAudioEndpoints();
 app.MapParentEndpoints();
 app.MapChildEndpoints();
 app.MapBuddyEndpoints();
+app.MapWeekEndpoints();
 app.MapDemoEndpoints();
 app.MapApiDocs();
 app.MapSpa();

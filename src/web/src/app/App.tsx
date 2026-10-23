@@ -11,8 +11,8 @@ import { ParentScreen } from '../features/parent/ParentScreen'
 import { EveningTemplateScreen } from '../features/setup/EveningTemplateScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
+import { WeekScreen } from '../features/week/WeekScreen'
 import { AppShell } from './AppShell'
-import { ComingSoon } from './ComingSoon'
 import { NotFound } from './NotFound'
 import { TeacherLayout } from './TeacherLayout'
 
@@ -36,7 +36,7 @@ export function App() {
             <Route path="missed" element={<MissedScreen />} />
             <Route path="missed/:childId" element={<ChildScreen />} />
             <Route path="back" element={<BackTodayScreen />} />
-            <Route path="week" element={<ComingSoon tab="week" />} />
+            <Route path="week" element={<WeekScreen />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

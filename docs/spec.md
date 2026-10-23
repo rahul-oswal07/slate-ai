@@ -53,7 +53,7 @@ Priority: **M** = must (MVP), **S** = should (stretch). IDs are referenced by `d
 | FR-10 | M | Parent page from a link: big Listen button, activity picture, then 3-picture answer; audio prompts so a low-literacy parent can follow | Lighthouse mobile performance ≥ 85; total transfer ≤ 500 KB excluding audio |
 | FR-11 | M | Picture-tap answer is scored by code (no LLM) and updates the ledger: correct → caught up; wrong → needs buddy | Ledger updates within 2 s of the tap |
 | FR-12 | M | Return-day buddy card for every returning child, whether or not the family has a phone: which classmate, 3 sums, key words, 10 minutes; the teacher taps **Brought homework** (D-22) | Buddy is a child who was present for those lessons; card is cached offline and printable |
-| FR-13 | M | Weekly pacing nudge, e.g. "11 of 36 missed carrying-over. Recap 10 minutes before moving on." Shown when 5 or more of the class missed the same lesson this week; otherwise "No nudge this week" (D-60) | Numbers come from the ledger by code; Claude writes only the wording |
+| FR-13 | M | Weekly pacing nudge, e.g. "11 of 36 missed carrying-over. Recap 10 minutes before moving on." Shown when 5 or more of the class missed the same lesson this week; otherwise "No nudge this week" (D-60) | Numbers come from the ledger by code; in the MVP the sentence is a fixed template filled by code (no AI; A5 wording deferred, T-46); "Plan recap" / "Not this week" stored, and a planned recap shows on Today the following week |
 | FR-14 | M | Demo mode: split screen with teacher phone and parent phone; "Reset demo" reseeds the class | A judge completes the loop in ≤ 5 minutes without instructions beyond the landing page |
 | FR-15 | M | Consent and deletion: parent opt-in comes from the paper consent form and is recorded by the teacher per child (Yes / No / No phone, with date) on T8 Family details, together with the parent's phone number (D-43) and the child's home language (D-47) (D-39); nothing is sent unless Yes; teacher can delete a child's data | Send endpoints refuse children not marked Yes (409, integration test); delete removes child, responses and audio; verified by integration test |
 | FR-16 | S | Send via WhatsApp Cloud API (template message with link), scheduled for after 6 pm | Delivered to a registered test number |
@@ -199,7 +199,7 @@ Built schema, keys, indexes and locking: `docs/database.md`.
 | `MessageTemplate` | Id, ClassId, Language, Text with slots `{child}` (written text only) `{lesson}` `{page}` (D-48, D-29, D-50), Status (Draft/Approved), ApprovedAt, ApprovedByTeacherId (FR-20, D-21) |
 | `EveningMessage` | Id, ChildId, Date, TemplateId, LessonId, SlotValues (json), Token, SentAt (FR-20) |
 | `AbsenceReason` | ChildId, ClassId, Date (the evening message's day), Category (unwell/travelOrWork/festival/neededAtHome/other); unique (ChildId, Date). Category only; no transcript or audio kept (FR-21). Source/Confidence dropped with the voice note (D-63) |
-| `PacingNudge` | ClassId, WeekStart, Stats (json), TextKn |
+| `PacingDecision` | ClassId, WeekOf, LessonId, Decision (recap/skip). The nudge itself (lesson, n, total, minutes, next lesson) is computed from the ledger each time, not stored (T-46) |
 | `AiCall` | Id, Purpose, Model, PromptVersion, InputTokens, OutputTokens, LatencyMs, Verdict, Error |
 
 The ledger is a query (attendance × lessons × assignments × responses), not a stored table.
@@ -241,7 +241,8 @@ GET  /api/classes/{id}/evening-messages/{date} tonight's card: { blocked, templa
 POST /api/classes/{id}/evening-messages/send   { clientRequestId } today's absentees; 409 before 18:00 IST (unless Demo:Enabled), unless template Approved + lesson confirmed + attendance in; per child: willSend|sent|noConsent|noPhone|stopped|noWording; one per child per day. The 6 pm job (EveningSendWorker) calls the same path
 GET  /api/classes/{id}/buddy-cards/{date}    T5 (T-16): a card per child back that day { childId, firstName, rollNo, daysAway, buddy{ childId, firstName, presentDays }|null (D-59 teacher-led), missedDays, competencyId, sums[{ question, answer }] (code), keyWordsKn, homework, homeworkReturned, done }; never the channel or a score (B-20); future date → 400
 PUT  /api/classes/{id}/buddy-cards/{date}/{childId}  { clientRequestId, homeworkReturned?, done? } "Brought homework" (D-22) / "Buddy time done" (false = Undo); replay is a no-op; 404 when the child didn't come back that day (replaces POST /api/buddy-cards/{id}/homework-returned: cards are computed, so there is no ID before a tap)
-GET  /api/classes/{id}/return-speed?week=   FR-22
+GET  /api/classes/{id}/week/{date}          T6 (T-46, FR-22/21/13): the school week (Mon–Sat) containing date { from, to, empty, thisWeek / lastWeek { oneDay, twoDays, threeDays, fourPlusDays, backWithinTwoDays, total }, reasons { unwell, travelOrWork, festival, neededAtHome, other, notGiven }, nudge { lessonId, competencyIds, n, total, minutes, nextCompetencyId } | null, decision }; a spell belongs to the week it started in; future week → 400 (replaces return-speed?week=)
+PUT  /api/classes/{id}/week/{date}/pacing   { clientRequestId, decision: recap|skip, lessonId } Change = PUT again; 409 when no nudge or another lesson
 GET  /api/classes/{id}/pacing?week=
 DELETE /api/children/{id}                   data deletion
 POST /api/demo/reset · GET /health

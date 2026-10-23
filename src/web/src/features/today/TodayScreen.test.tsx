@@ -188,10 +188,43 @@ describe('TodayScreen', () => {
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav).getByRole('link', { name: 'Today' })).toHaveAttribute('aria-current', 'page')
 
-    // Week is still a placeholder tab (Approve became T3 in T-14, Missed T4 in T-13, Back today T5 in T-16).
+    // Every tab is a real screen now (Week, T6, was the last placeholder until T-46).
     await userEvent.click(within(nav).getByRole('link', { name: 'Week' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Week' })).toHaveFocus()
+    expect(screen.getByRole('heading', { level: 1, name: 'This week' })).toHaveFocus()
     expect(within(nav).getByRole('link', { name: 'Week' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('reminds her of a recap she planned last week, and says nothing when she skipped', async () => {
+    const lastWeek = (decision: 'recap' | 'skip') => () => ({
+      status: 200,
+      body: {
+        from: '2026-10-12',
+        to: '2026-10-17',
+        empty: false,
+        thisWeek: { from: '2026-10-12', to: '2026-10-17', oneDay: 6, twoDays: 0, threeDays: 0, fourPlusDays: 0, backWithinTwoDays: 6, total: 6 },
+        lastWeek: { from: '2026-10-05', to: '2026-10-10', oneDay: 0, twoDays: 0, threeDays: 0, fourPlusDays: 0, backWithinTwoDays: 0, total: 0 },
+        reasons: { unwell: 0, travelOrWork: 0, festival: 0, neededAtHome: 0, other: 0, notGiven: 6 },
+        nudge: { lessonId: 'l1', date: '2026-10-13', competencyIds: ['M3.SUB.BORROW'], n: 6, total: 36, minutes: 10, nextCompetencyId: null },
+        decision,
+      },
+    })
+    const weekUrl = (d: string) => {
+      const monday = new Date(`${d}T00:00:00Z`)
+      monday.setUTCDate(monday.getUTCDate() - 7)
+      return `GET /api/classes/${teacher.classId}/week/${monday.toISOString().slice(0, 10)}`
+    }
+    today(day(), { [weekUrl(date)]: lastWeek('recap') })
+    const { unmount } = renderApp('/')
+
+    const card = await screen.findByRole('region', { name: 'Recap planned this week' })
+    expect(card).toHaveTextContent('M3.SUB.BORROW: 10 minutes this week.') // names come from the curriculum (not loaded here)
+    unmount()
+
+    vi.unstubAllGlobals()
+    today(day(), { [weekUrl(date)]: lastWeek('skip') })
+    renderApp('/')
+    await screen.findByText('2 absent')
+    expect(screen.queryByRole('region', { name: 'Recap planned this week' })).toBeNull()
   })
 })
