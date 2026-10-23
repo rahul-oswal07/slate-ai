@@ -10,7 +10,10 @@ public sealed class SatsOptions
     /// <summary>The one retry if it is late, IST (D-45); after it, Today says it is missing (D-67).</summary>
     public TimeOnly RetryAt { get; set; } = new(14, 0);
 
-    /// <summary>Share of children the simulation marks absent on an ordinary day.</summary>
+    /// <summary>
+    /// Share of children the simulation marks absent on an ordinary day. The app runs the demo with 0 (appsettings.json),
+    /// so only the scripted absences happen and the demo makes exactly three catch-ups (T-18).
+    /// </summary>
     public double AbsenceRate { get; set; } = 0.08;
 
     /// <summary>School holidays, on top of Sundays and second Saturdays.</summary>

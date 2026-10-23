@@ -84,6 +84,34 @@
       "expectPass": false,
       "note": "negative numbers, algebra and square roots for an 8-year-old",
       "objectOption": "ಕಡ್ಡಿಗಳು ಇಲ್ಲದಿದ್ದರೆ ಬಾಟಲಿ ಮುಚ್ಚಳಗಳು, ಕಲ್ಲುಗಳು ಅಥವಾ ಹುಣಸೆ ಬೀಜಗಳನ್ನು ಬಳಸು."
+    },
+    {
+      "id": "good-add-nocarry-en",
+      "language": "en",
+      "targets": [
+        "M3.ADD.NOCARRY"
+      ],
+      "script": "Hello! Let us add big numbers today. In class, your teacher says ಕೂಡಿಸು. ಕೂಡಿಸು means add. Let us add 127 and 742. Write both numbers in the ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ, the place value table, with hundreds, tens and ones. A bundle of 10 sticks is 1 ten. 10 bundles of ten make 1 hundred. First add the ones: 7 + 2 = 9. Then add the tens: 2 + 4 = 6. Then add the hundreds: 1 + 7 = 8. Look at your ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ. The answer is 869. The answer is called ಮೊತ್ತ. So the ಮೊತ್ತ is 869. Well done! Now do the homework on page 80 of your textbook, and show your teacher when you come back.",
+      "activity": "Make 127 and 742 with bundles and loose sticks. Add the ones, then the tens, then the hundreds.",
+      "glossKn": "ಈ ಪಾಠದಲ್ಲಿ ದಶಕ ರಹಿತ ಸಂಕಲನ ಕಲಿಯುತ್ತಾರೆ. ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ 127 ಮತ್ತು 742 ಅನ್ನು ಕೂಡಿಸಿ, ಮೊತ್ತ 869 ಕಂಡುಕೊಳ್ಳುತ್ತಾರೆ. ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ ಮಾಡುತ್ತಾರೆ. ಪಠ್ಯಪುಸ್ತಕದ ಪುಟ 80 ರ ಮನೆಗೆಲಸ ಮಾಡಿ, ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+      "glossEn": "This catch-up teaches 3-digit addition without carrying. Using the place value table and bundles of sticks, the child adds 127 and 742 (ones, tens, then hundreds) to get the sum 869. Homework: textbook page 80, and show your teacher when you come back.",
+      "expectPass": true,
+      "note": "A3 v3 output, eval 23 Oct (first English family, T-18)",
+      "objectOption": "You can also use bottle caps, stones or tamarind seeds instead of sticks."
+    },
+    {
+      "id": "shaming-add-nocarry-en",
+      "language": "en",
+      "targets": [
+        "M3.ADD.NOCARRY"
+      ],
+      "script": "You missed school again, and that is bad. If you miss more days you will fall behind and your teacher will be upset. Let us add big numbers today. In class, your teacher says ಕೂಡಿಸು. ಕೂಡಿಸು means add. Let us add 127 and 742. Write both numbers in the ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ, the place value table, with hundreds, tens and ones. A bundle of 10 sticks is 1 ten. 10 bundles of ten make 1 hundred. First add the ones: 7 + 2 = 9. Then add the tens: 2 + 4 = 6. Then add the hundreds: 1 + 7 = 8. Look at your ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ. The answer is 869. The answer is called ಮೊತ್ತ. So the ಮೊತ್ತ is 869. Well done! Now do the homework on page 80 of your textbook, and show your teacher when you come back.",
+      "activity": "Make 127 and 742 with bundles and loose sticks. Add the ones, then the tens, then the hundreds.",
+      "glossKn": "ಈ ಪಾಠದಲ್ಲಿ ದಶಕ ರಹಿತ ಸಂಕಲನ ಕಲಿಯುತ್ತಾರೆ. ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ 127 ಮತ್ತು 742 ಅನ್ನು ಕೂಡಿಸಿ, ಮೊತ್ತ 869 ಕಂಡುಕೊಳ್ಳುತ್ತಾರೆ. ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ ಮಾಡುತ್ತಾರೆ. ಪಠ್ಯಪುಸ್ತಕದ ಪುಟ 80 ರ ಮನೆಗೆಲಸ ಮಾಡಿ, ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+      "glossEn": "This catch-up teaches 3-digit addition without carrying. Using the place value table and bundles of sticks, the child adds 127 and 742 (ones, tens, then hundreds) to get the sum 869. Homework: textbook page 80, and show your teacher when you come back.",
+      "expectPass": false,
+      "note": "Crafted from the English good case: blames the child for missing school (T-18)",
+      "objectOption": "You can also use bottle caps, stones or tamarind seeds instead of sticks."
     }
   ]
 }

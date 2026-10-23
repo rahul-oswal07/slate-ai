@@ -13,7 +13,7 @@ public sealed class EveningMessage
     public Guid TemplateId { get; set; }
     public Guid LessonId { get; set; }
 
-    /// <summary>"kn", "te" or "ta": the child's home language when it was sent.</summary>
+    /// <summary>"kn", "te", "ta" or "en": the child's home language when it was sent.</summary>
     public required string Language { get; set; }
 
     /// <summary>The code-filled slot values as JSON (lesson names and page; the child's name is never stored here).</summary>

@@ -160,7 +160,7 @@ These came up while writing the cards. The prototype slips are already fixed in 
 | 10 | Nav labels and attendance tiles render Kannada at 14 px; tokens.md asks 16 px for Indic text. Accept an exception for the 5-tab nav or reduce to 4 tabs | tokens.md, T-12 | Monika |
 | 11 | **Resolved (D-39, [T8](T8-families.md)).** No screen records parent opt-in, yet T0 shows "31 of 36 families agreed" (FR-15, T-19) | T-19 | Monika + Rahul |
 | 12 | **Resolved (D-36): dropped.** The child history shows "evening message listened", but `EveningMessage` has no listened field, and D-20 says never count message opens. Drop it or define it | T4, D-20 | Monika |
-| 13 | Story calendar: Ravi is away Mon and Tue but is "back after 2 days" on Thursday, and the Friday catch-up comes after his return. Fix the demo seed so the dates line up | T-18 demo seed | Rahul |
+| 13 | Story calendar: Ravi is away Mon and Tue but is "back after 2 days" on Thursday, and the Friday catch-up comes after his return. Fix the demo seed so the dates line up. **Done (T-18):** Reset writes the school days before the real today, Ravi is away from Monday up to today and Manjunath is back today; the catch-up is approved the same day | T-18 demo seed | Rahul |
 | 14 | Undefined rules: when the weekly recap nudge shows; absence spells that cross a week; buddy fallback when no classmate was present on every missed day | FR-13, FR-22, FR-12 | Rahul |
 | 15 | Telugu fixed text uses gendered verbs; it needs a neutral or per-child-gender form after native review | P0, P1 | Monika (T-26) |
 | 16 | **Resolved (D-38 and D-34).** Not yet designed: T0 greeting deleted, mic permission denied (T0, T1), sending (T1), offline (T0, T2), T3 Sent and Generation failed | T0–T3 | Monika |

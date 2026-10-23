@@ -77,7 +77,7 @@ public sealed class SimulatedSatsSourceTests
     }
 
     [Fact]
-    public void The_demo_story_marks_roll_4_absent_tuesday_to_thursday()
+    public void The_demo_story_marks_roll_4_absent_every_school_day()
     {
         var source = Create();
         var ravi = Roster.Single(c => c.RollNo == 4).Id;
@@ -85,5 +85,7 @@ public sealed class SimulatedSatsSourceTests
         Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 20), Roster)); // Tue
         Assert.Contains(ravi, source.Simulate(ClassId, Wednesday, Roster));
         Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 22), Roster)); // Thu
+        Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 19), Roster)); // Mon
+        Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 24), Roster)); // Sat
     }
 }

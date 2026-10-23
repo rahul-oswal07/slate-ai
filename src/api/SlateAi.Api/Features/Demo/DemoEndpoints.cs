@@ -1,13 +1,27 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
+using SlateAi.Api.Data;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Attendance.Source;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.CatchUps.Compression;
 
 namespace SlateAi.Api.Features.Demo;
 
 public sealed record SatsFeedRequest(Guid ClassId, DateOnly Date, string Mode);
+
+public sealed record DemoResetRequest(Guid ClientRequestId);
+
+/// <param name="ResetAt">The "Under the hood" panel lists AI calls from here.</param>
+/// <param name="PreMade">Whether a pre-made Ready catch-up was restored.</param>
+public sealed record DemoResetResponse(DateTimeOffset ResetAt, bool PreMade);
+
+/// <summary>Who the demo shell is about.</summary>
+/// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, so judges read it in English.</param>
+public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId);
 
 /// <summary>
 /// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
@@ -18,11 +32,71 @@ public static class DemoEndpoints
     public const string Waiting = "waiting";
     public const string Arrive = "arrive";
 
+    /// <summary>How many AI calls the "Under the hood" panel shows.</summary>
+    public const int AiCallLimit = 50;
+
+    public static IServiceCollection AddDemo(this IServiceCollection services) =>
+        services.AddScoped<IDemoStore, DemoStore>();
+
     public static IEndpointRouteBuilder MapDemoEndpoints(this IEndpointRouteBuilder app)
     {
         if (!app.ServiceProvider.GetRequiredService<IOptions<DemoOptions>>().Value.Enabled)
         {
             return app;
+        }
+
+        app.MapPost("/api/demo/login", LoginAsync)
+            .WithTags("Demo")
+            .WithSummary("Sign in as the demo teacher with one tap")
+            .WithDescription(
+                "Starts the same 30-day session as the PIN sign-in, for the seeded demo teacher only, so judges need " +
+                "no PIN (FR-14). 404 when the demo class isn't seeded. Demo only.");
+
+        app.MapGet("/api/demo", GetInfoAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("The demo class and the children the story follows")
+            .WithDescription("404 unless signed in as the demo teacher. Demo only.");
+
+        app.MapPost("/api/demo/reset", ResetAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("Put the demo class back to the start of the story")
+            .WithDescription(
+                "Deletes everything the class has done and re-adds the 36 seeded children, then writes the five school " +
+                "days before today (SATS registers and confirmed lessons; only Ravi (Telugu, this week) and Manjunath (Kannada, " +
+                "2 days, back today) away; Rohan (English) is away today, so the week makes three catch-ups) and, " +
+                "when data/seed/demo-catchup.json exists, that catch-up as Ready (not approved) for the story child of its " +
+                "language. Today's register " +
+                "comes from the simulated feed as usual. The evening template and the teacher's sign-in stay as they are. " +
+                "A replayed clientRequestId changes nothing. 404 unless signed in as the demo teacher. Demo only.");
+
+        app.MapGet("/api/demo/family/{childId:guid}", GetFamilyAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("The simulated parent phone: links sent to a family")
+            .WithDescription(
+                "Evening and catch-up links sent to the child's family, newest first. The phone opens each one at " +
+                "/p/{token} like a real parent. 404 for a child outside the signed-in teacher's class. Demo only.");
+
+        app.MapGet("/api/demo/ai-calls", GetAiCallsAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("\"Under the hood\": the latest Claude and Sarvam calls")
+            .WithDescription(
+                $"Up to {AiCallLimit} calls, newest first, from `since` when given: purpose (prompt ID or stt/tts), model, " +
+                "prompt version, tokens, latency, and the verdict of validating the output. No prompt text, transcripts " +
+                "or names are stored, so none are shown. Demo only.");
+
+        if (app.ServiceProvider.GetRequiredService<IHostEnvironment>().IsDevelopment())
+        {
+            app.MapGet("/api/demo/snapshot/{packageId:guid}", GetSnapshotAsync)
+                .RequireAuthorization()
+                .WithTags("Demo")
+                .WithSummary("Export a catch-up as the demo's pre-made one")
+                .WithDescription(
+                    "Development only. Save the body as data/seed/demo-catchup.json; the Reset restores it as Ready. " +
+                    "404 for another class's package.");
         }
 
         app.MapPost("/api/demo/sats-feed", SatsFeedAsync)
@@ -76,4 +150,92 @@ public static class DemoEndpoints
 
         return TypedResults.Ok(AttendanceDay.Describe(request.Date, roster, rows, false, now, options.Value));
     }
+
+    private static async Task<Results<Ok<MeResponse>, NotFound>> LoginAsync(
+        HttpContext http, IAuthStore auth, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)
+    {
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        if (await auth.GetMeAsync(seed.Teacher.Id, cancellationToken) is not { } me)
+        {
+            return TypedResults.NotFound();
+        }
+
+        await http.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            AuthClaims.Teacher(me.TeacherId, me.ClassId, CookieAuthenticationDefaults.AuthenticationScheme),
+            new AuthenticationProperties { IsPersistent = true });
+        return TypedResults.Ok(me);
+    }
+
+    private static async Task<Results<Ok<DemoInfoResponse>, NotFound>> GetInfoAsync(
+        HttpContext http, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)
+    {
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        return http.User.GetClassId() == seed.Class.Id
+            ? TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, Child(seed, DemoStory.RohanRollNo)))
+            : TypedResults.NotFound();
+    }
+
+    private static async Task<Results<Ok<DemoResetResponse>, NotFound>> ResetAsync(
+        DemoResetRequest request,
+        HttpContext http,
+        IDemoStore store,
+        SimulatedSatsSource source,
+        SatsDemoHolds holds,
+        IOptions<SatsOptions> sats,
+        IOptions<DatabaseOptions> database,
+        IOptions<DemoOptions> demo,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        var classId = seed.Class.Id;
+        if (http.User.GetClassId() != classId)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var now = clock.GetUtcNow();
+        var today = SchoolClock.Today(clock);
+        var weekOf = CompressionPlanner.Week(today).From;
+        var roster = seed.Children.Select(c => new RosterChild(c.Id, c.RollNo, c.FirstName)).ToList();
+        var days = DemoStory.Build(today, roster, source.IsSchoolDay);
+        var snapshot = await DemoSnapshot.LoadAsync(demo.Value.SnapshotFile, cancellationToken);
+
+        // The pre-made catch-up goes to the story child who speaks its language, with what they missed so far.
+        var owner = snapshot is null
+            ? null
+            : seed.Children.FirstOrDefault(c => DemoStory.StoryRollNos.Contains(c.RollNo) && c.HomeLanguage == snapshot.Language);
+        var missed = owner is null
+            ? []
+            : days.Where(d => d.Date >= weekOf && d.AbsentChildIds.Contains(owner.Id)).Select(d => d.CompetencyId).ToList();
+
+        await store.ResetAsync(
+            new DemoReset(
+                request.ClientRequestId, seed, days, sats.Value.ArrivesAt, weekOf, owner is null ? null : snapshot, owner?.Id, missed),
+            now,
+            cancellationToken);
+        holds.ReleaseAll(classId);
+        return TypedResults.Ok(new DemoResetResponse(now, owner is not null));
+    }
+
+    private static async Task<Results<Ok<IReadOnlyList<FamilyMessage>>, NotFound>> GetFamilyAsync(
+        Guid childId, HttpContext http, IDemoStore store, CancellationToken cancellationToken) =>
+        http.User.GetClassId() is { } classId
+        && await store.GetFamilyAsync(classId, childId, cancellationToken) is { } messages
+            ? TypedResults.Ok(messages)
+            : TypedResults.NotFound();
+
+    private static async Task<Ok<IReadOnlyList<AiCallRow>>> GetAiCallsAsync(
+        DateTimeOffset? since, IDemoStore store, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await store.GetAiCallsAsync(since, AiCallLimit, cancellationToken));
+
+    private static async Task<Results<Ok<DemoSnapshot>, NotFound>> GetSnapshotAsync(
+        Guid packageId, HttpContext http, IDemoStore store, CancellationToken cancellationToken) =>
+        http.User.GetClassId() is { } classId
+        && await store.ExportAsync(classId, packageId, cancellationToken) is { } snapshot
+            ? TypedResults.Ok(snapshot)
+            : TypedResults.NotFound();
+
+    private static Guid Child(DemoSeedFile seed, int rollNo) => seed.Children.Single(c => c.RollNo == rollNo).Id;
 }

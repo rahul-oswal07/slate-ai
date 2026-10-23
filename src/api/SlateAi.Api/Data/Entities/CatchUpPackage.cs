@@ -18,7 +18,7 @@ public sealed class CatchUpPackage
     /// <summary>The targets joined with "+": with <see cref="Language"/>, unique per class and week.</summary>
     public required string TargetKey { get; set; }
 
-    /// <summary>"kn", "te" or "ta".</summary>
+    /// <summary>"kn", "te", "ta" or "en".</summary>
     public required string Language { get; set; }
 
     /// <summary>"generating", "ready", "needsReview", "approved", "sent" or "failed" (T3).</summary>

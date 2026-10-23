@@ -14,9 +14,11 @@ public sealed class VerifierOptions
 
     /// <summary>
     /// Spoken words per second by language, measured on Bulbul v3 "priya" (T-11: kn 1.86, te 1.91, ta 1.96), rounded down
-    /// so the estimate errs long. The real audio is checked after text-to-speech anyway.
+    /// so the estimate errs long. English (T-18) is not measured yet: 2.2 is a cautious guess for Indian English. The real
+    /// audio is checked after text-to-speech anyway.
     /// </summary>
-    public Dictionary<string, double> WordsPerSecond { get; set; } = new() { ["kn"] = 1.8, ["te"] = 1.85, ["ta"] = 1.9 };
+    public Dictionary<string, double> WordsPerSecond { get; set; } =
+        new() { ["kn"] = 1.8, ["te"] = 1.85, ["ta"] = 1.9, ["en"] = 2.2 };
 
     /// <summary>Real audio limit, all segments together (FR-09: ≤ 95 s), checked after text-to-speech.</summary>
     public int MaxAudioSeconds { get; set; } = 95;
@@ -58,6 +60,9 @@ public static partial class CodeChecks
         ["kn"] = (0x0C80, 0x0CFF, "Kannada"),
         ["te"] = (0x0C00, 0x0C7F, "Telugu"),
         ["ta"] = (0x0B80, 0x0BFF, "Tamil"),
+
+        // A–Z and a–z; the symbols between them aren't letters, so the letter filter drops them.
+        ["en"] = (0x0041, 0x007A, "English"),
     };
 
     public static IReadOnlyList<VerifierCheck> Run(VerifyInput input, CurriculumGraph curriculum, VerifierOptions options) =>

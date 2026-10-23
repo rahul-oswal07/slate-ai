@@ -3,6 +3,7 @@ import { LoginScreen } from '../features/auth/LoginScreen'
 import { TeacherGate } from '../features/auth/TeacherGate'
 import { ApproveScreen } from '../features/approve/ApproveScreen'
 import { PackageScreen } from '../features/approve/PackageScreen'
+import { DemoScreen } from '../features/demo/DemoScreen'
 import { ConfirmLessonScreen } from '../features/lessons/ConfirmLessonScreen'
 import { BackTodayScreen } from '../features/back/BackTodayScreen'
 import { ChildScreen } from '../features/missed/ChildScreen'
@@ -21,6 +22,8 @@ export function App() {
     <Routes>
       {/* The family's page: no teacher header, sign-in or language switcher (P1–P4). */}
       <Route path="p/:token" element={<ParentScreen />} />
+      {/* The judges' demo shell: both phones side by side, signs in as the demo teacher itself (FR-14). */}
+      <Route path="demo" element={<DemoScreen />} />
       <Route element={<AppShell />}>
         <Route path="login" element={<LoginScreen />} />
         <Route element={<TeacherGate need="setup" />}>

@@ -46,6 +46,7 @@ builder.Services.AddParent();
 builder.Services.AddChildren();
 builder.Services.AddBuddyCards();
 builder.Services.AddWeek();
+builder.Services.AddDemo();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 

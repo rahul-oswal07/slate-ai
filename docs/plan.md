@@ -65,7 +65,7 @@ slate-ai/
 | 7b | Evening message on each day of absence from an approved template, slots filled by code. **Built first (T-44 PR 1, 22 Oct, per D-70):** T0 approve step, tonight card, `EveningSendWorker` (every minute from 18:00 IST, idempotent per child and day), consent + stop filter, `GET /api/p/{token}`. The demo-chat bubble follows with T-18 | FR-20 | Endpoint tests: send refused without approved template / confirmed lesson / attendance / before 6 pm; no-consent and stopped families refused; no LLM; one Db test (race + seed consent) |
 | 8 | Buddy cards + pacing nudge | FR-12, 13 | Unit tests; snapshot of card |
 | 9 | Offline outbox | NFR-02 | Playwright offline test |
-| 10 | Demo mode + reset + "Under the hood" AI panel | FR-14 | Outsider completes loop in ≤ 5 min |
+| 10 | Demo mode + reset + "Under the hood" AI panel. **Built (T-18, 23 Oct):** `/demo` with the teacher app and the parent page in two 360 px frames (tabs on a phone), one-tap demo sign-in, step guide, Reset that writes the 5 school days before the real today (no demo clock; Ravi away this week, Manjunath back today) plus a pre-made Ready Telugu catch-up from `data/seed/demo-catchup.json` (R5), "Bring in today's attendance", AI calls since the reset. The parent phone's inbox stands in for the demo chat bubble (step 7b) | FR-14 | Outsider completes loop in ≤ 5 min |
 | 11 | Consent + delete | FR-15 | Integration test |
 | 12 | Stretch: WhatsApp only (board photo and spoken answers dropped, D-26) | FR-16 | Only after Day 7 freeze |
 

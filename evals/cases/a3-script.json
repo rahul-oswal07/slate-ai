@@ -10,6 +10,8 @@
     { "id": "pv-expand-ta", "language": "ta", "targets": ["M3.PV.EXPAND"], "teacherExamples": [] },
     { "id": "sub-noborrow-kn", "language": "kn", "targets": ["M3.SUB.NOBORROW"], "teacherExamples": ["865 − 432"] },
     { "id": "compare-te", "language": "te", "targets": ["M3.NUM.COMPARE"], "teacherExamples": [] },
-    { "id": "pv-face-two-targets-kn", "language": "kn", "targets": ["M3.PV.FACE", "M3.PV.HTO"], "teacherExamples": [] }
+    { "id": "pv-face-two-targets-kn", "language": "kn", "targets": ["M3.PV.FACE", "M3.PV.HTO"], "teacherExamples": [] },
+    { "id": "add-nocarry-en", "language": "en", "targets": ["M3.ADD.NOCARRY"], "teacherExamples": ["bundles of sticks"] },
+    { "id": "pv-expand-two-targets-en", "language": "en", "targets": ["M3.PV.EXPAND", "M3.PV.HTO"], "teacherExamples": [] }
   ]
 }
