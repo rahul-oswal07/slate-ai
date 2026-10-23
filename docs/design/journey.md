@@ -25,7 +25,7 @@ Lakshmi teaches a Grade 3 Kannada-medium class of 36. Attendance arrives from SA
 
 Scope in the MVP: one school, one class, one teacher (D-46).
 
-1. **School setup (D-41).** The MVP runs on the demo seed (T-02): 1 teacher, 1 class, 36 fictional children, each with a home language (6 Telugu, 3 Tamil, the rest Kannada). CSV import of a real school's teacher and roster comes at the end if time permits. An admin page is roadmap.
+1. **School setup (D-41).** The MVP runs on the demo seed (T-02): 1 teacher, 1 class, 36 fictional children, each with a home language (6 Telugu, 3 Tamil, 1 English, the rest Kannada; T-18). CSV import of a real school's teacher and roster comes at the end if time permits. An admin page is roadmap.
 2. **Start sheet (D-42, roadmap).** A printed sheet with a QR code, the link, her PIN and "Add to Home screen" steps. Not in the MVP; for now the school gives her the link, phone number and PIN.
 3. **Sign in (D-40, [T9](T9-sign-in.md)).** Phone number + 4–6 digit PIN from the school. The phone remembers her, so later sign-ins ask for the PIN only ("Not you? Change phone"). 30-day session; 5 wrong PINs lock sign-in for 15 minutes. Welcome shows until `ConsentAt` is set. OTP is roadmap.
 4. **First use ([T0](T0-setup.md), [T8](T8-families.md)).** Kannada greeting, then one greeting card per other home language in her class (record or skip; skipped → Kannada greeting + computer-voice introduction, D-52); voice consent, version 1 (D-44); evening-message template approved once (D-21, no "Tomorrow", D-48); then Families: paper consent Yes / No / No phone, parent phone (D-43) and home language (D-47) per child. All of it can be changed later in [T10 Settings](T10-settings.md) (D-49, D-51).
