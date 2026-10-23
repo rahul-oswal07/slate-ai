@@ -35,6 +35,7 @@ public static class CatchUpEndpoints
         services.AddScoped<ICatchUpStore, CatchUpStore>();
         services.AddScoped<CatchUpGenerator>();
         services.AddScoped<CatchUpWriter>();
+        services.AddScoped<CatchUpSender>();
         services.AddSingleton<CatchUpQueue>();
         services.AddHostedService<CatchUpWorker>();
         return services;

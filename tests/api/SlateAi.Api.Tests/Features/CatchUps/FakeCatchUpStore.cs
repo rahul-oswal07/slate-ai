@@ -12,6 +12,11 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
     private readonly Lock _gate = new();
 
     public Dictionary<Guid, string> Languages { get; } = [];
+
+    /// <summary>Each child's first name, consent and stop status (for views and the send rule).</summary>
+    public Dictionary<Guid, (string FirstName, string Consent, bool Stopped)> Families { get; } = [];
+
+    private readonly HashSet<Guid> _processed = [];
     public List<string> Names { get; } = [];
     public List<CatchUpPackage> Packages { get; } = [];
     public List<CatchUpAssignment> Assignments { get; } = [];
@@ -109,16 +114,123 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
     {
         lock (_gate)
         {
-            return Task.FromResult<IReadOnlyList<PackageView>>(Packages.Where(p => p.WeekOf == weekOf).Select(p => new PackageView(
-                p.Id, p.Language, p.TargetCompetencyIds, p.Status, p.ScriptVersion, p.Verdict, p.Script, p.KeyWordsKn, p.GlossKn, p.GlossEn,
-                JsonSerializer.Deserialize<ActivityData>(p.Activity, Json)!,
-                JsonSerializer.Deserialize<CheckData>(p.CheckItem, Json)!,
-                Assignments.Where(a => a.PackageId == p.Id)
-                    .Select(a => new AssignedChild(a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!))
-                    .ToList(),
-                p.UpdatedAt,
-                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json),
-                p.AudioSegments is null ? null : JsonSerializer.Deserialize<SlateAi.Api.Features.Audio.AudioSegments>(p.AudioSegments, Json))).ToList());
+            return Task.FromResult<IReadOnlyList<PackageView>>(Packages.Where(p => p.WeekOf == weekOf).Select(View).ToList());
         }
     }
+
+    public Task<PackageView?> GetViewAsync(Guid packageId, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            return Task.FromResult(Packages.Where(p => p.Id == packageId).Select(View).FirstOrDefault());
+        }
+    }
+
+    public Task<PackageChange> ApproveAsync(Guid packageId, Guid clientRequestId, int scriptVersion, Guid teacherId, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (_processed.Contains(clientRequestId))
+            {
+                return Task.FromResult(PackageChange.Replay);
+            }
+
+            var p = Packages.Single(x => x.Id == packageId);
+            if (p.Status != PackageStatus.Ready || p.ScriptVersion != scriptVersion)
+            {
+                return Task.FromResult(PackageChange.Conflict);
+            }
+
+            _processed.Add(clientRequestId);
+            p.Status = PackageStatus.Approved;
+            p.ApprovedAt = Now();
+            p.ApprovedByTeacherId = teacherId;
+            p.ApprovedScriptVersion = scriptVersion;
+            return Task.FromResult(PackageChange.Applied);
+        }
+    }
+
+    public Task<PackageChange> StartRegenerateAsync(Guid packageId, Guid clientRequestId, string? hint, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (_processed.Contains(clientRequestId))
+            {
+                return Task.FromResult(PackageChange.Replay);
+            }
+
+            var p = Packages.Single(x => x.Id == packageId);
+            if (p.Status is not (PackageStatus.Ready or PackageStatus.NeedsReview or PackageStatus.Failed))
+            {
+                return Task.FromResult(PackageChange.Conflict);
+            }
+
+            _processed.Add(clientRequestId);
+            p.Status = PackageStatus.Generating;
+            p.Hint = hint;
+            p.UpdatedAt = Now();
+            return Task.FromResult(PackageChange.Applied);
+        }
+    }
+
+    public Task<PackageChange> SendAsync(
+        Guid packageId, Func<string> newToken, DateTimeOffset now, DateTimeOffset expiresAt, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            var p = Packages.Single(x => x.Id == packageId);
+            if (p.Status == PackageStatus.Sent)
+            {
+                return Task.FromResult(PackageChange.Replay);
+            }
+
+            if (!CatchUpSendRules.CanSend(p.Status, p.ApprovedScriptVersion, p.ScriptVersion))
+            {
+                return Task.FromResult(PackageChange.Conflict);
+            }
+
+            foreach (var a in Assignments.Where(a => a.PackageId == packageId && a.Token is null))
+            {
+                var family = Families.TryGetValue(a.ChildId, out var known) ? known : (FirstName: "", Consent: "no", Stopped: false);
+                if (CatchUpSendRules.ReachesFamily(family.Consent, family.Stopped))
+                {
+                    a.Token = newToken();
+                    a.SentAt = now;
+                    a.ExpiresAt = expiresAt;
+                }
+            }
+
+            p.Status = PackageStatus.Sent;
+            p.SentAt = now;
+            return Task.FromResult(PackageChange.Applied);
+        }
+    }
+
+    public Task<IReadOnlyList<Guid>> GetApprovedUnsentAsync(Guid id, DateOnly weekOf, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            return Task.FromResult<IReadOnlyList<Guid>>(
+                Packages.Where(p => p.WeekOf == weekOf && p.Status == PackageStatus.Approved).Select(p => p.Id).ToList());
+        }
+    }
+
+    private DateTimeOffset Now() => (clock ?? TimeProvider.System).GetUtcNow();
+
+    private PackageView View(CatchUpPackage p) => new(
+        p.Id, p.Language, p.TargetCompetencyIds, p.Status, p.ScriptVersion, p.Verdict, p.Script, p.KeyWordsKn, p.GlossKn, p.GlossEn,
+        JsonSerializer.Deserialize<ActivityData>(p.Activity, Json)!,
+        JsonSerializer.Deserialize<CheckData>(p.CheckItem, Json)!,
+        Assignments.Where(a => a.PackageId == p.Id)
+            .Select(a => new AssignedChild(
+                a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!,
+                Families.GetValueOrDefault(a.ChildId).FirstName ?? "", a.Token is not null,
+                Families.TryGetValue(a.ChildId, out var f) && CatchUpSendRules.ReachesFamily(f.Consent, f.Stopped)))
+            .ToList(),
+        p.UpdatedAt,
+        p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json),
+        p.AudioSegments is null ? null : JsonSerializer.Deserialize<SlateAi.Api.Features.Audio.AudioSegments>(p.AudioSegments, Json),
+        p.ClassId,
+        p.ApprovedAt,
+        p.SentAt);
 }

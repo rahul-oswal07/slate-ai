@@ -188,9 +188,10 @@ describe('TodayScreen', () => {
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav).getByRole('link', { name: 'Today' })).toHaveAttribute('aria-current', 'page')
 
-    await userEvent.click(within(nav).getByRole('link', { name: 'Approve' }))
+    // Missed is still a placeholder tab (Approve became the T3 screen in T-14).
+    await userEvent.click(within(nav).getByRole('link', { name: 'Missed' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Approve' })).toHaveFocus()
-    expect(within(nav).getByRole('link', { name: 'Approve' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('heading', { level: 1, name: 'Missed' })).toHaveFocus()
+    expect(within(nav).getByRole('link', { name: 'Missed' })).toHaveAttribute('aria-current', 'page')
   })
 })

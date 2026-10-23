@@ -55,6 +55,15 @@ public sealed class CatchUpPackage
     /// <summary>JSON: the segments in playing order (disclosure → script; greeting first once recorded) with seconds and total size.</summary>
     public string? AudioSegments { get; set; }
 
+    /// <summary>When she approved it, and the version she ticked (guardrail 3: only that version may be sent).</summary>
+    public DateTimeOffset? ApprovedAt { get; set; }
+
+    public Guid? ApprovedByTeacherId { get; set; }
+    public int? ApprovedScriptVersion { get; set; }
+
+    /// <summary>When the families' links went out (the 6 pm job, or at once in demo mode).</summary>
+    public DateTimeOffset? SentAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

@@ -78,6 +78,36 @@ const paths = {
       <line x1="12" x2="12" y1="19" y2="22" />
     </>
   ),
+  send: (
+    <>
+      <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
+      <path d="m21.854 2.147-10.94 10.939" />
+    </>
+  ),
+  play: <polygon points="6 3 20 12 6 21 6 3" />,
+  pause: (
+    <>
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+    </>
+  ),
+  bot: (
+    <>
+      <path d="M12 8V4H8" />
+      <rect width="16" height="12" x="4" y="8" rx="2" />
+      <path d="M2 14h2" />
+      <path d="M20 14h2" />
+      <path d="M15 13v2" />
+      <path d="M9 13v2" />
+    </>
+  ),
+  chevronRight: <path d="m9 18 6-6-6-6" />,
+  x: (
+    <>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </>
+  ),
 } as const
 
 export type IconName = keyof typeof paths
