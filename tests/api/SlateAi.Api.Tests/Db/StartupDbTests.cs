@@ -50,6 +50,7 @@ public sealed class StartupDbTests(PostgresFixture postgres)
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         Assert.Equal(36, await db.Children.CountAsync(ct));
         var byLanguage = await db.Children.GroupBy(c => c.HomeLanguage).ToDictionaryAsync(g => g.Key, g => g.Count(), ct);
-        Assert.Equal((27, 6, 3), (byLanguage["kn"], byLanguage["te"], byLanguage["ta"]));
+        // Rohan (roll 24) is the demo's English-speaking family (T-18).
+        Assert.Equal((26, 6, 3, 1), (byLanguage["kn"], byLanguage["te"], byLanguage["ta"], byLanguage["en"]));
     }
 }
