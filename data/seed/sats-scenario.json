@@ -1,6 +1,7 @@
 {
-  "_note": "Scripted absences for the simulated SATS feed (D-69), on top of the repeatable random ones. By roll number, every week. Fictional.",
+  "_note": "Scripted absences for the simulated SATS feed (D-69), by roll number, every week. Fictional. The demo sets Attendance:Sats:AbsenceRate to 0, so these are the only absences on days the demo Reset (T-18) doesn't write: Ravi (4, Telugu) and Rohan (24, English: the demo's parent phone) are away every school day, so today's register always shows them absent.",
   "weekly": [
-    { "rollNo": 4, "days": ["Tuesday", "Wednesday", "Thursday"] }
+    { "rollNo": 4, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] },
+    { "rollNo": 24, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] }
   ]
 }

@@ -24,6 +24,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         ["kn"] = "Kannada",
         ["te"] = "Telugu",
         ["ta"] = "Tamil",
+        ["en"] = "English",
     };
 
     /// <param name="names">The class's names, only to refuse output that contains one; never sent.</param>

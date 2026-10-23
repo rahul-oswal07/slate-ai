@@ -11,7 +11,7 @@ public sealed class AudioClip
     /// <summary>"script", "disclosure" or "greeting".</summary>
     public required string Kind { get; set; }
 
-    /// <summary>"kn", "te" or "ta".</summary>
+    /// <summary>"kn", "te", "ta" or "en".</summary>
     public required string Language { get; set; }
 
     /// <summary>The catch-up a script clip belongs to; deleting the package deletes its audio.</summary>

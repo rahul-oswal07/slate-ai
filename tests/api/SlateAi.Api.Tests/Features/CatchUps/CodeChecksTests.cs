@@ -112,6 +112,20 @@ public sealed class CodeChecksTests
     }
 
     [Fact]
+    public void An_english_script_passes_in_latin_letters_with_its_kannada_key_words_aside()
+    {
+        var english = Good with { Script = "Today we subtract 523 minus 168 with ಕಳೆ ಕಳೆ ದಶಕ ದಶಕ ಬಿಡಿ ಬಿಡಿ, then show your teacher." };
+        var telugu = Good;
+
+        var passed = Run(CodeChecks.ScriptBlock, Input(english, language: "en"));
+        var failed = Run(CodeChecks.ScriptBlock, Input(telugu, language: "en"));
+
+        Assert.True(passed.Passed);
+        Assert.Equal("100% in English letters", passed.Detail);
+        Assert.False(failed.Passed);
+    }
+
+    [Fact]
     public void Length_too_many_words_fails_with_seconds_and_the_limit()
     {
         var words = string.Join(' ', Enumerable.Repeat("పదం", 187));

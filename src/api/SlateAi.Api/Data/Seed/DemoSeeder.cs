@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -20,14 +19,12 @@ public sealed class DemoSeeder(
     IPasswordHasher<Teacher> hasher,
     ILogger<DemoSeeder> logger)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
-    // Arbitrary app-wide key for pg_advisory_xact_lock; serialises seeding across instances.
-    private const long SeedLockKey = 0x5EED_0001;
+    /// <summary>Arbitrary app-wide key for pg_advisory_xact_lock; serialises seeding (and the demo Reset) across instances.</summary>
+    public const long SeedLockKey = 0x5EED_0001;
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        var seed = await LoadAsync(cancellationToken);
+        var seed = await DemoSeedFile.LoadAsync(options.Value.SeedFile, cancellationToken);
         var added = 0;
 
         // Two instances can start at once (e.g. a slot swap); the lock makes the existence checks below safe.
@@ -80,17 +77,7 @@ public sealed class DemoSeeder(
                 continue;
             }
 
-            db.Children.Add(new Child
-            {
-                Id = child.Id,
-                ClassId = seed.Class.Id,
-                RollNo = child.RollNo,
-                FirstName = child.FirstName,
-                HomeLanguage = child.HomeLanguage,
-                HasPhone = child.HasPhone,
-                ParentPhone = child.ParentPhone,
-                Consent = child.Consent ?? "no",
-            });
+            db.Children.Add(child.ToEntity(seed.Class.Id));
             added++;
         }
 
@@ -117,21 +104,4 @@ public sealed class DemoSeeder(
             logger.LogWarning("Demo:TeacherPin is not set to 4-6 digits; the demo teacher can't sign in");
         }
     }
-
-    private async Task<DemoSeed> LoadAsync(CancellationToken cancellationToken)
-    {
-        var path = Path.Combine(AppContext.BaseDirectory, options.Value.SeedFile);
-        await using var stream = File.OpenRead(path);
-        return await JsonSerializer.DeserializeAsync<DemoSeed>(stream, JsonOptions, cancellationToken)
-            ?? throw new InvalidOperationException($"Seed file '{path}' is empty.");
-    }
-
-    private sealed record DemoSeed(SeedTeacher Teacher, SeedClass Class, IReadOnlyList<SeedChild> Children);
-
-    private sealed record SeedTeacher(Guid Id, string DisplayName, string? Phone);
-
-    private sealed record SeedClass(Guid Id, int Grade, string Medium);
-
-    private sealed record SeedChild(
-        Guid Id, int RollNo, string FirstName, string HomeLanguage, bool HasPhone, string? ParentPhone, string? Consent);
 }

@@ -14,5 +14,14 @@ public sealed class SatsDemoHolds
 
     public void Release(Guid classId, DateOnly date) => _held.TryRemove((classId, date), out _);
 
+    /// <summary>Releases every date held for the class (the demo Reset).</summary>
+    public void ReleaseAll(Guid classId)
+    {
+        foreach (var key in _held.Keys.Where(k => k.ClassId == classId))
+        {
+            _held.TryRemove(key, out _);
+        }
+    }
+
     public bool IsHeld(Guid classId, DateOnly date) => _held.ContainsKey((classId, date));
 }

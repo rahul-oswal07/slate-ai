@@ -236,7 +236,8 @@
     "in": {
       "kn": "In Kannada",
       "te": "In Telugu",
-      "ta": "In Tamil"
+      "ta": "In Tamil",
+      "en": "In English"
     },
     "card": {
       "heading_one": "{{language}} · {{count}} child",
@@ -472,7 +473,8 @@
     "language": {
       "kn": "Kannada",
       "te": "Telugu",
-      "ta": "Tamil"
+      "ta": "Tamil",
+      "en": "English"
     }
   },
   "back": {
@@ -549,5 +551,78 @@
     "recapTitle": "Recap planned this week",
     "recapBody": "{{lesson}}: 10 minutes before {{next}}.",
     "recapBodyNoNext": "{{lesson}}: 10 minutes this week."
+  },
+  "demo": {
+    "title": "Tappida Paatha — demo",
+    "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
+    "signingIn": "Signing in as the demo teacher…",
+    "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
+    "guide": {
+      "title": "Try the loop in 5 minutes",
+      "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
+      "lesson": "Record today's lesson in Kannada, or pick it from the list, and confirm it.",
+      "evening": "Send tonight's message to absent families. It arrives on Rohan's family's phone, in English; tap it and pick a reason.",
+      "approve": "Approve: generate the week's three catch-ups: Telugu for Ravi (4 lessons squeezed into 1 or 2), Kannada for Manjunath (2 days) and English for Rohan (today's lesson). Listen, read the summary, tick and approve, then send.",
+      "parent": "Rohan's family's phone: open the catch-up, listen, do the activity and tap a picture.",
+      "after": "Teacher phone: Missed lessons shows how Rohan did; Back today has Manjunath's buddy card; Week shows return speed and reasons.",
+      "calendar": "The story follows the real calendar: Ravi has been away since Monday, so early in the week he has missed fewer lessons."
+    },
+    "reset": {
+      "button": "Reset demo",
+      "title": "Reset the demo?",
+      "body": "Everything done in the demo class is removed and the story starts again: the past school days with only Ravi and Manjunath away, and Ravi and Rohan away today.",
+      "confirm": "Reset",
+      "resetting": "Resetting…",
+      "failed": "The reset didn't finish. Nothing was changed. Try again.",
+      "done": "Demo reset. Catch-ups will be written live when you generate them.",
+      "donePreMade": "Demo reset. A pre-made catch-up is ready to approve."
+    },
+    "bringAttendance": "Bring in today's attendance",
+    "attendanceIn": "Today's attendance is in.",
+    "attendanceFailed": "Could not bring in today's attendance. Try again.",
+    "panels": "Demo panels",
+    "tab": {
+      "teacher": "Teacher",
+      "parent": "Parent",
+      "ai": "Under the hood"
+    },
+    "teacherPhone": "Teacher's phone",
+    "teacherCaption": "Shobha, the class teacher (fictional).",
+    "parentPhone": "Rohan's family's phone",
+    "parentCaption": "Messages arrive here instead of WhatsApp.",
+    "parentPage": "Page sent to Rohan's family",
+    "backToMessages": "‹ Messages",
+    "noMessages": "No messages yet. Send tonight's message from Today on the teacher's phone.",
+    "familyFailed": "Could not load the messages. Retrying…",
+    "message": {
+      "evening": "Evening message · {{date}}",
+      "catchUp": "Catch-up lesson · week of {{date}}",
+      "sentAt": "Sent {{time}}",
+      "open": "Open"
+    },
+    "ai": {
+      "title": "Under the hood",
+      "caption": "Each Claude and Sarvam call since the reset: what it was for, the model, the prompt version, and the result of checking its output. Prompts and names are never stored, so they aren't shown.",
+      "empty": "No AI calls since the reset yet. Record a lesson or generate catch-ups to see them here.",
+      "failed": "Could not load the AI calls. Retrying…",
+      "time": "Time",
+      "step": "Step",
+      "model": "Model",
+      "tokens": "Tokens",
+      "latency": "Time taken",
+      "verdict": "Result",
+      "prompt": "{{id}} v{{version}}",
+      "tokenCount": "{{input}} in / {{output}} out",
+      "seconds": "{{s}} s",
+      "error": "Failed: {{error}}"
+    },
+    "purpose": {
+      "stt": "Speech to text (Sarvam)",
+      "tts": "Text to speech (Sarvam)",
+      "a1-lesson-mapping": "A1 Lesson mapping",
+      "a2-compression": "A2 Compression",
+      "a3-script": "A3 Script writer",
+      "a4-check": "A4 Verifier"
+    }
   }
 }

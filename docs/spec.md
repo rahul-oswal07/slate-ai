@@ -211,7 +211,8 @@ POST /api/auth/pin                          { phone, pin } → session cookie; s
 POST /api/auth/logout                       ends the session
 GET  /api/me                                { teacherId, displayName, classId, setupComplete }; 401 when signed out
 POST /api/me/welcome                        { clientRequestId } → sets Teacher.ConsentAt once (first-run gate)
-POST /api/demo/login                        one-tap demo sign-in (T-18)
+POST /api/demo/login                        one-tap sign-in as the seeded demo teacher, same session cookie as the PIN (T-18; only while Demo:Enabled, like every /api/demo route)
+GET  /api/demo                              { classId, parentChildId } for the demo teacher (the parent phone shows Rohan's English-speaking family); 404 otherwise
 GET  /api/classes/{id}/attendance/{date}    { status: sats|manual|waiting|missing|noSchool, receivedAt, corrected, satsDiffers, syncAt, retryAt, absentChildIds[], children[] } (fetches the simulated SATS feed when due, D-45, D-69)
 POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId; correction or manual marking, never written back to SATS)
 POST /api/demo/sats-feed                    { classId, date, mode: waiting|arrive } (only while Demo:Enabled, D-69)
@@ -245,7 +246,11 @@ GET  /api/classes/{id}/week/{date}          T6 (T-46, FR-22/21/13): the school w
 PUT  /api/classes/{id}/week/{date}/pacing   { clientRequestId, decision: recap|skip, lessonId } Change = PUT again; 409 when no nudge or another lesson
 GET  /api/classes/{id}/pacing?week=
 DELETE /api/children/{id}                   data deletion
-POST /api/demo/reset · GET /health
+POST /api/demo/reset                        { clientRequestId } → { resetAt, preMade }: deletes the demo class's data, re-adds the 36 seeded children, writes the 5 school days before today (SATS registers + confirmed lessons; only Ravi (Telugu) away this week and Manjunath (Kannada) the last 2 days; the feed's scenario keeps Ravi and Rohan (English) away today; random absences off, `Attendance:Sats:AbsenceRate` 0; so the week makes exactly 3 catch-ups) and, when data/seed/demo-catchup.json exists, that catch-up as Ready for the story child of its language. Evening template, teacher sign-in and AiCall rows untouched; replay is a no-op (T-18)
+GET  /api/demo/family/{childId}             the simulated parent phone: [{ kind: evening|catchUp, date, sentAt, token }] newest first, her class only
+GET  /api/demo/ai-calls?since=              "Under the hood": up to 50 AiCall rows { purpose, model, promptVersion, tokens, latencyMs, verdict, error }
+GET  /api/demo/snapshot/{packageId}         Development only: a package + audio as JSON, saved as data/seed/demo-catchup.json
+GET  /health
 ```
 
 All write endpoints accept a client-generated `clientRequestId` so offline replays are idempotent.

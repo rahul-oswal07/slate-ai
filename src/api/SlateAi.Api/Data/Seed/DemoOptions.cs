@@ -15,4 +15,10 @@ public sealed class DemoOptions
     /// demo shell (FR-14). Set <c>Demo__Enabled=false</c> for a real school.
     /// </summary>
     public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// The pre-made catch-up the demo Reset restores as Ready (T-18, risk R5), relative to the app's output directory.
+    /// Missing file: Reset skips it and every catch-up is generated live.
+    /// </summary>
+    public string SnapshotFile { get; set; } = "data/seed/demo-catchup.json";
 }
