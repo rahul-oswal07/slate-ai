@@ -71,6 +71,52 @@ public sealed class LedgerBuilderTests
         Assert.Empty(LedgerBuilder.Build(ClassId, data).Children[0].MissedLessons);
     }
 
+    [Fact]
+    public void Status_comes_from_the_weeks_catch_up_answer_first_then_a_stop_then_a_sent_link()
+    {
+        // Mon: subtraction; Tue: place value. Each child misses both; the catch-up covers subtraction only.
+        var answered = new LedgerChildRow(Guid.NewGuid(), 1, "Answered");
+        var wrong = new LedgerChildRow(Guid.NewGuid(), 2, "Wrong");
+        var stoppedAfterAnswer = new LedgerChildRow(Guid.NewGuid(), 3, "StoppedAfter", Stopped: true);
+        var stopped = new LedgerChildRow(Guid.NewGuid(), 4, "Stopped", Stopped: true);
+        var sent = new LedgerChildRow(Guid.NewGuid(), 5, "Sent");
+        var unsent = new LedgerChildRow(Guid.NewGuid(), 6, "Unsent");
+        var lastWeek = new LedgerChildRow(Guid.NewGuid(), 7, "LastWeek");
+        LedgerChildRow[] all = [answered, wrong, stoppedAfterAnswer, stopped, sent, unsent, lastWeek];
+        CatchUpRow CatchUp(LedgerChildRow child, bool sent, string? outcome, DateOnly? week = null) =>
+            new(child.Id, week ?? Mon, ["M3.SUB.BORROW"], sent, outcome);
+        var data = new LedgerData(
+            all,
+            [.. all.Select(c => new RegisterRow(c.Id, Mon, false)), .. all.Select(c => new RegisterRow(c.Id, Mon.AddDays(1), false))],
+            [
+                new LessonRow(Guid.NewGuid(), Mon, ["M3.SUB.BORROW"]),
+                new LessonRow(Guid.NewGuid(), Mon.AddDays(1), ["M3.PV.HUNDREDS"]),
+            ],
+            [
+                CatchUp(answered, true, "caughtUp"),
+                CatchUp(wrong, true, "needsBuddy"),
+                CatchUp(stoppedAfterAnswer, true, "caughtUp"),
+                CatchUp(stopped, false, null),
+                CatchUp(sent, true, null),
+                CatchUp(unsent, false, null),
+                CatchUp(lastWeek, true, "caughtUp", Mon.AddDays(-7)),
+            ]);
+
+        var ledger = LedgerBuilder.Build(ClassId, data);
+        string StatusOf(LedgerChildRow child, int lesson) =>
+            ledger.Children.Single(c => c.ChildId == child.Id).MissedLessons[lesson].Status;
+
+        Assert.Equal(LedgerStatus.CaughtUp, StatusOf(answered, 0));
+        Assert.Equal(LedgerStatus.NeedsBuddy, StatusOf(wrong, 0));
+        Assert.Equal(LedgerStatus.CaughtUp, StatusOf(stoppedAfterAnswer, 0));
+        Assert.Equal(LedgerStatus.Stopped, StatusOf(stopped, 0));
+        Assert.Equal(LedgerStatus.Sent, StatusOf(sent, 0));
+        Assert.Equal(LedgerStatus.Missed, StatusOf(unsent, 0));
+        Assert.Equal(LedgerStatus.Missed, StatusOf(lastWeek, 0)); // another week's catch-up
+        Assert.Equal(LedgerStatus.Missed, StatusOf(answered, 1)); // not in the catch-up
+        Assert.Equal(LedgerStatus.Stopped, StatusOf(stopped, 1)); // a stop shows on every missed lesson
+    }
+
     private static IEnumerable<RegisterRow> Day(DateOnly date, LedgerChildRow[] absent) =>
         new[] { Away, Back, Present }.Select(c => new RegisterRow(c.Id, date, !absent.Contains(c)));
 }

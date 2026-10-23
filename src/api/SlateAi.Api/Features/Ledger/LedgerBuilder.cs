@@ -1,3 +1,5 @@
+using SlateAi.Api.Features.CatchUps.Compression;
+
 namespace SlateAi.Api.Features.Ledger;
 
 /// <summary>Pure ledger computation (FR-05): attendance × lessons, plus absence spells and return speed.</summary>
@@ -7,6 +9,7 @@ public static class LedgerBuilder
     {
         var register = data.Register.ToLookup(r => r.ChildId);
         var lessons = data.Lessons.OrderBy(l => l.Date).ToLookup(l => l.Date);
+        var catchUps = (data.CatchUps ?? []).ToLookup(c => c.ChildId);
 
         var allSpells = new List<AbsenceSpell>();
         var rows = data.Children.OrderBy(c => c.RollNo).Select(child =>
@@ -18,7 +21,7 @@ public static class LedgerBuilder
                 .Where(d => !d.Present)
                 .OrderBy(d => d.Date)
                 .SelectMany(d => lessons[d.Date])
-                .Select(l => new MissedLesson(l.Id, l.Date, l.CompetencyIds, "missed"))
+                .Select(l => new MissedLesson(l.Id, l.Date, l.CompetencyIds, Status(l, child, catchUps[child.Id])))
                 .ToList();
             return new LedgerChild(
                 child.Id, child.RollNo, child.FirstName, AbsenceSpells.CurrentDays(spells), missed, spells);
@@ -28,5 +31,20 @@ public static class LedgerBuilder
         var returnSpeed = latest is { } asOf ? AbsenceSpells.Summarise(allSpells, asOf) : null;
 
         return new LedgerResponse(classId, latest, returnSpeed, rows);
+    }
+
+    /// <summary>
+    /// The answer wins (it is what the child showed), then a stop, then a sent link. A lesson belongs to the week's
+    /// catch-up when one of its competencies is among that catch-up's missed ones.
+    /// </summary>
+    private static string Status(LessonRow lesson, LedgerChildRow child, IEnumerable<CatchUpRow> catchUps)
+    {
+        var week = CompressionPlanner.Week(lesson.Date).From;
+        var catchUp = catchUps.FirstOrDefault(c =>
+            c.WeekOf == week && c.MissedCompetencyIds.Intersect(lesson.CompetencyIds, StringComparer.Ordinal).Any());
+        return catchUp?.Outcome
+            ?? (child.Stopped ? LedgerStatus.Stopped
+                : catchUp?.Sent == true ? LedgerStatus.Sent
+                : LedgerStatus.Missed);
     }
 }

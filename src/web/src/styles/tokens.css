@@ -29,6 +29,8 @@
   --color-error-bg: #fef2f2;
   --color-on-error: #ffffff;
   --color-warning: #b45309;
+  /* The sticks in the parent page's pictures (D-07): they carry the answer, so UI contrast (≥ 3:1) applies. */
+  --color-stick: #b45309;
   /* Decorative only (illustrations); never carries meaning. */
   --color-illustration-warm: #f59e0b;
 
@@ -135,6 +137,7 @@
     --color-error-bg: #3a1515;
     --color-on-error: #2a0a0a;
     --color-warning: #fbbf24;
+    --color-stick: #fbbf24;
 
     --color-status-sent: #bfdbfe;
     --color-status-sent-bg: #172a4a;

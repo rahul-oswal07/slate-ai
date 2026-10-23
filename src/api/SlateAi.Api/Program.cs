@@ -13,6 +13,7 @@ using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Health;
 using SlateAi.Api.Features.Ledger;
 using SlateAi.Api.Features.Lessons;
+using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Features.Spa;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,7 @@ builder.Services.AddLessons();
 builder.Services.AddEveningMessages(builder.Configuration);
 builder.Services.AddCatchUps(builder.Configuration);
 builder.Services.AddAudio();
+builder.Services.AddParent();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 
@@ -60,6 +62,7 @@ app.MapEveningMessageEndpoints();
 app.MapCatchUpEndpoints();
 app.MapCatchUpApprovalEndpoints();
 app.MapAudioEndpoints();
+app.MapParentEndpoints();
 app.MapDemoEndpoints();
 app.MapApiDocs();
 app.MapSpa();

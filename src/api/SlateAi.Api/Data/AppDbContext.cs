@@ -18,6 +18,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<CatchUpPackage> CatchUpPackages => Set<CatchUpPackage>();
     public DbSet<CatchUpAssignment> CatchUpAssignments => Set<CatchUpAssignment>();
     public DbSet<AudioClip> AudioClips => Set<AudioClip>();
+    public DbSet<CheckResponse> CheckResponses => Set<CheckResponse>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -132,6 +133,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasIndex(a => new { a.ChildId, a.WeekOf }).IsUnique(); // one catch-up per child per week
             e.HasIndex(a => a.Token).IsUnique();
             e.HasIndex(a => new { a.ClassId, a.WeekOf });
+        });
+
+        modelBuilder.Entity<CheckResponse>(e =>
+        {
+            e.HasKey(r => r.AssignmentId); // one answer per assignment: the first counts (D-62)
+            e.Property(r => r.Outcome).HasMaxLength(20);
+            e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<CheckResponse>(r => r.AssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<AudioClip>(e =>

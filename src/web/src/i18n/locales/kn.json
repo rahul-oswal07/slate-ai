@@ -296,5 +296,96 @@
       "regenStarted": "ಹೊಸ ಆವೃತ್ತಿ ಬರೆಯುತ್ತಿದೆ",
       "regenReady": "ಹೊಸ ಆವೃತ್ತಿ ಸಿದ್ಧ. ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ."
     }
+  },
+  "parent": {
+    "title": "{{child}}’s lesson",
+    "from": "From {{teacher}} teacher",
+    "aiLabel": "AI-assisted, approved by {{teacher}} teacher",
+    "steps": "Step {{n}} of 4",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading…",
+    "notFound": "This link doesn’t work. Ask the teacher to send it again.",
+    "offline": "No network. Nothing was lost. Connect to the internet and try again.",
+    "retry": "Try again",
+    "listen": {
+      "listen": "Listen",
+      "loading": "Loading…",
+      "pause": "Pause",
+      "resume": "Resume",
+      "again": "Listen again",
+      "error": "Could not play the lesson. Check the network and tap Resume.",
+      "parts": "Parts of the lesson",
+      "seg": {
+        "greeting": "Teacher’s greeting",
+        "disclosure": "Computer voice",
+        "script": "Lesson"
+      },
+      "readWords": "Read the words",
+      "greetingLine": "Teacher (own voice): “Namaskara, I am {{teacher}} teacher.”",
+      "keyWords": "Kannada words"
+    },
+    "sticks": {
+      "hundreds_one": "{{count}} bundle of a hundred",
+      "hundreds_other": "{{count}} bundles of a hundred",
+      "tens_one": "{{count}} bundle of ten",
+      "tens_other": "{{count}} bundles of ten",
+      "ones_one": "{{count}} loose stick",
+      "ones_other": "{{count}} loose sticks",
+      "none": "No sticks"
+    },
+    "activity": {
+      "title": "Activity at home",
+      "next": "Next: question",
+      "homeworkTitle": "Homework: page {{page}}",
+      "homeworkBody": "Textbook Part {{part}} · show {{teacher}} teacher when you come back.",
+      "homeworkBodyNoPart": "Textbook · show {{teacher}} teacher when you come back."
+    },
+    "answer": {
+      "title": "Question",
+      "prompt": "{{child}}, tap the right picture",
+      "options": "Answers",
+      "hintTap": "Tap one picture",
+      "send": "This one, send",
+      "hintChange": "To change, tap another picture",
+      "sending": "Sending…",
+      "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
+      "retry": "Try again"
+    },
+    "done": {
+      "title": "{{teacher}} teacher",
+      "wellDone": "Well done, {{child}}",
+      "teacherSees": "{{teacher}} teacher will see this.",
+      "bringPage": "Bring page {{page}} to school.",
+      "finish": "Finish",
+      "closeHint": "You can close this page now."
+    },
+    "stop": {
+      "link": "Stop these messages",
+      "title": "Stop messages for {{child}}?",
+      "body": "No more messages will come. You can start them again any time.",
+      "confirm": "Stop messages",
+      "cancel": "No, keep them coming",
+      "failed": "Could not stop the messages. Check the network and try again.",
+      "doneTitle": "Messages stopped",
+      "doneBody": "When {{child}} comes back, the teacher will help as usual.",
+      "restart": "Start them again",
+      "restartFailed": "Could not start the messages. Check the network and try again."
+    },
+    "expired": {
+      "title": "This link is old",
+      "body": "{{teacher}} teacher will send a new one. You don’t need to do anything."
+    },
+    "evening": {
+      "title": "Message from {{teacher}} teacher"
+    },
+    "announce": {
+      "playing": "Playing",
+      "paused": "Paused",
+      "sending": "Sending",
+      "sent": "Sent",
+      "stopped": "Messages stopped",
+      "restarted": "Messages started again"
+    }
   }
 }

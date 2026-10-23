@@ -27,11 +27,16 @@ public sealed record ParentEveningResponse(
     string Text,
     string? GreetingAudioUrl,
     DateTimeOffset SentAt,
-    bool Stopped);
+    bool Stopped)
+{
+    /// <summary>The parent link serves catch-ups too (<c>Features/Parent</c>); this tells the page which it got.</summary>
+    public string Kind => "evening";
+}
 
 /// <summary>
 /// Evening message on each day of absence (FR-20, D-21, guardrail 3): the template she approves once, the 6 pm
-/// send, Today's tonight's card and the parent's view by link token. No LLM anywhere on this path.
+/// send and Today's tonight's card. The family's view by link token is in <c>Features/Parent</c>. No LLM anywhere on
+/// this path.
 /// </summary>
 public static class EveningEndpoints
 {
@@ -79,11 +84,6 @@ public static class EveningEndpoints
                 "consent Yes, or who stopped messages, are refused in the per-child result. Safe to repeat: one " +
                 "message per child per day.");
 
-        app.MapGet("/api/p/{token}", GetParentMessageAsync)
-            .AllowAnonymous()
-            .WithTags("Parent")
-            .WithSummary("The evening message a family received, by its link token")
-            .WithDescription("No sign-in: the 128-bit token is the key. 404 if unknown, 410 once expired (14 days).");
         return app;
     }
 
@@ -184,28 +184,6 @@ public static class EveningEndpoints
         }
 
         return day.Blocked is null ? TypedResults.Ok(day) : TypedResults.Conflict(day);
-    }
-
-    private static async Task<Results<Ok<ParentEveningResponse>, NotFound, StatusCodeHttpResult>> GetParentMessageAsync(
-        string token,
-        IEveningStore store,
-        TimeProvider clock,
-        CancellationToken cancellationToken)
-    {
-        if (token.Length is < 16 or > 30 || await store.FindByTokenAsync(token, cancellationToken) is not { } message)
-        {
-            return TypedResults.NotFound();
-        }
-
-        if (clock.GetUtcNow() >= message.ExpiresAt)
-        {
-            return TypedResults.StatusCode(StatusCodes.Status410Gone);
-        }
-
-        var text = EveningSlots.Render(message.TemplateText, message.ChildName, message.Slots).Text;
-        return TypedResults.Ok(new ParentEveningResponse(
-            message.Date, message.Language, message.ChildName, message.TeacherName, text, message.GreetingAudioUrl,
-            message.SentAt, message.Stopped));
     }
 
     private static async Task<MessageTemplateResponse?> TemplateAsync(
