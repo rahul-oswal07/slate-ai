@@ -20,6 +20,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<AudioClip> AudioClips => Set<AudioClip>();
     public DbSet<CheckResponse> CheckResponses => Set<CheckResponse>();
     public DbSet<AbsenceReason> AbsenceReasons => Set<AbsenceReason>();
+    public DbSet<BuddyCard> BuddyCards => Set<BuddyCard>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -151,6 +152,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<Child>().WithMany().HasForeignKey(r => r.ChildId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(r => new { r.ChildId, r.Date }).IsUnique(); // one reason per absent day
             e.HasIndex(r => new { r.ClassId, r.Date }); // T6 counts per week
+        });
+
+        modelBuilder.Entity<BuddyCard>(e =>
+        {
+            e.HasOne<Class>().WithMany().HasForeignKey(c => c.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(c => c.ChildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(c => new { c.ChildId, c.Date }).IsUnique(); // one card per child per return day
+            e.HasIndex(c => new { c.ClassId, c.Date });
         });
 
         modelBuilder.Entity<AudioClip>(e =>

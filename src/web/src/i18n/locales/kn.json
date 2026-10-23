@@ -161,7 +161,8 @@
     "lessonReady": "ಪಾಠ ಸಿದ್ಧ. ಖಚಿತಪಡಿಸಿ.",
     "lessonConfirmed": "ಪಾಠ ಖಚಿತವಾಗಿದೆ",
     "lessonAdded": "ಪಾಠ ಸೇರಿಸಲಾಗಿದೆ",
-    "deleted": "ಅಳಿಸಲಾಗಿದೆ: ಹೆಸರು, ಉತ್ತರಗಳು, ಆಡಿಯೋ"
+    "deleted": "ಅಳಿಸಲಾಗಿದೆ: ಹೆಸರು, ಉತ್ತರಗಳು, ಆಡಿಯೋ",
+    "buddyDone": "ಬಡ್ಡಿ ಸಮಯ ಮುಗಿದಿದೆ"
   },
   "mic": {
     "record": "ದಾಖಲಿಸಿ",
@@ -476,5 +477,45 @@
       "te": "ತೆಲುಗು",
       "ta": "ತಮಿಳು"
     }
+  },
+  "back": {
+    "title": "ಇಂದು ಮರಳಿದವರು",
+    "position": "ಕಾರ್ಡ್ {{i}} / {{n}}",
+    "next": "ಮುಂದೆ: {{name}}",
+    "daysAway_one": "{{count}} ದಿನದ ನಂತರ ಮರಳಿದ್ದಾರೆ",
+    "daysAway_other": "{{count}} ದಿನದ ನಂತರ ಮರಳಿದ್ದಾರೆ",
+    "buddyOneDay": "Buddy (was present that day)",
+    "buddyBothDays": "ಬಡ್ಡಿ (ಆ ಎರಡೂ ದಿನ ಹಾಜರಿದ್ದರು)",
+    "buddyAllDays": "Buddy (was present all {{count}} days)",
+    "buddySome": "Buddy (was present {{present}} of {{count}} days)",
+    "minutes": "{{n}} ನಿಮಿಷ",
+    "teacherLed": "Teacher-led: 10 minutes",
+    "teacherLedWhy": "No classmate was in class on those days.",
+    "sumsTitle": "ಒಟ್ಟಿಗೆ ಮಾಡಲು 3 ಲೆಕ್ಕಗಳು",
+    "makeTitle": "3 numbers to make with sticks",
+    "questionsTitle": "3 questions to do together",
+    "task": {
+      "count": "Make {{n}} with sticks",
+      "placeValue": "Value of {{question}} = ?",
+      "biggest": "Which is biggest? {{question}}",
+      "smallest": "Which is smallest? {{question}}"
+    },
+    "answers": "Answers (for you)",
+    "keywordsTitle": "ಕನ್ನಡ ಪದಗಳು (ಪಠ್ಯಪುಸ್ತಕದಿಂದ)",
+    "noLesson": "No lesson was recorded on the days away.",
+    "homework": "ಮನೆಕೆಲಸ ತಂದಿದ್ದಾರೆ",
+    "homeworkPage": "ಭಾಗ {{part}}, ಪುಟ {{page}}",
+    "homeworkPageNoPart": "page {{page}}",
+    "done": "ಬಡ್ಡಿ ಸಮಯ ಮುಗಿಯಿತು",
+    "doneBanner": "ಬಡ್ಡಿ ಸಮಯ ಮುಗಿದಿದೆ",
+    "undo": "ರದ್ದು",
+    "noneTitle": "ಇಂದು ಯಾರೂ ಮರಳಿಲ್ಲ",
+    "noneBody": "ಗೈರಾದ ಮಗು ಮರಳಿದ ದಿನ ಬಡ್ಡಿ ಕಾರ್ಡ್ ಇಲ್ಲಿ ಬರುತ್ತದೆ.",
+    "offline": "ನೆಟ್‌ವರ್ಕ್ ಇಲ್ಲ. ಕಾರ್ಡ್‌ಗಳು ಫೋನ್‌ನಲ್ಲಿ ಉಳಿದಿವೆ.",
+    "saveFailed": "Could not save. Nothing changed. Check the network and try again.",
+    "loadFailed": "Could not load the cards. Nothing was lost. Try again.",
+    "prev": "ಹಿಂದಿನ ಕಾರ್ಡ್",
+    "print": "ಕಾರ್ಡ್ ಮುದ್ರಿಸಿ ಅಥವಾ ಹಂಚಿ",
+    "nextCard": "ಮುಂದಿನ ಕಾರ್ಡ್"
   }
 }

@@ -4,6 +4,7 @@ import { TeacherGate } from '../features/auth/TeacherGate'
 import { ApproveScreen } from '../features/approve/ApproveScreen'
 import { PackageScreen } from '../features/approve/PackageScreen'
 import { ConfirmLessonScreen } from '../features/lessons/ConfirmLessonScreen'
+import { BackTodayScreen } from '../features/back/BackTodayScreen'
 import { ChildScreen } from '../features/missed/ChildScreen'
 import { MissedScreen } from '../features/missed/MissedScreen'
 import { ParentScreen } from '../features/parent/ParentScreen'
@@ -34,7 +35,7 @@ export function App() {
             <Route path="approve/:id" element={<PackageScreen />} />
             <Route path="missed" element={<MissedScreen />} />
             <Route path="missed/:childId" element={<ChildScreen />} />
-            <Route path="back" element={<ComingSoon tab="back" />} />
+            <Route path="back" element={<BackTodayScreen />} />
             <Route path="week" element={<ComingSoon tab="week" />} />
           </Route>
         </Route>

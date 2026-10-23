@@ -188,10 +188,10 @@ describe('TodayScreen', () => {
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav).getByRole('link', { name: 'Today' })).toHaveAttribute('aria-current', 'page')
 
-    // Back today is still a placeholder tab (Approve became T3 in T-14, Missed became T4 in T-13).
-    await userEvent.click(within(nav).getByRole('link', { name: 'Back today' }))
+    // Week is still a placeholder tab (Approve became T3 in T-14, Missed T4 in T-13, Back today T5 in T-16).
+    await userEvent.click(within(nav).getByRole('link', { name: 'Week' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Back today' })).toHaveFocus()
-    expect(within(nav).getByRole('link', { name: 'Back today' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('heading', { level: 1, name: 'Week' })).toHaveFocus()
+    expect(within(nav).getByRole('link', { name: 'Week' })).toHaveAttribute('aria-current', 'page')
   })
 })
