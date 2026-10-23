@@ -4,7 +4,7 @@ using SlateAi.Api.Features.Attendance;
 namespace SlateAi.Api.Features.EveningMessages;
 
 /// <summary>
-/// The 6 pm job (FR-20). Once a minute from <see cref="EveningOptions.SendAt"/> IST until midnight it sends each
+/// The 6 pm job (FR-20, and approved catch-ups, FR-08). Once a minute from <see cref="EveningOptions.SendAt"/> IST until midnight it sends each
 /// class's evening messages. Sending is idempotent per child and day, so a lesson confirmed at 7 pm still goes on
 /// the next tick and a restart never sends twice.
 /// </summary>
@@ -51,6 +51,10 @@ public sealed class EveningSendWorker(
                 try
                 {
                     await classScope.ServiceProvider.GetRequiredService<EveningSender>().SendAsync(classId, today, cancellationToken);
+
+                    // Approved catch-ups go out at the same time (T3: "Goes after 6 pm"); unapproved ones never (guardrail 3).
+                    await classScope.ServiceProvider.GetRequiredService<SlateAi.Api.Features.CatchUps.CatchUpSender>()
+                        .SendApprovedAsync(classId, today, cancellationToken);
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {

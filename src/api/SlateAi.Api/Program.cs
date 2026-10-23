@@ -58,6 +58,7 @@ app.MapLedgerEndpoints();
 app.MapLessonEndpoints();
 app.MapEveningMessageEndpoints();
 app.MapCatchUpEndpoints();
+app.MapCatchUpApprovalEndpoints();
 app.MapAudioEndpoints();
 app.MapDemoEndpoints();
 app.MapApiDocs();

@@ -175,7 +175,8 @@
     "approve": "ஒப்புதல்",
     "missed": "தவறிய பாடம்",
     "back": "திரும்பியவர்கள்",
-    "week": "வாரம்"
+    "week": "வாரம்",
+    "approveWaiting": ", {{n}} waiting"
   },
   "comingSoon": {
     "body": "இந்தத் திரை பின்னர் வரும்."
@@ -224,5 +225,76 @@
   },
   "ai": {
     "label": "AI உதவியுடன்"
+  },
+  "approve": {
+    "title": "This week’s catch-ups",
+    "intro": "One approval per catch-up, not per child. Nothing is sent until you approve.",
+    "allDone": "All {{n}} approved. {{families}} families get them after 6 pm.",
+    "empty": "No catch-ups yet this week.",
+    "generate": "Make this week’s catch-ups",
+    "checkNew": "Check for new absences",
+    "generateError": "Could not make the catch-ups. Nothing was sent. Try again.",
+    "in": {
+      "kn": "In Kannada",
+      "te": "In Telugu",
+      "ta": "In Tamil"
+    },
+    "card": {
+      "heading_one": "{{language}} · {{count}} child",
+      "heading_other": "{{language}} · {{count}} children",
+      "goesAt": "Goes after 6 pm"
+    },
+    "status": {
+      "ready": "Ready",
+      "needsReview": "Needs review",
+      "approved": "Approved",
+      "generating": "Generating…",
+      "sent": "Sent",
+      "failed": "Generation failed"
+    },
+    "player": {
+      "play": "Play",
+      "pause": "Pause",
+      "parts": "Parts of the catch-up",
+      "greeting": "Your greeting",
+      "disclosure": "Computer voice",
+      "script": "Lesson"
+    },
+    "pkg": {
+      "title": "Review catch-up",
+      "missing": "This catch-up is no longer here. Go back to the list.",
+      "children": "{{language}} · children",
+      "summary": "Kannada summary",
+      "keyWords": "Kannada words",
+      "why": "Why this",
+      "check": "Picture question · tests: {{lesson}}",
+      "options": "The three pictures",
+      "correct": "correct answer",
+      "tick": "I’ve checked the Kannada summary",
+      "approve": "Approve",
+      "approveHint": "Tick the summary box to approve.",
+      "simpler": "Simpler",
+      "shorter": "Shorter",
+      "makeShorter": "Make it shorter",
+      "reviewTitle": "Didn’t pass the check:",
+      "cannotApprove": "Can’t approve this version. Ask for a new one.",
+      "regenerating": "Writing a new version… Check it again when it’s ready.",
+      "approved": "Approved. Goes to the families after 6 pm.",
+      "sent": "Sent at {{time}} · {{n}} families",
+      "failed": "Could not write this catch-up. Nothing was sent. Your other catch-ups are not affected.",
+      "offline": "No network. Nothing was changed. Connect and try again.",
+      "error": "Could not save. Nothing was sent. Try again."
+    },
+    "why": {
+      "kept": "Next week’s lessons build on this.",
+      "dropped": "Left out this week. Not needed for next week.",
+      "keptLabel": "kept",
+      "droppedLabel": "left out"
+    },
+    "announce": {
+      "approved": "Approved. Goes after 6 pm.",
+      "regenStarted": "Writing a new version",
+      "regenReady": "New version ready. Check it again."
+    }
   }
 }

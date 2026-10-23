@@ -21,5 +21,8 @@ public sealed class CatchUpAssignment
     public DateTimeOffset? ScheduledAt { get; set; }
     public DateTimeOffset? SentAt { get; set; }
     public DateTimeOffset? OpenedAt { get; set; }
+
+    /// <summary>The parent link stops working after this (spec §4.4: 14 days).</summary>
+    public DateTimeOffset? ExpiresAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

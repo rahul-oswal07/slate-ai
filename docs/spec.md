@@ -191,9 +191,9 @@ Built schema, keys, indexes and locking: `docs/database.md`.
 | `Competency` | Id (e.g. `M3.ADD.CARRY`), Grade, NameKn, NameEn, PrerequisiteIds[], NipunOutcome, SequenceNo, TextbookPage (D-22) — loaded from `data/curriculum/` |
 | `Lesson` | Id, ClassId, Date, Source (voice/photo/picked), Transcript?, CompetencyIds[], SummaryKn, ExamplesUsed, Confidence, Status |
 | `Attendance` | ClassId, Date, ChildId, Present |
-| `CatchUpPackage` | Id, ClassId, WeekOf, TargetCompetencyIds[], TargetKey, Language, Status (generating/ready/needsReview/approved/sent/failed, T3), ScriptVersion, PromptVersion, Hint, Verdict, Script, KeyWordsKn[], GlossKn, GlossEn, Activity (json: code numbers + A3 words), CheckItem (json: question, options, correctIndex, prompt), AudioUrl (built T-09; see `docs/database.md`) |
+| `CatchUpPackage` | Id, ClassId, WeekOf, TargetCompetencyIds[], TargetKey, Language, Status (generating/ready/needsReview/approved/sent/failed, T3), ScriptVersion, PromptVersion, Hint, Verdict, Script, KeyWordsKn[], GlossKn, GlossEn, Activity (json: code numbers + A3 words), CheckItem (json: question, options, correctIndex, prompt), AudioUrl, AudioSegments, ApprovedAt, ApprovedByTeacherId, ApprovedScriptVersion, SentAt (built T-09–T-14; see `docs/database.md`) |
 | `AudioClip` | Id, Kind (script/disclosure/greeting), Language, PackageId? (cascade), TextHash? (disclosure cache key), ContentType (audio/ogg), Bytes, Seconds, CreatedAt (built T-11) |
-| `CatchUpAssignment` | Id, ClassId, ChildId, PackageId, WeekOf, MissedCompetencyIds[], CompressionRationale (json), Token, ScheduledAt, SentAt, OpenedAt (built T-09) |
+| `CatchUpAssignment` | Id, ClassId, ChildId, PackageId, WeekOf, MissedCompetencyIds[], CompressionRationale (json), Token, ScheduledAt, SentAt, OpenedAt, ExpiresAt (built T-09; token, sent and expiry set by the send step, T-14) |
 | `CheckResponse` | AssignmentId, ChoiceId, Correct, Outcome (CaughtUp/NeedsBuddy). Spoken-answer fields dropped with FR-18 (D-26) |
 | `BuddyCard` | ChildId, BuddyChildId, Date, Sums[], KeyWords[], HomeworkReturnedAt? (D-22) |
 | `MessageTemplate` | Id, ClassId, Language, Text with slots `{child}` (written text only) `{lesson}` `{page}` (D-48, D-29, D-50), Status (Draft/Approved), ApprovedAt, ApprovedByTeacherId (FR-20, D-21) |
@@ -223,8 +223,11 @@ GET  /api/classes/{id}/ledger
 POST /api/classes/{id}/catchups/generate    { clientRequestId } → 202: A2 per absent child → one package per (targets, language) with code numbers → A3 in the background (generating → ready | failed); re-run keeps existing ones (T-09)
 GET  /api/classes/{id}/packages?week=       the week's packages with children, A2 reasons and the check's correct option (teacher only); `audio.segments` in playing order with seconds, total seconds and bytes, disclosure text (T-11)
 GET  /api/audio/{id}                        one audio segment (Ogg Opus), range requests; her class's catch-up audio or a shared disclosure clip (teacher only; parents via the link token in T-15)
-POST /api/packages/{id}/approve | /regenerate { hint }
-POST /api/assignments/{id}/send             (demo: immediate; prod: schedule 18:00 IST)
+GET  /api/packages/{id}                     one catch-up for T3's detail (teacher's own class)
+POST /api/packages/{id}/approve             { clientRequestId, scriptVersion } → only when ready and scriptVersion is current; 409 + latest otherwise (T-14)
+POST /api/packages/{id}/regenerate          { clientRequestId, hint: simpler|shorter|null } → 202, generating, comes back as scriptVersion + 1 (voids any tick); 409 once approved/sent or while generating (T-14)
+POST /api/packages/{id}/send                { clientRequestId } → 409 unless approved at the current version (guardrail 3) and, outside demo mode, before 18:00 IST; links only for consent Yes + not stopped; the 6 pm job sends approved catch-ups itself (T-14). Bulk approve and Withdraw: roadmap (D-70)
+POST /api/assignments/{id}/send             superseded by POST /api/packages/{id}/send (T-14)
 GET  /api/p/{token}                         parent payload (no auth; 128-bit token; expires 14 days → 410). T-44: the evening message { date, language, childName, teacherName, text, greetingAudioUrl, sentAt, stopped }; T-15 adds the catch-up
 POST /api/p/{token}/answer                  { choiceId }
 POST /api/p/{token}/reason                  { category } or audio → A7 (FR-21)

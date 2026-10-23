@@ -196,6 +196,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.PrimitiveCollection<List<string>>("MissedCompetencyIds")
                         .IsRequired()
                         .HasColumnType("text[]");
@@ -243,6 +246,15 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<string>("Activity")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedByTeacherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ApprovedScriptVersion")
+                        .HasColumnType("integer");
 
                     b.Property<string>("AudioSegments")
                         .HasColumnType("jsonb");
@@ -292,6 +304,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<int>("ScriptVersion")
                         .HasColumnType("integer");
 
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -317,6 +332,8 @@ namespace SlateAi.Api.Data.Migrations
                         .HasColumnType("date");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByTeacherId");
 
                     b.HasIndex("ClassId", "WeekOf", "Language", "TargetKey")
                         .IsUnique();
@@ -669,6 +686,10 @@ namespace SlateAi.Api.Data.Migrations
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpPackage", b =>
                 {
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedByTeacherId");
+
                     b.HasOne("SlateAi.Api.Data.Entities.Class", null)
                         .WithMany()
                         .HasForeignKey("ClassId")

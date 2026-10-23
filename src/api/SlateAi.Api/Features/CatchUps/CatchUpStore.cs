@@ -41,8 +41,26 @@ public sealed record PackageReview(bool Passed, int Attempts, IReadOnlyList<Veri
 public sealed record ScriptOutcome(
     string Status, ScriptContent? Content, string Verdict, int PromptVersion, PackageReview? Review, AudioSegments? Audio = null);
 
+/// <param name="FirstName">For the teacher's screen only; never sent to an AI provider.</param>
+/// <param name="Sent">This family got the link.</param>
+/// <param name="Reachable">The family would get it: consent "yes" and not stopped (others: buddy card only).</param>
 public sealed record AssignedChild(
-    Guid ChildId, IReadOnlyList<string> MissedCompetencyIds, CompressionRationale Rationale);
+    Guid ChildId, IReadOnlyList<string> MissedCompetencyIds, CompressionRationale Rationale, string FirstName = "",
+    bool Sent = false, bool Reachable = false);
+
+/// <summary>What an approve, regenerate or send asked of the store found.</summary>
+public enum PackageChange
+{
+    Applied,
+
+    /// <summary>This clientRequestId was already applied.</summary>
+    Replay,
+
+    /// <summary>Not allowed in the package's current state or version: show the latest (409).</summary>
+    Conflict,
+
+    NotFound,
+}
 
 /// <summary>A catch-up as the teacher's Approve screen will read it (T3).</summary>
 public sealed record PackageView(
@@ -61,7 +79,17 @@ public sealed record PackageView(
     IReadOnlyList<AssignedChild> Children,
     DateTimeOffset UpdatedAt,
     PackageReview? Review,
-    AudioSegments? Audio);
+    AudioSegments? Audio,
+    Guid ClassId,
+    DateTimeOffset? ApprovedAt,
+    DateTimeOffset? SentAt)
+{
+    /// <summary>Families the link went to (counted in code).</summary>
+    public int FamiliesSent => Children.Count(c => c.Sent);
+
+    /// <summary>Families it goes to once sent: consent yes, not stopped (counted in code).</summary>
+    public int FamiliesReachable => Children.Count(c => c.Reachable);
+}
 
 /// <summary>Database side of catch-ups, behind an interface so endpoint tests can use a fake.</summary>
 public interface ICatchUpStore
@@ -92,6 +120,25 @@ public interface ICatchUpStore
     Task SaveScriptAsync(Guid packageId, ScriptOutcome outcome, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<PackageView>> ListAsync(Guid classId, DateOnly weekOf, CancellationToken cancellationToken);
+
+    Task<PackageView?> GetViewAsync(Guid packageId, CancellationToken cancellationToken);
+
+    /// <summary>Approves only a ready package at <paramref name="scriptVersion"/> (T3: approval bound to the version she ticked).</summary>
+    Task<PackageChange> ApproveAsync(
+        Guid packageId, Guid clientRequestId, int scriptVersion, Guid teacherId, CancellationToken cancellationToken);
+
+    /// <summary>Sets a ready, needs-review or failed package back to generating with the hint (Simpler / Shorter / Try again).</summary>
+    Task<PackageChange> StartRegenerateAsync(Guid packageId, Guid clientRequestId, string? hint, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Guardrail 3: only an approved package at its approved version is sent. Each assignment whose family has consent
+    /// "yes" and hasn't stopped gets a link token; the package becomes sent. Repeating adds nothing.
+    /// </summary>
+    Task<PackageChange> SendAsync(
+        Guid packageId, Func<string> newToken, DateTimeOffset now, DateTimeOffset expiresAt, CancellationToken cancellationToken);
+
+    /// <summary>Approved catch-ups not sent yet, for the 6 pm job.</summary>
+    Task<IReadOnlyList<Guid>> GetApprovedUnsentAsync(Guid classId, DateOnly weekOf, CancellationToken cancellationToken);
 }
 
 public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUpStore
@@ -216,26 +263,164 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<PackageView>> ListAsync(Guid classId, DateOnly weekOf, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<PackageView>> ListAsync(Guid classId, DateOnly weekOf, CancellationToken cancellationToken) =>
+        ViewsAsync(db.CatchUpPackages.Where(p => p.ClassId == classId && p.WeekOf == weekOf), cancellationToken);
+
+    public async Task<PackageView?> GetViewAsync(Guid packageId, CancellationToken cancellationToken) =>
+        (await ViewsAsync(db.CatchUpPackages.Where(p => p.Id == packageId), cancellationToken)).SingleOrDefault();
+
+    public async Task<PackageChange> ApproveAsync(
+        Guid packageId, Guid clientRequestId, int scriptVersion, Guid teacherId, CancellationToken cancellationToken)
     {
-        var packages = await db.CatchUpPackages.Where(p => p.ClassId == classId && p.WeekOf == weekOf)
-            .OrderBy(p => p.Language).ThenBy(p => p.TargetKey).ToListAsync(cancellationToken);
-        var assignments = await db.CatchUpAssignments.Where(a => a.ClassId == classId && a.WeekOf == weekOf)
+        await using var transaction = await LockPackageAsync(packageId, cancellationToken);
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
+        {
+            return PackageChange.Replay;
+        }
+
+        if (await db.CatchUpPackages.SingleOrDefaultAsync(p => p.Id == packageId, cancellationToken) is not { } package)
+        {
+            return PackageChange.NotFound;
+        }
+
+        if (package.Status != PackageStatus.Ready || package.ScriptVersion != scriptVersion)
+        {
+            return PackageChange.Conflict;
+        }
+
+        var now = clock.GetUtcNow();
+        package.Status = PackageStatus.Approved;
+        package.ApprovedAt = now;
+        package.ApprovedByTeacherId = teacherId;
+        package.ApprovedScriptVersion = scriptVersion;
+        package.UpdatedAt = now;
+        Processed(clientRequestId, "package-approve", now);
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return PackageChange.Applied;
+    }
+
+    public async Task<PackageChange> StartRegenerateAsync(
+        Guid packageId, Guid clientRequestId, string? hint, CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockPackageAsync(packageId, cancellationToken);
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
+        {
+            return PackageChange.Replay;
+        }
+
+        if (await db.CatchUpPackages.SingleOrDefaultAsync(p => p.Id == packageId, cancellationToken) is not { } package)
+        {
+            return PackageChange.NotFound;
+        }
+
+        if (package.Status is not (PackageStatus.Ready or PackageStatus.NeedsReview or PackageStatus.Failed))
+        {
+            return PackageChange.Conflict;
+        }
+
+        var now = clock.GetUtcNow();
+        package.Status = PackageStatus.Generating;
+        package.Hint = hint;
+        package.UpdatedAt = now;
+        Processed(clientRequestId, "package-regenerate", now);
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return PackageChange.Applied;
+    }
+
+    public async Task<PackageChange> SendAsync(
+        Guid packageId, Func<string> newToken, DateTimeOffset now, DateTimeOffset expiresAt, CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockPackageAsync(packageId, cancellationToken);
+        if (await db.CatchUpPackages.SingleOrDefaultAsync(p => p.Id == packageId, cancellationToken) is not { } package)
+        {
+            return PackageChange.NotFound;
+        }
+
+        if (package.Status == PackageStatus.Sent)
+        {
+            return PackageChange.Replay;
+        }
+
+        if (!CatchUpSendRules.CanSend(package.Status, package.ApprovedScriptVersion, package.ScriptVersion))
+        {
+            return PackageChange.Conflict;
+        }
+
+        var families = await (
+                from a in db.CatchUpAssignments
+                where a.PackageId == packageId && a.Token == null
+                join c in db.Children on a.ChildId equals c.Id
+                select new { Assignment = a, c.Consent, Stopped = c.ParentStoppedAt != null })
+            .ToListAsync(cancellationToken);
+        foreach (var family in families.Where(f => CatchUpSendRules.ReachesFamily(f.Consent, f.Stopped)))
+        {
+            family.Assignment.Token = newToken();
+            family.Assignment.ScheduledAt = now;
+            family.Assignment.SentAt = now;
+            family.Assignment.ExpiresAt = expiresAt;
+        }
+
+        package.Status = PackageStatus.Sent;
+        package.SentAt = now;
+        package.UpdatedAt = now;
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return PackageChange.Applied;
+    }
+
+    public async Task<IReadOnlyList<Guid>> GetApprovedUnsentAsync(Guid classId, DateOnly weekOf, CancellationToken cancellationToken) =>
+        await db.CatchUpPackages
+            .Where(p => p.ClassId == classId && p.WeekOf == weekOf && p.Status == PackageStatus.Approved)
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+
+    private async Task<IReadOnlyList<PackageView>> ViewsAsync(IQueryable<CatchUpPackage> query, CancellationToken cancellationToken)
+    {
+        // Untracked: an endpoint reads the view before approving; a tracked copy would hide the state another
+        // request committed while this one waited for the package lock.
+        var packages = await query.AsNoTracking().OrderBy(p => p.Language).ThenBy(p => p.TargetKey).ToListAsync(cancellationToken);
+        var ids = packages.Select(p => p.Id).ToList();
+        var assignments = await (
+                from a in db.CatchUpAssignments.AsNoTracking()
+                where ids.Contains(a.PackageId)
+                join c in db.Children on a.ChildId equals c.Id
+                orderby c.RollNo
+                select new { Assignment = a, c.FirstName, c.Consent, Stopped = c.ParentStoppedAt != null })
             .ToListAsync(cancellationToken);
         return packages.Select(p => new PackageView(
                 p.Id, p.Language, p.TargetCompetencyIds, p.Status, p.ScriptVersion, p.Verdict, p.Script, p.KeyWordsKn,
                 p.GlossKn, p.GlossEn,
                 JsonSerializer.Deserialize<ActivityData>(p.Activity, Json)!,
                 JsonSerializer.Deserialize<CheckData>(p.CheckItem, Json)!,
-                assignments.Where(a => a.PackageId == p.Id)
+                assignments.Where(a => a.Assignment.PackageId == p.Id)
                     .Select(a => new AssignedChild(
-                        a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!))
+                        a.Assignment.ChildId, a.Assignment.MissedCompetencyIds,
+                        JsonSerializer.Deserialize<CompressionRationale>(a.Assignment.CompressionRationale, Json)!,
+                        a.FirstName, a.Assignment.Token != null, CatchUpSendRules.ReachesFamily(a.Consent, a.Stopped)))
                     .ToList(),
                 p.UpdatedAt,
                 p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json),
-                p.AudioSegments is null ? null : JsonSerializer.Deserialize<AudioSegments>(p.AudioSegments, Json)))
+                p.AudioSegments is null ? null : JsonSerializer.Deserialize<AudioSegments>(p.AudioSegments, Json),
+                p.ClassId,
+                p.ApprovedAt,
+                p.SentAt))
             .ToList();
     }
+
+    /// <summary>Serialises approve, regenerate, send and the writer's save for one package.</summary>
+    private async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> LockPackageAsync(
+        Guid packageId, CancellationToken cancellationToken)
+    {
+        var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var key = $"package:{packageId}";
+        await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))", cancellationToken);
+        return transaction;
+    }
+
+    private void Processed(Guid clientRequestId, string endpoint, DateTimeOffset now) =>
+        db.ProcessedRequests.Add(new ProcessedRequest { ClientRequestId = clientRequestId, Endpoint = endpoint, CreatedAt = now });
 
     /// <summary>A new package with its numbers; without a practice rule it can't be written, so it starts as failed.</summary>
     public static CatchUpPackage NewPackage(Guid classId, DateOnly weekOf, PlannedPackage planned, DateTimeOffset now)
