@@ -7,7 +7,7 @@ import type { AiCall, DemoInfo, FamilyMessage } from './types'
 
 const i18n = initI18n()
 
-const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1' }
+const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1', lastResetAt: null }
 const resetAt = '2026-10-23T04:30:00Z'
 
 const evening: FamilyMessage = { kind: 'evening', date: '2026-10-22', sentAt: '2026-10-22T12:30:00Z', token: 'tok-evening' }
@@ -28,18 +28,20 @@ const call: AiCall = {
 
 function setup({
   login = () => ({ status: 200, body: teacher }),
+  demo = info,
   family = [],
   calls = [],
   extra = {},
 }: {
   login?: FakeRoute
+  demo?: DemoInfo
   family?: FamilyMessage[]
   calls?: AiCall[]
   extra?: Record<string, FakeRoute>
 } = {}) {
   return fakeApi({
     'POST /api/demo/login': login,
-    'GET /api/demo': () => ({ status: 200, body: info }),
+    'GET /api/demo': () => ({ status: 200, body: demo }),
     'GET /api/demo/family/rohan-1': () => ({ status: 200, body: family }),
     'GET /api/demo/ai-calls': () => ({ status: 200, body: calls }),
     [`GET /api/demo/ai-calls?since=${encodeURIComponent(resetAt)}`]: () => ({ status: 200, body: [] }),
@@ -124,6 +126,23 @@ describe('DemoScreen (T-18)', () => {
     )
     expect(await screen.findByText(/No AI calls since the reset yet/)).toBeInTheDocument()
     expect(localStorage.getItem('slate.demo.resetAt')).toBe(resetAt)
+  })
+
+  it('lists AI calls from the last reset anyone made, in a keyboard-reachable region', async () => {
+    const calls = setup({ demo: { ...info, lastResetAt: resetAt } })
+    renderApp('/demo')
+
+    expect(await screen.findByText(/No AI calls since the reset yet/)).toBeInTheDocument()
+    expect(calls.map((c) => c.key)).toContain(`GET /api/demo/ai-calls?since=${encodeURIComponent(resetAt)}`)
+    expect(calls.map((c) => c.key)).not.toContain('GET /api/demo/ai-calls')
+  })
+
+  it('makes the scrolling AI table focusable and named', async () => {
+    setup({ calls: [call] })
+    renderApp('/demo')
+
+    const region = await screen.findByRole('region', { name: 'Under the hood' })
+    expect(region).toHaveAttribute('tabindex', '0')
   })
 
   it("brings in today's attendance from the simulated feed", async () => {

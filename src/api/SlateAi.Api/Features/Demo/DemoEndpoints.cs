@@ -21,7 +21,8 @@ public sealed record DemoResetResponse(DateTimeOffset ResetAt, bool PreMade);
 
 /// <summary>Who the demo shell is about.</summary>
 /// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, so judges read it in English.</param>
-public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId);
+/// <param name="LastResetAt">When anyone last reset the demo, so every viewer's "Under the hood" starts there; null if never.</param>
+public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt);
 
 /// <summary>
 /// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
@@ -55,7 +56,7 @@ public static class DemoEndpoints
         app.MapGet("/api/demo", GetInfoAsync)
             .RequireAuthorization()
             .WithTags("Demo")
-            .WithSummary("The demo class and the children the story follows")
+            .WithSummary("The demo class, whose family the parent phone shows, and the last reset")
             .WithDescription("404 unless signed in as the demo teacher. Demo only.");
 
         app.MapPost("/api/demo/reset", ResetAsync)
@@ -168,12 +169,16 @@ public static class DemoEndpoints
     }
 
     private static async Task<Results<Ok<DemoInfoResponse>, NotFound>> GetInfoAsync(
-        HttpContext http, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)
+        HttpContext http, IDemoStore store, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)
     {
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
-        return http.User.GetClassId() == seed.Class.Id
-            ? TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, Child(seed, DemoStory.RohanRollNo)))
-            : TypedResults.NotFound();
+        if (http.User.GetClassId() != seed.Class.Id)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var lastReset = await store.GetLastResetAsync(cancellationToken);
+        return TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, Child(seed, DemoStory.RohanRollNo), lastReset));
     }
 
     private static async Task<Results<Ok<DemoResetResponse>, NotFound>> ResetAsync(

@@ -10,6 +10,14 @@ type Panel = (typeof PANELS)[number]
 
 const STEPS = ['today', 'lesson', 'evening', 'approve', 'parent', 'after'] as const
 
+/** The later of two ISO instants: this browser's own reset or anyone's, so "Under the hood" starts at the last one. */
+function later(a: string | null, b: string | null) {
+  if (!a || !b) {
+    return a ?? b
+  }
+  return new Date(a) >= new Date(b) ? a : b
+}
+
 /** "22 Oct", in the UI language. */
 function shortDate(date: string, language: string) {
   return new Intl.DateTimeFormat(language === 'en' ? 'en-IN' : language, {
@@ -62,7 +70,7 @@ export function DemoScreen() {
     )
   }
 
-  const { parentChildId } = info.data
+  const { parentChildId, lastResetAt } = info.data
 
   return (
     <Page>
@@ -135,7 +143,7 @@ export function DemoScreen() {
           <ParentPhone key={`parent-${frame}`} childId={parentChildId} />
         </PanelBox>
         <PanelBox name="ai" active={panel}>
-          <UnderTheHood since={resetAt} />
+          <UnderTheHood since={later(resetAt, lastResetAt)} />
         </PanelBox>
       </div>
 
@@ -164,12 +172,13 @@ function Page({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
   return (
     <div className="min-h-dvh bg-canvas font-sans text-ink">
-      <header className="border-b border-border px-4 py-3">
+      {/* Labelled: the teacher app in its frame has its own header and main. */}
+      <header aria-label={t('demo.title')} className="border-b border-border px-4 py-3">
         <h1 className="text-title">{t('demo.title')}</h1>
         <p className="text-caption text-ink-muted">{t('demo.subtitle')}</p>
         <LanguageSwitcher />
       </header>
-      <main id="main" className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4">
+      <main id="main" aria-label={t('demo.panels')} className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4">
         {children}
       </main>
     </div>
@@ -257,7 +266,7 @@ function UnderTheHood({ since }: { since: string | null }) {
   const rows = calls.data ?? []
 
   return (
-    <section aria-labelledby="ai-title" className="flex flex-col gap-2">
+    <section className="flex flex-col gap-2">
       <h2 id="ai-title" className="text-label">
         {t('demo.ai.title')}
       </h2>
@@ -266,10 +275,13 @@ function UnderTheHood({ since }: { since: string | null }) {
       {rows.length === 0 && !calls.isError ? (
         <p className="rounded-md border border-border bg-surface p-3 text-body">{t('demo.ai.empty')}</p>
       ) : (
-        <div className="overflow-x-auto rounded-md border border-border bg-surface">
+        // As tall as the phones and scrolls inside, so keyboard users must be able to reach it: axe's
+        // scrollable-region-focusable needs tabIndex, which the lint rule below doesn't know about.
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        <section tabIndex={0} aria-labelledby="ai-title" className="max-h-[740px] overflow-auto rounded-md border border-border bg-surface">
           <table className="w-full text-left text-caption">
             <caption className="sr-only">{t('demo.ai.title')}</caption>
-            <thead>
+            <thead className="sticky top-0 bg-surface">
               <tr className="border-b border-border">
                 <th scope="col" className="p-2">{t('demo.ai.time')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.step')}</th>
@@ -285,7 +297,7 @@ function UnderTheHood({ since }: { since: string | null }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       )}
     </section>
   )
@@ -302,7 +314,7 @@ function CallRow({ call, language }: { call: AiCall; language: string }) {
           <span className="block text-ink-muted">{t('demo.ai.prompt', { id: call.purpose, version: call.promptVersion })}</span>
         )}
       </td>
-      <td className="p-2 break-all">{call.model}</td>
+      <td className="p-2 whitespace-nowrap">{call.model}</td>
       <td className="p-2 whitespace-nowrap">
         {call.inputTokens > 0 || call.outputTokens > 0
           ? t('demo.ai.tokenCount', { input: call.inputTokens, output: call.outputTokens })

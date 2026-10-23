@@ -70,14 +70,15 @@ public sealed class DemoShellEndpointTests
     }
 
     [Fact]
-    public async Task Info_puts_rohans_english_speaking_family_on_the_parent_phone()
+    public async Task Info_puts_rohans_english_speaking_family_on_the_parent_phone_and_gives_the_last_reset()
     {
+        _store.LastReset = Now.AddMinutes(-3);
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
 
         var info = await client.GetFromJsonAsync<DemoInfoResponse>("/api/demo", Ct);
 
-        Assert.Equal(new DemoInfoResponse(ClassId, Rohan), info);
+        Assert.Equal(new DemoInfoResponse(ClassId, Rohan, Now.AddMinutes(-3)), info);
         Assert.Equal("en", Seed.Children.Single(c => c.Id == Rohan).HomeLanguage);
     }
 
@@ -212,6 +213,9 @@ public sealed class DemoShellEndpointTests
         public List<AiCallRow> AiCalls { get; } = [];
         public (DateTimeOffset? Since, int Limit)? LastAiCallQuery { get; private set; }
         public bool Exported { get; private set; }
+        public DateTimeOffset? LastReset { get; set; }
+
+        public Task<DateTimeOffset?> GetLastResetAsync(CancellationToken cancellationToken) => Task.FromResult(LastReset);
 
         public Task<DemoResetResult> ResetAsync(DemoReset reset, DateTimeOffset now, CancellationToken cancellationToken)
         {
