@@ -305,8 +305,8 @@
     "back": "వెనక్కి",
     "next": "తరువాత",
     "loading": "వస్తోంది…",
-    "notFound": "This link doesn’t work. Ask the teacher to send it again.",
-    "offline": "No network. Nothing was lost. Connect to the internet and try again.",
+    "notFound": "ఈ లింక్ పని చేయడం లేదు. మళ్ళీ పంపమని టీచర్‌ను అడగండి.",
+    "offline": "నెట్‌వర్క్ లేదు. ఏదీ పోలేదు. ఇంటర్నెట్ కలిపి మళ్ళీ ప్రయత్నించండి.",
     "retry": "మళ్ళీ ప్రయత్నించండి",
     "listen": {
       "listen": "వినండి",
@@ -314,8 +314,8 @@
       "pause": "ఆపు",
       "resume": "కొనసాగించు",
       "again": "మళ్ళీ వినండి",
-      "error": "Could not play the lesson. Check the network and tap Resume.",
-      "parts": "Parts of the lesson",
+      "error": "పాఠం వినిపించలేదు. నెట్‌వర్క్ చూసి “కొనసాగించు” నొక్కండి.",
+      "parts": "పాఠం భాగాలు",
       "seg": {
         "greeting": "టీచర్ శుభాకాంక్ష",
         "disclosure": "కంప్యూటర్ గొంతు",
@@ -323,23 +323,23 @@
       },
       "readWords": "రాసినది చూడండి",
       "greetingLine": "టీచర్ (తన గొంతులో): “నమస్కారం, నేను {{teacher}} టీచర్.”",
-      "keyWords": "Kannada words"
+      "keyWords": "కన్నడ పదాలు"
     },
     "sticks": {
-      "hundreds_one": "{{count}} bundle of a hundred",
-      "hundreds_other": "{{count}} bundles of a hundred",
-      "tens_one": "{{count}} bundle of ten",
-      "tens_other": "{{count}} bundles of ten",
-      "ones_one": "{{count}} loose stick",
-      "ones_other": "{{count}} loose sticks",
-      "none": "No sticks"
+      "hundreds_one": "{{count}} వంద కట్ట",
+      "hundreds_other": "{{count}} వంద కట్టలు",
+      "tens_one": "{{count}} పది కట్ట",
+      "tens_other": "{{count}} పది కట్టలు",
+      "ones_one": "{{count}} విడి పుల్ల",
+      "ones_other": "{{count}} విడి పుల్లలు",
+      "none": "పుల్లలు లేవు"
     },
     "activity": {
       "title": "ఇంట్లో చేసే ఆట",
       "next": "తరువాత: ప్రశ్న",
       "homeworkTitle": "ఇంటి పని: పేజీ {{page}}",
       "homeworkBody": "పాఠ్యపుస్తకం భాగం {{part}} · బడికి వచ్చినప్పుడు {{teacher}} టీచర్‌కు చూపించు.",
-      "homeworkBodyNoPart": "Textbook · show {{teacher}} teacher when you come back."
+      "homeworkBodyNoPart": "పాఠ్యపుస్తకం · బడికి వచ్చినప్పుడు {{teacher}} టీచర్‌కు చూపించు."
     },
     "answer": {
       "title": "ప్రశ్న",
@@ -349,7 +349,7 @@
       "send": "ఇదే, పంపు",
       "hintChange": "మార్చాలంటే వేరే బొమ్మను నొక్కు",
       "sending": "పంపుతోంది…",
-      "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
+      "failed": "పంపలేకపోయాం. మీ ఎంపిక ఇక్కడే ఉంది. నెట్‌వర్క్ చూసి “మళ్ళీ ప్రయత్నించండి” నొక్కండి.",
       "retry": "మళ్ళీ ప్రయత్నించండి"
     },
     "done": {
@@ -358,7 +358,7 @@
       "teacherSees": "{{teacher}} టీచర్ ఇది చూస్తారు.",
       "bringPage": "పేజీ {{page}} బడికి తీసుకురా.",
       "finish": "అయిపోయింది",
-      "closeHint": "You can close this page now."
+      "closeHint": "ఇప్పుడు ఈ పేజీ మూసేయవచ్చు."
     },
     "stop": {
       "link": "ఈ సందేశాలు ఆపండి",
@@ -366,18 +366,18 @@
       "body": "ఇక సందేశాలు రావు. ఎప్పుడైనా మళ్ళీ మొదలుపెట్టవచ్చు.",
       "confirm": "సందేశాలు ఆపండి",
       "cancel": "వద్దు, వస్తూ ఉండనీ",
-      "failed": "Could not stop the messages. Check the network and try again.",
+      "failed": "సందేశాలు ఆపలేకపోయాం. నెట్‌వర్క్ చూసి మళ్ళీ ప్రయత్నించండి.",
       "doneTitle": "సందేశాలు ఆపేశాం",
-      "doneBody": "When {{child}} comes back, the teacher will help as usual.",
+      "doneBody": "{{child}} బడికి తిరిగి వచ్చినప్పుడు టీచర్ ఎప్పటిలాగే సహాయం చేస్తారు.",
       "restart": "మళ్ళీ మొదలుపెట్టండి",
-      "restartFailed": "Could not start the messages. Check the network and try again."
+      "restartFailed": "సందేశాలు మొదలుపెట్టలేకపోయాం. నెట్‌వర్క్ చూసి మళ్ళీ ప్రయత్నించండి."
     },
     "expired": {
       "title": "ఈ లింక్ పాతది",
       "body": "{{teacher}} టీచర్ కొత్తది పంపుతారు. మీరు ఏమీ చేయనక్కర్లేదు."
     },
     "evening": {
-      "title": "Message from {{teacher}} teacher"
+      "title": "{{teacher}} టీచర్ నుండి సందేశం"
     },
     "announce": {
       "playing": "వినిపిస్తోంది",
@@ -390,8 +390,8 @@
     },
     "reason": {
       "entry": "అంతా బాగుందా? చెప్పండి",
-      "given": "Thank you for telling us.",
-      "change": "Change",
+      "given": "చెప్పినందుకు ధన్యవాదాలు.",
+      "change": "మార్చండి",
       "title": "{{teacher}} టీచర్",
       "question": "ఈ రోజు మేము {{child}}ని గుర్తు చేసుకున్నాం. అంతా బాగుందా?",
       "options": "కారణం",
@@ -406,7 +406,7 @@
       "send": "పంపండి",
       "sending": "పంపుతోంది…",
       "skip": "వద్దు, వదిలేయండి",
-      "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
+      "failed": "పంపలేకపోయాం. మీ ఎంపిక ఇక్కడే ఉంది. నెట్‌వర్క్ చూసి “మళ్ళీ ప్రయత్నించండి” నొక్కండి.",
       "retry": "మళ్ళీ ప్రయత్నించండి",
       "thanks": "ధన్యవాదాలు",
       "private": "ఇది {{teacher}} టీచర్‌కు మాత్రమే కనిపిస్తుంది.",
