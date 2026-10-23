@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261022184613_CatchUpVerifier` (T-10) |
+| Last migration | `20261023032812_AudioClips` (T-11) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -24,6 +24,7 @@ erDiagram
     Classes ||--o{ CatchUpPackages : "one per targets + language per week"
     CatchUpPackages ||--o{ CatchUpAssignments : "for"
     Children ||--o{ CatchUpAssignments : "one per week"
+    CatchUpPackages ||--o{ AudioClips : "script audio"
 
     Teachers {
         uuid Id PK
@@ -139,6 +140,7 @@ erDiagram
         jsonb Activity
         jsonb CheckItem "options + correctIndex"
         jsonb Review "verifier checks, nullable"
+        jsonb AudioSegments "playing order, nullable"
         varchar500 AudioUrl "nullable"
         timestamptz CreatedAt
         timestamptz UpdatedAt
@@ -155,6 +157,17 @@ erDiagram
         timestamptz ScheduledAt "nullable"
         timestamptz SentAt "nullable"
         timestamptz OpenedAt "nullable"
+        timestamptz CreatedAt
+    }
+    AudioClips {
+        uuid Id PK
+        varchar20 Kind "script, disclosure, greeting"
+        varchar5 Language
+        uuid PackageId FK "nullable, cascade"
+        varchar64 TextHash "nullable, unique with Kind, Language"
+        varchar50 ContentType "audio/ogg"
+        bytea Bytes
+        float Seconds
         timestamptz CreatedAt
     }
 ```
@@ -178,6 +191,8 @@ erDiagram
 **`EveningMessages`** — one row per family message sent on a day of absence (FR-20), written by the 6 pm job or the send endpoint (`Features/EveningMessages/EveningSender.cs`). **Unique `(ChildId, Date)`**: the send is idempotent, so the job can run every minute after 6 pm and a lesson confirmed late still goes once. `SlotValues` holds the code-filled `lesson` and `page` (never the child's name); the parent view re-renders the text from the template. `Token` (128-bit random, base64url, unique) is the only key to `GET /api/p/{token}`, which answers 410 after `ExpiresAt` (14 days). Listens are not tracked (D-36). FKs: `ChildId → Children` (cascade, FR-15), `ClassId`, `TemplateId`, `LessonId`. Index `(ClassId, Date)` for Today's tonight card.
 
 **`CatchUpPackages`** — one catch-up per (targets, home language) per school week (FR-07; migration `CatchUpPackages`, T-09). Unique `(ClassId, WeekOf, Language, TargetKey)`, so `POST catchups/generate` can be re-run safely (advisory lock `catchups:{classId}:{week}` around the write). `TargetCompetencyIds` comes from A2, most important first; the learning check tests the first. **Numbers are made by code** (`Features/CatchUps/Practice/`, seeded by class + week + targets + language so a regenerate keeps them): `Activity` holds the activity sum (kind, question, numbers, answer) plus A3's instruction and household-object option; `CheckItem` holds the check's question, three options, **`correctIndex`** and answer plus A3's prompt. `correctIndex` is shown to the teacher (T3) but never sent to a parent's browser (P3, T-15). A3's words: `Script` (spoken, family's language, no names, D-50), `KeyWordsKn` (3, from the lesson's textbook words), `GlossKn` / `GlossEn`. `Status`: `generating` → `ready` (passed the verifier), `needsReview` (the verifier failed twice; the words are kept and `Review` holds each check's result with numbers, e.g. "about 104 seconds, limit 90") or `failed` (nothing usable after two tries); then `approved` / `sent` (T-14). `Review` (migration `CatchUpVerifier`, T-10) is `{ passed, attempts, checks[{ name, passed, detail }] }`. A package still `generating` after 5 minutes reads as failed (restart mid-way). `ScriptVersion` goes up on every generation; approval is bound to it (T3). **Nothing reaches a parent unless `Status = approved`** (guardrail 3, T-14). No buddy content: buddy sums come from code (T-16). FK `ClassId` (cascade).
+
+**`AudioClips`** — every playable audio segment (migration `AudioClips`, T-11), kept in Postgres for the MVP behind `IAudioStore` (Azure Blob can replace it). Ogg Opus at 24 kbps, encoded from Sarvam's 16 kHz WAV (~3 KB a second). `Kind = script` rows belong to a package (`PackageId`, cascade, so deleting a package or its class removes the audio; a regenerate replaces the old clip). `Kind = disclosure` rows are shared and keyed by `(Kind, Language, TextHash)` (filtered unique index; SHA-256 of the wording in `data/seed/disclosure.json`), so each language's disclosure is synthesised once and a changed wording makes a new clip (D-18). `greeting` is reserved for T0's recorded greeting. Served by `GET /api/audio/{id}` with range support. `CatchUpPackages.AudioSegments` lists a package's segments in playing order (greeting when recorded → disclosure → script) with seconds and total size; `AudioUrl` points at the script clip.
 
 **`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). `Token` (unique), `ScheduledAt`, `SentAt`, `OpenedAt` are set by T-14/T-15. FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
 

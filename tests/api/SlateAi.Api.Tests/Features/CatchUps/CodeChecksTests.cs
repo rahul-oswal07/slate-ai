@@ -62,6 +62,17 @@ public sealed class CodeChecksTests
     }
 
     [Fact]
+    public void Numbers_a_chained_sum_with_a_carry_is_read_whole()
+    {
+        // Tens column with the carried one: "3 + 1 + 1 = 5" is right; its tail "1 + 1 = 5" is not a sum on its own.
+        var right = Run(CodeChecks.Numbers, Input(Good with { Script = Good.Script + " 3 + 1 + 1 = 5." }));
+        var wrong = Run(CodeChecks.Numbers, Input(Good with { Script = Good.Script + " 3 + 1 + 1 = 6." }));
+
+        Assert.True(right.Passed, right.Detail);
+        Assert.Equal("says 3 + 1 + 1 = 6; it is 5", wrong.Detail);
+    }
+
+    [Fact]
     public void Numbers_the_script_must_use_the_activitys_numbers()
     {
         var check = Run(CodeChecks.Numbers, Input(Good with { Script = Good.Script.Replace("523", "500") }));

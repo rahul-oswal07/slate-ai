@@ -36,6 +36,12 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 **Build scope: [`docs/design/mvp-build-flow.md`](design/mvp-build-flow.md) (D-70).** Build screens in its order; skip its "Not in the MVP" list (Settings, per-language greetings, family-details editing, bulk approve / withdraw, mic-blocked / sending states, stitched evening audio, parent-page polish, offline beyond attendance + voice note). Nothing already built changes.
 
+## T-11 audio (23 Oct, branch `feat/T-11-audio`)
+
+- Built: Sarvam text-to-speech (`bulbul:v3`, voice `priya`) → 16 kHz WAV → **Ogg Opus 24 kbps** encoded in C# (Concentus; Sarvam's MP3 is a fixed 128 kbps, ~860 KB a catch-up); `AudioClips` table (Postgres, behind `IAudioStore`); disclosure clips per language made once per wording (`data/seed/disclosure.json`); segments disclosure → script (greeting first once T0 records one); real-audio check (≤ 95 s, ≤ 300 KB) added to the verifier review; `GET /api/audio/{id}`. Measured ~55 s and ~150 KB per catch-up; words/second retuned.
+- Next: T-14 Approve screen (list + detail with the segment player, Kannada summary, "Why this", picture question, tick → Approve bound to `ScriptVersion`, Simpler/Shorter, needs-review reasons).
+- For Monika: the kn/ta disclosure lines are drafts (`data/seed/disclosure.json`); listen to `evals/results/audio/*.ogg` on an Android phone (voice "priya"; Kannada key words inside Telugu/Tamil scripts are read by the te/ta voice: check they sound right).
+
 ## T-10 verifier + D-72 (23 Oct, branch `feat/T-10-verifier`)
 
 - D-72: gender-neutral Telugu evening template, wording v2 (the teacher approves the evening message again).
@@ -118,6 +124,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
 | 21 Oct | Rahul + Claude | Technical mentor brief: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
+| 23 Oct | Rahul + Claude | T-11: Sarvam TTS + Opus re-encoding (300 KB was impossible with Sarvam's 128 kbps MP3), audio clips in Postgres, shared disclosure clips, segments, real-audio check, audio endpoint; live: ~55 s / ~150 KB per catch-up. Local run found a verifier bug: chained sums with a carry ("3 + 1 + 1 = 5") were read as "1 + 1 = 5"; fixed (test first), all 6 local catch-ups ready, 49–63 s, 137–168 KB |
 | 23 Oct | Rahul + Claude | T-10: A4 verifier (6 code checks + Haiku, one retry, needsReview with reasons), A3 prompt v2, D-72 Telugu template v2; evals A3+A4 10/10 first pass, A4 6/6 (after giving Haiku the object option) |
 | 22 Oct | Rahul + Claude | T-09: numbers by code (practice rules, generator), A3 script writer, `CatchUpPackages` / `CatchUpAssignments`, `catchups/generate` + background writer, `GET packages`; A3 eval 10/10 after two fixes (script capped by words not characters; 8192 output tokens); A2 asks Claude once per identical request (8 calls → 1 in a local run where everyone missed the same lesson) |
 | 22 Oct | Rahul + Claude | T-08: A2 compression service (planner, validator + rule fallback, compressor, prompt v1), 25 unit tests, eval 10/10 (a first run hit the 1024-token limit on a 5-day case; now 4096) |

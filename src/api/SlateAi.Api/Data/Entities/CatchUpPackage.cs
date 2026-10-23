@@ -49,8 +49,11 @@ public sealed class CatchUpPackage
     /// <summary>JSON: the verifier's checks on the stored attempt, with numbers ("Needs review" reason on T3, A4).</summary>
     public string? Review { get; set; }
 
-    /// <summary>Set by text-to-speech (T-11).</summary>
+    /// <summary>The script's audio, <c>/api/audio/{id}</c> (T-11).</summary>
     public string? AudioUrl { get; set; }
+
+    /// <summary>JSON: the segments in playing order (disclosure → script; greeting first once recorded) with seconds and total size.</summary>
+    public string? AudioSegments { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

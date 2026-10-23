@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.CatchUps.Script;
@@ -26,6 +27,8 @@ public static class CatchUpEndpoints
     {
         services.Configure<VerifierOptions>(configuration.GetSection(VerifierOptions.Section));
         services.AddScoped<ContentCheck>();
+        services.AddSingleton(_ => DisclosureWording.Load(Path.Combine(AppContext.BaseDirectory, DisclosureWording.File)));
+        services.AddScoped<PackageAudio>();
         services.AddScoped<Verifier>();
         services.AddScoped<Compressor>();
         services.AddScoped<ScriptWriter>();

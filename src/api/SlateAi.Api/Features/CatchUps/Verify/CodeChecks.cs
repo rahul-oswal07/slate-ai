@@ -12,8 +12,17 @@ public sealed class VerifierOptions
     /// <summary>Spoken-length limit for the script, before audio exists (spec §5.4 check 3).</summary>
     public int MaxScriptSeconds { get; set; } = 90;
 
-    /// <summary>Spoken words per second by language (spec §3.3: ≈ 160 Telugu words in 90 s). Tuned against real audio in T-11.</summary>
-    public Dictionary<string, double> WordsPerSecond { get; set; } = new() { ["kn"] = 1.8, ["te"] = 1.8, ["ta"] = 1.6 };
+    /// <summary>
+    /// Spoken words per second by language, measured on Bulbul v3 "priya" (T-11: kn 1.86, te 1.91, ta 1.96), rounded down
+    /// so the estimate errs long. The real audio is checked after text-to-speech anyway.
+    /// </summary>
+    public Dictionary<string, double> WordsPerSecond { get; set; } = new() { ["kn"] = 1.8, ["te"] = 1.85, ["ta"] = 1.9 };
+
+    /// <summary>Real audio limit, all segments together (FR-09: ≤ 95 s), checked after text-to-speech.</summary>
+    public int MaxAudioSeconds { get; set; } = 95;
+
+    /// <summary>Real audio size limit, all segments together (FR-09: ≤ 300 KB).</summary>
+    public int MaxAudioKb { get; set; } = 300;
 
     /// <summary>Share of the script's letters that must be in the family's script, Kannada key words aside.</summary>
     public double MinScriptShare { get; set; } = 0.8;
@@ -90,11 +99,21 @@ public static partial class CodeChecks
         {
             foreach (Match m in Equation().Matches(text))
             {
-                var (a, op, b, said) = (long.Parse(m.Groups[1].Value), m.Groups[2].Value, long.Parse(m.Groups[3].Value), long.Parse(m.Groups[4].Value));
-                var right = op == "+" ? a + b : a - b;
+                // The whole chain, e.g. "3 + 1 + 1 = 5" for a tens column with a carry, worked left to right.
+                var terms = Term().Matches(m.Groups["sum"].Value);
+                long right = 0;
+                foreach (Match t in terms)
+                {
+                    var value = long.Parse(t.Groups["n"].Value);
+                    right = t.Groups["op"].Value is "" or "+" ? right + value : right - value;
+                }
+
+                var said = long.Parse(m.Groups["said"].Value);
                 if (right != said)
                 {
-                    return Fail(Numbers, $"says {a} {(op == "+" ? "+" : "−")} {b} = {said}; it is {right}");
+                    var written = string.Join(" ", terms.Select((t, i) =>
+                        i == 0 ? t.Groups["n"].Value : $"{(t.Groups["op"].Value == "+" ? "+" : "−")} {t.Groups["n"].Value}"));
+                    return Fail(Numbers, $"says {written} = {said}; it is {right}");
                 }
             }
         }
@@ -228,7 +247,11 @@ public static partial class CodeChecks
 
     private static VerifierCheck Fail(string name, string detail) => new(name, false, detail);
 
-    // "11 − 5 = 6", "456 + 278 = 734": hyphen, minus sign or en dash; Latin digits only (textbook numerals).
-    [GeneratedRegex(@"(\d+)\s*([+\-−–])\s*(\d+)\s*=\s*(\d+)", RegexOptions.CultureInvariant)]
+    // "11 − 5 = 6", "3 + 1 + 1 = 5": two or more terms; hyphen, minus sign or en dash; Latin digits only (textbook
+    // numerals). The look-behind stops a match starting in the middle of a longer chain or number.
+    [GeneratedRegex(@"(?<![\d+\-−–]\s*)(?<sum>\d+(?:\s*[+\-−–]\s*\d+)+)\s*=\s*(?<said>\d+)", RegexOptions.CultureInvariant)]
     private static partial Regex Equation();
+
+    [GeneratedRegex(@"(?<op>[+\-−–]?)\s*(?<n>\d+)", RegexOptions.CultureInvariant)]
+    private static partial Regex Term();
 }

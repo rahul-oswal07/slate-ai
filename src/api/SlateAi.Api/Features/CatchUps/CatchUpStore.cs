@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.CatchUps.Script;
 using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Features.Lessons;
@@ -36,7 +37,9 @@ public sealed record PackageReview(bool Passed, int Attempts, IReadOnlyList<Veri
 /// <summary>What writing a catch-up ended with.</summary>
 /// <param name="Status">ready, needsReview or failed.</param>
 /// <param name="Content">The words to store; null when nothing usable came back (failed).</param>
-public sealed record ScriptOutcome(string Status, ScriptContent? Content, string Verdict, int PromptVersion, PackageReview? Review);
+/// <param name="Audio">The audio segments; null when no audio was made.</param>
+public sealed record ScriptOutcome(
+    string Status, ScriptContent? Content, string Verdict, int PromptVersion, PackageReview? Review, AudioSegments? Audio = null);
 
 public sealed record AssignedChild(
     Guid ChildId, IReadOnlyList<string> MissedCompetencyIds, CompressionRationale Rationale);
@@ -57,7 +60,8 @@ public sealed record PackageView(
     CheckData Check,
     IReadOnlyList<AssignedChild> Children,
     DateTimeOffset UpdatedAt,
-    PackageReview? Review);
+    PackageReview? Review,
+    AudioSegments? Audio);
 
 /// <summary>Database side of catch-ups, behind an interface so endpoint tests can use a fake.</summary>
 public interface ICatchUpStore
@@ -193,6 +197,8 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
         package.Verdict = outcome.Verdict;
         package.Status = outcome.Status;
         package.Review = outcome.Review is null ? null : JsonSerializer.Serialize(outcome.Review, Json);
+        package.AudioSegments = outcome.Audio is null ? null : JsonSerializer.Serialize(outcome.Audio, Json);
+        package.AudioUrl = outcome.Audio?.Segments.LastOrDefault(s => s.Kind == AudioKind.Script)?.Url;
         package.UpdatedAt = clock.GetUtcNow();
         if (outcome.Content is { } content)
         {
@@ -226,7 +232,8 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
                         a.ChildId, a.MissedCompetencyIds, JsonSerializer.Deserialize<CompressionRationale>(a.CompressionRationale, Json)!))
                     .ToList(),
                 p.UpdatedAt,
-                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json)))
+                p.Review is null ? null : JsonSerializer.Deserialize<PackageReview>(p.Review, Json),
+                p.AudioSegments is null ? null : JsonSerializer.Deserialize<AudioSegments>(p.AudioSegments, Json)))
             .ToList();
     }
 

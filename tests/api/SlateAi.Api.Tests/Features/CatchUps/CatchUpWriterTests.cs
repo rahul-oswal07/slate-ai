@@ -1,11 +1,15 @@
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.CatchUps.Practice;
 using SlateAi.Api.Features.CatchUps.Script;
 using SlateAi.Api.Features.CatchUps.Verify;
+using SlateAi.Api.Speech;
+using SlateAi.Api.Tests.Features.Audio;
 using SlateAi.Api.Tests.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace SlateAi.Api.Tests.Features.CatchUps;
 
@@ -18,6 +22,8 @@ public sealed class CatchUpWriterTests
     private const string Shaming = """{"teachesTarget":true,"ageAppropriate":true,"noShaming":false,"glossMatches":true,"reason":"Blames the child."}""";
 
     private readonly FakeCatchUpStore _store = new(ClassId);
+    private readonly FakeAudioStore _audio = new();
+    private readonly RecordingTts _tts = new();
     private readonly FakeAiCallStore _aiCalls = new();
     private readonly SequenceLlm _llm;
     private readonly Guid _packageId;
@@ -53,7 +59,44 @@ public sealed class CatchUpWriterTests
         Assert.Equal(PackageStatus.Ready, package.Status);
         Assert.Equal("verified", package.Verdict);
         Assert.Single(_llm.ScriptCalls);
-        Assert.Equal(1, _store.Outcomes.Single().Review!.Attempts);
+        var outcome = _store.Outcomes.Single();
+        Assert.Equal(1, outcome.Review!.Attempts);
+
+        // Audio: disclosure → script (no greeting recorded yet), and an audio check in the review.
+        Assert.Equal(["disclosure", "script"], outcome.Audio!.Segments.Select(s => s.Kind));
+        Assert.Contains(outcome.Review.Checks, c => c is { Name: "audio", Passed: true });
+    }
+
+    [Fact]
+    public async Task The_voice_is_never_given_a_name()
+    {
+        _llm.Script.Enqueue(Good);
+        _llm.Check.Enqueue(Pass);
+
+        await Writer().WriteAsync(_packageId, Ct);
+
+        Assert.NotEmpty(_tts.Texts);
+        Assert.All(_tts.Texts, text =>
+        {
+            Assert.DoesNotContain("Ravi", text);
+            Assert.DoesNotContain("Shobha", text);
+        });
+    }
+
+    [Fact]
+    public async Task Audio_too_long_or_not_made_turns_a_verified_catch_up_into_needs_review()
+    {
+        _llm.Script.Enqueue(Good);
+        _llm.Check.Enqueue(Pass);
+        _tts.Fail = true;
+
+        await Writer().WriteAsync(_packageId, Ct);
+
+        var package = _store.Packages.Single();
+        Assert.Equal(PackageStatus.NeedsReview, package.Status);
+        Assert.Equal("verifier:audio", package.Verdict);
+        Assert.NotNull(package.Script);
+        Assert.Contains(_store.Outcomes.Single().Review!.Checks, c => c is { Name: "audio", Passed: false, Detail: "the audio could not be made" });
     }
 
     [Fact]
@@ -130,8 +173,37 @@ public sealed class CatchUpWriterTests
             _store,
             new ScriptWriter(_llm, _aiCalls, prompts, book),
             new Verifier(new ContentCheck(_llm, _aiCalls, prompts, book), book, Options.Create(new VerifierOptions())),
+            new PackageAudio(_tts, _audio, Disclosure, Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance),
             book,
             prompts);
+    }
+
+    internal static readonly DisclosureWording Disclosure = new("1", new Dictionary<string, string>
+    {
+        ["te"] = "ఇది మీ బిడ్డ టీచర్ పంపిన పాఠం. మిగిలినది కంప్యూటర్ గొంతు చదువుతుంది.",
+    });
+
+    /// <summary>The fake voice, recording what it was asked to say; can be made to fail or to run long.</summary>
+    internal sealed class RecordingTts : ITextToSpeech
+    {
+        private readonly FakeTextToSpeech _fake = new();
+
+        public List<string> Texts { get; } = [];
+        public bool Fail { get; set; }
+        public double? Seconds { get; set; }
+
+        public async Task<SpokenAudio> SynthesizeAsync(string text, string languageCode, CancellationToken cancellationToken)
+        {
+            Texts.Add(text);
+            if (Fail)
+            {
+                throw new SpeechException(SpeechFailure.Unavailable, "down");
+            }
+
+            return Seconds is { } seconds
+                ? FakeTextToSpeech.Silence(seconds)
+                : await _fake.SynthesizeAsync(text, languageCode, cancellationToken);
+        }
     }
 
     /// <summary>Answers A3 and A4 from separate queues, in order.</summary>

@@ -128,6 +128,55 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("Attendance");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.AudioClip", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Bytes")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<Guid?>("PackageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("Seconds")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("TextHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("Kind", "Language", "TextHash")
+                        .IsUnique()
+                        .HasFilter("\"TextHash\" IS NOT NULL");
+
+                    b.ToTable("AudioClips");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpAssignment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -193,6 +242,9 @@ namespace SlateAi.Api.Data.Migrations
 
                     b.Property<string>("Activity")
                         .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("AudioSegments")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("AudioUrl")
@@ -584,6 +636,14 @@ namespace SlateAi.Api.Data.Migrations
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.AudioClip", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.CatchUpPackage", null)
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.CatchUpAssignment", b =>
