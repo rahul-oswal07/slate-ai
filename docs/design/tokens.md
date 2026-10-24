@@ -25,6 +25,63 @@ Source: the Build Kit design system (02-DESIGN §2), which continues the Ideate 
 
 Follows the phone's setting (`prefers-color-scheme`), including phones that switch to dark in battery saver. **No in-app toggle yet** (deferred: in-app System/Light/Dark choice, pre-paint script, Save-Data and forced-colours handling). Dark is designed, not inverted: warm near-black (never `#000`), off-white text (never `#FFF`, to reduce glow for people with astigmatism), and light teal buttons with dark text.
 
+## Slate & chalk (D-77, proposed)
+
+New look for the teacher app, the parent pages (P1–P4, reason) and the demo shell. **Looks only.** Components keep their meaning: teal stays on standard buttons and link text; amber is a new, separate `accent`. Source of the look: Monika's concept mockups (outside the repo); this section is what gets built.
+
+**How it is applied.** Add the tokens below as **new names plus a `.theme-slate` scope** that redefines the existing names (`canvas`, `surface`, `panel`, `ink`, `ink-muted`, `border`, `primary-strong`, `error`, `focus`, `warning`) for its subtree. Screens opt in by wrapping in the class, one PR at a time. The values in the Colours table below change last, when every screen has opted in. `tokens.test.ts` must read the scoped blocks too.
+
+| Token | Light (pale slate) | Ratio on canvas · surface · panel | Dark (slate) | Ratio on canvas · surface · panel | Use |
+|---|---|---|---|---|---|
+| `canvas` | `#DCE4DF` | — | `#1B201E` | — | Page background (warm near-black in dark, never `#000`) |
+| `surface` | `#EEF2EF` | — | `#252B28` | — | Cards, sheets |
+| `panel` | `#D6E7E0` | — | `#1A312D` | — | AI panels, tinted sections |
+| `ink` | `#14211C` | 12.8 · 14.7 · 12.9 | `#EEEBE0` (chalk) | 13.8 · 12.1 · 11.6 | Primary text |
+| `ink-muted` | `#3A4640` | 7.6 · 8.7 · 7.7 | `#C8CEC9` | 10.3 · 9.0 · 8.6 | Secondary text |
+| `border` | `#5B6761` | 4.6 · 5.2 · 4.6 (UI) | `#8C968F` | 5.4 · 4.7 · 4.5 (UI) | Input and card borders |
+| `primary-strong` | `#0F4A46` | 7.8 · 8.9 · 7.8 | `#5EEAD4` | 11.2 · 9.8 · 9.3 | Teal text and links |
+| `error` | `#7F1D1D` | 7.7 · 8.9 · 7.8 | `#FECACA` | 11.4 · 10.0 · 9.5 | Error text and icon |
+| `focus` | `#1D4ED8` | 5.2 · 5.9 · 5.2 (UI) | `#93C5FD` | 9.2 · 8.0 · 7.7 (UI) | Focus ring |
+| `warning` | `#B45309` | 3.9 · 4.4 · 3.9 (UI) | `#FBBF24` | 9.9 · 8.6 · 8.3 (UI) | Icon and border only |
+| `accent` (new) | `#F6C453` | 1.3 · 1.4 · 1.2 | `#F6C453` | 10.2 · 8.9 · 8.5 (UI) | Hero action fill (play, mic), tally stroke, star, underline |
+| `on-accent` (new) | `#14211C` | 10.2 on `accent` | `#1B201E` | 10.2 on `accent` | Text or icon on an amber fill |
+| `chalk` (new, decorative) | `#8C968F` | no requirement | `#68645A` | no requirement | Doodles, ruling lines, ghost numerals |
+
+`primary`, `on-primary` and the status tag pairs are unchanged; each status tag carries its own background. Ratios were measured with the same formula as `tokens.test.ts` (WCAG relative luminance); the test recomputes them from `tokens.css`, so if a value moves, the test decides. The `chalk` row is decorative only: pick values by eye, keep opacity ≤ 16 % for texture.
+
+### Rules
+
+1. **Amber is never text.** Fills, icons, strokes and the handwriting accent only.
+2. **Light mode: an amber fill needs a 3 px `ink` outline** (accent against pale canvas is 1.3:1). Dark mode needs none.
+3. **No `primary` text on slate canvas in light** (5.9:1). Use `primary-strong`.
+4. **One amber hero per teacher screen.** Parent pages may use more (tally, star, play).
+5. **Progress on parent pages is a four-stroke chalk tally (D-08):** done strokes chalk, current stroke amber, remaining strokes dashed; a visible "2/4" beside it and "Step 2 of 4" for screen readers; it only counts up. On Done, a slash crosses the four.
+6. **Handwriting (Caveat):** Latin only, ≥ 28 px, for a name or one accent word. It never carries an instruction or a button label. Kannada, Telugu and Tamil accent words use an amber underline or marker instead.
+7. **Texture, ruling lines and doodles are decorative:** `aria-hidden`, no meaning, ≤ 16 % opacity. Motion: every transition and draw-on ≤ 300 ms; the play button may breathe (≤ 2.4 s) only while playing; **all of it off under `prefers-reduced-motion`**.
+8. **Status is still icon + word** (rule 5 above). Nothing here changes that.
+
+### Fonts
+
+| Language | Headings | Body |
+|---|---|---|
+| en | Baloo 2 | Noto Sans |
+| kn | Baloo Tamma 2 | Noto Sans Kannada (regular, not the "UI" variant) |
+| te | Baloo Tammudu 2 | Noto Sans Telugu |
+| ta | Baloo Thambi 2 | Noto Sans Tamil |
+| accent word (Latin only) | Caveat 700 | — |
+
+Select by `:lang()`. Self-host and subset (Latin + that language's script), `font-display: swap`, load only the family the page needs (parent page budget ≤ 500 KB excluding audio, T-15). Family names and weights 500/700/800 are verified on Google Fonts. Indic scripts keep the type table above: one size step larger, ~1.7 line height, weight ≥ 500 on dark, no letter-spacing, `lang` on every element.
+
+### Rollout
+
+1. **T-48** foundation + parent-page shared parts (tokens, fonts, frame, header, tally, AI chip).
+2. Each parent screen, one PR: P1, reason page, P2, P3, P4 (+ stopped, expired).
+3. Teacher shell (compact header and language control, nav labels), then each teacher screen. **Today gets its own re-layout task** (hero lesson card, merged tonight card, collapsed "Since yesterday"); do it in this theme, once.
+4. Demo shell: family phone as a chat view with an in-app-browser bar when a link opens; "Under the hood" table.
+5. Last: switch the base token values, delete `.theme-slate`.
+
+Every PR: class-only where possible, no change to hooks, props, i18n keys or ARIA roles and names (Vitest queries by them); new strings in all four locale files; `./scripts/verify.sh`; 360 px before/after screenshots, light and dark; axe on the changed screen.
+
 ## Colours
 
 Ratios measured with the WCAG formula. Background order: canvas · surface · panel.
