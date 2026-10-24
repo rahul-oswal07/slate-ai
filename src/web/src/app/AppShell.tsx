@@ -18,16 +18,16 @@ export function AppShell() {
 
   return (
     <AnnouncerProvider>
-      <div className="min-h-dvh bg-canvas font-sans text-ink">
+      <div className="min-h-dvh font-sans text-ink">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:rounded-md focus:bg-primary focus:p-3 focus:text-on-primary"
         >
           {t('a11y.skipToContent')}
         </a>
-        <header className="border-b border-border px-4 py-3 print:hidden">
-          <p className="text-lg font-semibold">{t('app.name')}</p>
-          <p className="text-sm text-ink-muted">{t('app.tagline')}</p>
+        <header className="border-b border-edge px-4 py-3 print:hidden">
+          <p className="font-heading text-title font-extrabold">{t('app.name')}</p>
+          <p className="text-caption text-ink-muted">{t('app.tagline')}</p>
           <LanguageSwitcher />
         </header>
         <main id="main" className="px-4 py-6">

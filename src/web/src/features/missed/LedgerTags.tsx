@@ -46,7 +46,7 @@ function Tag({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-label ${className}`}
+      className={`inline-flex min-h-8 items-center gap-1.5 rounded-pill px-3 py-0.5 text-caption font-bold ${className}`}
     >
       <Icon name={icon} size={16} />
       {text}

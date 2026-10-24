@@ -9,6 +9,21 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **From now on:** Monika adds tasks one at a time in `tasks.md` (*Open*, IDs from T-48) with a GitHub issue; Rahul implements them one at a time. "Next:" lines in the dated sections below are history, not a to-do list.
 - Last merged: #109 demo "Send messages now", #110 P3 sticks fit a phone, #111 A2 "Why this" in Kannada.
 
+## Slate & chalk revamp (24 Oct, D-77), branch `feat/T-48-slate-foundation`: T-48, T-50, T-54, T-57, T-58 in one PR
+
+- **Built (looks only, no change to hooks, props, routes or ARIA names):**
+  - **T-48 foundation:** tokens (`accent`, `on-accent`, `chalk`, `edge`, radii, `--rule`/`--smudge`), fonts per language from `@fontsource` (Baloo 2 / Tamma / Tammudu / Thambi headings, Noto Sans family body, Caveat 700 for one Latin accent word), the `.slate-texture` background, shared classes (`btn-primary`, `btn-secondary`, `btn-hero`, `btn-link`, `card`, `card-hero`, `card-payoff`, `chip`), `AccentWord`/`AccentTitle`, the four-stroke tally, the AI label as a quiet pill with the same sentence (no new keys).
+  - **T-50 parent pages:** P1 (amber play button with halo, decorative waveform, "From" row with amber avatar, child's name as the accent), reason page (chalk icons in discs, amber disc and tick on the chosen tile, accent on "OK?" in English only), P2, P3, P4 (celebration banner, amber medal, confetti), Stopped, Expired.
+  - **T-54 teacher shell and screens:** app header, language chips, bottom nav (4 px active bar, 20 px badge), status tags as pills, cards, buttons, dialogs; the mic on Today is the amber hero (112 px, panel halo, dashed chalk ring). Today keeps its layout (T-49 not started).
+  - **T-57 demo chat view:** the family phone is a chat (header, wallpaper, day pills, bubbles, link rows, in-app-browser bar that slides up); "Under the hood" in the slate look. New keys `demo.chat.messages|pageLesson|pageEvening` in kn, en, te, ta (te and ta are drafts for Monika). Left out: the voice-note row (it needs a recorded greeting and would be a play button that plays nothing).
+  - **T-58 base switch:** the slate values are now the base colours; `.theme-slate` is gone; `tokens.md` Colours table updated; fonts and reduced-motion rules apply everywhere.
+- **Tests:** `tokens.test.ts` (light/dark pairs, amber, chat palette, reduced-motion rule), `ParentParts.test.tsx`. `verify.sh` OK; all 12 existing e2e specs pass. One assertion changed on purpose: `shell.spec.ts` dark canvas is now `rgb(27, 32, 30)` (the new base value).
+- **Measured at 360 px (gzip, audio excluded):** P1 was 204 KB; now 348 KB (kn), 343 KB (en), 411 KB (te); limit 500 KB. axe 0 on every parent page and teacher screen in light and dark, except **Approve list: `label-content-name-mismatch`** on the catch-up card links (their `aria-label` does not repeat the visible text). That `aria-label` was not touched here; it needs its own fix. `getAnimations()` is 0 with reduced motion. Screenshots: `docs/screenshots/D-77/`; the reference pictures are in `docs/design/screenshots/slate/`.
+- **For Monika:** (1) `chat-edge` is `#7C8782`, not `#7F8A85`: the spec value is 2.98:1 against the wallpaper and the test needs 3:1. (2) `primary` is no longer used for text on slate (5.9:1); two links moved to `primary-strong`. (3) The unwritten te/ta keys above.
+- **Known:** before the page data arrives, the parent frame uses the phone's saved language (kn), so an en or te family may fetch the Kannada fonts (about 65 KB) for the loading line.
+- **Not done:** T-49 Today re-layout (Monika's gate: her sign-off on the mockup).
+- **Next:** Hindi support (asked 24 Oct, after this task).
+
 ## Current state — Wed 21 Oct 2026 (Day 3)
 
 - Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it).

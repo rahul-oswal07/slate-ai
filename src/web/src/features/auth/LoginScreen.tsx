@@ -95,7 +95,7 @@ export function LoginScreen() {
   }
 
   const inputClass =
-    'mt-1 block min-h-target w-full rounded-md border border-border bg-surface px-3 text-body-lg text-ink'
+    'mt-1 block min-h-target w-full rounded-button border-2 border-border bg-surface px-3 text-body-lg text-ink'
 
   return (
     <section aria-labelledby="login-title" className="mx-auto max-w-md">
@@ -110,7 +110,7 @@ export function LoginScreen() {
       </p>
 
       {!online && (
-        <output className="mb-4 flex items-start gap-2 rounded-md border border-border border-l-4 border-l-warning bg-surface p-3">
+        <output className="mb-4 flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">
           <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
           <span className="text-body text-ink">{t('auth.error.offline')}</span>
         </output>
@@ -167,7 +167,7 @@ export function LoginScreen() {
         <button
           type="submit"
           disabled={signIn.isPending}
-          className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-70"
+          className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-70"
         >
           {signIn.isPending ? t('auth.submitting') : t('auth.submit')}
         </button>

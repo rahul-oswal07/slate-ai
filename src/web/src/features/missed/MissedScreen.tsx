@@ -67,7 +67,7 @@ export function MissedScreen() {
           <button
             type="button"
             onClick={() => void ledger.refetch()}
-            className="min-h-target rounded-md border border-border bg-surface px-4 text-label"
+            className="min-h-target rounded-button border-2 border-border bg-surface px-4 text-label"
           >
             {t('common.tryAgain')}
           </button>
@@ -79,7 +79,7 @@ export function MissedScreen() {
           <p className="text-body text-ink-muted">{t('missed.emptyBody')}</p>
           <Link
             to="/"
-            className="flex min-h-target w-full items-center justify-center rounded-md border border-border bg-surface text-label"
+            className="flex min-h-target w-full items-center justify-center rounded-button border-2 border-border bg-surface text-label"
           >
             {t('common.goToday')}
           </Link>
@@ -88,7 +88,7 @@ export function MissedScreen() {
         <>
           <fieldset>
             <legend className="sr-only">{t('missed.view')}</legend>
-            <div className="grid grid-cols-2 overflow-hidden rounded-md border border-border">
+            <div className="grid grid-cols-2 overflow-hidden rounded-button border-2 border-border">
               {(['child', 'lesson'] as const).map((v) => (
                 <button
                   key={v}
@@ -155,7 +155,7 @@ function ByChild({
           ))}
         </div>
       </fieldset>
-      <ul className="overflow-hidden rounded-md border border-border bg-surface">
+      <ul className="overflow-hidden rounded-button border-2 border-border bg-surface">
         {rows.map((child) => (
           <li key={child.childId} className="border-b border-divider last:border-b-0">
             <ChildRow child={child} weekOf={data.weekOf} chapters={chapters} language={i18n.language} t={t} />
@@ -226,7 +226,7 @@ function ByLesson({ data, chapters }: { data: Ledger; chapters: Chapter[] }) {
         const expanded = open === lesson.lessonId
         const listId = `lesson-${lesson.lessonId}`
         return (
-          <li key={lesson.lessonId} className="flex flex-col gap-2 rounded-md border border-border bg-surface p-3">
+          <li key={lesson.lessonId} className="flex flex-col gap-2 rounded-card border-[1.5px] border-edge bg-surface p-3">
             <p className="text-caption text-ink-muted">
               {page
                 ? t('missed.lessonMeta', {

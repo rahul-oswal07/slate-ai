@@ -61,7 +61,7 @@ export function TodayScreen() {
       </div>
 
       {confirmed.length > 0 && !editing && (
-        <output className="rounded-md border border-border border-l-4 border-l-primary bg-surface p-3 text-body">
+        <output className="rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-3 text-body">
           {t('today.done')}
         </output>
       )}
@@ -69,7 +69,7 @@ export function TodayScreen() {
       <RecapCard classId={classId} date={date} chapters={chapters} />
 
       {!online && (
-        <output className="flex items-start gap-2 rounded-md border border-border border-l-4 border-l-warning bg-surface p-3">
+        <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">
           <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
           <span className="text-body text-ink">
             {savedAt
@@ -80,12 +80,12 @@ export function TodayScreen() {
       )}
 
       {day.isError && !day.data && (
-        <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-4">
+        <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-4">
           <p className="text-body">{t('app.loadError')}</p>
           <button
             type="button"
             onClick={() => void day.refetch()}
-            className="mt-3 min-h-target w-full rounded-md border border-border bg-surface text-label"
+            className="mt-3 min-h-target w-full rounded-button border-2 border-border bg-surface text-label"
           >
             {t('common.tryAgain')}
           </button>

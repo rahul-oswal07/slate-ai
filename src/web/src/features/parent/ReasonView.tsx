@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AccentTitle } from '../../components/AccentWord'
 import { Icon, type IconName } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { ParentHeader, PrimaryButton, StopControl } from './ParentParts'
@@ -20,7 +21,7 @@ const ICONS: Record<ReasonCategory, IconName> = {
  * choice and offers Try again. Voice note and A7 are cut (D-63).
  */
 export function ReasonView({ token, message, onDone }: { token: string; message: ParentEvening; onDone: () => void }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const announce = useAnnounce()
   const reason = useReason(token)
   const [chosen, setChosen] = useState<ReasonCategory | null>(message.reason)
@@ -65,12 +66,13 @@ export function ReasonView({ token, message, onDone }: { token: string; message:
         headingRef={headingRef}
       />
       <div className="flex flex-col gap-4 px-4 pt-4">
-        <p id="reason-question" className="text-title">
-          {t('parent.reason.question', { child: message.childName })}
+        <p id="reason-question" className="text-display font-extrabold">
+          {/* The handwritten accent is Latin only (D-77): "OK?" in English, nothing in Kannada, Telugu or Tamil. */}
+          <AccentTitle title={t('parent.reason.question', { child: message.childName })} accent={i18n.language === 'en' ? 'OK?' : undefined} />
         </p>
         <fieldset aria-labelledby="reason-question" disabled={sending}>
           <legend className="sr-only">{t('parent.reason.options')}</legend>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {REASON_CATEGORIES.map((category) => {
               const picked = category === chosen
               return (
@@ -82,12 +84,25 @@ export function ReasonView({ token, message, onDone }: { token: string; message:
                     reason.reset()
                     setChosen(category)
                   }}
-                  className={`flex min-h-target-picture flex-col items-center justify-center gap-2 rounded-md p-3 text-center text-label focus-visible:outline-offset-[-4px] disabled:opacity-60 ${
-                    picked ? 'border-4 border-primary bg-panel' : 'border-2 border-border bg-surface'
+                  className={`relative flex min-h-target-picture flex-col items-center justify-center gap-2 rounded-card p-3 text-center text-label font-bold text-ink focus-visible:outline-offset-[-4px] disabled:opacity-60 ${
+                    picked ? 'border-[3px] border-primary bg-panel' : 'border-2 border-border bg-surface'
                   }`}
                 >
-                  <Icon name={ICONS[category]} size={34} className="text-primary-strong" />
+                  <span
+                    aria-hidden="true"
+                    className={`flex size-[52px] items-center justify-center rounded-full ${picked ? 'bg-accent text-on-accent' : 'bg-panel text-ink'}`}
+                  >
+                    <Icon name={ICONS[category]} size={28} />
+                  </span>
                   {t(`parent.reason.category.${category}`)}
+                  {picked && (
+                    <span
+                      aria-hidden="true"
+                      className="pop-in absolute right-2 top-2 flex size-[26px] items-center justify-center rounded-full bg-primary text-on-primary"
+                    >
+                      <Icon name="check" size={16} />
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -96,7 +111,7 @@ export function ReasonView({ token, message, onDone }: { token: string; message:
 
       </div>
 
-      <div className="sticky bottom-0 mt-4 flex flex-col gap-1 border-t border-divider bg-canvas px-4 py-3">
+      <div className="sticky bottom-0 mt-4 flex flex-col gap-1 border-t border-edge bg-canvas px-4 py-3">
         {/* In the sticky footer, so the failure is never hidden behind it on a short phone. */}
         {reason.isError && (
           <p role="alert" className="mb-2 border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
@@ -107,7 +122,7 @@ export function ReasonView({ token, message, onDone }: { token: string; message:
           {sending ? t('parent.reason.sending') : reason.isError ? t('parent.reason.retry') : t('parent.reason.send')}
         </PrimaryButton>
         {chosen === null && <p className="text-center text-caption text-ink-muted">{t('parent.reason.hint')}</p>}
-        <button type="button" onClick={onDone} className="min-h-target w-full rounded-md text-label text-primary-strong">
+        <button type="button" onClick={onDone} className="btn-link w-full justify-center">
           {t('parent.reason.skip')}
         </button>
       </div>

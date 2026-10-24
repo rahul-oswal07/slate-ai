@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
             lang={code}
             aria-pressed={active}
             onClick={() => void i18n.changeLanguage(code)}
-            className={`min-h-12 min-w-12 rounded-md border px-3 ${
+            className={`min-h-12 min-w-12 rounded-button border-2 px-3 font-bold ${
               active ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-ink'
             }`}
           >

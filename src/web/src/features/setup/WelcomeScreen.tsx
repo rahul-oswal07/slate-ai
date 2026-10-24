@@ -49,7 +49,7 @@ export function WelcomeScreen() {
 
       <ul className="flex flex-col gap-3">
         {promises.map(({ icon, key }) => (
-          <li key={key} className="flex items-start gap-3 rounded-md border border-border bg-surface p-[14px]">
+          <li key={key} className="flex items-start gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
             <Icon name={icon} className="mt-0.5 shrink-0 text-primary-strong" />
             <span className="text-body">{t(key)}</span>
           </li>
@@ -67,7 +67,7 @@ export function WelcomeScreen() {
           type="button"
           onClick={() => start.mutate()}
           disabled={start.isPending}
-          className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-70"
+          className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-70"
         >
           {t('setup.welcome.start')}
         </button>

@@ -25,7 +25,7 @@ export function EveningView({ token, message }: { token: string; message: Parent
     <>
       <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />
       <div className="flex flex-col gap-4 px-4 py-4">
-        <p lang={message.language} className="rounded-md border border-border bg-surface p-4 text-body">
+        <p lang={message.language} className="card text-body">
           {message.text}
         </p>
         {message.reason ? (
@@ -34,7 +34,7 @@ export function EveningView({ token, message }: { token: string; message: Parent
             <button
               type="button"
               onClick={openReason}
-              className="min-h-target rounded-md px-3 text-label text-primary-strong underline"
+              className="btn-link"
             >
               {t('parent.reason.change')}
             </button>
@@ -43,7 +43,7 @@ export function EveningView({ token, message }: { token: string; message: Parent
           <button
             type="button"
             onClick={openReason}
-            className="min-h-target w-full rounded-md border border-primary bg-panel px-4 text-label text-primary-strong"
+            className="btn-secondary"
           >
             {t('parent.reason.entry')}
           </button>

@@ -40,9 +40,9 @@ test.describe('signed out', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-    // D-17: dark canvas from tokens.css, not the light one.
+    // D-17, D-77: dark slate canvas (#1B201E) from tokens.css, not the light one.
     const background = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)
-    expect(background).toBe('rgb(21, 21, 19)')
+    expect(background).toBe('rgb(27, 32, 30)')
 
     const results = await new AxeBuilder({ page }).analyze()
     const blocking = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')

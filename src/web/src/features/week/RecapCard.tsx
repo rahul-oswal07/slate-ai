@@ -20,7 +20,7 @@ export function RecapCard({ classId, date, chapters }: { classId: string; date: 
   return (
     <section
       aria-labelledby="recap-title"
-      className="flex items-start gap-3 rounded-md border border-border border-l-4 border-l-primary bg-surface p-3"
+      className="flex items-start gap-3 rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-3"
     >
       <Icon name="clock" size={20} className="mt-1 shrink-0 text-primary-strong" />
       <div>

@@ -41,15 +41,15 @@ export function EveningTemplateScreen() {
       </h1>
       <p className="text-body text-ink-muted">{t('setup.template.lead')}</p>
 
-      {template.isPending && <div aria-hidden="true" className="h-40 rounded-md border border-border bg-surface" />}
+      {template.isPending && <div aria-hidden="true" className="h-40 rounded-button border-2 border-border bg-surface" />}
 
       {template.isError && !template.data && (
-        <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-4">
+        <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-4">
           <p className="text-body">{t('app.loadError')}</p>
           <button
             type="button"
             onClick={() => void template.refetch()}
-            className="mt-3 min-h-target w-full rounded-md border border-border bg-surface text-label"
+            className="mt-3 min-h-target w-full rounded-button border-2 border-border bg-surface text-label"
           >
             {t('common.tryAgain')}
           </button>
@@ -57,7 +57,7 @@ export function EveningTemplateScreen() {
       )}
 
       {example && (
-        <div className="flex flex-col gap-3 rounded-md border border-border bg-surface p-[14px]">
+        <div className="flex flex-col gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <span className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-panel px-3 py-1 text-caption text-primary-strong">
             <Icon name="mic" size={16} />
             {t('setup.template.greetingChip')}
@@ -68,7 +68,7 @@ export function EveningTemplateScreen() {
       )}
 
       {telugu && telugu !== example && (
-        <div className="rounded-md border border-border bg-surface p-[14px]">
+        <div className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <h2 className="mb-2 text-label">{t('setup.template.teluguVersion')}</h2>
           <MessageText parts={telugu.example} lang="te" />
         </div>
@@ -91,7 +91,7 @@ export function EveningTemplateScreen() {
               <button
                 type="button"
                 onClick={() => void navigate('/', { replace: true })}
-                className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary"
+                className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
               >
                 {t('common.goToday')}
               </button>
@@ -102,7 +102,7 @@ export function EveningTemplateScreen() {
                 type="button"
                 onClick={() => approve.mutate(template.data.version)}
                 disabled={approve.isPending}
-                className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-70"
+                className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-70"
               >
                 {t('setup.template.approve')}
               </button>

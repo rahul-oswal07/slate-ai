@@ -14,8 +14,8 @@ export function ActivityStep({ page, onNext }: { page: ParentCatchUp; onNext: ()
   return (
     <div className="flex flex-col gap-5">
       {activity && (
-        <section className="flex flex-col items-center gap-3 rounded-md border border-border bg-surface p-4 text-center">
-          <p className="text-display">{activity.number}</p>
+        <section className="card flex flex-col items-center gap-3 text-center">
+          <p className="text-display font-extrabold">{activity.number}</p>
           <Sticks n={activity.number} />
           <p className="text-caption text-ink-muted">{sticksText(t, activity.number)}</p>
           {activity.instruction && (

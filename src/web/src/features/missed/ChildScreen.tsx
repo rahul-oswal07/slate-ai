@@ -114,7 +114,7 @@ function ChildDetails({
         <button
           type="button"
           onClick={() => setDeleting(true)}
-          className="min-h-target w-full rounded-md border-2 border-error bg-surface px-4 text-label text-error"
+          className="min-h-target w-full rounded-button border-2 border-error bg-surface px-4 text-label text-error"
         >
           {t('missed.child.delete', { name: child.firstName })}
         </button>
@@ -224,7 +224,7 @@ function DeleteDialog({ classId, child, onClose }: { classId: string; child: Led
           ref={keepRef}
           type="button"
           onClick={onClose}
-          className="min-h-target-primary w-full rounded-md bg-primary px-4 text-label text-on-primary"
+          className="min-h-target-primary w-full rounded-button bg-primary font-extrabold px-4 text-label text-on-primary"
         >
           {t('missed.delete.keep')}
         </button>
@@ -239,7 +239,7 @@ function DeleteDialog({ classId, child, onClose }: { classId: string; child: Led
               },
             })
           }
-          className="min-h-target w-full rounded-md border-2 border-error bg-surface px-4 text-label text-error disabled:opacity-60"
+          className="min-h-target w-full rounded-button border-2 border-error bg-surface px-4 text-label text-error disabled:opacity-60"
         >
           {remove.isPending ? t('missed.delete.deleting') : t('missed.delete.confirm')}
         </button>

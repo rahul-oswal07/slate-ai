@@ -15,7 +15,7 @@ export function AddedCard({ absent, lessonIds, chapters }: { absent: number; les
   })
 
   return (
-    <section aria-labelledby="added-title" className="rounded-md border border-border bg-surface p-[14px]">
+    <section aria-labelledby="added-title" className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
       <h2 id="added-title" className="text-label">
         {t('today.added.title', { n: absent })}
       </h2>

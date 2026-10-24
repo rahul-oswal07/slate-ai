@@ -16,6 +16,15 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource/baloo-2": "^5.3.0",
+    "@fontsource/baloo-tamma-2": "^5.3.0",
+    "@fontsource/baloo-tammudu-2": "^5.3.0",
+    "@fontsource/baloo-thambi-2": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/noto-sans": "^5.3.0",
+    "@fontsource/noto-sans-kannada": "^5.3.0",
+    "@fontsource/noto-sans-tamil": "^5.3.0",
+    "@fontsource/noto-sans-telugu": "^5.3.0",
     "@tanstack/react-query": "^5.104.5",
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^4.4.0",

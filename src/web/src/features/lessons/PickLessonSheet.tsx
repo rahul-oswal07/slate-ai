@@ -124,7 +124,7 @@ export function PickLessonSheet({
                     setChapterNumber(c.number)
                     setChoosingChapter(false)
                   }}
-                  className="min-h-target w-full rounded-md border border-border bg-surface px-3 py-2 text-left text-body"
+                  className="min-h-target w-full rounded-button border-2 border-border bg-surface px-3 py-2 text-left text-body"
                 >
                   {chapterTitle(t, c, i18n.language)}
                 </button>
@@ -140,7 +140,7 @@ export function PickLessonSheet({
                 return (
                 <label
                   key={lesson.id}
-                  className="flex min-h-target cursor-pointer items-center gap-3 rounded-md border border-border bg-surface px-3 py-2 has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus"
+                  className="flex min-h-target cursor-pointer items-center gap-3 rounded-button border-2 border-border bg-surface px-3 py-2 has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus"
                 >
                   {add ? (
                     <input
@@ -186,7 +186,7 @@ export function PickLessonSheet({
               <button
                 type="button"
                 onClick={() => add.onDone(selected)}
-                className="mt-2 min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary"
+                className="mt-2 min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
               >
                 {t('pick.done')}
               </button>

@@ -36,14 +36,14 @@ export function PackageScreen() {
       <h1 id="pkg-title" ref={headingRef} tabIndex={-1} className="text-title">
         {t('approve.pkg.title')}
       </h1>
-      {week.isPending && <div aria-hidden="true" className="h-40 rounded-md border border-border bg-surface" />}
+      {week.isPending && <div aria-hidden="true" className="h-40 rounded-button border-2 border-border bg-surface" />}
       {week.isError && !week.data && (
-        <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-4">
+        <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-4">
           <p className="text-body">{t('app.loadError')}</p>
           <button
             type="button"
             onClick={() => void week.refetch()}
-            className="mt-3 min-h-target w-full rounded-md border border-border bg-surface text-label"
+            className="mt-3 min-h-target w-full rounded-button border-2 border-border bg-surface text-label"
           >
             {t('common.tryAgain')}
           </button>
@@ -100,7 +100,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
 
       {pkg.status === 'failed' && (
         <>
-          <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-[14px] text-body">
+          <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-[14px] text-body">
             {t('approve.pkg.failed')}
           </div>
           <ErrorLine error={error} />
@@ -108,7 +108,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
             type="button"
             disabled={busy}
             onClick={() => startRegenerate(null)}
-            className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-70"
+            className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-70"
           >
             {t('common.tryAgain')}
           </button>
@@ -116,14 +116,14 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       )}
 
       {pkg.status === 'generating' && (
-        <output className="flex items-start gap-2 rounded-md border border-border border-l-4 border-l-warning bg-surface p-[14px] text-body">
+        <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-[14px] text-body">
           <Icon name="clock" size={20} className="mt-0.5 shrink-0 text-warning" />
           {t('approve.pkg.regenerating')}
         </output>
       )}
 
       {pkg.status === 'needsReview' && (
-        <div className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-[14px]">
+        <div className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-[14px]">
           <p className="text-body font-bold">{t('approve.pkg.reviewTitle')}</p>
           <ul className="mt-1 list-disc pl-5 text-body">
             {failedChecks.map((c) => (
@@ -135,13 +135,13 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       )}
 
       {pkg.status === 'approved' && (
-        <output className="rounded-md border border-border border-l-4 border-l-primary bg-surface p-[14px] text-body">
+        <output className="rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-[14px] text-body">
           {t('approve.pkg.approved')}
         </output>
       )}
 
       {pkg.status === 'sent' && pkg.sentAt && (
-        <output className="flex items-start gap-2 rounded-md border border-border border-l-4 border-l-primary bg-surface p-[14px] text-body">
+        <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-[14px] text-body">
           <Icon name="send" size={20} className="mt-0.5 shrink-0 text-primary-strong" />
           {t('approve.pkg.sent', { time: formatSchoolTime(pkg.sentAt, i18n.language), n: pkg.familiesSent })}
         </output>
@@ -150,7 +150,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       {pkg.status !== 'failed' && pkg.audio && <SegmentPlayer segments={pkg.audio.segments} />}
 
       {pkg.status !== 'failed' && pkg.glossKn && (
-        <div className="rounded-md border border-border bg-panel p-[14px]">
+        <div className="rounded-card border-2 border-primary bg-panel p-[14px]">
           <h2 className="text-label text-primary-strong">{t('approve.pkg.summary')}</h2>
           <p lang="kn" className="mt-1 text-body text-ink">{pkg.glossKn}</p>
           {i18n.language !== 'kn' && pkg.glossEn && <p className="mt-2 text-body text-ink-muted">{pkg.glossEn}</p>}
@@ -172,7 +172,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       {pkg.status !== 'failed' && <WhyThis pkg={pkg} />}
 
       {pkg.status !== 'failed' && pkg.check.options.length > 0 && (
-        <div className="rounded-md border border-border bg-surface p-[14px]">
+        <div className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <h2 className="text-label">{t('approve.pkg.check', { lesson: checkLesson })}</h2>
           <p className="mt-1 text-title">{pkg.check.question} = ?</p>
           <ul className="mt-2 flex gap-2" aria-label={t('approve.pkg.options')}>
@@ -219,7 +219,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
                 { onSuccess: () => announce(t('approve.announce.approved')) },
               )
             }
-            className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-50"
+            className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-50"
           >
             {t('approve.pkg.approve')}
           </button>
@@ -236,7 +236,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
                 type="button"
                 disabled={busy}
                 onClick={() => startRegenerate('shorter')}
-                className="min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-70"
+                className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-70"
               >
                 {t('approve.pkg.makeShorter')}
               </button>
@@ -266,7 +266,7 @@ function RegenerateButtons({ busy, onRegenerate }: { busy: boolean; onRegenerate
         type="button"
         disabled={busy}
         onClick={() => onRegenerate('simpler')}
-        className="min-h-target rounded-md border border-border bg-surface text-label disabled:opacity-70"
+        className="min-h-target rounded-button border-2 border-border bg-surface text-label disabled:opacity-70"
       >
         {t('approve.pkg.simpler')}
       </button>
@@ -274,7 +274,7 @@ function RegenerateButtons({ busy, onRegenerate }: { busy: boolean; onRegenerate
         type="button"
         disabled={busy}
         onClick={() => onRegenerate('shorter')}
-        className="min-h-target rounded-md border border-border bg-surface text-label disabled:opacity-70"
+        className="min-h-target rounded-button border-2 border-border bg-surface text-label disabled:opacity-70"
       >
         {t('approve.pkg.shorter')}
       </button>
@@ -308,7 +308,7 @@ function WhyThis({ pkg }: { pkg: CatchUpPackage }) {
   const rows = [...pkg.targetCompetencyIds.map((id) => ({ id, kept: true })), ...dropped.map((id) => ({ id, kept: false }))]
 
   return (
-    <div className="rounded-md border border-border bg-surface p-[14px]">
+    <div className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
       <h2 className="text-label">{t('approve.pkg.why')}</h2>
       <ul className="mt-2 flex flex-col gap-2">
         {rows.map((row) => (
@@ -353,7 +353,7 @@ function ErrorLine({ error }: { error: Error | null }) {
 function AiLabel() {
   const { t } = useTranslation()
   return (
-    <span className="inline-flex items-center gap-1 rounded-sm bg-panel px-2 py-0.5 text-caption text-primary-strong">
+    <span className="inline-flex items-center gap-1 rounded-pill bg-panel px-3 py-0.5 text-caption text-primary-strong">
       <Icon name="bot" size={14} />
       {t('ai.label')}
     </span>

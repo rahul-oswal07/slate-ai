@@ -1,23 +1,29 @@
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import type { Homework } from './types'
 import { useStop } from './useParentPage'
 
-/** Screen header: Back (except on the first step) and the title, which takes focus when the step opens. */
+/**
+ * Screen header: Back (except on the first step) and the title, which takes focus when the step opens. On the
+ * canvas, with no bar and no rule (D-77); `accent` picks one word of the title out in handwriting or an amber underline.
+ */
 export function ParentHeader({
   title,
+  accent,
   onBack,
   headingRef,
 }: {
   title: string
+  accent?: string
   onBack?: () => void
   headingRef?: RefObject<HTMLHeadingElement | null>
 }) {
   const { t } = useTranslation()
   return (
-    <header className="flex items-center gap-2 border-b border-border bg-surface px-2 py-2">
+    <header className="flex items-center gap-2 px-2 py-2">
       {onBack ? (
         <button
           type="button"
@@ -30,42 +36,65 @@ export function ParentHeader({
       ) : (
         <span className="w-2" />
       )}
-      <h1 ref={headingRef} tabIndex={-1} className="text-title">
-        {title}
+      <h1 ref={headingRef} tabIndex={-1} className="text-title font-extrabold">
+        <AccentTitle title={title} accent={accent} />
       </h1>
     </header>
   )
 }
 
-/** Step n of 4 (D-08): dots, the current one a pill. */
+/**
+ * Step n of 4 (D-08, D-77): a chalk tally. Done strokes are chalk, the current one amber (with an ink outline in
+ * light mode, where amber alone is 1.3:1), the rest dashed; on the last step a slash crosses all four. "n/4" is
+ * visible and "Step n of 4" is what a screen reader hears. It only counts up.
+ */
 export function StepDots({ step }: { step: number }) {
   const { t } = useTranslation()
+  // Four 3px strokes, 28px tall, 12px apart, each leaning a little like chalk (D-77).
+  const x = (n: number) => 8 + (n - 1) * 12
+  const stroke = (n: number) => ({ x1: x(n) + 1.5, y1: 2, x2: x(n) - 1.5, y2: 30 })
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-start gap-4">
       <span className="sr-only">{t('parent.steps', { n: step })}</span>
-      {[1, 2, 3, 4].map((n) => (
-        <span
-          key={n}
-          aria-hidden="true"
-          className={
-            n === step
-              ? 'h-[10px] w-[26px] rounded-full bg-primary'
-              : n < step
-                ? 'size-[10px] rounded-full bg-primary'
-                : 'size-[10px] rounded-full border border-border bg-divider'
+      <svg aria-hidden="true" width="56" height="32" viewBox="0 0 56 32" fill="none" strokeLinecap="round" className="overflow-visible">
+        {[1, 2, 3, 4].map((n) => {
+          if (n === step && step < 4) {
+            return (
+              <g key={n} data-stroke="current">
+                <line {...stroke(n)} strokeWidth="8" className="stroke-ink dark:stroke-transparent" />
+                <line {...stroke(n)} pathLength="100" strokeWidth="4" className="draw-on stroke-accent" />
+              </g>
+            )
           }
-        />
-      ))}
+          return n < step || step === 4 ? (
+            <line key={n} data-stroke="done" {...stroke(n)} strokeWidth="3" className="stroke-ink" />
+          ) : (
+            <line key={n} data-stroke="todo" {...stroke(n)} strokeWidth="3" strokeDasharray="1 6" className="stroke-chalk" />
+          )
+        })}
+        {step === 4 && (
+          <g data-stroke="slash">
+            <line x1="-2" y1="26" x2="54" y2="6" strokeWidth="8" className="stroke-ink dark:stroke-transparent" />
+            <line x1="-2" y1="26" x2="54" y2="6" pathLength="100" strokeWidth="4" className="draw-on stroke-accent" />
+          </g>
+        )}
+      </svg>
+      <span aria-hidden="true" className="text-body font-extrabold text-ink">
+        {step}/4
+      </span>
     </div>
   )
 }
 
-/** NFR-08: every step with AI-written words says so, with the bot icon (not the reward star, C-25). */
+/**
+ * NFR-08: every step with AI-written words says so, with the bot icon (not the reward star, C-25). A quiet outlined
+ * pill with the same sentence as before (D-77).
+ */
 export function AiLabel({ teacher }: { teacher: string }) {
   const { t } = useTranslation()
   return (
-    <p className="flex items-center justify-center gap-1.5 text-label text-primary-strong">
-      <Icon name="bot" size={18} />
+    <p className="flex items-center gap-2 rounded-pill border-[1.5px] border-border bg-surface px-4 py-2 text-label text-ink">
+      <Icon name="bot" size={22} className="shrink-0" />
       {t('parent.aiLabel', { teacher })}
     </p>
   )
@@ -75,7 +104,7 @@ export function AiLabel({ teacher }: { teacher: string }) {
 export function HomeworkCard({ homework, teacher }: { homework: Homework; teacher: string }) {
   const { t } = useTranslation()
   return (
-    <section className="flex items-start gap-3 rounded-md border border-border bg-surface p-4">
+    <section className="card flex items-start gap-3">
       <Icon name="book" size={28} className="shrink-0 text-primary-strong" />
       <div>
         <h2 className="text-label">{t('parent.activity.homeworkTitle', { page: homework.page })}</h2>
@@ -92,11 +121,16 @@ export function HomeworkCard({ homework, teacher }: { homework: Homework; teache
 /** Primary full-width button used for Next / Finish. */
 export function PrimaryButton({ children, ...props }: { children: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button
-      type="button"
-      {...props}
-      className="min-h-target-primary w-full rounded-md bg-primary px-4 text-label text-on-primary disabled:opacity-60"
-    >
+    <button type="button" {...props} className="btn-primary">
+      {children}
+    </button>
+  )
+}
+
+/** Secondary full-width button: a panel fill and a teal border, for "Read the words" and Skip-style choices. */
+export function SecondaryButton({ children, ...props }: { children: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button type="button" {...props} className="btn-secondary">
       {children}
     </button>
   )
@@ -114,7 +148,7 @@ export function StopControl({ token, childName }: { token: string; childName: st
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex min-h-target w-full items-center justify-center gap-1.5 text-caption text-ink-muted underline"
+        className="btn-link w-full justify-center"
       >
         <Icon name="bellOff" size={16} />
         {t('parent.stop.link')}
@@ -170,7 +204,7 @@ function StopDialog({ token, childName, onClose }: { token: string; childName: s
         event.preventDefault()
         onClose()
       }}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 mx-auto w-full max-w-md rounded-t-md border border-border bg-surface p-4 pb-6 text-ink backdrop:bg-ink/40"
+      className="slide-up fixed inset-x-0 bottom-0 top-auto m-0 mx-auto w-full max-w-md rounded-t-sheet border-2 border-b-0 border-border bg-surface p-4 pb-6 text-ink backdrop:bg-canvas/60"
     >
       <h2 id="stop-title" className="text-title">
         {t('parent.stop.title', { child: childName })}
@@ -198,7 +232,7 @@ function StopDialog({ token, childName, onClose }: { token: string; childName: s
           ref={cancelRef}
           type="button"
           onClick={onClose}
-          className="min-h-target w-full rounded-md text-label text-primary-strong"
+          className="btn-link w-full justify-center no-underline"
         >
           {t('parent.stop.cancel')}
         </button>
@@ -215,7 +249,7 @@ export function StoppedView({ token, childName }: { token: string; childName: st
   const headingRef = useRef<HTMLHeadingElement>(null)
   useEffect(() => headingRef.current?.focus(), [])
   return (
-    <section aria-labelledby="stopped-title" className="flex flex-col items-center gap-4 px-4 py-10 text-center">
+    <section aria-labelledby="stopped-title" className="mx-4 my-8 card flex flex-col items-center gap-4 py-8 text-center">
       <Icon name="bellOff" size={56} className="text-ink-muted" />
       <h1 id="stopped-title" ref={headingRef} tabIndex={-1} className="text-display">
         {t('parent.stop.doneTitle')}
@@ -230,7 +264,7 @@ export function StoppedView({ token, childName }: { token: string; childName: st
         type="button"
         disabled={restart.isPending}
         onClick={() => restart.mutate(false, { onSuccess: () => announce(t('parent.announce.restarted')) })}
-        className="min-h-target-primary w-full rounded-md border border-border px-4 text-label text-ink disabled:opacity-60"
+        className="btn-secondary"
       >
         {t('parent.stop.restart')}
       </button>

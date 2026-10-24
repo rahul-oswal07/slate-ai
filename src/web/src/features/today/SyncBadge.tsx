@@ -8,12 +8,12 @@ export function SyncBadge() {
   const waiting = useOutboxCount()
 
   return waiting === 0 ? (
-    <span className="inline-flex items-center gap-1 rounded-sm bg-status-listened-bg px-2 py-1 text-label text-status-listened">
+    <span className="inline-flex items-center gap-1 rounded-pill bg-status-listened-bg px-3 py-1 text-label text-status-listened">
       <Icon name="check" size={16} />
       {t('sync.saved')}
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 rounded-sm bg-status-queued-bg px-2 py-1 text-label text-status-queued">
+    <span className="inline-flex items-center gap-1 rounded-pill bg-status-queued-bg px-3 py-1 text-label text-status-queued">
       <Icon name="cloudOff" size={16} />
       {t('sync.waiting', { n: waiting })}
     </span>

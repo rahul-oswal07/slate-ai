@@ -31,7 +31,7 @@ function ParentFrame({ language, children }: { language: string; children: React
   return (
     <I18nextProvider i18n={scoped}>
       <AnnouncerProvider>
-        <div lang={language} className="min-h-dvh bg-canvas font-sans text-ink">
+        <div lang={language} className="min-h-dvh font-sans text-ink">
           <main id="main" className="mx-auto max-w-md">
             {children}
           </main>
@@ -103,7 +103,12 @@ function CatchUpPages({ token, page }: { token: string; page: ParentCatchUp }) {
 
   return (
     <>
-      <ParentHeader title={titles[step] ?? ''} onBack={back} headingRef={headingRef} />
+      <ParentHeader
+        title={titles[step] ?? ''}
+        accent={step === 1 ? page.childName : undefined}
+        onBack={back}
+        headingRef={headingRef}
+      />
       <div className="flex flex-col gap-4 px-4 py-4">
         <StepDots step={step} />
         {step < 4 && <AiLabel teacher={page.teacherName} />}
@@ -124,7 +129,7 @@ function ExpiredView({ token, expired }: { token: string; expired: ParentExpired
   useEffect(() => headingRef.current?.focus(), [])
   return (
     <div className="flex flex-col gap-4 px-4 py-8">
-      <section className="flex flex-col items-center gap-3 text-center">
+      <section className="card flex flex-col items-center gap-3 py-8 text-center">
         <Icon name="clock" size={56} className="text-ink-muted" />
         <h1 ref={headingRef} tabIndex={-1} className="text-display">
           {t('parent.expired.title')}

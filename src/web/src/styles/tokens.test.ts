@@ -19,9 +19,15 @@ function readTheme(block: string): Theme {
   return theme
 }
 
+// The file has two colour blocks: light in @theme, dark in the media query (D-77: slate & chalk is the base look).
 const darkStart = tokensCss.indexOf('@media (prefers-color-scheme: dark)')
+const fontsStart = tokensCss.indexOf('/* Fonts by language')
+if (darkStart < 0 || fontsStart < darkStart) {
+  throw new Error('tokens.css: expected the light block, then the dark media query, then the font rules')
+}
+const darkBlock = readTheme(tokensCss.slice(darkStart, fontsStart))
 const light = readTheme(tokensCss.slice(0, darkStart))
-const dark = { ...light, ...readTheme(tokensCss.slice(darkStart)) }
+const dark = { ...light, ...darkBlock }
 
 function luminance(hex: string): number {
   const channels = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -49,9 +55,7 @@ const pairs: [string, string, number][] = [
     ['warning', bg, UI],
     ['stick', bg, UI],
   ]),
-  // Rule 1: primary text only on canvas and surface, never on panel.
-  ['primary', 'canvas', TEXT],
-  ['primary', 'surface', TEXT],
+  // Rule 1: primary is not text on any background (5.9:1 on the slate canvas in light): primary-strong does that.
   ['on-primary', 'primary', TEXT],
   ['on-primary', 'primary-strong', TEXT],
   ['error', 'error-bg', TEXT],
@@ -60,21 +64,59 @@ const pairs: [string, string, number][] = [
   ...statuses.map((s): [string, string, number] => [`status-${s}`, `status-${s}-bg`, TEXT]),
 ]
 
-describe.each([
-  ['light', light],
-  ['dark', dark],
-])('%s theme contrast', (_name, theme) => {
-  it.each(pairs)('%s on %s ≥ %d:1', (fg, bg, min) => {
+function check(theme: Theme, list: [string, string, number][]) {
+  it.each(list)('%s on %s ≥ %d:1', (fg, bg, min) => {
     const a = theme[fg]
     const b = theme[bg]
     expect(a, `--color-${fg} missing`).toBeDefined()
     expect(b, `--color-${bg} missing`).toBeDefined()
     expect(contrast(a ?? '', b ?? '')).toBeGreaterThanOrEqual(min)
   })
+}
+
+describe.each([
+  ['light', light],
+  ['dark', dark],
+])('%s theme contrast', (_name, theme) => {
+  check(theme, pairs)
 })
 
-it('dark theme overrides every colour except decorative ones', () => {
-  const overridden = Object.keys(readTheme(tokensCss.slice(darkStart)))
-  const expected = Object.keys(light).filter((name) => !name.startsWith('illustration-'))
+// Amber (D-77): a hero action fill (play, mic), the tally and the star. Text or an icon on it needs the full ratio.
+describe.each([
+  ['light', light],
+  ['dark', dark],
+])('amber %s', (_name, theme) => {
+  check(theme, [['on-accent', 'accent', TEXT]])
+  // Rule 2: in light mode amber alone is 1.3:1 on the canvas, so a fill carries a 3px ink outline (ink on canvas).
+  // In dark mode amber stands out on its own.
+  it.each(backgrounds)('amber fill is visible on %s', (bg) => {
+    const edge = _name === 'light' ? theme['ink'] : theme['accent']
+    expect(contrast(edge ?? '', theme[bg] ?? '')).toBeGreaterThanOrEqual(UI)
+  })
+})
+
+// The family phone's chat view (D-77): its own palette, the same in every scope.
+describe.each([
+  ['light', light],
+  ['dark', dark],
+])('chat palette %s contrast', (_name, theme) => {
+  check(theme, [
+    ['chat-bar-ink', 'chat-bar', TEXT],
+    ['chat-text', 'chat-bubble', TEXT],
+    ['chat-meta', 'chat-bubble', TEXT],
+    ['chat-link', 'chat-bubble', TEXT],
+    ['chat-meta', 'chat-pill', TEXT],
+    ['chat-edge', 'chat-wall', UI],
+  ])
+})
+
+it('dark theme overrides every colour except decorative ones and amber (the same in both)', () => {
+  const overridden = Object.keys(darkBlock)
+  const expected = Object.keys(light).filter((name) => !name.startsWith('illustration-') && name !== 'accent')
   expect(overridden.sort()).toEqual(expected.sort())
+})
+
+it('turns every animation and transition off under prefers-reduced-motion (D-77 rule 7)', () => {
+  const rule = /@media \(prefers-reduced-motion: reduce\)\s*\{[^@]*\*[^{]*\{[^}]*animation:\s*none[^}]*transition:\s*none/
+  expect(tokensCss).toMatch(rule)
 })
