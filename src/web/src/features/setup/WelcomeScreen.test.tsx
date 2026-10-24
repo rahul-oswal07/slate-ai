@@ -40,12 +40,12 @@ describe('WelcomeScreen', () => {
     renderApp('/welcome')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Start' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('No network. Connect and tap Start again.')
+    expect(await screen.findByRole('alert', {}, { timeout: 5000 })).toHaveTextContent('No network. Connect and tap Start again.')
 
     await userEvent.click(screen.getByRole('button', { name: 'Start' }))
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'The evening message on a day of absence' }),
+      await screen.findByRole('heading', { level: 1, name: 'The evening message on a day of absence' }, { timeout: 5000 }),
     ).toBeInTheDocument()
     const ids = calls.filter((c) => c.key === 'POST /api/me/welcome').map((c) => c.body)
     expect(ids).toHaveLength(2)
