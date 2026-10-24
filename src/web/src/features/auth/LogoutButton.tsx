@@ -1,21 +1,21 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { api, ApiError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { saveCachedMe } from './session'
-import { meQueryKey, useMe } from './useMe'
+import { meQueryKey } from './useMe'
 
 /**
- * Small "Log out" button in the app header, shown only while signed in. Ends the session, forgets the cached
+ * Small "Log out" button in the app header, shown on every screen except sign-in. Ends the session, forgets the cached
  * teacher and every query's data, and opens the sign-in screen. The remembered phone stays, so the next sign-in
  * on this phone asks for the PIN only. Offline it stays signed in (the server can't end the session) and says so.
  */
 export function LogoutButton() {
   const { t } = useTranslation()
-  const me = useMe()
+  const { pathname } = useLocation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const announce = useAnnounce()
@@ -40,7 +40,9 @@ export function LogoutButton() {
     void navigate('/login', { replace: true })
   }
 
-  if (!me.data) {
+  // The sign-in screen is the only one a signed-out teacher can see. Not reading `me` here on purpose: the welcome
+  // screen's hand-off to the evening step is timing-sensitive to who else watches that query.
+  if (pathname === '/login') {
     return null
   }
 
