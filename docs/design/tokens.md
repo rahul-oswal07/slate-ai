@@ -76,7 +76,7 @@ Select by `:lang()`. Self-host and subset (Latin + that language's script), `fon
 
 1. **T-48** foundation + parent-page shared parts (tokens, fonts, frame, header, tally, AI chip).
 2. Each parent screen, one PR: P1, reason page, P2, P3, P4 (+ stopped, expired).
-3. Teacher shell (compact header and language control, nav labels), then each teacher screen. **Today gets its own re-layout task** (hero lesson card, merged tonight card, collapsed "Since yesterday"); do it in this theme, once.
+3. Teacher shell (compact header and language control, nav labels), then each teacher screen. **Today is T-49 (later, #115)**: day strip, hero lesson card, merged tonight card, collapsed "Since yesterday"; built in this theme, once.
 4. Demo shell: family phone as a chat view with an in-app-browser bar when a link opens; "Under the hood" table.
 5. Last: switch the base token values, delete `.theme-slate`.
 
