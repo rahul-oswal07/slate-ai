@@ -42,6 +42,12 @@ Update it at the end of every working session (what changed, what's next, blocke
 - Fixed one gap: deleting the only child of a catch-up left the catch-up (and its audio) on Approve for nobody, still approvable. Delete now removes catch-ups with no children left in the same transaction; shared ones stay. Failing Db test first (`ChildDeleteEmptyCatchUpDbTests`), then the fix in `ChildStore`.
 - T-19 is done for the MVP; T8 consent editing stays on the roadmap.
 
+## D-76 (5) P3 sticks fit a phone (24 Oct, branch `fix/T-15-sticks-fit`)
+
+- Problem: a 3-digit answer drew hundreds as tall bundles that wrapped, so a P3 tile was 188 px (296) to 240 px (999) and only one of the three choices showed at 360×640.
+- Now (`Sticks.tsx`): hundreds lie flat (24×28 px, two bands) in one row; tens (16 px) and loose sticks (5 px) share the row below. 999 is two rows and stays one row each even with the numeral shown after the tap. Every tile is the minimum picture-target height, 120 px (≤ ~160 per D-76). At 360×640 two tiles show whole and the top of the third (the header, AI label, prompt and sum take ~260 px); a fully visible third tile would need a smaller `target-picture` token (Monika's call).
+- Tests: `Sticks.test.tsx` (rows and widths for 999, empty rows left out, hidden from screen readers). axe 0 on P3 light/dark. Screenshots before/after in `docs/screenshots/T-15/`.
+
 ## T-18 demo shell (23 Oct, branch `feat/T-18-demo-shell`)
 
 - Decided (Rahul, 23 Oct): Reset writes the **school days before the real today** (no demo clock); Reset restores a **pre-made Ready (not approved)** Telugu catch-up for Ravi when `data/seed/demo-catchup.json` exists (R5); **one-tap sign-in** for the demo teacher while `Demo:Enabled`.
