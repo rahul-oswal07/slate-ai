@@ -33,3 +33,10 @@ export interface AiCall {
   verdict: string | null
   error: string | null
 }
+
+/** What "Send messages now" sent; `eveningBlocked` says why tonight's message didn't go. */
+export interface DemoSendNow {
+  eveningBlocked: 'templateNotApproved' | 'lessonNotConfirmed' | 'noAttendance' | null
+  eveningSent: number
+  catchUpsSent: number
+}
