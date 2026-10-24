@@ -182,18 +182,18 @@ A stand-in for the real chat app (spec: P0 card). Build it as a demo component, 
 | Screen | Removed | Added (look only) | Stays exactly |
 |---|---|---|---|
 | **P1 Listen** (T-50) | White header bar and rule; the four step dots | Tally with "n/4"; AI label as a chip; amber play button; decorative waveform; child's name as the accent word | Title text, AI wording, "From … teacher" row, progress bar and times, "Computer voice · Lesson", Read the words, Next, stop link, every state |
-| **Reason page** (T-51) | White header bar; boxed tile look | Chalk-drawn icons in discs, amber disc and tick on the chosen tile, accent on "OK?" (English only) | The question, the five tiles and their order (fifth alone in the last row), Send disabled until chosen, hint, Skip, stop link |
-| **P2 Activity** (T-52) | White header bar; step dots | Tally; AI chip; card frame | Numeral, sticks, description, instruction, tip, "Next: question", homework card, stop link |
-| **P3 Answer** (T-52) | White header bar; step dots | Tally; AI chip; tile frames | Prompt, numeral, the three tiles, the numeral shown on the chosen tile, "Send this one", hint, stop link; stick pictures and sizes (D-76) |
-| **P4 Done** (T-53) | White header bar; step dots; flat star | Tally with a slash; celebration banner and amber medal (decorative); accent on the child's name | Header, "Well done", teacher line, homework line, Finish, stop link |
-| **Stopped, Link expired** (T-53) | Plain icon and boxes | Slate card styles | No header, icon above the heading, texts, homework card on Expired, Start them again, stop link on Expired |
+| **Reason page** (T-50) | White header bar; boxed tile look | Chalk-drawn icons in discs, amber disc and tick on the chosen tile, accent on "OK?" (English only) | The question, the five tiles and their order (fifth alone in the last row), Send disabled until chosen, hint, Skip, stop link |
+| **P2 Activity** (T-50) | White header bar; step dots | Tally; AI chip; card frame | Numeral, sticks, description, instruction, tip, "Next: question", homework card, stop link |
+| **P3 Answer** (T-50) | White header bar; step dots | Tally; AI chip; tile frames | Prompt, numeral, the three tiles, the numeral shown on the chosen tile, "Send this one", hint, stop link; stick pictures and sizes (D-76) |
+| **P4 Done** (T-50) | White header bar; step dots; flat star | Tally with a slash; celebration banner and amber medal (decorative); accent on the child's name | Header, "Well done", teacher line, homework line, Finish, stop link |
+| **Stopped, Link expired** (T-50) | Plain icon and boxes | Slate card styles | No header, icon above the heading, texts, homework card on Expired, Start them again, stop link on Expired |
 | **Teacher shell** (T-54) | Nothing | Slate colours, ruling lines, 4 px active nav bar | App name, tagline, the four language chips, the five nav labels and their order, sync badge, offline banner |
-| **Sign-in** (T-56) | Nothing | Slate styling | Fields, hints, buttons, lockout |
+| **Sign-in** (T-54) | Nothing | Slate styling | Fields, hints, buttons, lockout |
 | **Today** (T-49, the exception) | The stack of equal cards | Day strip; compact attendance; one hero lesson card; merged payoff card; collapsed "Since yesterday"; accent on "Today" | The data, the hooks, every state, the app header, the Saved tag |
-| **Approve** (T-55) | Nothing | Card styling | Title, intro, cards (language · count, names, lesson · duration, tag), "See new absences", rules |
-| **Missed lessons** (T-55) | Nothing | One selected-state style for the two controls | Every row: roll, name, days away, "Missed: …", tags, chevron; the footer line |
-| **Back today** (T-55) | Nothing | Card styling | Card, buddy panel, three numbers, Kannada words, Brought homework, Mark buddy time done |
-| **Week** (T-55) | Nothing | Card styling | Return-speed card and bars, reasons card, "Before next week" panel, footer |
+| **Approve** (T-54) | Nothing | Card styling | Title, intro, cards (language · count, names, lesson · duration, tag), "See new absences", rules |
+| **Missed lessons** (T-54) | Nothing | One selected-state style for the two controls | Every row: roll, name, days away, "Missed: …", tags, chevron; the footer line |
+| **Back today** (T-54) | Nothing | Card styling | Card, buddy panel, three numbers, Kannada words, Brought homework, Mark buddy time done |
+| **Week** (T-54) | Nothing | Card styling | Return-speed card and bars, reasons card, "Before next week" panel, footer |
 | **/demo family phone** (T-57, the exception) | The list of link buttons | Chat view: bubbles, voice-note row, in-app-browser bar | The same messages and links, Reset, Send messages now, the AI panel |
 
 ### Reference screens (360 px, light and dark)
@@ -205,47 +205,43 @@ These are the target look for every task below. They are **design references, no
 | P1 Listen | C parent page | T-50 | [light](screenshots/slate/P1-listen-light.png) | [dark](screenshots/slate/P1-listen-dark.png) |
 | P1 Listen, playing | C | T-50 | [light](screenshots/slate/P1-listen-playing-light.png) | [dark](screenshots/slate/P1-listen-playing-dark.png) |
 | P1 Listen in Telugu (script check) | C | T-50 | [light](screenshots/slate/P1-listen-te-light.png) | [dark](screenshots/slate/P1-listen-te-dark.png) |
-| Reason page | C | T-51 | [light](screenshots/slate/P-reason-light.png) | [dark](screenshots/slate/P-reason-dark.png) |
-| Reason page, picture chosen | C | T-51 | [light](screenshots/slate/P-reason-chosen-light.png) | [dark](screenshots/slate/P-reason-chosen-dark.png) |
-| Reason page in Telugu (script check) | C | T-51 | [light](screenshots/slate/P-reason-te-light.png) | [dark](screenshots/slate/P-reason-te-dark.png) |
-| P2 Activity | C | T-52 | [light](screenshots/slate/P2-activity-light.png) | [dark](screenshots/slate/P2-activity-dark.png) |
-| P3 Answer | C | T-52 | [light](screenshots/slate/P3-answer-light.png) | [dark](screenshots/slate/P3-answer-dark.png) |
-| P3 Answer, chosen | C | T-52 | [light](screenshots/slate/P3-answer-chosen-light.png) | [dark](screenshots/slate/P3-answer-chosen-dark.png) |
-| P4 Done | C | T-53 | [light](screenshots/slate/P4-done-light.png) | [dark](screenshots/slate/P4-done-dark.png) |
-| Stopped | C | T-53 | [light](screenshots/slate/P-stopped-light.png) | [dark](screenshots/slate/P-stopped-dark.png) |
-| Link expired | C | T-53 | [light](screenshots/slate/P-expired-light.png) | [dark](screenshots/slate/P-expired-dark.png) |
+| Reason page | C | T-50 | [light](screenshots/slate/P-reason-light.png) | [dark](screenshots/slate/P-reason-dark.png) |
+| Reason page, picture chosen | C | T-50 | [light](screenshots/slate/P-reason-chosen-light.png) | [dark](screenshots/slate/P-reason-chosen-dark.png) |
+| Reason page in Telugu (script check) | C | T-50 | [light](screenshots/slate/P-reason-te-light.png) | [dark](screenshots/slate/P-reason-te-dark.png) |
+| P2 Activity | C | T-50 | [light](screenshots/slate/P2-activity-light.png) | [dark](screenshots/slate/P2-activity-dark.png) |
+| P3 Answer | C | T-50 | [light](screenshots/slate/P3-answer-light.png) | [dark](screenshots/slate/P3-answer-dark.png) |
+| P3 Answer, chosen | C | T-50 | [light](screenshots/slate/P3-answer-chosen-light.png) | [dark](screenshots/slate/P3-answer-chosen-dark.png) |
+| P4 Done | C | T-50 | [light](screenshots/slate/P4-done-light.png) | [dark](screenshots/slate/P4-done-dark.png) |
+| Stopped | C | T-50 | [light](screenshots/slate/P-stopped-light.png) | [dark](screenshots/slate/P-stopped-dark.png) |
+| Link expired | C | T-50 | [light](screenshots/slate/P-expired-light.png) | [dark](screenshots/slate/P-expired-dark.png) |
 | Chat: evening message | B family phone | T-57 | [light](screenshots/slate/B-chat-evening-light.png) | [dark](screenshots/slate/B-chat-evening-dark.png) |
 | Chat: catch-up bubble after approval | B | T-57 | [light](screenshots/slate/B-chat-catchup-light.png) | [dark](screenshots/slate/B-chat-catchup-dark.png) |
 | Chat: stopped | B | T-57 | [light](screenshots/slate/B-chat-stopped-light.png) | [dark](screenshots/slate/B-chat-stopped-dark.png) |
 | Link opened in the in-app-browser bar | B → C | T-57 | [light](screenshots/slate/B-in-app-browser-light.png) | [dark](screenshots/slate/B-in-app-browser-dark.png) |
-| Sign-in | A teacher | T-56 | [light](screenshots/slate/T9-sign-in-light.png) | [dark](screenshots/slate/T9-sign-in-dark.png) |
+| Sign-in | A teacher | T-54 | [light](screenshots/slate/T9-sign-in-light.png) | [dark](screenshots/slate/T9-sign-in-dark.png) |
 | Today, lesson to record | A | T-49 | [light](screenshots/slate/T1-today-light.png) | [dark](screenshots/slate/T1-today-dark.png) |
 | Today, done | A | T-49 | [light](screenshots/slate/T1-today-done-light.png) | [dark](screenshots/slate/T1-today-done-dark.png) |
-| Approve list | A | T-55 | [light](screenshots/slate/T3-approve-light.png) | [dark](screenshots/slate/T3-approve-dark.png) |
-| Missed lessons, by child | A | T-55 | [light](screenshots/slate/T4-missed-light.png) | [dark](screenshots/slate/T4-missed-dark.png) |
-| Back today | A | T-55 | [light](screenshots/slate/T5-back-today-light.png) | [dark](screenshots/slate/T5-back-today-dark.png) |
-| Week | A | T-55 | [light](screenshots/slate/T6-week-light.png) | [dark](screenshots/slate/T6-week-dark.png) |
+| Approve list | A | T-54 | [light](screenshots/slate/T3-approve-light.png) | [dark](screenshots/slate/T3-approve-dark.png) |
+| Missed lessons, by child | A | T-54 | [light](screenshots/slate/T4-missed-light.png) | [dark](screenshots/slate/T4-missed-dark.png) |
+| Back today | A | T-54 | [light](screenshots/slate/T5-back-today-light.png) | [dark](screenshots/slate/T5-back-today-dark.png) |
+| Week | A | T-54 | [light](screenshots/slate/T6-week-light.png) | [dark](screenshots/slate/T6-week-dark.png) |
 | `/demo` shell (teacher phone, family phone, Under the hood) | A + B + panel | T-57 | [light](screenshots/slate/demo-shell-light.png) | [dark](screenshots/slate/demo-shell-dark.png) |
 
 Notes for the build:
 - Where a reference differs from a card's copy, the card wins; the pictures are for look, spacing and hierarchy.
 - Parent pages show one language, the family's. The English references show layout; the Telugu references show how a non-Latin page renders (Baloo Tammudu 2 headings, Noto Sans Telugu body, 1.7 line height). Kannada and Tamil follow the same rule with their own Baloo family.
-- The "Show this to your teacher tomorrow" card from earlier concepts is **not** in these screens (not in T-53).
+- The "Show this to your teacher tomorrow" card from earlier concepts is **not** in these screens (not in T-50).
 
 ### Rollout
 
 | Order | Task | What |
 |---|---|---|
-| 1 | T-48 (#114) | Foundation: tokens, fonts, scoped `.theme-slate`, shared parent-page parts |
-| 2 | T-50 (#116) | P1 Listen |
-| 3 | T-51 (#117) | Reason page |
-| 4 | T-52 (#118) | P2 Activity and P3 Answer |
-| 5 | T-53 (#119) | P4 Done, Stopped, Expired |
-| 6 | T-54 (#120) | Teacher shell: header, language control, nav |
-| 7 | T-55 (#121), T-56 (#122) | Teacher screens; sign-in, Welcome, setup |
-| 8 | T-49 (#115) | Today re-layout: day strip, hero lesson card, merged tonight card, collapsed "Since yesterday" |
-| 9 | T-57 (#123) | Demo shell: family phone as a chat view with an in-app-browser bar; "Under the hood" |
-| 10 | T-58 (#124) | Last: switch the base token values, delete `.theme-slate` |
+| 1 | T-48 (#114) | **PR 1:** foundation (tokens, fonts, scoped `.theme-slate`, shared parent-page parts) |
+| 2 | T-50 (#116) | **PR 2:** all parent pages: P1, reason page, P2, P3, P4, Stopped, Expired |
+| 3 | T-54 (#120) | **PR 3:** teacher shell, sign-in, Welcome, setup, Approve, Missed, Back today, Week |
+| 4 | T-57 (#123) | **PR 4:** demo family phone as a chat view (behaviour change) |
+| 5 | T-49 (#115) | Today re-layout, after Monika signs off the mockup (behaviour-neutral re-layout) |
+| 6 | T-58 (#124) | Last: switch the base token values, delete `.theme-slate` |
 
 Every PR: class-only where possible, no change to hooks, props, i18n keys or ARIA roles and names (Vitest queries by them); new strings in all four locale files; `./scripts/verify.sh`; 360 px before/after screenshots, light and dark; axe on the changed screen.
 
