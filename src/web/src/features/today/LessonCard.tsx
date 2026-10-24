@@ -8,7 +8,7 @@ import type { Chapter, LessonDay } from '../lessons/types'
 import { useNoteQueued, useSendNote } from '../lessons/useLessons'
 import { MAX_MS, useRecorder } from '../lessons/useRecorder'
 
-const card = 'rounded-md border border-border bg-surface p-[14px]'
+const card = 'rounded-card border-[1.5px] border-edge bg-surface p-[14px]'
 const textButton = 'mt-1 min-h-target w-full text-label text-primary-strong'
 
 /**
@@ -158,7 +158,7 @@ export function LessonCard({
           type="button"
           onClick={onPick}
           disabled={!canPick}
-          className="mt-3 min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary"
+          className="mt-3 min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
         >
           {t('confirm.pickFromList')}
         </button>
@@ -177,17 +177,23 @@ export function LessonCard({
         {t('today.lesson.title')}
       </h2>
       <p className="mt-1 text-body">{t('today.lesson.prompt')}</p>
-      <button
-        type="button"
-        aria-pressed={recording}
-        aria-label={recording ? t('mic.stop') : t('mic.record')}
-        {...recorder.buttonHandlers}
-        className={`mx-auto mt-3 flex size-target-mic touch-none select-none items-center justify-center rounded-full ${
-          recording ? 'animate-pulse bg-error text-on-error motion-reduce:animate-none' : 'bg-primary text-on-primary'
-        }`}
-      >
-        {recording ? <span aria-hidden="true" className="size-8 rounded-sm bg-on-error" /> : <Icon name="mic" size={40} />}
-      </button>
+      {/* The one amber hero on this screen (D-77): a 112 px disc in a panel halo with a dashed chalk ring. */}
+      <div className="relative mx-auto mt-3 flex size-[168px] items-center justify-center rounded-full bg-panel">
+        <span aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-full border-[2.5px] border-dashed border-chalk" />
+        <button
+          type="button"
+          aria-pressed={recording}
+          aria-label={recording ? t('mic.stop') : t('mic.record')}
+          {...recorder.buttonHandlers}
+          className={`relative flex size-[112px] touch-none select-none items-center justify-center rounded-full ${
+            recording
+              ? 'breathing border-[3px] border-transparent bg-error text-on-error'
+              : 'btn-hero shadow-[0_8px_0_-2px_rgb(0_0_0/0.14)]'
+          }`}
+        >
+          {recording ? <span aria-hidden="true" className="size-8 rounded-sm bg-on-error" /> : <Icon name="mic" size={44} />}
+        </button>
+      </div>
       {recording ? (
         <>
           <p className="mt-2 text-title" aria-hidden="true">

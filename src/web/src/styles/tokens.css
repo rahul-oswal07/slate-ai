@@ -5,27 +5,29 @@
  *
  * Contrast targets: all text ≥ 7:1 (WCAG 1.4.6 AAA) at every size; UI (borders, icons, focus) ≥ 3:1.
  * Usage rules (they keep the targets true):
- *   1. Never put primary text on panel (6.6:1 in light). Use primary-strong there.
+ *   1. Never put primary text on canvas, surface or panel. Use primary-strong there.
  *   2. Warning colour is for icons and borders only, never text. Banner text stays ink.
  *   3. Panel and surface are close (1.15:1), so panels and cards always get a border.
  *   4. Focus ring: 3px outline with a 2px offset. Without the gap it vanishes against primary buttons.
+ *   5. Primary is not for text (D-77): 5.9:1 on the slate canvas in light. Use primary-strong.
+ *   6. accent (amber) is never text. In light mode an amber fill gets a 3px ink outline.
  *
  * Dark theme follows the phone setting only (prefers-color-scheme); no in-app toggle yet.
  * Components use these via Tailwind classes (bg-canvas, text-ink, ...); never hard-code colours.
  */
 @theme {
-  --color-canvas: #fafaf7;
-  --color-surface: #ffffff;
-  --color-panel: #e6f2f0;
-  --color-ink: #1a1a2e;
-  --color-ink-muted: #495059;
-  --color-border: #7c8591;
+  --color-canvas: #dce4df;
+  --color-surface: #eef2ef;
+  --color-panel: #d6e7e0;
+  --color-ink: #14211c;
+  --color-ink-muted: #3a4640;
+  --color-border: #5b6761;
   --color-divider: #e5e7eb;
   --color-primary: #115e59;
-  --color-primary-strong: #134e4a;
+  --color-primary-strong: #0f4a46;
   --color-on-primary: #ffffff;
   --color-focus: #1d4ed8;
-  --color-error: #991b1b;
+  --color-error: #7f1d1d;
   --color-error-bg: #fef2f2;
   --color-on-error: #ffffff;
   --color-warning: #b45309;
@@ -33,6 +35,27 @@
   --color-stick: #b45309;
   /* Decorative only (illustrations); never carries meaning. */
   --color-illustration-warm: #f59e0b;
+
+  /* Slate & chalk (D-77): amber for the hero action, the tally and the star; fills, icons and strokes only. */
+  --color-accent: #f6c453;
+  --color-on-accent: #14211c;
+  /* Decorative only: doodles, ruling lines. */
+  --color-chalk: #8c968f;
+  /* Border of static cards: decorative. Anything you can tap uses border (≥ 3:1). */
+  --color-edge: #b7c3bc;
+
+  /* The family phone's chat view (D-77, surface B): a stand-in for a messaging app, so these are the app's own colours
+     and not slate. Pairs are checked in tokens.test.ts. */
+  --color-chat-bar: #075e54;
+  --color-chat-bar-ink: #ffffff;
+  --color-chat-wall: #efeae2;
+  --color-chat-pill: #ffffff;
+  --color-chat-bubble: #ffffff;
+  /* Monika's #7f8a85 is 2.98:1 on the wallpaper; this is the lightest grey that reaches 3:1. */
+  --color-chat-edge: #7c8782;
+  --color-chat-text: #111b21;
+  --color-chat-meta: #44525a;
+  --color-chat-link: #0a5c85;
 
   /* Status tags: text/icon colour on its own background. Always icon + word, never colour alone. */
   --color-status-sent: #1e40af;
@@ -55,6 +78,7 @@
   --color-status-error-bg: #fef2f2;
 
   --font-sans: system-ui, "Noto Sans Kannada", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans", sans-serif;
+  --font-heading: var(--font-sans);
 
   /* Type scale (Latin). Indic scripts get larger sizes and ~1.7 line height below. Never below caption. */
   --text-display: 1.75rem;
@@ -81,10 +105,20 @@
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
+  /* Slate & chalk shapes (D-77). */
+  --radius-button: 0.875rem;
+  --radius-card: 1.25rem;
+  --radius-sheet: 1.5rem;
+  --radius-pill: 999px;
+
+  --font-hand: "Caveat", cursive;
 }
 
 :root {
   color-scheme: light dark;
+  /* Ruling lines and smudges (texture): decorative, see body.slate-texture in index.css. */
+  --rule: rgb(20 33 28 / 0.07);
+  --smudge: rgb(255 255 255 / 0.35);
 }
 
 /* Kannada, Telugu and Tamil need room for conjuncts and vowel signs. */
@@ -122,22 +156,36 @@
 /* Dark: designed, not inverted. Warm near-black, off-white text, light teal fills with dark text. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-canvas: #151513;
-    --color-surface: #1e1f1c;
-    --color-panel: #11302c;
-    --color-ink: #edece6;
-    --color-ink-muted: #b4bac2;
-    --color-border: #7a828c;
+    --rule: rgb(140 150 143 / 0.06);
+    --smudge: rgb(255 255 255 / 0.04);
+    --color-canvas: #1b201e;
+    --color-surface: #252b28;
+    --color-panel: #1a312d;
+    --color-ink: #eeebe0;
+    --color-ink-muted: #c8cec9;
+    --color-border: #8c968f;
     --color-divider: #2e302c;
     --color-primary: #2dd4bf;
     --color-primary-strong: #5eead4;
     --color-on-primary: #0b1f1d;
     --color-focus: #93c5fd;
-    --color-error: #fca5a5;
+    --color-error: #fecaca;
     --color-error-bg: #3a1515;
     --color-on-error: #2a0a0a;
     --color-warning: #fbbf24;
     --color-stick: #fbbf24;
+    --color-on-accent: #1b201e;
+    --color-chalk: #68645a;
+    --color-edge: #3a423e;
+    --color-chat-bar: #1f2c34;
+    --color-chat-bar-ink: #e9edef;
+    --color-chat-wall: #0b141a;
+    --color-chat-pill: #202c33;
+    --color-chat-bubble: #202c33;
+    --color-chat-edge: #7a8a93;
+    --color-chat-text: #e9edef;
+    --color-chat-meta: #aebac1;
+    --color-chat-link: #7dc4e8;
 
     --color-status-sent: #bfdbfe;
     --color-status-sent-bg: #172a4a;
@@ -157,5 +205,33 @@
     --color-status-queued-bg: #24272b;
     --color-status-error: #fecaca;
     --color-status-error-bg: #3a1515;
+  }
+}
+
+/* Fonts by language (tokens.md "Fonts"): Baloo for headings, Noto Sans for body. Indic scripts keep their larger scale. */
+:where(:lang(en)) {
+  --font-sans: "Noto Sans", system-ui, sans-serif;
+  --font-heading: "Baloo 2", var(--font-sans);
+}
+:where(:lang(kn)) {
+  --font-sans: "Noto Sans Kannada", "Noto Sans", system-ui, sans-serif;
+  --font-heading: "Baloo Tamma 2", var(--font-sans);
+}
+:where(:lang(te)) {
+  --font-sans: "Noto Sans Telugu", "Noto Sans", system-ui, sans-serif;
+  --font-heading: "Baloo Tammudu 2", var(--font-sans);
+}
+:where(:lang(ta)) {
+  --font-sans: "Noto Sans Tamil", "Noto Sans", system-ui, sans-serif;
+  --font-heading: "Baloo Thambi 2", var(--font-sans);
+}
+
+/* Rule 7: every transition and draw-on is off for people who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

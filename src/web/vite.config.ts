@@ -9,7 +9,7 @@ const apiUrl = process.env.API_URL ?? 'http://localhost:5080'
 
 // Manifest colours mirror --color-primary / --color-canvas (light) in src/styles/tokens.css.
 const themeColor = '#115e59'
-const backgroundColor = '#fafaf7'
+const backgroundColor = '#dce4df'
 
 export default defineConfig({
   plugins: [

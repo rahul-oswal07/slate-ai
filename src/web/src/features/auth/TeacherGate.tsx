@@ -16,12 +16,12 @@ export function TeacherGate({ need }: { need: 'setup' | 'ready' }) {
 
   if (me.isError) {
     return (
-      <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-4">
+      <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-4">
         <p className="text-body">{t('app.loadError')}</p>
         <button
           type="button"
           onClick={() => void me.refetch()}
-          className="mt-3 min-h-target w-full rounded-md border border-border bg-surface text-label"
+          className="mt-3 min-h-target w-full rounded-button border-2 border-border bg-surface text-label"
         >
           {t('common.tryAgain')}
         </button>

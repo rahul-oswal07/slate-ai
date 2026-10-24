@@ -25,7 +25,7 @@ Source: the Build Kit design system (02-DESIGN §2), which continues the Ideate 
 
 Follows the phone's setting (`prefers-color-scheme`), including phones that switch to dark in battery saver. **No in-app toggle yet** (deferred: in-app System/Light/Dark choice, pre-paint script, Save-Data and forced-colours handling). Dark is designed, not inverted: warm near-black (never `#000`), off-white text (never `#FFF`, to reduce glow for people with astigmatism), and light teal buttons with dark text.
 
-## Slate & chalk (D-77, accepted)
+## Slate & chalk (D-77, accepted and built: the values below are now the base values)
 
 New look for the teacher app, the parent pages (P1–P4, reason) and the demo shell. **Looks only.** Components keep their meaning: teal stays on standard buttons and link text; amber is a new, separate `accent`. Source of the look: Monika's concept mockups (outside the repo); this section is what gets built.
 
@@ -251,21 +251,21 @@ Ratios measured with the WCAG formula. Background order: canvas · surface · pa
 
 | Token (Tailwind class) | Light | Ratio | Dark | Ratio | Use |
 |---|---|---|---|---|---|
-| `canvas` | `#FAFAF7` | — | `#151513` | — | Page background |
-| `surface` | `#FFFFFF` | — | `#1E1F1C` | — | Cards, sheets |
-| `panel` | `#E6F2F0` | — | `#11302C` | — | AI panels, tinted sections |
-| `ink` | `#1A1A2E` | 16.3 · 17.1 · 14.9 | `#EDECE6` | 15.5 · 14.0 · 12.0 | Primary text |
-| `ink-muted` | `#495059` | 7.8 · 8.2 · 7.1 | `#B4BAC2` | 9.4 · 8.5 · 7.2 | Secondary text, captions |
-| `border` | `#7C8591` | 3.6 · 3.7 · 3.3 | `#7A828C` | 4.7 · 4.3 · 3.6 | Input and card borders |
+| `canvas` | `#DCE4DF` | — | `#1B201E` | — | Page background |
+| `surface` | `#EEF2EF` | — | `#252B28` | — | Cards, sheets |
+| `panel` | `#D6E7E0` | — | `#1A312D` | — | AI panels, tinted sections |
+| `ink` | `#14211C` | 12.8 · 14.7 · 12.9 | `#EEEBE0` | 13.8 · 12.1 · 11.6 | Primary text |
+| `ink-muted` | `#3A4640` | 7.6 · 8.7 · 7.7 | `#C8CEC9` | 10.3 · 9.0 · 8.6 | Secondary text, captions |
+| `border` | `#5B6761` | 4.6 · 5.2 · 4.6 (UI) | `#8C968F` | 5.4 · 4.7 · 4.5 (UI) | Input and card borders |
 | `divider` | `#E5E7EB` | decorative | `#2E302C` | decorative | Never the only separator |
-| `primary` | `#115E59` | 7.3 · 7.6 · *6.6* | `#2DD4BF` | 9.8 · 8.9 · 7.6 | Primary buttons, links, AI badge |
-| `primary-strong` | `#134E4A` | 9.1 · 9.5 · 8.3 | `#5EEAD4` | 12.4 · 11.2 · 9.6 | Pressed state; teal text on panel |
+| `primary` | `#115E59` | *5.9 · 6.7 · 5.9* (fills, not text) | `#2DD4BF` | 8.9 · 7.8 · 7.4 | Primary buttons, links, AI badge |
+| `primary-strong` | `#0F4A46` | 7.8 · 8.9 · 7.8 | `#5EEAD4` | 11.2 · 9.8 · 9.3 | Pressed state; teal text on panel |
 | `on-primary` | `#FFFFFF` | 7.6 on primary | `#0B1F1D` | 9.2 on primary | Text on primary fills |
-| `focus` | `#1D4ED8` | 6.4 · 6.7 · 5.9 | `#93C5FD` | 10.1 · 9.2 · 7.9 | Focus ring |
-| `error` | `#991B1B` | 8.0 · 8.3 · 7.3; 7.6 on error-bg | `#FCA5A5` | 9.6 · 8.7 · 7.5; 8.5 on error-bg | Error text and icon; danger fill |
+| `focus` | `#1D4ED8` | 5.2 · 5.9 · 5.2 (UI) | `#93C5FD` | 9.2 · 8.0 · 7.7 (UI) | Focus ring |
+| `error` | `#7F1D1D` | 7.7 · 8.9 · 7.8 | `#FECACA` | 11.4 · 10.0 · 9.5 | Error text and icon; danger fill |
 | `error-bg` | `#FEF2F2` | — | `#3A1515` | — | Error banner |
 | `on-error` | `#FFFFFF` | 8.3 on error | `#2A0A0A` | 9.7 on error | Danger button text |
-| `warning` | `#B45309` | 4.8 · 5.0 · 4.4 | `#FBBF24` | 11.0 · 9.9 · 8.5 | Low-quality alert icon and border only |
+| `warning` | `#B45309` | 3.9 · 4.4 · 3.9 (UI) | `#FBBF24` | 9.9 · 8.6 · 8.3 (UI) | Low-quality alert icon and border only |
 | `illustration-warm` | `#F59E0B` | decorative | same | decorative | Illustrations only |
 
 ### Status tags (`text-status-x` on `bg-status-x-bg`)

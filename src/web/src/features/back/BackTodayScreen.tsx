@@ -78,7 +78,7 @@ export function BackTodayScreen() {
           <button
             type="button"
             onClick={() => void query.refetch()}
-            className="min-h-target rounded-md border border-border bg-surface px-4 text-label"
+            className="min-h-target rounded-button border-2 border-border bg-surface px-4 text-label"
           >
             {t('common.tryAgain')}
           </button>
@@ -139,7 +139,7 @@ function Cards({
 
       <article
         aria-labelledby={`card-${card.childId}`}
-        className="flex flex-col gap-4 rounded-md border-2 border-border bg-surface p-4 print:border-black print:text-black"
+        className="flex flex-col gap-4 rounded-card border-2 border-border bg-surface p-4 print:border-black print:text-black"
       >
         <div>
           <h2 id={`card-${card.childId}`} ref={nameRef} tabIndex={-1} className="text-title">
@@ -148,7 +148,7 @@ function Cards({
           <p className="text-caption text-ink-muted">{t('back.daysAway', { count: card.daysAway })}</p>
         </div>
 
-        <div className="flex items-start gap-3 rounded-md border border-border bg-panel p-3 print:bg-white">
+        <div className="flex items-start gap-3 rounded-card border-2 border-primary bg-panel p-3 print:bg-white">
           <Icon name="users" size={22} className="mt-1 shrink-0 text-primary-strong" />
           {card.buddy ? (
             <div>
@@ -208,7 +208,7 @@ function Cards({
                 </h3>
                 <p className="flex flex-wrap gap-2">
                   {card.keyWordsKn.map((word) => (
-                    <span key={word} lang="kn" className="rounded-sm bg-panel px-2 py-1 text-label print:bg-white">
+                    <span key={word} lang="kn" className="rounded-pill bg-panel px-3 py-1 text-label print:bg-white">
                       {word}
                     </span>
                   ))}
@@ -255,7 +255,7 @@ function Cards({
           aria-label={t('back.prev')}
           disabled={index === 0}
           onClick={() => move(index - 1)}
-          className="flex min-h-target min-w-target items-center justify-center rounded-md border border-border bg-surface text-ink disabled:border-divider disabled:bg-canvas disabled:text-ink-muted"
+          className="flex min-h-target min-w-target items-center justify-center rounded-button border-2 border-border bg-surface text-ink disabled:border-divider disabled:bg-canvas disabled:text-ink-muted"
         >
           <Icon name="arrowLeft" />
         </button>
@@ -263,7 +263,7 @@ function Cards({
           type="button"
           aria-label={t('back.print')}
           onClick={() => window.print()}
-          className="flex min-h-target min-w-target items-center justify-center rounded-md border border-border bg-surface text-ink"
+          className="flex min-h-target min-w-target items-center justify-center rounded-button border-2 border-border bg-surface text-ink"
         >
           <Icon name="printer" />
         </button>
@@ -272,7 +272,7 @@ function Cards({
           aria-label={t('back.nextCard')}
           disabled={index === cards.length - 1}
           onClick={() => move(index + 1)}
-          className="flex min-h-target min-w-target items-center justify-center rounded-md border border-border bg-surface text-ink disabled:border-divider disabled:bg-canvas disabled:text-ink-muted"
+          className="flex min-h-target min-w-target items-center justify-center rounded-button border-2 border-border bg-surface text-ink disabled:border-divider disabled:bg-canvas disabled:text-ink-muted"
         >
           <Icon name="chevronRight" />
         </button>
@@ -301,7 +301,7 @@ function Cards({
             onClick={() =>
               save.mutate({ childId: card.childId, done: true }, { onSuccess: () => announce(t('announce.buddyDone')) })
             }
-            className="min-h-target-primary w-full rounded-md bg-primary px-4 text-label text-on-primary disabled:opacity-60"
+            className="min-h-target-primary w-full rounded-button bg-primary font-extrabold px-4 text-label text-on-primary disabled:opacity-60"
           >
             {t('back.done')}
           </button>

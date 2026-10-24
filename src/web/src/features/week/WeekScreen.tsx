@@ -55,7 +55,7 @@ export function WeekScreen() {
           <button
             type="button"
             onClick={() => void query.refetch()}
-            className="min-h-target rounded-md border border-border bg-surface px-4 text-label"
+            className="min-h-target rounded-button border-2 border-border bg-surface px-4 text-label"
           >
             {t('common.tryAgain')}
           </button>
@@ -63,7 +63,7 @@ export function WeekScreen() {
       ) : week ? (
         <>
           {week.empty ? (
-            <p className="rounded-md border border-border bg-surface p-4 text-body-lg">{t('week.empty')}</p>
+            <p className="rounded-card border-[1.5px] border-edge bg-surface p-4 text-body-lg">{t('week.empty')}</p>
           ) : (
             <>
               <ReturnSpeedCard week={week} />
@@ -91,7 +91,7 @@ function ReturnSpeedCard({ week }: { week: Week }) {
   const { thisWeek, lastWeek } = week
   const max = Math.max(1, ...BUCKETS.flatMap(([, key]) => [thisWeek[key] as number, lastWeek[key] as number]))
   return (
-    <section aria-labelledby="return-title" className="flex flex-col gap-3 rounded-md border border-border bg-surface p-4">
+    <section aria-labelledby="return-title" className="flex flex-col gap-3 rounded-card border-[1.5px] border-edge bg-surface p-4">
       <h2 id="return-title" className="text-title">
         {t('week.returnTitle')}
       </h2>
@@ -172,7 +172,7 @@ const REASONS: { key: keyof WeekReasons; icon: IconName }[] = [
 function ReasonsCard({ reasons }: { reasons: WeekReasons }) {
   const { t } = useTranslation()
   return (
-    <section aria-labelledby="reasons-title" className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4">
+    <section aria-labelledby="reasons-title" className="flex flex-col gap-2 rounded-card border-[1.5px] border-edge bg-surface p-4">
       <h2 id="reasons-title" className="text-title">
         {t('week.reasonsTitle')}
       </h2>
@@ -202,7 +202,7 @@ function Pacing({ classId, date, week, chapters }: { classId: string; date: stri
   const nudge = week.nudge
   if (!nudge) {
     return week.empty ? null : (
-      <p className="flex items-center gap-2 rounded-md border border-border bg-surface p-4 text-body">
+      <p className="flex items-center gap-2 rounded-card border-[1.5px] border-edge bg-surface p-4 text-body">
         <Icon name="checkCircle" size={20} className="shrink-0 text-primary-strong" />
         {t('week.onTrack')}
       </p>
@@ -221,7 +221,7 @@ function Pacing({ classId, date, week, chapters }: { classId: string; date: stri
     )
 
   return (
-    <section aria-labelledby="nudge-title" className="flex flex-col gap-3 rounded-md border border-border bg-panel p-4">
+    <section aria-labelledby="nudge-title" className="flex flex-col gap-3 rounded-card border-2 border-primary bg-panel p-4">
       <h2 id="nudge-title" className="text-title text-primary-strong">
         {t('week.nudgeTitle')}
       </h2>
@@ -251,7 +251,7 @@ function Pacing({ classId, date, week, chapters }: { classId: string; date: stri
             type="button"
             disabled={decide.isPending}
             onClick={() => choose('recap')}
-            className="min-h-target w-full rounded-md bg-primary px-4 text-label text-on-primary disabled:opacity-60"
+            className="min-h-target w-full rounded-button bg-primary font-extrabold px-4 text-label text-on-primary disabled:opacity-60"
           >
             {t('week.plan')}
           </button>
@@ -259,7 +259,7 @@ function Pacing({ classId, date, week, chapters }: { classId: string; date: stri
             type="button"
             disabled={decide.isPending}
             onClick={() => choose('skip')}
-            className="min-h-target w-full rounded-md border border-border bg-surface px-4 text-label text-ink"
+            className="min-h-target w-full rounded-button border-2 border-border bg-surface px-4 text-label text-ink"
           >
             {t('week.skip')}
           </button>

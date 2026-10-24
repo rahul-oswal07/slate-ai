@@ -21,7 +21,7 @@ export function BottomNav() {
   const waiting = waitingCount(usePackages(useMe().data?.classId ?? '').data)
 
   return (
-    <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface print:hidden">
+    <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-10 border-t border-edge bg-surface print:hidden">
       <ul className="mx-auto grid max-w-md grid-cols-5">
         {tabs.map((tab) => (
           <li key={tab.key}>
@@ -32,20 +32,20 @@ export function BottomNav() {
               className={({ isActive: matched }) => {
                 const isActive = matched || (tab.to === '/' && onLessonConfirm)
                 return (
-                `relative flex min-h-[56px] flex-col items-center justify-center gap-0.5 px-1 text-center text-caption [word-break:keep-all] ${
+                `relative flex min-h-[60px] flex-col items-center justify-center gap-0.5 px-1 text-center text-caption [word-break:keep-all] ${
                   isActive
-                    ? "font-bold text-primary-strong before:absolute before:inset-x-3 before:top-0 before:h-[3px] before:bg-primary before:content-['']"
+                    ? "font-extrabold text-primary-strong before:absolute before:inset-x-3 before:top-0 before:h-1 before:rounded-b-sm before:bg-primary before:content-['']"
                     : 'text-ink-muted'
                 }`
                 )
               }}
             >
               <span className="relative">
-                <Icon name={tab.icon} size={22} />
+                <Icon name={tab.icon} size={24} />
                 {tab.key === 'approve' && waiting > 0 && (
                   <span
                     aria-hidden="true"
-                    className="absolute -right-3 -top-1 min-w-[18px] rounded-full bg-ink px-1 text-center text-[12px] font-bold leading-[18px] text-surface"
+                    className="absolute -right-3.5 -top-1.5 min-w-5 rounded-pill bg-ink px-1 text-center text-[13px] font-bold leading-5 text-surface"
                   >
                     {waiting}
                   </span>

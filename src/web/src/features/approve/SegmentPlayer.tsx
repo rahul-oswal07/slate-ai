@@ -45,7 +45,7 @@ export function SegmentPlayer({ segments }: { segments: AudioSegment[] }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-md border border-border bg-surface p-[14px]">
+    <div className="flex items-center gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
       <button
         type="button"
         onClick={toggle}

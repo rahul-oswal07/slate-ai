@@ -16,7 +16,7 @@ export function StatusTag({ status }: { status: PackageStatus }) {
   const { t } = useTranslation()
   const style = styles[status]
   return (
-    <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-1 text-label ${style.className}`}>
+    <span className={`inline-flex min-h-8 items-center gap-1.5 rounded-pill px-3 py-1 text-caption font-bold ${style.className}`}>
       <Icon name={style.icon} size={16} />
       {t(`approve.status.${status}`)}
     </span>

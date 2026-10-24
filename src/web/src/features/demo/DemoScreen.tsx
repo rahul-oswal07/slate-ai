@@ -1,5 +1,6 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Icon } from '../../components/Icon'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
 import { formatSchoolTime } from '../today/schoolTime'
 import type { AiCall, FamilyMessage } from './types'
@@ -49,12 +50,12 @@ export function DemoScreen() {
   if (info.isError) {
     return (
       <Page>
-        <div role="alert" className="flex flex-col gap-3 border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
+        <div role="alert" className="flex flex-col gap-3 rounded-card border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
           {t('demo.loginFailed')}
           <button
             type="button"
             onClick={() => void info.refetch()}
-            className="min-h-target self-start rounded-md border border-border bg-surface px-4 text-label"
+            className="btn-secondary w-auto self-start"
           >
             {t('common.tryAgain')}
           </button>
@@ -75,8 +76,8 @@ export function DemoScreen() {
 
   return (
     <Page>
-      <section aria-labelledby="demo-guide" className="flex flex-col gap-3 rounded-md border border-border bg-surface p-4">
-        <h2 id="demo-guide" className="text-title">
+      <section aria-labelledby="demo-guide" className="card flex flex-col gap-3">
+        <h2 id="demo-guide" className="text-title font-extrabold">
           {t('demo.guide.title')}
         </h2>
         <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
@@ -89,7 +90,7 @@ export function DemoScreen() {
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="min-h-target rounded-md bg-primary px-4 text-label text-on-primary"
+            className="btn-primary w-auto"
           >
             {t('demo.reset.button')}
           </button>
@@ -105,7 +106,7 @@ export function DemoScreen() {
                 onError: () => setStatus(t('demo.attendanceFailed')),
               })
             }
-            className="min-h-target rounded-md border border-border bg-surface px-4 text-label disabled:opacity-60"
+            className="btn-secondary w-auto"
           >
             {t('demo.bringAttendance')}
           </button>
@@ -127,7 +128,7 @@ export function DemoScreen() {
                 onError: () => setStatus(t('demo.sendNow.failed')),
               })
             }
-            className="min-h-target rounded-md border border-border bg-surface px-4 text-label disabled:opacity-60"
+            className="btn-secondary w-auto"
           >
             {t('demo.sendNow.button')}
           </button>
@@ -147,7 +148,7 @@ export function DemoScreen() {
             aria-selected={panel === name}
             aria-controls={`panel-${name}`}
             onClick={() => setPanel(name)}
-            className={`min-h-target flex-1 rounded-md border px-2 text-label ${
+            className={`min-h-target flex-1 rounded-button border-2 px-2 text-label font-bold ${
               panel === name ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-ink'
             }`}
           >
@@ -194,10 +195,10 @@ export function DemoScreen() {
 function Page({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
   return (
-    <div className="min-h-dvh bg-canvas font-sans text-ink">
+    <div className="min-h-dvh font-sans text-ink">
       {/* Labelled: the teacher app in its frame has its own header and main. */}
-      <header aria-label={t('demo.title')} className="border-b border-border px-4 py-3">
-        <h1 className="text-title">{t('demo.title')}</h1>
+      <header aria-label={t('demo.title')} className="border-b border-edge px-4 py-3">
+        <h1 className="text-title font-extrabold">{t('demo.title')}</h1>
         <p className="text-caption text-ink-muted">{t('demo.subtitle')}</p>
         <LanguageSwitcher />
       </header>
@@ -225,59 +226,97 @@ function PanelBox({ name, active, children }: { name: Panel; active: Panel; chil
 function Phone({ title, caption, children }: { title: string; caption: string; children: ReactNode }) {
   return (
     <section aria-label={title} className="flex flex-col gap-2">
-      <h2 className="text-label">{title}</h2>
+      <h2 className="text-label font-extrabold">{title}</h2>
       <p className="text-caption text-ink-muted">{caption}</p>
-      <div className="h-[740px] w-full max-w-[360px] overflow-hidden rounded-md border-2 border-ink bg-surface">
+      <div className="h-[740px] w-full max-w-[360px] overflow-hidden rounded-sheet border-[3px] border-ink bg-surface">
         {children}
       </div>
     </section>
   )
 }
 
-/** Rohan's family's phone: the links they were sent, each opened as a real parent would at /p/{token}. */
+/**
+ * Rohan's family's phone as a chat (D-77, surface B): a stand-in for a messaging app, so judges see the real
+ * hand-off. No logo and no brand name. Each link a family was sent is a bubble; opening one slides the family's page
+ * up under a thin bar, as an in-app browser does.
+ */
 function ParentPhone({ childId }: { childId: string }) {
   const { t, i18n } = useTranslation()
   const family = useFamily(childId)
   const [open, setOpen] = useState<FamilyMessage | null>(null)
-  const messages = family.data ?? []
+  // Oldest first, as a chat reads; the API sends newest first.
+  const messages = [...(family.data ?? [])].reverse()
 
   return (
     <Phone title={t('demo.parentPhone')} caption={t('demo.parentCaption')}>
-      {open ? (
-        <div className="flex size-full flex-col">
-          <button
-            type="button"
-            onClick={() => setOpen(null)}
-            className="min-h-target border-b border-border bg-panel px-4 text-left text-label"
-          >
-            {t('demo.backToMessages')}
-          </button>
-          <iframe title={t('demo.parentPage')} src={`/p/${open.token}`} className="w-full flex-1" />
+      <div className="relative flex size-full flex-col overflow-hidden">
+        {/* Underneath the opened page the chat is inert, but keeps its scroll position. */}
+        <div inert={open !== null} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex h-14 shrink-0 items-center gap-3 bg-chat-bar px-3 text-chat-bar-ink">
+            <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full border-2 border-chat-bar-ink bg-accent text-label font-extrabold text-on-accent">
+              S
+            </span>
+            <p className="text-label font-extrabold">{t('demo.chat.messages')}</p>
+          </div>
+          <ul className="chat-wallpaper flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-chat-wall p-3">
+            {family.isError && (
+              <li role="alert" className="chat-bubble self-start text-body">
+                {t('demo.familyFailed')}
+              </li>
+            )}
+            {messages.length === 0 && !family.isError && (
+              <li className="chat-bubble self-start text-body">{t('demo.noMessages')}</li>
+            )}
+            {messages.map((message, i) => (
+              <Fragment key={message.token}>
+                {message.date !== messages[i - 1]?.date && (
+                  <li className="self-center rounded-pill border border-chat-edge bg-chat-pill px-3 text-caption font-semibold text-chat-meta">
+                    {shortDate(message.date, i18n.language)}
+                  </li>
+                )}
+                <li className="max-w-[86%] self-start">
+                  <button type="button" onClick={() => setOpen(message)} className="chat-bubble block w-full text-left">
+                    <span className="block text-body font-bold">
+                      {t(message.kind === 'evening' ? 'demo.message.evening' : 'demo.message.catchUp', {
+                        date: shortDate(message.date, i18n.language),
+                      })}
+                    </span>
+                    <span className="mt-1 flex min-h-target items-center justify-between border-t border-chat-edge text-body font-bold text-chat-link underline">
+                      {t('demo.message.open')}
+                      <Icon name="chevronRight" size={20} />
+                    </span>
+                    <span className="block text-right text-caption text-chat-meta">
+                      {formatSchoolTime(message.sentAt, i18n.language)}
+                    </span>
+                  </button>
+                </li>
+              </Fragment>
+            ))}
+          </ul>
         </div>
-      ) : (
-        <div className="flex size-full flex-col gap-3 overflow-y-auto bg-panel p-3">
-          {family.isError && <p role="alert" className="text-body">{t('demo.familyFailed')}</p>}
-          {messages.length === 0 && !family.isError && <p className="text-body">{t('demo.noMessages')}</p>}
-          {messages.map((message) => (
-            <button
-              key={message.token}
-              type="button"
-              onClick={() => setOpen(message)}
-              className="min-h-target flex flex-col gap-1 self-start rounded-md border border-border bg-surface p-3 text-left"
-            >
-              <span className="text-label">
-                {t(message.kind === 'evening' ? 'demo.message.evening' : 'demo.message.catchUp', {
-                  date: shortDate(message.date, i18n.language),
-                })}
-              </span>
-              <span className="text-caption text-ink-muted">
-                {t('demo.message.sentAt', { time: formatSchoolTime(message.sentAt, i18n.language) })}
-              </span>
-              <span className="text-body text-primary underline">{t('demo.message.open')}</span>
-            </button>
-          ))}
-        </div>
-      )}
+        {open && (
+          <div className="slide-up absolute inset-0 z-10 flex flex-col bg-canvas">
+            <div className="flex h-12 shrink-0 items-center border-b border-edge bg-surface">
+              <button
+                type="button"
+                onClick={() => setOpen(null)}
+                aria-label={t('demo.backToMessages')}
+                className="flex size-12 shrink-0 items-center justify-center text-ink"
+              >
+                <Icon name="x" size={22} />
+              </button>
+              <div className="min-w-0 flex-1 text-center">
+                <p className="truncate text-label font-extrabold leading-tight">
+                  {t(open.kind === 'evening' ? 'demo.chat.pageEvening' : 'demo.chat.pageLesson')}
+                </p>
+                <p className="truncate text-caption leading-tight text-ink-muted">{window.location.host}</p>
+              </div>
+              <span className="w-12 shrink-0" />
+            </div>
+            <iframe title={t('demo.parentPage')} src={`/p/${open.token}`} className="w-full flex-1" />
+          </div>
+        )}
+      </div>
     </Phone>
   )
 }
@@ -290,22 +329,22 @@ function UnderTheHood({ since }: { since: string | null }) {
 
   return (
     <section className="flex flex-col gap-2">
-      <h2 id="ai-title" className="text-label">
+      <h2 id="ai-title" className="text-label font-extrabold">
         {t('demo.ai.title')}
       </h2>
       <p className="text-caption text-ink-muted">{t('demo.ai.caption')}</p>
       {calls.isError && <p role="alert" className="text-body">{t('demo.ai.failed')}</p>}
       {rows.length === 0 && !calls.isError ? (
-        <p className="rounded-md border border-border bg-surface p-3 text-body">{t('demo.ai.empty')}</p>
+        <p className="card text-body">{t('demo.ai.empty')}</p>
       ) : (
         // As tall as the phones and scrolls inside, so keyboard users must be able to reach it: axe's
         // scrollable-region-focusable needs tabIndex, which the lint rule below doesn't know about.
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        <section tabIndex={0} aria-labelledby="ai-title" className="max-h-[740px] overflow-auto rounded-md border border-border bg-surface">
+        <section tabIndex={0} aria-labelledby="ai-title" className="card max-h-[740px] overflow-auto p-0">
           <table className="w-full text-left text-caption">
             <caption className="sr-only">{t('demo.ai.title')}</caption>
             <thead className="sticky top-0 bg-surface">
-              <tr className="border-b border-border">
+              <tr className="border-b-2 border-border">
                 <th scope="col" className="p-2">{t('demo.ai.time')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.step')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.model')}</th>
@@ -346,9 +385,17 @@ function CallRow({ call, language }: { call: AiCall; language: string }) {
       <td className="p-2 whitespace-nowrap">{t('demo.ai.seconds', { s: (call.latencyMs / 1000).toFixed(1) })}</td>
       <td className="p-2">
         {call.error ? (
-          <span className="text-error">{t('demo.ai.error', { error: call.error })}</span>
+          <span className="chip bg-error-bg text-error">
+            <Icon name="alert" size={16} />
+            {t('demo.ai.error', { error: call.error })}
+          </span>
+        ) : call.verdict ? (
+          <span className="chip bg-status-caught-up-bg text-status-caught-up">
+            <Icon name="check" size={16} />
+            {call.verdict}
+          </span>
         ) : (
-          (call.verdict ?? '–')
+          '–'
         )}
       </td>
     </tr>
@@ -397,14 +444,14 @@ function ResetDialog({
         event.preventDefault()
         onClose()
       }}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 mx-auto w-full max-w-md rounded-t-md border border-border bg-surface p-4 pb-6 text-ink backdrop:bg-ink/40"
+      className="slide-up fixed inset-x-0 bottom-0 top-auto m-0 mx-auto w-full max-w-md rounded-t-sheet border-2 border-b-0 border-border bg-surface p-4 pb-6 text-ink backdrop:bg-canvas/60"
     >
-      <h2 id="reset-title" className="text-title">
+      <h2 id="reset-title" className="text-title font-extrabold">
         {t('demo.reset.title')}
       </h2>
       <p className="mt-3 text-body">{t('demo.reset.body')}</p>
       {failed && (
-        <p role="alert" className="mt-3 border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
+        <p role="alert" className="mt-3 rounded-md border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
           {t('demo.reset.failed')}
         </p>
       )}
@@ -413,7 +460,7 @@ function ResetDialog({
           type="button"
           disabled={pending}
           onClick={onConfirm}
-          className="min-h-target-primary w-full rounded-md bg-primary px-4 text-label text-on-primary disabled:opacity-60"
+          className="btn-primary"
         >
           {pending ? t('demo.reset.resetting') : t('demo.reset.confirm')}
         </button>
@@ -421,7 +468,7 @@ function ResetDialog({
           ref={keepRef}
           type="button"
           onClick={onClose}
-          className="min-h-target w-full rounded-md border border-border bg-surface px-4 text-label"
+          className="btn-secondary"
         >
           {t('common.cancel')}
         </button>

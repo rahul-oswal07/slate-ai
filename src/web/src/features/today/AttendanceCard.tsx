@@ -3,7 +3,7 @@ import { Icon } from '../../components/Icon'
 import { formatSchoolTime } from './schoolTime'
 import type { AttendanceDay } from './types'
 
-const card = 'rounded-md border border-border bg-surface p-[14px]'
+const card = 'rounded-card border-[1.5px] border-edge bg-surface p-[14px]'
 const textButton = 'mt-2 min-h-target w-full text-label text-primary-strong'
 
 /**
@@ -18,12 +18,12 @@ export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: ()
     return (
       <section
         aria-labelledby="attendance-title"
-        className="rounded-md border border-border border-l-4 border-l-warning bg-surface p-[14px]"
+        className="rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-[14px]"
       >
         <div className="flex items-start gap-3">
           <Icon name="alert" className="mt-0.5 shrink-0 text-warning" />
           <div>
-            <span className="inline-block rounded-sm bg-status-needs-ear-bg px-2 py-0.5 text-label text-status-needs-ear">
+            <span className="inline-block rounded-pill bg-status-needs-ear-bg px-3 py-0.5 text-label text-status-needs-ear">
               {t('today.attendance.missing.chip')}
             </span>
             <h2 id="attendance-title" className="mt-1 text-label">
@@ -34,7 +34,7 @@ export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: ()
         <button
           type="button"
           onClick={onEdit}
-          className="mt-3 min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary"
+          className="mt-3 min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
         >
           {t('today.attendance.missing.action')}
         </button>

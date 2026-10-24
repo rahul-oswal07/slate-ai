@@ -22,7 +22,7 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
 
   if (!day.templateApproved) {
     return (
-      <section aria-labelledby="tonight-title" className="rounded-md border border-border bg-panel p-[14px]">
+      <section aria-labelledby="tonight-title" className="rounded-card border-2 border-primary bg-panel p-[14px]">
         <h2 id="tonight-title" className="text-label text-primary-strong">
           {t('today.tonight.notApproved')}
         </h2>
@@ -44,7 +44,7 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
         : t('today.tonight.title', { families: day.families, absent: day.absent })
 
   return (
-    <section aria-labelledby="tonight-title" className="rounded-md border border-border bg-panel p-[14px]">
+    <section aria-labelledby="tonight-title" className="rounded-card border-2 border-primary bg-panel p-[14px]">
       <h2 id="tonight-title" className="text-label text-primary-strong">
         {title}
       </h2>

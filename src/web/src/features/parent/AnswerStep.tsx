@@ -41,10 +41,10 @@ export function AnswerStep({ token, page, onSent }: { token: string; page: Paren
 
   return (
     <div className="flex flex-col gap-4">
-      <p lang={check.prompt ? page.language : undefined} className="text-center text-title">
+      <p lang={check.prompt ? page.language : undefined} className="text-center text-title font-extrabold">
         {check.prompt ?? t('parent.answer.prompt', { child: page.childName })}
       </p>
-      <p className="text-center text-display">{asQuestion(check.question)}</p>
+      <p className="text-center text-display font-extrabold">{asQuestion(check.question)}</p>
       <ul aria-label={t('parent.answer.options')} className="flex flex-col gap-3">
         {check.options.map((option) => {
           const picked = option.id === chosen
@@ -60,15 +60,15 @@ export function AnswerStep({ token, page, onSent }: { token: string; page: Paren
                   answer.reset()
                   setChosen(option.id)
                 }}
-                className={`flex min-h-target-picture w-full items-center gap-3 rounded-md p-3 focus-visible:outline-offset-[-4px] disabled:opacity-60 ${
-                  picked ? 'border-4 border-primary bg-panel' : 'border-2 border-border bg-surface'
+                className={`flex min-h-target-picture w-full items-center gap-3 rounded-card p-3 focus-visible:outline-offset-[-4px] disabled:opacity-60 ${
+                  picked ? 'border-[3px] border-primary bg-panel' : 'border-2 border-border bg-surface'
                 }`}
               >
                 <span className="flex-1">
                   <Sticks n={option.number} />
                 </span>
                 {picked && (
-                  <span aria-hidden="true" className="text-title font-bold text-ink">
+                  <span aria-hidden="true" className="text-display font-extrabold text-ink">
                     {option.number}
                   </span>
                 )}
@@ -78,7 +78,7 @@ export function AnswerStep({ token, page, onSent }: { token: string; page: Paren
         })}
       </ul>
 
-      <div className="sticky bottom-0 -mx-4 flex flex-col gap-1 border-t border-divider bg-canvas px-4 py-3">
+      <div className="sticky bottom-0 -mx-4 flex flex-col gap-1 border-t border-edge bg-canvas px-4 py-3">
         {/* In the sticky footer, so the failure is never hidden behind it under tall picture tiles. */}
         {answer.isError && (
           <p role="alert" className="mb-2 border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">

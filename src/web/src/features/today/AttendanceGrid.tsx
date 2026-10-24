@@ -63,7 +63,7 @@ export function AttendanceGrid({
           return (
             <label
               key={child.id}
-              className={`flex min-h-[64px] cursor-pointer flex-col items-center justify-center rounded-md p-1 text-center has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${
+              className={`flex min-h-[64px] cursor-pointer flex-col items-center justify-center rounded-button p-1 text-center has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${
                 isAbsent ? 'border-2 border-error bg-error-bg text-error' : 'border border-border bg-surface text-ink'
               }`}
             >
@@ -98,14 +98,14 @@ export function AttendanceGrid({
           <button
             type="button"
             onClick={cancel}
-            className="min-h-target rounded-md border border-border bg-surface text-label"
+            className="min-h-target rounded-button border-2 border-border bg-surface text-label"
           >
             {t('common.cancel')}
           </button>
           <button
             type="button"
             onClick={save}
-            className="min-h-target rounded-md bg-primary text-label text-on-primary"
+            className="min-h-target rounded-button bg-primary font-extrabold text-label text-on-primary"
           >
             {t('common.save')}
           </button>

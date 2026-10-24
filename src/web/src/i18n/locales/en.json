@@ -604,6 +604,11 @@
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
     "backToMessages": "‹ Messages",
+    "chat": {
+      "messages": "Messages",
+      "pageLesson": "Lesson",
+      "pageEvening": "Is everything OK?"
+    },
     "noMessages": "No messages yet. Send tonight's message from Today on the teacher's phone.",
     "familyFailed": "Could not load the messages. Retrying…",
     "message": {

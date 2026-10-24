@@ -38,7 +38,7 @@ export function ApproveScreen() {
       <p className="text-body text-ink-muted">{t('approve.intro')}</p>
 
       {!online && (
-        <output className="flex items-start gap-2 rounded-md border border-border border-l-4 border-l-warning bg-surface p-3">
+        <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">
           <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
           <span className="text-body text-ink">{t('offline.noNetwork')}</span>
         </output>
@@ -46,18 +46,18 @@ export function ApproveScreen() {
 
       {week.isPending && classId !== '' && (
         <>
-          <div aria-hidden="true" className="h-24 rounded-md border border-border bg-surface" />
-          <div aria-hidden="true" className="h-24 rounded-md border border-border bg-surface" />
+          <div aria-hidden="true" className="h-24 rounded-button border-2 border-border bg-surface" />
+          <div aria-hidden="true" className="h-24 rounded-button border-2 border-border bg-surface" />
         </>
       )}
 
       {week.isError && !week.data && (
-        <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-4">
+        <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-4">
           <p className="text-body">{t('app.loadError')}</p>
           <button
             type="button"
             onClick={() => void week.refetch()}
-            className="mt-3 min-h-target w-full rounded-md border border-border bg-surface text-label"
+            className="mt-3 min-h-target w-full rounded-button border-2 border-border bg-surface text-label"
           >
             {t('common.tryAgain')}
           </button>
@@ -65,13 +65,13 @@ export function ApproveScreen() {
       )}
 
       {allDone && (
-        <output className="rounded-md border border-border border-l-4 border-l-primary bg-surface p-3 text-body">
+        <output className="rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-3 text-body">
           {t('approve.allDone', { n: packages.length, families })}
         </output>
       )}
 
       {week.data && packages.length === 0 && (
-        <div className="flex flex-col gap-3 rounded-md border border-border bg-surface p-[14px]">
+        <div className="flex flex-col gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <p className="text-body">{t('approve.empty')}</p>
           <GenerateButton primary pending={generate.isPending} onClick={() => generate.mutate()} />
         </div>
@@ -110,7 +110,7 @@ function GenerateButton({ primary = false, pending, onClick }: { primary?: boole
       disabled={pending}
       className={
         primary
-          ? 'min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-70'
+          ? 'min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-70'
           : 'min-h-target w-full text-label text-primary-strong disabled:opacity-70'
       }
     >
@@ -130,7 +130,7 @@ function PackageCard({ pkg, lessons }: { pkg: CatchUpPackage; lessons: string[] 
     <Link
       to={`/approve/${pkg.id}`}
       aria-label={`${heading}. ${names}. ${meta}. ${t(`approve.status.${pkg.status}`)}`}
-      className="flex items-center gap-3 rounded-md border border-border bg-surface p-[14px]"
+      className="flex items-center gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]"
     >
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="text-label">{heading}</span>

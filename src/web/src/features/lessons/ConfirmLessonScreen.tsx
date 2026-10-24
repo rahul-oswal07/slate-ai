@@ -13,7 +13,7 @@ import type { Chapter } from './types'
 import { useCurriculum, useLessonDay, useNote, useSaveLesson } from './useLessons'
 
 const SLOW_MS = 20_000
-const primary = 'min-h-target-primary w-full rounded-md bg-primary text-label text-on-primary disabled:opacity-60'
+const primary = 'min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-60'
 const textButton = 'min-h-target w-full text-label text-primary-strong'
 
 /**
@@ -99,7 +99,7 @@ export function ConfirmLessonScreen() {
       )}
 
       {status === 'processing' && online && now - openedAt <= SLOW_MS && (
-        <output className="flex items-start gap-3 rounded-md border border-border bg-surface p-[14px]">
+        <output className="flex items-start gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <span
             aria-hidden="true"
             className="mt-1 size-6 shrink-0 animate-spin rounded-full border-4 border-panel border-t-primary motion-reduce:animate-none"
@@ -112,7 +112,7 @@ export function ConfirmLessonScreen() {
       )}
 
       {status === 'unclear' && (
-        <div role="alert" className="rounded-md border border-border border-l-4 border-l-error bg-error-bg p-[14px]">
+        <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-[14px]">
           <p className="flex items-start gap-2 text-body">
             <Icon name="alert" className="mt-0.5 shrink-0 text-error" />
             {t('confirm.unclear')}
@@ -127,7 +127,7 @@ export function ConfirmLessonScreen() {
       )}
 
       {status === 'mapped' && (
-        <section aria-labelledby="matched-title" className="rounded-md border border-border bg-surface p-[14px]">
+        <section aria-labelledby="matched-title" className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <AiLabel />
           <h2 id="matched-title" className="mt-2 text-label">
             {chosen.length > 1 || (lesson?.competencyIds.length ?? 0) > 1 ? t('confirm.lessonsAre') : t('confirm.lessonIs')}
@@ -168,7 +168,7 @@ export function ConfirmLessonScreen() {
       {status === 'low' && (
         <section
           aria-labelledby="low-title"
-          className="rounded-md border-2 border-warning bg-surface p-[14px]"
+          className="rounded-card border-2 border-warning bg-surface p-[14px]"
         >
           <AiLabel />
           <h2 id="low-title" className="mt-2 flex items-start gap-2 text-label">
@@ -229,7 +229,7 @@ export function ConfirmLessonScreen() {
 function AiLabel() {
   const { t } = useTranslation()
   return (
-    <span className="inline-block rounded-sm bg-panel px-2 py-0.5 text-caption text-primary-strong">{t('ai.label')}</span>
+    <span className="inline-block rounded-pill bg-panel px-3 py-0.5 text-caption text-primary-strong">{t('ai.label')}</span>
   )
 }
 
@@ -245,7 +245,7 @@ function Banner({
   children: ReactNode
 }) {
   return (
-    <div className={`rounded-md border border-border border-l-4 bg-surface p-[14px] ${tone === 'warning' ? 'border-l-warning' : ''}`}>
+    <div className={`rounded-card border-[1.5px] border-edge border-l-4 bg-surface p-[14px] ${tone === 'warning' ? 'border-l-warning' : ''}`}>
       <p className="flex items-start gap-2 text-body text-ink">
         <Icon name={icon} size={20} className="mt-0.5 shrink-0 text-warning" />
         {text}
@@ -306,7 +306,7 @@ function NoteCard({
   const summary = i18n.language === 'kn' ? (lesson.summaryKn ?? lesson.summaryEn) : (lesson.summaryEn ?? lesson.summaryKn)
 
   return (
-    <section aria-labelledby="note-title" className="rounded-md border border-border bg-surface p-[14px]">
+    <section aria-labelledby="note-title" className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
       <h2 id="note-title" className="text-label">
         {t('confirm.note.label')}
       </h2>

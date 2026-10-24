@@ -604,6 +604,11 @@
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
     "backToMessages": "‹ Messages",
+    "chat": {
+      "messages": "సందేశాలు",
+      "pageLesson": "పాఠం",
+      "pageEvening": "అంతా బాగుందా?"
+    },
     "noMessages": "No messages yet. Send tonight's message from Today on the teacher's phone.",
     "familyFailed": "Could not load the messages. Retrying…",
     "message": {

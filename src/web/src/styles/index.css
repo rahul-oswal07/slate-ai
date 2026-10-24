@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./fonts.css";
 
 @layer base {
   html {
@@ -7,9 +8,158 @@
     color: var(--color-ink);
   }
 
+  /* Headings in the language's Baloo face (D-77). */
+  :where(h1, h2) {
+    font-family: var(--font-heading);
+  }
+
+  /* Texture (D-77): ruling lines and two soft smudges behind everything. Decorative, never in the way. */
+  body.slate-texture {
+    background-color: var(--color-canvas);
+    background-image:
+      radial-gradient(ellipse 65% 26% at 12% 6%, var(--smudge), transparent 70%),
+      radial-gradient(ellipse 65% 26% at 88% 94%, var(--smudge), transparent 70%),
+      repeating-linear-gradient(to bottom, transparent 0 39px, var(--rule) 39px 40px);
+    background-attachment: fixed;
+  }
+
   /* Rule 4 in tokens.css: the 2px gap keeps the ring visible next to primary fills. */
   :focus-visible {
     outline: 3px solid var(--color-focus);
     outline-offset: 2px;
+  }
+}
+
+/*
+ * Slate & chalk building blocks (D-77, tokens.md "Components"). Components keep their markup and use these classes.
+ * Motion is ≤ 300 ms, and all of it is switched off under prefers-reduced-motion (tokens.css).
+ */
+@keyframes draw-on {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+@keyframes wave {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes skeleton {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@layer components {
+  /* A stroke that draws itself on: give the path pathLength="100". Fully drawn if animation is off. */
+  .draw-on {
+    stroke-dasharray: 100;
+    animation: draw-on 300ms ease-out both;
+  }
+  .breathing {
+    animation: breathe 2.4s ease-in-out infinite alternate;
+  }
+  .wave-bar {
+    transform-origin: center;
+    animation: wave 300ms ease-in-out infinite alternate;
+  }
+  .pop-in {
+    animation: pop-in 240ms ease-out both;
+  }
+  .skeleton {
+    border-radius: 7px;
+    background: var(--color-divider);
+    animation: skeleton 300ms ease-in-out infinite alternate;
+  }
+  .slide-up {
+    animation: slide-up 300ms ease-out both;
+  }
+
+  .btn-primary {
+    @apply min-h-target-primary w-full rounded-button bg-primary px-4 text-body-lg font-extrabold text-on-primary transition-transform duration-200;
+  }
+  .btn-secondary {
+    @apply min-h-target w-full rounded-button border-2 border-primary bg-panel px-4 text-label font-bold text-primary-strong transition-transform duration-200;
+  }
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
+    @apply cursor-not-allowed border-2 border-dashed border-border bg-divider text-ink-muted;
+  }
+  /* The one amber hero (play, mic). In light mode amber alone is 1.3:1 on the canvas, so it carries a 3px ink outline. */
+  .btn-hero {
+    @apply flex items-center justify-center rounded-full bg-accent text-on-accent;
+    border: 3px solid var(--color-ink);
+  }
+  @media (prefers-color-scheme: dark) {
+    .btn-hero {
+      border-color: transparent;
+    }
+  }
+  .btn-link {
+    @apply inline-flex min-h-target items-center gap-1.5 text-label font-bold text-primary-strong underline decoration-2 underline-offset-4;
+  }
+
+  /* The family phone's chat (D-77): wallpaper with a faint doodle pattern, bubbles with a 4px sender corner. */
+  .chat-wallpaper {
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--color-chat-text) 6%, transparent) 1.5px, transparent 2px);
+    background-size: 28px 28px;
+  }
+  .chat-bubble {
+    @apply rounded-[16px] rounded-tl-[4px] border border-chat-edge bg-chat-bubble px-3 py-2 text-chat-text;
+  }
+
+  .card {
+    @apply rounded-card border-[1.5px] border-edge bg-surface p-4;
+  }
+  .card-hero {
+    @apply rounded-card border-2 border-border bg-surface p-4;
+  }
+  .card-payoff {
+    @apply rounded-card border-2 border-primary bg-panel p-4;
+  }
+  .chip {
+    @apply inline-flex min-h-8 items-center gap-1.5 rounded-pill px-3 text-caption font-bold;
+  }
+  .chip-plain {
+    @apply inline-flex min-h-8 items-center gap-1.5 rounded-pill border-[1.5px] border-primary bg-panel px-3 text-caption font-bold text-primary-strong;
   }
 }
