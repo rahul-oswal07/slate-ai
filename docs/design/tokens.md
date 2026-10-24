@@ -27,7 +27,7 @@ Follows the phone's setting (`prefers-color-scheme`), including phones that swit
 
 ## Slate & chalk (D-77, accepted)
 
-New look for the teacher app, the parent pages (P1–P4, reason) and the demo shell. **Looks only.** Components keep their meaning: teal stays on standard buttons and link text; amber is a new, separate `accent`. Source of the look: Monika's concept mockups (outside the repo); this section is what gets built.
+New look for the teacher app, the parent pages (P1–P4, reason) and the demo shell. **Looks only.** Components keep their meaning: teal stays on standard buttons and link text; amber is a new, separate `accent`. The look is shown in "Reference screens" below; this section is what gets built.
 
 **How it is applied.** Add the tokens below as **new names plus a `.theme-slate` scope** that redefines the existing names (`canvas`, `surface`, `panel`, `ink`, `ink-muted`, `border`, `primary-strong`, `error`, `focus`, `warning`) for its subtree. Screens opt in by wrapping in the class, one PR at a time. The values in the Colours table below change last, when every screen has opted in. `tokens.test.ts` must read the scoped blocks too.
 
