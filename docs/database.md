@@ -52,7 +52,7 @@ erDiagram
         uuid ClassId FK
         int RollNo "unique per class"
         varchar50 FirstName
-        varchar5 HomeLanguage "kn, te, ta"
+        varchar5 HomeLanguage "kn, te, ta, en, hi"
         varchar20 ParentPhone "nullable"
         timestamptz ParentConsentAt "nullable"
         bool HasPhone

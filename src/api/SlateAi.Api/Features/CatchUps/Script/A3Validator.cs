@@ -6,7 +6,7 @@ using SlateAi.Api.Features.CatchUps.Practice;
 namespace SlateAi.Api.Features.CatchUps.Script;
 
 /// <summary>Everything A3 is told for one catch-up. IDs, curriculum data and numbers only (guardrail 1).</summary>
-/// <param name="Language">The family's language: "kn", "te", "ta" or "en".</param>
+/// <param name="Language">The family's language: "kn", "te", "ta", "en" or "hi".</param>
 /// <param name="TargetIds">From A2, most important first.</param>
 /// <param name="TeacherExamples">Examples she used in those lessons (A1's ExamplesUsed), already name-scrubbed.</param>
 /// <param name="Hint">"simpler" or "shorter" when she asks to regenerate (FR-08).</param>

@@ -94,7 +94,7 @@ public sealed class EveningSlotsTests
         var wording = EveningWording.Load(Path.Combine(AppContext.BaseDirectory, "data/seed/evening-message.json"));
         var book = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data/curriculum"));
 
-        Assert.Equal(["en", "kn", "ta", "te"], wording.Languages.Keys.Order());
+        Assert.Equal(["en", "hi", "kn", "ta", "te"], wording.Languages.Keys.Order());
         Assert.DoesNotContain("గుర్తొచ్చాడు", wording.Languages["te"].Text); // masculine verb replaced (D-72)
         foreach (var (language, text) in wording.Languages)
         {
@@ -104,7 +104,7 @@ public sealed class EveningSlotsTests
             Assert.DoesNotContain("{tomorrow}", text.Text); // D-48
             Assert.DoesNotContain("{buddy}", text.Text);    // D-29
 
-            // Every lesson in the book can be named in every language (te/ta are drafts for review, T-26).
+            // Every lesson in the book can be named in every language (te/ta/hi are drafts for review, T-26).
             foreach (var lesson in book.All)
             {
                 Assert.NotNull(EveningSlots.Fill(text, language, "Ravi", [lesson.Id], book));

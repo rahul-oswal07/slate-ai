@@ -9,7 +9,7 @@ public sealed class MessageTemplate
     public Guid Id { get; set; }
     public Guid ClassId { get; set; }
 
-    /// <summary>"kn", "te", "ta" or "en".</summary>
+    /// <summary>"kn", "te", "ta", "en" or "hi".</summary>
     public required string Language { get; set; }
 
     /// <summary>Version of the wording file the text came from; approving a stale version is refused.</summary>

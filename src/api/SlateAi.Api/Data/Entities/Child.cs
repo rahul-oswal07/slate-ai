@@ -7,7 +7,7 @@ public sealed class Child
     public int RollNo { get; set; }
     public required string FirstName { get; set; }
 
-    /// <summary>Home language code: "kn", "te" or "ta".</summary>
+    /// <summary>Home language code: "kn", "te", "ta" or "hi" (English is a family language too, D-73).</summary>
     public required string HomeLanguage { get; set; }
 
     public string? ParentPhone { get; set; }

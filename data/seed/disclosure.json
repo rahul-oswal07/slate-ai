@@ -1,10 +1,11 @@
 {
-  "_note": "Spoken AI disclosure (FR-09, D-18): played after the teacher's greeting and before every catch-up script, in the family's language; the written transcript starts with the same line. The computer voice never says names (D-50). te is from docs/design/P1-listen.md; kn and ta are drafts translated from the English for Monika and native review (T-26). Changing a line makes a new clip automatically (the clip is keyed by the wording).",
+  "_note": "Spoken AI disclosure (FR-09, D-18): played after the teacher's greeting and before every catch-up script, in the family's language; the written transcript starts with the same line. The computer voice never says names (D-50). te is from docs/design/P1-listen.md; kn, ta and hi are drafts translated from the English for Monika and native review (T-26). Changing a line makes a new clip automatically (the clip is keyed by the wording).",
   "version": "1",
   "languages": {
     "en": "This is a lesson from your child's teacher. The rest is read by a computer voice.",
     "te": "ఇది మీ బిడ్డ టీచర్ పంపిన పాఠం. మిగిలినది కంప్యూటర్ గొంతు చదువుతుంది.",
     "kn": "ಇದು ನಿಮ್ಮ ಮಗುವಿನ ಟೀಚರ್ ಕಳುಹಿಸಿದ ಪಾಠ. ಉಳಿದದ್ದನ್ನು ಕಂಪ್ಯೂಟರ್ ಧ್ವನಿ ಓದುತ್ತದೆ.",
-    "ta": "இது உங்கள் குழந்தையின் ஆசிரியர் அனுப்பிய பாடம். மீதியை கணினிக் குரல் படிக்கும்."
+    "ta": "இது உங்கள் குழந்தையின் ஆசிரியர் அனுப்பிய பாடம். மீதியை கணினிக் குரல் படிக்கும்.",
+    "hi": "यह आपके बच्चे की टीचर का भेजा हुआ पाठ है। बाकी हिस्सा कंप्यूटर की आवाज़ पढ़ेगी।"
   }
 }

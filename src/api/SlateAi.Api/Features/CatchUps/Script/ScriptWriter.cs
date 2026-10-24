@@ -13,7 +13,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
 {
     public const string PromptId = "a3-script";
 
-    // Kannada, Telugu and "−" as themselves rather than \uXXXX escapes: fewer tokens, and this JSON never reaches HTML.
+    // Kannada, Telugu, Hindi and "−" as themselves rather than \uXXXX escapes: fewer tokens, and this JSON never reaches HTML.
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -25,6 +25,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         ["te"] = "Telugu",
         ["ta"] = "Tamil",
         ["en"] = "English",
+        ["hi"] = "Hindi",
     };
 
     /// <param name="names">The class's names, only to refuse output that contains one; never sent.</param>

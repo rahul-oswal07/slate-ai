@@ -123,9 +123,10 @@ public static partial class CurriculumLoader
         }
 
         if (c.NameTe is not null && string.IsNullOrWhiteSpace(c.NameTe)
-            || c.NameTa is not null && string.IsNullOrWhiteSpace(c.NameTa))
+            || c.NameTa is not null && string.IsNullOrWhiteSpace(c.NameTa)
+            || c.NameHi is not null && string.IsNullOrWhiteSpace(c.NameHi))
         {
-            yield return "nameTe and nameTa can be left out but not blank";
+            yield return "nameTe, nameTa and nameHi can be left out but not blank";
         }
 
         if (c.KeyWordsKn is { } words && (words.Count == 0 || words.Any(string.IsNullOrWhiteSpace)))

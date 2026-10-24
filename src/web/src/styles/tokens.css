@@ -77,7 +77,7 @@
   --color-status-error: #991b1b;
   --color-status-error-bg: #fef2f2;
 
-  --font-sans: system-ui, "Noto Sans Kannada", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans", sans-serif;
+  --font-sans: system-ui, "Noto Sans Kannada", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans Devanagari", "Noto Sans", sans-serif;
   --font-heading: var(--font-sans);
 
   /* Type scale (Latin). Indic scripts get larger sizes and ~1.7 line height below. Never below caption. */
@@ -121,8 +121,8 @@
   --smudge: rgb(255 255 255 / 0.35);
 }
 
-/* Kannada, Telugu and Tamil need room for conjuncts and vowel signs. */
-:where(:lang(kn), :lang(te), :lang(ta)) {
+/* Kannada, Telugu, Tamil and Hindi need room for conjuncts and vowel signs. */
+:where(:lang(kn), :lang(te), :lang(ta), :lang(hi)) {
   --text-display: 1.875rem;
   --text-display--line-height: 3.125rem;
   --text-title: 1.5rem;
@@ -220,6 +220,11 @@
 :where(:lang(te)) {
   --font-sans: "Noto Sans Telugu", "Noto Sans", system-ui, sans-serif;
   --font-heading: "Baloo Tammudu 2", var(--font-sans);
+}
+/* Baloo 2 carries a devanagari subset, so Hindi headings need no extra family. */
+:where(:lang(hi)) {
+  --font-sans: "Noto Sans Devanagari", "Noto Sans", system-ui, sans-serif;
+  --font-heading: "Baloo 2", var(--font-sans);
 }
 :where(:lang(ta)) {
   --font-sans: "Noto Sans Tamil", "Noto Sans", system-ui, sans-serif;

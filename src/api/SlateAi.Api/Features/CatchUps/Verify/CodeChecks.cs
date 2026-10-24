@@ -14,11 +14,11 @@ public sealed class VerifierOptions
 
     /// <summary>
     /// Spoken words per second by language, measured on Bulbul v3 "priya" (T-11: kn 1.86, te 1.91, ta 1.96), rounded down
-    /// so the estimate errs long. English (T-18) is not measured yet: 2.2 is a cautious guess for Indian English. The real
+    /// so the estimate errs long. English (T-18) and Hindi (D-78) are not measured yet: 2.2 is a cautious guess for both (Hindi runs faster than the Dravidian languages, so this errs long). The real
     /// audio is checked after text-to-speech anyway.
     /// </summary>
     public Dictionary<string, double> WordsPerSecond { get; set; } =
-        new() { ["kn"] = 1.8, ["te"] = 1.85, ["ta"] = 1.9, ["en"] = 2.2 };
+        new() { ["kn"] = 1.8, ["te"] = 1.85, ["ta"] = 1.9, ["en"] = 2.2, ["hi"] = 2.2 };
 
     /// <summary>Real audio limit, all segments together (FR-09: ≤ 95 s), checked after text-to-speech.</summary>
     public int MaxAudioSeconds { get; set; } = 95;
@@ -60,6 +60,7 @@ public static partial class CodeChecks
         ["kn"] = (0x0C80, 0x0CFF, "Kannada"),
         ["te"] = (0x0C00, 0x0C7F, "Telugu"),
         ["ta"] = (0x0B80, 0x0BFF, "Tamil"),
+        ["hi"] = (0x0900, 0x097F, "Hindi"),
 
         // A–Z and a–z; the symbols between them aren't letters, so the letter filter drops them.
         ["en"] = (0x0041, 0x007A, "English"),

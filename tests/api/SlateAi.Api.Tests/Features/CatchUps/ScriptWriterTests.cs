@@ -24,6 +24,14 @@ public sealed class ScriptWriterTests
     }
 
     [Fact]
+    public async Task A_hindi_family_is_asked_for_hindi()
+    {
+        await Writer().WriteAsync(A3ValidatorTests.Input with { Language = "hi" }, ["Ravi", "Shobha"], Ct);
+
+        Assert.Contains("\"languageName\":\"Hindi\"", _llm.Requests.Single().UserContent);
+    }
+
+    [Fact]
     public async Task Claude_gets_the_code_made_numbers_and_lesson_data_but_no_names_or_the_correct_option_position()
     {
         await Writer().WriteAsync(A3ValidatorTests.Input with { Hint = "shorter" }, ["Ravi", "Shobha"], Ct);

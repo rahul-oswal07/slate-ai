@@ -1,7 +1,7 @@
 /*
  * Fonts for the Slate & chalk look (D-77, T-48). Self-hosted from @fontsource, which ships each script as its own
  * woff2 with a unicode-range, so a page downloads only the scripts it shows. The teacher app uses none of these
- * Headings 700; body 400 and 600 (labels). font-display: swap is set by fontsource.
+ * Hindi headings use Baloo 2, whose devanagari subset ships in the same package. Headings 700; body 400 and 600 (labels). font-display: swap is set by fontsource.
  * Which family a page uses is chosen by :lang() in tokens.css. Caveat 700 is only for one Latin accent word.
  */
 @import "@fontsource/baloo-2/700.css";
@@ -16,4 +16,6 @@
 @import "@fontsource/noto-sans-telugu/600.css";
 @import "@fontsource/noto-sans-tamil/400.css";
 @import "@fontsource/noto-sans-tamil/600.css";
+@import "@fontsource/noto-sans-devanagari/400.css";
+@import "@fontsource/noto-sans-devanagari/600.css";
 @import "@fontsource/caveat/700.css";

@@ -3,6 +3,7 @@ namespace SlateAi.Api.Curriculum;
 /// <summary>One node of the curriculum graph, e.g. "M3.ADD.CARRY". Loaded from <c>data/curriculum/*.json</c>.</summary>
 /// <param name="NameTe">Telugu name for parent-facing text (evening message); optional, draft until native review (T-26).</param>
 /// <param name="NameTa">Tamil name, as <paramref name="NameTe"/>.</param>
+/// <param name="NameHi">Hindi name, as <paramref name="NameTe"/> (D-78).</param>
 /// <param name="KeyWordsKn">Textbook Kannada words for this lesson; A3 picks the catch-up's 3 key words from them (FR-07).</param>
 /// <param name="Practice">How code makes this lesson's numbers (activity and learning check; guardrail 4).</param>
 public sealed record Competency(
@@ -17,10 +18,11 @@ public sealed record Competency(
     TextbookPage? TextbookPage,
     string? NameTe = null,
     string? NameTa = null,
+    string? NameHi = null,
     IReadOnlyList<string>? KeyWordsKn = null,
     PracticeRule? Practice = null)
 {
-    /// <summary>The name in <paramref name="language"/> ("kn", "te", "ta", "en"), or null if there is none.</summary>
+    /// <summary>The name in <paramref name="language"/> ("kn", "te", "ta", "en", "hi"), or null if there is none.</summary>
     public string? Name(string language)
     {
         var name = language switch
@@ -29,6 +31,7 @@ public sealed record Competency(
             "en" => NameEn,
             "te" => NameTe,
             "ta" => NameTa,
+            "hi" => NameHi,
             _ => null,
         };
         return string.IsNullOrWhiteSpace(name) ? null : name;

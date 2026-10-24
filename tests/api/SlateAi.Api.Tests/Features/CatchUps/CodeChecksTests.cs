@@ -112,6 +112,20 @@ public sealed class CodeChecksTests
     }
 
     [Fact]
+    public void A_hindi_script_passes_in_devanagari_with_its_kannada_key_words_aside()
+    {
+        var hindi = Good with { Script = "आज हम 523 में से 168 ಕಳೆ करेंगे। ಕಳೆ का मतलब है घटाना। एक ದಶಕ लो, ದಶಕ खोलो। ಬಿಡಿ तीलियाँ 13। 13 − 8 = 5। ಬಿಡಿ गिनो। अपनी टीचर को दिखाइए।" };
+
+        var passed = Run(CodeChecks.ScriptBlock, Input(hindi, language: "hi"));
+        var telugu = Run(CodeChecks.ScriptBlock, Input(Good, language: "hi"));
+
+        Assert.True(passed.Passed);
+        Assert.Equal("100% in Hindi letters", passed.Detail);
+        Assert.False(telugu.Passed);
+        Assert.Contains("Hindi letters", telugu.Detail);
+    }
+
+    [Fact]
     public void An_english_script_passes_in_latin_letters_with_its_kannada_key_words_aside()
     {
         var english = Good with { Script = "Today we subtract 523 minus 168 with ಕಳೆ ಕಳೆ ದಶಕ ದಶಕ ಬಿಡಿ ಬಿಡಿ, then show your teacher." };
