@@ -175,6 +175,40 @@ A stand-in for the real chat app (spec: P0 card). Build it as a demo component, 
 - Doodles, texture, confetti, ghost numerals: `aria-hidden`.
 - Dark and light are both designed, not inverted. Both follow the phone's setting; there is no in-app toggle.
 
+### Reference screens (360 px, light and dark)
+
+These are the target look for every task below. They are **design references, not built screens**: copy and data come from the existing cards; the build must keep its own states and behaviour. Folder: [`screenshots/slate/`](screenshots/slate/). Today shows the T-49 layout (day strip, one hero, merged tonight card); the other teacher screens show T-55 grouping.
+
+| Screen | Surface | Task | Light | Dark |
+|---|---|---|---|---|
+| P1 Listen | C parent page | T-50 | [light](screenshots/slate/P1-listen-light.png) | [dark](screenshots/slate/P1-listen-dark.png) |
+| P1 Listen, playing | C | T-50 | [light](screenshots/slate/P1-listen-playing-light.png) | [dark](screenshots/slate/P1-listen-playing-dark.png) |
+| Reason page | C | T-51 | [light](screenshots/slate/P-reason-light.png) | [dark](screenshots/slate/P-reason-dark.png) |
+| Reason page, picture chosen | C | T-51 | [light](screenshots/slate/P-reason-chosen-light.png) | [dark](screenshots/slate/P-reason-chosen-dark.png) |
+| P2 Activity | C | T-52 | [light](screenshots/slate/P2-activity-light.png) | [dark](screenshots/slate/P2-activity-dark.png) |
+| P3 Answer | C | T-52 | [light](screenshots/slate/P3-answer-light.png) | [dark](screenshots/slate/P3-answer-dark.png) |
+| P3 Answer, chosen | C | T-52 | [light](screenshots/slate/P3-answer-chosen-light.png) | [dark](screenshots/slate/P3-answer-chosen-dark.png) |
+| P4 Done | C | T-53 | [light](screenshots/slate/P4-done-light.png) | [dark](screenshots/slate/P4-done-dark.png) |
+| Stopped | C | T-53 | [light](screenshots/slate/P-stopped-light.png) | [dark](screenshots/slate/P-stopped-dark.png) |
+| Link expired | C | T-53 | [light](screenshots/slate/P-expired-light.png) | [dark](screenshots/slate/P-expired-dark.png) |
+| Chat: evening message | B family phone | T-57 | [light](screenshots/slate/B-chat-evening-light.png) | [dark](screenshots/slate/B-chat-evening-dark.png) |
+| Chat: catch-up bubble after approval | B | T-57 | [light](screenshots/slate/B-chat-catchup-light.png) | [dark](screenshots/slate/B-chat-catchup-dark.png) |
+| Chat: stopped | B | T-57 | [light](screenshots/slate/B-chat-stopped-light.png) | [dark](screenshots/slate/B-chat-stopped-dark.png) |
+| Link opened in the in-app-browser bar | B → C | T-57 | [light](screenshots/slate/B-in-app-browser-light.png) | [dark](screenshots/slate/B-in-app-browser-dark.png) |
+| Sign-in | A teacher | T-56 | [light](screenshots/slate/T9-sign-in-light.png) | [dark](screenshots/slate/T9-sign-in-dark.png) |
+| Today, lesson to record | A | T-49 | [light](screenshots/slate/T1-today-light.png) | [dark](screenshots/slate/T1-today-dark.png) |
+| Today, done | A | T-49 | [light](screenshots/slate/T1-today-done-light.png) | [dark](screenshots/slate/T1-today-done-dark.png) |
+| Approve list | A | T-55 | [light](screenshots/slate/T3-approve-light.png) | [dark](screenshots/slate/T3-approve-dark.png) |
+| Missed lessons, by child | A | T-55 | [light](screenshots/slate/T4-missed-light.png) | [dark](screenshots/slate/T4-missed-dark.png) |
+| Back today | A | T-55 | [light](screenshots/slate/T5-back-today-light.png) | [dark](screenshots/slate/T5-back-today-dark.png) |
+| Week | A | T-55 | [light](screenshots/slate/T6-week-light.png) | [dark](screenshots/slate/T6-week-dark.png) |
+| `/demo` shell (teacher phone, family phone, Under the hood) | A + B + panel | T-57 | [light](screenshots/slate/demo-shell-light.png) | [dark](screenshots/slate/demo-shell-dark.png) |
+
+Notes for the build:
+- Where a reference differs from a card's copy, the card wins; the pictures are for look, spacing and hierarchy.
+- The Kannada lines on parent pages show the intended font and size (Baloo Tamma 2, 19 px, 1.7 line height). The accent word is Caveat in Latin only.
+- The "Show this to your teacher tomorrow" card from earlier concepts is **not** in these screens (not in T-53).
+
 ### Rollout
 
 | Order | Task | What |
