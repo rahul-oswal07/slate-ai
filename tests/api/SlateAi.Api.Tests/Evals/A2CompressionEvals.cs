@@ -11,7 +11,7 @@ namespace SlateAi.Api.Tests.Evals;
 /// <summary>
 /// Live A2 evaluation (docs/quality.md §2): real Claude, the shipped prompt and curriculum, inputs built by the
 /// same planner code as production. Costs credits; run with <c>dotnet test --filter Category=Eval</c>. Writes
-/// <c>evals/results/&lt;date&gt;-a2-compression.json</c>, including Claude's reasons for review.
+/// <c>evals/results/&lt;date&gt;-a2-compression.json</c>, including Claude's English and Kannada reasons for review.
 /// </summary>
 [Trait("Category", "Eval")]
 public sealed class A2CompressionEvals
@@ -51,10 +51,14 @@ public sealed class A2CompressionEvals
             var result = await compressor.CompressAsync(input, TestContext.Current.CancellationToken);
             var targets = result.Targets.Select(t => t.Id).ToList();
             var accepted = new[] { c.Best }.Concat(c.AlsoAcceptable ?? []).ToHashSet();
+            // D-76: every reason also comes in Kannada (the validator drops one that isn't Kannada script).
+            var kannada = result.Targets.Concat(result.Dropped).All(i => i.Reason is null || i.ReasonKn is not null);
             var pass = result.Source == CompressionSource.Ai
                 && targets.All(input.Candidates.Contains)
-                && targets.Any(accepted.Contains);
-            results.Add(new CaseResult(c.Id, pass, input.Candidates, targets, c.Best, result.Verdict, result.Targets, result.Dropped));
+                && targets.Any(accepted.Contains)
+                && kannada;
+            results.Add(new CaseResult(
+                c.Id, pass, input.Candidates, targets, c.Best, result.Verdict, kannada, result.Targets, result.Dropped));
         }
 
         var score = results.Count(r => r.Pass) / (double)results.Count;
@@ -83,7 +87,7 @@ public sealed class A2CompressionEvals
 
     private sealed record CaseResult(
         string Id, bool Pass, IReadOnlyList<string> Candidates, IReadOnlyList<string> Targets, string Best, string Verdict,
-        IReadOnlyList<CompressionItem> TargetReasons, IReadOnlyList<CompressionItem> Dropped);
+        bool KannadaReasons, IReadOnlyList<CompressionItem> TargetReasons, IReadOnlyList<CompressionItem> Dropped);
 
     private sealed record Report(
         DateTimeOffset RunAt, string Prompt, int PromptVersion, string Model, int Cases, double Score, double Target,

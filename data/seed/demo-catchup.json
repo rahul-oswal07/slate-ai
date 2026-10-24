@@ -22,7 +22,7 @@
   "missedCompetencyIds": [
     "M3.ADD.CARRY"
   ],
-  "compressionRationale": "{\"source\": \"ai\", \"dropped\": [], \"targets\": [{\"id\": \"M3.ADD.CARRY\", \"reason\": \"Next week's addition word problems build directly on 3-digit addition with carrying, and the child missed it.\"}], \"verdict\": \"valid\"}",
+  "compressionRationale": "{\"source\": \"ai\", \"dropped\": [], \"targets\": [{\"id\": \"M3.ADD.CARRY\", \"reason\": \"Next week's addition word problems build directly on 3-digit addition with carrying, and the child missed it.\", \"reasonKn\": \"ಮುಂದಿನ ವಾರದ ಸಂಕಲನ ಪದ ಸಮಸ್ಯೆಗಳು ನೇರವಾಗಿ ದಶಕ ಸಹಿತ ಸಂಕಲನದ ಮೇಲೆ ನಿಂತಿವೆ, ಮತ್ತು ಮಗು ಅದನ್ನು ತಪ್ಪಿಸಿಕೊಂಡಿದೆ.\"}], \"verdict\": \"valid\"}",
   "clips": [
     {
       "id": "3bf72b2b-2eb3-45cf-bffc-7b6fc7272e70",

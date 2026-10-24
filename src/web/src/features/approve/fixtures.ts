@@ -37,7 +37,9 @@ export function pkg(overrides: Partial<CatchUpPackage> = {}): CatchUpPackage {
         reachable: true,
         missedCompetencyIds: ['M3.SUB.CHECK', 'M3.SUB.BORROW'],
         rationale: {
-          targets: [{ id: 'M3.SUB.BORROW', reason: 'Word problems next week need borrowing.' }],
+          targets: [
+            { id: 'M3.SUB.BORROW', reason: 'Word problems next week need borrowing.', reasonKn: 'ಮುಂದಿನ ವಾರದ ಪದ ಸಮಸ್ಯೆಗಳಿಗೆ ಎರವಲು ಬೇಕು.' },
+          ],
           dropped: [{ id: 'M3.SUB.CHECK', reason: 'Checking can wait.' }],
           source: 'ai',
           verdict: 'valid',

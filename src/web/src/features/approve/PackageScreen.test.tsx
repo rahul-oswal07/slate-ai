@@ -45,6 +45,16 @@ describe('PackageScreen', () => {
     expect(within(options).getByText(/263/)).toHaveTextContent('263 ✓correct answer')
   })
 
+  it("shows A2's Kannada reason in Kannada, and the English one where A2 gave no Kannada (D-76)", async () => {
+    await i18n.changeLanguage('kn')
+    setup(() => pkg())
+    renderApp('/approve/pkg-te')
+
+    expect(await screen.findByText('ಮುಂದಿನ ವಾರದ ಪದ ಸಮಸ್ಯೆಗಳಿಗೆ ಎರವಲು ಬೇಕು.')).toHaveAttribute('lang', 'kn')
+    expect(screen.queryByText(/Word problems next week need borrowing\./)).not.toBeInTheDocument()
+    expect(screen.getByText(/Checking can wait\./)).toBeInTheDocument()
+  })
+
   it('Approve needs the tick and sends the version she read', async () => {
     let current = pkg()
     const calls = setup(() => current, {
