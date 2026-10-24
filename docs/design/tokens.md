@@ -25,7 +25,7 @@ Source: the Build Kit design system (02-DESIGN §2), which continues the Ideate 
 
 Follows the phone's setting (`prefers-color-scheme`), including phones that switch to dark in battery saver. **No in-app toggle yet** (deferred: in-app System/Light/Dark choice, pre-paint script, Save-Data and forced-colours handling). Dark is designed, not inverted: warm near-black (never `#000`), off-white text (never `#FFF`, to reduce glow for people with astigmatism), and light teal buttons with dark text.
 
-## Slate & chalk (D-77, proposed)
+## Slate & chalk (D-77, accepted)
 
 New look for the teacher app, the parent pages (P1–P4, reason) and the demo shell. **Looks only.** Components keep their meaning: teal stays on standard buttons and link text; amber is a new, separate `accent`. Source of the look: Monika's concept mockups (outside the repo); this section is what gets built.
 
@@ -71,6 +71,109 @@ New look for the teacher app, the parent pages (P1–P4, reason) and the demo sh
 | accent word (Latin only) | Caveat 700 | — |
 
 Select by `:lang()`. Self-host and subset (Latin + that language's script), `font-display: swap`, load only the family the page needs (parent page budget ≤ 500 KB excluding audio, T-15). Family names and weights 500/700/800 are verified on Google Fonts. Indic scripts keep the type table above: one size step larger, ~1.7 line height, weight ≥ 500 on dark, no letter-spacing, `lang` on every element.
+
+### Three surfaces, one look and feel
+
+| Surface | Screens | Mood | Palette |
+|---|---|---|---|
+| **A. Teacher app** (slate) | Sign-in, Welcome, Today, Approve, Missed lessons, Back today, Week, set-up | Calm. One amber hero per screen, at most one doodle, no confetti | Slate (this section) |
+| **B. Family phone chat** (WhatsApp-like) | The `/demo` family phone's message list: evening message, catch-up link, stopped | Familiar. It copies the *layout* of a chat app so judges see the real hand-off. No logo, no brand name; the header says "Messages" | Chat palette below |
+| **C. Parent web pages** (slate, the assignment) | P1 Listen, reason page, P2 Activity, P3 Answer, P4 Done, Stopped, Expired | Warm. Tally, chalk star, up to two doodles, playful amber | Slate (this section) |
+
+The flow is **B → C**: the family taps a link in the chat and a slate page opens inside a thin in-app-browser bar (below). A and C use the same tokens; only the mood rules differ.
+
+### Look and feel, in one paragraph
+
+A dark classroom slate (pale grey-green in light mode) with chalk-white type, faint ruling lines like a notebook, soft smudges, and a few hand-drawn marks in chalk and one amber. Cards are flat, rounded and outlined; type is chunky and friendly (Baloo), with at most one handwritten accent word (Caveat); progress is chalk tally strokes; the hero action is a big amber disc. Nothing here carries meaning by itself: every mark has a word, icon or number beside it.
+
+### Surface texture (all slate screens)
+
+Three layers behind the content, all `pointer-events: none`, none carrying meaning:
+
+1. **Ruling lines:** a 1 px line every 40 px, ink at 7 % (light) or chalk at 6 % (dark). `repeating-linear-gradient(to bottom, transparent 0 39px, var(--rule) 39px 40px)`.
+2. **Smudges:** two soft radial highlights, one top-left and one lower-right (white at 35 % in light, 4 % in dark), each about 60–70 % wide and 24–28 % tall.
+3. **Chalk grain (optional):** a broad low-frequency noise (`feTurbulence`, `baseFrequency=".035 .6"`, 3 octaves) at ≤ 16 % opacity in light and ≤ 10 % in dark. No fine static.
+
+### Shape, space, elevation
+
+| Token (new) | Value | Use |
+|---|---|---|
+| `radius-button` | 14 px | Buttons |
+| `radius-card` | 20 px | Cards and picture tiles |
+| `radius-sheet` | 24 px (top corners) | Bottom sheets and dialogs |
+| `radius-pill` | 999 px | Tags, chips, nav badge |
+| `edge` | light `#B7C3BC` · dark `#3A423E` | Border of **static** cards (decorative). Interactive things use `border` (≥ 3:1) |
+
+Spacing is a 4 px scale: 16 px screen gutter, 12 px between cards, 8 px minimum between touch targets (unchanged). Cards are flat (border, no shadow). The only shadows: the play button (`0 8px 0 -2px rgba(0,0,0,.14)`) and a sheet's scrim (canvas at 60 %).
+
+### Components
+
+| Component | Spec |
+|---|---|
+| **Primary button** | Teal `primary` fill, `on-primary` text, 56 px high, full width, `radius-button`, label 18/24 weight 800. Pressed: `scale(.98)` in 200 ms |
+| **Secondary button** | `panel` fill, 2 px `primary` border, `primary-strong` text, 48–56 px |
+| **Hero (accent) button** | `accent` fill, `on-accent` icon or text. **Light mode: 3 px `ink` outline.** Used for play (P1) and mic (Today), nothing else |
+| **Link button** | `primary-strong`, 16 weight 700, underline with 4 px offset, 48 px high |
+| **Disabled** | `divider` fill, 2 px dashed `border`, `ink-muted` text, plus a visible hint saying why (e.g. "Tap one picture") |
+| **Card** | `surface`, 1.5 px `edge`, `radius-card`, padding 14–16. **Hero card:** 2 px `border`. **Payoff card:** `panel` fill, 2 px `primary` border |
+| **Tags and chips** | Pill, ≥ 32 px high, 14/20 weight 700, 18 px icon + word. Status colours from the status table (unchanged). Plain chip: `panel` fill + 1.5 px `primary` border |
+| **Header (parent)** | Back (48 px) + title 20/28 weight 800 on the canvas, no white bar and no rule. The teacher's name and avatar (amber disc, ink letter) lead on P1 and the reason page |
+| **Header (teacher)** | Date caption + Saved tag + settings gear in one row; one greeting or title below. The language control is a single small control, not four chips |
+| **Tally (progress)** | Four 3 px chalk strokes, 28 px tall, 12 px apart, slightly tilted. Done = `ink`, current = `accent` (drawn on in 300 ms), left = dashed `chalk`; on the last step a diagonal slash in `accent`. Beside it "2/4" (16 px, weight 800); screen-reader text "Step 2 of 4". It only counts up, never shows a break |
+| **Play button (P1)** | 156 px circle, `accent`, 56 px play/pause icon and the word under it; a 184 px `panel` halo behind. Breathes (scale 1 → 1.04, 2.4 s, ease-in-out, alternate) **only while playing** |
+| **Waveform (P1)** | 34 rounded bars, 5 px wide, 3 px gap, heights 8–40 px; unplayed `chalk`, played `ink`. While playing, bars move in 300 ms alternation. Times "0:00" and "1:35" always in text |
+| **Mic (Today)** | 112 px `accent` disc, 168 px `panel` halo, dashed 2.5 px `chalk` ring; recording turns the icon into a square and breathes as above; timer "0:12 / 0:30" in text |
+| **Picture tiles (reason page)** | Two columns, ≥ 112 px high, 2 px `border`, `radius-card`, chalk-drawn icon (28 px, 2 px stroke) in a 52 px `panel` disc, word under it (16/20 weight 700). Selected: 3 px `primary` border, `panel` fill, disc turns `accent`, 26 px tick badge. "Say it instead" is a full-width dashed tile. Five categories plus the mic tile, no orphan tile |
+| **Sticks (P3)** | Unchanged (D-76, `stick` token). Only the tile frame takes the new card style |
+| **Bottom nav** | `surface`, top border `edge`, five equal tabs ≥ 60 px high, icon 24 px + label 14 px (never wraps: one short word per language). Active = 4 px `primary` bar on top + weight 800 + `primary-strong`. Badge = `ink` disc, 20 px |
+| **Sheet / dialog** | `surface`, `radius-sheet` top, scrim = canvas at 60 %. The safe choice ("Keep") is the focused primary. No alarm colours on stop (C-27) |
+| **Skeleton** | `divider` bars 14 px high, radius 7 px, opacity .55 ↔ 1 in 300 ms alternation; `role="status"` with hidden "Loading…" |
+| **Celebration (P4)** | Amber medal 104 px with a chalk star drawn on in 300 ms, 10–14 small amber and teal confetti pieces popping in with ≤ 120 ms stagger. Not on teacher screens |
+
+### Icons and doodles
+
+- **Icons:** 24 px grid, 2 px stroke, round caps and joins, `currentColor`; the same family as the current Lucide icons, so `Icon.tsx` does not change. Picture-tile icons: thermometer (Unwell), briefcase (family travel or work), diya (festival), house (needed at home), three dots (Other), mic (Say it instead).
+- **Doodles:** loose chalk loops, a small star, a dashed circle, a squiggle underline (accent, 3.5 px). Drawn with a slight wobble (`feDisplacementMap`, scale 3, `baseFrequency` .03). `aria-hidden`, never beside text that needs reading, **at most two per parent page and one per teacher screen**.
+- **Accent word:** Caveat 700 at 1.25× the heading size, with a squiggle underline drawn on in 300 ms. Latin only. Kannada, Telugu and Tamil use a plain heading word with the amber underline marker.
+
+### Motion
+
+| What | Duration | Notes |
+|---|---|---|
+| State changes (press, select, theme) | 200 ms | ease |
+| Draw-on strokes, pop-ins, sheet slide | ≤ 300 ms | ease-out |
+| Play and mic breathing | 2.4 s loop | only while playing or recording |
+| Waveform bars, skeleton | 300 ms alternation | only while playing or loading |
+
+Everything above is switched off under `prefers-reduced-motion`; state is still shown by icon and word.
+
+### Family phone chat (surface B, demo only)
+
+A stand-in for the real chat app (spec: P0 card). Build it as a demo component, not an inbox. The layout copies a chat app's anatomy; **no logo, no brand name, no brand icon**.
+
+| Part | Spec |
+|---|---|
+| **Header** | 56 px bar: back arrow, 40 px avatar (teacher initial), "Lakshmi teacher", sub-line "Messages" (never "online"). Light `#075E54` with white text (7.7:1); dark `#1F2C34` with `#E9EDEF` (12.1:1) |
+| **Wallpaper** | Light `#EFEAE2`, dark `#0B141A`, with a faint repeating doodle pattern (≤ 6 % opacity). **No text sits directly on the wallpaper**; everything readable is on a bubble or chip |
+| **Day separator** | Centred pill, white (light) or `#202C33` (dark), 14/20 weight 600, meta colour |
+| **Incoming bubble** | Light `#FFFFFF`, dark `#202C33`; 16 px radius with a 4 px corner on the sender side; max width 86 %; padding 8 × 12; 1 px border `#7F8A85` (light) or `#7A8A93` (dark) so the bubble shows against the wallpaper. Text `#111B21` (17.5:1) or `#E9EDEF` (12.1:1), 16/24 (kn/te/ta 18/30) |
+| **Meta (time)** | 14/20, light `#44525A` on white (8.1:1), dark `#AEBAC1` on `#202C33` (7.2:1). No ticks on incoming bubbles |
+| **Link text** | Light `#0A5C85` on white (7.3:1), dark `#7DC4E8` on `#202C33` (7.4:1), underlined |
+| **Voice-note row** | First inside the evening bubble: 48 px play disc, 28-bar waveform in chalk grey, "0:09", teacher avatar. This is her greeting; nothing else in the bubble is audio (D-70) |
+| **Link rows** | "Is everything OK? Tell us" and "Open" are 48 px full-width rows inside the bubble, link colour with a chevron. "Stop these messages" is a smaller underlined row below, never the same weight |
+| **Order** | Day separator → evening bubble (each day of absence) → catch-up bubble, only after the teacher approves → stopped bubble with "Start them again" when stopped. After a Reset: "No messages yet" on a bubble |
+| **No input bar** | The family cannot type; the footer is blank wallpaper. A reply is the reason page or the stop link, never free text |
+| **Family switch** | The two buttons above the phone (D-74) stay, restyled as slate pills |
+
+**In-app-browser bar:** tapping a link slides a slate page up inside the phone (300 ms) under a 48 px bar: close (X, 48 px target) on the left, the page title ("Lesson", "Is everything OK?") centred, the host name small below. Close slides it back to the chat at the same scroll position. The page below is surface C in full.
+
+### Accessibility for the new look (additions)
+
+- All text pairs in this section are ≥ 7:1 and UI ≥ 3:1 (measured with the `tokens.test.ts` formula; the test is the judge). Where a decorative mark is the only cue, a word or number carries the meaning.
+- Focus ring unchanged: 3 px `focus`, 2 px offset, on every surface including chat rows and the browser bar.
+- Touch targets ≥ 48 px, 8 px apart; the play button 156 px, the mic 112 px.
+- Doodles, texture, confetti, ghost numerals: `aria-hidden`.
+- Dark and light are both designed, not inverted. Both follow the phone's setting; there is no in-app toggle.
 
 ### Rollout
 
