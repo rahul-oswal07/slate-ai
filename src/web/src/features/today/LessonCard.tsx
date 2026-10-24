@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
+import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
@@ -8,8 +9,8 @@ import type { Chapter, LessonDay } from '../lessons/types'
 import { useNoteQueued, useSendNote } from '../lessons/useLessons'
 import { MAX_MS, useRecorder } from '../lessons/useRecorder'
 
-const card = 'rounded-card border-[1.5px] border-edge bg-surface p-[14px]'
-const textButton = 'mt-1 min-h-target w-full text-label text-primary-strong'
+const card = 'card p-[14px]'
+const textButton = 'btn-link mt-1'
 
 /**
  * Today's lesson (T1). Not recorded: the mic (FR-02, D-31) and "Or pick the lesson from the list". After she
@@ -62,8 +63,14 @@ export function LessonCard({
   if (lesson?.status === 'confirmed') {
     const ids = lesson.competencyIds
     return (
-      <section aria-labelledby="lesson-title" className={card}>
-        <h2 id="lesson-title" className="text-label">
+      <section aria-labelledby="lesson-title" className="card-hero">
+        <output className="flex items-center gap-3 border-b-2 border-dashed border-chalk pb-3 text-title">
+          <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
+            <Icon name="check" size={22} strokeWidth={3} />
+          </span>
+          {t('today.done')}
+        </output>
+        <h2 id="lesson-title" className="mt-3 text-label">
           {ids.length > 1 ? t('today.lesson.titlePlural') : t('today.lesson.title')}
         </h2>
         <ul className="mt-2 flex flex-col gap-2">
@@ -172,11 +179,13 @@ export function LessonCard({
   const recording = recorder.status === 'recording'
   const seconds = Math.min(Math.floor(recorder.elapsedMs / 1000), MAX_MS / 1000)
   return (
-    <section aria-labelledby="lesson-title" className={`${card} text-center`}>
-      <h2 id="lesson-title" className="text-left text-label">
+    <section aria-labelledby="lesson-title" className="card-hero text-center">
+      <h2 id="lesson-title" className="sr-only">
         {t('today.lesson.title')}
       </h2>
-      <p className="mt-1 text-body">{t('today.lesson.prompt')}</p>
+      <p className="text-title">
+        <AccentTitle title={t('today.lesson.prompt')} accent={t('nav.today').toLowerCase()} />
+      </p>
       {/* The one amber hero on this screen (D-77): a 112 px disc in a panel halo with a dashed chalk ring. */}
       <div className="relative mx-auto mt-3 flex size-[168px] items-center justify-center rounded-full bg-panel">
         <span aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-full border-[2.5px] border-dashed border-chalk" />

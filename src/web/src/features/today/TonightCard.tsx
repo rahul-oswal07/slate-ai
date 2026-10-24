@@ -22,13 +22,13 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
 
   if (!day.templateApproved) {
     return (
-      <section aria-labelledby="tonight-title" className="rounded-card border-2 border-primary bg-panel p-[14px]">
+      <section aria-labelledby="tonight-title" className="border-t-2 border-dashed border-chalk pt-3">
         <h2 id="tonight-title" className="text-label text-primary-strong">
           {t('today.tonight.notApproved')}
         </h2>
         <Link
           to="/setup/evening"
-          className="mt-2 flex min-h-target w-full items-center justify-center text-label text-primary-strong"
+          className="btn-secondary mt-3 flex items-center justify-center gap-2"
         >
           {t('today.tonight.review')}
         </Link>
@@ -44,7 +44,7 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
         : t('today.tonight.title', { families: day.families, absent: day.absent })
 
   return (
-    <section aria-labelledby="tonight-title" className="rounded-card border-2 border-primary bg-panel p-[14px]">
+    <section aria-labelledby="tonight-title" className="border-t-2 border-dashed border-chalk pt-3">
       <h2 id="tonight-title" className="text-label text-primary-strong">
         {title}
       </h2>
@@ -54,7 +54,7 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
           {leftOut.map((c) => (
             <li key={c.childId} className="flex flex-wrap items-center gap-2 text-body">
               <span>{names.get(c.childId) ?? ''}</span>
-              <span className="rounded-full border border-border bg-surface px-2 text-caption text-ink-muted">
+              <span className="chip bg-surface text-ink">
                 {t(tagKey[c.outcome] ?? '')}
               </span>
             </li>
@@ -63,7 +63,7 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
       )}
       <Link
         to="/setup/evening"
-        className="mt-2 flex min-h-target w-full items-center justify-center text-label text-primary-strong"
+        className="btn-secondary mt-3 flex items-center justify-center gap-2"
       >
         {t('today.tonight.see')}
       </Link>

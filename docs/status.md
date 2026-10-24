@@ -24,6 +24,15 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **Not done:** T-49 Today re-layout (Monika's gate: her sign-off on the mockup).
 - **Next:** Hindi support, below (branch stacked on this one).
 
+## Today re-layout (24 Oct, T-49), branch `feat/T-59-hindi` (not committed)
+
+- **Built to `docs/design/screenshots/slate/T1-today-*.png` (Rahul confirmed Monika's sign-off):** accent on "Today" in the title (`nav.today`), a three-step day strip (`DayStrip.tsx`, `stepStates.ts`; Attendance, Lesson, Tonight), compact attendance card with red-tint name pills, the lesson card as the one amber hero (accent on "today" in the prompt; confirmed state is the "Done for today. Thank you." card with the lesson and Change), and "Added" + "Tonight" inside one payoff card. Hooks, props, routes, ARIA names and states unchanged.
+- **New keys:** `today.strip.*` (label, attendance, lesson, tonight, next, done, tonightTime, stepDone, stepCurrent, stepUpcoming) in kn, en, te, ta, hi. **All are drafts for Monika.**
+- **Tests:** new `DayStrip.test.tsx`; existing Vitest unchanged and green. `verify.sh` OK; all 12 existing e2e specs pass (including Today axe, dark).
+- **Left out on purpose:** "Since yesterday" (never built: no component, data or key). The reference has it; it needs a decision from Monika before anyone builds it.
+- **Differs from the picture (the card's copy wins):** the date reads "Saturday, October 24" not "23 Oct", so the Saved tag wraps under the title at 360 px; the mic hint is the built copy; the payoff card keeps the built sentences, not the big "3 of 4" numerals (that would split a translated string).
+- **Not done:** the done-state screenshot, axe on light, and Kannada/Hindi wrapping check. Screenshots in `docs/screenshots/T-49/`.
+
 ## Hindi support (24 Oct, D-78, T-59), branch `feat/T-59-hindi`
 
 - **Asked by Rahul, scope "full":** `hi` in the teacher and parent screens and as a family home language. Plan: `/Users/rahuloswal/.claude/plans/hazy-scribbling-heron.md`. D-78 and T-59 added as **proposed**, with **[DECIDE: Monika]** on copy review.

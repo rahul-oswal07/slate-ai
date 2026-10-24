@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useAnnounce } from '../../components/useAnnounce'
@@ -11,6 +12,7 @@ import { useCurriculum, useLessonDay, useSaveLesson } from '../lessons/useLesson
 import { AddedCard } from './AddedCard'
 import { AttendanceCard } from './AttendanceCard'
 import { AttendanceGrid } from './AttendanceGrid'
+import { DayStrip } from './DayStrip'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
@@ -42,6 +44,11 @@ export function TodayScreen() {
   const confirmed = lesson.data?.lesson?.status === 'confirmed' ? lesson.data.lesson.competencyIds : []
   const absent = day.data && (day.data.status === 'sats' || day.data.status === 'manual') ? day.data.absentChildIds.length : 0
   const done = confirmed.length > 0 && absent > 0
+  const attendanceDone = day.data?.status === 'sats' || day.data?.status === 'manual'
+  const satsTime =
+    day.data?.status === 'sats' && day.data.receivedAt
+      ? formatSchoolTime(day.data.receivedAt, i18n.language, date)
+      : null
   const evening = useEveningDay(classId, date, done)
   // D-68: when the copy on screen was saved (snapshot) or last fetched.
   const savedAt = day.data ? (day.data.savedAt ?? day.dataUpdatedAt) : null
@@ -55,16 +62,17 @@ export function TodayScreen() {
     <section aria-labelledby="today-title" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 id="today-title" ref={headingRef} tabIndex={-1} className="text-title">
-          {t('today.title', { date: formatSchoolDate(date, i18n.language) })}
+          <AccentTitle title={t('today.title', { date: formatSchoolDate(date, i18n.language) })} accent={t('nav.today')} />
         </h1>
         <SyncBadge />
       </div>
 
-      {confirmed.length > 0 && !editing && (
-        <output className="rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-3 text-body">
-          {t('today.done')}
-        </output>
-      )}
+      <DayStrip
+        attendanceDone={attendanceDone}
+        attendanceTime={satsTime}
+        lessonDone={confirmed.length > 0}
+        tonightDone={(evening.data?.sent ?? 0) > 0}
+      />
 
       <RecapCard classId={classId} date={date} chapters={chapters} />
 
@@ -112,10 +120,12 @@ export function TodayScreen() {
         <LessonCard classId={classId} date={date} day={lesson.data} chapters={chapters} onPick={() => setPicking(true)} />
       )}
 
-      {!editing && done && <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />}
-
-      {!editing && done && evening.data && day.data && (
-        <TonightCard day={evening.data} roster={day.data.children} />
+      {/* "Added" and "Tonight" are one payoff card (T-49): what the lesson just did, and what goes out at 6 pm. */}
+      {!editing && done && (
+        <div className="card-payoff flex flex-col gap-3">
+          <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
+          {evening.data && day.data && <TonightCard day={evening.data} roster={day.data.children} />}
+        </div>
       )}
 
       {picking && (

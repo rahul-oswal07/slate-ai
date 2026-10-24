@@ -48,7 +48,8 @@
       "locked": "Too many wrong PINs. Try again after {{time}}.",
       "offline": "No network. Connect to sign in.",
       "generic": "Something went wrong. Try again."
-    }
+    },
+    "logout": "Log out"
   },
   "setup": {
     "welcome": {
@@ -146,6 +147,18 @@
         "stopped": "Stopped by family",
         "noWording": "No message in their language yet"
       }
+    },
+    "strip": {
+      "label": "Today’s steps",
+      "attendance": "Attendance",
+      "lesson": "Lesson",
+      "tonight": "Tonight",
+      "next": "Next",
+      "done": "Done",
+      "tonightTime": "6 pm",
+      "stepDone": "done",
+      "stepCurrent": "now",
+      "stepUpcoming": "later"
     }
   },
   "sync": {
