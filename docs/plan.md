@@ -71,27 +71,11 @@ slate-ai/
 
 **Build order from Day 3 (21 Oct): screen by screen.** Each screen is one vertical slice (UI + API + any AI step) built against its design card: sign-in + Welcome (T-47) → T1 Today → T2 Lesson confirm → T4 Missed lessons → T0 setup steps + T8 Families → T3 Approve → P1–P4 parent page → P0 evening message + reason → T5 Back today → T6 Week → demo shell (`POST /api/demo/login` stays with T-18). Cut T6 and T5 first if time runs short. **From 22 Oct the order is D-70's** ([`mvp-build-flow.md`](design/mvp-build-flow.md) §2): T-44 (evening message) was built before T-14/T-15 because it is in the demo loop.
 
-## 4. Ten-day delivery plan
+## 4. Delivery
 
-Capacity assumption: both work around day jobs; weekdays ~4–5 h each, Sat/Sun ~8 h each. Daily sync **21:30 IST, 15 min** (what shipped, what's blocked, next handoff). Status lives on the GitHub Project board.
+**Reset 24 Oct (Rahul):** the ten-day schedule (Days 0–10 with T-xx per day) was retired with the open tasks; what it delivered is in `tasks.md` (*Done*) and `status.md`. From now on Monika adds tasks one at a time in `tasks.md` and Rahul implements them one at a time, in the order she adds them.
 
-| Day | Date | Rahul (engineering) | Monika (product, design, testing) | Handoff / checkpoint |
-|---|---|---|---|---|
-| 0 | Sun 18 Oct | Create GitHub repo, push initial commit; get Anthropic credits + Sarvam key; create Azure resources | Review and accept `intent.md`; resolve Day 1 gate decisions in `spec.md` §8 | **Gate: intent accepted** |
-| 1 | Mon 19 Oct | T-01 repo/CI, T-02 API skeleton + DB, T-03 web skeleton (PWA, i18n), T-04 deploy walking skeleton | T-20 recruit 3 teachers + 2 Telugu-speaking parents; T-21 low-fi wireframes (Today, Approve, Ledger, Parent); T-22 competency list draft; book education mentor | **H1 (EOD):** wireframes + competency list → Rahul. **Gate: spec accepted** |
-| 2 | Tue 20 Oct | T-05 curriculum JSON + graph; T-06 attendance API; T-07 A1 lesson mapping (STT + Claude) + 10 evals | T-23 design tokens + hi-fi Today and Ledger; T-24 interview + test script; book technical mentor (Rahul attends) | **H2:** tokens + Today/Ledger hi-fi → Rahul. Rahul sends 3 sample scripts → Monika |
-| 3 | Wed 21 Oct | T-08 A2 compression; T-09 A3 script writer; T-10 A4 verifier; T-11 TTS + greeting merge | T-25 Round 0: 2 teacher calls reviewing sample scripts and the flow; hi-fi Approve + Parent P1–P4; picture style | **TC1:** A1 evals ≥ 80%; verifier unit tests green |
-| 4 | Thu 22 Oct | T-12 Today screen + offline outbox; T-13 Ledger screen; T-46 return-speed card | T-26 native-speaker review of Telugu/Kannada scripts; buddy card + pacing designs; parent copy | **H3:** Parent screens, buddy card, Approve hi-fi → Rahul |
-| 5 | Fri 23 Oct | T-14 Approve screen; T-15 parent page + picture scoring; start T-45 reason for absence (A7) | T-27 usability kit: tasks, consent form, observation sheet, timing sheet | **TC2: first end-to-end loop on staging**; Playwright happy path green. Tag `v0.5-loop` |
-| 6 | Sat 24 Oct | Observe tests, time teacher actions; then T-16 buddy cards + pacing nudge; T-44 evening message; finish T-45 | **T-28 Usability round 1**: 3 teachers + 1–2 parents; log in `docs/user-testing.md` | Evening triage: findings → issues, top 5 marked P0 |
-| 7 | Sun 25 Oct | T-17 fix round-1 P0s; T-18 demo mode + reset + "Under the hood" panel; T-19 consent + delete | Revise designs from round 1; T-29 demo story + video storyboard (≤ 2:50) | **MVP feature freeze (FR-01–15).** Stretch go/no-go decision |
-| 8 | Mon 26 Oct | Stretch (if go) or hardening; T-30 accessibility + performance pass; full eval run | **T-31 Usability round 2**: 2 teachers (one in a real class if possible); screen-reader check | **TC3:** axe 0 serious/critical; evals at targets; Lighthouse ≥ 85 |
-| 9 | Tue 27 Oct | T-32 round-2 fixes; T-33 privacy/security pass; T-34 README + open-source prep | T-35 deck draft (AI layers, guardrails, offline, testing evidence, roadmap); record raw footage | Deck draft → Rahul for technical review |
-| 10 | Wed 28 Oct | **Code freeze 20:00.** Bug bash together; 3 demo rehearsals | Bug bash; T-36 record final demo video | Tag `v1.0-rc`; only P0 fixes after this |
-| Buffer | Thu 29 Oct | P0 fixes only; production data reset; uptime check | Edit + upload video (YouTube, publicly accessible); finalise deck | Video and deck done |
-| Buffer | Fri 30 Oct | T-37 outsider dry run of judge path using only README; fix blockers | Same dry run with a teacher proxy; check every submission item | All items in `hackathon-requirements.md` §4 ticked |
-| Submit | **Sat 31 Oct** | Submit on Hack2Skill by **18:00 IST**; tag `v1.0-submission`; make repo public | Co-submit; confirm links open in incognito | **Submitted** |
-| Reserve | Sun 1 Nov | Emergency only (deadline 23:59) | Emergency only | — |
+Fixed dates: **submit on Hack2Skill by Sat 31 Oct, 18:00 IST** (hard deadline Sun 1 Nov, 23:59); tag `v1.0-submission` and make the repo public on submission.
 
 ### Design-to-engineering handoffs
 
