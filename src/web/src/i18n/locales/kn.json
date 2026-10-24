@@ -146,6 +146,18 @@
         "stopped": "ಕುಟುಂಬ ನಿಲ್ಲಿಸಿದೆ",
         "noWording": "ಅವರ ಭಾಷೆಯಲ್ಲಿ ಇನ್ನೂ ಸಂದೇಶ ಇಲ್ಲ"
       }
+    },
+    "strip": {
+      "label": "ಇಂದಿನ ಹಂತಗಳು",
+      "attendance": "ಹಾಜರಾತಿ",
+      "lesson": "ಪಾಠ",
+      "tonight": "ಸಂಜೆ",
+      "next": "ಮುಂದೆ",
+      "done": "ಮುಗಿಯಿತು",
+      "tonightTime": "6 ಗಂಟೆ",
+      "stepDone": "ಮುಗಿದಿದೆ",
+      "stepCurrent": "ಈಗ",
+      "stepUpcoming": "ನಂತರ"
     }
   },
   "sync": {

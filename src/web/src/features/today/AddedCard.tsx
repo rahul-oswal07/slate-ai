@@ -15,14 +15,14 @@ export function AddedCard({ absent, lessonIds, chapters }: { absent: number; les
   })
 
   return (
-    <section aria-labelledby="added-title" className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
+    <section aria-labelledby="added-title">
       <h2 id="added-title" className="text-label">
         {t('today.added.title', { n: absent })}
       </h2>
       <p className="mt-1 text-body text-ink-muted">{t('today.added.sub', { lessons: names.join(' + ') })}</p>
       <Link
         to="/missed"
-        className="mt-2 flex min-h-target w-full items-center justify-center text-label text-primary-strong"
+        className="btn-link mt-1"
       >
         {t('today.added.see', { n: absent })}
       </Link>

@@ -146,6 +146,18 @@
         "stopped": "परिवार ने रोका",
         "noWording": "उनकी भाषा में अभी संदेश नहीं"
       }
+    },
+    "strip": {
+      "label": "आज के चरण",
+      "attendance": "हाज़िरी",
+      "lesson": "पाठ",
+      "tonight": "शाम",
+      "next": "अगला",
+      "done": "हो गया",
+      "tonightTime": "6 बजे",
+      "stepDone": "हो गया",
+      "stepCurrent": "अभी",
+      "stepUpcoming": "बाद में"
     }
   },
   "sync": {

@@ -3,8 +3,8 @@ import { Icon } from '../../components/Icon'
 import { formatSchoolTime } from './schoolTime'
 import type { AttendanceDay } from './types'
 
-const card = 'rounded-card border-[1.5px] border-edge bg-surface p-[14px]'
-const textButton = 'mt-2 min-h-target w-full text-label text-primary-strong'
+const card = 'card p-[14px]'
+const textButton = 'btn-link mt-2 ml-auto flex'
 
 /**
  * The attendance part of T1 Today: where today's register came from and who is absent (FR-01, D-27, D-69).
@@ -85,9 +85,12 @@ export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: ()
           ) : (
             <>
               <p className="mt-1 text-title">{t('today.attendance.absentCount', { n: names.length })}</p>
-              <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-body">
+              <ul className="mt-2 flex flex-wrap gap-2 text-body">
                 {names.map((child) => (
-                  <li key={child.id}>{child.firstName}</li>
+                  <li key={child.id} className="chip bg-error-bg text-error">
+                    <Icon name="x" size={16} />
+                    {child.firstName}
+                  </li>
                 ))}
               </ul>
             </>

@@ -146,6 +146,18 @@
         "stopped": "Stopped by family",
         "noWording": "No message in their language yet"
       }
+    },
+    "strip": {
+      "label": "Today’s steps",
+      "attendance": "Attendance",
+      "lesson": "Lesson",
+      "tonight": "Tonight",
+      "next": "Next",
+      "done": "Done",
+      "tonightTime": "6 pm",
+      "stepDone": "done",
+      "stepCurrent": "now",
+      "stepUpcoming": "later"
     }
   },
   "sync": {

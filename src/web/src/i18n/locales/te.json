@@ -146,6 +146,18 @@
         "stopped": "కుటుంబం ఆపింది",
         "noWording": "వారి భాషలో ఇంకా సందేశం లేదు"
       }
+    },
+    "strip": {
+      "label": "ఈ రోజు దశలు",
+      "attendance": "హాజరు",
+      "lesson": "పాఠం",
+      "tonight": "సాయంత్రం",
+      "next": "తర్వాత",
+      "done": "అయింది",
+      "tonightTime": "6 గంటలు",
+      "stepDone": "అయింది",
+      "stepCurrent": "ఇప్పుడు",
+      "stepUpcoming": "తర్వాత"
     }
   },
   "sync": {
