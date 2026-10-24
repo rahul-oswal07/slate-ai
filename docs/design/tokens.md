@@ -60,6 +60,16 @@ New look for the teacher app, the parent pages (P1–P4, reason) and the demo sh
 7. **Texture, ruling lines and doodles are decorative:** `aria-hidden`, no meaning, ≤ 16 % opacity. Motion: every transition and draw-on ≤ 300 ms; the play button may breathe (≤ 2.4 s) only while playing; **all of it off under `prefers-reduced-motion`**.
 8. **Status is still icon + word** (rule 5 above). Nothing here changes that.
 
+### Responsive (mobile-first)
+
+Design and build at **360 px first**; larger widths only add, never replace. Phones are the product; a laptop or tablet must not break, and need not look different.
+
+1. **Fluid single column from 320 to 767 px:** no fixed widths, no horizontal scroll, no clipped text. Use `min-h-dvh` (not `vh`) and respect safe-area insets (notch, gesture bar) on the header, bottom nav and sticky bars.
+2. **From 768 px:** keep the phone-width column centred (`max-w-md`) on the slate canvas. A wider layout (two-pane Approve, Today with a side panel) is a per-screen decision in that screen's own task, not part of T-48. `/demo` keeps its own side-by-side layout.
+3. **Text and zoom:** sizes in `rem`; the layout reflows at 200 % text zoom and with the largest phone font setting; Indic line heights hold; a container's height is never fixed.
+4. **Orientation:** landscape on a phone still works (scrollable, nothing hidden behind sticky bars or the nav).
+5. **Check each PR at 320, 360, 412 and 768 px** (and 1280 px for one screen), light and dark.
+
 ### Fonts
 
 | Language | Headings | Body |
