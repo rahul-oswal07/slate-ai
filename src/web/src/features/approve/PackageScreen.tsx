@@ -282,18 +282,23 @@ function RegenerateButtons({ busy, onRegenerate }: { busy: boolean; onRegenerate
   )
 }
 
-/** "Why this": each lesson kept or left out, with A2's reason, or code's wording when the rule chose (T3: never shown as AI). */
+/**
+ * "Why this": each lesson kept or left out, with A2's reason, or code's wording when the rule chose (T3: never shown as AI).
+ * A2 writes each reason in English and Kannada (D-76): the Kannada app shows the Kannada one, falling back to English.
+ */
 function WhyThis({ pkg }: { pkg: CatchUpPackage }) {
   const { t, i18n } = useTranslation()
   const chapters = useCurriculum().data?.chapters ?? []
-  const reasons = new Map<string, string | null>()
+  const kannada = i18n.language === 'kn'
+  const reasons = new Map<string, { text: string; lang?: string }>()
   const kept = new Set(pkg.targetCompetencyIds)
   const dropped: string[] = []
   for (const child of pkg.children) {
     const fromAi = child.rationale.source === 'ai'
     for (const item of [...child.rationale.targets, ...child.rationale.dropped] as CompressionItem[]) {
-      if (fromAi && item.reason && !reasons.get(item.id)) {
-        reasons.set(item.id, item.reason)
+      const text = kannada && item.reasonKn ? item.reasonKn : item.reason
+      if (fromAi && text && !reasons.has(item.id)) {
+        reasons.set(item.id, { text, lang: text === item.reasonKn ? 'kn' : 'en' })
       }
       if (!kept.has(item.id) && !dropped.includes(item.id)) {
         dropped.push(item.id)
@@ -313,13 +318,17 @@ function WhyThis({ pkg }: { pkg: CatchUpPackage }) {
               <span className="font-bold">{lessonNames(chapters, [row.id], i18n.language)[0]}</span>
               <span className="sr-only"> ({row.kept ? t('approve.why.keptLabel') : t('approve.why.droppedLabel')})</span>
               {': '}
-              {reasons.get(row.id) ?? (row.kept ? t('approve.why.kept') : t('approve.why.dropped'))}
+              <WhyReason reason={reasons.get(row.id)} fallback={row.kept ? t('approve.why.kept') : t('approve.why.dropped')} />
             </span>
           </li>
         ))}
       </ul>
     </div>
   )
+}
+
+function WhyReason({ reason, fallback }: { reason?: { text: string; lang?: string }; fallback: string }) {
+  return reason ? <span lang={reason.lang}>{reason.text}</span> : <>{fallback}</>
 }
 
 function ErrorLine({ error }: { error: Error | null }) {

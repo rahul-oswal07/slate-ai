@@ -1,6 +1,7 @@
 export type PackageStatus = 'generating' | 'ready' | 'needsReview' | 'approved' | 'sent' | 'failed'
 
-export type CompressionItem = { id: string; reason: string | null }
+/** `reasonKn` (D-76): A2's reason in Kannada; missing on rule choices and catch-ups made before prompt v2. */
+export type CompressionItem = { id: string; reason: string | null; reasonKn?: string | null }
 
 export type AssignedChild = {
   childId: string

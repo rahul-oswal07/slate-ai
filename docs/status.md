@@ -42,6 +42,13 @@ Update it at the end of every working session (what changed, what's next, blocke
 - Fixed one gap: deleting the only child of a catch-up left the catch-up (and its audio) on Approve for nobody, still approvable. Delete now removes catch-ups with no children left in the same transaction; shared ones stay. Failing Db test first (`ChildDeleteEmptyCatchUpDbTests`), then the fix in `ChildStore`.
 - T-19 is done for the MVP; T8 consent editing stays on the roadmap.
 
+## D-76 (1a) "Why this" in Kannada (24 Oct, branch `feat/T-08-a2-reason-kn`)
+
+- Prompt `a2-compression` v2: each kept and dropped lesson gets `reason` (English) and `reasonKn` (Kannada, lessons by `nameKn`, "ಮಗು", digits) in the same call. `A2Validator` keeps a `reasonKn` only if ≥ 80% of its letters are Kannada; a bad one is dropped without failing the targets. `CompressionItem.ReasonKn` is optional, so stored assignments read as before (no migration).
+- T3 "Why this" shows the Kannada reason in the Kannada app (`lang="kn"`), else the English one, else code's wording. The demo's pre-made catch-up got a hand-written Kannada reason in `data/seed/demo-catchup.json`.
+- Eval: 10/10 on v2 (v1 was 10/10), every reason came back in Kannada; one lesson name for Monika to check (`docs/quality.md`). Db suite 15/15.
+- Next: D-76 (1b) verifier needs-review lines as Kannada code templates (branch `feat/T-10-review-templates`, no AI change).
+
 ## D-76 (5) P3 sticks fit a phone (24 Oct, branch `fix/T-15-sticks-fit`)
 
 - Problem: a 3-digit answer drew hundreds as tall bundles that wrapped, so a P3 tile was 188 px (296) to 240 px (999) and only one of the three choices showed at 360×640.

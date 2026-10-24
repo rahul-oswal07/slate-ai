@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace SlateAi.Api.Features.CatchUps.Compression;
@@ -11,8 +12,10 @@ public static class CompressionSource
     public const string Rule = "rule";
 }
 
-/// <param name="Reason">For the teacher's "Why this" (T3). Null when the rule chose: T3 shows its own wording.</param>
-public sealed record CompressionItem(string Id, string? Reason);
+/// <param name="Reason">For the teacher's "Why this" (T3), in English. Null when the rule chose: T3 shows its own wording.</param>
+/// <param name="ReasonKn">The same reason in Kannada (D-76), shown when the teacher's app is in Kannada. Null when the rule
+/// chose, when A2's text wasn't Kannada, and on assignments stored before prompt v2.</param>
+public sealed record CompressionItem(string Id, string? Reason, string? ReasonKn = null);
 
 /// <summary>What A2 decided after validation (guardrail 2: invalid output falls back to the rule).</summary>
 /// <param name="Targets">1–2 lessons to catch up, most important first (the learning check tests the first).</param>
@@ -30,6 +33,9 @@ public static class A2Validator
 {
     public const int MaxTargets = 2;
     public const int MaxReasonLength = 200;
+
+    /// <summary>Share of a Kannada reason's letters that must be Kannada; lesson words in English are fine, a sentence isn't.</summary>
+    public const double MinKannadaShare = 0.8;
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -62,15 +68,15 @@ public static class A2Validator
             return Rule(input, "fallback:target-outside-candidates");
         }
 
-        var targets = output.Targets.Select(t => new CompressionItem(t.CompetencyId!, Clean(t.Reason))).ToList();
+        var targets = output.Targets.Select(t => Item(t.CompetencyId!, t)).ToList();
         var reasons = (output.Dropped ?? [])
             .Where(d => d.CompetencyId is not null)
             .GroupBy(d => d.CompetencyId!, StringComparer.Ordinal)
-            .ToDictionary(g => g.Key, g => Clean(g.First().Reason), StringComparer.Ordinal);
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
         var dropped = input.Missed
             .Select(m => m.Id)
             .Where(id => !targetIds.Contains(id))
-            .Select(id => new CompressionItem(id, reasons.GetValueOrDefault(id)))
+            .Select(id => reasons.TryGetValue(id, out var d) ? Item(id, d) : new CompressionItem(id, null))
             .ToList();
         return new A2Result(input.ChildId, targets, dropped, CompressionSource.Ai, "valid");
     }
@@ -111,14 +117,27 @@ public static class A2Validator
         {
             ["type"] = "object",
             ["additionalProperties"] = false,
-            ["required"] = new[] { "competencyId", "reason" },
+            ["required"] = new[] { "competencyId", "reason", "reasonKn" },
             ["properties"] = new Dictionary<string, object>
             {
                 ["competencyId"] = new Dictionary<string, object> { ["type"] = "string", ["enum"] = ids.ToArray() },
                 ["reason"] = new Dictionary<string, object> { ["type"] = "string" },
+                ["reasonKn"] = new Dictionary<string, object> { ["type"] = "string" },
             },
         },
     };
+
+    private static CompressionItem Item(string id, A2Item item) =>
+        new(id, Clean(item.Reason), Clean(item.ReasonKn) is { } kn && IsKannada(kn) ? kn : null);
+
+    /// <summary>Most letters (vowel signs included) in the Kannada block, like the verifier's script check.</summary>
+    internal static bool IsKannada(string text)
+    {
+        var letters = text
+            .Where(ch => char.IsLetter(ch) || CharUnicodeInfo.GetUnicodeCategory(ch) is UnicodeCategory.NonSpacingMark or UnicodeCategory.SpacingCombiningMark)
+            .ToList();
+        return letters.Count > 0 && letters.Count(ch => ch is >= '\u0C80' and <= '\u0CFF') >= MinKannadaShare * letters.Count;
+    }
 
     private static string? Clean(string? text) =>
         string.IsNullOrWhiteSpace(text) ? null
@@ -126,5 +145,5 @@ public static class A2Validator
 
     private sealed record A2Output(List<A2Item>? Targets, List<A2Item>? Dropped);
 
-    private sealed record A2Item(string? CompetencyId, string? Reason);
+    private sealed record A2Item(string? CompetencyId, string? Reason, string? ReasonKn);
 }
