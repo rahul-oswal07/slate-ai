@@ -74,11 +74,18 @@ Select by `:lang()`. Self-host and subset (Latin + that language's script), `fon
 
 ### Rollout
 
-1. **T-48** foundation + parent-page shared parts (tokens, fonts, frame, header, tally, AI chip).
-2. Each parent screen, one PR: P1, reason page, P2, P3, P4 (+ stopped, expired).
-3. Teacher shell (compact header and language control, nav labels), then each teacher screen. **Today is T-49 (later, #115)**: day strip, hero lesson card, merged tonight card, collapsed "Since yesterday"; built in this theme, once.
-4. Demo shell: family phone as a chat view with an in-app-browser bar when a link opens; "Under the hood" table.
-5. Last: switch the base token values, delete `.theme-slate`.
+| Order | Task | What |
+|---|---|---|
+| 1 | T-48 (#114) | Foundation: tokens, fonts, scoped `.theme-slate`, shared parent-page parts |
+| 2 | T-50 (#116) | P1 Listen |
+| 3 | T-51 (#117) | Reason page |
+| 4 | T-52 (#118) | P2 Activity and P3 Answer |
+| 5 | T-53 (#119) | P4 Done, Stopped, Expired |
+| 6 | T-54 (#120) | Teacher shell: header, language control, nav |
+| 7 | T-55 (#121), T-56 (#122) | Teacher screens; sign-in, Welcome, setup |
+| 8 | T-49 (#115) | Today re-layout: day strip, hero lesson card, merged tonight card, collapsed "Since yesterday" |
+| 9 | T-57 (#123) | Demo shell: family phone as a chat view with an in-app-browser bar; "Under the hood" |
+| 10 | T-58 (#124) | Last: switch the base token values, delete `.theme-slate` |
 
 Every PR: class-only where possible, no change to hooks, props, i18n keys or ARIA roles and names (Vitest queries by them); new strings in all four locale files; `./scripts/verify.sh`; 360 px before/after screenshots, light and dark; axe on the changed screen.
 
