@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
 import { AnnouncerProvider } from '../components/Announcer'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { LogoutButton } from '../features/auth/LogoutButton'
 import { useOutboxSync } from '../offline/outbox'
 
 export function AppShell() {
@@ -26,8 +27,13 @@ export function AppShell() {
           {t('a11y.skipToContent')}
         </a>
         <header className="border-b border-edge px-4 py-3 print:hidden">
-          <p className="font-heading text-title font-extrabold">{t('app.name')}</p>
-          <p className="text-caption text-ink-muted">{t('app.tagline')}</p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-heading text-title font-extrabold">{t('app.name')}</p>
+              <p className="text-caption text-ink-muted">{t('app.tagline')}</p>
+            </div>
+            <LogoutButton />
+          </div>
           <LanguageSwitcher />
         </header>
         <main id="main" className="px-4 py-6">

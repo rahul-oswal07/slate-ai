@@ -48,7 +48,8 @@
       "locked": "Too many wrong PINs. Try again after {{time}}.",
       "offline": "No network. Connect to sign in.",
       "generic": "Something went wrong. Try again."
-    }
+    },
+    "logout": "Log out"
   },
   "setup": {
     "welcome": {
