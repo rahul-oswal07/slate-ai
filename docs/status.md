@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Task reset (24 Oct)
+
+- Rahul cleared every open task to start fresh: open rows removed from `tasks.md` (done and dropped tasks kept), the ten-day schedule in `plan.md` §4 replaced by a short note (submission Sat 31 Oct, 18:00 IST), unsettled decisions in `spec.md` §8 marked closed (D-06, D-14, D-15, D-74, D-75's nudge, D-76 (1b)), the unchecked open items below removed, and all 15 GitHub issues closed (T-11 and T-27 as completed, the rest as not planned).
+- **From now on:** Monika adds tasks one at a time in `tasks.md` (*Open*, IDs from T-48) with a GitHub issue; Rahul implements them one at a time. "Next:" lines in the dated sections below are history, not a to-do list.
+- Last merged: #109 demo "Send messages now", #110 P3 sticks fit a phone, #111 A2 "Why this" in Kannada.
+
 ## Current state — Wed 21 Oct 2026 (Day 3)
 
 - Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it).
@@ -19,16 +25,11 @@ Update it at the end of every working session (what changed, what's next, blocke
 - [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
 - [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
 - [x] Rahul: confirmed D-18 / D-19 (22 Oct): static disclosure clip per language via Sarvam TTS, played as segments; `Child.ParentStoppedAt` separate from consent, stop by link token, 409 on every send
-- [ ] Rahul: technical mentor call moved from 21 Oct to next week (brief ready in `docs/mentor-technical-2026-10-21.md`; fill in part C after the call)
 - [x] Monika: T-22 competency list drafted in `docs/design/curriculum.md` (16 competencies, textbook page each). D-01 revised to 3-digit. Open: † Kannada names to confirm with a teacher; NIPUN codes have no source yet
 - [x] Rahul: D-27 attendance source, decided as D-69 (21 Oct; times from D-45): fetched when needed, repeatable simulation + demo overrides, provenance columns on `Attendance`, teacher marking wins over late SATS. Was: Put attendance behind a source interface (`DemoSource` simulated SATS feed now; file import / state API later) feeding the existing T-06 register endpoint; store source + time per record; teacher corrections overlay, never written back. Update `plan.md` / `tasks.md` (T-12: grid becomes corrections + fallback only) and the demo label "simulated"
-- [ ] Monika: T-20 interviews: ask teachers how they mark student attendance today (paper register, SATS app, other). If SATS does not hold daily Grade 3 attendance, revisit D-27
 - [x] Rahul: built `data/curriculum/grade3-maths.json` from T-22 (21 Oct). Note: 2-digit → 3-digit changes number ranges for generated sums, checks and buddy cards (≤ 999, no borrowing across zero); test fixtures use `M3.PV.TENS`, which is now `M2.PV.TENS`
-- [ ] Rahul: D-28–D-31 from the UX review: approval API accepts only Ready + ticked for that script version, Withdraw until send (D-28); `MessageTemplate` no longer names the buddy to parents, drop or keep `{buddy}` teacher-side only (D-29); STOP reply + confirmation message with restart link (D-30); mic tap-to-start/stop (D-31)
 - [x] Monika: T-21 replaced by the clickable prototype v2 + UX review (outside the repo, `Documents/tappida-paatha-prototype`); D-03, D-07, D-08, D-09 accepted as prototyped
 - [x] Monika: T-21 delivered as the clickable prototype + design cards (#70, #73)
-- [ ] Monika: T-20 recruit teachers + parents (offline, by Monika)
-- [ ] Rahul: D-33–D-39 in the build: lesson confirm accepts 1–3 ticked competency IDs (D-33); mic-blocked + sending states and outbox (D-34); tag aliases in tokens.css (D-35); no evening-message listen tracking (D-36); Withdraw until the 6 pm job, then Sent (D-37); Sent / Generation failed package states (D-38); `Child` consent field Yes/No/No phone + date, T8 Families screen, send endpoints 409 unless Yes (D-39, FR-15)
 - [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
 - [x] Rahul: confirmed D-21 (20 Oct): approved `MessageTemplate` + code-filled slots; guardrail 3 in CLAUDE.md reworded
 - [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
@@ -47,7 +48,6 @@ Update it at the end of every working session (what changed, what's next, blocke
 - Prompt `a2-compression` v2: each kept and dropped lesson gets `reason` (English) and `reasonKn` (Kannada, lessons by `nameKn`, "ಮಗು", digits) in the same call. `A2Validator` keeps a `reasonKn` only if ≥ 80% of its letters are Kannada; a bad one is dropped without failing the targets. `CompressionItem.ReasonKn` is optional, so stored assignments read as before (no migration).
 - T3 "Why this" shows the Kannada reason in the Kannada app (`lang="kn"`), else the English one, else code's wording. The demo's pre-made catch-up got a hand-written Kannada reason in `data/seed/demo-catchup.json`.
 - Eval: 10/10 on v2 (v1 was 10/10), every reason came back in Kannada; one lesson name for Monika to check (`docs/quality.md`). Db suite 15/15.
-- Next: D-76 (1b) verifier needs-review lines as Kannada code templates (branch `feat/T-10-review-templates`, no AI change).
 
 ## D-76 (5) P3 sticks fit a phone (24 Oct, branch `fix/T-15-sticks-fit`)
 
@@ -69,7 +69,6 @@ Update it at the end of every working session (what changed, what's next, blocke
 - Follow-ups done (23 Oct): Db test for Reset (#104, which also fixed `main`: the seed-language Db test). `/demo` polish (branch `feat/T-18-demo-polish`): "Under the hood" starts at anyone's last reset (`GET /api/demo` → `lastResetAt`, from the Reset's request record), so a judge's fresh browser doesn't list every call ever made; the AI table stops at phone height and scrolls in a focusable section; labelled header/main; model names unbroken. axe: 0 violations of any impact on 7 views (desktop light/dark, phone en/kn, parent, AI, reset dialog). Screenshots in `docs/screenshots/T-18/`.
 - "Send messages now" (Rahul, 24 Oct; branch `feat/T-18-demo-send-now`): messages only went at 6 pm (the app has no send button; Approve says "Goes to the families after 6 pm"), so a judge in the day never saw anything arrive on Rohan's family's phone. `/demo` now has a **Send messages now** button next to "Bring in today's attendance": `POST /api/demo/send-now` runs the 6 pm job's two steps for the demo class (`EveningSender.SendAsync`, `CatchUpSender.SendApprovedAsync`), approved only, idempotent, and says why tonight's message didn't go (template not approved / lesson not confirmed / no attendance). The guide's evening and approve steps point to it.
 - D-75 (pacing nudge in the demo story): built on 24 Oct, then rolled back at Rahul's request (he prefers the story as it is: only Ravi, Manjunath and Rohan away). Not done; Monika to be told.
-- Next (Monika's D-74 / D-75): family switch on `/demo` (Rohan · English / Ravi · తెలుగు) with a second pre-made Telugu catch-up for Ravi (D-74, proposed, Rahul to confirm); the story should show the pacing nudge again while Approve keeps 3 catch-ups (D-75, accepted).
 - For Monika: English as a fourth family language is new (D-02 lists kn/te/ta): confirm for the decision log; review the two English eval scripts. kn/te/ta for the `demo.*` strings (judges mostly use English); the guide wording.
 
 ## T-46 T6 Week (23 Oct, branch `feat/T-46-week`)
