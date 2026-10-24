@@ -70,7 +70,7 @@ New look for the teacher app, the parent pages (P1–P4, reason) and the demo sh
 | ta | Baloo Thambi 2 | Noto Sans Tamil |
 | accent word (Latin only) | Caveat 700 | — |
 
-Select by `:lang()`. Self-host and subset (Latin + that language's script), `font-display: swap`, load only the family the page needs (parent page budget ≤ 500 KB excluding audio, T-15). Confirm the Baloo family names and weights on Google Fonts before bundling [CONFIRM: Rahul]. Indic scripts keep the type table above: one size step larger, ~1.7 line height, weight ≥ 500 on dark, no letter-spacing, `lang` on every element.
+Select by `:lang()`. Self-host and subset (Latin + that language's script), `font-display: swap`, load only the family the page needs (parent page budget ≤ 500 KB excluding audio, T-15). Family names and weights 500/700/800 are verified on Google Fonts. Indic scripts keep the type table above: one size step larger, ~1.7 line height, weight ≥ 500 on dark, no letter-spacing, `lang` on every element.
 
 ### Rollout
 
