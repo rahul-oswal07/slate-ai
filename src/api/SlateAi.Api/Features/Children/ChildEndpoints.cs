@@ -17,7 +17,7 @@ public static class ChildEndpoints
             .WithSummary("Delete all of a child's data (FR-15)")
             .WithDescription(
                 "Removes the child with their attendance, evening messages, catch-up links and answers, and reasons; " +
-                "unsent catch-ups no longer include them. Can't be undone. Replaying the same clientRequestId " +
+                "a catch-up made only for them is removed with its audio, a shared one no longer includes them. Can't be undone. Replaying the same clientRequestId " +
                 "returns 204 again; an unknown child is 404.");
         return app;
     }
