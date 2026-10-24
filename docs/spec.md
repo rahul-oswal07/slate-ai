@@ -212,7 +212,7 @@ POST /api/auth/logout                       ends the session
 GET  /api/me                                { teacherId, displayName, classId, setupComplete }; 401 when signed out
 POST /api/me/welcome                        { clientRequestId } → sets Teacher.ConsentAt once (first-run gate)
 POST /api/demo/login                        one-tap sign-in as the seeded demo teacher, same session cookie as the PIN (T-18; only while Demo:Enabled, like every /api/demo route)
-GET  /api/demo                              { classId, parentChildId } for the demo teacher (the parent phone shows Rohan's English-speaking family); 404 otherwise
+GET  /api/demo                              { classId, parentChildId, lastResetAt } for the demo teacher (the parent phone shows Rohan's English-speaking family; "Under the hood" starts at anyone's last reset); 404 otherwise
 GET  /api/classes/{id}/attendance/{date}    { status: sats|manual|waiting|missing|noSchool, receivedAt, corrected, satsDiffers, syncAt, retryAt, absentChildIds[], children[] } (fetches the simulated SATS feed when due, D-45, D-69)
 POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId; correction or manual marking, never written back to SATS)
 POST /api/demo/sats-feed                    { classId, date, mode: waiting|arrive } (only while Demo:Enabled, D-69)

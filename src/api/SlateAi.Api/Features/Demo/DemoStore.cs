@@ -53,6 +53,9 @@ public interface IDemoStore
     /// <summary>The links sent to a child's family, newest first; null when the child isn't in the class.</summary>
     Task<IReadOnlyList<FamilyMessage>?> GetFamilyAsync(Guid classId, Guid childId, CancellationToken cancellationToken);
 
+    /// <summary>When the demo was last reset (the Reset's own request record), or null if never.</summary>
+    Task<DateTimeOffset?> GetLastResetAsync(CancellationToken cancellationToken);
+
     /// <summary>The latest AI calls, newest first, optionally only those from <paramref name="since"/>.</summary>
     Task<IReadOnlyList<AiCallRow>> GetAiCallsAsync(DateTimeOffset? since, int limit, CancellationToken cancellationToken);
 
@@ -140,6 +143,11 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
             .ToListAsync(cancellationToken);
         return evening.Concat(catchUps).OrderByDescending(m => m.SentAt).ToList();
     }
+
+    public Task<DateTimeOffset?> GetLastResetAsync(CancellationToken cancellationToken) =>
+        db.ProcessedRequests
+            .Where(r => r.Endpoint == ResetEndpoint)
+            .MaxAsync(r => (DateTimeOffset?)r.CreatedAt, cancellationToken);
 
     public async Task<IReadOnlyList<AiCallRow>> GetAiCallsAsync(
         DateTimeOffset? since, int limit, CancellationToken cancellationToken) =>

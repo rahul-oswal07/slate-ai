@@ -1,7 +1,8 @@
-/** GET /api/demo: the demo class and whose family the parent phone shows (Rohan's, in English). */
+/** GET /api/demo: the demo class, whose family the parent phone shows (Rohan's, in English), and the last reset. */
 export interface DemoInfo {
   classId: string
   parentChildId: string
+  lastResetAt: string | null
 }
 
 /** POST /api/demo/reset. `preMade`: a pre-made catch-up was restored as Ready. */
