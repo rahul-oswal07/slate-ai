@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import type { Me } from '../auth/session'
 import { istToday } from '../today/schoolTime'
-import type { AiCall, DemoInfo, DemoReset, FamilyMessage } from './types'
+import type { AiCall, DemoInfo, DemoReset, DemoSendNow, FamilyMessage } from './types'
 
 /** The parent phone and "Under the hood" refresh this often while the demo is open. */
 export const DEMO_POLL_MS = 5000
@@ -73,5 +73,17 @@ export function useBringAttendance(classId: string) {
   return useMutation({
     mutationFn: () =>
       api<unknown>('/api/demo/sats-feed', { method: 'POST', body: { classId, date: istToday(), mode: 'arrive' } }),
+  })
+}
+
+/** "Send messages now": what the 6 pm job sends (approved only), without waiting. Refreshes the parent phone at once. */
+export function useSendNow() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      api<DemoSendNow>('/api/demo/send-now', { method: 'POST', body: { clientRequestId: crypto.randomUUID() } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['demo', 'family'] })
+    },
   })
 }

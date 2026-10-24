@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
 import { formatSchoolTime } from '../today/schoolTime'
 import type { AiCall, FamilyMessage } from './types'
-import { storedResetAt, useAiCalls, useBringAttendance, useDemoInfo, useFamily, useResetDemo } from './useDemo'
+import { storedResetAt, useAiCalls, useBringAttendance, useDemoInfo, useFamily, useResetDemo, useSendNow } from './useDemo'
 
 const PANELS = ['teacher', 'parent', 'ai'] as const
 type Panel = (typeof PANELS)[number]
@@ -37,6 +37,7 @@ export function DemoScreen() {
   const info = useDemoInfo()
   const reset = useResetDemo()
   const bring = useBringAttendance(info.data?.classId ?? '')
+  const sendNow = useSendNow()
   const [panel, setPanel] = useState<Panel>('teacher')
   const [frame, setFrame] = useState(0)
   const [resetAt, setResetAt] = useState<string | null>(storedResetAt)
@@ -107,6 +108,28 @@ export function DemoScreen() {
             className="min-h-target rounded-md border border-border bg-surface px-4 text-label disabled:opacity-60"
           >
             {t('demo.bringAttendance')}
+          </button>
+          <button
+            type="button"
+            disabled={sendNow.isPending}
+            onClick={() =>
+              sendNow.mutate(undefined, {
+                onSuccess: (sent) => {
+                  setStatus(
+                    sent.eveningBlocked
+                      ? `${t(`demo.sendNow.blocked.${sent.eveningBlocked}`)} ${t('demo.sendNow.catchUps', { n: sent.catchUpsSent })}`
+                      : sent.eveningSent + sent.catchUpsSent === 0
+                        ? t('demo.sendNow.nothing')
+                        : t('demo.sendNow.sent', { evening: sent.eveningSent, catchUps: sent.catchUpsSent }),
+                  )
+                  reload()
+                },
+                onError: () => setStatus(t('demo.sendNow.failed')),
+              })
+            }
+            className="min-h-target rounded-md border border-border bg-surface px-4 text-label disabled:opacity-60"
+          >
+            {t('demo.sendNow.button')}
           </button>
         </div>
         <output aria-live="polite" className="block text-body">

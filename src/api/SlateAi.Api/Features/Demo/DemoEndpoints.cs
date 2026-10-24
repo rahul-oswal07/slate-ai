@@ -7,7 +7,9 @@ using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Attendance.Source;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.CatchUps.Compression;
+using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Features.Demo;
 
@@ -18,6 +20,14 @@ public sealed record DemoResetRequest(Guid ClientRequestId);
 /// <param name="ResetAt">The "Under the hood" panel lists AI calls from here.</param>
 /// <param name="PreMade">Whether a pre-made Ready catch-up was restored.</param>
 public sealed record DemoResetResponse(DateTimeOffset ResetAt, bool PreMade);
+
+public sealed record DemoSendNowRequest(Guid ClientRequestId);
+
+/// <summary>What "Send messages now" sent.</summary>
+/// <param name="EveningBlocked">Why tonight's message didn't go (an <see cref="EveningBlock"/> code), or null.</param>
+/// <param name="EveningSent">Families sent tonight's message by this tap.</param>
+/// <param name="CatchUpsSent">Approved catch-ups sent by this tap.</param>
+public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent, int CatchUpsSent);
 
 /// <summary>Who the demo shell is about.</summary>
 /// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, so judges read it in English.</param>
@@ -71,6 +81,16 @@ public static class DemoEndpoints
                 "language. Today's register " +
                 "comes from the simulated feed as usual. The evening template and the teacher's sign-in stay as they are. " +
                 "A replayed clientRequestId changes nothing. 404 unless signed in as the demo teacher. Demo only.");
+
+        app.MapPost("/api/demo/send-now", SendNowAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("Send tonight's messages and approved catch-ups now, without waiting for 6 pm")
+            .WithDescription(
+                "Does for the demo class what the 6 pm job does: tonight's evening message from the approved template, " +
+                "then every approved, unsent catch-up of the week. Same rules as the job: nothing unapproved, only " +
+                "families with consent Yes who haven't stopped (guardrail 3). Safe to repeat: nobody gets a message " +
+                "twice. 404 unless signed in as the demo teacher. Demo only.");
 
         app.MapGet("/api/demo/family/{childId:guid}", GetFamilyAsync)
             .RequireAuthorization()
@@ -222,6 +242,38 @@ public static class DemoEndpoints
             cancellationToken);
         holds.ReleaseAll(classId);
         return TypedResults.Ok(new DemoResetResponse(now, owner is not null));
+    }
+
+    private static async Task<Results<Ok<DemoSendNowResponse>, NotFound, ValidationProblem>> SendNowAsync(
+        DemoSendNowRequest request,
+        HttpContext http,
+        EveningSender evening,
+        CatchUpSender catchUps,
+        IOptions<DatabaseOptions> database,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        if (request.ClientRequestId == Guid.Empty)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["clientRequestId"] = ["Required."],
+            });
+        }
+
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        var classId = seed.Class.Id;
+        if (http.User.GetClassId() != classId)
+        {
+            return TypedResults.NotFound();
+        }
+
+        // No ProcessedRequest needed: both senders send each family at most once, so a replay sends nothing new.
+        var today = SchoolClock.Today(clock);
+        var before = (await evening.PlanAsync(classId, today, cancellationToken))?.Sent ?? 0;
+        var day = await evening.SendAsync(classId, today, cancellationToken);
+        var sent = await catchUps.SendApprovedAsync(classId, today, cancellationToken);
+        return TypedResults.Ok(new DemoSendNowResponse(day?.Blocked, (day?.Sent ?? 0) - before, sent));
     }
 
     private static async Task<Results<Ok<IReadOnlyList<FamilyMessage>>, NotFound>> GetFamilyAsync(

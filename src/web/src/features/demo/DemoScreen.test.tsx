@@ -160,6 +160,51 @@ describe('DemoScreen (T-18)', () => {
     })
   })
 
+  it('sends messages now and refreshes the parent phone at once', async () => {
+    const user = userEvent.setup()
+    const calls = setup({
+      extra: {
+        'POST /api/demo/send-now': () => ({
+          status: 200,
+          body: { eveningBlocked: null, eveningSent: 1, catchUpsSent: 1 },
+        }),
+      },
+    })
+    renderApp('/demo')
+
+    await user.click(await screen.findByRole('button', { name: 'Send messages now' }))
+
+    expect(await screen.findByText('Sent now. Evening messages: 1. Catch-ups: 1.')).toBeInTheDocument()
+    const send = calls.findIndex((c) => c.key === 'POST /api/demo/send-now')
+    expect(calls[send]?.body).toEqual({ clientRequestId: expect.any(String) })
+    await waitFor(() =>
+      expect(calls.slice(send + 1).map((c) => c.key)).toContain('GET /api/demo/family/rohan-1'),
+    )
+  })
+
+  it.each([
+    [{ eveningBlocked: 'lessonNotConfirmed', eveningSent: 0, catchUpsSent: 1 }, "Tonight's message wasn't sent: confirm today's lesson first. Catch-ups sent: 1."],
+    [{ eveningBlocked: null, eveningSent: 0, catchUpsSent: 0 }, 'Nothing new to send.'],
+  ])('says what Send messages now did: %o', async (body, text) => {
+    const user = userEvent.setup()
+    setup({ extra: { 'POST /api/demo/send-now': () => ({ status: 200, body }) } })
+    renderApp('/demo')
+
+    await user.click(await screen.findByRole('button', { name: 'Send messages now' }))
+
+    expect(await screen.findByText(text)).toBeInTheDocument()
+  })
+
+  it('says so when sending fails', async () => {
+    const user = userEvent.setup()
+    setup({ extra: { 'POST /api/demo/send-now': () => ({ status: 500 }) } })
+    renderApp('/demo')
+
+    await user.click(await screen.findByRole('button', { name: 'Send messages now' }))
+
+    expect(await screen.findByText('Could not send. Try again.')).toBeInTheDocument()
+  })
+
   it('shows one panel at a time through tabs on a phone', async () => {
     const user = userEvent.setup()
     setup()
