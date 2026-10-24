@@ -117,22 +117,22 @@ Spacing is a 4 px scale: 16 px screen gutter, 12 px between cards, 8 px minimum 
 | **Disabled** | `divider` fill, 2 px dashed `border`, `ink-muted` text, plus a visible hint saying why (e.g. "Tap one picture") |
 | **Card** | `surface`, 1.5 px `edge`, `radius-card`, padding 14–16. **Hero card:** 2 px `border`. **Payoff card:** `panel` fill, 2 px `primary` border |
 | **Tags and chips** | Pill, ≥ 32 px high, 14/20 weight 700, 18 px icon + word. Status colours from the status table (unchanged). Plain chip: `panel` fill + 1.5 px `primary` border |
-| **Header (parent)** | Back (48 px) + title 20/28 weight 800 on the canvas, no white bar and no rule. The teacher's name and avatar (amber disc, ink letter) lead on P1 and the reason page |
-| **Header (teacher)** | Date caption + Saved tag + settings gear in one row; one greeting or title below. The language control is a single small control, not four chips |
+| **Header (parent)** | Back (48 px, where the page has one) + title 20/28 weight 800 on the canvas, as built; no white bar and no rule. On P1 the title carries the child's name as the accent word and the teacher's amber avatar sits in the "From" row |
+| **App header (teacher)** | Stays on every teacher screen exactly as built: app name, tagline and the four language chips, restyled, in the same place. Today (T-49) adds a title row with the Saved tag; **no greeting and no settings gear** (Settings is not built) |
 | **Tally (progress)** | Four 3 px chalk strokes, 28 px tall, 12 px apart, slightly tilted. Done = `ink`, current = `accent` (drawn on in 300 ms), left = dashed `chalk`; on the last step a diagonal slash in `accent`. Beside it "2/4" (16 px, weight 800); screen-reader text "Step 2 of 4". It only counts up, never shows a break |
 | **Play button (P1)** | 156 px circle, `accent`, 56 px play/pause icon and the word under it; a 184 px `panel` halo behind. Breathes (scale 1 → 1.04, 2.4 s, ease-in-out, alternate) **only while playing** |
 | **Waveform (P1)** | 34 rounded bars, 5 px wide, 3 px gap, heights 8–40 px; unplayed `chalk`, played `ink`. While playing, bars move in 300 ms alternation. Times "0:00" and "1:35" always in text |
 | **Mic (Today)** | 112 px `accent` disc, 168 px `panel` halo, dashed 2.5 px `chalk` ring; recording turns the icon into a square and breathes as above; timer "0:12 / 0:30" in text |
-| **Picture tiles (reason page)** | Two columns, ≥ 112 px high, 2 px `border`, `radius-card`, chalk-drawn icon (28 px, 2 px stroke) in a 52 px `panel` disc, word under it (16/20 weight 700). Selected: 3 px `primary` border, `panel` fill, disc turns `accent`, 26 px tick badge. "Say it instead" is a full-width dashed tile. Five categories plus the mic tile, no orphan tile |
+| **Picture tiles (reason page)** | Two columns as built, height `target-picture` (120 px, unchanged), 2 px `border`, `radius-card`, chalk-drawn icon (28 px, 2 px stroke) in a 52 px `panel` disc, word under it (16/20 weight 700). Five tiles: Unwell, Family travel or work, Festival or function, Needed at home, Other; the fifth sits alone in the last row, as built. Selected: 3 px `primary` border, `panel` fill, disc turns `accent`, 26 px tick badge. Sticky bar as built: Send (disabled until one is chosen), hint, Skip. "Say it instead" is not built (D-63) and is not added |
 | **Sticks (P3)** | Unchanged (D-76, `stick` token). Only the tile frame takes the new card style |
-| **Bottom nav** | `surface`, top border `edge`, five equal tabs ≥ 60 px high, icon 24 px + label 14 px (never wraps: one short word per language). Active = 4 px `primary` bar on top + weight 800 + `primary-strong`. Badge = `ink` disc, 20 px |
+| **Bottom nav** | `surface`, top border `edge`, five equal tabs ≥ 60 px high, icon 24 px + label 14 px. **Labels and order exactly as built** (Today, Approve, Missed, Back today, Week; "Back today" may wrap to two lines). Active = 4 px `primary` bar on top + weight 800 + `primary-strong`. Badge = `ink` disc, 20 px |
 | **Sheet / dialog** | `surface`, `radius-sheet` top, scrim = canvas at 60 %. The safe choice ("Keep") is the focused primary. No alarm colours on stop (C-27) |
 | **Skeleton** | `divider` bars 14 px high, radius 7 px, opacity .55 ↔ 1 in 300 ms alternation; `role="status"` with hidden "Loading…" |
 | **Celebration (P4)** | Amber medal 104 px with a chalk star drawn on in 300 ms, 10–14 small amber and teal confetti pieces popping in with ≤ 120 ms stagger. Not on teacher screens |
 
 ### Icons and doodles
 
-- **Icons:** 24 px grid, 2 px stroke, round caps and joins, `currentColor`; the same family as the current Lucide icons, so `Icon.tsx` does not change. Picture-tile icons: thermometer (Unwell), briefcase (family travel or work), diya (festival), house (needed at home), three dots (Other), mic (Say it instead).
+- **Icons:** 24 px grid, 2 px stroke, round caps and joins, `currentColor`; the same family as the current Lucide icons, so `Icon.tsx` does not change. Picture-tile icons are the ones already built: thermometer (Unwell), bus (family travel or work), flame (festival or function), house (needed at home), speech bubble (Other).
 - **Doodles:** loose chalk loops, a small star, a dashed circle, a squiggle underline (accent, 3.5 px). Drawn with a slight wobble (`feDisplacementMap`, scale 3, `baseFrequency` .03). `aria-hidden`, never beside text that needs reading, **at most two per parent page and one per teacher screen**.
 - **Accent word:** Caveat 700 at 1.25× the heading size, with a squiggle underline drawn on in 300 ms. Latin only. Kannada, Telugu and Tamil use a plain heading word with the amber underline marker.
 
@@ -163,7 +163,7 @@ A stand-in for the real chat app (spec: P0 card). Build it as a demo component, 
 | **Link rows** | "Is everything OK? Tell us" and "Open" are 48 px full-width rows inside the bubble, link colour with a chevron. "Stop these messages" is a smaller underlined row below, never the same weight |
 | **Order** | Day separator → evening bubble (each day of absence) → catch-up bubble, only after the teacher approves → stopped bubble with "Start them again" when stopped. After a Reset: "No messages yet" on a bubble |
 | **No input bar** | The family cannot type; the footer is blank wallpaper. A reply is the reason page or the stop link, never free text |
-| **Family switch** | The two buttons above the phone (D-74) stay, restyled as slate pills |
+| **Family switch** | Not part of this revamp. D-74 (two buttons for Rohan and Ravi) is not built; the demo shows one family, and nothing is drawn for a switch |
 
 **In-app-browser bar:** tapping a link slides a slate page up inside the phone (300 ms) under a 48 px bar: close (X, 48 px target) on the left, the page title ("Lesson", "Is everything OK?") centred, the host name small below. Close slides it back to the chat at the same scroll position. The page below is surface C in full.
 
@@ -175,16 +175,39 @@ A stand-in for the real chat app (spec: P0 card). Build it as a demo component, 
 - Doodles, texture, confetti, ghost numerals: `aria-hidden`.
 - Dark and light are both designed, not inverted. Both follow the phone's setting; there is no in-app toggle.
 
+### What changes, screen by screen
+
+**Looks only everywhere, with two deliberate exceptions: the Today re-layout (T-49) and the demo family phone as a chat view (T-57).** Every element in the reference screens exists in the built page today, except the ones marked "decorative" (tally strokes, waveform, doodles, confetti, texture), which are drawings with no behaviour.
+
+| Screen | Removed | Added (look only) | Stays exactly |
+|---|---|---|---|
+| **P1 Listen** (T-50) | White header bar and rule; the four step dots | Tally with "n/4"; AI label as a chip; amber play button; decorative waveform; child's name as the accent word | Title text, AI wording, "From … teacher" row, progress bar and times, "Computer voice · Lesson", Read the words, Next, stop link, every state |
+| **Reason page** (T-51) | White header bar; boxed tile look | Chalk-drawn icons in discs, amber disc and tick on the chosen tile, accent on "OK?" (English only) | The question, the five tiles and their order (fifth alone in the last row), Send disabled until chosen, hint, Skip, stop link |
+| **P2 Activity** (T-52) | White header bar; step dots | Tally; AI chip; card frame | Numeral, sticks, description, instruction, tip, "Next: question", homework card, stop link |
+| **P3 Answer** (T-52) | White header bar; step dots | Tally; AI chip; tile frames | Prompt, numeral, the three tiles, the numeral shown on the chosen tile, "Send this one", hint, stop link; stick pictures and sizes (D-76) |
+| **P4 Done** (T-53) | White header bar; step dots; flat star | Tally with a slash; celebration banner and amber medal (decorative); accent on the child's name | Header, "Well done", teacher line, homework line, Finish, stop link |
+| **Stopped, Link expired** (T-53) | Plain icon and boxes | Slate card styles | No header, icon above the heading, texts, homework card on Expired, Start them again, stop link on Expired |
+| **Teacher shell** (T-54) | Nothing | Slate colours, ruling lines, 4 px active nav bar | App name, tagline, the four language chips, the five nav labels and their order, sync badge, offline banner |
+| **Sign-in** (T-56) | Nothing | Slate styling | Fields, hints, buttons, lockout |
+| **Today** (T-49, the exception) | The stack of equal cards | Day strip; compact attendance; one hero lesson card; merged payoff card; collapsed "Since yesterday"; accent on "Today" | The data, the hooks, every state, the app header, the Saved tag |
+| **Approve** (T-55) | Nothing | Card styling | Title, intro, cards (language · count, names, lesson · duration, tag), "See new absences", rules |
+| **Missed lessons** (T-55) | Nothing | One selected-state style for the two controls | Every row: roll, name, days away, "Missed: …", tags, chevron; the footer line |
+| **Back today** (T-55) | Nothing | Card styling | Card, buddy panel, three numbers, Kannada words, Brought homework, Mark buddy time done |
+| **Week** (T-55) | Nothing | Card styling | Return-speed card and bars, reasons card, "Before next week" panel, footer |
+| **/demo family phone** (T-57, the exception) | The list of link buttons | Chat view: bubbles, voice-note row, in-app-browser bar | The same messages and links, Reset, Send messages now, the AI panel |
+
 ### Reference screens (360 px, light and dark)
 
-These are the target look for every task below. They are **design references, not built screens**: copy and data come from the existing cards; the build must keep its own states and behaviour. Folder: [`screenshots/slate/`](screenshots/slate/). Today shows the T-49 layout (day strip, one hero, merged tonight card); the other teacher screens show T-55 grouping.
+These are the target look for every task below. They are **design references, not built screens**: copy and data come from the existing cards; the build must keep its own states and behaviour. Folder: [`screenshots/slate/`](screenshots/slate/). Every screen shows the content and layout of the built page, restyled; the two exceptions are Today (T-49 layout) and the chat view (T-57).
 
 | Screen | Surface | Task | Light | Dark |
 |---|---|---|---|---|
 | P1 Listen | C parent page | T-50 | [light](screenshots/slate/P1-listen-light.png) | [dark](screenshots/slate/P1-listen-dark.png) |
 | P1 Listen, playing | C | T-50 | [light](screenshots/slate/P1-listen-playing-light.png) | [dark](screenshots/slate/P1-listen-playing-dark.png) |
+| P1 Listen in Telugu (script check) | C | T-50 | [light](screenshots/slate/P1-listen-te-light.png) | [dark](screenshots/slate/P1-listen-te-dark.png) |
 | Reason page | C | T-51 | [light](screenshots/slate/P-reason-light.png) | [dark](screenshots/slate/P-reason-dark.png) |
 | Reason page, picture chosen | C | T-51 | [light](screenshots/slate/P-reason-chosen-light.png) | [dark](screenshots/slate/P-reason-chosen-dark.png) |
+| Reason page in Telugu (script check) | C | T-51 | [light](screenshots/slate/P-reason-te-light.png) | [dark](screenshots/slate/P-reason-te-dark.png) |
 | P2 Activity | C | T-52 | [light](screenshots/slate/P2-activity-light.png) | [dark](screenshots/slate/P2-activity-dark.png) |
 | P3 Answer | C | T-52 | [light](screenshots/slate/P3-answer-light.png) | [dark](screenshots/slate/P3-answer-dark.png) |
 | P3 Answer, chosen | C | T-52 | [light](screenshots/slate/P3-answer-chosen-light.png) | [dark](screenshots/slate/P3-answer-chosen-dark.png) |
@@ -206,7 +229,7 @@ These are the target look for every task below. They are **design references, no
 
 Notes for the build:
 - Where a reference differs from a card's copy, the card wins; the pictures are for look, spacing and hierarchy.
-- The Kannada lines on parent pages show the intended font and size (Baloo Tamma 2, 19 px, 1.7 line height). The accent word is Caveat in Latin only.
+- Parent pages show one language, the family's. The English references show layout; the Telugu references show how a non-Latin page renders (Baloo Tammudu 2 headings, Noto Sans Telugu body, 1.7 line height). Kannada and Tamil follow the same rule with their own Baloo family.
 - The "Show this to your teacher tomorrow" card from earlier concepts is **not** in these screens (not in T-53).
 
 ### Rollout
