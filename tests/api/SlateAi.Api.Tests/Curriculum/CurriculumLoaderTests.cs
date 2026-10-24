@@ -5,6 +5,22 @@ namespace SlateAi.Api.Tests.Curriculum;
 public sealed class CurriculumLoaderTests
 {
     [Fact]
+    public void A_competency_has_a_name_in_each_language_it_was_given_and_none_otherwise()
+    {
+        var graph = CurriculumLoader.Load([("grade3.json", """
+            { "grade": 3, "subject": "maths", "version": "2026-10-20",
+              "competencies": [
+                { "id": "M3.PV.TENS", "nameKn": "ಹತ್ತುಗಳು", "nameEn": "Tens", "nameHi": "दहाई", "chapter": 1, "sequence": 1 }
+              ] }
+            """)]);
+
+        var tens = Assert.IsType<Competency>(graph.Get("M3.PV.TENS"));
+        Assert.Equal("दहाई", tens.Name("hi"));
+        Assert.Equal("Tens", tens.Name("en"));
+        Assert.Null(tens.Name("ta"));
+    }
+
+    [Fact]
     public void Loads_a_valid_file_including_the_textbook_page()
     {
         var graph = CurriculumLoader.Load([("grade3.json", """

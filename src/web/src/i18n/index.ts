@@ -1,11 +1,12 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import en from './locales/en.json'
+import hi from './locales/hi.json'
 import kn from './locales/kn.json'
 import ta from './locales/ta.json'
 import te from './locales/te.json'
 
-export const SUPPORTED_LANGUAGES = ['kn', 'en', 'te', 'ta'] as const
+export const SUPPORTED_LANGUAGES = ['kn', 'en', 'te', 'ta', 'hi'] as const
 export type Language = (typeof SUPPORTED_LANGUAGES)[number]
 
 /** Teacher UI is Kannada first (spec §3.1). */
@@ -44,6 +45,7 @@ export function initI18n() {
         en: { translation: en },
         te: { translation: te },
         ta: { translation: ta },
+        hi: { translation: hi },
       },
       lng: storedLanguage(),
       fallbackLng: 'en',

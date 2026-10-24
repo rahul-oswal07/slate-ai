@@ -36,6 +36,7 @@
       "nameEn": "Place value: tens and ones",
       "nameTe": "పదులు, ఒకట్లు (స్థాన విలువ)",
       "nameTa": "பத்துகள், ஒன்றுகள் (இட மதிப்பு)",
+      "nameHi": "दहाई और इकाई (स्थानीय मान)",
       "prerequisites": [],
       "nipunOutcome": null,
       "chapter": 0,
@@ -64,6 +65,7 @@
       "nameEn": "2-digit addition",
       "nameTe": "రెండు అంకెల సంఖ్యల కూడిక",
       "nameTa": "இரண்டு இலக்க எண்களின் கூட்டல்",
+      "nameHi": "दो अंकों का जोड़",
       "prerequisites": [
         "M2.PV.TENS"
       ],
@@ -97,6 +99,7 @@
       "nameEn": "2-digit subtraction",
       "nameTe": "రెండు అంకెల సంఖ్యల తీసివేత",
       "nameTa": "இரண்டு இலக்க எண்களின் கழித்தல்",
+      "nameHi": "दो अंकों का घटाव",
       "prerequisites": [
         "M2.PV.TENS"
       ],
@@ -129,6 +132,7 @@
       "nameEn": "Hundreds, tens and ones (to 999)",
       "nameTe": "వందలు, పదులు, ఒకట్లు",
       "nameTa": "நூறுகள், பத்துகள், ஒன்றுகள்",
+      "nameHi": "सैकड़ा, दहाई और इकाई (999 तक)",
       "prerequisites": [
         "M2.PV.TENS"
       ],
@@ -161,6 +165,7 @@
       "nameEn": "Expanded form",
       "nameTe": "సంఖ్యలను విస్తరించి రాయడం",
       "nameTa": "எண்களை விரித்து எழுதுதல்",
+      "nameHi": "संख्याओं को विस्तारित रूप में लिखना",
       "prerequisites": [
         "M3.PV.HTO"
       ],
@@ -194,6 +199,7 @@
       "nameEn": "Place value and face value",
       "nameTe": "స్థాన విలువ, ముఖ విలువ",
       "nameTa": "இட மதிப்பு, முக மதிப்பு",
+      "nameHi": "स्थानीय मान और अंकित मान",
       "prerequisites": [
         "M3.PV.HTO"
       ],
@@ -227,6 +233,7 @@
       "nameEn": "Numbers to 9999 (thousands)",
       "nameTe": "9999 వరకు సంఖ్యలు (వేలు)",
       "nameTa": "9999 வரை எண்கள் (ஆயிரங்கள்)",
+      "nameHi": "9999 तक की संख्याएँ (हज़ार)",
       "prerequisites": [
         "M3.PV.EXPAND"
       ],
@@ -259,6 +266,7 @@
       "nameEn": "Compare 3-digit numbers (>, <, =)",
       "nameTe": "ఎక్కువ – తక్కువ – సమానం",
       "nameTa": "அதிகம் – குறைவு – சமம்",
+      "nameHi": "बड़ा – छोटा – बराबर",
       "prerequisites": [
         "M3.PV.HTO"
       ],
@@ -291,6 +299,7 @@
       "nameEn": "Ascending and descending order",
       "nameTe": "ఆరోహణ క్రమం – అవరోహణ క్రమం",
       "nameTa": "ஏறுவரிசை – இறங்குவரிசை",
+      "nameHi": "आरोही क्रम – अवरोही क्रम",
       "prerequisites": [
         "M3.NUM.COMPARE"
       ],
@@ -323,6 +332,7 @@
       "nameEn": "3-digit addition without carrying",
       "nameTe": "పది తీసుకువెళ్లకుండా కూడిక",
       "nameTa": "எடுத்துச் செல்லாத கூட்டல்",
+      "nameHi": "हासिल के बिना जोड़",
       "prerequisites": [
         "M3.PV.HTO",
         "M2.ADD.2D"
@@ -357,6 +367,7 @@
       "nameEn": "3-digit addition with carrying",
       "nameTe": "పది తీసుకువెళ్లి కూడిక",
       "nameTa": "எடுத்துச் செல்லும் கூட்டல்",
+      "nameHi": "हासिल लेकर जोड़",
       "prerequisites": [
         "M3.ADD.NOCARRY",
         "M3.PV.EXPAND"
@@ -391,6 +402,7 @@
       "nameEn": "Addition word problems",
       "nameTe": "కూడిక మాటల లెక్కలు",
       "nameTa": "கூட்டல் சொற்கணக்குகள்",
+      "nameHi": "जोड़ के शब्द-प्रश्न",
       "prerequisites": [
         "M3.ADD.CARRY"
       ],
@@ -424,6 +436,7 @@
       "nameEn": "3-digit subtraction without borrowing",
       "nameTe": "పది తీసుకోకుండా తీసివేత",
       "nameTa": "கடன் வாங்காத கழித்தல்",
+      "nameHi": "उधार लिए बिना घटाव",
       "prerequisites": [
         "M3.PV.HTO",
         "M2.SUB.2D"
@@ -458,6 +471,7 @@
       "nameEn": "Check subtraction by adding",
       "nameTe": "కూడిక ద్వారా తీసివేతను సరిచూడటం",
       "nameTa": "கூட்டல் மூலம் கழித்தலைச் சரிபார்த்தல்",
+      "nameHi": "जोड़कर घटाव की जाँच",
       "prerequisites": [
         "M3.SUB.NOBORROW",
         "M3.ADD.NOCARRY"
@@ -491,6 +505,7 @@
       "nameEn": "3-digit subtraction with borrowing",
       "nameTe": "పది తీసుకుని తీసివేత",
       "nameTa": "கடன் வாங்கும் கழித்தல்",
+      "nameHi": "उधार लेकर घटाव",
       "prerequisites": [
         "M3.SUB.NOBORROW",
         "M3.PV.EXPAND"
@@ -526,6 +541,7 @@
       "nameEn": "Subtraction word problems",
       "nameTe": "తీసివేత మాటల లెక్కలు",
       "nameTa": "கழித்தல் சொற்கணக்குகள்",
+      "nameHi": "घटाव के शब्द-प्रश्न",
       "prerequisites": [
         "M3.SUB.BORROW"
       ],

@@ -9,7 +9,8 @@
     "kn": "ಕನ್ನಡ",
     "en": "English",
     "te": "తెలుగు",
-    "ta": "தமிழ்"
+    "ta": "தமிழ்",
+    "hi": "हिन्दी"
   },
   "notFound": {
     "title": "பக்கம் கிடைக்கவில்லை",
@@ -237,7 +238,8 @@
       "kn": "In Kannada",
       "te": "In Telugu",
       "ta": "In Tamil",
-      "en": "In English"
+      "en": "In English",
+      "hi": "இந்தியில்"
     },
     "card": {
       "heading_one": "{{language}} · {{count}} child",
@@ -474,7 +476,8 @@
       "kn": "Kannada",
       "te": "Telugu",
       "ta": "Tamil",
-      "en": "English"
+      "en": "English",
+      "hi": "இந்தி"
     }
   },
   "back": {

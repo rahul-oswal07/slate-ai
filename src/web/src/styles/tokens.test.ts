@@ -120,3 +120,20 @@ it('turns every animation and transition off under prefers-reduced-motion (D-77 
   const rule = /@media \(prefers-reduced-motion: reduce\)\s*\{[^@]*\*[^{]*\{[^}]*animation:\s*none[^}]*transition:\s*none/
   expect(tokensCss).toMatch(rule)
 })
+
+describe('Hindi (D-78)', () => {
+  const fontsCss = readFileSync(join(import.meta.dirname, 'fonts.css'), 'utf8')
+
+  it('gets the larger Indic type scale', () => {
+    expect(tokensCss).toMatch(/:where\(:lang\(kn\), :lang\(te\), :lang\(ta\), :lang\(hi\)\)/)
+  })
+
+  it('uses Noto Sans Devanagari for text and Baloo 2 (which ships a devanagari subset) for headings', () => {
+    expect(tokensCss).toMatch(/:where\(:lang\(hi\)\)\s*\{[^}]*--font-sans:\s*"Noto Sans Devanagari"[^}]*--font-heading:\s*"Baloo 2"/)
+  })
+
+  it('loads the Devanagari body font in the weights the pages use', () => {
+    expect(fontsCss).toContain('@fontsource/noto-sans-devanagari/400.css')
+    expect(fontsCss).toContain('@fontsource/noto-sans-devanagari/600.css')
+  })
+})

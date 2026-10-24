@@ -22,7 +22,19 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **For Monika:** (1) `chat-edge` is `#7C8782`, not `#7F8A85`: the spec value is 2.98:1 against the wallpaper and the test needs 3:1. (2) `primary` is no longer used for text on slate (5.9:1); two links moved to `primary-strong`. (3) The unwritten te/ta keys above.
 - **Known:** before the page data arrives, the parent frame uses the phone's saved language (kn), so an en or te family may fetch the Kannada fonts (about 65 KB) for the loading line.
 - **Not done:** T-49 Today re-layout (Monika's gate: her sign-off on the mockup).
-- **Next:** Hindi support (asked 24 Oct, after this task).
+- **Next:** Hindi support, below (branch stacked on this one).
+
+## Hindi support (24 Oct, D-78, T-59), branch `feat/T-59-hindi`
+
+- **Asked by Rahul, scope "full":** `hi` in the teacher and parent screens and as a family home language. Plan: `/Users/rahuloswal/.claude/plans/hazy-scribbling-heron.md`. D-78 and T-59 added as **proposed**, with **[DECIDE: Monika]** on copy review.
+- **Web:** `hi.json` (499 keys, same as `en.json`; `language.hi`, `approve.in.hi`, `missed.language.hi` added to all five files), `SUPPORTED_LANGUAGES` has `hi`, five language chips (they wrap to two rows at 360 px), Noto Sans Devanagari 400 and 600 via fontsource, Baloo 2 for headings (its devanagari subset ships in the same package), `:lang(hi)` fonts and the larger Indic type scale. Handwriting accent stays English-only, so Hindi gets the plain word with the amber underline.
+- **API:** verifier script block (U+0900 to U+097F), `WordsPerSecond` `hi` 2.2 (a cautious guess, not measured), A3 language name, `Competency.NameHi` with `nameHi` on all 16 competencies, `hi` in the disclosure seed (wording-keyed, so a new clip is made on its own) and the evening-message seed (version 3, so the teacher approves again, D-49). TTS code is `{language}-IN`, so `hi-IN` needed no change. No schema change.
+- **Prompts:** `a3-script` v4 (Hindi named, plus a line on everyday spoken Hindi), `a4-check` v3; two Hindi cases added to `evals/cases/a3-script.json`. **Eval run not done: merged without it at Rahul's request (24 Oct).** Guardrail 6 still needs an A3/A4 eval run on the Hindi cases; do it next and attach the result.
+- **Tests:** 3 new xUnit (Devanagari script block, A3 asks for Hindi, `Name("hi")`), one updated (`EveningSlotsTests` language list); Vitest for the Hindi fonts and scale, the language switch and key parity. `verify.sh` OK (488 API, 268 web). Db suite run once: 15 of 15 (seed changed).
+- **Measured (360 px):** P1 in Hindi 463 KB gzip with audio excluded (limit 500; the Kannada fonts for the loading line add about 65 KB, the known issue above). axe 0 on every parent page and teacher screen in light and dark, except the Approve list (same existing finding). Screenshots in `docs/screenshots/D-78/`.
+- **For Monika:** all Hindi text is a draft (UI, disclosure line, evening message, competency names). Evening wording avoids gendered verbs: "आज हमें {child} की कमी खली", "एक सहपाठी ... ध्यान रख रहे हैं". `setup.template.audioNote` in every language still lists Telugu, Tamil and Kannada only. No seeded child speaks Hindi, so the demo roster (6 Telugu, 3 Tamil, 1 English) is unchanged. Whether to add a Hindi family is hers to decide.
+- **Known:** lesson names in the teacher UI show the English name for every language except Kannada (existing behaviour, `lessonName`); the Hindi names are used only in the evening message.
+- **Not done:** the A3/A4 eval run; a real Sarvam `hi-IN` listen (needs the key); native review.
 
 ## Current state — Wed 21 Oct 2026 (Day 3)
 

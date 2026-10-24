@@ -16,7 +16,7 @@ export type AudioSegment = { kind: 'greeting' | 'disclosure' | 'script'; url: st
 
 export type CatchUpPackage = {
   id: string
-  language: 'kn' | 'te' | 'ta' | 'en'
+  language: 'kn' | 'te' | 'ta' | 'en' | 'hi'
   targetCompetencyIds: string[]
   status: PackageStatus
   scriptVersion: number

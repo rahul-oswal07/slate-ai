@@ -1,6 +1,6 @@
 {
-  "_note": "Evening message on a day of absence (FR-20, D-21). The teacher approves this once; code fills {child} (written text only, D-50), {lesson} and {page} from her confirmed lesson. No {tomorrow} (D-48); the buddy is never named (D-29). Change the text → bump version (she approves again, D-49). en, te, kn from docs/design/T0-setup.md; ta is a draft. All need native review (T-26). v2 (D-72): gender-neutral Telugu lines from Monika.",
-  "version": "2",
+  "_note": "Evening message on a day of absence (FR-20, D-21). The teacher approves this once; code fills {child} (written text only, D-50), {lesson} and {page} from her confirmed lesson. No {tomorrow} (D-48); the buddy is never named (D-29). Change the text → bump version (she approves again, D-49). en, te, kn from docs/design/T0-setup.md; ta and hi are drafts. All need native review (T-26). v2 (D-72): gender-neutral Telugu lines from Monika. v3 (D-78): Hindi added, gender-neutral; the new version asks for approval again.",
+  "version": "3",
   "languages": {
     "en": {
       "text": "We missed {child} today. In class we learned {lesson}. Homework: textbook {page}. A classmate is keeping {child}’s seat.",
@@ -21,6 +21,11 @@
       "text": "இன்று {child} இல்லாதது எங்களுக்குக் குறையாக இருந்தது. இன்று வகுப்பில் {lesson} கற்றோம். வீட்டுப்பாடம்: பாடநூல் {page}. ஒரு வகுப்புத் தோழர் {child}இன் இருக்கையைக் காத்து வருகிறார்.",
       "page": "பகுதி {part}, பக்கம் {page}",
       "pageNoPart": "பக்கம் {page}"
+    },
+    "hi": {
+      "text": "आज हमें {child} की कमी खली। आज कक्षा का विषय था: {lesson}। गृहकार्य: पाठ्यपुस्तक {page}। एक सहपाठी {child} की सीट का ध्यान रख रहे हैं।",
+      "page": "भाग {part}, पृष्ठ {page}",
+      "pageNoPart": "पृष्ठ {page}"
     }
   }
 }
