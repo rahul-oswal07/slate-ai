@@ -5,6 +5,18 @@
     "displayName": "Shobha",
     "phone": "+919000000000"
   },
+  "coTeachers": [
+    {
+      "id": "5fa0ca50-c20a-5c8b-90ee-a7eb72ace58a",
+      "displayName": "Lakshmi",
+      "phone": "+919123456789"
+    },
+    {
+      "id": "983078c0-de44-5954-b9d8-30834b3179c8",
+      "displayName": "Monika",
+      "phone": "+919123456788"
+    }
+  ],
   "class": {
     "id": "0a1e03b3-23fa-5a7d-87e3-490d6ddae335",
     "grade": 3,
