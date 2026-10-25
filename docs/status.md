@@ -41,7 +41,6 @@ Update it at the end of every working session (what changed, what's next, blocke
 - Tests: `StartupDbTests` (26 kn, 6 te, 3 ta, 1 hi), `DemoShellEndpointTests` (family language and the pre-made snapshot theory), `DemoResetDbTests` (package language). `verify.sh` OK (488 API); Db suite 15/15.
 - For Monika: D-73 and D-74 in `spec.md` still say Rohan's family is English ("so judges can follow the parent side"); with Hindi the judges' parent phone is in Hindi. English stays a supported family language. All Hindi text is still a draft.
 - Not done: a listen to the new Hindi catch-up audio; refreshing the screenshots in `docs/screenshots/` that show the English parent phone.
-
 ## Hindi support (24 Oct, D-78, T-59), branch `feat/T-59-hindi`
 
 - **Asked by Rahul, scope "full":** `hi` in the teacher and parent screens and as a family home language. Plan: `/Users/rahuloswal/.claude/plans/hazy-scribbling-heron.md`. D-78 and T-59 added as **proposed**, with **[DECIDE: Monika]** on copy review.
