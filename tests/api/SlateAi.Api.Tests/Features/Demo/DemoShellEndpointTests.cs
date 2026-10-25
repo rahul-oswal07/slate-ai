@@ -70,7 +70,7 @@ public sealed class DemoShellEndpointTests
     }
 
     [Fact]
-    public async Task Info_puts_rohans_english_speaking_family_on_the_parent_phone_and_gives_the_last_reset()
+    public async Task Info_puts_rohans_hindi_speaking_family_on_the_parent_phone_and_gives_the_last_reset()
     {
         _store.LastReset = Now.AddMinutes(-3);
         await using var factory = Create();
@@ -79,7 +79,7 @@ public sealed class DemoShellEndpointTests
         var info = await client.GetFromJsonAsync<DemoInfoResponse>("/api/demo", Ct);
 
         Assert.Equal(new DemoInfoResponse(ClassId, Rohan, Now.AddMinutes(-3)), info);
-        Assert.Equal("en", Seed.Children.Single(c => c.Id == Rohan).HomeLanguage);
+        Assert.Equal("hi", Seed.Children.Single(c => c.Id == Rohan).HomeLanguage);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public sealed class DemoShellEndpointTests
 
     [Theory]
     [InlineData("te", DemoStory.RaviRollNo, 4)] // Mon–Thu this week; Sat 17 Oct is last week
-    [InlineData("en", DemoStory.RohanRollNo, 0)] // away today only, so the snapshot's own missed lessons stand
+    [InlineData("hi", DemoStory.RohanRollNo, 0)] // away today only, so the snapshot's own missed lessons stand
     public async Task Reset_gives_the_pre_made_catch_up_to_the_story_child_of_its_language(string language, int rollNo, int missed)
     {
         var file = Path.Combine(AppContext.BaseDirectory, $"demo-snapshot-{language}-{Guid.NewGuid():N}.json");

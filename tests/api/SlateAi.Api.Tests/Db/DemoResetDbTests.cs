@@ -21,7 +21,7 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         var today = SchoolClock.Today(TimeProvider.System);
         var ananya = api.ChildIds[0];  // roll 1, deleted by the teacher
         var bhavana = api.ChildIds[1]; // roll 2, family stopped messages, consent changed to No
-        var rohan = api.ChildIds[23];  // roll 24, English: owns the pre-made catch-up
+        var rohan = api.ChildIds[23];  // roll 24, Hindi: owns the pre-made catch-up
 
         // A class that has been used: today's register, a lesson, a deleted child, a stop, a changed consent, a package
         // with its own audio, a shared disclosure clip and an AI call.
@@ -78,7 +78,7 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.True(await api.QueryAsync(db => db.AudioClips.AnyAsync(c => c.Id == sharedClip, DemoClassApi.Ct)));
         Assert.Equal(1, await api.QueryAsync(db => db.AiCalls.CountAsync(DemoClassApi.Ct)));
         var package = await api.QueryAsync(db => db.CatchUpPackages.SingleAsync(DemoClassApi.Ct));
-        Assert.Equal(("en", PackageStatus.Ready), (package.Language, package.Status));
+        Assert.Equal(("hi", PackageStatus.Ready), (package.Language, package.Status));
         Assert.Equal(rohan, await api.QueryAsync(db => db.CatchUpAssignments.Select(a => a.ChildId).SingleAsync(DemoClassApi.Ct)));
         var clipIds = DemoSnapshot.ClipIds(package);
         Assert.Equal(clipIds.Count, await api.QueryAsync(db => db.AudioClips.CountAsync(c => clipIds.Contains(c.Id), DemoClassApi.Ct)));

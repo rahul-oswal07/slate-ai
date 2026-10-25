@@ -33,6 +33,15 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **Differs from the picture (the card's copy wins):** the date reads "Saturday, October 24" not "23 Oct", so the Saved tag wraps under the title at 360 px; the mic hint is the built copy; the payoff card keeps the built sentences, not the big "3 of 4" numerals (that would split a translated string).
 - **Not done:** the done-state screenshot, axe on light, and Kannada/Hindi wrapping check. Screenshots in `docs/screenshots/T-49/`.
 
+## Rohan is a Hindi-speaking family (25 Oct, Rahul)
+
+- `data/seed/demo-class.json`: roll 24 Rohan `homeLanguage` `hi` (was `en`). The demo Reset re-adds the seeded children, so an existing staging or prod database gets this on its next Reset (the seeder itself never changes a stored child's language).
+- Pre-made catch-up regenerated live: `data/seed/demo-catchup.json` is now Rohan's **Hindi** catch-up of `M3.ADD.CARRY` (A3 v4, verified, disclosure + script clips, ~200 KB, no names). It is matched to the story child by language, so the old English one would have attached to nobody.
+- `/demo` guide strings (`demo.guide.evening`, `demo.guide.approve`) say Hindi in en, kn, te, ta and hi. Code comments in `DemoScreen.tsx` and `types.ts`.
+- Tests: `StartupDbTests` (26 kn, 6 te, 3 ta, 1 hi), `DemoShellEndpointTests` (family language and the pre-made snapshot theory), `DemoResetDbTests` (package language). `verify.sh` OK (488 API); Db suite 15/15.
+- For Monika: D-73 and D-74 in `spec.md` still say Rohan's family is English ("so judges can follow the parent side"); with Hindi the judges' parent phone is in Hindi. English stays a supported family language. All Hindi text is still a draft.
+- Not done: a listen to the new Hindi catch-up audio; refreshing the screenshots in `docs/screenshots/` that show the English parent phone.
+
 ## Hindi support (24 Oct, D-78, T-59), branch `feat/T-59-hindi`
 
 - **Asked by Rahul, scope "full":** `hi` in the teacher and parent screens and as a family home language. Plan: `/Users/rahuloswal/.claude/plans/hazy-scribbling-heron.md`. D-78 and T-59 added as **proposed**, with **[DECIDE: Monika]** on copy review.
@@ -43,7 +52,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **Measured (360 px):** P1 in Hindi 463 KB gzip with audio excluded (limit 500; the Kannada fonts for the loading line add about 65 KB, the known issue above). axe 0 on every parent page and teacher screen in light and dark, except the Approve list (same existing finding). Screenshots in `docs/screenshots/D-78/`.
 - **For Monika:** all Hindi text is a draft (UI, disclosure line, evening message, competency names). Evening wording avoids gendered verbs: "आज हमें {child} की कमी खली", "एक सहपाठी ... ध्यान रख रहे हैं". `setup.template.audioNote` in every language still lists Telugu, Tamil and Kannada only. No seeded child speaks Hindi, so the demo roster (6 Telugu, 3 Tamil, 1 English) is unchanged. Whether to add a Hindi family is hers to decide.
 - **Known:** lesson names in the teacher UI show the English name for every language except Kannada (existing behaviour, `lessonName`); the Hindi names are used only in the evening message.
-- **Not done:** the A3/A4 eval run; a real Sarvam `hi-IN` listen (needs the key); native review.
+- **Eval and speech (25 Oct):** A3 v4 14/14 first pass (2 Hindi cases), A4 v3 8/8; Sarvam `hi-IN` spoke the Hindi script in 43 s (whole catch-up 49.5 s, 135 KB). Measured 2.55 words/second from one script, so `WordsPerSecond.hi` 2.2 errs long (left as is). `TtsSmokeEvals` now covers `hi` and reads the latest A3 results file. Details in `docs/quality.md` "Hindi". Guardrail 6 is met.
+- **Not done:** someone plays `evals/results/audio/disclosure-hi.ogg` and `sub-borrow-hi.ogg` and a native speaker reviews the Hindi text (T-26); an A4 case with a Hindi-script script.
 
 ## Current state — Wed 21 Oct 2026 (Day 3)
 

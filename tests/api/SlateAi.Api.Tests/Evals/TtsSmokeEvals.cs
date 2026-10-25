@@ -38,8 +38,8 @@ public sealed class TtsSmokeEvals
         var tts = scope.ServiceProvider.GetRequiredService<ITextToSpeech>();
         var disclosure = scope.ServiceProvider.GetRequiredService<DisclosureWording>();
 
-        using var a3 = JsonDocument.Parse(await File.ReadAllTextAsync(
-            Path.Combine(root, "evals", "results", "2026-10-22-a3-script.json"), TestContext.Current.CancellationToken));
+        var latestA3 = Directory.GetFiles(Path.Combine(root, "evals", "results"), "*-a3-script.json").Order().Last();
+        using var a3 = JsonDocument.Parse(await File.ReadAllTextAsync(latestA3, TestContext.Current.CancellationToken));
         var scripts = a3.RootElement.GetProperty("results").EnumerateArray()
             .Select(r => (Id: r.GetProperty("id").GetString()!, Content: r.GetProperty("attempts").EnumerateArray().Last().GetProperty("content")))
             .Where(r => r.Content.ValueKind == JsonValueKind.Object)
@@ -49,7 +49,7 @@ public sealed class TtsSmokeEvals
         var output = Path.Combine(root, "evals", "results", "audio");
         Directory.CreateDirectory(output);
         var results = new List<Result>();
-        foreach (var language in new[] { "kn", "te", "ta" })
+        foreach (var language in new[] { "kn", "te", "ta", "hi" })
         {
             var spokenDisclosure = await tts.SynthesizeAsync(disclosure.Languages[language], $"{language}-IN", TestContext.Current.CancellationToken);
             await File.WriteAllBytesAsync(Path.Combine(output, $"disclosure-{language}.ogg"), spokenDisclosure.Audio, TestContext.Current.CancellationToken);

@@ -1,0 +1,51 @@
+{
+  "runAt": "2026-10-25T05:49:57.517767+00:00",
+  "voice": "bulbul:v3/priya",
+  "ttsSampleRate": 16000,
+  "results": [
+    {
+      "language": "kn",
+      "script": "sub-borrow-kn",
+      "disclosureSeconds": 5.6,
+      "words": 92,
+      "scriptSeconds": 48.3,
+      "wordsPerSecond": 1.9,
+      "totalSeconds": 54,
+      "totalKb": 146.7,
+      "withinLimits": true
+    },
+    {
+      "language": "te",
+      "script": "ravi-sub-borrow-te",
+      "disclosureSeconds": 5.5,
+      "words": 103,
+      "scriptSeconds": 55.6,
+      "wordsPerSecond": 1.85,
+      "totalSeconds": 61.1,
+      "totalKb": 164.5,
+      "withinLimits": true
+    },
+    {
+      "language": "ta",
+      "script": "sub-borrow-ta",
+      "disclosureSeconds": 4.7,
+      "words": 98,
+      "scriptSeconds": 51.3,
+      "wordsPerSecond": 1.91,
+      "totalSeconds": 56,
+      "totalKb": 154,
+      "withinLimits": true
+    },
+    {
+      "language": "hi",
+      "script": "sub-borrow-hi",
+      "disclosureSeconds": 6.4,
+      "words": 110,
+      "scriptSeconds": 43.1,
+      "wordsPerSecond": 2.55,
+      "totalSeconds": 49.5,
+      "totalKb": 134.8,
+      "withinLimits": true
+    }
+  ]
+}

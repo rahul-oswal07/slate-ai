@@ -1,4 +1,4 @@
-/** GET /api/demo: the demo class, whose family the parent phone shows (Rohan's, in English), and the last reset. */
+/** GET /api/demo: the demo class, whose family the parent phone shows (Rohan's, in Hindi), and the last reset. */
 export interface DemoInfo {
   classId: string
   parentChildId: string
