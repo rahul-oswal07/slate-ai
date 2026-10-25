@@ -15,7 +15,7 @@ Development default language is **English** (D-32); Kannada, Telugu and Tamil co
 | Card | Screen | Task |
 |---|---|---|
 | [T0-setup.md](T0-setup.md) | Teacher set-up: greeting, evening template | T-44 |
-| [T1-today.md](T1-today.md) | Today: attendance from SATS, voice note, tonight, since yesterday, nav | T-12 |
+| [T1-today.md](T1-today.md) | Today: attendance from SATS, voice note, tonight, nav (since yesterday is roadmap) | T-12 |
 | [T2-lesson-confirm.md](T2-lesson-confirm.md) | Lesson confirm + pick-lesson sheet | T-07, T-12 |
 | [T3-approve.md](T3-approve.md) | Approve catch-ups: list, detail, withdraw | T-14 |
 | [T4-missed-lessons.md](T4-missed-lessons.md) | Missed lessons (ledger), child history, delete | T-13, T-19 |

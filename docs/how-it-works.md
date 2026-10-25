@@ -50,7 +50,7 @@ Records her greeting in her own voice, gives consent, and approves the evening m
 
 | Tab | What it shows | Why |
 |---|---|---|
-| **Today** | Everything for the day on one screen: attendance (arrives by itself), the mic for her lesson, "Added to missed lessons: 4 children", tonight's messages ("Sent tonight to 3 of 4 families"), and "Since yesterday" (which families listened, which children caught up). | Her whole daily task happens here, in under 60 seconds. |
+| **Today** | Everything for the day on one screen: attendance (arrives by itself), the mic for her lesson, "Added to missed lessons: 4 children", tonight's messages ("Sent tonight to 3 of 4 families"). A "Since yesterday" line (which families listened, which children caught up) is on the roadmap. | Her whole daily task happens here, in under 60 seconds. |
 | **Approve** | The week's catch-ups, one per language group. She listens, reads the Kannada summary, ticks, and approves. | The AI writes; she stays in control. This is our main safety guarantee. |
 | **Missed** | The record of who missed which lesson, by child or by lesson, and where each child stands (sent, listened, caught up, needs buddy). | Answers problem 1: "can't track who missed what". |
 | **Back today** | Buddy cards for children returning today. | Answers problem 2: "no class time to reteach", and covers children without phones. |

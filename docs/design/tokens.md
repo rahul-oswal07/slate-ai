@@ -189,7 +189,7 @@ A stand-in for the real chat app (spec: P0 card). Build it as a demo component, 
 | **Stopped, Link expired** (T-50) | Plain icon and boxes | Slate card styles | No header, icon above the heading, texts, homework card on Expired, Start them again, stop link on Expired |
 | **Teacher shell** (T-54) | Nothing | Slate colours, ruling lines, 4 px active nav bar | App name, tagline, the four language chips, the five nav labels and their order, sync badge, offline banner |
 | **Sign-in** (T-54) | Nothing | Slate styling | Fields, hints, buttons, lockout |
-| **Today** (T-49, the exception) | The stack of equal cards | Day strip; compact attendance; one hero lesson card; merged payoff card; collapsed "Since yesterday"; accent on "Today" | The data, the hooks, every state, the app header, the Saved tag |
+| **Today** (T-49, the exception) | The stack of equal cards | Day strip; compact attendance; one hero lesson card; merged payoff card; accent on "Today" | The data, the hooks, every state, the app header, the Saved tag |
 | **Approve** (T-54) | Nothing | Card styling | Title, intro, cards (language · count, names, lesson · duration, tag), "See new absences", rules |
 | **Missed lessons** (T-54) | Nothing | One selected-state style for the two controls | Every row: roll, name, days away, "Missed: …", tags, chevron; the footer line |
 | **Back today** (T-54) | Nothing | Card styling | Card, buddy panel, three numbers, Kannada words, Brought homework, Mark buddy time done |
