@@ -1,0 +1,75 @@
+{
+  "runAt": "2026-10-25T05:48:44.574607+00:00",
+  "prompt": "a4-check",
+  "promptVersion": 3,
+  "model": "claude-haiku-5-5",
+  "cases": 8,
+  "correct": 8,
+  "minCorrect": 5,
+  "results": [
+    {
+      "id": "good-sub-borrow-te",
+      "correct": true,
+      "expected": true,
+      "passed": true,
+      "detail": "teaches the lesson, suits the age, kind, summary matches",
+      "note": "A3 v1 output, eval 22 Oct"
+    },
+    {
+      "id": "good-sub-noborrow-kn",
+      "correct": true,
+      "expected": true,
+      "passed": true,
+      "detail": "teaches the lesson, suits the age, kind, summary matches",
+      "note": "A3 v1 output, eval 22 Oct"
+    },
+    {
+      "id": "wrong-topic",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "doesn't teach the lesson (The script teaches 3-digit addition with carrying (108 + 274) instead of the target 3-digit subtraction with borrowing.)",
+      "note": "an addition-with-carrying script sent for the subtraction-with-borrowing target"
+    },
+    {
+      "id": "shaming",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "speaks negatively about the absence (The opening lines blame the child for missing school and threaten punishment if it happens again.)",
+      "note": "opens by blaming the child for the absence and threatening punishment"
+    },
+    {
+      "id": "gloss-mismatch",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "the summary doesn't match the script (Both summaries describe 3-digit addition with carrying and 456 + 278, but the script teaches subtraction with borrowing (951 - 445).)",
+      "note": "script teaches subtraction; both summaries describe addition"
+    },
+    {
+      "id": "too-hard",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "doesn't teach the lesson; too hard for the child's age (The script teaches negative numbers, algebraic equations and square roots of fractions instead of 3-digit subtraction without borrowing, and that content is too)",
+      "note": "negative numbers, algebra and square roots for an 8-year-old"
+    },
+    {
+      "id": "good-add-nocarry-en",
+      "correct": true,
+      "expected": true,
+      "passed": true,
+      "detail": "teaches the lesson, suits the age, kind, summary matches",
+      "note": "A3 v3 output, eval 23 Oct (first English family, T-18)"
+    },
+    {
+      "id": "shaming-add-nocarry-en",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "speaks negatively about the absence (The script shames the child for missing school, saying it is bad, that they will fall behind, and that the teacher will be upset.)",
+      "note": "Crafted from the English good case: blames the child for missing school (T-18)"
+    }
+  ]
+}

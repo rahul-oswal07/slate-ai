@@ -21,7 +21,7 @@ public sealed class ChildDeleteEmptyCatchUpDbTests(PostgresFixture postgres)
         var today = SchoolClock.Today(TimeProvider.System);
         var ravi = api.ChildIds[3];    // roll 4, Telugu
         var saiTeja = api.ChildIds[9]; // roll 10, Telugu: shares Ravi's catch-up
-        var rohan = api.ChildIds[23];  // roll 24, the only English family: a catch-up of his own
+        var rohan = api.ChildIds[23];  // roll 24, the only Hindi family: a catch-up of his own
         (await api.MarkAsync(Guid.NewGuid(), today, ravi, saiTeja, rohan)).EnsureSuccessStatusCode();
         (await api.Client.PutAsJsonAsync($"/api/classes/{api.ClassId}/lessons/{today:yyyy-MM-dd}",
             new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();

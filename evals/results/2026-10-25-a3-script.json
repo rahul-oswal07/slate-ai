@@ -1,0 +1,943 @@
+{
+  "runAt": "2026-10-25T05:48:53.366167+00:00",
+  "prompts": "a3-script v4 + a4-check v3",
+  "models": "claude-opus-5-5 + claude-haiku-5-5",
+  "cases": 14,
+  "firstPass": 1,
+  "firstPassTarget": 0.85,
+  "ready": 1,
+  "target": 0.8,
+  "results": [
+    {
+      "id": "ravi-sub-borrow-te",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "494 − 128",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "నమస్కారం! ఈ రోజు మనం తీసివేత నేర్చుకుందాం. తరగతిలో దీనిని ಕಳೆ అంటారు. 10 పుల్లలు కలిపి కట్టిన కట్టను ದಶಕ అంటారు. విడిగా ఉన్న పుల్లలను ಬಿಡಿ అంటారు. ఇప్పుడు 951 నుండి 445 ಕಳೆ చేద్దాం. వందలు, పదులు, ఒకట్ల పట్టికలో 9 వందల కట్టలు, 5 ದಶಕ కట్టలు, 1 ಬಿಡಿ పుల్ల పెట్టు. మొదట ఒకట్లు: 1 నుండి 5 తీయలేం. అందుకే ఒక ದಶಕ కట్ట విప్పు. ఇప్పుడు 11 ಬಿಡಿ పుల్లలు ఉన్నాయి. 11 − 5 = 6. ఇప్పుడు పదులు 4 మిగిలాయి. 4 − 4 = 0. వందలు: 9 − 4 = 5. జవాబు 506. చాలా బాగుంది! ఇప్పుడు పాఠ్యపుస్తకం భాగం 2, పేజీ 15 లోని హోంవర్క్ చెయ్యి. బడికి వచ్చినప్పుడు మీ టీచర్‌కి చూపించు. నీ స్నేహితులు, టీచర్ నీ కోసం ఎదురు చూస్తున్నారు!",
+            "keyWordsKn": [
+              "ಕಳೆ",
+              "ದಶಕ",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "పుల్లలతో 951 చేయి. దాని నుండి 445 తీసివేసి, ఎన్ని మిగిలాయో లెక్కపెట్టు.",
+            "objectOption": "పుల్లలు లేకపోతే సీసా మూతలు, చింతగింజలు లేదా రాళ్లు వాడవచ్చు.",
+            "checkPrompt": "494 − 128 ఏ బొమ్మలో ఉంది?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ ಕಲಿಸುತ್ತದೆ: ಕಡ್ಡಿಗಳ ದಶಕ ಕಟ್ಟು ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ, ಒಂದು ದಶಕ ಬಿಚ್ಚಿ ಕಳೆಯುವುದು. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 951 − 445 = 506. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit subtraction with borrowing: using bundles of ten sticks and loose sticks in the place-value table, opening one bundle of ten when the ones are too few. Activity: 951 − 445 = 506 with sticks or household objects. Homework: textbook part 2, page 15. Show your teacher when you come back.",
+            "objects": [
+              "bottle caps",
+              "tamarind seeds",
+              "stones"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Telugu letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 56 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕಳೆ, ದಶಕ, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, tamarind seeds, stones"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub-borrow-kn",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "692 − 126",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "ನಮಸ್ಕಾರ! ಇಂದು ನಾವು ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ ಕಲಿಯೋಣ. 351 ರಲ್ಲಿ 109 ಕಳೆ. ಹತ್ತು ಕಡ್ಡಿಗಳ ಒಂದು ಕಟ್ಟು ಒಂದು ದಶಕ. ಹತ್ತು ದಶಕಗಳ ದೊಡ್ಡ ಕಟ್ಟು ಒಂದು ನೂರು. 351 ಅಂದರೆ 3 ನೂರು, 5 ದಶಕ, 1 ಬಿಡಿ ಕಡ್ಡಿ. ಮೊದಲು ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ನೋಡು. 1 ರಲ್ಲಿ 9 ಕಳೆಯಲು ಆಗುವುದಿಲ್ಲ. ಆದ್ದರಿಂದ ಒಂದು ದಶಕದ ಕಟ್ಟು ಬಿಚ್ಚು. ಈಗ 4 ದಶಕ ಮತ್ತು 11 ಬಿಡಿ. 11 − 9 = 2. ದಶಕದಲ್ಲಿ 4 − 0 = 4. ನೂರರಲ್ಲಿ 3 − 1 = 2. ಉತ್ತರ 242. ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ಬರೆದು ನೋಡು. ಈಗ ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15 ರ ಮನೆಕೆಲಸ ಮಾಡು. ಶಾಲೆಗೆ ಬಂದಾಗ ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು. ನೀನು ಚೆನ್ನಾಗಿ ಮಾಡುತ್ತೀಯ!",
+            "keyWordsKn": [
+              "ಕಳೆ",
+              "ದಶಕ",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "ಕಡ್ಡಿಗಳಿಂದ 351 ಮಾಡು. ಅದರಲ್ಲಿ 109 ಕಳೆದು, ಎಷ್ಟು ಉಳಿಯಿತು ಎಂದು ಎಣಿಸು.",
+            "objectOption": "ಕಡ್ಡಿಗಳಿಲ್ಲದಿದ್ದರೆ ಹುಣಸೆ ಬೀಜ ಅಥವಾ ಕಲ್ಲುಗಳನ್ನು ಬಳಸಬಹುದು.",
+            "checkPrompt": "692 − 126 ಯಾವ ಚಿತ್ರದಲ್ಲಿ ಇದೆ?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ ಕಲಿಸುತ್ತದೆ. ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ 351 − 109 = 242 ಮಾಡುತ್ತಾರೆ, ಒಂದು ದಶಕ ಬಿಚ್ಚಿ ಬಿಡಿ ಮಾಡುತ್ತಾರೆ. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit subtraction with borrowing. Using bundles of ten sticks and loose sticks, the child works out 351 − 109 = 242 by opening one ten into loose sticks. Homework: textbook part 2, page 15. Show your teacher when you come back.",
+            "objects": [
+              "tamarind seeds",
+              "stones"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Kannada letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 52 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕಳೆ, ದಶಕ, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "tamarind seeds, stones"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub-borrow-ta",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "772 − 466",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "வணக்கம்! இன்று கழித்தல் கற்போம். வகுப்பில் கழித்தலை ಕಳೆ என்று சொல்வார்கள். பத்து குச்சிகள் சேர்ந்த ஒரு கட்டு ದಶಕ. தனிக் குச்சிகள் ಬಿಡಿ. நூறுகள், பத்துகள், ஒன்றுகள் என்று அட்டவணையில் எழுது. இப்போது 840 இலிருந்து 704 ಕಳೆ. 840 என்றால் 8 நூறு, 4 ದಶಕ, 0 ಬಿಡಿ. ஒன்றுகள் இடத்தில் 0 இலிருந்து 4 எடுக்க முடியாது. அதனால் ஒரு ದಶಕ கட்டை அவிழ்த்தால் 10 ಬಿಡಿ குச்சிகள் கிடைக்கும். இப்போது 3 ದಶಕ மட்டும் உள்ளது. 10 − 4 = 6. பத்துகள் இடத்தில் 3 − 0 = 3. நூறுகள் இடத்தில் 8 − 7 = 1. விடை 136. அருமை! பாடப்புத்தகம் பகுதி 2, பக்கம் 15 இல் வீட்டுப்பாடம் செய். பள்ளிக்கு வரும்போது உன் டீச்சரிடம் காட்டு. உன் நண்பர்களும் உன்னைப் பார்க்கக் காத்திருக்கிறார்கள்!",
+            "keyWordsKn": [
+              "ಕಳೆ",
+              "ದಶಕ",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "குச்சிக் கட்டுகளால் 840 செய்து, அதிலிருந்து 704 எடுத்துவிடு. மீதி எத்தனை என்று எண்ணிப் பார்.",
+            "objectOption": "குச்சிகள் இல்லையென்றால் புளியங்கொட்டைகள் அல்லது கற்கள் பயன்படுத்தலாம்.",
+            "checkPrompt": "772 − 466 எதைக் காட்டும் படம் எது?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ ಕಲಿಸುತ್ತದೆ: ಒಂದು ದಶಕ ಬಿಚ್ಚಿ 10 ಬಿಡಿ ಮಾಡಿ ಕಳೆಯುವುದು. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿ ಕಟ್ಟುಗಳಿಂದ 840 − 704 = 136. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit subtraction with borrowing: open one bundle of ten to get 10 loose sticks, then subtract. Activity: with stick bundles, 840 − 704 = 136. Homework: textbook part 2, page 15. Show your teacher when you come back.",
+            "objects": [
+              "tamarind seeds",
+              "stones"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Tamil letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 52 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕಳೆ, ದಶಕ, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "tamarind seeds, stones"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-carry-two-targets-te",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "546 + 217",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "నమస్తే! ఈ రోజు మనం పెద్ద సంఖ్యలను ಕೂಡಿಸು నేర్చుకుందాం. 10 కట్టెపుల్లలను ఒక కట్టగా కడితే అది ఒక ದಶಕ. విడి పుల్లలు ఒకట్లు. స్థానవిలువ పట్టికలో వందలు, పదులు, ఒకట్లు అని రాసుకో. ఇప్పుడు 108 మరియు 274 ని ಕೂಡಿಸು. ముందు ఒకట్లు: 8 మరియు 4 కలిపితే 12. 10 విడి పుల్లలతో ఒక ದಶಕ కట్ట కట్టి, పదుల స్థానానికి పంపు. 2 పుల్లలు మిగిలాయి. తర్వాత పదులు: 0 మరియు 7, ఇంకా ఆ ఒక ದಶಕ కలిపితే 8. చివరగా వందలు: 1 మరియు 2 కలిపితే 3. కాబట్టి ಮೊತ್ತ 382. చాలా బాగుంది! ఈ ಮೊತ್ತ ని నీ పుస్తకంలో రాసుకో. ఇప్పుడు పాఠ్యపుస్తకం భాగం 1, పేజీ 85 లో హోంవర్క్ చెయ్యి. బడికి వచ్చినప్పుడు మీ టీచర్‌కి చూపించు!",
+            "keyWordsKn": [
+              "ಕೂಡಿಸು",
+              "ಮೊತ್ತ",
+              "ದಶಕ"
+            ],
+            "activityInstruction": "కట్టెపుల్లలతో 108 మరియు 274 చేసి కలుపు. 10 విడి పుల్లలు అయితే ఒక కట్ట కట్టు.",
+            "objectOption": "పుల్లలు లేకపోతే సీసా మూతలు లేదా చింతగింజలు వాడవచ్చు.",
+            "checkPrompt": "546 + 217 ఏ బొమ్మ చూపిస్తుంది?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ಸಂಕಲನ ಕಲಿಸುತ್ತದೆ: ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳು, ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ. ಚಟುವಟಿಕೆ: 108 + 274 = 382 ಕಡ್ಡಿಗಳಿಂದ ಕೂಡಿಸುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 85. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This lesson teaches 3-digit addition with carrying, using bundles of ten sticks, loose sticks and the place-value table. Activity: add 108 + 274 = 382 with sticks. Homework: textbook part 1, page 85. Show your teacher when you come back.",
+            "objects": [
+              "bottle caps",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Telugu letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 52 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕೂಡಿಸು, ಮೊತ್ತ, ದಶಕ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-carry-kn",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "419 + 125",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "ನಮಸ್ಕಾರ! ಇಂದು ದಶಕ ಸಹಿತ ಸಂಕಲನ ಕಲಿಯೋಣ. 10 ಕಡ್ಡಿಗಳ ಒಂದು ಕಟ್ಟು ಒಂದು ದಶಕ. 10 ದಶಕಗಳ ದೊಡ್ಡ ಕಟ್ಟು 100. ಈಗ 158 ಮತ್ತು 539 ಕೂಡಿಸು. ಮೊದಲು ಬಿಡಿ ಕಡ್ಡಿಗಳು: 8 + 9 = 17. 10 ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಕಟ್ಟಿ ಒಂದು ದಶಕ ಮಾಡು. 7 ಬಿಡಿ ಕಡ್ಡಿಗಳು ಉಳಿಯುತ್ತವೆ. ಆ ಹೊಸ ದಶಕವನ್ನು ಉಳಿದ ದಶಕಗಳ ಜೊತೆ ಸೇರಿಸು: 5 + 3 + 1 = 9 ದಶಕ. ನಂತರ ನೂರುಗಳು: 1 + 5 = 6. ಮೊತ್ತ 697. ತುಂಬಾ ಚೆನ್ನಾಗಿದೆ! ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 85 ರಲ್ಲಿ ಮನೆಗೆಲಸ ಮಾಡು. ಅಲ್ಲಿನ ಲೆಕ್ಕಗಳನ್ನು ಕೂಡಿಸು, ಪ್ರತಿಯೊಂದರ ಮೊತ್ತ ಬರೆ. ಶಾಲೆಗೆ ಬಂದಾಗ ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು. ನಿನ್ನ ಗೆಳೆಯರೂ ಟೀಚರ್ ಕೂಡ ನಿನ್ನನ್ನು ನೋಡಲು ಕಾಯುತ್ತಿದ್ದಾರೆ!",
+            "keyWordsKn": [
+              "ಕೂಡಿಸು",
+              "ಮೊತ್ತ",
+              "ದಶಕ"
+            ],
+            "activityInstruction": "ಕಡ್ಡಿಗಳಿಂದ 158 ಮತ್ತು 539 ಮಾಡು. ಮೊದಲು ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಕೂಡಿಸು, 10 ಆದರೆ ಒಂದು ಕಟ್ಟು ಮಾಡು.",
+            "objectOption": "ಕಡ್ಡಿಗಳು ಇಲ್ಲದಿದ್ದರೆ ಬಾಟಲ್ ಮುಚ್ಚಳಗಳು, ಕಲ್ಲುಗಳು ಅಥವಾ ಹುಣಸೆ ಬೀಜಗಳನ್ನು ಬಳಸು.",
+            "checkPrompt": "ಯಾವ ಚಿತ್ರ 419 + 125 ರ ಮೊತ್ತವನ್ನು ತೋರಿಸುತ್ತದೆ?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ಸಂಕಲನ ಕಲಿಸುತ್ತದೆ. ಮಗು ಕಡ್ಡಿಗಳಿಂದ 158 + 539 ಕೂಡಿಸಿ, 10 ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಒಂದು ದಶಕ ಮಾಡಿ, ಮೊತ್ತ 697 ಪಡೆಯುತ್ತದೆ. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 85. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit addition with carrying. The child adds 158 + 539 with sticks, bundling 10 loose sticks into one ten, and gets the sum 697. Homework: textbook part 1, page 85. Show your teacher.",
+            "objects": [
+              "bottle caps",
+              "stones",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Kannada letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 52 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕೂಡಿಸು, ಮೊತ್ತ, ದಶಕ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, stones, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv-hto-te",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "249",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "నమస్తే! ఈ రోజు మనం వందలు, పదులు, ఒకట్లు నేర్చుకుందాం. క్లాసులో టీచర్ కన్నడలో ಹತ್ತು, ನೂರು, ಬಿಡಿ అని చెబుతారు. విడిగా ఉన్న ఒక్కో పుల్లను ಬಿಡಿ అంటారు. ಹತ್ತು పుల్లలను కలిపి ఒక కట్ట కట్టండి. అది ఒక ಹತ್ತು. అలాంటి ಹತ್ತು కట్టలను కలిపి పెద్ద కట్ట చేస్తే, అది ఒక ನೂರು. ఇప్పుడు 257 చేద్దాం. ముందు 2 పెద్ద ನೂರು కట్టలు పెట్టండి. తర్వాత 5 చిన్న ಹತ್ತು కట్టలు పెట్టండి. చివరగా 7 ಬಿಡಿ పుల్లలు పెట్టండి. స్థాన విలువ పట్టికలో వందల గడిలో 2, పదుల గడిలో 5, ఒకట్ల గడిలో 7 రాయండి. అదే 257. చాలా బాగుంది! పాఠ్యపుస్తకం భాగం 1, పేజీ 42 లో హోంవర్క్ చేయండి. మళ్ళీ బడికి వచ్చినప్పుడు మీ టీచర్‌కు చూపించండి.",
+            "keyWordsKn": [
+              "ನೂರು",
+              "ಹತ್ತು",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "పుల్లలతో 257 చేయండి. 2 ನೂರು కట్టలు, 5 ಹತ್ತು కట్టలు, 7 ಬಿಡಿ పుల్లలు పెట్టండి.",
+            "objectOption": "పుల్లలు లేకపోతే సీసా మూతలు లేదా చింతగింజలు వాడవచ్చు.",
+            "checkPrompt": "ఏ బొమ్మ 249 ని చూపిస్తుంది?",
+            "glossKn": "ಈ ಪಾಠ ನೂರು, ಹತ್ತು, ಬಿಡಿ ಮತ್ತು ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕವನ್ನು ಕಲಿಸುತ್ತದೆ. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 257 ಮಾಡುವುದು, 2 ನೂರು, 5 ಹತ್ತು, 7 ಬಿಡಿ. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 42. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches hundreds, tens and ones with bundles of sticks and the place value table. Activity: make 257 with sticks, 2 hundreds, 5 tens and 7 ones. Homework: textbook part 1, page 42. Show your teacher when you come back.",
+            "objects": [
+              "bottle caps",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Telugu letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 50 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ನೂರು, ಹತ್ತು, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv-expand-ta",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "200 + 50 + 4",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "வணக்கம்! இன்று நாம் எண்களை விரித்து எழுதக் கற்போம். குச்சிகளைச் சேர்த்து ஒரு கட்டாகக் கட்டினால் அது ಹತ್ತು. ಹತ್ತು கட்டுகளைச் சேர்த்து ஒரு பெரிய கட்டு செய்தால் அது ನೂರು. தனியாக இருக்கும் குச்சி ಬಿಡಿ. இப்போது 731 என்ற எண்ணைப் பார். இட மதிப்பு அட்டவணையில் ನೂರು இடத்தில் 700 இருக்கிறது. ಹತ್ತು இடத்தில் 30 இருக்கிறது. ಬಿಡಿ இடத்தில் 1 இருக்கிறது. அதனால் 731 = 700 + 30 + 1. குச்சிக் கட்டுகளை வைத்து இதை நீயே செய்து பார். பிறகு பாடப்புத்தகம் பகுதி 1, பக்கம் 45-ல் உள்ள வீட்டுப்பாடத்தைச் செய். பள்ளிக்குத் திரும்ப வரும்போது உன் ஆசிரியரிடம் காட்டு. உன் நண்பர்களும் ஆசிரியரும் உன்னைப் பார்க்க ஆவலாக இருக்கிறார்கள். நீ நன்றாகச் செய்வாய்!",
+            "keyWordsKn": [
+              "ನೂರು",
+              "ಹತ್ತು",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "குச்சிக் கட்டுகளை வைத்து 700 + 30 + 1 காட்டு. மொத்தம் எவ்வளவு என்று சொல்.",
+            "objectOption": "குச்சிகள் இல்லையென்றால் பாட்டில் மூடிகள் அல்லது புளியங்கொட்டைகளைப் பயன்படுத்தலாம்.",
+            "checkPrompt": "எந்தப் படம் 200 + 50 + 4 காட்டுகிறது?",
+            "glossKn": "ಈ ಪಾಠದಲ್ಲಿ ಮಗು ಸಂಖ್ಯೆಗಳನ್ನು ಬಿಡಿಸಿ ಬರೆಯುವುದನ್ನು ಕಲಿಯುತ್ತದೆ: ನೂರು, ಹತ್ತು, ಬಿಡಿ ಕಡ್ಡಿಗಳ ಕಟ್ಟುಗಳು ಮತ್ತು ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 731 = 700 + 30 + 1 ತೋರಿಸುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 45. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches expanded form: bundles of hundreds, tens and loose ones with sticks, and the place-value table. Activity: show 731 = 700 + 30 + 1 with sticks (or bottle caps or tamarind seeds). Homework: textbook part 1, page 45. Show your teacher.",
+            "objects": [
+              "bottle caps",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Tamil letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 46 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ನೂರು, ಹತ್ತು, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub-noborrow-kn",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "479 − 422",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "ನಮಸ್ಕಾರ ಮಗು! ಇಂದು ನಾವು ಕಳೆ ಲೆಕ್ಕ ಕಲಿಯೋಣ. 358 ರಲ್ಲಿ 3 ನೂರರ ದೊಡ್ಡ ಕಟ್ಟು, 5 ಹತ್ತರ ಕಟ್ಟು, 8 ಬಿಡಿ ಕಡ್ಡಿಗಳು ಇವೆ. ಇದನ್ನು ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ನೂರು, ಹತ್ತು, ಬಿಡಿ ಎಂದು ಬರೆ. 245 ಅನ್ನೂ ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ಅದರ ಕೆಳಗೆ ಬರೆ. ಈಗ 358 ರಿಂದ 245 ಕಳೆ. ಮೊದಲು ಬಿಡಿ: 8 ರಿಂದ 5 ಕಳೆ, 3 ಉಳಿಯುತ್ತದೆ. ನಂತರ ಹತ್ತು: 5 ರಿಂದ 4 ಕಳೆ, 1 ಉಳಿಯುತ್ತದೆ. ಕೊನೆಗೆ ನೂರು: 3 ರಿಂದ 2 ಕಳೆ, 1 ಉಳಿಯುತ್ತದೆ. ವ್ಯತ್ಯಾಸ 113. 358 − 245 = 113. ಈ ವ್ಯತ್ಯಾಸವನ್ನು ನೀನೇ ಕಂಡುಹಿಡಿದೆ, ಶಾಭಾಸ್! ಈಗ ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 6 ರ ಮನೆಗೆಲಸ ಮಾಡು. ನಿನ್ನ ಟೀಚರ್ ಮತ್ತು ಗೆಳೆಯರು ನಿನಗಾಗಿ ಕಾಯುತ್ತಿದ್ದಾರೆ. ಶಾಲೆಗೆ ಬಂದಾಗ ನಿನ್ನ ಟೀಚರ್‌ಗೆ ತೋರಿಸು.",
+            "keyWordsKn": [
+              "ಕಳೆ",
+              "ವ್ಯತ್ಯಾಸ",
+              "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
+            ],
+            "activityInstruction": "ಕಡ್ಡಿಗಳಿಂದ 358 ಮಾಡು: 3 ನೂರರ ಕಟ್ಟು, 5 ಹತ್ತರ ಕಟ್ಟು, 8 ಬಿಡಿ ಕಡ್ಡಿ. ಅದರಿಂದ 245 ತೆಗೆದು, ಉಳಿದದ್ದನ್ನು ಎಣಿಸು.",
+            "objectOption": "ಕಡ್ಡಿ ಇಲ್ಲದಿದ್ದರೆ ಬಾಟಲ್ ಮುಚ್ಚಳ, ಕಲ್ಲು ಅಥವಾ ಹುಣಸೆ ಬೀಜ ಬಳಸಬಹುದು.",
+            "checkPrompt": "479 − 422 ಯಾವ ಚಿತ್ರದಲ್ಲಿ ಇದೆ?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ರಹಿತ ವ್ಯವಕಲನ ಕಲಿಸುತ್ತದೆ: ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ಬಿಡಿ, ಹತ್ತು, ನೂರು ಕ್ರಮವಾಗಿ ಕಳೆಯುವುದು. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 358 − 245 = 113. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 6. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit subtraction without borrowing: using the place-value table, subtract ones, then tens, then hundreds. Activity: with stick bundles, 358 − 245 = 113. Homework: textbook part 2, page 6. Show your teacher when you come back.",
+            "objects": [
+              "bottle caps",
+              "stones",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Kannada letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 54 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕಳೆ, ವ್ಯತ್ಯಾಸ, ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, stones, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare-te",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "246 · 642 · 624",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "నమస్కారం! ఈ రోజు మనం అన్నిటికంటే పెద్ద సంఖ్యను కనుక్కుందాం. పది పుల్లలు కలిపి ఒక కట్ట కడతాం, దాన్ని క్లాసులో ಹತ್ತು అంటారు. పది కట్టలు కలిపితే ఒక పెద్ద కట్ట, దాన్ని ನೂರು అంటారు. విడిగా ఉన్న పుల్లలను ಬಿಡಿ అంటారు. సంఖ్యలను పోల్చేటప్పుడు ముందు ನೂರು చూడు. 743 లో 7 ನೂರು ఉన్నాయి. 437 లో 4 ನೂರು ఉన్నాయి. 347 లో 3 ನೂರು ఉన్నాయి. 7 అన్నిటికంటే ఎక్కువ. కాబట్టి 743 అన్నిటికంటే పెద్దది. ನೂರು సమానంగా ఉంటే, ಹತ್ತು చూడు. అవి కూడా సమానమైతే, ಬಿಡಿ చూడు. ఇప్పుడు నీ పాఠ్యపుస్తకం భాగం 1, పేజీ 65 లో హోంవర్క్ చెయ్యి. మళ్ళీ బడికి వచ్చినప్పుడు నీ టీచర్‌కి చూపించు. నువ్వు చాలా బాగా చేయగలవు!",
+            "keyWordsKn": [
+              "ನೂರು",
+              "ಹತ್ತು",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "పుల్లలతో 743, 437, 347 చెయ్యి. ముందు పెద్ద కట్టలు లెక్కపెట్టి, ఏ సంఖ్య అన్నిటికంటే పెద్దదో చెప్పు.",
+            "objectOption": "పుల్లలు లేకపోతే సీసా మూతలు లేదా చింతగింజలు వాడవచ్చు.",
+            "checkPrompt": "246, 642, 624 లో అన్నిటికంటే పెద్ద సంఖ్యను చూపే బొమ్మ ఏది?",
+            "glossKn": "ಈ ಪಾಠ: 3 ಅಂಕಿಯ ಸಂಖ್ಯೆಗಳ ಹೋಲಿಕೆ. ಮೊದಲು ನೂರು, ನಂತರ ಹತ್ತು, ನಂತರ ಬಿಡಿ ನೋಡುವುದು. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 743, 437, 347 ಮಾಡಿ, ಅತಿ ದೊಡ್ಡ ಸಂಖ್ಯೆ ಕಂಡುಹಿಡಿಯುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 65. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches comparing 3-digit numbers: look at the hundreds first, then the tens, then the ones, using bundles of sticks. Activity: make 743, 437 and 347 with sticks and find the biggest. Homework: textbook part 1, page 65. Show your teacher.",
+            "objects": [
+              "bottle caps",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Telugu letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 49 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ನೂರು, ಹತ್ತು, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv-face-two-targets-kn",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "2 in 294",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "ನಮಸ್ಕಾರ! ಇಂದು ನಾವು ಸ್ಥಾನಬೆಲೆ ಮತ್ತು ಮುಖಬೆಲೆ ಕಲಿಯೋಣ. ಹತ್ತು ಕಡ್ಡಿಗಳ ಒಂದು ಕಟ್ಟು ಒಂದು ಹತ್ತು. ಹತ್ತು ಕಟ್ಟುಗಳನ್ನು ಸೇರಿಸಿದರೆ ಒಂದು ದೊಡ್ಡ ಕಟ್ಟು, ಅದು ಒಂದು ನೂರು. ಕಟ್ಟದ ಕಡ್ಡಿಗಳು ಬಿಡಿ. ಈಗ 921 ನೋಡು. ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ನೂರು ಮನೆಯಲ್ಲಿ 9, ಹತ್ತು ಮನೆಯಲ್ಲಿ 2, ಬಿಡಿ ಮನೆಯಲ್ಲಿ 1. 9 ರ ಮುಖಬೆಲೆ 9. ಆದರೆ 9 ನೂರು ಮನೆಯಲ್ಲಿ ಇದೆ, ಆದ್ದರಿಂದ 9 ರ ಸ್ಥಾನಬೆಲೆ 900. ಮುಖಬೆಲೆ ಅಂದರೆ ಅಂಕಿಯ ಬೆಲೆ. ಸ್ಥಾನಬೆಲೆ ಅಂದರೆ ಅಂಕಿ ಇರುವ ಮನೆಯ ಬೆಲೆ. ತುಂಬಾ ಚೆನ್ನಾಗಿದೆ! ಈಗ ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 49 ರ ಮನೆಕೆಲಸ ಮಾಡು. ಶಾಲೆಗೆ ಬಂದಾಗ ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು. ನಿನ್ನ ಗೆಳೆಯರೂ ಕಾಯುತ್ತಿದ್ದಾರೆ!",
+            "keyWordsKn": [
+              "ಸ್ಥಾನಬೆಲೆ",
+              "ಮುಖಬೆಲೆ",
+              "ನೂರು"
+            ],
+            "activityInstruction": "921 ಮಾಡು: 9 ನೂರರ ದೊಡ್ಡ ಕಟ್ಟು, 2 ಹತ್ತರ ಕಟ್ಟು, 1 ಬಿಡಿ ಕಡ್ಡಿ ಇಡು. 9 ರ ಸ್ಥಾನಬೆಲೆ 900 ಎಂದು ಹೇಳು.",
+            "objectOption": "ಕಡ್ಡಿಗಳು ಇಲ್ಲದಿದ್ದರೆ ಹುಣಸೆ ಬೀಜ, ಕಲ್ಲು ಅಥವಾ ಬಾಟಲಿ ಮುಚ್ಚಳ ಬಳಸಬಹುದು.",
+            "checkPrompt": "294 ರಲ್ಲಿ 2 ರ ಸ್ಥಾನಬೆಲೆ ಯಾವ ಚಿತ್ರ ತೋರಿಸುತ್ತದೆ?",
+            "glossKn": "ಈ ಪಾಠದಲ್ಲಿ ಸ್ಥಾನಬೆಲೆ ಮತ್ತು ಮುಖಬೆಲೆ ಕಲಿಸಲಾಗಿದೆ: ನೂರು, ಹತ್ತು, ಬಿಡಿ ಕಟ್ಟುಗಳು ಮತ್ತು ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ. ಚಟುವಟಿಕೆ: 921 ರಲ್ಲಿ 9 ರ ಮುಖಬೆಲೆ 9, ಸ್ಥಾನಬೆಲೆ 900. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 49. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches place value and face value using bundles of hundreds, tens and loose sticks and the place-value table. Activity: in 921, the face value of 9 is 9 and its place value is 900. Homework: textbook part 1, page 49. Show your teacher when you come back.",
+            "objects": [
+              "tamarind seeds",
+              "stones",
+              "bottle caps"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Kannada letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 46 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಸ್ಥಾನಬೆಲೆ, ಮುಖಬೆಲೆ, ನೂರು each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "tamarind seeds, stones, bottle caps"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-nocarry-en",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "224 + 462",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "Hello! Today we learn to add big numbers. In class this is called ಕೂಡಿಸು. Ten loose sticks make one bundle of ten. Ten bundles make one big bundle of 100. We write numbers in the ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ, with hundreds, tens and ones. Let us ಕೂಡಿಸು 127 and 742. Write both numbers in the ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ, one under the other. First add the ones: 7 + 2 = 9. Next add the tens: 2 + 4 = 6. Then add the hundreds: 1 + 7 = 8. So the ಮೊತ್ತ is 869. The ಮೊತ್ತ is the answer we get when we add. Very good! Now do the homework on page 80 of your textbook, and show your teacher when you come back.",
+            "keyWordsKn": [
+              "ಕೂಡಿಸು",
+              "ಮೊತ್ತ",
+              "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
+            ],
+            "activityInstruction": "Make 127 and 742 with big bundles, bundles of ten and loose sticks. Put them together and count hundreds, tens and ones.",
+            "objectOption": "You can also use bottle caps, stones or tamarind seeds instead of sticks.",
+            "checkPrompt": "Which picture shows 224 + 462?",
+            "glossKn": "ಈ ಪಾಠದಲ್ಲಿ ದಶಕ ರಹಿತ ಸಂಕಲನ ಕಲಿಯುತ್ತೇವೆ. ಕಟ್ಟುಗಳು ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ 127 + 742 ಕೂಡಿಸಿ ಮೊತ್ತ 869 ಕಂಡುಹಿಡಿಯುತ್ತೇವೆ. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಪುಟ 80. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit addition without carrying. Using bundles of ten and loose sticks in the place-value table, the child adds 127 + 742 to get 869. Homework: textbook page 80. Show your teacher.",
+            "objects": [
+              "bottle caps",
+              "stones",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in English letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 55 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕೂಡಿಸು, ಮೊತ್ತ, ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, stones, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv-expand-two-targets-en",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "800 + 20 + 1",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "Hello! Today we learn to write a number in parts, just like in your textbook. In class you will hear ನೂರು for hundreds, ಹತ್ತು for tens and ಬಿಡಿ for ones. A big bundle made of ten small bundles is one ನೂರು. A small bundle of ten sticks is one ಹತ್ತು. A single loose stick is one ಬಿಡಿ. Let us take 915. Make 9 big bundles. That is 900, in the ನೂರು place. Make 1 small bundle. That is 10, in the ಹತ್ತು place. Keep 5 loose sticks. That is 5, in the ಬಿಡಿ place. So 915 is 900 + 10 + 5. Well done! Now do the homework on page 45 of your textbook, part 1, and show your teacher when you come back.",
+            "keyWordsKn": [
+              "ನೂರು",
+              "ಹತ್ತು",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "Make 915 with sticks: 9 big bundles, 1 small bundle and 5 loose sticks. Then say 900 + 10 + 5.",
+            "objectOption": "You can also use bottle caps, stones or tamarind seeds instead of sticks.",
+            "checkPrompt": "Which picture shows 800 + 20 + 1?",
+            "glossKn": "ಈ ಪಾಠದಲ್ಲಿ ಮಗು ಸಂಖ್ಯೆಗಳನ್ನು ನೂರು, ಹತ್ತು, ಬಿಡಿ ಆಗಿ ಬಿಡಿಸಿ ಬರೆಯುವುದನ್ನು ಕಲಿಯುತ್ತದೆ. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 915 ಮಾಡಿ, 900 + 10 + 5 ಎಂದು ಹೇಳುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 45. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches expanded form: writing a number as hundreds, tens and ones. Activity: make 915 with stick bundles and say 900 + 10 + 5. Homework: textbook part 1, page 45. Show your teacher.",
+            "objects": [
+              "bottle caps",
+              "stones",
+              "tamarind seeds"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in English letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 57 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ನೂರು, ಹತ್ತು, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, stones, tamarind seeds"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub-borrow-hi",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "971 − 257",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "नमस्ते! आज हम घटाना सीखेंगे, जिसे कक्षा में ಕಳೆ कहते हैं। 10 तीलियों का एक बंडल ದಶಕ होता है, और अकेली तीलियाँ ಬಿಡಿ होती हैं। सैकड़ा, ದಶಕ और ಬಿಡಿ की तालिका बनाओ। अब 992 में से 885 ಕಳೆ करो। पहले ಬಿಡಿ देखो: 2 में से 5 नहीं निकलता। तो एक ದಶಕ खोलो। अब 12 ಬಿಡಿ हैं और 8 ದಶಕ बचे। 12 − 5 = 7। फिर ದಶಕ: 8 − 8 = 0। फिर सैकड़े: 9 − 8 = 1। जवाब है 107। शाबाश! अब किताब के भाग 2, पेज 15 पर होमवर्क करो, और जब स्कूल आओ तो अपनी टीचर को दिखाओ। तुम्हारी टीचर और दोस्त तुमसे मिलकर खुश होंगे!",
+            "keyWordsKn": [
+              "ಕಳೆ",
+              "ದಶಕ",
+              "ಬಿಡಿ"
+            ],
+            "activityInstruction": "तीलियों से 992 बनाओ, 10-10 के बंडल बाँधकर। फिर उसमें से 885 हटाओ और देखो कितनी बचीं।",
+            "objectOption": "तीलियाँ न हों तो बोतल के ढक्कन, इमली के बीज या छोटे पत्थर ले सकते हो।",
+            "checkPrompt": "कौन सी तस्वीर 971 − 257 दिखाती है?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ ಕಲಿಸುತ್ತದೆ: ಕಡ್ಡಿ ಕಟ್ಟುಗಳು (ದಶಕ) ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ, ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ಒಂದು ದಶಕ ಒಡೆದು ಕಳೆಯುವುದು. ಚಟುವಟಿಕೆ: 992 − 885 = 107. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit subtraction with borrowing: using bundles of ten sticks and loose sticks in the place-value table, the child breaks one ten to subtract. Activity: 992 − 885 = 107 with sticks or bottle caps, tamarind seeds or stones. Homework: textbook part 2, page 15. Show your teacher.",
+            "objects": [
+              "bottle caps",
+              "tamarind seeds",
+              "stones"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Hindi letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 50 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕಳೆ, ದಶಕ, ಬಿಡಿ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "bottle caps, tamarind seeds, stones"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-carry-hi",
+      "firstPass": true,
+      "ready": true,
+      "checkQuestion": "229 + 654",
+      "attempts": [
+        {
+          "passed": true,
+          "verdict": "verified",
+          "content": {
+            "script": "नमस्ते! आज हम ಕೂಡಿಸು सीखेंगे, यानी जोड़ना। 10 तीलियों का एक गट्ठा एक ದಶಕ कहलाता है। 214 और 608 को सैकड़ा, दहाई, इकाई वाली तालिका में लिखो। अब इन्हें ಕೂಡಿಸು। पहले इकाई: 4 और 8 मिलकर 12 हुए। 12 में से 10 तीलियों का एक ದಶಕ बाँधो, 2 खुली तीलियाँ बचीं। इकाई में 2 लिखो। वह ದಶಕ दहाई में ले जाओ। दहाई: 1 और 0 और ले जाया हुआ 1, कुल 2। सैकड़ा: 2 और 6 मिलकर 8। तो ಮೊತ್ತ है 822। शाबाश! 214 + 608 = 822, यही ಮೊತ್ತ है। अब किताब के पेज 85 पर होमवर्क करो, और जब स्कूल आओ तो अपनी टीचर को दिखाओ। टीचर और दोस्त तुमसे मिलकर खुश होंगे!",
+            "keyWordsKn": [
+              "ಕೂಡಿಸು",
+              "ದಶಕ",
+              "ಮೊತ್ತ"
+            ],
+            "activityInstruction": "तीलियों से 214 और 608 बनाओ। फिर इकाई से शुरू करके जोड़ो और 10 खुली तीलियों का एक गट्ठा बाँधो।",
+            "objectOption": "तीलियाँ न हों तो इमली के बीज या बोतल के ढक्कन ले सकते हो।",
+            "checkPrompt": "कौन सी तस्वीर 229 + 654 दिखाती है?",
+            "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ಮೂರು ಅಂಕಿಯ ಸಂಕಲನ ಕಲಿಸುತ್ತದೆ. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 214 + 608 = 822 ಮಾಡುವುದು, 10 ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಒಂದು ದಶಕವಾಗಿ ಕಟ್ಟುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 85. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+            "glossEn": "This catch-up teaches 3-digit addition with carrying using bundles of ten and the place-value table. Activity: make 214 + 608 = 822 with sticks, bundling 10 loose ones into a ten and carrying it. Homework: textbook part 1, page 85. Show your teacher.",
+            "objects": [
+              "tamarind seeds",
+              "bottle caps"
+            ]
+          },
+          "checks": [
+            {
+              "name": "numbers",
+              "passed": true,
+              "detail": "sums and the picture question are correct"
+            },
+            {
+              "name": "script",
+              "passed": true,
+              "detail": "100% in Hindi letters"
+            },
+            {
+              "name": "length",
+              "passed": true,
+              "detail": "about 53 seconds, limit 90"
+            },
+            {
+              "name": "keyWords",
+              "passed": true,
+              "detail": "ಕೂಡಿಸು, ದಶಕ, ಮೊತ್ತ each said twice"
+            },
+            {
+              "name": "objects",
+              "passed": true,
+              "detail": "tamarind seeds, bottle caps"
+            },
+            {
+              "name": "names",
+              "passed": true,
+              "detail": "no names"
+            },
+            {
+              "name": "content",
+              "passed": true,
+              "detail": "teaches the lesson, suits the age, kind, summary matches"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
