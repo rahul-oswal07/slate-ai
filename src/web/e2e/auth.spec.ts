@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('first sign-in: phone + PIN → welcome → Start → Today, then straight to Today', async ({ page }, testInfo) => {
+test('first sign-in: phone + PIN → welcome → Start → evening-message step, then straight to Today', async ({ page }, testInfo) => {
   await fakeTeacherApi(page)
 
   await page.goto('/')
@@ -42,7 +42,11 @@ test('first sign-in: phone + PIN → welcome → Start → Today, then straight 
   await expectNoBlockingViolations(page)
   await page.screenshot({ path: testInfo.outputPath('welcome-360.png'), fullPage: true })
 
+  // Start finishes setup and opens the evening-message step (T-44), not Today.
   await page.getByRole('button', { name: 'Start' }).click()
+  await expect(page).toHaveURL(/\/setup\/evening$/)
+
+  await page.goto('/')
   await expect(page.getByRole('heading', { level: 1, name: /^Today, / })).toBeVisible()
 
   await page.reload()
