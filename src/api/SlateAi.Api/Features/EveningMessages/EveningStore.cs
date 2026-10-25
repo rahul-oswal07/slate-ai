@@ -42,13 +42,16 @@ public sealed record NewEveningMessage(
     DateTimeOffset SentAt,
     DateTimeOffset ExpiresAt);
 
+/// <summary>The class's main teacher's greeting clip, played first on the evening page.</summary>
+public sealed record ParentGreeting(Guid ClipId, double Seconds);
+
 /// <summary>A sent message as the parent view needs it. Names are allowed here: this is the final send (guardrail 1).</summary>
 public sealed record ParentMessageRecord(
     DateOnly Date,
     string Language,
     string ChildName,
     string TeacherName,
-    string? GreetingAudioUrl,
+    ParentGreeting? Greeting,
     string TemplateText,
     SlotValues Slots,
     DateTimeOffset SentAt,
@@ -256,14 +259,18 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 join teacher in db.Teachers on k.TeacherId equals teacher.Id
                 select new
                 {
-                    m.Date, m.Language, c.FirstName, teacher.DisplayName, teacher.GreetingAudioUrl, t.Text,
+                    m.Date, m.Language, c.FirstName, teacher.DisplayName, t.Text,
                     m.SlotValues, m.SentAt, m.ExpiresAt, Stopped = c.ParentStoppedAt != null,
+                    Greeting = db.AudioClips
+                        .Where(a => a.Kind == "greeting" && a.TeacherId == teacher.Id)
+                        .Select(a => new ParentGreeting(a.Id, a.Seconds))
+                        .FirstOrDefault(),
                 })
             .SingleOrDefaultAsync(cancellationToken);
         return row is null
             ? null
             : new ParentMessageRecord(
-                row.Date, row.Language, row.FirstName, row.DisplayName, row.GreetingAudioUrl, row.Text,
+                row.Date, row.Language, row.FirstName, row.DisplayName, row.Greeting, row.Text,
                 JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped);
     }
 

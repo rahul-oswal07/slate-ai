@@ -54,7 +54,7 @@ public sealed class PackageAudio(
 
     /// <returns>The segments (null if audio couldn't be made) and the audio check for the package's review.</returns>
     public async Task<(AudioSegments? Audio, VerifierCheck Check)> MakeAsync(
-        Guid packageId, string language, string script, CancellationToken cancellationToken)
+        Guid packageId, Guid classId, string language, string script, CancellationToken cancellationToken)
     {
         if (!disclosure.Languages.TryGetValue(language, out var disclosureText))
         {
@@ -66,7 +66,10 @@ public sealed class PackageAudio(
             var disclosureClip = await DisclosureAsync(language, disclosureText, cancellationToken);
             var spoken = await tts.SynthesizeAsync(script, LanguageCode(language), cancellationToken);
             var scriptClip = await store.ReplaceScriptAsync(packageId, language, spoken, cancellationToken);
-            var audio = AudioSegments.Order(null, disclosureClip, scriptClip, disclosureText);
+            // Her own greeting plays first when she has recorded one. It is fixed here, at generation: an approved
+            // catch-up never changes under her (guardrail 3), and she hears it in the preview before approving.
+            var greeting = await store.FindClassGreetingAsync(classId, cancellationToken);
+            var audio = AudioSegments.Order(greeting, disclosureClip, scriptClip, disclosureText);
 
             var words = script.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
             logger.LogInformation(

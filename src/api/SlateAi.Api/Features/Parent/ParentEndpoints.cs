@@ -32,6 +32,12 @@ public static class ParentEndpoints
             .WithSummary("One audio segment of the family's catch-up (Ogg Opus)")
             .WithDescription("Only the segments of this link's catch-up, while the link works. Supports range requests.");
 
+        group.MapGet("/greeting", GetGreetingAsync)
+            .WithSummary("The teacher's own greeting on an evening message (Ogg Opus)")
+            .WithDescription(
+                "Only for an evening-message link that is still valid and not stopped; 404 when she has not recorded " +
+                "one. Supports range requests.");
+
         group.MapPost("/answer", AnswerAsync)
             .WithSummary("The picture the child tapped (P3), scored by code (FR-11)")
             .WithDescription(
@@ -108,7 +114,10 @@ public static class ParentEndpoints
         var text = EveningSlots.Render(message.TemplateText, message.ChildName, message.Slots).Text;
         var reason = (await parents.FindEveningAsync(token, cancellationToken))?.Reason;
         return TypedResults.Ok(new ParentEveningResponse(
-            message.Date, message.Language, message.ChildName, message.TeacherName, text, message.GreetingAudioUrl,
+            message.Date, message.Language, message.ChildName, message.TeacherName, text,
+            message.Greeting is { } greeting && !message.Stopped
+                ? new ParentGreetingView($"/api/p/{token}/greeting", Math.Round(greeting.Seconds, 1))
+                : null,
             message.SentAt, message.Stopped, reason));
     }
 
@@ -131,6 +140,28 @@ public static class ParentEndpoints
         }
 
         var contentType = await audio.GetContentTypeAsync(clipId, cancellationToken) ?? "application/octet-stream";
+        http.Response.Headers.CacheControl = "private, max-age=86400";
+        return TypedResults.File(bytes, contentType, enableRangeProcessing: true);
+    }
+
+    private static async Task<Results<FileContentHttpResult, NotFound>> GetGreetingAsync(
+        string token,
+        HttpContext http,
+        IEveningStore evenings,
+        IAudioStore audio,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        if (!LooksLikeToken(token)
+            || await evenings.FindByTokenAsync(token, cancellationToken) is not { Greeting: { } greeting } message
+            || message.Stopped
+            || clock.GetUtcNow() >= message.ExpiresAt
+            || await audio.GetBytesAsync(greeting.ClipId, cancellationToken) is not { } bytes)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var contentType = await audio.GetContentTypeAsync(greeting.ClipId, cancellationToken) ?? "application/octet-stream";
         http.Response.Headers.CacheControl = "private, max-age=86400";
         return TypedResults.File(bytes, contentType, enableRangeProcessing: true);
     }

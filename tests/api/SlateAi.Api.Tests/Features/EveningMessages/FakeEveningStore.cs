@@ -18,7 +18,7 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
 
     public string TeacherName { get; set; } = "Teacher";
 
-    public string? GreetingAudioUrl { get; set; }
+    public ParentGreeting? Greeting { get; set; }
 
     public int Approvals { get; private set; }
 
@@ -119,7 +119,7 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
             var child = Children.Single(c => c.Id == message.ChildId);
             var template = Templates.Single(t => t.Id == message.TemplateId);
             return Task.FromResult<ParentMessageRecord?>(new ParentMessageRecord(
-                date, message.Language, child.FirstName, TeacherName, GreetingAudioUrl, template.Text, message.Slots,
+                date, message.Language, child.FirstName, TeacherName, Greeting, template.Text, message.Slots,
                 message.SentAt, message.ExpiresAt, child.Stopped));
         }
     }

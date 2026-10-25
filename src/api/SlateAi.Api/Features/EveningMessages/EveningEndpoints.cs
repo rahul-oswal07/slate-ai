@@ -18,6 +18,9 @@ public sealed record TemplateLanguageView(string Language, IReadOnlyList<TextPar
 public sealed record MessageTemplateResponse(
     string Version, string Status, DateTimeOffset? ApprovedAt, IReadOnlyList<TemplateLanguageView> Languages);
 
+/// <summary>Her greeting as the family fetches it: a token-scoped URL, since a parent has no teacher session.</summary>
+public sealed record ParentGreetingView(string Url, double Seconds);
+
 /// <summary>
 /// What the family sees (demo chat, later WhatsApp): her greeting, then the written message. <c>Reason</c> is the
 /// category they already gave for that day (FR-21), so a reopened link shows it.
@@ -28,7 +31,7 @@ public sealed record ParentEveningResponse(
     string ChildName,
     string TeacherName,
     string Text,
-    string? GreetingAudioUrl,
+    ParentGreetingView? Greeting,
     DateTimeOffset SentAt,
     bool Stopped,
     string? Reason = null)

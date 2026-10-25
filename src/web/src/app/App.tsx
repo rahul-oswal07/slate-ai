@@ -10,6 +10,7 @@ import { ChildScreen } from '../features/missed/ChildScreen'
 import { MissedScreen } from '../features/missed/MissedScreen'
 import { ParentScreen } from '../features/parent/ParentScreen'
 import { EveningTemplateScreen } from '../features/setup/EveningTemplateScreen'
+import { GreetingScreen } from '../features/setup/GreetingScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
 import { WeekScreen } from '../features/week/WeekScreen'
@@ -28,9 +29,11 @@ export function App() {
         <Route path="login" element={<LoginScreen />} />
         <Route element={<TeacherGate need="setup" />}>
           <Route path="welcome" element={<WelcomeScreen />} />
+          <Route path="welcome/greeting" element={<GreetingScreen mode="welcome" />} />
         </Route>
         <Route element={<TeacherGate need="ready" />}>
           <Route path="setup/evening" element={<EveningTemplateScreen />} />
+          <Route path="setup/greeting" element={<GreetingScreen mode="later" />} />
           <Route element={<TeacherLayout />}>
             <Route index element={<TodayScreen />} />
             <Route path="lesson" element={<ConfirmLessonScreen />} />

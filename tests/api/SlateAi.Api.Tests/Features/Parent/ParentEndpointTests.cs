@@ -377,6 +377,52 @@ public sealed class ParentEndpointTests
         Assert.Equal("ఈ రోజు మేము Raviని గుర్తు చేసుకున్నాం.", after.Text);
     }
 
+    [Fact]
+    public async Task Evening_link_plays_her_greeting_through_the_token_not_a_teacher_session()
+    {
+        var greeting = _audio.AddGreeting(Guid.NewGuid(), ClassId, seconds: 8.04);
+        _evening.Greeting = new ParentGreeting(greeting.Id, 8.04);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+        var audio = await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct);
+
+        Assert.Equal(new ParentGreetingView($"/api/p/{EveningToken}/greeting", 8), page.Greeting);
+        Assert.Equal(HttpStatusCode.OK, audio.StatusCode);
+        Assert.Equal("audio/ogg", audio.Content.Headers.ContentType!.MediaType);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{Token}/greeting", Ct)).StatusCode); // a catch-up link
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/p/NoSuchTokenNoSuchToken0/greeting", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Evening_link_without_a_greeting_has_none_and_its_route_is_404()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+
+        Assert.Null(page.Greeting);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_family_that_stopped_messages_no_longer_gets_her_greeting()
+    {
+        var greeting = _audio.AddGreeting(Guid.NewGuid(), ClassId);
+        _evening.Greeting = new ParentGreeting(greeting.Id, 8);
+        _evening.Children[0] = _evening.Children[0] with { Stopped = true };
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+
+        Assert.True(page.Stopped);
+        Assert.Null(page.Greeting);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct)).StatusCode);
+    }
+
     private ParentCatchUpRecord Record() => new(
         _assignmentId,
         Ravi,

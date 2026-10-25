@@ -189,6 +189,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<CatchUpPackage>().WithMany().HasForeignKey(c => c.PackageId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(c => new { c.Kind, c.Language, c.TextHash }).IsUnique().HasFilter("\"TextHash\" IS NOT NULL");
             e.HasIndex(c => c.PackageId);
+            e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(c => c.TeacherId);
         });
     }
 }

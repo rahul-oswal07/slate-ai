@@ -17,9 +17,10 @@ function supportedType() {
 /**
  * The teacher's mic (FR-02, D-31, T1 card): tap to start and tap to stop, or press and hold; auto-stop at 30 s;
  * under 1 s is "too short" and nothing is kept; a call, gesture cancel or app switch cancels; a blocked mic
- * (D-34) is reported so the card can offer the list instead. `onRecorded` gets the finished note.
+ * (D-34) is reported so the card can offer the list instead. `onRecorded` gets the finished note. `maxMs` shortens
+ * the limit (the greeting is 10 s).
  */
-export function useRecorder(onRecorded: (note: Blob) => void) {
+export function useRecorder(onRecorded: (note: Blob) => void, { maxMs = MAX_MS }: { maxMs?: number } = {}) {
   const [status, setStatus] = useState<RecorderStatus>('idle')
   const [elapsedMs, setElapsedMs] = useState(0)
   const recorder = useRef<MediaRecorder | null>(null)
@@ -93,9 +94,9 @@ export function useRecorder(onRecorded: (note: Blob) => void) {
     setElapsedMs(0)
     timers.current.push(
       window.setInterval(() => setElapsedMs(performance.now() - startedAt.current), 250),
-      window.setTimeout(stop, MAX_MS),
+      window.setTimeout(stop, maxMs),
     )
-  }, [stop])
+  }, [stop, maxMs])
 
   // A blocked mic is known before she taps when the browser can tell us.
   useEffect(() => {

@@ -58,7 +58,11 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
             .OrderByDescending(m => db.Classes.Any(c => c.Id == m.ClassId && c.TeacherId == teacherId))
             .Select(m => (Guid?)m.ClassId)
             .FirstOrDefaultAsync(cancellationToken);
-        return new MeResponse(teacher.Id, teacher.DisplayName, classId, teacher.ConsentAt is not null);
+        var greeting = await db.AudioClips
+            .Where(c => c.TeacherId == teacherId && c.Kind == "greeting")
+            .Select(c => new GreetingInfo("/api/audio/" + c.Id, Math.Round(c.Seconds, 1)))
+            .FirstOrDefaultAsync(cancellationToken);
+        return new MeResponse(teacher.Id, teacher.DisplayName, classId, teacher.ConsentAt is not null, greeting);
     }
 
     public async Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

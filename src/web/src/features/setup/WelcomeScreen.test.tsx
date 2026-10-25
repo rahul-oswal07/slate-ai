@@ -27,30 +27,15 @@ describe('WelcomeScreen', () => {
     expect(screen.queryByRole('button', { name: /back/i })).not.toBeInTheDocument()
   })
 
-  it('Start finishes setup with one request ID, even when retried, then opens the evening-message step', async () => {
-    let attempts = 0
-    const calls = fakeApi({
-      'GET /api/me': () => ({ status: 200, body: firstRun }),
-      'POST /api/me/welcome': () => (++attempts === 1 ? 'offline' : { status: 200, body: teacher }),
-      [`GET /api/classes/${teacher.classId}/message-template`]: () => ({
-        status: 200,
-        body: { version: '1', status: 'draft', approvedAt: null, languages: [] },
-      }),
-    })
+  it('Start opens the greeting step without finishing setup (the voice consent does that)', async () => {
+    const calls = fakeApi({ 'GET /api/me': () => ({ status: 200, body: firstRun }) })
     renderApp('/welcome')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Start' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('No network. Connect and tap Start again.')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Start' }))
-
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'The evening message on a day of absence' }),
-    ).toBeInTheDocument()
-    const ids = calls.filter((c) => c.key === 'POST /api/me/welcome').map((c) => c.body)
-    expect(ids).toHaveLength(2)
-    expect(ids[0]).toEqual(ids[1])
-    expect(JSON.parse(localStorage.getItem('slate.me') ?? 'null')).toMatchObject({ setupComplete: true })
+    expect(await screen.findByRole('heading', { level: 1, name: 'A 10-second greeting in your voice' })).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+    expect(calls.some((c) => c.key === 'POST /api/me/welcome')).toBe(false)
   })
 
   it('a teacher who finished setup is sent to Today', async () => {

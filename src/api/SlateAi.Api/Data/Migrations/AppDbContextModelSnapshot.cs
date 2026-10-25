@@ -198,6 +198,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<double>("Seconds")
                         .HasColumnType("double precision");
 
+                    b.Property<Guid?>("TeacherId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("TextHash")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -205,6 +208,8 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PackageId");
+
+                    b.HasIndex("TeacherId");
 
                     b.HasIndex("Kind", "Language", "TextHash")
                         .IsUnique()
@@ -823,6 +828,11 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasOne("SlateAi.Api.Data.Entities.CatchUpPackage", null)
                         .WithMany()
                         .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -2,6 +2,8 @@ import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '../../components/Icon'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
+import { clock } from '../parent/clock'
+import { VoiceNote } from '../parent/VoiceNote'
 import { formatSchoolTime } from '../today/schoolTime'
 import type { AiCall, FamilyMessage } from './types'
 import { storedResetAt, useAiCalls, useBringAttendance, useDemoInfo, useFamily, useResetDemo, useSendNow } from './useDemo'
@@ -274,7 +276,13 @@ function ParentPhone({ childId }: { childId: string }) {
                     {shortDate(message.date, i18n.language)}
                   </li>
                 )}
-                <li className="max-w-[86%] self-start">
+                <li className="flex max-w-[86%] flex-col gap-1 self-start">
+                  {message.greetingSeconds != null && (
+                    <VoiceNote
+                      url={`/api/p/${message.token}/greeting`}
+                      label={t('demo.message.voice', { duration: clock(message.greetingSeconds) })}
+                    />
+                  )}
                   <button type="button" onClick={() => setOpen(message)} className="chat-bubble block w-full text-left">
                     <span className="block text-body font-bold">
                       {t(message.kind === 'evening' ? 'demo.message.evening' : 'demo.message.catchUp', {

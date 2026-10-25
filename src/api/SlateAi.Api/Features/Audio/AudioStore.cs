@@ -13,8 +13,13 @@ public static class AudioKind
 }
 
 /// <summary>A clip's facts without its bytes.</summary>
-/// <param name="ClassId">The class whose catch-up it belongs to; null for shared clips (the disclosure).</param>
-public sealed record AudioInfo(Guid Id, string Kind, string Language, double Seconds, int SizeBytes, Guid? ClassId);
+/// <param name="ClassId">
+/// The class whose catch-up it belongs to; null for shared clips (the disclosure). A greeting belongs to the class its
+/// teacher is the main teacher of (<see cref="Guid.Empty"/> if none, so no class can fetch it).
+/// </param>
+/// <param name="TeacherId">The teacher who recorded it (greetings only); she can always fetch her own.</param>
+public sealed record AudioInfo(
+    Guid Id, string Kind, string Language, double Seconds, int SizeBytes, Guid? ClassId, Guid? TeacherId = null);
 
 /// <summary>Where audio segments live (Postgres in the MVP), behind an interface so endpoints can be tested with fakes.</summary>
 public interface IAudioStore
@@ -22,6 +27,9 @@ public interface IAudioStore
     Task<AudioInfo?> GetInfoAsync(Guid id, CancellationToken cancellationToken);
 
     Task<byte[]?> GetBytesAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>The greeting of the class's main teacher (what families hear first), or null if she has none.</summary>
+    Task<AudioInfo?> FindClassGreetingAsync(Guid classId, CancellationToken cancellationToken);
 
     /// <summary>A shared clip made once for this wording (D-18 disclosure), or null.</summary>
     Task<AudioInfo?> FindSharedAsync(string kind, string language, string textHash, CancellationToken cancellationToken);
@@ -43,8 +51,23 @@ public sealed class AudioStore(AppDbContext db, TimeProvider clock) : IAudioStor
          where c.Id == id
          join p in db.CatchUpPackages on c.PackageId equals p.Id into packages
          from p in packages.DefaultIfEmpty()
-         select new AudioInfo(c.Id, c.Kind, c.Language, c.Seconds, c.Bytes.Length, p == null ? null : p.ClassId))
+         select new AudioInfo(
+             c.Id, c.Kind, c.Language, c.Seconds, c.Bytes.Length,
+             p != null
+                 ? p.ClassId
+                 : c.TeacherId == null
+                     ? null
+                     : db.Classes.Where(k => k.TeacherId == c.TeacherId).Select(k => (Guid?)k.Id).FirstOrDefault() ?? Guid.Empty,
+             c.TeacherId))
         .SingleOrDefaultAsync(cancellationToken);
+
+    public Task<AudioInfo?> FindClassGreetingAsync(Guid classId, CancellationToken cancellationToken) =>
+        (from k in db.Classes
+         where k.Id == classId
+         join c in db.AudioClips on k.TeacherId equals c.TeacherId
+         where c.Kind == AudioKind.Greeting
+         select new AudioInfo(c.Id, c.Kind, c.Language, c.Seconds, c.Bytes.Length, k.Id, c.TeacherId))
+        .FirstOrDefaultAsync(cancellationToken);
 
     public Task<byte[]?> GetBytesAsync(Guid id, CancellationToken cancellationToken) =>
         db.AudioClips.Where(c => c.Id == id).Select(c => c.Bytes).SingleOrDefaultAsync(cancellationToken);

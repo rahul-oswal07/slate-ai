@@ -13,6 +13,7 @@ import { AddedCard } from './AddedCard'
 import { AttendanceCard } from './AttendanceCard'
 import { AttendanceGrid } from './AttendanceGrid'
 import { DayStrip } from './DayStrip'
+import { GreetingCard } from './GreetingCard'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
@@ -75,6 +76,8 @@ export function TodayScreen() {
       />
 
       <RecapCard classId={classId} date={date} chapters={chapters} />
+
+      <GreetingCard />
 
       {!online && (
         <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">

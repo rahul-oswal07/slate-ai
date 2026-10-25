@@ -104,7 +104,7 @@ public sealed class CatchUpWriter(
         if (outcome!.Content is { } words && outcome.Review is { } kept)
         {
             // Audio for anything she can listen to (ready or needs review); the real length decides ready (FR-09).
-            var (segments, audioCheck) = await audio.MakeAsync(packageId, package.Language, words.Script, cancellationToken);
+            var (segments, audioCheck) = await audio.MakeAsync(packageId, package.ClassId, package.Language, words.Script, cancellationToken);
             var checks = kept.Checks.Append(audioCheck).ToList();
             var passed = kept.Passed && audioCheck.Passed;
             outcome = outcome with

@@ -7,6 +7,7 @@ Owner: **R** = Rahul, **M** = Monika.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
+| T-61 | **Teacher greeting + voice consent (T0 step 1, D-40, D-70)**: Welcome → Start → greeting step (consent tick, record ≤ 10 s, play back, record again, save) → evening-message step; mic blocked → continue without a greeting (D-34). Teachers already set up get a "Record your greeting" card on Today until they have one. The greeting plays first in every catch-up (generation time), on the evening-message page and as a voice-note row in the demo chat. One Kannada greeting per teacher; a class uses its main teacher's. Delete/withdraw, per-language greetings, consent version and the offline state stay roadmap (D-70) | R | Nothing recorded is sent to speech-to-text or an LLM; greeting reaches families only through their link token; approved catch-ups never change; every new string in all five locale files; 360 px screenshots and axe on the new screen | xUnit (upload rules, ownership, greeting first, token route); Vitest (screen states, Today card, evening and demo voice rows); existing e2e edited, none added; `./scripts/verify.sh`; Db suite |
 
 ## Done (24-25 Oct)
 

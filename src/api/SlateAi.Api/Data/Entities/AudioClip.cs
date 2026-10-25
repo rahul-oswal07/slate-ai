@@ -17,6 +17,9 @@ public sealed class AudioClip
     /// <summary>The catch-up a script clip belongs to; deleting the package deletes its audio.</summary>
     public Guid? PackageId { get; set; }
 
+    /// <summary>The teacher whose own recorded greeting this is (T0 step 1); null for every other kind.</summary>
+    public Guid? TeacherId { get; set; }
+
     /// <summary>SHA-256 of the spoken wording, for clips made once and reused (the disclosure).</summary>
     public string? TextHash { get; set; }
 

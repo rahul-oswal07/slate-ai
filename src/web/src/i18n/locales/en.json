@@ -58,8 +58,10 @@
       "sats": "Attendance comes from SATS. Just one voice note a day.",
       "approval": "Nothing reaches a parent until you approve it.",
       "privacy": "Only you can see these records.",
-      "start": "Start",
-      "offline": "No network. Connect and tap Start again."
+      "start": "Start"
+    },
+    "step1": {
+      "progress": "Step 1 of 2"
     },
     "step2": {
       "progress": "Step 2 of 2"
@@ -75,6 +77,29 @@
       "approved": "You approved this message. It goes after 6 pm on each day a child is absent.",
       "offline": "No network. Nothing was approved. Connect and tap Approve again.",
       "error": "Could not approve. Nothing was sent to parents. Try again."
+    },
+    "greeting": {
+      "heading": "A 10-second greeting in your voice",
+      "lead": "Every message starts with your voice. Record it once, in Kannada.",
+      "suggestLabel": "You could say:",
+      "suggestion": "“Namaskara, this is {{teacher}} teacher. We miss your child. Please listen to this message.”",
+      "idleHint": "Tap and speak. Tap again when you finish.",
+      "play": "Play your greeting",
+      "recorded": "Your greeting is recorded",
+      "again": "Record again",
+      "micDenied": "The microphone is off for this app. Turn it on in Settings. You can continue without a greeting and record it later.",
+      "continueWithout": "Continue without a greeting",
+      "save": "Save and continue",
+      "needsNetwork": "No network. Your greeting is not saved yet. Connect and tap Save again.",
+      "error": "Could not save your greeting. Try again.",
+      "notNow": "Not now"
+    },
+    "consent": {
+      "voice": "I agree my voice is used only in messages to parents. I can withdraw this any time, and my recordings are then deleted."
+    },
+    "error": {
+      "noGreeting": "Record your greeting first.",
+      "noConsent": "Tick the box to agree."
     }
   },
   "today": {
@@ -159,6 +184,11 @@
       "stepDone": "done",
       "stepCurrent": "now",
       "stepUpcoming": "later"
+    },
+    "greeting": {
+      "title": "Record your greeting",
+      "body": "Parents hear your own voice first in every message. It takes 10 seconds.",
+      "action": "Record"
     }
   },
   "sync": {
@@ -176,14 +206,16 @@
     "lessonConfirmed": "Lesson confirmed",
     "lessonAdded": "Lesson added",
     "deleted": "Deleted: name, answers and audio",
-    "buddyDone": "Buddy time done"
+    "buddyDone": "Buddy time done",
+    "greetingSaved": "Greeting saved"
   },
   "mic": {
     "record": "Record",
     "stop": "Stop recording",
     "recHint": "Tap again when you finish",
     "timer": "0:{{ss}} / 0:30",
-    "openSettings": "Open settings"
+    "openSettings": "Open settings",
+    "timerGreeting": "0:{{ss}} / 0:10"
   },
   "nav": {
     "label": "Main",
@@ -392,7 +424,9 @@
       "body": "{{teacher}} teacher will send a new one. You don’t need to do anything."
     },
     "evening": {
-      "title": "Message from {{teacher}} teacher"
+      "title": "Message from {{teacher}} teacher",
+      "voice": "{{teacher}} teacher’s voice · {{duration}}",
+      "play": "Play the greeting"
     },
     "announce": {
       "playing": "Playing",
@@ -631,7 +665,8 @@
       "evening": "Evening message · {{date}}",
       "catchUp": "Catch-up lesson · week of {{date}}",
       "sentAt": "Sent {{time}}",
-      "open": "Open"
+      "open": "Open",
+      "voice": "Voice message · {{duration}}"
     },
     "ai": {
       "title": "Under the hood",
