@@ -1,10 +1,10 @@
 {
-  "runAt": "2026-10-25T05:48:44.574607+00:00",
+  "runAt": "2026-10-25T07:15:44.808161+00:00",
   "prompt": "a4-check",
   "promptVersion": 3,
   "model": "claude-haiku-5-5",
-  "cases": 8,
-  "correct": 8,
+  "cases": 11,
+  "correct": 11,
   "minCorrect": 5,
   "results": [
     {
@@ -28,7 +28,7 @@
       "correct": true,
       "expected": false,
       "passed": false,
-      "detail": "doesn't teach the lesson (The script teaches 3-digit addition with carrying (108 + 274) instead of the target 3-digit subtraction with borrowing.)",
+      "detail": "doesn't teach the lesson (The script teaches 3-digit addition with carrying instead of the target 3-digit subtraction with borrowing.)",
       "note": "an addition-with-carrying script sent for the subtraction-with-borrowing target"
     },
     {
@@ -36,7 +36,7 @@
       "correct": true,
       "expected": false,
       "passed": false,
-      "detail": "speaks negatively about the absence (The opening lines blame the child for missing school and threaten punishment if it happens again.)",
+      "detail": "speaks negatively about the absence (The script blames the child for falling behind and threatens punishment if he misses school again.)",
       "note": "opens by blaming the child for the absence and threatening punishment"
     },
     {
@@ -44,7 +44,7 @@
       "correct": true,
       "expected": false,
       "passed": false,
-      "detail": "the summary doesn't match the script (Both summaries describe 3-digit addition with carrying and 456 + 278, but the script teaches subtraction with borrowing (951 - 445).)",
+      "detail": "the summary doesn't match the script (Both glosses describe 3-digit addition with carrying using 456 + 278, but the script teaches subtraction with borrowing using 951 - 445.)",
       "note": "script teaches subtraction; both summaries describe addition"
     },
     {
@@ -52,7 +52,7 @@
       "correct": true,
       "expected": false,
       "passed": false,
-      "detail": "doesn't teach the lesson; too hard for the child's age (The script teaches negative numbers, algebraic equations and square roots of fractions instead of 3-digit subtraction without borrowing, and that content is too)",
+      "detail": "doesn't teach the lesson; too hard for the child's age; the summary doesn't match the script (The script teaches negative numbers, algebraic equations and square roots of fractions instead of 3-digit subtraction without borrowing, and the summaries descr)",
       "note": "negative numbers, algebra and square roots for an 8-year-old"
     },
     {
@@ -68,8 +68,32 @@
       "correct": true,
       "expected": false,
       "passed": false,
-      "detail": "speaks negatively about the absence (The script shames the child for missing school, saying it is bad, that they will fall behind, and that the teacher will be upset.)",
+      "detail": "speaks negatively about the absence (The opening blames the child for missing school and warns that the teacher will be upset, which is shaming.)",
       "note": "Crafted from the English good case: blames the child for missing school (T-18)"
+    },
+    {
+      "id": "good-add-carry-hi",
+      "correct": true,
+      "expected": true,
+      "passed": true,
+      "detail": "teaches the lesson, suits the age, kind, summary matches",
+      "note": "A3 v4 output, eval 25 Oct (Hindi, T-59)"
+    },
+    {
+      "id": "shaming-add-carry-hi",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "speaks negatively about the absence (The script shames the child for missing school with the line saying they should be ashamed of not attending for so many days.)",
+      "note": "Hindi script with a shaming line added"
+    },
+    {
+      "id": "wrong-topic-hi",
+      "correct": true,
+      "expected": false,
+      "passed": false,
+      "detail": "doesn't teach the lesson (The script teaches subtraction with borrowing (992 minus 885) instead of the target 3-digit addition with carrying.)",
+      "note": "Hindi subtraction script and summary, labelled as addition with carrying"
     }
   ]
 }

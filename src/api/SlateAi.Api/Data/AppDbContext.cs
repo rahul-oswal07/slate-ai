@@ -8,6 +8,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 {
     public DbSet<Teacher> Teachers => Set<Teacher>();
     public DbSet<Class> Classes => Set<Class>();
+    public DbSet<ClassTeacher> ClassTeachers => Set<ClassTeacher>();
     public DbSet<Child> Children => Set<Child>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
@@ -39,6 +40,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         {
             e.Property(c => c.Medium).HasMaxLength(5);
             e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId);
+        });
+
+        modelBuilder.Entity<ClassTeacher>(e =>
+        {
+            e.HasKey(c => new { c.ClassId, c.TeacherId });
+            e.HasOne<Class>().WithMany().HasForeignKey(c => c.ClassId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(c => c.TeacherId);
         });
 
         modelBuilder.Entity<Child>(e =>

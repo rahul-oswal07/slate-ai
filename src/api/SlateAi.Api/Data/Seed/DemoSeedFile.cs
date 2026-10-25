@@ -2,8 +2,12 @@ using System.Text.Json;
 
 namespace SlateAi.Api.Data.Seed;
 
-/// <summary>The fictional demo class as written in <c>data/seed/demo-class.json</c>; read by the seeder and the demo Reset.</summary>
-public sealed record DemoSeedFile(DemoSeedFile.SeedTeacher Teacher, DemoSeedFile.SeedClass Class, IReadOnlyList<DemoSeedFile.SeedChild> Children)
+/// <summary>
+/// The fictional demo class as written in <c>data/seed/demo-class.json</c>; read by the seeder and the demo Reset.
+/// <c>Teacher</c> is the class's main teacher; <c>CoTeachers</c> also sign in to the same class.
+/// </summary>
+public sealed record DemoSeedFile(DemoSeedFile.SeedTeacher Teacher, DemoSeedFile.SeedClass Class, IReadOnlyList<DemoSeedFile.SeedChild> Children,
+    IReadOnlyList<DemoSeedFile.SeedTeacher>? CoTeachers = null)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 

@@ -51,10 +51,12 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
             return null;
         }
 
-        // One class per teacher in the MVP.
-        var classId = await db.Classes
-            .Where(c => c.TeacherId == teacherId)
-            .Select(c => (Guid?)c.Id)
+        // One class per teacher in the MVP; a class can have several teachers (ClassTeachers). The class they are
+        // the main teacher of comes first.
+        var classId = await db.ClassTeachers
+            .Where(m => m.TeacherId == teacherId)
+            .OrderByDescending(m => db.Classes.Any(c => c.Id == m.ClassId && c.TeacherId == teacherId))
+            .Select(m => (Guid?)m.ClassId)
             .FirstOrDefaultAsync(cancellationToken);
         return new MeResponse(teacher.Id, teacher.DisplayName, classId, teacher.ConsentAt is not null);
     }

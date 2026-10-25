@@ -515,6 +515,21 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("Classes");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.ClassTeacher", b =>
+                {
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ClassId", "TeacherId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("ClassTeachers");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.EveningMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -880,6 +895,21 @@ namespace SlateAi.Api.Data.Migrations
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Class", b =>
                 {
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.ClassTeacher", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
                         .WithMany()
                         .HasForeignKey("TeacherId")

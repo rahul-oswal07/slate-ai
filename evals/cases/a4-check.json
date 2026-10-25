@@ -112,6 +112,48 @@
       "expectPass": false,
       "note": "Crafted from the English good case: blames the child for missing school (T-18)",
       "objectOption": "You can also use bottle caps, stones or tamarind seeds instead of sticks."
+    },
+    {
+      "id": "good-add-carry-hi",
+      "language": "hi",
+      "targets": [
+        "M3.ADD.CARRY"
+      ],
+      "script": "नमस्ते! आज हम ಕೂಡಿಸು सीखेंगे, यानी जोड़ना। 10 तीलियों का एक गट्ठा एक ದಶಕ कहलाता है। 214 और 608 को सैकड़ा, दहाई, इकाई वाली तालिका में लिखो। अब इन्हें ಕೂಡಿಸು। पहले इकाई: 4 और 8 मिलकर 12 हुए। 12 में से 10 तीलियों का एक ದಶಕ बाँधो, 2 खुली तीलियाँ बचीं। इकाई में 2 लिखो। वह ದಶಕ दहाई में ले जाओ। दहाई: 1 और 0 और ले जाया हुआ 1, कुल 2। सैकड़ा: 2 और 6 मिलकर 8। तो ಮೊತ್ತ है 822। शाबाश! 214 + 608 = 822, यही ಮೊತ್ತ है। अब किताब के पेज 85 पर होमवर्क करो, और जब स्कूल आओ तो अपनी टीचर को दिखाओ। टीचर और दोस्त तुमसे मिलकर खुश होंगे!",
+      "activity": "तीलियों से 214 और 608 बनाओ। फिर इकाई से शुरू करके जोड़ो और 10 खुली तीलियों का एक गट्ठा बाँधो।",
+      "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ಮೂರು ಅಂಕಿಯ ಸಂಕಲನ ಕಲಿಸುತ್ತದೆ. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 214 + 608 = 822 ಮಾಡುವುದು, 10 ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಒಂದು ದಶಕವಾಗಿ ಕಟ್ಟುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 85. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+      "glossEn": "This catch-up teaches 3-digit addition with carrying using bundles of ten and the place-value table. Activity: make 214 + 608 = 822 with sticks, bundling 10 loose ones into a ten and carrying it. Homework: textbook part 1, page 85. Show your teacher.",
+      "expectPass": true,
+      "note": "A3 v4 output, eval 25 Oct (Hindi, T-59)",
+      "objectOption": "तीलियाँ न हों तो इमली के बीज या बोतल के ढक्कन ले सकते हो।"
+    },
+    {
+      "id": "shaming-add-carry-hi",
+      "language": "hi",
+      "targets": [
+        "M3.ADD.CARRY"
+      ],
+      "script": "नमस्ते! आज हम ಕೂಡಿಸು सीखेंगे, यानी जोड़ना। 10 तीलियों का एक गट्ठा एक ದಶಕ कहलाता है। 214 और 608 को सैकड़ा, दहाई, इकाई वाली तालिका में लिखो। अब इन्हें ಕೂಡಿಸು। पहले इकाई: 4 और 8 मिलकर 12 हुए। 12 में से 10 तीलियों का एक ದಶಕ बाँधो, 2 खुली तीलियाँ बचीं। इकाई में 2 लिखो। वह ದಶಕ दहाई में ले जाओ। दहाई: 1 और 0 और ले जाया हुआ 1, कुल 2। सैकड़ा: 2 और 6 मिलकर 8। तो ಮೊತ್ತ है 822। शाबाश! जो बच्चे रोज़ स्कूल नहीं आते वे पीछे रह जाते हैं, तुम्हें शर्म आनी चाहिए कि तुम इतने दिन नहीं आए। 214 + 608 = 822, यही ಮೊತ್ತ है। अब किताब के पेज 85 पर होमवर्क करो, और जब स्कूल आओ तो अपनी टीचर को दिखाओ। टीचर और दोस्त तुमसे मिलकर खुश होंगे!",
+      "activity": "तीलियों से 214 और 608 बनाओ। फिर इकाई से शुरू करके जोड़ो और 10 खुली तीलियों का एक गट्ठा बाँधो।",
+      "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ಮೂರು ಅಂಕಿಯ ಸಂಕಲನ ಕಲಿಸುತ್ತದೆ. ಚಟುವಟಿಕೆ: ಕಡ್ಡಿಗಳಿಂದ 214 + 608 = 822 ಮಾಡುವುದು, 10 ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಒಂದು ದಶಕವಾಗಿ ಕಟ್ಟುವುದು. ಮನೆಗೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 1, ಪುಟ 85. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+      "glossEn": "This catch-up teaches 3-digit addition with carrying using bundles of ten and the place-value table. Activity: make 214 + 608 = 822 with sticks, bundling 10 loose ones into a ten and carrying it. Homework: textbook part 1, page 85. Show your teacher.",
+      "expectPass": false,
+      "note": "Hindi script with a shaming line added",
+      "objectOption": "तीलियाँ न हों तो इमली के बीज या बोतल के ढक्कन ले सकते हो।"
+    },
+    {
+      "id": "wrong-topic-hi",
+      "language": "hi",
+      "targets": [
+        "M3.ADD.CARRY"
+      ],
+      "script": "नमस्ते! आज हम घटाना सीखेंगे, जिसे कक्षा में ಕಳೆ कहते हैं। 10 तीलियों का एक बंडल ದಶಕ होता है, और अकेली तीलियाँ ಬಿಡಿ होती हैं। सैकड़ा, ದಶಕ और ಬಿಡಿ की तालिका बनाओ। अब 992 में से 885 ಕಳೆ करो। पहले ಬಿಡಿ देखो: 2 में से 5 नहीं निकलता। तो एक ದಶಕ खोलो। अब 12 ಬಿಡಿ हैं और 8 ದಶಕ बचे। 12 − 5 = 7। फिर ದಶಕ: 8 − 8 = 0। फिर सैकड़े: 9 − 8 = 1। जवाब है 107। शाबाश! अब किताब के भाग 2, पेज 15 पर होमवर्क करो, और जब स्कूल आओ तो अपनी टीचर को दिखाओ। तुम्हारी टीचर और दोस्त तुमसे मिलकर खुश होंगे!",
+      "activity": "तीलियों से 992 बनाओ, 10-10 के बंडल बाँधकर। फिर उसमें से 885 हटाओ और देखो कितनी बचीं।",
+      "glossKn": "ಈ ಪಾಠ ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ ಕಲಿಸುತ್ತದೆ: ಕಡ್ಡಿ ಕಟ್ಟುಗಳು (ದಶಕ) ಮತ್ತು ಬಿಡಿ ಕಡ್ಡಿಗಳಿಂದ, ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕದಲ್ಲಿ ಒಂದು ದಶಕ ಒಡೆದು ಕಳೆಯುವುದು. ಚಟುವಟಿಕೆ: 992 − 885 = 107. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ 2, ಪುಟ 15. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು",
+      "glossEn": "This catch-up teaches 3-digit subtraction with borrowing: using bundles of ten sticks and loose sticks in the place-value table, the child breaks one ten to subtract. Activity: 992 − 885 = 107 with sticks or bottle caps, tamarind seeds or stones. Homework: textbook part 2, page 15. Show your teacher.",
+      "expectPass": false,
+      "note": "Hindi subtraction script and summary, labelled as addition with carrying",
+      "objectOption": "तीलियाँ न हों तो बोतल के ढक्कन, इमली के बीज या छोटे पत्थर ले सकते हो।"
     }
   ]
 }

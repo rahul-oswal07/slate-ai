@@ -39,7 +39,22 @@ public sealed class DemoSeeder(
             added++;
         }
 
-        SetLogin(teacher, seed.Teacher.Phone);
+        SetLogin(teacher, seed.Teacher.Phone, demo.Value.TeacherPin, "Demo:TeacherPin");
+
+        var coTeacherIds = new List<Guid>();
+        foreach (var co in seed.CoTeachers ?? [])
+        {
+            var coTeacher = await db.Teachers.SingleOrDefaultAsync(t => t.Id == co.Id, cancellationToken);
+            if (coTeacher is null)
+            {
+                coTeacher = new Teacher { Id = co.Id, DisplayName = co.DisplayName };
+                db.Teachers.Add(coTeacher);
+                added++;
+            }
+
+            SetLogin(coTeacher, co.Phone, demo.Value.CoTeacherPin, "Demo:CoTeacherPin");
+            coTeacherIds.Add(co.Id);
+        }
 
         // Children are added only with a new class: a child the teacher deleted (FR-15) must not come back on the next
         // start or deploy. The demo Reset (T-18) re-seeds on purpose.
@@ -81,12 +96,21 @@ public sealed class DemoSeeder(
             added++;
         }
 
+        // Who can sign in to the class: its main teacher and the co-teachers. Added even when the class already exists.
+        var members = await db.ClassTeachers.Where(m => m.ClassId == seed.Class.Id).Select(m => m.TeacherId)
+            .ToListAsync(cancellationToken);
+        foreach (var teacherId in coTeacherIds.Prepend(seed.Teacher.Id).Except(members))
+        {
+            db.ClassTeachers.Add(new ClassTeacher { ClassId = seed.Class.Id, TeacherId = teacherId });
+            added++;
+        }
+
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         logger.LogInformation("Demo seed applied: {Added} rows added", added);
     }
 
-    private void SetLogin(Teacher teacher, string? phone)
+    private void SetLogin(Teacher teacher, string? phone, string? pin, string setting)
     {
         teacher.Phone ??= PhoneNumber.Normalise(phone);
         if (teacher.PinHash is not null)
@@ -94,14 +118,13 @@ public sealed class DemoSeeder(
             return;
         }
 
-        var pin = demo.Value.TeacherPin;
         if (pin is { Length: >= 4 and <= 6 } && pin.All(char.IsAsciiDigit))
         {
             teacher.PinHash = hasher.HashPassword(teacher, pin);
         }
         else
         {
-            logger.LogWarning("Demo:TeacherPin is not set to 4-6 digits; the demo teacher can't sign in");
+            logger.LogWarning("{Setting} is not set to 4-6 digits; that demo teacher can't sign in", setting);
         }
     }
 }

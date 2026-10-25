@@ -11,6 +11,12 @@ public sealed class DemoOptions
     public string? TeacherPin { get; set; }
 
     /// <summary>
+    /// PIN for the seeded co-teachers who share the demo class (4-6 digits). From user-secrets or an App Service
+    /// setting (<c>Demo__CoTeacherPin</c>); hashed by the seeder, never stored in clear.
+    /// </summary>
+    public string? CoTeacherPin { get; set; }
+
+    /// <summary>
     /// Maps the demo-shell endpoints (e.g. <c>POST /api/demo/sats-feed</c>). On by default: judges use the
     /// demo shell (FR-14). Set <c>Demo__Enabled=false</c> for a real school.
     /// </summary>

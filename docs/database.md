@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `20261023082251_PacingDecisions` (T-46) |
+| Last migration | `20261025075044_ClassTeachers` (D-79) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -12,7 +12,9 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 ```mermaid
 erDiagram
-    Teachers ||--o{ Classes : teaches
+    Teachers ||--o{ Classes : "main teacher"
+    Teachers ||--o{ ClassTeachers : "signs in to"
+    Classes ||--o{ ClassTeachers : "has teachers"
     Classes ||--o{ Children : has
     Classes ||--o{ Attendance : "register per day"
     Children ||--o{ Attendance : "marked in"
@@ -187,6 +189,10 @@ erDiagram
         timestamptz DoneAt "nullable"
         timestamptz UpdatedAt
     }
+    ClassTeachers {
+        uuid ClassId PK
+        uuid TeacherId PK
+    }
     PacingDecisions {
         uuid Id PK
         uuid ClassId FK "unique with WeekOf"
@@ -219,9 +225,11 @@ erDiagram
 
 ### Tables
 
-**`Teachers`** — one per teacher login (D-40, T-47). `Phone` is the 10-digit national number, unique. `PinHash` is a PBKDF2 hash (`PasswordHasher`) of the 4–6 digit PIN; the demo teacher's comes from `Demo:TeacherPin` via the seeder, never stored in clear. `FailedPinAttempts` / `PinLockedUntil`: 5 wrong PINs lock sign-in for 15 minutes. `ConsentAt` is the first-run gate: null → Welcome; for now the Welcome's Start sets it, and it moves to the voice-consent tick when T0 step 1 is built. `GreetingAudioUrl` is the teacher's own recorded greeting, played first in every parent message (FR-09).
+**`Teachers`** — one per teacher login (D-40, T-47). `Phone` is the 10-digit national number, unique. `PinHash` is a PBKDF2 hash (`PasswordHasher`) of the 4–6 digit PIN; the demo teacher's comes from `Demo:TeacherPin` and the co-teachers' from `Demo:CoTeacherPin` via the seeder, never stored in clear. `FailedPinAttempts` / `PinLockedUntil`: 5 wrong PINs lock sign-in for 15 minutes. `ConsentAt` is the first-run gate: null → Welcome; for now the Welcome's Start sets it, and it moves to the voice-consent tick when T0 step 1 is built. `GreetingAudioUrl` is the teacher's own recorded greeting, played first in every parent message (FR-09).
 
-**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`.
+**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
+
+**`ClassTeachers`** — which teachers can sign in to a class (D-79): composite PK `(ClassId, TeacherId)`, FKs to `Classes` and `Teachers` (cascade), index on `TeacherId`. `AuthStore.GetMeAsync` takes the teacher's class from here (their own class first), and the class goes into the session cookie as before. The migration `ClassTeachers` adds one row per existing class for its main teacher; the seeder adds the demo class's main teacher and the co-teachers in `data/seed/demo-class.json` (`coTeachers`).
 
 **`Children`** — `RollNo` is unique within a class (`IX_Children_ClassId_RollNo`). `HomeLanguage` picks the catch-up audio language. `HasPhone = false` children still get the return-day buddy card (FR-12). FK `ClassId → Classes` (cascade). `Consent` is the family's paper form as the teacher recorded it (D-39): `yes`, `no` or `nophone`; a form not back is `no` (column default). Nothing is sent unless `yes`. In the MVP it comes from `data/seed/demo-class.json`; the seeder keeps it in step until `ConsentChangedAt` is set (the T8 editing screen is roadmap, D-70). `ParentStoppedAt` is the family's "Stop these messages" (D-19), separate from consent; every send path refuses a stopped child (migration `EveningMessages`).
 

@@ -33,11 +33,22 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **Differs from the picture (the card's copy wins):** the date reads "Saturday, October 24" not "23 Oct", so the Saved tag wraps under the title at 360 px; the mic hint is the built copy; the payoff card keeps the built sentences, not the big "3 of 4" numerals (that would split a translated string).
 - **Not done:** the done-state screenshot, axe on light, and Kannada/Hindi wrapping check. Screenshots in `docs/screenshots/T-49/`.
 
+## Several teachers per class (25 Oct, D-79)
+
+- Rahul asked for two more logins on the demo class: **Lakshmi** (9123456789) and **Monika** (9123456788), PIN 7755 for both, alongside Shobha (main teacher). Plan: `/Users/rahuloswal/.claude/plans/abundant-munching-lollipop.md`.
+- New table `ClassTeachers` (migration `ClassTeachers`, backfills each existing class's main teacher); `Class.TeacherId` stays the main teacher, so families see Shobha's name and greeting. `AuthStore.GetMeAsync` finds the class through it; the class guard (`ClassOwnerFilter`) and every class endpoint are unchanged. Seed: `coTeachers` in `data/seed/demo-class.json`, added even to an existing class; PIN from `Demo:CoTeacherPin` (`7755` in `appsettings.Development.json`).
+- Tests: Db suite 17/17 (co-teachers seeded with login and reaching the class, a teacher in no class gets none, migration backfill, counts 3 teachers / 3 memberships); `verify.sh` OK. Checked by hand: both new logins and Shobha sign in to the same class, a wrong PIN is 401.
+- **To do on staging after merge:** set the app setting `Demo__CoTeacherPin=7755` (like `Demo__TeacherPin`; `provision.sh` does not set either) and restart; the seeder then adds the teachers and memberships on startup. Each new teacher sees the Welcome once.
+- Shared class: all three teachers see and change the same data; demo Reset resets it for everyone; attendance saves are last-write-wins.
+
 ## CI green again, Approve card names (25 Oct)
 
 - **`main` CI had been red since #126** on one Vitest test (`WelcomeScreen` Start → evening-message step), so `deploy` was skipped and staging stayed on an old build. Cause: Start updated the `me` cache, and `TeacherGate` on `/welcome` redirected to Today before the navigation to `/setup/evening` landed; which came first depended on timing (different on CI and on a laptop). Reordering the calls (`c4f3667`) was not enough. #130: `TeacherGate` only sends a teacher from `/welcome` to Today if setup was already complete **when they arrived**. The auth e2e now expects `/setup/evening` after Start (it had passed only through the old race). #129 (Hindi/Rohan) went in first with the check overridden, #130 turned `main` green; staging is on the build with both.
 - **Approve list axe `label-content-name-mismatch` fixed:** the catch-up card link no longer has an `aria-label`; its name is what it shows (language and count, children, lessons and length, status tag, "Goes after 6 pm" when approved), with real spaces between the pieces. New Vitest asserts the accessible name contains the visible text for a ready and an approved card (WCAG 2.5.3). Two existing regexes lost the full stops. No e2e covers the Approve screen, so axe on it was not re-run in a browser.
-- **Still open:** T-49 done-state screenshot, axe on light, Kannada/Hindi wrapping check; native review and a listen to the Hindi audio (T-26); an A4 case with a Hindi script; "Since yesterday" (needs Monika).
+- **T-49 checks done (25 Oct):** Today at 360 px on the light theme in English, Kannada and Hindi, with no lesson yet and with the lesson confirmed (the done state): axe **0 violations of any impact** in all six, no horizontal overflow, nothing clipped (Kannada title wraps to two lines; the five language chips take two rows in Kannada and Hindi). Screenshots `docs/screenshots/T-49/today-{en,kn,hi}-{todo,done}-light.png` (full-page captures, so the fixed bottom nav shows mid-page).
+- **A4 on Hindi (25 Oct):** 3 Hindi cases added (good, shaming line, wrong topic), 11/11 correct; see `docs/quality.md`.
+- **Decisions (Rahul, 25 Oct):** the Hindi text was checked with Monika, so the native review no longer blocks; from now on Rahul takes product decisions unless Monika asks for a specific feature. "Since yesterday" is now Rahul's call (recommendation below).
+- **Still open:** a listen to the Hindi audio (`evals/results/audio/*-hi.ogg`); "Since yesterday" (decide, then build).
 
 ## Rohan is a Hindi-speaking family (25 Oct, Rahul)
 
