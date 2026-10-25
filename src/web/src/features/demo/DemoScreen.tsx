@@ -29,7 +29,7 @@ function shortDate(date: string, language: string) {
 }
 
 /**
- * /demo (FR-14, T-18): the teacher's phone and Rohan's family's phone (English) side by side, a step guide, Reset and the
+ * /demo (FR-14, T-18): the teacher's phone and Rohan's family's phone (Hindi) side by side, a step guide, Reset and the
  * "Under the hood" list of AI calls, so a judge can run the loop alone. Signs in as the fictional demo teacher with
  * one tap. Both phones are the real app in frames; nothing here is a mock-up.
  */
