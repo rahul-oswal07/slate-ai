@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router'
 import { useMe } from './useMe'
@@ -9,6 +10,12 @@ import { useMe } from './useMe'
 export function TeacherGate({ need }: { need: 'setup' | 'ready' }) {
   const { t } = useTranslation()
   const me = useMe()
+  // Whether setup was already complete when this gate first had a teacher. Finishing setup on /welcome flips it while
+  // the teacher is still here: the screen then navigates itself, and this gate must not race it to Today.
+  const [completeOnArrival, setCompleteOnArrival] = useState<boolean | null>(null)
+  if (completeOnArrival === null && me.data) {
+    setCompleteOnArrival(me.data.setupComplete)
+  }
 
   if (me.isPending) {
     return null
@@ -35,7 +42,7 @@ export function TeacherGate({ need }: { need: 'setup' | 'ready' }) {
   if (need === 'ready' && !me.data.setupComplete) {
     return <Navigate to="/welcome" replace />
   }
-  if (need === 'setup' && me.data.setupComplete) {
+  if (need === 'setup' && me.data.setupComplete && completeOnArrival !== false) {
     return <Navigate to="/" replace />
   }
   return <Outlet />

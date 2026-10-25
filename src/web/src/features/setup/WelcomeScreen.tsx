@@ -32,8 +32,10 @@ export function WelcomeScreen() {
       api<Me>('/api/me/welcome', { method: 'POST', body: { clientRequestId: clientRequestId.current } }),
     onSuccess: (updated) => {
       saveCachedMe(updated)
-      queryClient.setQueryData(meQueryKey, updated)
+      // Navigate first: once `me` says setup is complete, this route's gate sends her to Today, and that redirect
+      // must not win over the evening-message step.
       void navigate('/setup/evening', { replace: true })
+      queryClient.setQueryData(meQueryKey, updated)
     },
   })
 
