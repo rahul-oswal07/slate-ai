@@ -61,7 +61,7 @@ Order follows the prototype guide (steps 1–13). The prototype places the Thurs
 | 11 | Fri evening | Ravi | Taps one of three bundle-of-sticks pictures; numeral shows only after the tap (D-07) | [P3](P3-answer.md) | FR-11 | T-15 | Code scores the tap (no LLM). Options shuffled by code |
 | 12 | Fri evening | Ravi | "Well done, Ravi" whatever the answer | [P4](P4-done.md) | FR-10 | T-15 | Code. No score shown to the family |
 | 13 | Within 2 s of the tap | System | Missed lessons update: correct → Caught up; wrong → Needs buddy | [T4](T4-missed-lessons.md) | FR-11, FR-05 | T-15, T-13 | Code only |
-| 14 | Next morning | Lakshmi | "Since yesterday" on Today lists listens, answers, reasons, homework, stops | [T1](T1-today.md) | FR-05, FR-11, FR-21 | T-12 | Code. No AI |
+| 14 | Next morning | Lakshmi | "Since yesterday" on Today lists listens, answers, reasons, homework, stops (**roadmap, not MVP**) | [T1](T1-today.md) | FR-05, FR-11, FR-21 | T-12 | Code. No AI |
 | 15 | Thu, return day | Lakshmi + buddy | Buddy card: classmate who was present, 3 sums, 3 Kannada words, 10 minutes. She taps "Brought homework" and "Mark buddy time done" | [T5](T5-back-today.md) | FR-12 | T-16 | Code: buddy selection and sums. Key words from the textbook. Human taps |
 | 16 | Fri 3:30 pm, weekly | Lakshmi | Return speed (1, 2, 3, 4+ days; back within 2 school days; reasons) and a pacing nudge ("Plan recap" / "Not this week") | [T6](T6-week.md) | FR-22, FR-13 | T-46, T-16 | Code computes all numbers. AI (A5, Haiku) writes only the nudge wording around slots |
 | 17 | Any time | Ravi's family | "Stop these messages" from any parent screen or the evening message, or reply STOP; one confirmation; chat confirmation with "Start them again" | [P0](P0-messages-reason.md)–[P4](P4-done.md) | FR-19 | T-15 | Human. Code: send endpoint returns 409 for a stopped child; ledger shows "Stopped by family"; buddy card continues (D-30) |
@@ -83,7 +83,7 @@ Bottom nav (5 tabs, always visible after setup):
 | ID | Screen | Tab | Card |
 |---|---|---|---|
 | T0 | Set up: greeting, consent, evening-message template | none (before nav) | [T0-setup.md](T0-setup.md) |
-| T1 | Today: attendance, mic, lesson, tonight, since yesterday | Today | [T1-today.md](T1-today.md) (owns the nav spec) |
+| T1 | Today: attendance, mic, lesson, tonight (since yesterday is roadmap) | Today | [T1-today.md](T1-today.md) (owns the nav spec) |
 | T2 | Lesson confirm + pick-lesson sheet | Today (sub-screen) | [T2-lesson-confirm.md](T2-lesson-confirm.md) |
 | T3 | Approve this week's catch-ups + detail | Approve | [T3-approve.md](T3-approve.md) |
 | T4 | Missed lessons: by child, by lesson, child history | Missed | [T4-missed-lessons.md](T4-missed-lessons.md) |

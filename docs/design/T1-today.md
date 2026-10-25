@@ -1,11 +1,11 @@
 # T1 Today
 
-> **MVP scope (D-70):** attendance is built (#81), no change. For the lesson part build: tap-to-start / tap-to-stop mic with 30 s auto-stop, "Or pick from the list", done card with Change, Added to missed lessons, tonight card, Since yesterday. Mic-blocked and Sending states and the Settings gear are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
+> **MVP scope (D-70):** attendance is built (#81), no change. For the lesson part build: tap-to-start / tap-to-stop mic with 30 s auto-stop, "Or pick from the list", done card with Change, Added to missed lessons, tonight card. **"Since yesterday" is roadmap, not MVP (Monika, 25 Oct)**: its states, checklist row and copy rows below are kept for later. Mic-blocked and Sending states and the Settings gear are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
 
 Spec: FR-01, FR-02, FR-05, FR-20 (tonight card), NFR-01, NFR-02 · Tier: MVP · Task: T-12 (screen), T-06 (attendance API), T-07 (lesson upload), T-44 (tonight count) · Prototype: prototype/index.html (steps 2, 3; step 5 for "done") · PNG: screenshots/T1-today-from-sats-360-light.png
 Decisions: D-03, D-21, D-27, D-31, D-17, D-33 (lesson card lists every confirmed lesson), D-34 (mic blocked, sending), D-39 (tonight counts only families marked Yes), D-45 (attendance sync 12:00, retry 2:00 pm), D-46 (one school, one class, one teacher), D-51 (gear opens T10 Settings)
 
-One screen that follows her day, top to bottom: attendance (from SATS) → today's lesson (mic, or the confirmed lesson with Change) → "Added to missed lessons" → tonight's message → "Since yesterday". App bar carries the sync badge and a gear button (aria-label "Settings") that opens [T10 Settings](T10-settings.md) (D-51). This card also owns the bottom nav spec (§8).
+One screen that follows her day, top to bottom: attendance (from SATS) → today's lesson (mic, or the confirmed lesson with Change) → "Added to missed lessons" → tonight's message (→ "Since yesterday", roadmap). App bar carries the sync badge and a gear button (aria-label "Settings") that opens [T10 Settings](T10-settings.md) (D-51). This card also owns the bottom nav spec (§8).
 
 ## 1. User voice
 
@@ -16,7 +16,7 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 
 - Human: checks the absent list; corrects it only if wrong, or marks absentees if SATS hasn't arrived; taps the mic and speaks ≤ 30 s in Kannada; or picks the lesson from the list (the only way when the mic is blocked, D-34); taps Change if the confirmed lesson is wrong.
 - AI: none on this screen. The recorded note goes to T2, where Claude (A1) maps it. Mode: none here.
-- Code (no AI): server attendance-sync job at 12:00 with one retry at 2:00 pm, reading the simulated SATS source (D-45); if nothing arrives nobody is marked absent automatically; draft-then-save attendance corrections; offline outbox (Dexie) and sync badge count; mic state machine, 30 s auto-stop, < 1 s "too short" rule; upload after stop with the 3-second rule (still uploading after 3 s → kept in the outbox, D-34); "Added to missed lessons" count (absent children × confirmed lessons); tonight's count (absent ∩ consent Yes on T8 ∩ not stopped by the family, D-39); "Since yesterday" events from the ledger; nav badge count.
+- Code (no AI): server attendance-sync job at 12:00 with one retry at 2:00 pm, reading the simulated SATS source (D-45); if nothing arrives nobody is marked absent automatically; draft-then-save attendance corrections; offline outbox (Dexie) and sync badge count; mic state machine, 30 s auto-stop, < 1 s "too short" rule; upload after stop with the 3-second rule (still uploading after 3 s → kept in the outbox, D-34); "Added to missed lessons" count (absent children × confirmed lessons); tonight's count (absent ∩ consent Yes on T8 ∩ not stopped by the family, D-39); "Since yesterday" events from the ledger (roadmap); nav badge count.
 
 ## 3. Always / never
 
@@ -46,8 +46,8 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 | Sending note (`sending`) | Right after she stops recording: lesson card with a small spinner, the sending line and the 3-second rule; `role="status"`. Then T2 opens (Processing). Real flow: stop → sending → confirm (D-34). No PNG | "Sending your note…" · "If it takes more than 3 seconds, it is saved on the phone and sent when there is network." |
 | Note saved, matching | Small card "Note saved" with "Open" (to T2) if she goes back to Today while A1 runs | "Note saved" |
 | Note queued offline (`queued`) | Banner (queued variant) + card with cloud-off icon. ![](screenshots/T1-today-note-queued-360-light.png) | "Note saved · it will be matched when you have network" |
-| Done for today (`done`) | Success banner; lesson card listing every confirmed lesson with its page ("Today’s lessons" when more than one) and one Change; "Added to missed lessons: 4 children" with the lessons joined by " + "; tonight's card (panel) counting only families marked Yes, with each absent No phone (or No) child listed with a tag (Manju: "No phone · buddy card") and "See the message"; Since yesterday (D-33, D-39). ![](screenshots/T1-today-done-360-light.png) Dark: ![](screenshots/T1-today-done-360-dark.png) | "Done for today. Thank you." |
-| No updates yet (`noupdates`) | Since-yesterday card with empty line. ![](screenshots/T1-today-no-updates-360-light.png) | "Nothing new since yesterday." |
+| Done for today (`done`) | Success banner; lesson card listing every confirmed lesson with its page ("Today’s lessons" when more than one) and one Change; "Added to missed lessons: 4 children" with the lessons joined by " + "; tonight's card (panel) counting only families marked Yes, with each absent No phone (or No) child listed with a tag (Manju: "No phone · buddy card") and "See the message" (D-33, D-39). Since yesterday is roadmap. ![](screenshots/T1-today-done-360-light.png) Dark: ![](screenshots/T1-today-done-360-dark.png) | "Done for today. Thank you." |
+| No updates yet (`noupdates`) | **Roadmap, not built.** Since-yesterday card with empty line. ![](screenshots/T1-today-no-updates-360-light.png) | "Nothing new since yesterday." |
 | Error (save failed online) | Not designed. Outbox retries; badge keeps the count | see Open items |
 | Loading | Not designed. Use cached snapshot from IndexedDB; no spinner over attendance | — |
 
@@ -139,7 +139,7 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 
 ## 6. Tokens and sizes
 
-- Page `bg-canvas`; cards `bg-surface border border-border rounded-md p-[14px]`; tonight card `bg-panel border border-border`, title `text-primary-strong`; since-yesterday card `border-l-4 border-l-primary`.
+- Page `bg-canvas`; cards `bg-surface border border-border rounded-md p-[14px]`; tonight card `bg-panel border border-border`, title `text-primary-strong`; since-yesterday card (roadmap) `border-l-4 border-l-primary`.
 - Banners: offline `border-l-4 border-l-warning bg-surface` (warning for border/icon only, text stays `text-ink`); done `border-l-primary`; errors `bg-error-bg border-l-error`.
 - Type: app-bar title `text-title`; card titles `text-label` or `text-title`; body `text-body`; meta and captions `text-caption text-ink-muted`. Kannada one step larger (`lang="kn"`).
 - Sync badge: `text-status-listened bg-status-listened-bg` + `check` for Saved; `text-status-queued bg-status-queued-bg` + `cloud-off` for waiting. Tags `rounded-sm`, `text-label` at 14 px minimum, wrap.
@@ -180,7 +180,7 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 - [ ] After stop: the card shows "Sending your note…" with the 3-second rule; upload done → T2 Processing; still uploading after 3 s → the note stays in the outbox and the card shows the queued state; nothing is lost (D-34, NFR-02)
 - [ ] "Corrected by teacher": after a saved correction the source line ends "· corrected by you" (FR-01, A-13)
 - [ ] "Done for today. Thank you." with no timer (A-28)
-- [ ] Since yesterday: header "N updates"; up to 4 rows, each opens that child; "See all N updates" opens T4 by child, "Absent this week"; empty state copy (A-27)
+- [ ] (roadmap) Since yesterday: header "N updates"; up to 4 rows, each opens that child; "See all N updates" opens T4 by child, "Absent this week"; empty state copy (A-27)
 - [ ] Polite live region announces Recording, Sending your note, Attendance saved, Changes discarded; errors use `role="alert"` (A-02)
 - [ ] Focus never drops to `<body>`; sticky bars never cover the focused tile (A-04, A-16)
 - [ ] Teacher time for capture + corrections ≤ 60 s in usability test (NFR-01)
@@ -217,7 +217,7 @@ Open items:
 - Resolved (D-34): mic blocked and sending are in the prototype. The online save error state is still not designed.
 - Tonight's card: a child marked No on T8 gets its own tag, "No consent" (ಒಪ್ಪಿಗೆ ಇಲ್ಲ), not "Stopped by family"; families who stopped messages are left out of the count (FR-19) (resolved 21 Oct in the prototype). Tag word confirmed by Monika, 21 Oct.
 - "Change" on the lesson card reopens the T2 checklist with today's lessons ticked, so several lessons can be edited together (resolved 21 Oct in the prototype).
-- "Since yesterday" window is not defined (since previous school day? since last opened?). Define it in the API.
+- "Since yesterday" is roadmap. Its window is D-53 (since she last opened Today, at least since the start of the previous school day); define it in the API when it is built.
 - `update.needsPractice` en says "his return"; `update.homework` kn ತಂದಿದ್ದಾನೆ is masculine. Need gender-neutral strings or a per-child form (buddy card uses ತಂದಿದ್ದಾರೆ).
 - Two listen strings ("family listened to the catch-up" vs "family listened") for the same event; pick one.
 - Resolved (D-45): sync at 12:00, retry at 2:00 pm, manual marking at any time, nobody marked absent automatically. FR-01 still says 10:00; spec update pending.
