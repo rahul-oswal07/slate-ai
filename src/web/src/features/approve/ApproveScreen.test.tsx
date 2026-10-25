@@ -30,11 +30,25 @@ describe('ApproveScreen', () => {
     renderApp('/approve')
 
     expect(await screen.findByRole('heading', { level: 1, name: 'This week’s catch-ups' })).toHaveFocus()
-    const telugu = await screen.findByRole('link', { name: /^In Telugu · 2 children\. Ravi, Mahesh\./ })
+    const telugu = await screen.findByRole('link', { name: /^In Telugu · 2 children Ravi, Mahesh / })
     expect(telugu).toHaveAttribute('href', '/approve/pkg-te')
     expect(await within(telugu).findByText('3-digit subtraction with borrowing · 1:29')).toBeInTheDocument()
     expect(within(telugu).getByText('Ready')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /^In Kannada · 1 child\./ })).toHaveTextContent('Needs review')
+    expect(screen.getByRole('link', { name: /^In Kannada · 1 child / })).toHaveTextContent('Needs review')
+  })
+
+  it('each card link is named by the text it shows, so voice control and screen readers agree (WCAG 2.5.3)', async () => {
+    setup(week(pkg(), pkg({ id: 'pkg-ap', language: 'kn', status: 'approved', children: pkg().children.slice(0, 1) })))
+    renderApp('/approve')
+
+    await screen.findByRole('heading', { level: 1, name: 'This week’s catch-ups' })
+    const cards = await screen.findAllByRole('link', { name: /^In (Telugu|Kannada)/ })
+    expect(cards).toHaveLength(2)
+    for (const card of cards) {
+      const shown = (card.textContent ?? '').replace(/\s+/g, ' ').trim()
+      expect(card).toHaveAccessibleName(expect.stringContaining(shown))
+    }
+    expect(cards[1]).toHaveAccessibleName(expect.stringContaining('Goes after 6 pm'))
   })
 
   it('the Approve tab counts catch-ups waiting for her, not generating or failed ones', async () => {

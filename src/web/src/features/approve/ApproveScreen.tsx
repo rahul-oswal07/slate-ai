@@ -129,15 +129,15 @@ function PackageCard({ pkg, lessons }: { pkg: CatchUpPackage; lessons: string[] 
   return (
     <Link
       to={`/approve/${pkg.id}`}
-      aria-label={`${heading}. ${names}. ${meta}. ${t(`approve.status.${pkg.status}`)}`}
       className="flex items-center gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]"
     >
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-label">{heading}</span>
-        <span className="text-body">{names}</span>
-        <span className="text-caption text-ink-muted">{meta}</span>
+        {/* No aria-label: the link is named by what it shows (WCAG 2.5.3). The spaces keep the pieces apart in that name. */}
+        <span className="text-label">{heading}</span>{' '}
+        <span className="text-body">{names}</span>{' '}
+        <span className="text-caption text-ink-muted">{meta}</span>{' '}
         <span className="mt-1 flex flex-wrap items-center gap-2">
-          <StatusTag status={pkg.status} />
+          <StatusTag status={pkg.status} />{' '}
           {pkg.status === 'approved' && <span className="text-caption text-ink-muted">{t('approve.card.goesAt')}</span>}
         </span>
       </span>
