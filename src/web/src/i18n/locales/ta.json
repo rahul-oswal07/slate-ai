@@ -420,7 +420,8 @@
       "teacherSees": "{{teacher}} ஆசிரியர் இதைப் பார்ப்பார்.",
       "bringPage": "பக்கம் {{page}}-ஐப் பள்ளிக்குக் கொண்டு வா.",
       "finish": "முடிந்தது",
-      "closeHint": "இப்போது இந்தப் பக்கத்தை மூடலாம்."
+      "closeHint": "இப்போது இந்தப் பக்கத்தை மூடலாம்.",
+      "star": "இந்த கேட்ச்‑அப்பைச் செய்ததற்காக {{child}} ஒரு நட்சத்திரம் பெற்றார்."
     },
     "stop": {
       "link": "இந்தச் செய்திகளை நிறுத்து",
@@ -619,7 +620,21 @@
     "saveFailed": "Could not save. Nothing changed. Check the network and try again.",
     "recapTitle": "Recap planned this week",
     "recapBody": "{{lesson}}: 10 minutes before {{next}}.",
-    "recapBodyNoNext": "{{lesson}}: 10 minutes this week."
+    "recapBodyNoNext": "{{lesson}}: 10 minutes this week.",
+    "stars": {
+      "title": "Stars",
+      "titleThisWeek": "Stars this week",
+      "earned_one": "{{count}} child earned a star this week.",
+      "earned_other": "{{count}} children earned a star this week.",
+      "soFar_one": "So far {{count}} child is on track for a star.",
+      "soFar_other": "So far {{count}} children are on track for a star.",
+      "none": "No stars this week. Every week is a new start.",
+      "total_one": "{{count}} star this term",
+      "total_other": "{{count}} stars this term",
+      "childLabel": "{{name}}, roll {{roll}}, {{total}}: {{attendance}} for coming to school, {{catchUps}} for a catch-up",
+      "hint": "Say well done in class.",
+      "rule": "A star for each week with at most one day away, and for each catch-up done at home."
+    }
   },
   "demo": {
     "title": "Tappida Paatha — demo",

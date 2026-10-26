@@ -92,6 +92,36 @@ public sealed class WeekEndpointTests
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync(Url(Mon), Ct)).StatusCode);
     }
 
+    [Fact]
+    public async Task The_week_carries_the_stars_children_are_on_track_for()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var week = (await client.GetFromJsonAsync<WeekResponse>(Url(Mon), Ct))!;
+
+        // Friday of the week: not finished; everyone was away at most once and present at least once.
+        Assert.False(week.Stars!.Finished);
+        Assert.Equal(2, week.Stars.SchoolDays);
+        Assert.Equal(10, week.Stars.Children.Count);
+        Assert.Equal(Enumerable.Range(1, 10), week.Stars.Children.Select(c => c.RollNo));
+    }
+
+    [Fact]
+    public async Task A_week_with_no_register_has_no_stars_and_the_pacing_reply_carries_them()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var empty = (await client.GetFromJsonAsync<WeekResponse>(Url(Mon.AddDays(-7)), Ct))!;
+        var planned = await (await client.PutAsJsonAsync(
+                $"{Url(Mon)}/pacing", new PacingDecisionRequest(Guid.NewGuid(), "recap", Tue.Id), Ct))
+            .Content.ReadFromJsonAsync<WeekResponse>(Ct);
+
+        Assert.Null(empty.Stars);
+        Assert.Equal(10, planned!.Stars!.Children.Count);
+    }
+
     private ApiFactory Create() =>
         FakeApi.Create(services =>
         {

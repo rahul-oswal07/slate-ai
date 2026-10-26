@@ -45,6 +45,7 @@ What she gets back:
 - **Our testing:** **[fill]** teachers and **[fill]** parents across 2 rounds; median teacher time **[fill]** s/day; **[fill]** changes made from feedback (see `docs/user-testing.md`).
 - **AI quality:** lesson-mapping accuracy **[fill]%** on 25 cases; **[fill]%** of scripts pass the verifier first time; 100% of parent-facing scripts teacher-approved.
 - **What we will measure in a pilot:** how quickly absent children come back (days until return; share back within 2 school days), whether families engage at home (listened, homework brought back), and, as a secondary signal, the share who pass the learning check within 48 hours of return. We do not count message opens.
+- **Recognition, not punishment (mentor, 24 Oct):** attendance stars, not streaks. A star for each week a child comes (one day away is allowed) and for each catch-up done at home; stars never go away and the app never says one was lost. Counted in code; the teacher says well done in class.
 - **Expert input that changed the product:** an education mentor from the CSF panel (19 Oct) told us that at this age home time gives engagement more than learning, and that the goal is a pull back to school. We changed our primary measure to return speed and added the evening message, textbook homework, an optional reason for absence and a return-speed card (D-20 to D-24).
 
 ## 6. Technical approach

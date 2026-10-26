@@ -60,6 +60,8 @@ function setup(current: () => Week | 'offline', extra: Record<string, FakeRoute>
 }
 
 describe('WeekScreen (T6)', () => {
+  const stars = { finished: false, schoolDays: 3, children: [{ childId: 'c1', rollNo: 3, firstName: 'Asha', attendance: 2, catchUps: 0, total: 2 }] }
+
   beforeEach(async () => {
     localStorage.clear()
     await i18n.changeLanguage('en')
@@ -68,6 +70,24 @@ describe('WeekScreen (T6)', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
+  })
+
+  it('stars: the card shows after the reasons, and also in a week with no absences', async () => {
+    setup(() => week({ stars }))
+    renderApp('/week')
+    expect(await screen.findByRole('heading', { name: 'Stars this week' })).toBeInTheDocument()
+
+    setup(() => week({ empty: true, stars }))
+    renderApp('/week')
+    expect(await screen.findByText('No absences this week.')).toBeInTheDocument()
+    expect((await screen.findAllByRole('heading', { name: 'Stars this week' })).length).toBeGreaterThan(0)
+  })
+
+  it('stars: no card when the week has none', async () => {
+    setup(() => week({ stars: null }))
+    renderApp('/week')
+    await screen.findByText('10 of 12')
+    expect(screen.queryByRole('heading', { name: /^Stars/ })).not.toBeInTheDocument()
   })
 
   it('return speed: headline, sentence and the screen-reader table show the same numbers for both weeks', async () => {

@@ -98,6 +98,7 @@ public sealed class DemoShellEndpointTests
         Assert.Equal(requestId, reset.ClientRequestId);
         Assert.Equal(new DateOnly(2026, 10, 19), reset.WeekOf);
         Assert.Equal(5, reset.Days.Count);
+        Assert.NotEmpty(reset.StarDays!);
         Assert.Equal(36, reset.Seed.Children.Count);
         Assert.Null(reset.Snapshot);
         Assert.Null(reset.SnapshotChildId);

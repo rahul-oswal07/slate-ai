@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Task | T-63 (`docs/tasks.md`, *Open*) |
+| Task | T-63 (`docs/tasks.md`, *Done*) |
 | Requirement | FR-24 (`spec.md` §3) · Decision D-81 (`spec.md` §8) |
 | Source | Education mentor, 24 Oct (`mentor-feedback-2026-10-24.md` §2 point 5: "attendance incentives: stars and streaks") |
 | Owner | Rahul (product owner with Monika from 26 Oct, and engineering) |
-| Status | **Planned (26 Oct).** Accepted by Rahul as product owner; build next |
+| Status | **Built (26 Oct).** One PR |
 | Branch | `feat/T-63-attendance-stars` · one PR |
 | Size | About one day: no migration, no AI, no new send path |
 
@@ -155,16 +155,12 @@ No new route, hook or query: `useWeek` already fetches the response.
 
 ## 6. Demo data
 
-Today the Reset writes only the 5 school days before today (`DemoStory`), so nobody would have more than one finished week. To make the card show at judging:
+Today the Reset writes only the 5 school days before today (`DemoStory.Build`), so nobody would have more than one finished week. To make the card show at judging, `DemoStory.StarWeeks(today, roster, isSchoolDay)` (built) returns **register-only days** for the three weeks that were 4, 3 and 2 weeks before this one, and `DemoStore.ResetAsync` writes them next to the story days:
 
-- `DemoStory` writes **three more finished weeks** of registers before the existing days, with **no lessons** on those days. That leaves Missed lessons, the ledger's 7-day return speed and the T6 this-week/last-week numbers unchanged.
-- In those weeks everyone is present except:
-  - one child away 1 day (still earns the star, showing the rule is kind);
-  - one child away 3 days in one week (no star that week, still has the others).
-- Ravi, Manjunath and Rohan keep their current story. Rohan's English catch-up, once answered on the demo phone, shows the P4 star line.
-- Update the `DemoStory` doc comments and `docs/design/mvp-build-flow.md` if the demo walkthrough mentions the Week screen.
-
-Check before merging: the existing `DemoStory`, Week and ledger tests still pass unchanged. If any of them pin the number of seeded days, the extra weeks go behind a separate `DemoStory.StarWeeks` list so those tests keep their meaning.
+- No lessons on those days, and nothing in last week or this week, so Missed lessons and the T6 this-week/last-week numbers are unchanged (a test builds `WeekBuilder` with and without the star weeks).
+- Everyone is present except roll 7 (away 1 day in the first star week: still earns the star) and roll 10 (away 3 days in the second: no star that week).
+- Ravi, Manjunath and Rohan are never away in these weeks.
+- It is a separate list because `DemoStoryTests` and `Db/DemoResetDbTests` pin one `DemoDay` per lesson; the Db test now counts story-day rows and earlier-week rows separately.
 
 ## 7. Tests
 

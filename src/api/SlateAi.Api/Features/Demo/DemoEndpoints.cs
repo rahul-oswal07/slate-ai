@@ -237,7 +237,8 @@ public static class DemoEndpoints
 
         await store.ResetAsync(
             new DemoReset(
-                request.ClientRequestId, seed, days, sats.Value.ArrivesAt, weekOf, owner is null ? null : snapshot, owner?.Id, missed),
+                request.ClientRequestId, seed, days, sats.Value.ArrivesAt, weekOf, owner is null ? null : snapshot, owner?.Id, missed,
+                DemoStory.StarWeeks(today, roster, source.IsSchoolDay)),
             now,
             cancellationToken);
         holds.ReleaseAll(classId);

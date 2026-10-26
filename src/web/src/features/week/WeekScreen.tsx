@@ -8,6 +8,7 @@ import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
 import { formatSchoolTime, istToday } from '../today/schoolTime'
 import type { ReturnSpeed, Week, WeekReasons } from './types'
+import { StarsCard } from './StarsCard'
 import { nudgeText } from './weekText'
 import { useDecide, useWeek } from './useWeek'
 
@@ -70,6 +71,7 @@ export function WeekScreen() {
               <ReasonsCard reasons={week.reasons} />
             </>
           )}
+          <StarsCard stars={week.stars} />
           <Pacing classId={classId} date={today} week={week} chapters={chapters} />
           <p className="text-caption text-ink-muted">{t('week.footer')}</p>
         </>
