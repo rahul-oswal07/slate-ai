@@ -8,7 +8,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - Rules in `Features/Stars/StarRules.cs` (pure, no store; `Stars:MaxDaysAwayPerWeek`, default 1, validated 0–5). `GET week` and the pacing PUT return `stars` (null with no register). T6 `StarsCard` after the reasons card (also in "No absences this week"); P4 Done has one line "{child} earned a star for doing this catch-up." Strings in all five locale files; te and ta teacher-side strings are English placeholders like the rest of `week.*`, hi and kn are drafts for native review (T-26).
 - **Demo:** `DemoStory.StarWeeks` adds three finished weeks of register only (4, 3 and 2 weeks before this one; roll 7 away once, roll 10 away three days) so the card has something to show. It is a separate list from `DemoStory.Build` and leaves the story, Missed lessons and return speed unchanged (tested). `Db/DemoResetDbTests` attendance assertion now counts story days and earlier weeks separately.
 - No AI, no migration, no new message to families. T-61 and T-62 are in *Done* (#136).
-- Open: the A8 eval results file (`evals/results/2026-10-26-a8-lesson-recap.json`) goes in the next docs PR.
+- Also in this PR: the A8 lesson-recap eval results (`evals/results/2026-10-26-a8-lesson-recap.json`, 13/15 first pass) and its `quality.md` entry.
 
 ## Task reset (24 Oct)
 
