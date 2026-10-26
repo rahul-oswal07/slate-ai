@@ -100,6 +100,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **Building screen by screen from Day 3** (order in `plan.md` §3). First slice: **T-47** teacher sign-in (phone once, then PIN) + first-run Welcome, class endpoints locked to the signed-in teacher's class (D-40), branch `feat/T-47-pin-login`.
 - Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59). See CLAUDE.md "Testing expectations".
 - Education mentor call held 19 Oct: notes and proposed decisions D-20–D-25 in `docs/mentor-feedback-2026-10-19.md` (#55, #56).
+- Second education mentor call held 24 Oct (MVP demo): notes and action items in `docs/mentor-feedback-2026-10-24.md` (Rahul: shared catch-up example, longer and simpler summaries, shorter/longer recording option; Monika: attendance stars, production token costs, share with the mentor). No decisions yet.
 - Monika's PRs #49–#53 merged.
 - Submission target: **Sat 31 Oct, 18:00 IST** (hard deadline 1 Nov, 23:59).
 
