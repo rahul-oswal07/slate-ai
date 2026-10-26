@@ -3,6 +3,13 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Attendance stars planned (26 Oct, T-63)
+
+- Mentor feedback (24 Oct, point 5) asked to recognise children who come regularly. Rahul, now product owner with Monika, accepted "stars, not streaks" (D-81, FR-24).
+- Full plan: `docs/T-63-attendance-stars.md` (rules, copy in five languages, API `stars` on `GET week`, `StarsCard` on T6, one line on P4, demo weeks, tests, docs).
+- T-61 and T-62 moved to *Done* in `tasks.md` (merged in #136).
+- **Next:** build T-63 on `feat/T-63-attendance-stars`.
+
 ## Task reset (24 Oct)
 
 - Rahul cleared every open task to start fresh: open rows removed from `tasks.md` (done and dropped tasks kept), the ten-day schedule in `plan.md` §4 replaced by a short note (submission Sat 31 Oct, 18:00 IST), unsettled decisions in `spec.md` §8 marked closed (D-06, D-14, D-15, D-74, D-75's nudge, D-76 (1b)), the unchecked open items below removed, and all 15 GitHub issues closed (T-11 and T-27 as completed, the rest as not planned).
