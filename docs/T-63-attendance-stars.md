@@ -34,7 +34,7 @@ The mentor asked us to recognise children who come to school regularly. Today th
 
 ### Not in T-63 (roadmap)
 
-- A weekly "your child earned a star" message to families who were present. It would be a new send path needing an approved template, the consent and stop checks, and the 6 pm job (guardrail 3). After 31 Oct.
+- The "well done, keep it up" message to families of children who earned the weekly star: **T-64** ([`T-64-star-message.md`](T-64-star-message.md)). T-63 adds no send path.
 - A printable class star chart, badges for longer runs (for example "10 stars"), and a term-start setting. Until then the term is every register the class has.
 - Stars on Today, Missed or Back today.
 
@@ -52,7 +52,7 @@ Placed after the reasons card and before the pacing nudge. It shows in every sta
 | No school days that week | The card is hidden |
 | Offline (saved week) | Same as the saved data; the existing offline line covers it |
 
-A week is **finished** when its Saturday is before today (IST), or today is Saturday and Saturday's register has come in.
+A week is **finished** when its last school day is before today (IST), or is today and today's register has come in. School days come from the school calendar (Sunday, second Saturday and `Attendance:Sats:Holidays` are not school days), moved from `SimulatedSatsSource.IsSchoolDay` into a shared `SchoolCalendar` so T-64 uses the same rule.
 
 The term total on each chip counts weekly stars plus catch-up stars. The screen-reader text spells it out: "Asha, roll 3, 4 stars this term: 3 for coming to school, 1 for a catch-up".
 
@@ -93,7 +93,7 @@ Visuals follow `docs/design/tokens.md` (D-77):
 - **No store.** The data comes from `ILedgerStore.LoadAsync`, which T6 already calls. A child's catch-up counts as done when its `CatchUpRow.Outcome` is not null (`caughtUp` or `needsBuddy`).
 
 ```csharp
-/// <param name="Finished">The week is over (Saturday before today, or Saturday's register is in).</param>
+/// <param name="Finished">The week is over: its last school day is before today, or is today with the register in.</param>
 /// <param name="Children">Earned (finished week) or on track (current week), roll-number order. Never the others.</param>
 public sealed record WeekStars(bool Finished, int SchoolDays, IReadOnlyList<StarChild> Children);
 
@@ -114,6 +114,7 @@ public sealed record StarChild(Guid ChildId, int RollNo, string FirstName, int A
   - The star is earned when `present ≥ 1 && away ≤ MaxDaysAwayPerWeek`.
 - **Term attendance stars:** the count of finished weeks the child earned, over every week with a register up to and including the shown week. A week in the future of the shown week is not counted, so going back to an older week shows the totals as they were then.
 - **Catch-up stars:** answered catch-ups whose week is on or before the shown week.
+- **Finished week:** per §3, from `SchoolCalendar` (passed in, so tests can use any calendar).
 - **Determinism:** the same `LedgerData` always gives the same result. There is no clock inside the function; `today` is passed in.
 
 ### `GET /api/classes/{id}/week/{date}` gains `stars`
@@ -175,7 +176,7 @@ Check before merging: the existing `DemoStory`, Week and ledger tests still pass
 - Away every school day of a week gives no star, even when `away ≤ max` in a one-day week.
 - Child with no rows that week (joined later) is skipped.
 - Current week: `Finished = false`, children on track listed, no attendance star added to totals yet.
-- Saturday: finished only once Saturday's register is in.
+- Last school day: finished only once its register is in; a second-Saturday week finishes after Friday's register.
 - Totals: three finished weeks with one missed gives 2; an older shown week gives the totals as of then.
 - Catch-up stars: `caughtUp` and `needsBuddy` both count; unanswered (`Outcome = null`) doesn't; later weeks don't count for an older week.
 - Order is by roll number; children who didn't earn a star are never in `Children`.
