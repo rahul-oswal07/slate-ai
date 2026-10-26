@@ -19,6 +19,7 @@ using SlateAi.Api.Features.LessonAudio;
 using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Features.Spa;
+using SlateAi.Api.Features.Stars;
 using SlateAi.Api.Features.Week;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.Section));
 builder.Services.Configure<BuildInfoOptions>(builder.Configuration.GetSection(BuildInfoOptions.Section));
 builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.Section));
+builder.Services.AddOptions<StarsOptions>().Bind(builder.Configuration.GetSection(StarsOptions.Section)).ValidateDataAnnotations().ValidateOnStart();
 
 // Resolve the connection string lazily so test hosts can override configuration.
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>

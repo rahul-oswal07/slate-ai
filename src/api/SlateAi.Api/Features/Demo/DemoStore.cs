@@ -36,7 +36,8 @@ public sealed record DemoReset(
     DateOnly WeekOf,
     DemoSnapshot? Snapshot,
     Guid? SnapshotChildId,
-    IReadOnlyList<string> SnapshotMissed);
+    IReadOnlyList<string> SnapshotMissed,
+    IReadOnlyList<DemoRegisterDay>? StarDays = null);
 
 public enum DemoResetResult
 {
@@ -102,6 +103,21 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
                 CompetencyIds = [day.CompetencyId],
                 Status = LessonValues.Confirmed,
             });
+            db.Attendance.AddRange(reset.Seed.Children.Select(c => new Data.Entities.Attendance
+            {
+                ClassId = classId,
+                Date = day.Date,
+                ChildId = c.Id,
+                Present = !day.AbsentChildIds.Contains(c.Id),
+                Source = AttendanceSources.Sats,
+                SourcePresent = !day.AbsentChildIds.Contains(c.Id),
+                ReceivedAt = SchoolClock.At(day.Date, reset.RegisterArrivesAt).ToUniversalTime(),
+            }));
+        }
+
+        // Earlier weeks of register only (no lessons), for the stars card (T-63).
+        foreach (var day in reset.StarDays ?? [])
+        {
             db.Attendance.AddRange(reset.Seed.Children.Select(c => new Data.Entities.Attendance
             {
                 ClassId = classId,

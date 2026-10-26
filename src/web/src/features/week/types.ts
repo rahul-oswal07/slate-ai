@@ -30,6 +30,24 @@ export type PacingNudge = {
   nextCompetencyId: string | null
 }
 
+/** FR-24, D-81: who earned this finished week's star, or is on track in the current one. Never the others. */
+export type StarChild = {
+  childId: string
+  rollNo: number
+  firstName: string
+  /** Weekly stars this term, finished weeks only. */
+  attendance: number
+  /** Catch-ups answered at home. */
+  catchUps: number
+  total: number
+}
+
+export type WeekStars = {
+  finished: boolean
+  schoolDays: number
+  children: StarChild[]
+}
+
 /** GET /api/classes/{id}/week/{date} */
 export type Week = {
   from: string
@@ -40,5 +58,7 @@ export type Week = {
   reasons: WeekReasons
   nudge: PacingNudge | null
   decision: 'recap' | 'skip' | null
+  /** Null when the week has no register. Missing in a week saved before stars existed. */
+  stars?: WeekStars | null
   savedAt?: number
 }

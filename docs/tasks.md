@@ -7,11 +7,10 @@ Owner: **R** = Rahul, **M** = Monika.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
-| T-63 | **Attendance stars (FR-24, D-81)**, full plan in [`T-63-attendance-stars.md`](T-63-attendance-stars.md): stars, not streaks. A **weekly star** for each finished school week with at most 1 day away (`Stars:MaxDaysAwayPerWeek`) and at least one day present; a **catch-up star** for each catch-up answered at home, whatever the answer. Stars add up over the term and never go away. T6 Week gets a Stars card (earned, or on track this week, in roll order, term total per child, "Say well done in class."); P4 Done gets one line "{child} earned a star for doing this catch-up." Counted in code from `Attendance` and `CheckResponses` (`Features/Stars/StarRules.cs`), returned as `stars` on `GET week`. Demo Reset adds three finished weeks of registers (no lessons). Weekly messages to present families, star charts and longer-run badges are roadmap | R | No ranking; children without a star never listed or counted; nothing says a star was lost; families see only their own child's P4 line, no numbers; no LLM or speech call, no migration, no new message to families; card in every T6 state incl. offline and "No absences this week"; every new string in all five locale files; 360 px screenshots (light + dark) and axe 0 on T6 and P4 | xUnit (`StarRules`, week endpoint with `FakeApi`, `DemoStory`); Vitest (`StarsCard` states, `WeekScreen`, P4 line, locales); existing e2e unchanged, none added; `./scripts/verify.sh` |
 
-## Done (24-25 Oct)
+## Done (24-26 Oct)
 
-T-61 greeting and T-62 lesson audio (#136). Slate & chalk revamp (D-77, #126, #128, #129) and Hindi (D-78, #127). T-49 shipped without "Since yesterday", which Monika dropped to the roadmap on 25 Oct.
+T-63 attendance stars (FR-24, D-81; plan in `T-63-attendance-stars.md`). T-61 greeting and T-62 lesson audio (#136). Slate & chalk revamp (D-77, #126, #128, #129) and Hindi (D-78, #127). T-49 shipped without "Since yesterday", which Monika dropped to the roadmap on 25 Oct.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|

@@ -32,6 +32,7 @@ This card defines the **stop link, stop dialog and stopped state** once. P0, P1,
 | State | What the user sees | Copy (en) |
 |---|---|---|
 | Done (default) | Header "Lakshmi teacher" with Back; step dots 4 of 4; filled star; "Well done, Ravi"; teacher line; homework line; Finish; stop link. `screenshots/P4-done-default-360-light.png`, dark: `screenshots/P4-done-default-360-dark.png` | "Well done, Ravi" · "Lakshmi teacher will see this." · "Bring page 15 to school." · "Finish" |
+| Star (T-63, FR-24) | Under the page's teacher line, always: an amber star (decorative) and one line, no number and no other child | "Ravi earned a star for doing this catch-up." |
 | Stop: confirm (dialog) | Modal sheet over any parent screen: title, body, "Stop messages", "No, keep them coming" (focused first). `screenshots/P4-done-stop-confirm-360-light.png`; over P3 in dark: `screenshots/P3-answer-stop-confirm-360-dark.png` | "Stop messages for Ravi?" · "No more messages will come. You can start them again any time." |
 | Stopped | Bell-off icon, heading, reassurance, "Start them again"; no stop link; no step dots. `screenshots/P4-done-stopped-360-light.png` | "Messages stopped" · "When Ravi comes back, his teacher will help him as usual." · "Start them again" |
 | Stopped from another screen | Dialog closes and the phone returns to the chat, which shows the stopped bubble (see P0) | "Messages for Ravi are stopped. You can start them again any time." |

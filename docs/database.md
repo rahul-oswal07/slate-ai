@@ -317,6 +317,8 @@ All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api
 
 A missed lesson's `status` is **learning only** (B-08, T-13), from the child's catch-up for that week (the assignment whose `MissedCompetencyIds` include one of the lesson's competencies): `caughtUp` / `needsBuddy` from `CheckResponses` once answered (FR-11), else `sent` when the link went out, else `missed`. The family's **`channel`** is a separate per-child field: `stopped` (`Children.ParentStoppedAt`, FR-19), else `noPhone` / `noConsent` from `Consent`, else null. The ledger also returns this school week (`weekOf`, Monday to today IST): the week's confirmed lessons, `daysAwayThisWeek` and a per-child `history` (away with the lessons, reason from `AbsenceReasons`, catch-up sent with its language, picture answer, stop), all in `LedgerBuilder`. Nothing is stored for the ledger itself, so it can't drift from attendance.
 
+**Attendance stars (FR-24, D-81, T-63) are a query too.** `Features/Stars/StarRules.cs` counts them from `Attendance` (a finished Mon–Sat week with at least one day present and at most `Stars:MaxDaysAwayPerWeek` away, default 1; a day with no register is not a school day) and from `CatchUpAssignments`/`CheckResponses` (a catch-up with an outcome, whatever the answer). The result is `stars` on `GET week`; no table, no migration, so a star can never go away or drift from attendance.
+
 ## 4. Planned tables (not built yet)
 
 From `docs/spec.md` §4.3. Types are indicative; the migration decides.

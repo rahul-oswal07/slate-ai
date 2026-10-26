@@ -31,6 +31,7 @@ Decisions: D-20 (return speed is the primary measure), D-23 (reason categories o
 | No nudge this week | Return speed and reasons as above; pacing panel replaced by an on-track card; footer without the AI sentence. `screenshots/T6-week-no-nudge-360-light.png` | "Most children are on track. No recap needed this week." · "Numbers are counted from attendance." |
 | Decided: recap planned (`decided`) | Success banner with Change replaces the two buttons. State chip "Decided (recap planned)" in the prototype. No PNG exported | "We’ll remind you on Monday morning." · "Change" |
 | Decided: skipped | Success banner with Change. Reached by tapping "Not this week"; no state chip of its own. No PNG exported | "OK. Skipped this week." · "Change" |
+| Stars (T-63, FR-24) | A card after the reasons card, also in the "No absences this week" state: title "Stars" (finished week) or "Stars this week", a count sentence, one chip per child who earned the star (or is on track) in roll order with an amber star and the term total, "Say well done in class.", the rule line. Nobody earned one: "No stars this week. Every week is a new start." and no names. Hidden when the week has no register. Never a ranking, a list of children without a star, or the word lost/missed | "Stars" · "Say well done in class." |
 | Empty (first week, no absences) | Not designed. Needs "No absences this week" and no last-week comparison | Open item |
 | Loading | Not designed. Skeleton cards | — |
 | Offline | Not designed. Recommend last cached week with "Last updated …" (as T4) | Open item |

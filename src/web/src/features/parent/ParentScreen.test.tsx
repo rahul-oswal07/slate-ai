@@ -157,6 +157,9 @@ describe('ParentScreen', () => {
     expect(await screen.findByText('Well done, Ravi')).toBeInTheDocument()
     expect(screen.getByText('Shobha teacher will see this.')).toBeInTheDocument()
     expect(screen.getByText('Bring page 15 to school.')).toBeInTheDocument()
+    // One star line (D-81) with the child's name from the page's own text and no number.
+    const star = screen.getByText('Ravi earned a star for doing this catch-up.')
+    expect(star.textContent).not.toMatch(/\d/)
     const answer = calls.find((c) => c.key === `POST /api/p/${token}/answer`)
     expect(answer?.body).toMatchObject({ choiceId: 1 })
     expect(screen.queryByText(/correct|wrong|right answer/i)).toBeNull()

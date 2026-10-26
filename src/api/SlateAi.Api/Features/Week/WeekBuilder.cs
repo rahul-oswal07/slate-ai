@@ -2,6 +2,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.Ledger;
 using SlateAi.Api.Features.Parent;
+using SlateAi.Api.Features.Stars;
 
 namespace SlateAi.Api.Features.Week;
 
@@ -25,6 +26,7 @@ public sealed record PacingNudge(
 /// <summary>T6 for one school week (Mon–Sat).</summary>
 /// <param name="Empty">No absence started this week: "No absences this week", no comparison (D-61).</param>
 /// <param name="Decision">"recap" or "skip" for this week's nudge, or null.</param>
+/// <param name="Stars">Attendance stars (FR-24, D-81), added by the endpoint; null when the week has no register.</param>
 public sealed record WeekResponse(
     DateOnly From,
     DateOnly To,
@@ -33,7 +35,8 @@ public sealed record WeekResponse(
     ReturnSpeed LastWeek,
     WeekReasons Reasons,
     PacingNudge? Nudge,
-    string? Decision);
+    string? Decision,
+    WeekStars? Stars = null);
 
 /// <summary>The stored answer to a week's nudge.</summary>
 public sealed record DecisionRow(Guid LessonId, string Decision);

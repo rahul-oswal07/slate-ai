@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AccentTitle } from '../../components/AccentWord'
+import { StarGlyph } from '../../components/StarGlyph'
 import { PrimaryButton } from './ParentParts'
 import type { ParentCatchUp } from './types'
 
@@ -54,6 +55,10 @@ export function DoneStep({ page }: { page: ParentCatchUp }) {
       <Celebration />
       <p className="text-display font-extrabold">
         <AccentTitle title={t('parent.done.wellDone', { child: page.childName })} accent={page.childName} />
+      </p>
+      <p className="flex items-start justify-center gap-2 text-body-lg">
+        <StarGlyph size={22} />
+        <span>{t('parent.done.star', { child: page.childName })}</span>
       </p>
       <p className="text-body-lg">{t('parent.done.teacherSees', { teacher: page.teacherName })}</p>
       {page.homework && (

@@ -70,7 +70,13 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.Equal(DemoStory.Lessons, days.Select(l => l.CompetencyIds.Single()));
         Assert.All(days, l => Assert.Equal(LessonValues.Confirmed, l.Status));
         Assert.All(days, l => Assert.True(l.Date < today));
-        Assert.Equal(5 * 36, await api.QueryAsync(db => db.Attendance.CountAsync(DemoClassApi.Ct)));
+        var lessonDates = days.Select(l => l.Date).ToList();
+        Assert.Equal(5 * 36, await api.QueryAsync(db => db.Attendance.CountAsync(a => lessonDates.Contains(a.Date), DemoClassApi.Ct)));
+        // Earlier weeks of register only (T-63): full registers, all before the first lesson day, no lessons.
+        var earlier = await api.QueryAsync(db => db.Attendance.Where(a => !lessonDates.Contains(a.Date)).Select(a => a.Date).ToListAsync(DemoClassApi.Ct));
+        Assert.NotEmpty(earlier);
+        Assert.Equal(0, earlier.Count % 36);
+        Assert.All(earlier, d => Assert.True(d < lessonDates.Min()));
         Assert.Equal(0, await api.QueryAsync(db => db.Attendance.CountAsync(a => a.Date == today, DemoClassApi.Ct)));
 
         // The old package and its own audio are gone; the shared clip and the AI log stay; Rohan has the pre-made one.
