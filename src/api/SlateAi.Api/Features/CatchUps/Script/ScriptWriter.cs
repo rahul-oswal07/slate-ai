@@ -19,7 +19,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    private static readonly Dictionary<string, string> LanguageNames = new()
+    internal static readonly Dictionary<string, string> LanguageNames = new()
     {
         ["kn"] = "Kannada",
         ["te"] = "Telugu",

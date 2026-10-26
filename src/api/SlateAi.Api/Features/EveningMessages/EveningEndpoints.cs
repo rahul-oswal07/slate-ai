@@ -18,6 +18,13 @@ public sealed record TemplateLanguageView(string Language, IReadOnlyList<TextPar
 public sealed record MessageTemplateResponse(
     string Version, string Status, DateTimeOffset? ApprovedAt, IReadOnlyList<TemplateLanguageView> Languages);
 
+/// <summary>
+/// The lesson audio on an evening message (T-62): the AI disclosure, then the lesson, as token URLs. <c>Transcript</c> is
+/// the words the lesson clip says.
+/// </summary>
+public sealed record ParentLessonAudioView(
+    IReadOnlyList<Audio.AudioSegment> Segments, double TotalSeconds, string DisclosureText, string? Transcript);
+
 /// <summary>Her greeting as the family fetches it: a token-scoped URL, since a parent has no teacher session.</summary>
 public sealed record ParentGreetingView(string Url, double Seconds);
 
@@ -34,7 +41,8 @@ public sealed record ParentEveningResponse(
     ParentGreetingView? Greeting,
     DateTimeOffset SentAt,
     bool Stopped,
-    string? Reason = null)
+    string? Reason = null,
+    ParentLessonAudioView? LessonAudio = null)
 {
     /// <summary>The parent link serves catch-ups too (<c>Features/Parent</c>); this tells the page which it got.</summary>
     public string Kind => "evening";

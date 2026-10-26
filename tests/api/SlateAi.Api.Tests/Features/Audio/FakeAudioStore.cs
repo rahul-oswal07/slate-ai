@@ -64,12 +64,29 @@ public sealed class FakeAudioStore : IAudioStore
         }
     }
 
-    public Task<AudioInfo> SaveSharedAsync(string kind, string language, string textHash, SpokenAudio audio, CancellationToken cancellationToken)
+    /// <summary>The words kept for lesson clips.</summary>
+    public Dictionary<Guid, string> Transcripts { get; } = [];
+
+    public Task<string?> GetTranscriptAsync(Guid id, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            return Task.FromResult(Transcripts.GetValueOrDefault(id));
+        }
+    }
+
+    public Task<AudioInfo> SaveSharedAsync(
+        string kind, string language, string textHash, SpokenAudio audio, CancellationToken cancellationToken, string? transcript = null)
     {
         lock (_gate)
         {
             var info = new AudioInfo(Guid.NewGuid(), kind, language, audio.Seconds, audio.Audio.Length, null);
             Clips.Add((info, audio.Audio, textHash, null, audio.ContentType));
+            if (transcript is not null)
+            {
+                Transcripts[info.Id] = transcript;
+            }
+
             return Task.FromResult(info);
         }
     }

@@ -173,7 +173,7 @@ public sealed class CatchUpWriterTests
             _store,
             new ScriptWriter(_llm, _aiCalls, prompts, book),
             new Verifier(new ContentCheck(_llm, _aiCalls, prompts, book), book, Options.Create(new VerifierOptions())),
-            new PackageAudio(_tts, _audio, Disclosure, Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance),
+            new PackageAudio(_tts, _audio, new DisclosureClips(_tts, _audio, Disclosure), Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance),
             book,
             prompts);
     }

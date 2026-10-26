@@ -171,6 +171,21 @@
         "noConsent": "No consent",
         "stopped": "Stopped by family",
         "noWording": "No message in their language yet"
+      },
+      "audio": {
+        "label": "Also send today’s lesson as audio",
+        "hint": "Optional. You listen to each clip and approve it first. Without it, the usual message goes.",
+        "sent": "Tonight’s messages have gone. This can no longer be changed.",
+        "making": "Making the audio…",
+        "failed": "Could not make this clip. Nothing will be sent for this language.",
+        "approve": "Approve this clip",
+        "approved": "Approved. It goes with tonight’s message.",
+        "newOne": "Make a new clip",
+        "listenFirst": "Listen to the whole clip first, then approve.",
+        "readWords": "Read the words",
+        "families": "Families: {{count}}",
+        "offline": "No network. Nothing was changed. Connect and try again.",
+        "error": "Could not do that. Nothing was sent. Try again."
       }
     },
     "strip": {
@@ -426,7 +441,11 @@
     "evening": {
       "title": "Message from {{teacher}} teacher",
       "voice": "{{teacher}} teacher’s voice · {{duration}}",
-      "play": "Play the greeting"
+      "play": "Play the greeting",
+      "lesson": {
+        "title": "Today’s lesson",
+        "play": "Play today’s lesson"
+      }
     },
     "announce": {
       "playing": "Playing",

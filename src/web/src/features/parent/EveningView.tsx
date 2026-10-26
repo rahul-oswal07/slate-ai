@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { clock } from './clock'
+import { LessonAudioPlayer } from './LessonAudioPlayer'
 import { ParentHeader, StopControl, StoppedView } from './ParentParts'
 import { ReasonView } from './ReasonView'
 import type { ParentEvening } from './types'
@@ -36,6 +37,7 @@ export function EveningView({ token, message }: { token: string; message: Parent
         <p lang={message.language} className="card text-body">
           {message.text}
         </p>
+        {message.lessonAudio && <LessonAudioPlayer audio={message.lessonAudio} teacherName={message.teacherName} />}
         {message.reason ? (
           <p className="flex items-center justify-between gap-3 text-body">
             {t('parent.reason.given')}

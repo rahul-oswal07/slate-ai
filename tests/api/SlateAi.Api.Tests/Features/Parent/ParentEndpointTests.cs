@@ -423,6 +423,71 @@ public sealed class ParentEndpointTests
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct)).StatusCode);
     }
 
+    /// <summary>An evening message that carries an approved lesson clip (T-62), with the disclosure made for Telugu.</summary>
+    private async Task<(string Token, Guid Lesson, Guid Disclosure)> WithLessonAudioAsync(bool attach = true)
+    {
+        const string token = "LessonAudioTokenLessonA";
+        var wording = DisclosureWording.Load(Path.Combine(AppContext.BaseDirectory, DisclosureWording.File));
+        var disclosure = await new DisclosureClips(new FakeTextToSpeech(), _audio, wording).GetOrMakeAsync("te", Ct);
+        var lesson = await _audio.SaveSharedAsync(AudioKind.Lesson, "te", "lesson-hash", FakeTextToSpeech.Silence(20), Ct, transcript: "ఈ రోజు ముఖ విలువ.");
+        _evening.LessonAudio = new ParentLessonAudio(lesson.Id, lesson.Seconds, "ఈ రోజు ముఖ విలువ.");
+        _evening.Messages.Add((Friday, new NewEveningMessage(
+            Ravi, TemplateId, Guid.NewGuid(), "te", new SlotValues("", ""), token, _clock.Now, _clock.Now.AddDays(14),
+            attach ? Guid.NewGuid() : null)));
+        return (token, lesson.Id, disclosure.Id);
+    }
+
+    [Fact]
+    public async Task Evening_link_plays_the_approved_lesson_after_the_disclosure_through_the_token()
+    {
+        var (token, lesson, disclosure) = await WithLessonAudioAsync();
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        var audio = page.LessonAudio!;
+        Assert.Equal([AudioKind.Disclosure, AudioKind.Script], audio.Segments.Select(x => x.Kind));
+        Assert.Equal([$"/api/p/{token}/lesson-audio/{disclosure}", $"/api/p/{token}/lesson-audio/{lesson}"], audio.Segments.Select(x => x.Url));
+        Assert.Equal("ఈ రోజు ముఖ విలువ.", audio.Transcript);
+        Assert.False(string.IsNullOrWhiteSpace(audio.DisclosureText));
+        foreach (var segment in audio.Segments)
+        {
+            var served = await client.GetAsync(segment.Url, Ct);
+            Assert.Equal(HttpStatusCode.OK, served.StatusCode);
+            Assert.Equal("audio/ogg", served.Content.Headers.ContentType!.MediaType);
+        }
+    }
+
+    [Fact]
+    public async Task Evening_link_without_an_approved_lesson_has_none_and_its_route_serves_nothing()
+    {
+        var (token, lesson, _) = await WithLessonAudioAsync(attach: false);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        Assert.Null(page.LessonAudio);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{lesson}", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task The_lesson_route_serves_only_this_messages_two_clips_and_only_while_the_family_has_not_stopped()
+    {
+        var (token, _, _) = await WithLessonAudioAsync();
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{_script}", Ct)).StatusCode); // a catch-up clip
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{Guid.NewGuid()}", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{Token}/lesson-audio/{_script}", Ct)).StatusCode); // a catch-up link
+
+        _evening.Children[0] = _evening.Children[0] with { Stopped = true };
+        var stopped = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+        Assert.Null(stopped.LessonAudio);
+    }
+
     private ParentCatchUpRecord Record() => new(
         _assignmentId,
         Ravi,

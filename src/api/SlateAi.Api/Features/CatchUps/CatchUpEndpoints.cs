@@ -28,6 +28,7 @@ public static class CatchUpEndpoints
         services.Configure<VerifierOptions>(configuration.GetSection(VerifierOptions.Section));
         services.AddScoped<ContentCheck>();
         services.AddSingleton(_ => DisclosureWording.Load(Path.Combine(AppContext.BaseDirectory, DisclosureWording.File)));
+        services.AddScoped<DisclosureClips>();
         services.AddScoped<PackageAudio>();
         services.AddScoped<Verifier>();
         services.AddScoped<Compressor>();

@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Features.CatchUps.Verify;
@@ -41,12 +39,12 @@ public sealed record DisclosureWording(string Version, IReadOnlyDictionary<strin
 
 /// <summary>
 /// Makes a catch-up's audio (FR-09): the script through text-to-speech, the language's disclosure clip (made once
-/// per wording and reused, D-18), and the real-audio check: total ≤ 95 s and ≤ 300 KB (spec §5.4 check 3).
+/// per wording and reused, D-18, see <see cref="DisclosureClips"/>), and the real-audio check: total ≤ 95 s and ≤ 300 KB (spec §5.4 check 3).
 /// </summary>
 public sealed class PackageAudio(
     ITextToSpeech tts,
     IAudioStore store,
-    DisclosureWording disclosure,
+    DisclosureClips disclosure,
     IOptions<VerifierOptions> options,
     ILogger<PackageAudio> logger)
 {
@@ -56,15 +54,15 @@ public sealed class PackageAudio(
     public async Task<(AudioSegments? Audio, VerifierCheck Check)> MakeAsync(
         Guid packageId, Guid classId, string language, string script, CancellationToken cancellationToken)
     {
-        if (!disclosure.Languages.TryGetValue(language, out var disclosureText))
+        if (disclosure.Text(language) is not { } disclosureText)
         {
             return (null, new VerifierCheck(CheckName, false, $"no disclosure wording for {language}"));
         }
 
         try
         {
-            var disclosureClip = await DisclosureAsync(language, disclosureText, cancellationToken);
-            var spoken = await tts.SynthesizeAsync(script, LanguageCode(language), cancellationToken);
+            var disclosureClip = await disclosure.GetOrMakeAsync(language, cancellationToken);
+            var spoken = await tts.SynthesizeAsync(script, DisclosureClips.LanguageCode(language), cancellationToken);
             var scriptClip = await store.ReplaceScriptAsync(packageId, language, spoken, cancellationToken);
             // Her own greeting plays first when she has recorded one. It is fixed here, at generation: an approved
             // catch-up never changes under her (guardrail 3), and she hears it in the preview before approving.
@@ -99,18 +97,4 @@ public sealed class PackageAudio(
             ? new VerifierCheck(CheckName, false, $"audio is {kb} KB, limit is {o.MaxAudioKb}")
             : new VerifierCheck(CheckName, true, $"{seconds} seconds, {kb} KB");
     }
-
-    private async Task<AudioInfo> DisclosureAsync(string language, string text, CancellationToken cancellationToken)
-    {
-        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
-        if (await store.FindSharedAsync(AudioKind.Disclosure, language, hash, cancellationToken) is { } clip)
-        {
-            return clip;
-        }
-
-        var spoken = await tts.SynthesizeAsync(text, LanguageCode(language), cancellationToken);
-        return await store.SaveSharedAsync(AudioKind.Disclosure, language, hash, spoken, cancellationToken);
-    }
-
-    private static string LanguageCode(string language) => $"{language}-IN";
 }

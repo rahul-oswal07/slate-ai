@@ -10,6 +10,7 @@ public static class AudioKind
     public const string Script = "script";
     public const string Disclosure = "disclosure";
     public const string Greeting = "greeting";
+    public const string Lesson = "lesson";
 }
 
 /// <summary>A clip's facts without its bytes.</summary>
@@ -34,8 +35,15 @@ public interface IAudioStore
     /// <summary>A shared clip made once for this wording (D-18 disclosure), or null.</summary>
     Task<AudioInfo?> FindSharedAsync(string kind, string language, string textHash, CancellationToken cancellationToken);
 
-    /// <summary>Stores a shared clip; if another request stored the same wording first, returns that one.</summary>
-    Task<AudioInfo> SaveSharedAsync(string kind, string language, string textHash, SpokenAudio audio, CancellationToken cancellationToken);
+    /// <summary>
+    /// Stores a shared clip; if another request stored the same wording first, returns that one.
+    /// <paramref name="transcript"/> is kept for a lesson clip, so she can read what she approves.
+    /// </summary>
+    Task<AudioInfo> SaveSharedAsync(
+        string kind, string language, string textHash, SpokenAudio audio, CancellationToken cancellationToken, string? transcript = null);
+
+    /// <summary>The words spoken in a lesson clip, or null.</summary>
+    Task<string?> GetTranscriptAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>Stores a catch-up's script audio, replacing its previous version.</summary>
     Task<AudioInfo> ReplaceScriptAsync(Guid packageId, string language, SpokenAudio audio, CancellationToken cancellationToken);
@@ -81,8 +89,11 @@ public sealed class AudioStore(AppDbContext db, TimeProvider clock) : IAudioStor
     public Task<string?> GetContentTypeAsync(Guid id, CancellationToken cancellationToken) =>
         db.AudioClips.Where(c => c.Id == id).Select(c => c.ContentType).SingleOrDefaultAsync(cancellationToken);
 
+    public Task<string?> GetTranscriptAsync(Guid id, CancellationToken cancellationToken) =>
+        db.AudioClips.Where(c => c.Id == id).Select(c => c.Transcript).SingleOrDefaultAsync(cancellationToken);
+
     public async Task<AudioInfo> SaveSharedAsync(
-        string kind, string language, string textHash, SpokenAudio audio, CancellationToken cancellationToken)
+        string kind, string language, string textHash, SpokenAudio audio, CancellationToken cancellationToken, string? transcript = null)
     {
         // Two catch-ups can ask for the same disclosure at once; the lock keeps one clip per wording.
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
@@ -95,6 +106,7 @@ public sealed class AudioStore(AppDbContext db, TimeProvider clock) : IAudioStor
 
         var clip = New(kind, language, audio);
         clip.TextHash = textHash;
+        clip.Transcript = transcript;
         db.AudioClips.Add(clip);
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

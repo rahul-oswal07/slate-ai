@@ -87,6 +87,7 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
         await db.Children.Where(c => c.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.CatchUpPackages.Where(p => p.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.Attendance.Where(a => a.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
+        await db.LessonAudios.Where(l => l.ClassId == classId).ExecuteDeleteAsync(cancellationToken); // unticked again (T-62)
         await db.Lessons.Where(l => l.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
 
         db.Children.AddRange(reset.Seed.Children.Select(c => c.ToEntity(classId)));

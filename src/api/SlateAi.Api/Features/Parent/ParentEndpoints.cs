@@ -38,6 +38,12 @@ public static class ParentEndpoints
                 "Only for an evening-message link that is still valid and not stopped; 404 when she has not recorded " +
                 "one. Supports range requests.");
 
+        group.MapGet("/lesson-audio/{clipId:guid}", GetLessonAudioAsync)
+            .WithSummary("One part of the evening message's lesson audio: the AI disclosure or the lesson (Ogg Opus)")
+            .WithDescription(
+                "Only for an evening-message link that is valid, not stopped and carries a lesson clip she approved; " +
+                "only that message's two clips. 404 otherwise. Supports range requests.");
+
         group.MapPost("/answer", AnswerAsync)
             .WithSummary("The picture the child tapped (P3), scored by code (FR-11)")
             .WithDescription(
@@ -70,6 +76,7 @@ public static class ParentEndpoints
             string token,
             IParentStore parents,
             IEveningStore evenings,
+            DisclosureClips disclosure,
             CurriculumGraph curriculum,
             TimeProvider clock,
             CancellationToken cancellationToken)
@@ -118,8 +125,33 @@ public static class ParentEndpoints
             message.Greeting is { } greeting && !message.Stopped
                 ? new ParentGreetingView($"/api/p/{token}/greeting", Math.Round(greeting.Seconds, 1))
                 : null,
-            message.SentAt, message.Stopped, reason));
+            message.SentAt, message.Stopped, reason,
+            message.Stopped ? null : await LessonAudioAsync(token, message, disclosure, cancellationToken)));
     }
+
+    /// <summary>
+    /// The approved lesson clip of this message, behind the AI disclosure (T-62). Null when she didn't send one, or the
+    /// disclosure for the family's language isn't made yet (it is made when the clip is).
+    /// </summary>
+    private static async Task<ParentLessonAudioView?> LessonAudioAsync(
+        string token, ParentMessageRecord message, DisclosureClips disclosure, CancellationToken cancellationToken)
+    {
+        if (message.LessonAudio is not { } lesson
+            || await disclosure.FindAsync(message.Language, cancellationToken) is not { } intro
+            || disclosure.Text(message.Language) is not { } introText)
+        {
+            return null;
+        }
+
+        AudioSegment[] segments =
+        [
+            new(AudioKind.Disclosure, LessonAudioUrl(token, intro.Id), Math.Round(intro.Seconds, 1)),
+            new(AudioKind.Script, LessonAudioUrl(token, lesson.ClipId), Math.Round(lesson.Seconds, 1)),
+        ];
+        return new ParentLessonAudioView(segments, Math.Round(segments.Sum(s => s.Seconds), 1), introText, lesson.Transcript);
+    }
+
+    private static string LessonAudioUrl(string token, Guid clipId) => $"/api/p/{token}/lesson-audio/{clipId}";
 
     private static async Task<Results<FileContentHttpResult, NotFound>> GetAudioAsync(
         string token,
@@ -162,6 +194,36 @@ public static class ParentEndpoints
         }
 
         var contentType = await audio.GetContentTypeAsync(greeting.ClipId, cancellationToken) ?? "application/octet-stream";
+        http.Response.Headers.CacheControl = "private, max-age=86400";
+        return TypedResults.File(bytes, contentType, enableRangeProcessing: true);
+    }
+
+    private static async Task<Results<FileContentHttpResult, NotFound>> GetLessonAudioAsync(
+        string token,
+        Guid clipId,
+        HttpContext http,
+        IEveningStore evenings,
+        IAudioStore audio,
+        DisclosureClips disclosure,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        if (!LooksLikeToken(token)
+            || await evenings.FindByTokenAsync(token, cancellationToken) is not { LessonAudio: { } lesson } message
+            || message.Stopped
+            || clock.GetUtcNow() >= message.ExpiresAt)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var intro = await disclosure.FindAsync(message.Language, cancellationToken);
+        if ((clipId != lesson.ClipId && clipId != intro?.Id)
+            || await audio.GetBytesAsync(clipId, cancellationToken) is not { } bytes)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var contentType = await audio.GetContentTypeAsync(clipId, cancellationToken) ?? "application/octet-stream";
         http.Response.Headers.CacheControl = "private, max-age=86400";
         return TypedResults.File(bytes, contentType, enableRangeProcessing: true);
     }

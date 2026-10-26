@@ -110,5 +110,6 @@ public sealed class PackageAudioTests
     }
 
     private PackageAudio Audio(DisclosureWording? wording = null) => new(
-        _tts, _store, wording ?? CatchUpWriterTests.Disclosure, Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance);
+        _tts, _store, new DisclosureClips(_tts, _store, wording ?? CatchUpWriterTests.Disclosure), Options.Create(new VerifierOptions()),
+        NullLogger<PackageAudio>.Instance);
 }

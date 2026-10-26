@@ -8,7 +8,7 @@ public sealed class AudioClip
 {
     public Guid Id { get; set; }
 
-    /// <summary>"script", "disclosure" or "greeting".</summary>
+    /// <summary>"script", "disclosure", "greeting" or "lesson" (the optional daily lesson audio, T-62).</summary>
     public required string Kind { get; set; }
 
     /// <summary>"kn", "te", "ta", "en" or "hi".</summary>
@@ -22,6 +22,9 @@ public sealed class AudioClip
 
     /// <summary>SHA-256 of the spoken wording, for clips made once and reused (the disclosure).</summary>
     public string? TextHash { get; set; }
+
+    /// <summary>The words spoken, kept for a <c>lesson</c> clip so she can read what she approves; null otherwise.</summary>
+    public string? Transcript { get; set; }
 
     /// <summary>"audio/ogg" (Opus, 24 kbps).</summary>
     public required string ContentType { get; set; }
