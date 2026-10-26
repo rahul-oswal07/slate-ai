@@ -1,8 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
+import { clock } from './clock'
+import { LessonAudioPlayer } from './LessonAudioPlayer'
 import { ParentHeader, StopControl, StoppedView } from './ParentParts'
 import { ReasonView } from './ReasonView'
 import type { ParentEvening } from './types'
+import { VoiceNote } from './VoiceNote'
 
 /**
  * An evening-message link opened on its own (the demo chat shows it as a bubble, T-18): the text, "Is everything OK?
@@ -25,9 +28,16 @@ export function EveningView({ token, message }: { token: string; message: Parent
     <>
       <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />
       <div className="flex flex-col gap-4 px-4 py-4">
+        {message.greeting && (
+          <VoiceNote
+            url={message.greeting.url}
+            label={t('parent.evening.voice', { teacher: message.teacherName, duration: clock(message.greeting.seconds) })}
+          />
+        )}
         <p lang={message.language} className="card text-body">
           {message.text}
         </p>
+        {message.lessonAudio && <LessonAudioPlayer audio={message.lessonAudio} teacherName={message.teacherName} />}
         {message.reason ? (
           <p className="flex items-center justify-between gap-3 text-body">
             {t('parent.reason.given')}

@@ -132,21 +132,35 @@ public static partial class CodeChecks
 
     private static VerifierCheck Script(VerifyInput input, VerifierOptions options)
     {
-        if (!Blocks.TryGetValue(input.Language, out var block))
+        if (ScriptShare(input.Content.Script, input.Language) is not var (share, blockName))
         {
             return Fail(ScriptBlock, $"unknown language {input.Language}");
         }
 
-        var kannada = Blocks["kn"];
-        var letters = input.Content.Script
-            .Where(ch => char.IsLetter(ch) || CharUnicodeInfo.GetUnicodeCategory(ch) is UnicodeCategory.NonSpacingMark or UnicodeCategory.SpacingCombiningMark)
-            .Where(ch => input.Language == "kn" || ch < kannada.From || ch > kannada.To)
-            .ToList();
-        var share = letters.Count == 0 ? 0 : letters.Count(ch => ch >= block.From && ch <= block.To) / (double)letters.Count;
         var percent = (int)Math.Floor(share * 100);
         return share >= options.MinScriptShare
-            ? Pass(ScriptBlock, $"{percent}% in {block.Name} letters")
-            : Fail(ScriptBlock, $"only {percent}% in {block.Name} letters, needs {options.MinScriptShare:P0}");
+            ? Pass(ScriptBlock, $"{percent}% in {blockName} letters")
+            : Fail(ScriptBlock, $"only {percent}% in {blockName} letters, needs {options.MinScriptShare:P0}");
+    }
+
+    /// <summary>
+    /// The share of the text's letters that are in <paramref name="language"/>'s script (Kannada key words in another
+    /// language's script are left out), with the script's name; null for an unknown language.
+    /// </summary>
+    public static (double Share, string BlockName)? ScriptShare(string text, string language)
+    {
+        if (!Blocks.TryGetValue(language, out var block))
+        {
+            return null;
+        }
+
+        var kannada = Blocks["kn"];
+        var letters = text
+            .Where(ch => char.IsLetter(ch) || CharUnicodeInfo.GetUnicodeCategory(ch) is UnicodeCategory.NonSpacingMark or UnicodeCategory.SpacingCombiningMark)
+            .Where(ch => language == "kn" || ch < kannada.From || ch > kannada.To)
+            .ToList();
+        var share = letters.Count == 0 ? 0 : letters.Count(ch => ch >= block.From && ch <= block.To) / (double)letters.Count;
+        return (share, block.Name);
     }
 
     private static VerifierCheck SpokenLength(VerifyInput input, VerifierOptions options)

@@ -13,6 +13,9 @@ public sealed class EveningMessage
     public Guid TemplateId { get; set; }
     public Guid LessonId { get; set; }
 
+    /// <summary>The approved lesson audio that goes with this message (T-62), or null: the plain message.</summary>
+    public Guid? LessonAudioId { get; set; }
+
     /// <summary>"kn", "te", "ta", "en" or "hi": the child's home language when it was sent.</summary>
     public required string Language { get; set; }
 

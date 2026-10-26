@@ -19,8 +19,8 @@ public static class AudioEndpoints
             .WithTags("Audio")
             .WithSummary("One audio segment (Ogg Opus) of a catch-up: disclosure or script")
             .WithDescription(
-                "For the signed-in teacher: her class's catch-up audio, or a shared clip (the spoken AI disclosure). " +
-                "Supports range requests so phones can seek. 404 for another class's audio.");
+                "For the signed-in teacher: her class's catch-up audio, her class's greeting (and her own), or a shared clip " +
+                "(the spoken AI disclosure). Supports range requests so phones can seek. 404 for another class's audio.");
         return app;
     }
 
@@ -28,7 +28,7 @@ public static class AudioEndpoints
         Guid id, HttpContext http, IAudioStore store, CancellationToken cancellationToken)
     {
         if (await store.GetInfoAsync(id, cancellationToken) is not { } info
-            || (info.ClassId is { } classId && classId != http.User.GetClassId())
+            || (info.ClassId is { } classId && classId != http.User.GetClassId() && info.TeacherId != http.User.GetTeacherId())
             || await store.GetBytesAsync(id, cancellationToken) is not { } bytes)
         {
             return TypedResults.NotFound();

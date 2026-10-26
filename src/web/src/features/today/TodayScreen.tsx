@@ -13,6 +13,8 @@ import { AddedCard } from './AddedCard'
 import { AttendanceCard } from './AttendanceCard'
 import { AttendanceGrid } from './AttendanceGrid'
 import { DayStrip } from './DayStrip'
+import { GreetingCard } from './GreetingCard'
+import { LessonAudioCard } from './LessonAudioCard'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
@@ -76,6 +78,8 @@ export function TodayScreen() {
 
       <RecapCard classId={classId} date={date} chapters={chapters} />
 
+      <GreetingCard />
+
       {!online && (
         <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">
           <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
@@ -125,6 +129,7 @@ export function TodayScreen() {
         <div className="card-payoff flex flex-col gap-3">
           <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
           {evening.data && day.data && <TonightCard day={evening.data} roster={day.data.children} />}
+          {evening.data && <LessonAudioCard classId={classId} date={date} evening={evening.data} />}
         </div>
       )}
 

@@ -40,7 +40,14 @@ public sealed record NewEveningMessage(
     SlotValues Slots,
     string Token,
     DateTimeOffset SentAt,
-    DateTimeOffset ExpiresAt);
+    DateTimeOffset ExpiresAt,
+    Guid? LessonAudioId = null);
+
+/// <summary>The lesson clip she approved for this message's day and language (T-62), played after the disclosure.</summary>
+public sealed record ParentLessonAudio(Guid ClipId, double Seconds, string? Transcript);
+
+/// <summary>The class's main teacher's greeting clip, played first on the evening page.</summary>
+public sealed record ParentGreeting(Guid ClipId, double Seconds);
 
 /// <summary>A sent message as the parent view needs it. Names are allowed here: this is the final send (guardrail 1).</summary>
 public sealed record ParentMessageRecord(
@@ -48,12 +55,13 @@ public sealed record ParentMessageRecord(
     string Language,
     string ChildName,
     string TeacherName,
-    string? GreetingAudioUrl,
+    ParentGreeting? Greeting,
     string TemplateText,
     SlotValues Slots,
     DateTimeOffset SentAt,
     DateTimeOffset ExpiresAt,
-    bool Stopped);
+    bool Stopped,
+    ParentLessonAudio? LessonAudio = null);
 
 public enum ApproveResult
 {
@@ -86,6 +94,9 @@ public interface IEveningStore
     Task<ConfirmedLesson?> LatestConfirmedLessonAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 
     Task<IReadOnlySet<Guid>> GetSentChildIdsAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
+
+    /// <summary>The lesson audio she approved for that day, language to row id (T-62). Only approved rows: guardrail 3.</summary>
+    Task<IReadOnlyDictionary<string, Guid>> GetApprovedLessonAudioAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 
     /// <summary>Stores the messages, skipping any child who already has one that date. Returns how many were added.</summary>
     Task<int> AddMessagesAsync(
@@ -214,6 +225,12 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
             .ToListAsync(cancellationToken))
         .ToHashSet();
 
+    public async Task<IReadOnlyDictionary<string, Guid>> GetApprovedLessonAudioAsync(
+        Guid classId, DateOnly date, CancellationToken cancellationToken) =>
+        await db.LessonAudios
+            .Where(l => l.ClassId == classId && l.Date == date && l.Status == "approved" && l.ApprovedClipId != null && l.ApprovedClipId == l.ClipId)
+            .ToDictionaryAsync(l => l.Language, l => l.Id, cancellationToken);
+
     public async Task<int> AddMessagesAsync(
         Guid classId, DateOnly date, IReadOnlyList<NewEveningMessage> messages, CancellationToken cancellationToken)
     {
@@ -231,6 +248,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 Date = date,
                 TemplateId = message.TemplateId,
                 LessonId = message.LessonId,
+                LessonAudioId = message.LessonAudioId,
                 Language = message.Language,
                 SlotValues = JsonSerializer.Serialize(message.Slots, Json),
                 Token = message.Token,
@@ -256,15 +274,23 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 join teacher in db.Teachers on k.TeacherId equals teacher.Id
                 select new
                 {
-                    m.Date, m.Language, c.FirstName, teacher.DisplayName, teacher.GreetingAudioUrl, t.Text,
+                    m.Date, m.Language, c.FirstName, teacher.DisplayName, t.Text,
                     m.SlotValues, m.SentAt, m.ExpiresAt, Stopped = c.ParentStoppedAt != null,
+                    Greeting = db.AudioClips
+                        .Where(a => a.Kind == "greeting" && a.TeacherId == teacher.Id)
+                        .Select(a => new ParentGreeting(a.Id, a.Seconds))
+                        .FirstOrDefault(),
+                    LessonAudio = db.LessonAudios
+                        .Where(l => l.Id == m.LessonAudioId && l.Status == "approved" && l.ApprovedClipId == l.ClipId)
+                        .Join(db.AudioClips, l => l.ApprovedClipId, a => a.Id, (l, a) => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
+                        .FirstOrDefault(),
                 })
             .SingleOrDefaultAsync(cancellationToken);
         return row is null
             ? null
             : new ParentMessageRecord(
-                row.Date, row.Language, row.FirstName, row.DisplayName, row.GreetingAudioUrl, row.Text,
-                JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped);
+                row.Date, row.Language, row.FirstName, row.DisplayName, row.Greeting, row.Text,
+                JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped, row.LessonAudio);
     }
 
     public async Task<IReadOnlyList<Guid>> GetClassIdsAsync(CancellationToken cancellationToken) =>

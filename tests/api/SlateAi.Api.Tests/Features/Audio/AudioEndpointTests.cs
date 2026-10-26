@@ -54,5 +54,22 @@ public sealed class AudioEndpointTests
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync($"/api/audio/{_script}", Ct)).StatusCode);
     }
 
+    [Fact]
+    public async Task A_greeting_plays_for_the_teachers_class_and_for_the_teacher_who_recorded_it_but_no_one_else()
+    {
+        var teacher = Guid.NewGuid();
+        var greeting = _store.AddGreeting(teacher, ClassId);
+        var coTeacherGreeting = _store.AddGreeting(Guid.NewGuid(), Guid.Empty); // a co-teacher: no class of her own
+        await using var factory = Create();
+        using var classmate = factory.CreateTeacherClient(ClassId);
+        using var recorder = factory.CreateTeacherClient(Guid.NewGuid(), coTeacherGreeting.TeacherId);
+        using var other = factory.CreateTeacherClient(Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.OK, (await classmate.GetAsync($"/api/audio/{greeting.Id}", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await recorder.GetAsync($"/api/audio/{coTeacherGreeting.Id}", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"/api/audio/{greeting.Id}", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"/api/audio/{coTeacherGreeting.Id}", Ct)).StatusCode);
+    }
+
     private ApiFactory Create() => FakeApi.Create(services => services.AddSingleton<IAudioStore>(_store));
 }

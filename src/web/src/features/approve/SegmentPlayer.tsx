@@ -7,8 +7,9 @@ import type { AudioSegment } from './types'
 /**
  * Plays a catch-up's segments in order, as the family will hear them (D-18, D-58): her greeting (when recorded) →
  * computer voice (the AI disclosure) → the lesson. One Play/Pause button; the part playing is highlighted.
+ * `onAllEnded` fires when the last part has finished (the lesson audio's Approve unlocks on it, T-62).
  */
-export function SegmentPlayer({ segments }: { segments: AudioSegment[] }) {
+export function SegmentPlayer({ segments, onAllEnded }: { segments: AudioSegment[]; onAllEnded?: () => void }) {
   const { t } = useTranslation()
   const audio = useRef<HTMLAudioElement | null>(null)
   const [index, setIndex] = useState(0)
@@ -21,6 +22,7 @@ export function SegmentPlayer({ segments }: { segments: AudioSegment[] }) {
     if (!segment) {
       setPlaying(false)
       setIndex(0)
+      onAllEnded?.()
       return
     }
     audio.current?.pause()

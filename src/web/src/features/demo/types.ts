@@ -17,6 +17,8 @@ export interface FamilyMessage {
   date: string
   sentAt: string
   token: string
+  /** Length of the teacher's greeting when this evening message plays one (shown as a voice-note row), else null. */
+  greetingSeconds?: number | null
 }
 
 /** One row of "Under the hood". No prompt text or names exist to show. */

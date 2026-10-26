@@ -4,7 +4,12 @@ export type Me = {
   displayName: string
   classId: string | null
   setupComplete: boolean
+  /** Her recorded greeting (T0 step 1), or null. Missing in a `me` cached before greetings existed. */
+  greeting?: Greeting | null
 }
+
+/** Where to play her greeting (`/api/audio/{id}`) and how long it is. */
+export type Greeting = { url: string; seconds: number }
 
 /** Who last signed in on this phone, so the next sign-in asks for the PIN only. */
 export type RememberedTeacher = { phone: string; displayName: string }

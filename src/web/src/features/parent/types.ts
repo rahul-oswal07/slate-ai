@@ -31,6 +31,10 @@ export type ParentEvening = {
   childName: string
   teacherName: string
   text: string
+  /** The lesson audio she approved for this day (T-62): disclosure, then the lesson; null if she sent none. */
+  lessonAudio?: { segments: ParentAudioSegment[]; totalSeconds: number; disclosureText: string; transcript: string | null } | null
+  /** Her recorded greeting, fetched by this link's token; null if she has none or the family stopped. */
+  greeting: { url: string; seconds: number } | null
   stopped: boolean
   /** The reason the family already gave for this day (FR-21), or null. */
   reason: ReasonCategory | null

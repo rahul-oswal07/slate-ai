@@ -9,14 +9,15 @@ namespace SlateAi.Api.Tests.Features.Audio;
 public sealed class PackageAudioTests
 {
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
+    private static readonly Guid ClassId = Guid.NewGuid();
     private readonly FakeAudioStore _store = new();
     private readonly CatchUpWriterTests.RecordingTts _tts = new();
 
     [Fact]
     public async Task Segments_play_disclosure_then_script_and_the_disclosure_is_made_once_per_wording()
     {
-        var first = await Audio().MakeAsync(Guid.NewGuid(), "te", "ఈ రోజు ಕಳೆ నేర్చుకుందాం.", Ct);
-        var second = await Audio().MakeAsync(Guid.NewGuid(), "te", "ఇంకో పాఠం.", Ct);
+        var first = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "ఈ రోజు ಕಳೆ నేర్చుకుందాం.", Ct);
+        var second = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "ఇంకో పాఠం.", Ct);
 
         Assert.True(first.Check.Passed, first.Check.Detail);
         Assert.Equal(["disclosure", "script"], first.Audio!.Segments.Select(s => s.Kind));
@@ -29,12 +30,46 @@ public sealed class PackageAudioTests
     [Fact]
     public async Task Changed_wording_makes_a_new_disclosure_clip()
     {
-        await Audio().MakeAsync(Guid.NewGuid(), "te", "పాఠం.", Ct);
+        await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
         var changed = new DisclosureWording("2", new Dictionary<string, string> { ["te"] = "కొత్త వాక్యం." });
 
-        await Audio(changed).MakeAsync(Guid.NewGuid(), "te", "పాఠం.", Ct);
+        await Audio(changed).MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
 
         Assert.Equal(2, _store.Clips.Count(c => c.Info.Kind == "disclosure"));
+    }
+
+    [Fact]
+    public async Task A_catch_up_starts_with_the_class_teachers_greeting_when_she_recorded_one()
+    {
+        var greeting = _store.AddGreeting(Guid.NewGuid(), ClassId);
+
+        var (audio, check) = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
+
+        Assert.Equal(["greeting", "disclosure", "script"], audio!.Segments.Select(s => s.Kind));
+        Assert.Equal(AudioSegments.Url(greeting.Id), audio.Segments[0].Url);
+        Assert.True(check.Passed, check.Detail); // her 8 s still fits the 95 s / 300 KB limits
+    }
+
+    [Fact]
+    public async Task Another_class_greeting_is_not_used()
+    {
+        _store.AddGreeting(Guid.NewGuid(), Guid.NewGuid());
+
+        var (audio, _) = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
+
+        Assert.Equal(["disclosure", "script"], audio!.Segments.Select(s => s.Kind));
+    }
+
+    [Fact]
+    public async Task A_greeting_counts_towards_the_length_check()
+    {
+        _store.AddGreeting(Guid.NewGuid(), ClassId, seconds: 12);
+        _tts.Seconds = 45; // disclosure 45 + script 45 + greeting 12 = 102 s
+
+        var (_, check) = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
+
+        Assert.False(check.Passed);
+        Assert.Equal("audio is 102 seconds, limit is 95", check.Detail);
     }
 
     [Fact]
@@ -56,7 +91,7 @@ public sealed class PackageAudioTests
     {
         _tts.Seconds = 100;
 
-        var (audio, check) = await Audio().MakeAsync(Guid.NewGuid(), "te", "పాఠం.", Ct);
+        var (audio, check) = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
 
         Assert.NotNull(audio);
         Assert.False(check.Passed);
@@ -68,12 +103,13 @@ public sealed class PackageAudioTests
     {
         _tts.Fail = true;
 
-        var (audio, check) = await Audio().MakeAsync(Guid.NewGuid(), "te", "పాఠం.", Ct);
+        var (audio, check) = await Audio().MakeAsync(Guid.NewGuid(), ClassId, "te", "పాఠం.", Ct);
 
         Assert.Null(audio);
         Assert.Equal("the audio could not be made", check.Detail);
     }
 
     private PackageAudio Audio(DisclosureWording? wording = null) => new(
-        _tts, _store, wording ?? CatchUpWriterTests.Disclosure, Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance);
+        _tts, _store, new DisclosureClips(_tts, _store, wording ?? CatchUpWriterTests.Disclosure), Options.Create(new VerifierOptions()),
+        NullLogger<PackageAudio>.Instance);
 }

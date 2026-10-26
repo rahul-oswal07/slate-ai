@@ -12,8 +12,14 @@ public sealed record PinLoginRequest(string Phone, string Pin);
 
 public sealed record WelcomeRequest(Guid ClientRequestId);
 
-/// <summary>The signed-in teacher. <c>SetupComplete</c> is false until the first-run welcome is done.</summary>
-public sealed record MeResponse(Guid TeacherId, string DisplayName, Guid? ClassId, bool SetupComplete);
+/// <summary>Her recorded greeting: where to play it (<c>/api/audio/{id}</c>) and how long it is.</summary>
+public sealed record GreetingInfo(string Url, double Seconds);
+
+/// <summary>
+/// The signed-in teacher. <c>SetupComplete</c> is false until the first-run welcome is done; <c>Greeting</c> is null
+/// until she has recorded one (Today then offers it).
+/// </summary>
+public sealed record MeResponse(Guid TeacherId, string DisplayName, Guid? ClassId, bool SetupComplete, GreetingInfo? Greeting = null);
 
 public sealed record PinLockedResponse(DateTimeOffset LockedUntil);
 
@@ -84,13 +90,17 @@ public static class AuthEndpoints
             .RequireAuthorization()
             .WithTags("Auth")
             .WithSummary("The signed-in teacher")
-            .WithDescription("setupComplete is false until the first-run welcome is done (Teacher.ConsentAt).");
+            .WithDescription(
+                "setupComplete is false until the first-run welcome is done (Teacher.ConsentAt). greeting is her " +
+                "recorded greeting, or null.");
 
         app.MapPost("/api/me/welcome", WelcomeAsync)
             .RequireAuthorization()
             .WithTags("Auth")
-            .WithSummary("Finish the first-run welcome")
-            .WithDescription("Sets Teacher.ConsentAt on the first call; replays keep the original time.");
+            .WithSummary("Finish the first-run welcome without a greeting")
+            .WithDescription(
+                "For a teacher who continues without recording (microphone blocked, D-34). Sets Teacher.ConsentAt on " +
+                "the first call; replays keep the original time. Saving a greeting sets it too (POST /api/me/greeting).");
         return app;
     }
 

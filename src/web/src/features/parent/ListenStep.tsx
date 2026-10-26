@@ -2,17 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
+import { clock } from './clock'
 import { listenLabelKey, type ListenState } from './listenLabel'
 import { PrimaryButton } from './ParentParts'
 import type { ParentCatchUp } from './types'
 
 /** 34 bars, 8–40 px: a drawing of "sound", not a measurement. The same every time. */
 const BARS = Array.from({ length: 34 }, (_, i) => 8 + Math.round(32 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6))))
-
-function clock(seconds: number) {
-  const s = Math.max(0, Math.round(seconds))
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
 
 /**
  * P1 Listen: one big button plays the segments in order (greeting → computer voice → lesson, FR-09), with elapsed /

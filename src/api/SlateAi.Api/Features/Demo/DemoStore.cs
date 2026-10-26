@@ -3,13 +3,17 @@ using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.Lessons;
 
 namespace SlateAi.Api.Features.Demo;
 
-/// <summary>One message on the simulated parent phone: an evening link or a catch-up link.</summary>
-public sealed record FamilyMessage(string Kind, DateOnly Date, DateTimeOffset SentAt, string Token)
+/// <summary>
+/// One message on the simulated parent phone: an evening link or a catch-up link. <c>GreetingSeconds</c> is the length
+/// of the teacher's greeting when an evening message carries one, so the chat can show its voice-note row.
+/// </summary>
+public sealed record FamilyMessage(string Kind, DateOnly Date, DateTimeOffset SentAt, string Token, double? GreetingSeconds = null)
 {
     public const string Evening = "evening";
     public const string CatchUp = "catchUp";
@@ -83,6 +87,7 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
         await db.Children.Where(c => c.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.CatchUpPackages.Where(p => p.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.Attendance.Where(a => a.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
+        await db.LessonAudios.Where(l => l.ClassId == classId).ExecuteDeleteAsync(cancellationToken); // unticked again (T-62)
         await db.Lessons.Where(l => l.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
 
         db.Children.AddRange(reset.Seed.Children.Select(c => c.ToEntity(classId)));
@@ -133,9 +138,14 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
             return null;
         }
 
+        // Her greeting plays first on the evening page; the catch-up has its own segment list.
+        var greetingSeconds = await db.AudioClips
+            .Where(a => a.Kind == AudioKind.Greeting && db.Classes.Any(k => k.Id == classId && k.TeacherId == a.TeacherId))
+            .Select(a => (double?)Math.Round(a.Seconds, 1))
+            .FirstOrDefaultAsync(cancellationToken);
         var evening = await db.EveningMessages
             .Where(m => m.ChildId == childId)
-            .Select(m => new FamilyMessage(FamilyMessage.Evening, m.Date, m.SentAt, m.Token))
+            .Select(m => new FamilyMessage(FamilyMessage.Evening, m.Date, m.SentAt, m.Token, greetingSeconds))
             .ToListAsync(cancellationToken);
         var catchUps = await db.CatchUpAssignments
             .Where(a => a.ChildId == childId && a.Token != null && a.SentAt != null)

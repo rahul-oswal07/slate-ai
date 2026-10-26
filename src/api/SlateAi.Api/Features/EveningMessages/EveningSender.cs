@@ -82,6 +82,8 @@ public sealed class EveningSender(
         var attendanceIn = register.Status is AttendanceDayStatus.Sats or AttendanceDayStatus.Manual;
         var blocked = EveningEligibility.Block(templateApproved, lessonConfirmed, attendanceIn);
 
+        // Only a clip she approved goes with the message; no clip, or one for another language, means the plain message.
+        var lessonAudio = await store.GetApprovedLessonAudioAsync(classId, date, cancellationToken);
         var sent = await store.GetSentChildIdsAsync(classId, date, cancellationToken);
         var absent = register.AbsentChildIds.ToHashSet();
         var now = clock.GetUtcNow();
@@ -101,7 +103,7 @@ public sealed class EveningSender(
             {
                 pending.Add(new NewEveningMessage(
                     child.Id, template!.Id, lesson!.Id, child.HomeLanguage, filled.Slots, NewToken(), now,
-                    now.AddDays(options.Value.LinkDays)));
+                    now.AddDays(options.Value.LinkDays), lessonAudio.TryGetValue(child.HomeLanguage, out var audioId) ? audioId : null));
             }
         }
 

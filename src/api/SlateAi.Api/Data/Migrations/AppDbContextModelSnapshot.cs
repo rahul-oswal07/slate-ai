@@ -198,13 +198,21 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<double>("Seconds")
                         .HasColumnType("double precision");
 
+                    b.Property<Guid?>("TeacherId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("TextHash")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("Transcript")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PackageId");
+
+                    b.HasIndex("TeacherId");
 
                     b.HasIndex("Kind", "Language", "TextHash")
                         .IsUnique()
@@ -553,6 +561,9 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
 
+                    b.Property<Guid?>("LessonAudioId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("LessonId")
                         .HasColumnType("uuid");
 
@@ -572,6 +583,8 @@ namespace SlateAi.Api.Data.Migrations
                         .HasColumnType("character varying(30)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LessonAudioId");
 
                     b.HasIndex("LessonId");
 
@@ -636,6 +649,62 @@ namespace SlateAi.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonAudio", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedByTeacherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ApprovedClipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ClipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Verdict")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedClipId");
+
+                    b.HasIndex("ClipId");
+
+                    b.HasIndex("ClassId", "Date", "Language")
+                        .IsUnique();
+
+                    b.ToTable("LessonAudios");
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.MessageTemplate", b =>
@@ -824,6 +893,11 @@ namespace SlateAi.Api.Data.Migrations
                         .WithMany()
                         .HasForeignKey("PackageId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.BuddyCard", b =>
@@ -931,6 +1005,11 @@ namespace SlateAi.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SlateAi.Api.Data.Entities.LessonAudio", null)
+                        .WithMany()
+                        .HasForeignKey("LessonAudioId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("SlateAi.Api.Data.Entities.Lesson", null)
                         .WithMany()
                         .HasForeignKey("LessonId")
@@ -951,6 +1030,25 @@ namespace SlateAi.Api.Data.Migrations
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonAudio", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.AudioClip", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedClipId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.AudioClip", null)
+                        .WithMany()
+                        .HasForeignKey("ClipId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.MessageTemplate", b =>

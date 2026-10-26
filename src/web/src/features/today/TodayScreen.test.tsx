@@ -49,6 +49,25 @@ describe('TodayScreen', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
+  it('offers "Record your greeting" until she has one, linking to the greeting step', async () => {
+    today(day())
+    renderApp('/')
+
+    const card = await screen.findByRole('region', { name: 'Record your greeting' })
+
+    expect(within(card).getByRole('link', { name: 'Record' })).toHaveAttribute('href', '/setup/greeting')
+  })
+
+  it('does not offer it once her greeting is recorded', async () => {
+    today(day(), { 'GET /api/me': () => ({ status: 200, body: { ...teacher, greeting: { url: '/api/audio/abc', seconds: 8 } } }) })
+    renderApp('/')
+
+    await screen.findByRole('heading', { level: 1, name: /^Today, / })
+
+    expect(screen.queryByRole('region', { name: 'Record your greeting' })).not.toBeInTheDocument()
+  })
+
+
   it('shows the SATS register with its source and time, and nothing waiting to send', async () => {
     today(day())
     renderApp('/')

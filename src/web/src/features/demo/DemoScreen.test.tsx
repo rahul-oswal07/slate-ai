@@ -93,6 +93,25 @@ describe('DemoScreen (T-18)', () => {
     expect(screen.getByRole('button', { name: /Evening message/ })).toBeInTheDocument()
   })
 
+  it('shows her greeting as a voice-note row above an evening message that carries one', async () => {
+    setup({ family: [{ ...evening, greetingSeconds: 8.4 }] })
+    renderApp('/demo')
+
+    await screen.findByRole('button', { name: /Evening message · 22 Oct/ })
+
+    expect(screen.getByText('Voice message · 0:08')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play the greeting' })).toBeInTheDocument()
+  })
+
+  it('has no voice row when the teacher has not recorded a greeting', async () => {
+    setup({ family: [evening] })
+    renderApp('/demo')
+
+    await screen.findByRole('button', { name: /Evening message · 22 Oct/ })
+
+    expect(screen.queryByRole('button', { name: 'Play the greeting' })).not.toBeInTheDocument()
+  })
+
   it('lists AI calls with step, model, prompt version and verdict', async () => {
     setup({ calls: [call] })
     renderApp('/demo')

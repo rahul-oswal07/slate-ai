@@ -16,6 +16,7 @@ function message(overrides: Partial<ParentEvening> = {}): ParentEvening {
     childName: 'Ravi',
     teacherName: 'Shobha',
     text: 'We missed Ravi today. In class we learned subtraction. Homework: textbook Part 2, page 15.',
+    greeting: null,
     stopped: false,
     reason: null,
     ...overrides,

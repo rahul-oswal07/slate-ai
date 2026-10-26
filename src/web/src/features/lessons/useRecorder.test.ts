@@ -2,10 +2,10 @@ import { act, renderHook } from '@testing-library/react'
 import { installFakeMedia } from '../../test/fakeMedia'
 import { useRecorder } from './useRecorder'
 
-async function setup(allow = true) {
+async function setup(allow = true, options?: { maxMs?: number }) {
   installFakeMedia({ allow })
   const onRecorded = vi.fn<(note: Blob) => void>()
-  const hook = renderHook(() => useRecorder(onRecorded))
+  const hook = renderHook(() => useRecorder(onRecorded, options))
   return { ...hook, onRecorded }
 }
 
@@ -88,6 +88,18 @@ describe('useRecorder (D-31)', () => {
 
     await act(async () => result.current.buttonHandlers.onClick())
     await tick(30_000)
+
+    expect(result.current.status).toBe('idle')
+    expect(onRecorded).toHaveBeenCalledOnce()
+  })
+
+  it('stops at a shorter limit when it is given one (the 10-second greeting)', async () => {
+    const { result, onRecorded } = await setup(true, { maxMs: 10_000 })
+
+    await act(async () => result.current.buttonHandlers.onClick())
+    await tick(9_000)
+    expect(result.current.status).toBe('recording')
+    await tick(1_000)
 
     expect(result.current.status).toBe('idle')
     expect(onRecorded).toHaveBeenCalledOnce()

@@ -19,8 +19,15 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('first sign-in: phone + PIN → welcome → Start → evening-message step, then straight to Today', async ({ page }, testInfo) => {
+test('first sign-in: phone + PIN → welcome → Start → greeting step → evening-message step, then straight to Today', async ({ page }, testInfo) => {
   await fakeTeacherApi(page)
+  // A headless browser leaves a microphone prompt unanswered; say it was refused.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.reject(new DOMException('denied', 'NotAllowedError')) },
+    })
+  })
 
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible()
@@ -42,8 +49,15 @@ test('first sign-in: phone + PIN → welcome → Start → evening-message step,
   await expectNoBlockingViolations(page)
   await page.screenshot({ path: testInfo.outputPath('welcome-360.png'), fullPage: true })
 
-  // Start finishes setup and opens the evening-message step (T-44), not Today.
+  // Start opens the greeting step (T0 step 1). The mic is blocked (D-34) so she continues without a greeting; that
+  // finishes setup and opens the evening-message step (T-44), not Today.
   await page.getByRole('button', { name: 'Start' }).click()
+  await expect(page).toHaveURL(/\/welcome\/greeting$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'A 10-second greeting in your voice' })).toBeFocused()
+  await expectNoBlockingViolations(page)
+  await page.screenshot({ path: testInfo.outputPath('greeting-360.png'), fullPage: true })
+  await page.getByRole('button', { name: 'Record' }).click()
+  await page.getByRole('button', { name: 'Continue without a greeting' }).click()
   await expect(page).toHaveURL(/\/setup\/evening$/)
 
   await page.goto('/')

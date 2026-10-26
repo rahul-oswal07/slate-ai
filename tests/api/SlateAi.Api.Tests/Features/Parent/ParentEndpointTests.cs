@@ -377,6 +377,117 @@ public sealed class ParentEndpointTests
         Assert.Equal("ఈ రోజు మేము Raviని గుర్తు చేసుకున్నాం.", after.Text);
     }
 
+    [Fact]
+    public async Task Evening_link_plays_her_greeting_through_the_token_not_a_teacher_session()
+    {
+        var greeting = _audio.AddGreeting(Guid.NewGuid(), ClassId, seconds: 8.04);
+        _evening.Greeting = new ParentGreeting(greeting.Id, 8.04);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+        var audio = await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct);
+
+        Assert.Equal(new ParentGreetingView($"/api/p/{EveningToken}/greeting", 8), page.Greeting);
+        Assert.Equal(HttpStatusCode.OK, audio.StatusCode);
+        Assert.Equal("audio/ogg", audio.Content.Headers.ContentType!.MediaType);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{Token}/greeting", Ct)).StatusCode); // a catch-up link
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/p/NoSuchTokenNoSuchToken0/greeting", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Evening_link_without_a_greeting_has_none_and_its_route_is_404()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+
+        Assert.Null(page.Greeting);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_family_that_stopped_messages_no_longer_gets_her_greeting()
+    {
+        var greeting = _audio.AddGreeting(Guid.NewGuid(), ClassId);
+        _evening.Greeting = new ParentGreeting(greeting.Id, 8);
+        _evening.Children[0] = _evening.Children[0] with { Stopped = true };
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{EveningToken}", Ct))!;
+
+        Assert.True(page.Stopped);
+        Assert.Null(page.Greeting);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{EveningToken}/greeting", Ct)).StatusCode);
+    }
+
+    /// <summary>An evening message that carries an approved lesson clip (T-62), with the disclosure made for Telugu.</summary>
+    private async Task<(string Token, Guid Lesson, Guid Disclosure)> WithLessonAudioAsync(bool attach = true)
+    {
+        const string token = "LessonAudioTokenLessonA";
+        var wording = DisclosureWording.Load(Path.Combine(AppContext.BaseDirectory, DisclosureWording.File));
+        var disclosure = await new DisclosureClips(new FakeTextToSpeech(), _audio, wording).GetOrMakeAsync("te", Ct);
+        var lesson = await _audio.SaveSharedAsync(AudioKind.Lesson, "te", "lesson-hash", FakeTextToSpeech.Silence(20), Ct, transcript: "ఈ రోజు ముఖ విలువ.");
+        _evening.LessonAudio = new ParentLessonAudio(lesson.Id, lesson.Seconds, "ఈ రోజు ముఖ విలువ.");
+        _evening.Messages.Add((Friday, new NewEveningMessage(
+            Ravi, TemplateId, Guid.NewGuid(), "te", new SlotValues("", ""), token, _clock.Now, _clock.Now.AddDays(14),
+            attach ? Guid.NewGuid() : null)));
+        return (token, lesson.Id, disclosure.Id);
+    }
+
+    [Fact]
+    public async Task Evening_link_plays_the_approved_lesson_after_the_disclosure_through_the_token()
+    {
+        var (token, lesson, disclosure) = await WithLessonAudioAsync();
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        var audio = page.LessonAudio!;
+        Assert.Equal([AudioKind.Disclosure, AudioKind.Script], audio.Segments.Select(x => x.Kind));
+        Assert.Equal([$"/api/p/{token}/lesson-audio/{disclosure}", $"/api/p/{token}/lesson-audio/{lesson}"], audio.Segments.Select(x => x.Url));
+        Assert.Equal("ఈ రోజు ముఖ విలువ.", audio.Transcript);
+        Assert.False(string.IsNullOrWhiteSpace(audio.DisclosureText));
+        foreach (var segment in audio.Segments)
+        {
+            var served = await client.GetAsync(segment.Url, Ct);
+            Assert.Equal(HttpStatusCode.OK, served.StatusCode);
+            Assert.Equal("audio/ogg", served.Content.Headers.ContentType!.MediaType);
+        }
+    }
+
+    [Fact]
+    public async Task Evening_link_without_an_approved_lesson_has_none_and_its_route_serves_nothing()
+    {
+        var (token, lesson, _) = await WithLessonAudioAsync(attach: false);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        Assert.Null(page.LessonAudio);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{lesson}", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task The_lesson_route_serves_only_this_messages_two_clips_and_only_while_the_family_has_not_stopped()
+    {
+        var (token, _, _) = await WithLessonAudioAsync();
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{_script}", Ct)).StatusCode); // a catch-up clip
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{Guid.NewGuid()}", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{Token}/lesson-audio/{_script}", Ct)).StatusCode); // a catch-up link
+
+        _evening.Children[0] = _evening.Children[0] with { Stopped = true };
+        var stopped = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+        Assert.Null(stopped.LessonAudio);
+    }
+
     private ParentCatchUpRecord Record() => new(
         _assignmentId,
         Ravi,
