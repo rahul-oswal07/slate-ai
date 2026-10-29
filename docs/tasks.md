@@ -7,6 +7,7 @@ Owner: **R** = Rahul, **M** = Monika.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
+| T-65 | **README "For judges" map (#146):** the repo's job in the submission is "check it yourself". Expand the README's judges note into a table of where to verify: AI client and call log (`Ai/`), versioned `prompts/`, `evals/cases` + `evals/results`, guardrail code and the approval tests, the PII guard, `user-testing.md` and mentor notes, the decision log. Demo and video links; team line "Monika Sisodia". **By Fri 30 Oct evening** | R | Each row's file one click from the README; all links work on GitHub; no marketing copy | Open every link on GitHub |
 | T-64 | **Photo of the lesson with the voice note (from teacher testing F-05, #145):** on Today's lesson card, the teacher can add one photo (textbook page or blackboard) to today's lesson; Rahul decides its use (suggested: extra input for lesson matching). Never sent to families; no children's faces; works through the outbox or says it needs the network. **Only if merged and on the demo link by Fri 30 Oct evening**, else roadmap | R | Add, preview, replace, remove one photo; strings in all five locale files; prompt version bump + eval if A1 changes; 360 px screenshots, axe 0 on Today; F-05 in `user-testing.md` gets the PR | Vitest (photo control), xUnit (endpoint limits, idempotent), `./scripts/verify.sh` |
 
 ## Done (24-26 Oct)
