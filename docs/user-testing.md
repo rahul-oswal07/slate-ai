@@ -138,6 +138,12 @@ Each line is checked across the participants of a round; record the result in *T
 |---|---|---|---|---|---|
 | 1 | P1 | ~300 (first use, setup included; not stopwatch-timed) | — | — | Whole teacher flow: setup with consent, attendance review, lesson by voice, today's evening message. Exact times to come from the staging record |
 
+## SUS-lite scores
+
+| Round | Participant | (1) Every school day | (2) Easy | (3) Without help | (4) Trust what it sends | (5) Saves time |
+|---|---|---|---|---|---|---|
+| 1 | P1 | 5 | 5 | 5 | 4 | 5 |
+
 ## Findings
 
 For each finding, trace where it broke so the fix goes to the right place.
