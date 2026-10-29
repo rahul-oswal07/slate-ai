@@ -165,7 +165,7 @@ For each finding, trace where it broke so the fix goes to the right place.
 | F-M11 | Mentor | Education mentor | Asking parents the reason adds accountability | Responsible | Requirement | P1 | Asked kindly and optionally, category only, no shaming (D-23) | — |
 | F-M12 | Mentor | Education mentor | Strong endorsement; reaching children outside school is the hardest gap | — | — | — | Evidence for the deck | — |
 | F-01 | 1 | P1 | Completed the whole teacher flow in Kannada without getting stuck on any screen; about 5 minutes the first time | Works | — | — | Kept; repeat timed tasks in round 2 to get a second-use time | — |
-| F-02 | 1 | P1 | Spoke about her Class 7 lesson; the app matched a Grade 3 lesson (only Grade 3 maths is loaded), and she corrected it with Change | Works well (teacher kept control) | Requirement | P2 | Pending (Monika). Evidence that the review-and-Change step catches a wrong match | — |
+| F-02 | 1 | P1 | Spoke about her Class 7 lesson; the app matched a Grade 3 lesson (only Grade 3 maths is loaded), and she corrected it with Change | Works well (teacher kept control) | — | — | Kept as is (Monika, 29 Oct): she knew the app is Grade 3 and tested it as a proxy; the review-and-Change step caught the wrong match | — |
 | F-03 | 1 | P1 | Listened to the catch-up audio and approved it | Responsible | — | — | Kept (approval gate, guardrail 3) | — |
 | F-04 | 1 | P1 | Loved the attendance-stars message for children present all week; would tell the class and show parents | Right thing | — | — | Kept (T-63, from the 24 Oct mentor) | — |
-| F-05 | 1 | P1 | Wants to upload a photo (e.g. of what she taught) along with the voice note | Right thing | Requirement | P1 | Pending (Monika) | — |
+| F-05 | 1 | P1 | Wants to upload a photo (e.g. of what she taught) along with the voice note | Right thing | Requirement | P1 | Build it (Monika, 29 Oct): T-64, #145; roadmap if it misses Fri 30 Oct | #145 |
