@@ -126,7 +126,7 @@ Each line is checked across the participants of a round; record the result in *T
 
 | ID | Role | Context | Consent | Quote consent | Rounds |
 |---|---|---|---|---|---|
-| P1 | Teacher | | | | |
+| P1 | Teacher (Revathi) | Government school, Bengaluru; teaches Class 7, Kannada medium (close proxy: the app is built for Classes 1–3). In person, 28 Oct, on Monika's phone, demo login "Lakshmi", UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
 | P2 | Teacher | | | | |
 | P3 | Teacher | | | | |
 | P4 | Parent (Telugu) | | | | |
@@ -136,7 +136,7 @@ Each line is checked across the participants of a round; record the result in *T
 
 | Round | Participant | Attendance + capture (s) | Approve week (s) | Find who needs help (s) | Notes |
 |---|---|---|---|---|---|
-| | | | | | |
+| 1 | P1 | ~300 (first use, setup included; not stopwatch-timed) | — | — | Whole teacher flow: setup with consent, attendance review, lesson by voice, today's evening message. Exact times to come from the staging record |
 
 ## Findings
 
@@ -158,4 +158,8 @@ For each finding, trace where it broke so the fix goes to the right place.
 | F-M10 | Mentor | Education mentor | Success = how many come back and how soon; engagement at home; who is absent and why | Right thing | Requirement | P0 | Measures rewritten (D-20); return-speed card (D-24) | — |
 | F-M11 | Mentor | Education mentor | Asking parents the reason adds accountability | Responsible | Requirement | P1 | Asked kindly and optionally, category only, no shaming (D-23) | — |
 | F-M12 | Mentor | Education mentor | Strong endorsement; reaching children outside school is the hardest gap | — | — | — | Evidence for the deck | — |
-| F-01 | | | | | | | | |
+| F-01 | 1 | P1 | Completed the whole teacher flow in Kannada without getting stuck on any screen; about 5 minutes the first time | Works | — | — | Kept; repeat timed tasks in round 2 to get a second-use time | — |
+| F-02 | 1 | P1 | Spoke about her Class 7 lesson; the app matched a Grade 3 lesson (only Grade 3 maths is loaded), and she corrected it with Change | Works well (teacher kept control) | Requirement | P2 | Pending (Monika). Evidence that the review-and-Change step catches a wrong match | — |
+| F-03 | 1 | P1 | Listened to the catch-up audio and approved it | Responsible | — | — | Kept (approval gate, guardrail 3) | — |
+| F-04 | 1 | P1 | Loved the attendance-stars message for children present all week; would tell the class and show parents | Right thing | — | — | Kept (T-63, from the 24 Oct mentor) | — |
+| F-05 | 1 | P1 | Wants to upload a photo (e.g. of what she taught) along with the voice note | Right thing | Requirement | P1 | Pending (Monika) | — |
