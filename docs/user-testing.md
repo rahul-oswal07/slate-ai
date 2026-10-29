@@ -142,7 +142,7 @@ Each line is checked across the participants of a round; record the result in *T
 
 | Round | Participant | (1) Every school day | (2) Easy | (3) Without help | (4) Trust what it sends | (5) Saves time |
 |---|---|---|---|---|---|---|
-| 1 | P1 | 5 | 5 | 5 | 4 | 5 |
+| 1 | P1 | 5 | 5 | 5 | 5 | 5 |
 
 ## Findings
 
