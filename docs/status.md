@@ -3,6 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Teacher testing round 1, P2 (30 Oct), branch `docs/teacher-testing-p2`
+
+- Second teacher session logged in `docs/user-testing.md`: P2 (Class 4, same government school as P1), in person, UI in Kannada, whole teacher flow in 5–7 min first use, SUS-lite 5 on all five; findings F-06 and F-07 (she valued messages to absent children; today teachers phone parents to ask why).
+- Next: a parent session (P4) if one can happen before submission (Sat 31 Oct, 12:00).
+
 ## Admin greetings page (30 Oct, T-66, D-83), branch `feat/T-66-admin-greetings`
 
 - `/admin/greetings#key=…` plays every teacher's recorded greeting (teacher name, length, recorded date, Play). Linked from nowhere; no teacher sign-in. API `GET /api/admin/greetings` and `GET /api/admin/greetings/{clipId}/audio` (`Features/Admin/`), both need `X-Admin-Key`; wrong or missing key = 404; only greeting clips; `no-store`.
