@@ -28,7 +28,8 @@ function stubApi(greetings: unknown[], key = 'secret-key') {
       return new Response(null, { status: 404 })
     }
     return String(input).endsWith('/audio')
-      ? new Response(new Blob([new Uint8Array([1, 2])], { type: 'audio/ogg' }), { status: 200 })
+      ? // Raw bytes, not a jsdom Blob: Node 22's Response can't read one (CI).
+        new Response(new Uint8Array([1, 2]), { status: 200, headers: { 'Content-Type': 'audio/ogg' } })
       : new Response(JSON.stringify(greetings), { status: 200, headers: { 'Content-Type': 'application/json' } })
   })
   vi.stubGlobal('fetch', fetch)
