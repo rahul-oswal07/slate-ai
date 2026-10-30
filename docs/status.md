@@ -6,6 +6,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## README "For judges" (30 Oct, T-65), branch `docs/T-65-readme-judges`
 
 - New "For judges" section near the top of `README.md`: one table that links each AI claim (single logged LLM client, versioned prompts, evals, candidate set + validators, numbers by code, verifier, approval rule, name scrubber, user testing, decision log) to its code and tests. Team line now says Monika Sisodia. Every link checked against the repo.
+- Licence: MIT (`LICENSE`, D-15 accepted 30 Oct).
 - **Next:** fill in the demo and video links at submission (Sat 31 Oct), then close #146.
 
 ## Photo of the lesson (30 Oct, T-64, D-82), merged (#149)
