@@ -115,6 +115,49 @@ public sealed class VoiceUploadEndpointTests
         Assert.Equal(0, _store.Starts);
     }
 
+    [Fact]
+    public async Task A_photo_alone_is_matched_without_speech_to_text()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var response = await UploadAsync(client, Guid.NewGuid(), bytes: null, photoBytes: 4096);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        var day = await WaitForMatchAsync(client);
+        Assert.Equal("mapped", day.Lesson!.Status);
+        Assert.Contains(_aiCalls.Calls, c => c.Purpose == "a1-lesson-mapping" && c.Verdict == "valid");
+        Assert.DoesNotContain(_aiCalls.Calls, c => c.Purpose == "stt");
+    }
+
+    [Fact]
+    public async Task A_note_with_a_photo_is_accepted_once()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+        var requestId = Guid.NewGuid();
+
+        Assert.Equal(HttpStatusCode.Accepted, (await UploadAsync(client, requestId, photoBytes: 4096)).StatusCode);
+        Assert.Equal("mapped", (await WaitForMatchAsync(client)).Lesson!.Status);
+        Assert.Equal(HttpStatusCode.Accepted, (await UploadAsync(client, requestId, photoBytes: 4096)).StatusCode);
+        Assert.Equal(1, _store.Starts);
+    }
+
+    [Fact]
+    public async Task Rejects_bad_photos()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await UploadAsync(client, Guid.NewGuid(), bytes: null)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await UploadAsync(client, Guid.NewGuid(), bytes: null, photoBytes: 0)).StatusCode);
+        Assert.Equal(HttpStatusCode.RequestEntityTooLarge,
+            (await UploadAsync(client, Guid.NewGuid(), bytes: null, photoBytes: 2 * 1024 * 1024 + 1)).StatusCode);
+        Assert.Equal(HttpStatusCode.UnsupportedMediaType,
+            (await UploadAsync(client, Guid.NewGuid(), bytes: null, photoBytes: 4096, photoType: "image/gif")).StatusCode);
+        Assert.Equal(0, _store.Starts);
+    }
+
     private ApiFactory Create() =>
         FakeApi.Create(services =>
         {
@@ -124,13 +167,31 @@ public sealed class VoiceUploadEndpointTests
             services.AddSingleton<TimeProvider>(_clock);
         });
 
+    /// <param name="bytes">Audio size; null sends no audio part.</param>
+    /// <param name="photoBytes">Photo size; null sends no photo part.</param>
     private static async Task<HttpResponseMessage> UploadAsync(
-        HttpClient client, Guid requestId, int bytes = 2048, string contentType = "audio/webm")
+        HttpClient client,
+        Guid requestId,
+        int? bytes = 2048,
+        string contentType = "audio/webm",
+        int? photoBytes = null,
+        string photoType = "image/jpeg")
     {
         using var form = new MultipartFormDataContent();
-        var file = new ByteArrayContent(new byte[bytes]);
-        file.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-        form.Add(file, "file", "note.webm");
+        if (bytes is { } size)
+        {
+            var file = new ByteArrayContent(new byte[size]);
+            file.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+            form.Add(file, "file", "note.webm");
+        }
+
+        if (photoBytes is { } photoSize)
+        {
+            var photo = new ByteArrayContent(new byte[photoSize]);
+            photo.Headers.ContentType = MediaTypeHeaderValue.Parse(photoType);
+            form.Add(photo, "photo", "page.jpg");
+        }
+
         form.Add(new StringContent(requestId.ToString()), "clientRequestId");
         return await client.PostAsync($"{DayUrl}/audio", form, Ct);
     }

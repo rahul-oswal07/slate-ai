@@ -15,12 +15,17 @@ public interface ILlmClient
 /// <param name="Prompt">System prompt and model key, from <c>prompts/</c>.</param>
 /// <param name="UserContent">IDs and placeholders only, never real names (guardrail 1).</param>
 /// <param name="Schema">JSON schema for the response. Every object needs <c>additionalProperties: false</c>.</param>
+/// <param name="Images">Sent before <paramref name="UserContent"/> (e.g. her lesson photo, T-64). Never stored.</param>
 public sealed record LlmRequest(
     Prompt Prompt,
     string UserContent,
     JsonElement Schema,
     int MaxTokens = 4096,
-    LlmEffort? Effort = null);
+    LlmEffort? Effort = null,
+    IReadOnlyList<LlmImage>? Images = null);
+
+/// <param name="MediaType">image/jpeg, image/png or image/webp.</param>
+public sealed record LlmImage(byte[] Data, string MediaType);
 
 /// <param name="AiCallId">The <c>AiCall</c> row for this call, so the caller can record its verdict.</param>
 public sealed record LlmResponse(string Json, string Model, LlmUsage Usage, Guid AiCallId);

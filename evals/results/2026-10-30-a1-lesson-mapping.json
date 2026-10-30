@@ -1,0 +1,143 @@
+{
+  "runAt": "2026-10-30T07:12:45.95456+00:00",
+  "prompt": "a1-lesson-mapping",
+  "promptVersion": 2,
+  "model": "claude-sonnet-5-5",
+  "cases": 13,
+  "score": 1,
+  "target": 0.8,
+  "results": [
+    {
+      "id": "add-carry",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.ADD.CARRY"
+      ],
+      "expected": "M3.ADD.CARRY",
+      "verdict": "valid"
+    },
+    {
+      "id": "sub-borrow",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.SUB.BORROW"
+      ],
+      "expected": "M3.SUB.BORROW",
+      "verdict": "valid"
+    },
+    {
+      "id": "sub-noborrow-and-check",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.SUB.NOBORROW",
+        "M3.SUB.CHECK"
+      ],
+      "expected": "M3.SUB.NOBORROW",
+      "verdict": "valid"
+    },
+    {
+      "id": "pv-hto",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.PV.HTO"
+      ],
+      "expected": "M3.PV.HTO",
+      "verdict": "valid"
+    },
+    {
+      "id": "pv-expand",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.PV.EXPAND"
+      ],
+      "expected": "M3.PV.EXPAND",
+      "verdict": "valid"
+    },
+    {
+      "id": "compare-with-names",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.NUM.COMPARE"
+      ],
+      "expected": "M3.NUM.COMPARE",
+      "verdict": "valid"
+    },
+    {
+      "id": "sub-word",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.SUB.WORD",
+        "M3.SUB.BORROW"
+      ],
+      "expected": "M3.SUB.WORD",
+      "verdict": "valid"
+    },
+    {
+      "id": "add-word",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.ADD.WORD"
+      ],
+      "expected": "M3.ADD.WORD",
+      "verdict": "valid"
+    },
+    {
+      "id": "vague",
+      "pass": true,
+      "status": "low",
+      "competencyIds": [
+        "M3.ADD.NOCARRY"
+      ],
+      "expected": null,
+      "verdict": "fallback:low-confidence"
+    },
+    {
+      "id": "off-topic",
+      "pass": true,
+      "status": "low",
+      "competencyIds": [
+        "M3.PV.HTO"
+      ],
+      "expected": null,
+      "verdict": "fallback:low-confidence"
+    },
+    {
+      "id": "photo-sub-borrow-page",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.SUB.BORROW"
+      ],
+      "expected": "M3.SUB.BORROW",
+      "verdict": "valid"
+    },
+    {
+      "id": "photo-expand-board-with-name",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.PV.EXPAND"
+      ],
+      "expected": "M3.PV.EXPAND",
+      "verdict": "valid"
+    },
+    {
+      "id": "photo-add-word-with-vague-note",
+      "pass": true,
+      "status": "mapped",
+      "competencyIds": [
+        "M3.ADD.WORD"
+      ],
+      "expected": "M3.ADD.WORD",
+      "verdict": "valid"
+    }
+  ]
+}

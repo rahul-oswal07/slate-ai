@@ -20,7 +20,7 @@ export function flush(): Promise<number> {
     try {
       for (const item of await db.outbox.orderBy('createdAt').toArray()) {
         try {
-          await api(item.url, item.audio ? { method: 'POST', form: toForm(item) } : { method: item.method ?? 'POST', body: item.body })
+          await api(item.url, item.audio || item.photo ? { method: 'POST', form: toForm(item) } : { method: item.method ?? 'POST', body: item.body })
           await db.outbox.delete(item.id)
           sent++
         } catch (error) {
@@ -47,6 +47,10 @@ function toForm(item: OutboxItem) {
   const audio = item.audio
   if (audio) {
     form.append('file', new Blob([audio.data], { type: audio.type }), audio.fileName)
+  }
+  const photo = item.photo
+  if (photo) {
+    form.append('photo', new Blob([photo.data], { type: photo.type }), photo.fileName)
   }
   form.append('clientRequestId', item.id)
   return form
