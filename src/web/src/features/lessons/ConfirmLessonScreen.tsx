@@ -10,7 +10,7 @@ import { istToday } from '../today/schoolTime'
 import { findLesson, lessonName, pageText } from './lessonText'
 import { PickLessonSheet } from './PickLessonSheet'
 import type { Chapter } from './types'
-import { useCurriculum, useLessonDay, useNote, useSaveLesson } from './useLessons'
+import { useCurriculum, useLessonDay, useNote, usePhoto, useSaveLesson } from './useLessons'
 
 const SLOW_MS = 20_000
 const primary = 'min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-60'
@@ -287,7 +287,7 @@ function LessonOption({
   )
 }
 
-/** Her own recording (from the phone) and what A1 understood (FR-03, D-56). */
+/** Her own recording and photo (from the phone, T-64) and what A1 understood (FR-03, D-56). */
 function NoteCard({
   date,
   lesson,
@@ -297,19 +297,29 @@ function NoteCard({
 }) {
   const { t, i18n } = useTranslation()
   const note = useNote(date)
+  const photo = usePhoto(date)
   const src = useMemo(() => (note ? URL.createObjectURL(new Blob([note.data], { type: note.type })) : null), [note])
+  const photoSrc = useMemo(() => (photo ? URL.createObjectURL(new Blob([photo.data], { type: photo.type })) : null), [photo])
   useEffect(() => () => {
     if (src) {
       URL.revokeObjectURL(src)
     }
   }, [src])
+  useEffect(() => () => {
+    if (photoSrc) {
+      URL.revokeObjectURL(photoSrc)
+    }
+  }, [photoSrc])
   const summary = i18n.language === 'kn' ? (lesson.summaryKn ?? lesson.summaryEn) : (lesson.summaryEn ?? lesson.summaryKn)
 
   return (
     <section aria-labelledby="note-title" className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
       <h2 id="note-title" className="text-label">
-        {t('confirm.note.label')}
+        {note || !photo ? t('confirm.note.label') : t('confirm.photo.label')}
       </h2>
+      {photoSrc && (
+        <img src={photoSrc} alt={t('today.lesson.photo.alt')} className="mt-2 max-h-48 w-full rounded-button object-contain" />
+      )}
       {src && (
         <audio controls src={src} aria-label={t('confirm.note.play')} className="mt-2 w-full">
           <track kind="captions" />

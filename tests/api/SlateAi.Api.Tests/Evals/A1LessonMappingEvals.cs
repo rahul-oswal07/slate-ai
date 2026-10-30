@@ -41,11 +41,19 @@ public sealed class A1LessonMappingEvals
         var results = new List<CaseResult>();
         foreach (var c in file.Cases)
         {
-            var result = await mapper.MapTranscriptAsync(c.Transcript, names, TestContext.Current.CancellationToken);
+            var photo = c.Photo is null
+                ? null
+                : new LlmImage(
+                    await File.ReadAllBytesAsync(Path.Combine(root, "evals", "cases", c.Photo), TestContext.Current.CancellationToken),
+                    "image/png");
+            var result = await mapper.MapTranscriptAsync(c.Transcript, names, TestContext.Current.CancellationToken, photo);
             var first = result.CompetencyIds.FirstOrDefault();
             var pass = c.ExpectLow
                 ? result.Status is LessonValues.Low or LessonValues.Unclear
                 : first is not null && (first == c.Expected || (c.AlsoAcceptable ?? []).Contains(first));
+            // The scrubber turns a copied name into {child}, so a placeholder here means Claude copied a name off the photo.
+            var wording = string.Join(" ", [result.SummaryKn, result.SummaryEn, .. result.ExamplesUsed]);
+            pass &= !c.NoNames || !(wording.Contains("{child}") || names.Children.Any(n => wording.Contains(n)));
             results.Add(new CaseResult(c.Id, pass, result.Status, result.CompetencyIds, c.Expected, result.Verdict));
         }
 
@@ -72,7 +80,14 @@ public sealed class A1LessonMappingEvals
 
     private sealed record CaseFile(IReadOnlyList<EvalCase> Cases);
 
-    private sealed record EvalCase(string Id, string Transcript, string? Expected, IReadOnlyList<string>? AlsoAcceptable, bool ExpectLow);
+    private sealed record EvalCase(
+        string Id,
+        string Transcript,
+        string? Expected,
+        IReadOnlyList<string>? AlsoAcceptable,
+        bool ExpectLow,
+        string? Photo = null,
+        bool NoNames = false);
 
     private sealed record CaseResult(
         string Id, bool Pass, string Status, IReadOnlyList<string> CompetencyIds, string? Expected, string Verdict);

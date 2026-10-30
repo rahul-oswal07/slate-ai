@@ -5,6 +5,7 @@ import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
+import { LessonPhoto } from '../lessons/LessonPhoto'
 import type { Chapter, LessonDay } from '../lessons/types'
 import { useNoteQueued, useSendNote } from '../lessons/useLessons'
 import { MAX_MS, useRecorder } from '../lessons/useRecorder'
@@ -13,7 +14,8 @@ const card = 'card p-[14px]'
 const textButton = 'btn-link mt-1'
 
 /**
- * Today's lesson (T1). Not recorded: the mic (FR-02, D-31) and "Or pick the lesson from the list". After she
+ * Today's lesson (T1). Not recorded: the mic (FR-02, D-31), an optional photo of the page (T-64) and "Or pick
+ * the lesson from the list". After she
  * records: sending (3-second rule, D-34), queued offline, or "Note saved · Open" while T2 matches it. Once
  * confirmed: every lesson with its page and one "Change" (D-33); no second note (D-55).
  */
@@ -36,7 +38,8 @@ export function LessonCard({
   const queued = useNoteQueued(classId, date)
   const send = useSendNote(classId, date)
   const [sending, setSending] = useState(false)
-  const recorder = useRecorder((note) => {
+  // A recording, or null for her photo alone; either way the day's photo goes with it.
+  const sendNote = (note: Blob | null) => {
     let slow = false
     setSending(true)
     announce(t('announce.sending'))
@@ -50,7 +53,8 @@ export function LessonCard({
         void navigate('/lesson')
       }
     })
-  })
+  }
+  const recorder = useRecorder(sendNote)
 
   useEffect(() => {
     if (recorder.status === 'recording') {
@@ -222,9 +226,12 @@ export function LessonCard({
         <output className="mt-2 block text-caption text-ink-muted">{t('announce.recCancelled')}</output>
       )}
       {!recording && (
-        <button type="button" onClick={onPick} disabled={!canPick} className={textButton}>
-          {t('today.lesson.pickInstead')}
-        </button>
+        <>
+          <LessonPhoto date={date} onMatch={() => sendNote(null)} />
+          <button type="button" onClick={onPick} disabled={!canPick} className={textButton}>
+            {t('today.lesson.pickInstead')}
+          </button>
+        </>
       )}
     </section>
   )

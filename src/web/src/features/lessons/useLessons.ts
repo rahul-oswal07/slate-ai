@@ -78,8 +78,8 @@ export function useSaveLesson(classId: string, date: string) {
       const body: SaveBody = { clientRequestId: crypto.randomUUID(), competencyIds, source }
       await enqueue({ id: body.clientRequestId, url: lessonUrl(classId, date), method: 'PUT', body })
       queryClient.setQueryData<LessonDay>(lessonKey(classId, date), (day) => day && withPending(day, body))
-      // Her recording is only kept until the lesson is confirmed.
-      await db.notes.delete(date)
+      // Her recording and photo are only kept until the lesson is confirmed.
+      await Promise.all([db.notes.delete(date), db.photos.delete(date)])
       if ((await flush()) > 0) {
         await queryClient.invalidateQueries({ queryKey: lessonKey(classId, date) })
       }
@@ -99,25 +99,46 @@ export function useNote(date: string) {
   return useLiveQuery(() => db.notes.get(date), [date])
 }
 
+/** Her photo of the page or board for the day (T-64), kept on the phone only. */
+export function usePhoto(date: string) {
+  return useLiveQuery(() => db.photos.get(date), [date])
+}
+
+/** Adds or replaces (`photo`) or removes (`null`) the day's photo on the phone. Nothing is sent yet. */
+export async function setPhoto(date: string, photo: Blob | null) {
+  if (!photo) {
+    await db.photos.delete(date)
+    return
+  }
+  await db.photos.put({ date, data: await photo.arrayBuffer(), type: photo.type || 'image/jpeg', savedAt: Date.now() })
+}
+
 export type SendResult = 'sent' | 'queued'
 
 /**
- * Keeps the note on the phone, queues the upload and tries to send it. Resolves to "sent" when the server
- * has it, or "queued" when it will go later; `onSlow` fires if it is still uploading after 3 s (D-34).
+ * Keeps the note on the phone, queues the upload (with the day's photo, if she added one) and tries to send
+ * it. `note` is null to send the photo alone. Resolves to "sent" when the server has it, or "queued" when it
+ * will go later; `onSlow` fires if it is still uploading after 3 s (D-34).
  */
 export function useSendNote(classId: string, date: string) {
   const queryClient = useQueryClient()
   return useCallback(
-    async (note: Blob, onSlow: () => void): Promise<SendResult> => {
+    async (note: Blob | null, onSlow: () => void): Promise<SendResult> => {
       const id = crypto.randomUUID()
-      const data = await note.arrayBuffer()
-      const fileName = note.type.includes('mp4') ? 'note.m4a' : 'note.webm'
-      await db.notes.put({ date, data, type: note.type, savedAt: Date.now() })
+      const photo = await db.photos.get(date)
+      let audio: { data: ArrayBuffer; type: string; fileName: string } | undefined
+      if (note) {
+        const data = await note.arrayBuffer()
+        const fileName = note.type.includes('mp4') ? 'note.m4a' : 'note.webm'
+        await db.notes.put({ date, data, type: note.type, savedAt: Date.now() })
+        audio = { data, type: note.type || 'audio/webm', fileName }
+      }
       await enqueue({
         id,
         url: `${lessonUrl(classId, date)}/audio`,
         body: undefined,
-        audio: { data, type: note.type || 'audio/webm', fileName },
+        audio,
+        photo: photo && { data: photo.data, type: photo.type, fileName: photo.type === 'image/png' ? 'page.png' : 'page.jpg' },
       })
       const slow = window.setTimeout(onSlow, 3000)
       try {

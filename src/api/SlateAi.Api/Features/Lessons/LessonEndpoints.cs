@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
@@ -38,10 +39,15 @@ public static class LessonEndpoints
     public const int MaxLessonsPerDay = 3;
     public const long MaxAudioBytes = 1024 * 1024;
 
+    /// <summary>The phone downsizes her photo to about 200 KB first; this only stops an unresized original.</summary>
+    public const long MaxPhotoBytes = 2 * 1024 * 1024;
+
     /// <summary>A note still "processing" after this (app restarted mid-way) reads as unclear.</summary>
     public static readonly TimeSpan StaleProcessing = TimeSpan.FromMinutes(2);
 
     private static readonly string[] AudioTypes = ["audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav", "audio/x-wav"];
+
+    private static readonly string[] PhotoTypes = ["image/jpeg", "image/png", "image/webp"];
 
     public static IServiceCollection AddLessons(this IServiceCollection services)
     {
@@ -76,11 +82,12 @@ public static class LessonEndpoints
             .RequireClassOwner()
             .DisableAntiforgery() // JSON-only app; the session cookie is SameSite=Strict
             .WithTags("Lessons")
-            .WithSummary("Send today's voice note to be matched to lessons (T2)")
+            .WithSummary("Send today's voice note and/or a photo of the page to be matched to lessons (T2)")
             .WithDescription(
-                "multipart: file (≤ 1 MB audio), clientRequestId. Returns 202 at once; speech-to-text and A1 run in " +
-                "the background and the day's lesson moves from processing to mapped, low or unclear. The audio is " +
-                "not stored. 409 if the day's lesson is already confirmed (D-55).");
+                "multipart: file (≤ 1 MB audio) and/or photo (≤ 2 MB jpeg/png/webp of the textbook page or board, " +
+                "T-64), clientRequestId. Returns 202 at once; speech-to-text and A1 run in the background and the " +
+                "day's lesson moves from processing to mapped, low or unclear. Neither the audio nor the photo is " +
+                "stored. 409 if the day's lesson is already confirmed (D-55).");
         return app;
     }
 
@@ -120,6 +127,7 @@ public static class LessonEndpoints
             Guid classId,
             DateOnly date,
             IFormFile? file,
+            IFormFile? photo,
             [Microsoft.AspNetCore.Mvc.FromForm] Guid clientRequestId,
             ILessonStore store,
             LessonMappingQueue queue,
@@ -133,9 +141,9 @@ public static class LessonEndpoints
             errors["clientRequestId"] = ["Required."];
         }
 
-        if (file is null || file.Length == 0)
+        if (file is { Length: 0 } || photo is { Length: 0 } || (file is null && photo is null))
         {
-            errors["file"] = ["Send the recording."];
+            errors["file"] = ["Send the recording or the photo."];
         }
 
         if (date > SchoolClock.Today(clock))
@@ -148,13 +156,14 @@ public static class LessonEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
-        if (file!.Length > MaxAudioBytes)
+        if (file?.Length > MaxAudioBytes || photo?.Length > MaxPhotoBytes)
         {
             return TypedResults.StatusCode(StatusCodes.Status413PayloadTooLarge);
         }
 
-        var contentType = (file.ContentType ?? "").Split(';')[0].Trim().ToLowerInvariant();
-        if (!AudioTypes.Contains(contentType))
+        var contentType = MediaType(file);
+        var photoType = MediaType(photo);
+        if ((file is not null && !AudioTypes.Contains(contentType)) || (photo is not null && !PhotoTypes.Contains(photoType)))
         {
             return TypedResults.StatusCode(StatusCodes.Status415UnsupportedMediaType);
         }
@@ -165,14 +174,17 @@ public static class LessonEndpoints
             case VoiceStart.AlreadyConfirmed:
                 return TypedResults.Conflict();
             case VoiceStart.Started:
-                using (var buffer = new MemoryStream())
+                var job = new MappingJob(
+                    classId,
+                    date,
+                    startedAt,
+                    await BytesAsync(file, cancellationToken),
+                    file?.FileName ?? "note",
+                    contentType,
+                    photo is null ? null : new LlmImage((await BytesAsync(photo, cancellationToken))!, photoType));
+                if (!queue.TryEnqueue(job))
                 {
-                    await file.CopyToAsync(buffer, cancellationToken);
-                    var job = new MappingJob(classId, date, startedAt, buffer.ToArray(), file.FileName ?? "note", contentType);
-                    if (!queue.TryEnqueue(job))
-                    {
-                        await store.SaveMappingAsync(classId, date, startedAt, A1Validator.Unclear("error:queue-full"), cancellationToken);
-                    }
+                    await store.SaveMappingAsync(classId, date, startedAt, A1Validator.Unclear("error:queue-full"), cancellationToken);
                 }
 
                 break;
@@ -180,6 +192,21 @@ public static class LessonEndpoints
 
         return TypedResults.Accepted(
             (string?)null, await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
+    }
+
+    private static string MediaType(IFormFile? file) =>
+        (file?.ContentType ?? "").Split(';')[0].Trim().ToLowerInvariant();
+
+    private static async Task<byte[]?> BytesAsync(IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null)
+        {
+            return null;
+        }
+
+        using var buffer = new MemoryStream();
+        await file.CopyToAsync(buffer, cancellationToken);
+        return buffer.ToArray();
     }
 
     private static async Task<Results<Ok<LessonDayResponse>, ValidationProblem>> SaveAsync(

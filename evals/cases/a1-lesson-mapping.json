@@ -1,5 +1,5 @@
 {
-  "_note": "DRAFT cases written by Claude for T-07 PR 2b, to be reviewed and replaced by Monika / a teacher (T-38 grows this to 25). Transcripts imitate a Sarvam transcript of a Grade 3 teacher's voice note: Kannada with English words. Names are fictional (seed roster) and must be scrubbed before Claude sees them. expected = the lesson that must come first; alsoAcceptable = other lessons that count as a correct first choice; expectLow = vague or off-topic, must come back low or unclear.",
+  "_note": "DRAFT cases written by Claude for T-07 PR 2b, to be reviewed and replaced by Monika / a teacher (T-38 grows this to 25). Transcripts imitate a Sarvam transcript of a Grade 3 teacher's voice note: Kannada with English words. Names are fictional (seed roster) and must be scrubbed before Claude sees them. expected = the lesson that must come first; alsoAcceptable = other lessons that count as a correct first choice; expectLow = vague or off-topic, must come back low or unclear. Photo cases (T-64, A1 v2): `photo` is a file in cases/images/ (synthetic, rendered by images/render.mjs, until real teacher photos replace them); the transcript may be empty; `noNames` cases fail if a name from the photo reaches the summary or examples.",
   "cases": [
     {
       "id": "add-carry",
@@ -53,6 +53,25 @@
       "id": "off-topic",
       "transcript": "ಇವತ್ತು ಶಾಲೆಯಲ್ಲಿ ಆರೋಗ್ಯ ತಪಾಸಣೆ ಇತ್ತು, ಪಾಠ ಆಗಲಿಲ್ಲ.",
       "expectLow": true
+    },
+    {
+      "id": "photo-sub-borrow-page",
+      "transcript": "",
+      "photo": "images/sub-borrow-page.png",
+      "expected": "M3.SUB.BORROW"
+    },
+    {
+      "id": "photo-expand-board-with-name",
+      "transcript": "",
+      "photo": "images/expand-board.png",
+      "expected": "M3.PV.EXPAND",
+      "noNames": true
+    },
+    {
+      "id": "photo-add-word-with-vague-note",
+      "transcript": "ಇವತ್ತು ಪುಸ್ತಕದಲ್ಲಿ ಈ ಪುಟ ಮಾಡಿದೆವು.",
+      "photo": "images/add-word-page.png",
+      "expected": "M3.ADD.WORD"
     }
   ]
 }

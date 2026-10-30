@@ -10,10 +10,15 @@ export type OutboxItem = {
   createdAt: number
   /** A voice note: sent as multipart (`file` + `clientRequestId`) instead of JSON. */
   audio?: { data: ArrayBuffer; type: string; fileName: string }
+  /** A photo of the lesson (T-64), sent as the multipart `photo` part, with or without `audio`. */
+  photo?: { data: ArrayBuffer; type: string; fileName: string }
 }
 
 /** Her recording, kept on the phone only for playback on T2; deleted once the lesson is confirmed. */
 export type Note = { date: string; data: ArrayBuffer; type: string; savedAt: number }
+
+/** Her photo of the page or board (T-64), kept on the phone only; deleted once the lesson is confirmed. */
+export type Photo = { date: string; data: ArrayBuffer; type: string; savedAt: number }
 
 /** A write the server refused (4xx other than 401); kept so nothing she did silently disappears. */
 export type FailedItem = OutboxItem & { status: number; failedAt: number }
@@ -26,6 +31,7 @@ export const db = new Dexie('slate') as Dexie & {
   failed: EntityTable<FailedItem, 'id'>
   snapshots: EntityTable<Snapshot, 'key'>
   notes: EntityTable<Note, 'date'>
+  photos: EntityTable<Photo, 'date'>
 }
 
 db.version(1).stores({
@@ -35,6 +41,8 @@ db.version(1).stores({
 })
 
 db.version(2).stores({ notes: 'date' })
+
+db.version(3).stores({ photos: 'date' })
 
 export async function saveSnapshot(key: string, value: unknown) {
   await db.snapshots.put({ key, value, savedAt: Date.now() })
