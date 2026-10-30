@@ -162,4 +162,4 @@ Demo data is fictional. Only first names, roll numbers, home language and parent
 
 ## Licence
 
-To be confirmed before submission (MIT proposed). See `LICENSE`.
+[MIT](LICENSE).
