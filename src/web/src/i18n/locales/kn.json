@@ -740,5 +740,22 @@
       "a3-script": "A3 Script writer",
       "a4-check": "A4 Verifier"
     }
+  },
+  "admin": {
+    "greetings": {
+      "title": "ಶಿಕ್ಷಕರ ಶುಭಾಶಯಗಳು",
+      "needsLink": "ಈ ಪುಟಕ್ಕೆ ಪೂರ್ಣ ಲಿಂಕ್ ಬೇಕು.",
+      "failed": "ಶುಭಾಶಯಗಳನ್ನು ತರಲು ಆಗಲಿಲ್ಲ.",
+      "loading": "ತರಲಾಗುತ್ತಿದೆ…",
+      "empty": "ಇನ್ನೂ ಯಾವ ಶುಭಾಶಯವೂ ರೆಕಾರ್ಡ್ ಆಗಿಲ್ಲ.",
+      "count_one": "{{count}} ಶುಭಾಶಯ",
+      "count_other": "{{count}} ಶುಭಾಶಯಗಳು",
+      "meta": "{{seconds}} ಸೆ · ರೆಕಾರ್ಡ್ {{date}}",
+      "play": "{{name}} ಅವರ ಶುಭಾಶಯ ಕೇಳಿ",
+      "playShort": "ಕೇಳಿ",
+      "loadingAudio": "ತರಲಾಗುತ್ತಿದೆ…",
+      "player": "{{name}} ಅವರ ಶುಭಾಶಯ",
+      "audioFailed": "ಈ ಶುಭಾಶಯ ತರಲು ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+    }
   }
 }

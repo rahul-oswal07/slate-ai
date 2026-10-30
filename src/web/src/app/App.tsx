@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router'
+import { GreetingsAdminScreen } from '../features/admin/GreetingsAdminScreen'
 import { LoginScreen } from '../features/auth/LoginScreen'
 import { TeacherGate } from '../features/auth/TeacherGate'
 import { ApproveScreen } from '../features/approve/ApproveScreen'
@@ -25,6 +26,8 @@ export function App() {
       <Route path="p/:token" element={<ParentScreen />} />
       {/* The judges' demo shell: both phones side by side, signs in as the demo teacher itself (FR-14). */}
       <Route path="demo" element={<DemoScreen />} />
+      {/* Every teacher's greeting, for Rahul: linked from nowhere, opened only with the key in its link (T-66). */}
+      <Route path="admin/greetings" element={<GreetingsAdminScreen />} />
       <Route element={<AppShell />}>
         <Route path="login" element={<LoginScreen />} />
         <Route element={<TeacherGate need="setup" />}>

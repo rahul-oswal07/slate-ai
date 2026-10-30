@@ -740,5 +740,22 @@
       "a3-script": "A3 Script writer",
       "a4-check": "A4 Verifier"
     }
+  },
+  "admin": {
+    "greetings": {
+      "title": "Teacher greetings",
+      "needsLink": "This page needs its full link.",
+      "failed": "Couldn’t load the greetings.",
+      "loading": "Loading…",
+      "empty": "No greetings recorded yet.",
+      "count_one": "{{count}} greeting",
+      "count_other": "{{count}} greetings",
+      "meta": "{{seconds}} s · recorded {{date}}",
+      "play": "Play {{name}}’s greeting",
+      "playShort": "Play",
+      "loadingAudio": "Loading…",
+      "player": "{{name}}’s greeting",
+      "audioFailed": "Couldn’t load this greeting. Try again."
+    }
   }
 }
