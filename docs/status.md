@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Admin greetings page (30 Oct, T-66, D-83), branch `feat/T-66-admin-greetings`
+
+- `/admin/greetings#key=…` plays every teacher's recorded greeting (teacher name, length, recorded date, Play). Linked from nowhere; no teacher sign-in. API `GET /api/admin/greetings` and `GET /api/admin/greetings/{clipId}/audio` (`Features/Admin/`), both need `X-Admin-Key`; wrong or missing key = 404; only greeting clips; `no-store`.
+- **To turn it on:** set `Admin__Key` (≥ 16 characters, e.g. `openssl rand -hex 24`) as an App Service setting on staging, or in user-secrets locally (`dotnet user-secrets set Admin:Key <key> --project src/api/SlateAi.Api`). Unset = the endpoints don't exist. Never commit the key.
+- No migration, no Db-suite change. Strings in all five locales (kn, hi, te, ta drafts).
+
 ## README "For judges" (30 Oct, T-65), branch `docs/T-65-readme-judges`
 
 - New "For judges" section near the top of `README.md`: one table that links each AI claim (single logged LLM client, versioned prompts, evals, candidate set + validators, numbers by code, verifier, approval rule, name scrubber, user testing, decision log) to its code and tests. Team line now says Monika Sisodia. Every link checked against the repo.

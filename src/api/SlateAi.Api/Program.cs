@@ -3,6 +3,7 @@ using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Seed;
+using SlateAi.Api.Features.Admin;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.Buddy;
@@ -27,6 +28,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.Section));
 builder.Services.Configure<BuildInfoOptions>(builder.Configuration.GetSection(BuildInfoOptions.Section));
 builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.Section));
+builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection(AdminOptions.Section));
 builder.Services.AddOptions<StarsOptions>().Bind(builder.Configuration.GetSection(StarsOptions.Section)).ValidateDataAnnotations().ValidateOnStart();
 
 // Resolve the connection string lazily so test hosts can override configuration.
@@ -53,6 +55,7 @@ builder.Services.AddChildren();
 builder.Services.AddBuddyCards();
 builder.Services.AddWeek();
 builder.Services.AddDemo();
+builder.Services.AddAdmin();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 
@@ -82,6 +85,7 @@ app.MapChildEndpoints();
 app.MapBuddyEndpoints();
 app.MapWeekEndpoints();
 app.MapDemoEndpoints();
+app.MapAdminEndpoints();
 app.MapApiDocs();
 app.MapSpa();
 
