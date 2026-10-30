@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## README "For judges" (30 Oct, T-65), branch `docs/T-65-readme-judges`
+
+- New "For judges" section near the top of `README.md`: one table that links each AI claim (single logged LLM client, versioned prompts, evals, candidate set + validators, numbers by code, verifier, approval rule, name scrubber, user testing, decision log) to its code and tests. Team line now says Monika Sisodia. Every link checked against the repo.
+- T-64 and T-65 added to *Open* in `tasks.md` (they existed only as issues #145, #146).
+- **Next:** fill in the demo and video links at submission (Sat 31 Oct); decide whether T-64 (lesson photo) ships tonight or goes to the roadmap.
+
 ## Attendance stars built (26 Oct, T-63), branch `feat/T-63-attendance-stars`
 
 - Rules in `Features/Stars/StarRules.cs` (pure, no store; `Stars:MaxDaysAwayPerWeek`, default 1, validated 0–5). `GET week` and the pacing PUT return `stars` (null with no register). T6 `StarsCard` after the reasons card (also in "No absences this week"); P4 Done has one line "{child} earned a star for doing this catch-up." Strings in all five locale files; te and ta teacher-side strings are English placeholders like the rest of `week.*`, hi and kn are drafts for native review (T-26).

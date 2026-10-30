@@ -7,6 +7,8 @@ Owner: **R** = Rahul, **M** = Monika.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
+| T-64 | Photo of the lesson with the voice note (F-05, #145). Only if merged and on the demo by Fri 30 Oct evening; otherwise roadmap | R | Add, preview, replace, remove one photo on Today; never sent to families; no faces guidance; works offline or says it needs the network; strings in all five locales | Vitest photo control; xUnit endpoint (size/type, idempotent); eval if A1 prompt changes |
+| T-65 | README "For judges" map: where to verify the AI (#146) | R | Each row's file one click from the README; links work on GitHub; no marketing copy; team line says Monika Sisodia; demo/video links filled at submission | Link check against the repo; read on GitHub |
 
 ## Done (24-26 Oct)
 
