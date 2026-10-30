@@ -742,20 +742,47 @@
     }
   },
   "admin": {
+    "needsLink": "This page needs its full link.",
+    "failed": "Couldn’t load this page.",
+    "loading": "Loading…",
+    "play": "Play",
+    "loadingAudio": "Loading…",
+    "audioFailed": "Couldn’t load this audio. Try again.",
+    "nav": {
+      "label": "Admin pages",
+      "greetings": "Greetings",
+      "lessonAudio": "Lesson audio"
+    },
     "greetings": {
       "title": "Teacher greetings",
-      "needsLink": "This page needs its full link.",
-      "failed": "Couldn’t load the greetings.",
-      "loading": "Loading…",
       "empty": "No greetings recorded yet.",
       "count_one": "{{count}} greeting",
       "count_other": "{{count}} greetings",
       "meta": "{{seconds}} s · recorded {{date}}",
       "play": "Play {{name}}’s greeting",
-      "playShort": "Play",
-      "loadingAudio": "Loading…",
-      "player": "{{name}}’s greeting",
-      "audioFailed": "Couldn’t load this greeting. Try again."
+      "player": "{{name}}’s greeting"
+    },
+    "lessonAudio": {
+      "title": "Lesson audio",
+      "date": "Day",
+      "sent_one": "{{count}} lesson audio sent to families",
+      "sent_other": "{{count}} lesson audios sent to families",
+      "empty": "No lesson audio on this day.",
+      "status": {
+        "sent": "Sent",
+        "approved": "Approved, not sent",
+        "ready": "Ready, not approved",
+        "generating": "Being made",
+        "failed": "Failed"
+      },
+      "reason": "Reason: {{reason}}",
+      "approved": "Approved by {{name}}, {{date}}",
+      "play": "Play the {{language}} lesson audio ({{seconds}} s)",
+      "player": "{{language}} lesson audio",
+      "words": "Words spoken",
+      "families_one": "Sent to {{count}} family",
+      "families_other": "Sent to {{count}} families",
+      "family": "{{name}} (roll {{rollNo}})"
     }
   }
 }
