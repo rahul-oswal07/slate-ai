@@ -1,5 +1,7 @@
 # Optional board photo with the lesson voice note (reopens D-26 / FR-17 / T-41)
 
+> **Superseded (30 Oct).** T-64 shipped a smaller design instead (D-82 in `spec.md` §8, #149): one photo with or instead of the voice note, kept on the phone only and **never stored on the server** (no table, no migration, no photo endpoints); faces and names: warning only, plus A1 v2 told to copy no names and its wording name-scrubbed after Claude. Eval 13/13 with 3 synthetic photo cases. Kept for the record; the open questions below (retention, stored photos) no longer apply.
+
 ## Context
 Today the teacher records a ≤30 s voice note (T1 `LessonCard`) → `POST /api/classes/{id}/lessons/{date}/audio` → Sarvam STT → name scrub → A1 (`a1-lesson-mapping`) → she confirms on T2. Board-photo capture was dropped in D-26 (spec §1, FR-17, T-41, D-06 closed 24 Oct, "re-add as a task if wanted"). Rahul decided (this session) to reopen it:
 - **Optional**: skipping the photo changes nothing.

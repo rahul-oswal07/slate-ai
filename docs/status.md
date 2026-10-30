@@ -3,12 +3,17 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
-## Photo of the lesson (30 Oct, T-64, D-82), branch `feat/T-64-lesson-photo`
+## README "For judges" (30 Oct, T-65), branch `docs/T-65-readme-judges`
+
+- New "For judges" section near the top of `README.md`: one table that links each AI claim (single logged LLM client, versioned prompts, evals, candidate set + validators, numbers by code, verifier, approval rule, name scrubber, user testing, decision log) to its code and tests. Team line now says Monika Sisodia. Every link checked against the repo.
+- **Next:** fill in the demo and video links at submission (Sat 31 Oct), then close #146.
+
+## Photo of the lesson (30 Oct, T-64, D-82), merged (#149)
 
 - Today's lesson card: "Add a photo of the page" under the mic. One photo (downsized to ≤ 1280 px JPEG on the phone, kept in Dexie `photos`, db v3) with preview, Replace, Remove and "Match from photo". A voice note recorded while a photo is attached carries it; T2 shows the photo. Deleted from the phone when the lesson is confirmed.
 - API: `POST …/lessons/{date}/audio` takes an optional `photo` part (≤ 2 MB, jpeg/png/webp); `file` is optional when a photo is sent. Never stored: in memory for the A1 call only. `LlmRequest.Images` → image blocks in `ClaudeLlmClient`. A note that can't be heard is still matched from the photo. A1's summary/examples are name-scrubbed after Claude too.
 - Prompt `a1-lesson-mapping` v2; eval 13/13 (10 text + 3 synthetic photo cases in `evals/cases/images/`). Faces: warning only (D-82). Strings in all five locales (kn, hi, te, ta drafts for native review, T-26).
-- **Next:** screenshots at 360 px and axe on Today; PR; F-05 in `user-testing.md` gets the PR number; deploy so it's on the demo link tonight.
+- Screenshots and axe (0 violations) on #149; F-05 points to #149.
 
 ## Attendance stars built (26 Oct, T-63), branch `feat/T-63-attendance-stars`
 

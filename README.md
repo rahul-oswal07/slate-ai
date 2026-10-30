@@ -2,15 +2,33 @@
 
 Every absent child gets the lesson they missed, based on what their own teacher taught, in their home language: at home on the family phone, and again on the day they return.
 
-Built by **Slate AI** (Monika I, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism.
+Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism.
 
-> **Judges:** open the demo link, choose **Try the demo**, and follow the 5 steps on screen. No sign-up, no WhatsApp needed. Use the **EN** toggle for English. Where AI is used in the code: `src/api/SlateAi.Api/Ai/`, `prompts/`, `evals/`.
+> **Judges:** open the demo link, choose **Try the demo**, and follow the 5 steps on screen. No sign-up, no WhatsApp needed. Use the **EN** toggle for English.
 
 | | |
 |---|---|
 | Demo | _link added on submission_ |
 | Video (3 min) | _link added on submission_ |
 | Status | Build stage, in development |
+
+## For judges
+
+Where to check how AI is used. Each row links to the files that prove it.
+
+| What to check | Where |
+|---|---|
+| Every LLM call goes through one client and is logged | [`Ai/`](src/api/SlateAi.Api/Ai/): [`ILlmClient`](src/api/SlateAi.Api/Ai/ILlmClient.cs), [`LoggedLlmClient`](src/api/SlateAi.Api/Ai/LoggedLlmClient.cs), [`AiCallStore`](src/api/SlateAi.Api/Ai/AiCallStore.cs) · test: [`LoggedLlmClientTests`](tests/api/SlateAi.Api.Tests/Ai/LoggedLlmClientTests.cs) |
+| Prompts, versioned | [`prompts/`](prompts/): [a1 lesson mapping](prompts/a1-lesson-mapping.md), [a2 compression](prompts/a2-compression.md), [a3 script](prompts/a3-script.md), [a4 check](prompts/a4-check.md), [a8 lesson recap](prompts/a8-lesson-recap.md) |
+| Eval cases and results | [`evals/cases/`](evals/cases/), [`evals/results/`](evals/results/) (dated; latest per prompt) · method and scores: [`docs/quality.md`](docs/quality.md) §2 |
+| What to teach is chosen by code; the LLM picks only from it | candidate set: [`CompressionPlanner`](src/api/SlateAi.Api/Features/CatchUps/Compression/CompressionPlanner.cs) · invalid output falls back to rules: [`A1Validator` tests](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/A1ValidatorTests.cs), [`A2Validator` tests](tests/api/SlateAi.Api.Tests/Features/CatchUps/A2ValidatorTests.cs), [`A3Validator` tests](tests/api/SlateAi.Api.Tests/Features/CatchUps/A3ValidatorTests.cs) |
+| Numbers come from code, not the LLM | [`ProblemGenerator`](src/api/SlateAi.Api/Features/CatchUps/Practice/ProblemGenerator.cs) · [tests](tests/api/SlateAi.Api.Tests/Features/CatchUps/ProblemGeneratorTests.cs) |
+| Verifier: arithmetic, language, length, key words, names | [`CodeChecks`](src/api/SlateAi.Api/Features/CatchUps/Verify/CodeChecks.cs), [`ContentCheck`](src/api/SlateAi.Api/Features/CatchUps/Verify/ContentCheck.cs) · tests: [`CodeChecksTests`](tests/api/SlateAi.Api.Tests/Features/CatchUps/CodeChecksTests.cs), [`ContentCheckTests`](tests/api/SlateAi.Api.Tests/Features/CatchUps/ContentCheckTests.cs) |
+| Nothing reaches a parent without teacher approval | [`CatchUpApprovalDbTests`](tests/api/SlateAi.Api.Tests/Db/CatchUpApprovalDbTests.cs), [`EveningMessageDbTests`](tests/api/SlateAi.Api.Tests/Db/EveningMessageDbTests.cs), [`EveningEligibilityTests`](tests/api/SlateAi.Api.Tests/Features/EveningMessages/EveningEligibilityTests.cs) |
+| No names sent to AI providers | [`NameScrubber`](src/api/SlateAi.Api/Features/Lessons/Voice/NameScrubber.cs) (names become `{child}` / `{teacher}`) · [tests](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/NameScrubberTests.cs) |
+| User testing and mentor input | [`docs/user-testing.md`](docs/user-testing.md), [`docs/mentor-feedback-2026-10-19.md`](docs/mentor-feedback-2026-10-19.md), [`docs/mentor-feedback-2026-10-24.md`](docs/mentor-feedback-2026-10-24.md) |
+| Decisions and why | [`docs/spec.md` §8 decision log](docs/spec.md#8-decision-log) |
+| Rules for AI in this repo | [`CLAUDE.md`](CLAUDE.md) "AI guardrails" |
 
 ## How it works
 
