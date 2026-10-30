@@ -71,9 +71,27 @@ public sealed class ClaudeLlmClient(AnthropicClient client, IOptions<AiOptions> 
             {
                 new() { Text = request.Prompt.Text, CacheControl = new CacheControlEphemeral() },
             },
-            Messages = [new() { Role = Role.User, Content = request.UserContent }],
+            Messages = [new() { Role = Role.User, Content = UserContent(request) }],
             OutputConfig = outputConfig,
         };
+    }
+
+    /// <summary>Plain text, or the images first and then the text (vision works best with the image before the question).</summary>
+    private static MessageParamContent UserContent(LlmRequest request)
+    {
+        if (request.Images is not { Count: > 0 } images)
+        {
+            return request.UserContent;
+        }
+
+        var blocks = images
+            .Select(image => (ContentBlockParam)new ImageBlockParam
+            {
+                Source = new Base64ImageSource { Data = Convert.ToBase64String(image.Data), MediaType = image.MediaType },
+            })
+            .Append(new TextBlockParam { Text = request.UserContent })
+            .ToList();
+        return blocks;
     }
 
     private static Effort ToSdk(LlmEffort effort) => effort switch

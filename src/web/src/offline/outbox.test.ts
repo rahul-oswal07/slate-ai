@@ -87,4 +87,23 @@ describe('outbox voice notes', () => {
     expect(sent?.get('clientRequestId')).toBe('note-1')
     expect(sent?.get('file')).toBeInstanceOf(Blob)
   })
+
+  it('sends a photo alone as the multipart photo part', async () => {
+    let sent: FormData | undefined
+    vi.stubGlobal('fetch', vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      sent = init?.body as FormData
+      return new Response('{}', { status: 202, headers: { 'Content-Type': 'application/json' } })
+    }))
+    await enqueue({
+      id: 'photo-1',
+      url: '/api/classes/c/lessons/2026-10-22/audio',
+      body: undefined,
+      photo: { data: new Uint8Array([4, 5]).buffer, type: 'image/jpeg', fileName: 'page.jpg' },
+    })
+
+    expect(await flush()).toBe(1)
+    expect(sent?.get('clientRequestId')).toBe('photo-1')
+    expect(sent?.get('photo')).toBeInstanceOf(Blob)
+    expect(sent?.get('file')).toBeNull()
+  })
 })

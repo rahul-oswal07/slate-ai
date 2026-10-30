@@ -5,13 +5,22 @@ using SlateAi.Api.Speech;
 
 namespace SlateAi.Api.Features.Lessons.Voice;
 
-/// <summary>A queued voice note. The audio lives only here, in memory, and is dropped after transcription.</summary>
+/// <summary>
+/// A queued note: a voice recording, a photo of the page or board (T-64), or both. Both live only here, in
+/// memory, and are dropped after matching.
+/// </summary>
 public sealed record MappingJob(
-    Guid ClassId, DateOnly Date, DateTimeOffset StartedAt, byte[] Audio, string FileName, string ContentType);
+    Guid ClassId,
+    DateOnly Date,
+    DateTimeOffset StartedAt,
+    byte[]? Audio,
+    string FileName,
+    string ContentType,
+    LlmImage? Photo = null);
 
 /// <summary>
-/// Voice note → Sarvam speech-to-text → names scrubbed → A1 (Claude) → validated lessons (FR-03, T2).
-/// The transcript is never stored; the roster never leaves the server.
+/// Voice note → Sarvam speech-to-text → names scrubbed → A1 (Claude, with her photo if she sent one) →
+/// validated lessons (FR-03, T2). The transcript and photo are never stored; the roster never leaves the server.
 /// </summary>
 public sealed class LessonMapper(
     ISpeechToText speech,
@@ -36,34 +45,46 @@ public sealed class LessonMapper(
 
     private async Task<A1Result> MatchAsync(MappingJob job, CancellationToken cancellationToken)
     {
-        string transcript;
-        try
+        // With a photo, a note that can't be heard still gets matched from the photo alone.
+        var transcript = "";
+        string? speechFailure = null;
+        if (job.Audio is { } recording)
         {
-            using var audio = new MemoryStream(job.Audio, writable: false);
-            transcript = (await speech.TranscribeAsync(
-                audio, job.FileName, job.ContentType, "kn-IN", KeyTerms(), cancellationToken)).Text;
-        }
-        catch (SpeechException)
-        {
-            return A1Validator.Unclear("fallback:stt-failed");
+            try
+            {
+                using var audio = new MemoryStream(recording, writable: false);
+                transcript = (await speech.TranscribeAsync(
+                    audio, job.FileName, job.ContentType, "kn-IN", KeyTerms(), cancellationToken)).Text;
+                speechFailure = string.IsNullOrWhiteSpace(transcript) ? "fallback:no-speech" : null;
+            }
+            catch (SpeechException)
+            {
+                speechFailure = "fallback:stt-failed";
+            }
         }
 
-        if (string.IsNullOrWhiteSpace(transcript))
+        if (job.Photo is null && (speechFailure is not null || string.IsNullOrWhiteSpace(transcript)))
         {
-            return A1Validator.Unclear("fallback:no-speech");
+            return A1Validator.Unclear(speechFailure ?? "fallback:no-speech");
         }
 
-        return await MapTranscriptAsync(transcript, await store.GetNamesAsync(job.ClassId, cancellationToken), cancellationToken);
+        return await MapTranscriptAsync(
+            transcript, await store.GetNamesAsync(job.ClassId, cancellationToken), cancellationToken, job.Photo);
     }
 
-    /// <summary>Scrub → A1 → validate. Also what the eval suite runs, without speech-to-text.</summary>
-    public async Task<A1Result> MapTranscriptAsync(string transcript, ClassNames names, CancellationToken cancellationToken)
+    /// <summary>
+    /// Scrub → A1 → validate → scrub A1's wording again (a photo of the board can show a child's name, and Claude
+    /// may copy it). Also what the eval suite runs, without speech-to-text.
+    /// </summary>
+    public async Task<A1Result> MapTranscriptAsync(
+        string transcript, ClassNames names, CancellationToken cancellationToken, LlmImage? photo = null)
     {
         var request = new LlmRequest(
             prompts.Get(PromptId),
-            UserContent(NameScrubber.Scrub(transcript, names.Children, names.Teacher)),
+            UserContent(NameScrubber.Scrub(transcript, names.Children, names.Teacher), photo is not null),
             A1Validator.Schema(curriculum),
-            MaxTokens: 1024);
+            MaxTokens: 1024,
+            Images: photo is null ? null : [photo]);
 
         LlmResponse response;
         try
@@ -76,7 +97,7 @@ public sealed class LessonMapper(
             return A1Validator.Unclear($"error:{e.Failure}");
         }
 
-        var result = A1Validator.Validate(response.Json, curriculum);
+        var result = ScrubNames(A1Validator.Validate(response.Json, curriculum), names);
         if (response.AiCallId != Guid.Empty)
         {
             await aiCalls.SetVerdictAsync(response.AiCallId, result.Verdict, cancellationToken);
@@ -85,11 +106,23 @@ public sealed class LessonMapper(
         return result;
     }
 
-    /// <summary>The scrubbed transcript and the textbook's lessons; no names, no IDs of people.</summary>
-    internal string UserContent(string scrubbedTranscript) =>
+    private static A1Result ScrubNames(A1Result result, ClassNames names)
+    {
+        string? Scrub(string? text) => text is null ? null : NameScrubber.Scrub(text, names.Children, names.Teacher);
+        return result with
+        {
+            SummaryKn = Scrub(result.SummaryKn),
+            SummaryEn = Scrub(result.SummaryEn),
+            ExamplesUsed = result.ExamplesUsed.Select(e => Scrub(e)!).ToList(),
+        };
+    }
+
+    /// <summary>The scrubbed transcript (empty with a photo only) and the textbook's lessons; no names, no IDs of people.</summary>
+    internal string UserContent(string scrubbedTranscript, bool hasPhoto = false) =>
         JsonSerializer.Serialize(new
         {
             transcript = scrubbedTranscript,
+            photo = hasPhoto,
             lessons = curriculum.All.Select(c => new { c.Id, c.NameKn, c.NameEn, c.Chapter, c.Examples }),
         }, Json);
 

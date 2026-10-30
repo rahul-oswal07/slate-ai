@@ -92,6 +92,58 @@ public sealed class LessonMapperTests
     }
 
     [Fact]
+    public async Task A_photo_alone_goes_to_claude_as_an_image_without_speech_to_text()
+    {
+        var photo = new LlmImage([9, 9, 9], "image/jpeg");
+
+        var result = await Mapper().MapAsync(Job() with { Audio = null, Photo = photo }, Ct);
+
+        Assert.Equal("mapped", result.Status);
+        Assert.Null(_speech.Language);
+        var request = Assert.Single(_llm.Requests);
+        Assert.Same(photo, Assert.Single(request.Images!));
+        var content = JsonDocument.Parse(request.UserContent).RootElement;
+        Assert.Equal("", content.GetProperty("transcript").GetString());
+        Assert.True(content.GetProperty("photo").GetBoolean());
+    }
+
+    [Fact]
+    public async Task With_a_photo_a_note_that_cant_be_heard_is_still_matched_from_the_photo()
+    {
+        _speech.Fail = true;
+
+        var result = await Mapper().MapAsync(Job() with { Photo = new LlmImage([1], "image/png") }, Ct);
+
+        Assert.Equal("mapped", result.Status);
+        Assert.Single(_llm.Requests[0].Images!);
+    }
+
+    [Fact]
+    public async Task A_voice_note_alone_sends_no_image()
+    {
+        await Mapper().MapAsync(Job(), Ct);
+
+        Assert.Null(Assert.Single(_llm.Requests).Images);
+        Assert.False(JsonDocument.Parse(_llm.Requests[0].UserContent).RootElement.GetProperty("photo").GetBoolean());
+    }
+
+    [Fact]
+    public async Task A_name_claude_copies_off_the_board_is_scrubbed_before_it_is_stored()
+    {
+        _store.Names = new ClassNames(["Ravi"], "Shobha");
+        _llm.Json = """
+            {"competencyIds":["M3.ADD.CARRY"],"confidence":0.9,"summaryKn":"Ravi ಸಂಕಲನ","summaryEn":"Shobha taught Ravi carrying","examplesUsed":["Ravi: 27 + 15"]}
+            """;
+
+        await Mapper().MapAsync(Job() with { Photo = new LlmImage([1], "image/jpeg") }, Ct);
+
+        var day = _store.Day(Day)!;
+        Assert.Equal("{child} ಸಂಕಲನ", day.SummaryKn);
+        Assert.Equal("{teacher} taught {child} carrying", day.SummaryEn);
+        Assert.Equal(["{child}: 27 + 15"], day.ExamplesUsed);
+    }
+
+    [Fact]
     public async Task Claude_failure_is_unclear()
     {
         _llm.Failure = LlmFailure.Unavailable;

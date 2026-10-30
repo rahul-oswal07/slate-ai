@@ -49,6 +49,27 @@ public sealed class ClaudeLlmClientTests
         Assert.False(sent.TryGetProperty("tool_choice", out _));
     }
 
+    [Fact]
+    public async Task Images_go_first_as_base64_blocks_then_the_text()
+    {
+        var handler = new StubHttpHandler(() => StubHttpHandler.Json(Message("""{"ids":["M3.ADD.CARRY"]}""")));
+
+        await Client(handler).CompleteJsonAsync(
+            new LlmRequest(Prompt, "Transcript: …", Schema, Images: [new LlmImage([1, 2, 3], "image/jpeg")]),
+            TestContext.Current.CancellationToken);
+
+        var content = JsonDocument.Parse(Assert.Single(handler.Requests).Body).RootElement
+            .GetProperty("messages")[0].GetProperty("content");
+        Assert.Equal(2, content.GetArrayLength());
+        Assert.Equal("image", content[0].GetProperty("type").GetString());
+        var source = content[0].GetProperty("source");
+        Assert.Equal("base64", source.GetProperty("type").GetString());
+        Assert.Equal("image/jpeg", source.GetProperty("media_type").GetString());
+        Assert.Equal(Convert.ToBase64String([1, 2, 3]), source.GetProperty("data").GetString());
+        Assert.Equal("text", content[1].GetProperty("type").GetString());
+        Assert.Equal("Transcript: …", content[1].GetProperty("text").GetString());
+    }
+
     [Theory]
     [InlineData("refusal", LlmFailure.Refused)]
     [InlineData("max_tokens", LlmFailure.Truncated)]

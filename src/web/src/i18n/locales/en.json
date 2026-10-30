@@ -150,7 +150,18 @@
       "sendingRule": "If it takes more than 3 seconds, it is saved on the phone and sent when there is network.",
       "queued": "Note saved · it will be matched when you have network",
       "processing": "Note saved",
-      "open": "Open"
+      "open": "Open",
+      "photo": {
+        "add": "Add a photo of the page",
+        "hint": "Photograph the textbook page or the board, not the children.",
+        "alt": "Your photo of today’s lesson",
+        "withNote": "Photo added. It goes with your voice note.",
+        "match": "Match from photo",
+        "replace": "Replace photo",
+        "remove": "Remove photo",
+        "added": "Photo added",
+        "removed": "Photo removed"
+      }
     },
     "done": "Done for today. Thank you.",
     "added": {
@@ -281,6 +292,9 @@
       "label": "What you said",
       "play": "Play your note",
       "examples": "Examples you used"
+    },
+    "photo": {
+      "label": "Your photo"
     }
   },
   "ai": {
