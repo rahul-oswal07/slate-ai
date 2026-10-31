@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Attendance.Source;
@@ -87,5 +88,42 @@ public sealed class SimulatedSatsSourceTests
         Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 22), Roster)); // Thu
         Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 19), Roster)); // Mon
         Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 24), Roster)); // Sat
+    }
+
+    [Theory]
+    [InlineData("2026-11-01")] // Sunday
+    [InlineData("2026-11-14")] // second Saturday
+    [InlineData("2026-10-20")] // configured holiday
+    public async Task The_demo_class_has_a_register_every_day_with_ravi_and_rohan_away(string date)
+    {
+        var source = Create(o =>
+        {
+            o.Holidays = [new DateOnly(2026, 10, 20)];
+            o.EveryDayClassIds = [ClassId];
+        });
+
+        var register = Assert.IsType<SourceResult.Arrived>(await source.FetchAsync(ClassId, DateOnly.Parse(date), Roster, Ct));
+
+        Assert.Equivalent(Roster.Where(c => c.RollNo is 4 or 24).Select(c => c.Id), register.AbsentChildIds);
+    }
+
+    [Fact]
+    public async Task Other_classes_keep_the_school_calendar()
+    {
+        var source = Create(o => o.EveryDayClassIds = [ClassId]);
+
+        Assert.IsType<SourceResult.NoSchool>(await source.FetchAsync(Guid.NewGuid(), new DateOnly(2026, 11, 1), Roster, Ct));
+    }
+
+    [Fact]
+    public void The_app_gives_the_seeded_demo_class_a_register_every_day()
+    {
+        using var settings = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "appsettings.json")));
+        using var seed = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "data/seed/demo-class.json")));
+
+        var everyDay = settings.RootElement.GetProperty("Attendance").GetProperty("Sats").GetProperty("EveryDayClassIds")
+            .EnumerateArray().Select(id => id.GetGuid());
+
+        Assert.Equal([seed.RootElement.GetProperty("class").GetProperty("id").GetGuid()], everyDay);
     }
 }

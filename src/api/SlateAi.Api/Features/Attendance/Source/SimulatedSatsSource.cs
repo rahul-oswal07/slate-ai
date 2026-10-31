@@ -30,12 +30,13 @@ public sealed class SimulatedSatsSource : IAttendanceSource
     public Task<SourceResult> FetchAsync(
         Guid classId, DateOnly date, IReadOnlyList<RosterChild> roster, CancellationToken cancellationToken)
     {
-        SourceResult result = IsSchoolDay(date)
+        SourceResult result = IsSchoolDay(date) || _options.EveryDayClassIds.Contains(classId)
             ? new SourceResult.Arrived(Simulate(classId, date, roster), SchoolClock.At(date, _options.ArrivesAt))
             : new SourceResult.NoSchool();
         return Task.FromResult(result);
     }
 
+    /// <summary>The school calendar; <see cref="SatsOptions.EveryDayClassIds"/> still get a register on other days.</summary>
     public bool IsSchoolDay(DateOnly date) =>
         date.DayOfWeek != DayOfWeek.Sunday
         && !(date.DayOfWeek == DayOfWeek.Saturday && (date.Day - 1) / 7 == 1)

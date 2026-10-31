@@ -3,6 +3,13 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Demo works on any day (31 Oct, T-69, D-84), branch `fix/T-69-demo-every-day`
+
+- Found while reviewing the seed: on a Sunday, second Saturday or holiday the simulated SATS feed returned no register, so the demo showed "No school today" and the guide's steps stopped (Sun 1 Nov is the hard deadline; judging runs past it).
+- `Attendance:Sats:EveryDayClassIds` (appsettings.json: the seeded demo class only): that class gets a register every day; `sats-scenario.json` has Ravi and Rohan away on Sundays too. Other classes (user testing) keep the school calendar. Reset's past days unchanged.
+- Code comments, the Reset's OpenAPI description and the scenario note said Rohan's family is English; now Hindi (since 25 Oct).
+- Still open from the seed review: check the demo teacher has a greeting on the demo database; Reset leaves lesson-audio clips behind; co-teacher Lakshmi shares a name with child Lakshmi (roll 13).
+
 ## Download a greeting (31 Oct, T-68, D-83), branch `feat/T-68-greeting-download`
 
 - `/admin/greetings#key=…`: a Download button under each Play saves the greeting as `greeting-<teacher>-<yyyy-mm-dd>.ogg` (IST date). The clip comes from the existing audio route with the `X-Admin-Key` header, through an object URL, so the key never goes in a URL. Web only; no API or migration change.

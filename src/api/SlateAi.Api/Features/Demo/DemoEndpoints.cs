@@ -30,7 +30,7 @@ public sealed record DemoSendNowRequest(Guid ClientRequestId);
 public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent, int CatchUpsSent);
 
 /// <summary>Who the demo shell is about.</summary>
-/// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, so judges read it in English.</param>
+/// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, whose family reads Hindi; the EN toggle shows the app in English.</param>
 /// <param name="LastResetAt">When anyone last reset the demo, so every viewer's "Under the hood" starts there; null if never.</param>
 public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt);
 
@@ -76,7 +76,7 @@ public static class DemoEndpoints
             .WithDescription(
                 "Deletes everything the class has done and re-adds the 36 seeded children, then writes the five school " +
                 "days before today (SATS registers and confirmed lessons; only Ravi (Telugu, this week) and Manjunath (Kannada, " +
-                "2 days, back today) away; Rohan (English) is away today, so the week makes three catch-ups) and, " +
+                "2 days, back today) away; Rohan (Hindi) is away today, so the week makes three catch-ups) and, " +
                 "when data/seed/demo-catchup.json exists, that catch-up as Ready (not approved) for the story child of its " +
                 "language. Today's register " +
                 "comes from the simulated feed as usual. The evening template and the teacher's sign-in stay as they are. " +

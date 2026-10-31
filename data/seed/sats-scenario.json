@@ -1,7 +1,7 @@
 {
-  "_note": "Scripted absences for the simulated SATS feed (D-69), by roll number, every week. Fictional. The demo sets Attendance:Sats:AbsenceRate to 0, so these are the only absences on days the demo Reset (T-18) doesn't write: Ravi (4, Telugu) and Rohan (24, English: the demo's parent phone) are away every school day, so today's register always shows them absent.",
+  "_note": "Scripted absences for the simulated SATS feed (D-69), by roll number, every week. Fictional. The demo sets Attendance:Sats:AbsenceRate to 0, so these are the only absences on days the demo Reset (T-18) doesn't write: Ravi (4, Telugu) and Rohan (24, Hindi: the demo's parent phone) are away every day, so today's register always shows them absent. Sunday is listed because the demo class has a register every day (Attendance:Sats:EveryDayClassIds, T-69); other classes have no school on Sundays.",
   "weekly": [
-    { "rollNo": 4, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] },
-    { "rollNo": 24, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] }
+    { "rollNo": 4, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] },
+    { "rollNo": 24, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] }
   ]
 }
