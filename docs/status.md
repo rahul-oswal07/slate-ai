@@ -3,6 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Download a greeting (31 Oct, T-68, D-83), branch `feat/T-68-greeting-download`
+
+- `/admin/greetings#key=…`: a Download button under each Play saves the greeting as `greeting-<teacher>-<yyyy-mm-dd>.ogg` (IST date). The clip comes from the existing audio route with the `X-Admin-Key` header, through an object URL, so the key never goes in a URL. Web only; no API or migration change.
+- `Admin__Key` is now set on `slateai-staging` (31 Oct); not on prod.
+
 ## Teacher testing round 1, P2 (30 Oct), branch `docs/teacher-testing-p2`
 
 - Second teacher session logged in `docs/user-testing.md`: P2 (Class 4, same government school as P1), in person, UI in Kannada, whole teacher flow in 5–7 min first use, SUS-lite 5 on all five; findings F-06 and F-07 (she valued messages to absent children; today teachers phone parents to ask why).

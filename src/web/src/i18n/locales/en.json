@@ -748,6 +748,8 @@
     "play": "Play",
     "loadingAudio": "Loading…",
     "audioFailed": "Couldn’t load this audio. Try again.",
+    "download": "Download",
+    "downloadFailed": "Couldn’t download this audio. Try again.",
     "nav": {
       "label": "Admin pages",
       "greetings": "Greetings",
@@ -760,7 +762,8 @@
       "count_other": "{{count}} greetings",
       "meta": "{{seconds}} s · recorded {{date}}",
       "play": "Play {{name}}’s greeting",
-      "player": "{{name}}’s greeting"
+      "player": "{{name}}’s greeting",
+      "download": "Download {{name}}’s greeting"
     },
     "lessonAudio": {
       "title": "Lesson audio",
