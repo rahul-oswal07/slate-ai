@@ -132,6 +132,42 @@ public sealed class DemoStoryTests
         Assert.All(stars, d => Assert.DoesNotContain(Rohan, d.AbsentChildIds));
     }
 
+    [Fact]
+    public void The_video_story_on_a_saturday_is_the_whole_week_one_pattern_per_language()
+    {
+        var days = DemoStory.Video(new DateOnly(2026, 10, 31), Roster);
+
+        Assert.Equal(
+            [new(2026, 10, 26), new(2026, 10, 27), new(2026, 10, 28), new(2026, 10, 29), new(2026, 10, 30)],
+            days.Select(d => d.Date).ToList());
+        Assert.Equal(DemoStory.Lessons, days.Select(d => d.CompetencyId).ToList());
+        int[][] away =
+        [
+            [DemoStory.AnanyaRollNo, DemoStory.RaviRollNo],
+            [DemoStory.AnanyaRollNo, DemoStory.RaviRollNo],
+            [DemoStory.AnanyaRollNo, DemoStory.RohanRollNo],
+            [DemoStory.AnanyaRollNo, DemoStory.ArunRollNo],
+            [DemoStory.AnanyaRollNo, DemoStory.ArunRollNo],
+        ];
+        Assert.Equal(
+            away.Select(rolls => rolls.Order().ToList()),
+            days.Select(d => Roster.Where(c => d.AbsentChildIds.Contains(c.Id)).Select(c => c.RollNo).Order().ToList()));
+    }
+
+    [Theory]
+    [InlineData("2026-10-28", 2)] // Wednesday: Monday and Tuesday so far
+    [InlineData("2026-10-26", 0)] // Monday: nothing yet
+    public void Earlier_in_the_week_the_video_story_has_only_the_days_so_far(string today, int count)
+    {
+        Assert.Equal(count, DemoStory.Video(DateOnly.Parse(today), Roster).Count);
+    }
+
+    [Fact]
+    public void The_parent_phone_is_rohan_for_the_judges_and_ananya_in_the_video() =>
+        Assert.Equal(
+            (DemoStory.RohanRollNo, DemoStory.AnanyaRollNo),
+            (DemoStory.ParentRollNo(video: false), DemoStory.ParentRollNo(video: true)));
+
     private static bool IsSchoolDay(DateOnly date) =>
         date.DayOfWeek != DayOfWeek.Sunday && !(date.DayOfWeek == DayOfWeek.Saturday && (date.Day - 1) / 7 == 1);
 

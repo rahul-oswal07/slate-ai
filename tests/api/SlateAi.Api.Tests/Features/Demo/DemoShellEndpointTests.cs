@@ -78,7 +78,7 @@ public sealed class DemoShellEndpointTests
 
         var info = await client.GetFromJsonAsync<DemoInfoResponse>("/api/demo", Ct);
 
-        Assert.Equal(new DemoInfoResponse(ClassId, Rohan, Now.AddMinutes(-3)), info);
+        Assert.Equal(new DemoInfoResponse(ClassId, Rohan, Now.AddMinutes(-3), DemoOptions.JudgesStory), info);
         Assert.Equal("hi", Seed.Children.Single(c => c.Id == Rohan).HomeLanguage);
     }
 

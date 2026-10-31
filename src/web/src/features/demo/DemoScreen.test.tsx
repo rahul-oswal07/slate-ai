@@ -7,7 +7,7 @@ import type { AiCall, DemoInfo, FamilyMessage } from './types'
 
 const i18n = initI18n()
 
-const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1', lastResetAt: null }
+const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1', lastResetAt: null, story: 'judges' }
 const resetAt = '2026-10-23T04:30:00Z'
 
 const evening: FamilyMessage = { kind: 'evening', date: '2026-10-22', sentAt: '2026-10-22T12:30:00Z', token: 'tok-evening' }
@@ -71,6 +71,17 @@ describe('DemoScreen (T-18)', () => {
     expect(calls.map((c) => c.key).slice(0, 2)).toEqual(['POST /api/demo/login', 'GET /api/demo'])
     expect(screen.getByTitle("Teacher's phone")).toHaveAttribute('src', '/')
     expect(await screen.findByText(/No messages yet/)).toBeInTheDocument()
+  })
+
+  it('has no judges\' guide in the video story (T-70)', async () => {
+    setup({ demo: { ...info, story: 'video' } })
+    renderApp('/demo')
+
+    expect(await screen.findByRole('heading', { name: 'Demo video story' })).toBeInTheDocument()
+    expect(screen.queryByText(/SATS shows Ravi/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reset demo' })).toBeInTheDocument()
+    expect(screen.getByText("Ananya's family's phone")).toBeInTheDocument()
+    expect(screen.queryByText("Rohan's family's phone")).not.toBeInTheDocument()
   })
 
   it('says so when the demo sign-in fails', async () => {

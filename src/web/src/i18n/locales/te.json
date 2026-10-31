@@ -442,6 +442,7 @@
       "link": "ఈ సందేశాలు ఆపండి",
       "title": "{{child}} కోసం సందేశాలు ఆపాలా?",
       "body": "ఇక సందేశాలు రావు. ఎప్పుడైనా మళ్ళీ మొదలుపెట్టవచ్చు.",
+      "bodyVideo": "డెమో తరగతిలో చేసినదంతా తొలగిపోతుంది, వీడియో కథ మళ్ళీ మొదలవుతుంది: ఈ వారం అనన్య ప్రతి రోజూ గైర్హాజరు, రవి సోమ, మంగళవారాలు, రోహన్ బుధవారం, అరుణ్ గురు, శుక్రవారాలు; ప్రతి సాయంత్రం సందేశం ఇప్పటికే వెళ్ళింది. ఈ రోజు అనన్య మాత్రమే గైర్హాజరు.",
       "confirm": "సందేశాలు ఆపండి",
       "cancel": "వద్దు, వస్తూ ఉండనీ",
       "failed": "సందేశాలు ఆపలేకపోయాం. నెట్‌వర్క్ చూసి మళ్ళీ ప్రయత్నించండి.",
@@ -656,6 +657,7 @@
     "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
+    "videoTitle": "డెమో వీడియో కథ",
     "guide": {
       "title": "Try the loop in 5 minutes",
       "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
@@ -702,6 +704,8 @@
     "parentPhone": "Rohan's family's phone",
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
+    "videoParentPhone": "అనన్య కుటుంబం ఫోన్",
+    "videoParentPage": "అనన్య కుటుంబానికి పంపిన పేజీ",
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "సందేశాలు",

@@ -442,6 +442,7 @@
       "link": "Stop these messages",
       "title": "Stop messages for {{child}}?",
       "body": "No more messages will come. You can start them again any time.",
+      "bodyVideo": "Everything done in the demo class is removed and the video story starts again: this week Ananya was away every day, Ravi on Monday and Tuesday, Rohan on Wednesday and Arun on Thursday and Friday, with each evening's message already sent. Today only Ananya is away.",
       "confirm": "Stop messages",
       "cancel": "No, keep them coming",
       "failed": "Could not stop the messages. Check the network and try again.",
@@ -656,6 +657,7 @@
     "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
+    "videoTitle": "Demo video story",
     "guide": {
       "title": "Try the loop in 5 minutes",
       "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
@@ -702,6 +704,8 @@
     "parentPhone": "Rohan's family's phone",
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
+    "videoParentPhone": "Ananya's family's phone",
+    "videoParentPage": "Page sent to Ananya's family",
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "Messages",

@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Demo video story (31 Oct, T-70, D-85), branch `feat/T-70-video-demo-story`
+
+- For recording the demo video. **Turn it on** locally with `dotnet user-secrets set Demo:Story video --project src/api/SlateAi.Api` (off: `dotnet user-secrets remove Demo:Story --project src/api/SlateAi.Api`), on staging with the App Service setting `Demo__Story=video`. **Never on prod**: the judges' guide follows the default story.
+- Reset then writes this week's Mon–Fri before today: Ananya (1, Kannada) away all five days, Ravi (4, Telugu) Mon–Tue, Rohan (24, Hindi) Wed, Arun (7, Tamil) Thu–Fri; one lesson a day (`M3.PV.HTO` … `M3.ADD.NOCARRY`). Each evening's message is sent by `EveningSender` (approved template only) and dated 6 pm that day: 5 for Ananya, 2 Ravi, 1 Rohan, 2 Arun. Today's feed has only Ananya away (`data/seed/sats-scenario-video.json`), so Arun is back today. Parent phone: Ananya's family. No pre-made catch-up; the judges' guide is hidden on /demo.
+- **Record on an ordinary Saturday** (31 Oct or 7 Nov), so the whole week is behind and no "Demo only" note shows. Approve the evening template before pressing Reset, or no evening messages go (the Reset response says how many went).
+
 ## Demo works on any day (31 Oct, T-69, D-84), branch `fix/T-69-demo-every-day`
 
 - Found while reviewing the seed: on a Sunday, second Saturday or holiday the simulated SATS feed returned no register, so the demo showed "No school today" and the guide's steps stopped (Sun 1 Nov is the hard deadline; judging runs past it).

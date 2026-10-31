@@ -442,6 +442,7 @@
       "link": "இந்தச் செய்திகளை நிறுத்து",
       "title": "{{child}}க்கான செய்திகளை நிறுத்தவா?",
       "body": "இனி செய்திகள் வராது. எப்போது வேண்டுமானாலும் மீண்டும் தொடங்கலாம்.",
+      "bodyVideo": "டெமோ வகுப்பில் செய்த அனைத்தும் நீக்கப்பட்டு வீடியோ கதை மீண்டும் தொடங்கும்: இந்த வாரம் அனன்யா ஒவ்வொரு நாளும் வரவில்லை, ரவி திங்கள், செவ்வாய், ரோஹன் புதன், அருண் வியாழன், வெள்ளி; ஒவ்வொரு மாலைச் செய்தியும் ஏற்கனவே அனுப்பப்பட்டது. இன்று அனன்யா மட்டும் வரவில்லை.",
       "confirm": "செய்திகளை நிறுத்து",
       "cancel": "வேண்டாம், தொடர்ந்து வரட்டும்",
       "failed": "செய்திகளை நிறுத்த முடியவில்லை. நெட்வொர்க்கைப் பார்த்து மீண்டும் முயலுங்கள்.",
@@ -656,6 +657,7 @@
     "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
+    "videoTitle": "டெமோ வீடியோ கதை",
     "guide": {
       "title": "Try the loop in 5 minutes",
       "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
@@ -702,6 +704,8 @@
     "parentPhone": "Rohan's family's phone",
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
+    "videoParentPhone": "அனன்யாவின் குடும்பத்தின் தொலைபேசி",
+    "videoParentPage": "அனன்யாவின் குடும்பத்துக்கு அனுப்பிய பக்கம்",
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "செய்திகள்",
