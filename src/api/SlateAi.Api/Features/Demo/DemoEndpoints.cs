@@ -34,7 +34,7 @@ public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent
 /// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, whose family reads Hindi (the EN toggle shows the app in English); Ananya (Kannada) in the video story.</param>
 /// <param name="LastResetAt">When anyone last reset the demo, so every viewer's "Under the hood" starts there; null if never.</param>
 /// <param name="Story">"judges" (the guide on /demo) or "video" (T-70, D-85).</param>
-public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt, string Story);
+public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt, string Story, DateOnly? FixedToday = null);
 
 /// <summary>
 /// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
@@ -64,6 +64,22 @@ public static class DemoEndpoints
         return services.AddScoped<IDemoStore, DemoStore>();
     }
 
+    /// <summary>With a fixed demo date (T-75), every response tells the web app which date is today.</summary>
+    public static IApplicationBuilder UseDemoDate(this IApplicationBuilder app)
+    {
+        if (app.ApplicationServices.GetRequiredService<TimeProvider>() is not DemoClock clock)
+        {
+            return app;
+        }
+
+        var today = clock.Today.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        return app.Use((context, next) =>
+        {
+            context.Response.Headers[DemoClock.Header] = today;
+            return next(context);
+        });
+    }
+
     public static IEndpointRouteBuilder MapDemoEndpoints(this IEndpointRouteBuilder app)
     {
         if (!app.ServiceProvider.GetRequiredService<IOptions<DemoOptions>>().Value.Enabled)
@@ -82,7 +98,9 @@ public static class DemoEndpoints
             .RequireAuthorization()
             .WithTags("Demo")
             .WithSummary("The demo class, whose family the parent phone shows, and the last reset")
-            .WithDescription("404 unless signed in as the demo teacher. Demo only.");
+            .WithDescription(
+                "404 unless signed in as the demo teacher. fixedToday is the school date fixed by Demo:Today (T-75), " +
+                "or null for the real date. Demo only.");
 
         app.MapPost("/api/demo/reset", ResetAsync)
             .RequireAuthorization()
@@ -223,7 +241,8 @@ public static class DemoEndpoints
             seed.Class.Id,
             Child(seed, DemoStory.ParentRollNo(video)),
             lastReset,
-            video ? DemoOptions.VideoStory : DemoOptions.JudgesStory));
+            video ? DemoOptions.VideoStory : DemoOptions.JudgesStory,
+            demo.Value.FixedToday));
     }
 
     private static async Task<Results<Ok<DemoResetResponse>, NotFound>> ResetAsync(

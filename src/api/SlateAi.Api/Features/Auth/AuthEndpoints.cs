@@ -52,6 +52,8 @@ public static class AuthEndpoints
             .AddCookie(options =>
             {
                 options.Cookie.Name = "slate.session";
+                // The real clock even when a demo date is fixed (T-75): the cookie's expiry is for the browser.
+                options.TimeProvider = TimeProvider.System;
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Strict;

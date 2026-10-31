@@ -100,6 +100,8 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 | `Storage__AzureBlob__ConnectionString` | prod | Audio storage |
 | `WhatsApp__Token`, `WhatsApp__PhoneNumberId` | stretch | WhatsApp Cloud API |
 | `Demo__Enabled` | no | Enables `/demo`, reset and the demo SATS controls `POST /api/demo/sats-feed` (default `true`) |
+| `Demo__Story` | no | `judges` (default) or `video`: the story the demo Reset writes (D-85; not on prod) |
+| `Demo__Today` | no | Fixes the date the app treats as today, e.g. `2026-10-31` (D-88; staging only) |
 | `VITE_API_BASE` | no | Front-end API base when not same-origin |
 
 ### API keys and other secrets

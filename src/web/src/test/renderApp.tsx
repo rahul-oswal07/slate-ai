@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router'
 import { App } from '../app/App'
 import { createQueryClient } from '../app/queryClient'
 
-export type FakeRoute = (request: { method: string; body: unknown }) => { status: number; body?: unknown } | 'offline'
+export type FakeRoute = (request: { method: string; body: unknown }) => { status: number; body?: unknown; headers?: Record<string, string> } | 'offline'
 
 /** Replaces fetch with routes keyed by "METHOD /path". Unknown routes are 404. Returns the calls made. */
 export function fakeApi(routes: Record<string, FakeRoute>) {
@@ -22,7 +22,7 @@ export function fakeApi(routes: Record<string, FakeRoute>) {
       }
       return new Response(result.body === undefined ? null : JSON.stringify(result.body), {
         status: result.status,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...result.headers },
       })
     }),
   )

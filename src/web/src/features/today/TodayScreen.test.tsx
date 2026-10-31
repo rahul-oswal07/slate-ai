@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { db } from '../../offline/db'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
-import { istToday } from './schoolTime'
+import { istToday, setSchoolToday } from './schoolTime'
 import type { AttendanceDay } from './types'
 
 const i18n = initI18n()
@@ -76,6 +76,24 @@ describe('TodayScreen', () => {
     expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
   })
 
+
+  it('uses the server\'s fixed demo date instead of the phone\'s (T-75)', async () => {
+    const fixed = '2026-10-31'
+    const school = { 'X-School-Today': fixed }
+    const calls = fakeApi({
+      'GET /api/me': () => ({ status: 200, body: teacher, headers: school }),
+      [`GET /api/classes/${teacher.classId}/attendance/${fixed}`]: () => ({
+        status: 200,
+        body: day({ date: fixed }),
+        headers: school,
+      }),
+    })
+    renderApp('/')
+
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, Saturday, October 31/ })).toBeInTheDocument()
+    expect(calls.some((c) => c.key.endsWith(`/attendance/${fixed}`))).toBe(true)
+    setSchoolToday(null)
+  })
 
   it('shows the SATS register with its source and time, and nothing waiting to send', async () => {
     today(day())
