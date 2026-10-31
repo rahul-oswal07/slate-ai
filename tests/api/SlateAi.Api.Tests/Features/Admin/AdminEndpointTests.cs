@@ -109,7 +109,7 @@ public sealed class AdminEndpointTests
         var sent = day.Audios[0];
         Assert.Equal("Shobha · Grade 3", sent.ClassLabel);
         Assert.Equal(["3-digit addition with carrying", "M9.UNKNOWN"], sent.Lessons); // an unknown ID shows as itself
-        Assert.Equal("Lakshmi", sent.ApprovedBy);
+        Assert.Equal("Savitha", sent.ApprovedBy);
         Assert.Equal(FakeAdminStore.LessonClipId, sent.ClipId);
         Assert.Equal(["Ravi", "Rohan"], sent.Families.Select(f => f.ChildName));
 
@@ -184,7 +184,7 @@ public sealed class AdminEndpointTests
             AskedFor = date;
             return Task.FromResult<IReadOnlyList<AdminLessonAudioRow>>(
             [
-                new(Guid.NewGuid(), "Shobha", 3, "te", ["M3.ADD.CARRY", "M9.UNKNOWN"], "approved", "valid", "Lakshmi", SixPm,
+                new(Guid.NewGuid(), "Shobha", 3, "te", ["M3.ADD.CARRY", "M9.UNKNOWN"], "approved", "valid", "Savitha", SixPm,
                     LessonClipId, 42.5, "Today we added with carrying.",
                     [new("Ravi", 4, "te", SixPm), new("Rohan", 9, "te", SixPm)]),
                 new(Guid.NewGuid(), "Shobha", 3, "hi", ["M3.ADD.CARRY"], "failed", "fallback:numbers", null, null,

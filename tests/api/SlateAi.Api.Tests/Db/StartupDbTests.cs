@@ -62,7 +62,7 @@ public sealed class StartupDbTests(PostgresFixture postgres)
     [Fact]
     public async Task Co_teachers_are_seeded_with_their_own_login_and_reach_the_class_but_a_stranger_does_not()
     {
-        // Lakshmi and Monika share Shobha's class (many teachers per class); Class.TeacherId stays Shobha.
+        // Monika and Savitha share Shobha's class (many teachers per class); Class.TeacherId stays Shobha.
         var ct = TestContext.Current.CancellationToken;
         await using var factory = new ApiFactory(
             await postgres.CreateEmptyDatabaseAsync(ct),
@@ -76,13 +76,23 @@ public sealed class StartupDbTests(PostgresFixture postgres)
         var shobha = await db.Classes.Select(c => c.TeacherId).SingleAsync(ct);
         var coTeachers = await db.Teachers.Where(t => t.Id != shobha).OrderBy(t => t.DisplayName).ToListAsync(ct);
 
-        Assert.Equal(["Lakshmi", "Monika"], coTeachers.Select(t => t.DisplayName));
-        Assert.Equal(["9123456789", "9123456788"], coTeachers.Select(t => t.Phone));
+        Assert.Equal(["Monika", "Savitha"], coTeachers.Select(t => t.DisplayName));
+        Assert.Equal(["9123456788", "9123456789"], coTeachers.Select(t => t.Phone));
         Assert.All(coTeachers, t => Assert.NotNull(t.PinHash));
         foreach (var teacher in coTeachers.Append(await db.Teachers.SingleAsync(t => t.Id == shobha, ct)))
         {
             Assert.Equal(classId, (await auth.GetMeAsync(teacher.Id, ct))!.ClassId);
         }
+
+        // A database seeded before the rename (T-72) still says "Lakshmi"; the next start brings the seed's name.
+        var savitha = coTeachers.Single(t => t.DisplayName == "Savitha").Id;
+        await db.Teachers.Where(t => t.Id == savitha).ExecuteUpdateAsync(s => s.SetProperty(t => t.DisplayName, "Lakshmi"), ct);
+        await using (var restart = factory.Services.CreateAsyncScope())
+        {
+            await restart.ServiceProvider.GetRequiredService<DemoSeeder>().SeedAsync(ct);
+        }
+
+        Assert.Equal("Savitha", await db.Teachers.AsNoTracking().Where(t => t.Id == savitha).Select(t => t.DisplayName).SingleAsync(ct));
 
         var stranger = new Teacher { Id = Guid.NewGuid(), DisplayName = "Stranger" };
         db.Teachers.Add(stranger);
