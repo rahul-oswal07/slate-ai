@@ -20,9 +20,13 @@ public sealed record FamilyMessage(string Kind, DateOnly Date, DateTimeOffset Se
 }
 
 /// <summary>One row of the "Under the hood" panel. <see cref="AiCall"/> holds no prompt text or names.</summary>
+/// <param name="ChildIds">From the store: who the call was about (T-73). Not sent to the browser.</param>
+/// <param name="Children">To the browser: their first names, demo-class children only.</param>
+/// <param name="OtherChildren">How many of them are in another class, so not named.</param>
 public sealed record AiCallRow(
     Guid Id, DateTimeOffset CreatedAt, string Purpose, string Model, int? PromptVersion,
-    int InputTokens, int OutputTokens, int CacheReadTokens, int LatencyMs, string? Verdict, string? Error);
+    int InputTokens, int OutputTokens, int CacheReadTokens, int LatencyMs, string? Verdict, string? Error,
+    IReadOnlyList<Guid>? ChildIds = null, IReadOnlyList<string>? Children = null, int OtherChildren = 0);
 
 /// <summary>
 /// What Reset writes besides the seed class: the story's past days and, when there is one, the pre-made catch-up for
@@ -183,7 +187,7 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
             .Take(limit)
             .Select(c => new AiCallRow(
                 c.Id, c.CreatedAt, c.Purpose, c.Model, c.PromptVersion,
-                c.InputTokens, c.OutputTokens, c.CacheReadTokens, c.LatencyMs, c.Verdict, c.Error))
+                c.InputTokens, c.OutputTokens, c.CacheReadTokens, c.LatencyMs, c.Verdict, c.Error, c.ChildIds))
             .ToListAsync(cancellationToken);
 
     public async Task<DemoSnapshot?> ExportAsync(Guid classId, Guid packageId, CancellationToken cancellationToken)

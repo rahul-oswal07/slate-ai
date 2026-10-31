@@ -14,6 +14,7 @@ public sealed class LoggedLlmClient(ILlmClient inner, IAiCallStore store, IOptio
             Id = Guid.NewGuid(),
             CreatedAt = clock.GetUtcNow(),
             Purpose = request.Prompt.Id,
+            ChildIds = AiCallScope.Current?.ToArray(),
             PromptVersion = request.Prompt.Version,
             Model = options.Value.Models.GetValueOrDefault(request.Prompt.ModelKey) ?? "(not configured)",
         };

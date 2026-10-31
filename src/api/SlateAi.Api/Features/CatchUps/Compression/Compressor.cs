@@ -33,19 +33,18 @@ public sealed class Compressor(
 
         var inputs = CompressionPlanner.Plan(LedgerBuilder.Build(classId, data), data.Lessons, date, curriculum);
 
-        // Children who missed the same lessons on the same days get the same request: ask Claude once per request.
-        var answers = new Dictionary<string, A2Result>(StringComparer.Ordinal);
+        // Children who missed the same lessons on the same days get the same request: ask Claude once per request, and
+        // tag that call with all of them (T-73).
         var results = new List<A2Result>();
-        foreach (var input in inputs.Where(i => skip?.Contains(i.ChildId) != true))
+        foreach (var group in inputs.Where(i => skip?.Contains(i.ChildId) != true).GroupBy(UserContent, StringComparer.Ordinal))
         {
-            var key = UserContent(input);
-            if (!answers.TryGetValue(key, out var answer))
+            A2Result answer;
+            using (AiCallScope.For(group.Select(i => i.ChildId).ToList()))
             {
-                answer = await CompressAsync(input, cancellationToken);
-                answers[key] = answer;
+                answer = await CompressAsync(group.First(), cancellationToken);
             }
 
-            results.Add(answer with { ChildId = input.ChildId });
+            results.AddRange(group.Select(input => answer with { ChildId = input.ChildId }));
         }
 
         return results;

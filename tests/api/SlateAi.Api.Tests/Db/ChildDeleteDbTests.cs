@@ -50,6 +50,17 @@ public sealed class ChildDeleteDbTests(PostgresFixture postgres)
         var token = await api.QueryAsync(db => db.CatchUpAssignments.Where(a => a.ChildId == ravi).Select(a => a.Token).SingleAsync(DemoClassApi.Ct));
         (await api.Client.PostAsJsonAsync($"/api/p/{token}/answer", new AnswerRequest(0, Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
 
+        // An AI call about Ravi and Sai Teja (T-73: the log tags calls with child IDs, never names).
+        var aiCall = Guid.NewGuid();
+        await api.QueryAsync(db =>
+        {
+            db.AiCalls.Add(new SlateAi.Api.Data.Entities.AiCall
+            {
+                Id = aiCall, CreatedAt = DateTimeOffset.UtcNow, Purpose = "a2-compression", Model = "test", ChildIds = [ravi, saiTeja],
+            });
+            return db.SaveChangesAsync(DemoClassApi.Ct);
+        });
+
         Task<int[]> RowsFor(Guid child) => api.QueryAsync(async db => new[]
         {
             await db.Children.CountAsync(c => c.Id == child, DemoClassApi.Ct),
@@ -58,6 +69,7 @@ public sealed class ChildDeleteDbTests(PostgresFixture postgres)
             await db.CatchUpAssignments.CountAsync(a => a.ChildId == child, DemoClassApi.Ct),
             await db.CheckResponses.CountAsync(r => db.CatchUpAssignments.Any(a => a.Id == r.AssignmentId && a.ChildId == child), DemoClassApi.Ct),
             await db.AbsenceReasons.CountAsync(r => r.ChildId == child, DemoClassApi.Ct),
+            await db.AiCalls.CountAsync(c => c.ChildIds!.Contains(child), DemoClassApi.Ct),
         });
         Assert.All(await RowsFor(ravi), n => Assert.True(n > 0));
         var answersBefore = await api.QueryAsync(db => db.CheckResponses.CountAsync(DemoClassApi.Ct));
@@ -70,6 +82,8 @@ public sealed class ChildDeleteDbTests(PostgresFixture postgres)
         Assert.Equal(answersBefore - 1, await api.QueryAsync(db => db.CheckResponses.CountAsync(DemoClassApi.Ct)));
         Assert.Equal(35, await api.QueryAsync(db => db.Children.CountAsync(DemoClassApi.Ct)));
         Assert.Equal(1, await api.QueryAsync(db => db.EveningMessages.CountAsync(m => m.ChildId == saiTeja, DemoClassApi.Ct)));
+        // The AI call stays (it is the cost log) and still names Sai Teja's ID; only Ravi's is gone.
+        Assert.Equal([saiTeja], await api.QueryAsync(db => db.AiCalls.Where(c => c.Id == aiCall).Select(c => c.ChildIds!).SingleAsync(DemoClassApi.Ct)));
         Assert.Equal(HttpStatusCode.NotFound, (await api.Client.GetAsync($"/api/p/{token}", DemoClassApi.Ct)).StatusCode);
 
         // The next start (or deploy) runs the seed again: the deleted child stays deleted.

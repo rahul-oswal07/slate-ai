@@ -723,11 +723,12 @@
     },
     "ai": {
       "title": "Under the hood",
-      "caption": "Each Claude and Sarvam call since the reset: what it was for, the model, the prompt version, and the result of checking its output. Prompts and names are never stored, so they aren't shown.",
+      "caption": "రీసెట్ తర్వాత ప్రతి Claude, Sarvam కాల్: అది దేనికి, ఏ పిల్లల గురించి, మోడల్, ప్రాంప్ట్ వెర్షన్, దాని అవుట్‌పుట్ తనిఖీ ఫలితం. ప్రాంప్ట్‌లు దాచరు, పేర్లు AI కి పంపరు; 'ఎవరి కోసం' కాలమ్ తరగతి జాబితా నుండి వస్తుంది.",
       "empty": "No AI calls since the reset yet. Record a lesson or generate catch-ups to see them here.",
       "failed": "Could not load the AI calls. Retrying…",
       "time": "Time",
       "step": "Step",
+      "for": "ఎవరి కోసం",
       "model": "Model",
       "tokens": "Tokens",
       "latency": "Time taken",
@@ -735,7 +736,8 @@
       "prompt": "{{id}} v{{version}}",
       "tokenCount": "{{input}} in / {{output}} out",
       "seconds": "{{s}} s",
-      "error": "Failed: {{error}}"
+      "error": "Failed: {{error}}",
+      "otherClass": "వేరే తరగతిలో {{count}}"
     },
     "purpose": {
       "stt": "Speech to text (Sarvam)",

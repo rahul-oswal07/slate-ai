@@ -84,6 +84,32 @@ public sealed class CatchUpWriterTests
     }
 
     [Fact]
+    public async Task Every_call_that_writes_it_is_tagged_with_the_children_it_is_for()
+    {
+        // T-73: the Under the hood panel says who A3, A4 and the voice were about; IDs only, never names.
+        var ravi = Guid.NewGuid();
+        var asha = Guid.NewGuid();
+        foreach (var child in new[] { ravi, asha })
+        {
+            _store.Assignments.Add(new CatchUpAssignment
+            {
+                Id = Guid.NewGuid(), ClassId = ClassId, ChildId = child, PackageId = _packageId, WeekOf = Monday,
+                CompressionRationale = "{}",
+            });
+        }
+
+        _llm.Script.Enqueue(Good);
+        _llm.Check.Enqueue(Pass);
+
+        await Writer().WriteAsync(_packageId, Ct);
+
+        Assert.Equal(2, _aiCalls.Calls.Count);
+        Assert.All(_aiCalls.Calls, c => Assert.Equal([ravi, asha], c.ChildIds!));
+        Assert.Contains(_tts.About, about => about is not null && about.SequenceEqual([ravi, asha]));
+        Assert.Null(AiCallScope.Current);
+    }
+
+    [Fact]
     public async Task Audio_too_long_or_not_made_turns_a_verified_catch_up_into_needs_review()
     {
         _llm.Script.Enqueue(Good);
@@ -189,12 +215,17 @@ public sealed class CatchUpWriterTests
         private readonly FakeTextToSpeech _fake = new();
 
         public List<string> Texts { get; } = [];
+
+        /// <summary>Who each synthesis was about (<c>AiCallScope</c>), as the logged voice would record it.</summary>
+        public List<IReadOnlyList<Guid>?> About { get; } = [];
+
         public bool Fail { get; set; }
         public double? Seconds { get; set; }
 
         public async Task<SpokenAudio> SynthesizeAsync(string text, string languageCode, CancellationToken cancellationToken)
         {
             Texts.Add(text);
+            About.Add(AiCallScope.Current);
             if (Fail)
             {
                 throw new SpeechException(SpeechFailure.Unavailable, "down");
@@ -219,7 +250,11 @@ public sealed class CatchUpWriterTests
             var isCheck = request.Prompt.Id == ContentCheck.PromptId;
             (isCheck ? CheckCalls : ScriptCalls).Add(request);
             var json = (isCheck ? Check : Script).Dequeue();
-            var call = new AiCall { Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch };
+            var call = new AiCall
+            {
+                Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch,
+                ChildIds = AiCallScope.Current?.ToArray(),
+            };
             await calls.AddAsync(call, cancellationToken);
             return new LlmResponse(json, "stub", new LlmUsage(0, 0, 0), call.Id);
         }

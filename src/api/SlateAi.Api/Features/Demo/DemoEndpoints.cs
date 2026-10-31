@@ -121,8 +121,9 @@ public static class DemoEndpoints
             .WithSummary("\"Under the hood\": the latest Claude and Sarvam calls")
             .WithDescription(
                 $"Up to {AiCallLimit} calls, newest first, from `since` when given: purpose (prompt ID or stt/tts), model, " +
-                "prompt version, tokens, latency, and the verdict of validating the output. No prompt text, transcripts " +
-                "or names are stored, so none are shown. Demo only.");
+                "prompt version, tokens, latency, the verdict of validating the output, and who the call was about: first " +
+                "names of demo-class children (looked up from the demo roster; the AI log stores IDs only, T-73), and a " +
+                "count of children in other classes, never named. No prompt text or transcripts are stored. Demo only.");
 
         if (app.ServiceProvider.GetRequiredService<IHostEnvironment>().IsDevelopment())
         {
@@ -326,8 +327,21 @@ public static class DemoEndpoints
             : TypedResults.NotFound();
 
     private static async Task<Ok<IReadOnlyList<AiCallRow>>> GetAiCallsAsync(
-        DateTimeOffset? since, IDemoStore store, CancellationToken cancellationToken) =>
-        TypedResults.Ok(await store.GetAiCallsAsync(since, AiCallLimit, cancellationToken));
+        DateTimeOffset? since, IDemoStore store, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)
+    {
+        // Only the demo class's fictional children are named; anyone else (a real class on staging) stays a count.
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        var names = seed.Children.ToDictionary(c => c.Id, c => c.FirstName);
+        var calls = await store.GetAiCallsAsync(since, AiCallLimit, cancellationToken);
+        return TypedResults.Ok<IReadOnlyList<AiCallRow>>(calls
+            .Select(c => c with
+            {
+                ChildIds = null,
+                Children = (c.ChildIds ?? []).Where(names.ContainsKey).Select(id => names[id]).ToList(),
+                OtherChildren = (c.ChildIds ?? []).Count(id => !names.ContainsKey(id)),
+            })
+            .ToList());
+    }
 
     private static async Task<Results<Ok<DemoSnapshot>, NotFound>> GetSnapshotAsync(
         Guid packageId, HttpContext http, IDemoStore store, CancellationToken cancellationToken) =>

@@ -36,6 +36,10 @@ export interface AiCall {
   latencyMs: number
   verdict: string | null
   error: string | null
+  /** First names of the demo children the call was about (T-73); empty for a class-level call. */
+  children: string[]
+  /** How many of them are in another class: counted, never named. */
+  otherChildren: number
 }
 
 /** What "Send messages now" sent; `eveningBlocked` says why tonight's message didn't go. */

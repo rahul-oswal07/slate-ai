@@ -22,6 +22,7 @@ public sealed class LoggedSpeechToText(
             Id = Guid.NewGuid(),
             CreatedAt = clock.GetUtcNow(),
             Purpose = "stt",
+            ChildIds = AiCallScope.Current?.ToArray(),
             Model = ai.Value.UseFakes ? "fake" : sarvam.Value.SttModel,
         };
         var started = clock.GetTimestamp();

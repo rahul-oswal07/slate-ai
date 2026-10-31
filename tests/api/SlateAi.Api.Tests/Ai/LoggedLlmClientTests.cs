@@ -35,6 +35,26 @@ public sealed class LoggedLlmClientTests
     }
 
     [Fact]
+    public async Task Tags_the_call_with_the_children_of_its_scope_and_none_outside_one()
+    {
+        var store = new FakeAiCallStore();
+        var inner = new StubLlm(_ => new LlmResponse("{}", "claude-sonnet-5-5", new LlmUsage(1, 1, 0), Guid.Empty));
+        var client = new LoggedLlmClient(inner, store, Options, TimeProvider.System);
+        var ravi = Guid.NewGuid();
+        var asha = Guid.NewGuid();
+
+        using (AiCallScope.For([ravi, asha]))
+        {
+            await client.CompleteJsonAsync(new LlmRequest(Prompt, "x", Schema), TestContext.Current.CancellationToken);
+        }
+
+        await client.CompleteJsonAsync(new LlmRequest(Prompt, "x", Schema), TestContext.Current.CancellationToken);
+
+        Assert.Equal([ravi, asha], store.Calls[0].ChildIds!);
+        Assert.Null(store.Calls[1].ChildIds);
+    }
+
+    [Fact]
     public async Task Logs_a_failed_call_and_rethrows()
     {
         var store = new FakeAiCallStore();
