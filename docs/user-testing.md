@@ -1,6 +1,6 @@
 # User testing log
 
-Owner: Monika. First names only. Consent forms kept outside the repo. Plan and measures: `docs/quality.md` §3.
+Owner: Monika. No participant names: use IDs (P1, P2, …), as the consent script promises quotes without names. Consent forms kept outside the repo. Plan and measures: `docs/quality.md` §3.
 
 **Rule: never invent quotes, numbers or sessions.** Weak or mixed findings are fine; honest evidence beats polished fiction. Quotes only with the participant's quote consent. Every number in the deck or video comes from this file or from `evals/results/`.
 
@@ -126,8 +126,8 @@ Each line is checked across the participants of a round; record the result in *T
 
 | ID | Role | Context | Consent | Quote consent | Rounds |
 |---|---|---|---|---|---|
-| P1 | Teacher (Revathi) | Government school, Bengaluru; teaches Class 7, Kannada medium (close proxy: the app is built for Classes 1–3). In person, 28 Oct, on Monika's phone, demo login "Lakshmi", UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
-| P2 | Teacher (Nagaratna) | Same government school in Bengaluru as P1; teaches Class 4 (close proxy: the app is built for Classes 1–3). In person, 30 Oct, on Monika's phone, UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
+| P1 | Teacher | Government school, Bengaluru; teaches Class 7, Kannada medium (close proxy: the app is built for Classes 1–3). In person, 28 Oct, on Monika's phone, demo login "Lakshmi", UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
+| P2 | Teacher | Same government school in Bengaluru as P1; teaches Class 4 (close proxy: the app is built for Classes 1–3). In person, 30 Oct, on Monika's phone, UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
 | P3 | Teacher | | | | |
 | P4 | Parent (Telugu) | | | | |
 | P5 | Parent (Telugu) | | | | |

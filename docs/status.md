@@ -3,6 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Teacher names removed from the repo (31 Oct), branch `claude/blissful-ride-mhlmvo`
+
+- `docs/user-testing.md` and `docs/spec.md` (D-82) named the two teachers we tested with; the consent script promised quotes without names and the repo is public. Now P1 and P2 only, and the log's header rule says "no participant names" instead of "first names only".
+- The names are still in Git history. The submission deck no longer names them either.
+
 ## Co-teacher Lakshmi renamed Savitha (31 Oct, T-72, D-79), branch `fix/T-72-rename-co-teacher`
 
 - The co-teacher login on phone 9123456789 is now **Savitha** (same ID, phone and PIN), so no teacher shares a name with child Lakshmi (roll 13). Monika's login is unchanged.
