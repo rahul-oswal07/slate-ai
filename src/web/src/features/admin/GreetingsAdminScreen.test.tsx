@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { createQueryClient } from '../../app/queryClient'
@@ -43,7 +43,10 @@ describe('GreetingsAdminScreen (T-66)', () => {
     URL.revokeObjectURL = vi.fn<() => void>()
   })
 
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
 
   it('lists every greeting with the key from the link and plays one', async () => {
     const user = userEvent.setup()
@@ -57,6 +60,35 @@ describe('GreetingsAdminScreen (T-66)', () => {
     expect(await screen.findByLabelText('Shobha’s greeting')).toHaveAttribute('src', 'blob:greeting')
     expect(fetch).toHaveBeenCalledWith(`/api/admin/greetings/${clipId}/audio`, expect.anything())
     expect(fetch.mock.calls.every(([url]) => !String(url).includes('secret-key'))).toBe(true)
+  })
+
+  it('downloads a greeting as a named file, with the key only in the header (T-68)', async () => {
+    const user = userEvent.setup()
+    const fetch = stubApi([shobha])
+    const saved: { href: string; download: string }[] = []
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      saved.push({ href: this.href, download: this.download })
+    })
+    renderAt('/admin/greetings#key=secret-key')
+
+    await user.click(await screen.findByRole('button', { name: 'Download Shobha’s greeting' }))
+
+    await waitFor(() => expect(saved).toEqual([{ href: 'blob:greeting', download: 'greeting-shobha-2026-10-28.ogg' }]))
+    expect(fetch).toHaveBeenCalledWith(`/api/admin/greetings/${clipId}/audio`, expect.anything())
+    expect(fetch.mock.calls.every(([url]) => !String(url).includes('secret-key'))).toBe(true)
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:greeting')
+  })
+
+  it('says so when a download fails', async () => {
+    const user = userEvent.setup()
+    const fetch = stubApi([shobha])
+    renderAt('/admin/greetings#key=secret-key')
+    const button = await screen.findByRole('button', { name: 'Download Shobha’s greeting' })
+    fetch.mockResolvedValueOnce(new Response(null, { status: 500 }))
+
+    await user.click(button)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Couldn’t download this audio. Try again.')
   })
 
   it('asks for the full link without a key and calls nothing', async () => {

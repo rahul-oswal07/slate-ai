@@ -748,6 +748,8 @@
     "play": "सुनें",
     "loadingAudio": "लोड हो रहा है…",
     "audioFailed": "यह ऑडियो लोड नहीं हुआ। फिर से कोशिश करें।",
+    "download": "डाउनलोड",
+    "downloadFailed": "यह ऑडियो डाउनलोड नहीं हुआ। फिर से कोशिश करें।",
     "nav": {
       "label": "एडमिन पेज",
       "greetings": "अभिवादन",
@@ -760,7 +762,8 @@
       "count_other": "{{count}} अभिवादन",
       "meta": "{{seconds}} से · रिकॉर्ड {{date}}",
       "play": "{{name}} का अभिवादन सुनें",
-      "player": "{{name}} का अभिवादन"
+      "player": "{{name}} का अभिवादन",
+      "download": "{{name}} का अभिवादन डाउनलोड करें"
     },
     "lessonAudio": {
       "title": "पाठ का ऑडियो",

@@ -1,7 +1,19 @@
 import { useTranslation } from 'react-i18next'
 import { AdminPage, AdminQuery } from './AdminPage'
 import { ClipPlayer } from './ClipPlayer'
-import { adminTime, useAdminGreetings } from './useAdmin'
+import { DownloadClip } from './DownloadClip'
+import { type AdminGreeting, adminTime, useAdminGreetings } from './useAdmin'
+
+/** "greeting-shobha-2026-10-28.ogg": the teacher's name in ASCII (else the clip ID) and the school-time date. */
+function greetingFileName({ clipId, teacherName, recordedAt }: AdminGreeting) {
+  const name = teacherName
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+  const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(recordedAt))
+  return `greeting-${name || clipId}-${date}.ogg`
+}
 
 /**
  * /admin/greetings#key=… (T-66, D-83): every teacher's recorded greeting, to listen to. Linked from nowhere, no
@@ -39,6 +51,12 @@ function Greetings({ adminKey: key }: { adminKey: string }) {
                     url={`/api/admin/greetings/${greeting.clipId}/audio`}
                     playLabel={t('admin.greetings.play', { name: greeting.teacherName })}
                     playerLabel={t('admin.greetings.player', { name: greeting.teacherName })}
+                  />
+                  <DownloadClip
+                    adminKey={key}
+                    url={`/api/admin/greetings/${greeting.clipId}/audio`}
+                    fileName={greetingFileName(greeting)}
+                    label={t('admin.greetings.download', { name: greeting.teacherName })}
                   />
                 </li>
               ))}
