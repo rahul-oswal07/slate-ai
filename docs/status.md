@@ -7,6 +7,11 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 - Second teacher session logged in `docs/user-testing.md`: P2 (Class 4, same government school as P1), in person, UI in Kannada, whole teacher flow in 5–7 min first use, SUS-lite 5 on all five; findings F-06 and F-07 (she valued messages to absent children; today teachers phone parents to ask why).
 - Next: a parent session (P4) if one can happen before submission (Sat 31 Oct, 12:00).
+## Admin lesson-audio day view (30 Oct, T-67, D-83), branch `feat/T-67-admin-lesson-audio`
+
+- `/admin/lesson-audio#key=…`: pick a day (today in IST by default) to see how many lesson audios went to families, and for each class and language the lesson, status (failed with its verdict), who approved it and when, Play, the words spoken and the families it went to (first name, roll number, sent time). Audio that never went out is listed too.
+- API `GET /api/admin/lesson-audio?date=YYYY-MM-DD` and `GET /api/admin/lesson-audio/{clipId}/audio` (lesson clips only). Same `Admin:Key` rules as T-66. The admin pages now share a frame with links between them that keep the key (`AdminPage`, `ClipPlayer`).
+- No migration, no Db-suite change.
 
 ## Admin greetings page (30 Oct, T-66, D-83), branch `feat/T-66-admin-greetings`
 
