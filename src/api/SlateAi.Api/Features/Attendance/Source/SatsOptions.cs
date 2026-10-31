@@ -19,6 +19,13 @@ public sealed class SatsOptions
     /// <summary>School holidays, on top of Sundays and second Saturdays.</summary>
     public List<DateOnly> Holidays { get; set; } = [];
 
+    /// <summary>
+    /// Classes whose register comes in every day, Sundays, second Saturdays and holidays too: the demo class
+    /// (appsettings.json, T-69), so a judge who opens the demo on a day off still sees today's absences. Every other
+    /// class keeps the school calendar.
+    /// </summary>
+    public List<Guid> EveryDayClassIds { get; set; } = [];
+
     /// <summary>Scripted weekly absences for the demo story, relative to the app's output directory.</summary>
     public string ScenarioFile { get; set; } = "data/seed/sats-scenario.json";
 }

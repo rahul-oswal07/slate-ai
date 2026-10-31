@@ -115,6 +115,7 @@
       "correctAction": "Wrong? Correct it",
       "satsLater": "SATS attendance came in at {{time}}. We kept your marking.",
       "noSchool": "No school today (holiday in SATS).",
+      "demoDayOff": "Demo only: schools are usually shut today. The demo class has attendance every day so you can try it.",
       "waiting": {
         "title": "SATS attendance has not come in yet",
         "body": "It comes in at {{syncTime}}. If it is late, we check again at {{retryTime}}. You do not need to do anything.",

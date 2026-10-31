@@ -12,9 +12,9 @@ public sealed record DemoRegisterDay(DateOnly Date, IReadOnlySet<Guid> AbsentChi
 /// <summary>
 /// Ravi's story on the real calendar (T-18): the school days before today, so the demo lines up whatever day a
 /// judge opens it. Pure; the Reset store writes what this returns. Only three children are ever away, one per family
-/// language and length of absence, so this week makes exactly three catch-ups (Telugu, Kannada, English). Today itself
-/// is left to the simulated feed, whose scenario marks Ravi and Rohan absent every school day (no random absences in
-/// the demo).
+/// language and length of absence, so this week makes exactly three catch-ups (Telugu, Kannada, Hindi). Today itself
+/// is left to the simulated feed, whose scenario marks Ravi and Rohan absent every day; the demo class has a register
+/// even on Sundays and holidays (T-69), so the story works whatever day it is opened. No random absences in the demo.
 /// </summary>
 public static class DemoStory
 {
@@ -25,8 +25,8 @@ public static class DemoStory
     public const int ManjunathRollNo = 15;
 
     /// <summary>
-    /// Rohan: English-speaking family, the demo's parent phone. Away today only (from the feed), so his family gets
-    /// tonight's message, the reason buttons and an English catch-up of today's lesson.
+    /// Rohan: Hindi-speaking family, the demo's parent phone. Away today only (from the feed), so his family gets
+    /// tonight's message, the reason buttons and a Hindi catch-up of today's lesson.
     /// </summary>
     public const int RohanRollNo = 24;
 

@@ -13,6 +13,13 @@ const textButton = 'btn-link mt-2 ml-auto flex'
 export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: () => void }) {
   const { t, i18n } = useTranslation()
   const time = (value: string) => formatSchoolTime(value, i18n.language, day.date)
+  // The demo class has a register every day (D-84); on a day the school is shut, say so.
+  const demoNote = day.demoDayOff && (
+    <p className="mb-3 flex items-start gap-2 rounded-button bg-panel p-2 text-caption text-ink-muted">
+      <Icon name="calendarX" size={18} className="mt-0.5 shrink-0" />
+      {t('today.attendance.demoDayOff')}
+    </p>
+  )
 
   if (day.status === 'missing') {
     return (
@@ -20,6 +27,7 @@ export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: ()
         aria-labelledby="attendance-title"
         className="rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-[14px]"
       >
+        {demoNote}
         <div className="flex items-start gap-3">
           <Icon name="alert" className="mt-0.5 shrink-0 text-warning" />
           <div>
@@ -45,6 +53,7 @@ export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: ()
   if (day.status === 'waiting' || day.status === 'noSchool') {
     return (
       <section aria-labelledby="attendance-title" className={card}>
+        {demoNote}
         <div className="flex items-start gap-3">
           <Icon name="clock" className="mt-0.5 shrink-0 text-ink-muted" />
           <div>
@@ -73,6 +82,7 @@ export function AttendanceCard({ day, onEdit }: { day: AttendanceDay; onEdit: ()
 
   return (
     <section aria-labelledby="attendance-title" className={card}>
+      {demoNote}
       <div className="flex items-start gap-3">
         <Icon name="checkCircle" className="mt-0.5 shrink-0 text-primary-strong" />
         <div className="min-w-0">
