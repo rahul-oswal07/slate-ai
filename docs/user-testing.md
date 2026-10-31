@@ -127,7 +127,7 @@ Each line is checked across the participants of a round; record the result in *T
 | ID | Role | Context | Consent | Quote consent | Rounds |
 |---|---|---|---|---|---|
 | P1 | Teacher (Revathi) | Government school, Bengaluru; teaches Class 7, Kannada medium (close proxy: the app is built for Classes 1–3). In person, 28 Oct, on Monika's phone, demo login "Lakshmi", UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
-| P2 | Teacher | | | | |
+| P2 | Teacher (Nagaratna) | Same government school in Bengaluru as P1; teaches Class 4 (close proxy: the app is built for Classes 1–3). In person, 30 Oct, on Monika's phone, UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
 | P3 | Teacher | | | | |
 | P4 | Parent (Telugu) | | | | |
 | P5 | Parent (Telugu) | | | | |
@@ -137,12 +137,14 @@ Each line is checked across the participants of a round; record the result in *T
 | Round | Participant | Attendance + capture (s) | Approve week (s) | Find who needs help (s) | Notes |
 |---|---|---|---|---|---|
 | 1 | P1 | ~300 (first use, setup included; not stopwatch-timed) | — | — | Whole teacher flow: setup with consent, attendance review, lesson by voice, today's evening message. Exact times to come from the staging record |
+| 1 | P2 | ~300–420 (5–7 min first use, setup included; not stopwatch-timed) | — | — | Whole teacher flow. Exact times to come from the staging record |
 
 ## SUS-lite scores
 
 | Round | Participant | (1) Every school day | (2) Easy | (3) Without help | (4) Trust what it sends | (5) Saves time |
 |---|---|---|---|---|---|---|
 | 1 | P1 | 5 | 5 | 5 | 5 | 5 |
+| 1 | P2 | 5 | 5 | 5 | 5 | 5 |
 
 ## Findings
 
@@ -169,3 +171,5 @@ For each finding, trace where it broke so the fix goes to the right place.
 | F-03 | 1 | P1 | Listened to the catch-up audio and approved it | Responsible | — | — | Kept (approval gate, guardrail 3) | — |
 | F-04 | 1 | P1 | Loved the attendance-stars message for children present all week; would tell the class and show parents | Right thing | — | — | Kept (T-63, from the 24 Oct mentor) | — |
 | F-05 | 1 | P1 | Wants to upload a photo (e.g. of what she taught) along with the voice note | Right thing | Requirement | P1 | Built (30 Oct): T-64, D-82; one photo with or instead of the voice note, matching only, never sent to families | #145, #149 |
+| F-06 | 1 | P2 | Did the whole teacher flow in Kannada in 5–7 minutes the first time; agreed with every feature shown and asked for nothing new | Works | — | — | Kept; a second teacher with the same result as P1 (F-01) | — |
+| F-07 | 1 | P2 | Liked most that the app sends messages to children who were absent. Today teachers call parents by phone to ask why a child was absent | Right thing | — | — | Kept: the evening message (FR-20, D-21) and the optional reason step (D-23) ask the same thing without a phone call; answers interview questions 1 and 3 | — |
