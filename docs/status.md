@@ -3,6 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## README demo and video links (31 Oct, T-65), branch `docs/T-65-readme-links`
+
+- `README.md` now links the demo (https://slateai-prod.azurewebsites.net/demo) and the video (https://www.youtube.com/watch?v=lDvo7b93d4A). The judges' note matches the app: `/demo` signs in by itself (there is no "Try the demo" button) and the guide has 6 steps, not 5. A new first "For judges" row points to the Under the hood tab.
+- **Next:** after merge, tag `v1.0-submission` so prod gets T-71–T-73 (prod runs `v1.0-rc1`), Reset prod, approve prod's evening message (it is still a draft, so "Send messages now" is blocked until it's approved), then close #146.
+
 ## Teacher names removed from the repo (31 Oct), branch `claude/blissful-ride-mhlmvo`
 
 - `docs/user-testing.md` and `docs/spec.md` (D-82) named the two teachers we tested with; the consent script promised quotes without names and the repo is public. Now P1 and P2 only, and the log's header rule says "no participant names" instead of "first names only".
