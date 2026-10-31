@@ -4,13 +4,13 @@ Every absent child gets the lesson they missed, based on what their own teacher 
 
 Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism.
 
-> **Judges:** open the demo link, choose **Try the demo**, and follow the 5 steps on screen. No sign-up, no WhatsApp needed. Use the **EN** toggle for English.
+> **Judges:** open the demo link. It signs you in as the demo teacher and shows the teacher's phone and a family's phone side by side. Follow the 6 steps on screen. No sign-up, no WhatsApp needed. Use the **EN** toggle for English. **Reset demo** starts the story again, and **Under the hood** lists every Claude and Sarvam call as it happens.
 
 | | |
 |---|---|
-| Demo | _link added on submission_ |
-| Video (3 min) | _link added on submission_ |
-| Status | Build stage, in development |
+| Demo | https://slateai-prod.azurewebsites.net/demo |
+| Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
+| Status | Build stage submission, 31 Oct 2026 |
 
 ## For judges
 
@@ -18,6 +18,7 @@ Where to check how AI is used. Each row links to the files that prove it.
 
 | What to check | Where |
 |---|---|
+| Every AI call, live | the demo's **Under the hood** tab: step, which children it was about, model, prompt version, tokens and the check result, read from the `AiCalls` log ([`DemoEndpoints`](src/api/SlateAi.Api/Features/Demo/DemoEndpoints.cs)) |
 | Every LLM call goes through one client and is logged | [`Ai/`](src/api/SlateAi.Api/Ai/): [`ILlmClient`](src/api/SlateAi.Api/Ai/ILlmClient.cs), [`LoggedLlmClient`](src/api/SlateAi.Api/Ai/LoggedLlmClient.cs), [`AiCallStore`](src/api/SlateAi.Api/Ai/AiCallStore.cs) · test: [`LoggedLlmClientTests`](tests/api/SlateAi.Api.Tests/Ai/LoggedLlmClientTests.cs) |
 | Prompts, versioned | [`prompts/`](prompts/): [a1 lesson mapping](prompts/a1-lesson-mapping.md), [a2 compression](prompts/a2-compression.md), [a3 script](prompts/a3-script.md), [a4 check](prompts/a4-check.md), [a8 lesson recap](prompts/a8-lesson-recap.md) |
 | Eval cases and results | [`evals/cases/`](evals/cases/), [`evals/results/`](evals/results/) (dated; latest per prompt) · method and scores: [`docs/quality.md`](docs/quality.md) §2 |
