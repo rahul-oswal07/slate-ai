@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { NavLink, useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { Icon, type IconName } from '../components/Icon'
 import { useMe } from '../features/auth/useMe'
 import { usePackages, waitingCount } from '../features/approve/usePackages'
@@ -15,8 +15,12 @@ const tabs: { to: string; key: 'today' | 'approve' | 'missed' | 'back' | 'week';
 /** Teacher bottom nav (T1 card §8): five equal tabs, active tab marked with aria-current. Hidden during setup. */
 export function BottomNav() {
   const { t } = useTranslation()
-  // T2 Lesson confirm is a sub-screen of Today (T1 card §8).
-  const onLessonConfirm = useLocation().pathname === '/lesson'
+  // T2 Lesson confirm and Settings (T-71, opened from Today's gear) are sub-screens of Today (T1 card §8, T10).
+  // A plain Link, not NavLink: NavLink can't mark Today current on its sub-screens for screen readers.
+  const pathname = useLocation().pathname
+  const onTodaySubScreen = pathname === '/lesson' || pathname.startsWith('/settings')
+  const active = (to: string) =>
+    to === '/' ? pathname === '/' || onTodaySubScreen : pathname === to || pathname.startsWith(`${to}/`)
   // Catch-ups waiting for her (ready or needs review); neutral badge, never error-coloured (T3).
   const waiting = waitingCount(usePackages(useMe().data?.classId ?? '').data)
 
@@ -25,20 +29,14 @@ export function BottomNav() {
       <ul className="mx-auto grid max-w-md grid-cols-5">
         {tabs.map((tab) => (
           <li key={tab.key}>
-            <NavLink
+            <Link
               to={tab.to}
-              end={tab.to === '/'}
-              aria-current={tab.to === '/' && onLessonConfirm ? 'page' : undefined}
-              className={({ isActive: matched }) => {
-                const isActive = matched || (tab.to === '/' && onLessonConfirm)
-                return (
-                `relative flex min-h-[60px] flex-col items-center justify-center gap-0.5 px-1 text-center text-caption [word-break:keep-all] ${
-                  isActive
-                    ? "font-extrabold text-primary-strong before:absolute before:inset-x-3 before:top-0 before:h-1 before:rounded-b-sm before:bg-primary before:content-['']"
-                    : 'text-ink-muted'
-                }`
-                )
-              }}
+              aria-current={active(tab.to) ? 'page' : undefined}
+              className={`relative flex min-h-[60px] flex-col items-center justify-center gap-0.5 px-1 text-center text-caption [word-break:keep-all] ${
+                active(tab.to)
+                  ? "font-extrabold text-primary-strong before:absolute before:inset-x-3 before:top-0 before:h-1 before:rounded-b-sm before:bg-primary before:content-['']"
+                  : 'text-ink-muted'
+              }`}
             >
               <span className="relative">
                 <Icon name={tab.icon} size={24} />
@@ -53,7 +51,7 @@ export function BottomNav() {
               </span>
               {t(`nav.${tab.key}`)}
               {tab.key === 'approve' && waiting > 0 && <span className="sr-only">{t('nav.approveWaiting', { n: waiting })}</span>}
-            </NavLink>
+            </Link>
           </li>
         ))}
       </ul>

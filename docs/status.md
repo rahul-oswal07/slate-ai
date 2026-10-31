@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Settings: greeting and evening message (31 Oct, T-71, D-86), branch `feat/T-71-settings`
+
+- Gear on Today → `/settings`: **My greeting** (length, Play, Record again) and **Evening message** (Approved · date, or needs approval; Review). Record again opens the greeting screen in a new `settings` mode (no step label, back to Settings); `POST /api/me/greeting` already replaced the clip. Review opens the evening-message screen in `settings` mode. No API change. Strings in all five locales (kn, hi, te, ta drafts).
+- Bottom nav: tabs are plain links now, so Today is marked current for screen readers on its sub-screens (`/lesson`, `/settings`), not just visually.
+- Still roadmap (T10): Families, Help, app language, withdraw voice consent.
+
 ## Demo video story (31 Oct, T-70, D-85), branch `feat/T-70-video-demo-story`
 
 - For recording the demo video. **Turn it on** locally with `dotnet user-secrets set Demo:Story video --project src/api/SlateAi.Api` (off: `dotnet user-secrets remove Demo:Story --project src/api/SlateAi.Api`), on staging with the App Service setting `Demo__Story=video`. **Never on prod**: the judges' guide follows the default story.

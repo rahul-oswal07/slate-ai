@@ -792,5 +792,25 @@
       "families_other": "Sent to {{count}} families",
       "family": "{{name}} (roll {{rollNo}})"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "open": "Settings",
+    "backToToday": "‹ Today",
+    "backToSettings": "Back to Settings",
+    "greeting": {
+      "title": "My greeting",
+      "recorded": "Recorded · {{seconds}} s. Families hear it before every message.",
+      "none": "Not recorded yet. Messages go without your voice.",
+      "play": "Play my greeting",
+      "again": "Record again",
+      "first": "Record my greeting"
+    },
+    "evening": {
+      "title": "Evening message",
+      "approved": "Approved · {{date}}",
+      "needsApproval": "Needs your approval. No evening messages go until you approve it.",
+      "review": "Review the message"
+    }
   }
 }

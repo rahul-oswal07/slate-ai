@@ -13,6 +13,7 @@ import { MissedScreen } from '../features/missed/MissedScreen'
 import { ParentScreen } from '../features/parent/ParentScreen'
 import { EveningTemplateScreen } from '../features/setup/EveningTemplateScreen'
 import { GreetingScreen } from '../features/setup/GreetingScreen'
+import { SettingsScreen } from '../features/settings/SettingsScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
 import { WeekScreen } from '../features/week/WeekScreen'
@@ -39,8 +40,11 @@ export function App() {
         <Route element={<TeacherGate need="ready" />}>
           <Route path="setup/evening" element={<EveningTemplateScreen />} />
           <Route path="setup/greeting" element={<GreetingScreen mode="later" />} />
+          <Route path="settings/greeting" element={<GreetingScreen mode="settings" />} />
+          <Route path="settings/evening" element={<EveningTemplateScreen mode="settings" />} />
           <Route element={<TeacherLayout />}>
             <Route index element={<TodayScreen />} />
+            <Route path="settings" element={<SettingsScreen />} />
             <Route path="lesson" element={<ConfirmLessonScreen />} />
             <Route path="approve" element={<ApproveScreen />} />
             <Route path="approve/:id" element={<PackageScreen />} />
