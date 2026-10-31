@@ -87,6 +87,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<int>("CacheReadTokens")
                         .HasColumnType("integer");
 
+                    b.PrimitiveCollection<Guid[]>("ChildIds")
+                        .HasColumnType("uuid[]");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 

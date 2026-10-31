@@ -8,7 +8,10 @@ Update it at the end of every working session (what changed, what's next, blocke
 - `docs/user-testing.md` and `docs/spec.md` (D-82) named the two teachers we tested with; the consent script promised quotes without names and the repo is public. Now P1 and P2 only, and the log's header rule says "no participant names" instead of "first names only".
 - The names are still in Git history. All participants later agreed to be named, so the submission deck uses first names; the repo keeps IDs (Rahul, 31 Oct).
 - Parent sessions logged: P4 (Kannada) and P5 (Hindi), in person 30 Oct, shown the parent page; findings F-08, F-09. The empty Telugu parent row is now P6.
+## Under the hood: who a call was about (31 Oct, T-73, D-87), branch `feat/T-73-ai-calls-for`
 
+- New **For** column in the demo's Under the hood panel: first names of the children each Claude/Sarvam call was about, or "–" for class-level calls. Migration `AiCallChildIds` adds `AiCalls.ChildIds` (uuid[], IDs only); `Ai/AiCallScope` (AsyncLocal) tags A2 with every child sharing that request and A3/A4/the catch-up voice with the package's children, without changing the AI client interfaces.
+- Names come from the demo roster at read time; a child of another class (a real class on staging) is only counted ("2 in another class"). Names still never reach Claude or Sarvam, nor the AI log. Deleting a child removes their ID from every call (FR-15, covered in `ChildDeleteDbTests`).
 ## Co-teacher Lakshmi renamed Savitha (31 Oct, T-72, D-79), branch `fix/T-72-rename-co-teacher`
 
 - The co-teacher login on phone 9123456789 is now **Savitha** (same ID, phone and PIN), so no teacher shares a name with child Lakshmi (roll 13). Monika's login is unchanged.

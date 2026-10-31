@@ -2,7 +2,8 @@ namespace SlateAi.Api.Data.Entities;
 
 /// <summary>
 /// One call to Claude or Sarvam, for cost tracking and the "Under the hood" panel (T-18).
-/// Never stores prompt text, transcripts or names; only what was called, how big, how long and the outcome.
+/// Never stores prompt text, transcripts or names; only what was called, how big, how long, the outcome and which
+/// children (by ID) it was about.
 /// </summary>
 public sealed class AiCall
 {
@@ -21,6 +22,12 @@ public sealed class AiCall
 
     /// <summary>Set by the caller after validating the output, e.g. "valid" or "fallback:low-confidence".</summary>
     public string? Verdict { get; set; }
+
+    /// <summary>
+    /// The children the call was about (<c>AiCallScope</c>, T-73): IDs only, never names; null for a class-level call.
+    /// Deleting a child removes their ID (FR-15).
+    /// </summary>
+    public Guid[]? ChildIds { get; set; }
 
     /// <summary>Failure kind and exception type when the call failed; null on success.</summary>
     public string? Error { get; set; }

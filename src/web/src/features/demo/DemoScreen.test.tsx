@@ -24,6 +24,8 @@ const call: AiCall = {
   latencyMs: 5200,
   verdict: 'ready',
   error: null,
+  children: ['Rohan', 'Manjunath'],
+  otherChildren: 0,
 }
 
 function setup({
@@ -135,6 +137,23 @@ describe('DemoScreen (T-18)', () => {
     expect(row).toHaveTextContent('900 in / 400 out')
     expect(row).toHaveTextContent('5.2 s')
     expect(row).toHaveTextContent('ready')
+    expect(within(table).getByRole('columnheader', { name: 'For' })).toBeInTheDocument()
+    expect(within(row as HTMLElement).getAllByRole('cell')[2]).toHaveTextContent('Rohan, Manjunath')
+  })
+
+  it("says who a call was about: '–' for the class, and another class's children only as a count (T-73)", async () => {
+    setup({
+      calls: [
+        { ...call, id: 'class-level', purpose: 'a1-lesson-mapping', children: [] },
+        { ...call, id: 'mixed', children: ['Ravi'], otherChildren: 2 },
+      ],
+    })
+    renderApp('/demo')
+
+    const table = await screen.findByRole('table', { name: 'Under the hood' })
+    const forCells = within(table).getAllByRole('row').slice(1).map((row) => within(row).getAllByRole('cell')[2])
+    expect(forCells[0]).toHaveTextContent('–')
+    expect(forCells[1]).toHaveTextContent('Ravi, 2 in another class')
   })
 
   it('resets after a confirmation, then lists AI calls from the reset', async () => {

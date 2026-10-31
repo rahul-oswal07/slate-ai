@@ -177,8 +177,26 @@ public sealed class DemoShellEndpointTests
         var calls = await client.GetFromJsonAsync<List<AiCallRow>>(
             $"/api/demo/ai-calls?since={Uri.EscapeDataString(since.ToString("O"))}", Ct);
 
-        Assert.Equal([call], calls);
+        Assert.Equal(call.Id, Assert.Single(calls!).Id);
+        Assert.Empty(calls![0].Children!);
         Assert.Equal((since, DemoEndpoints.AiCallLimit), _store.LastAiCallQuery);
+    }
+
+    [Fact]
+    public async Task Ai_calls_name_the_demo_children_they_were_about_and_only_count_anyone_else()
+    {
+        // T-73: the AI log holds IDs only; names come from the demo roster, and another class's child is never named.
+        var manjunath = Seed.Children.Single(c => c.RollNo == DemoStory.ManjunathRollNo).Id;
+        _store.AiCalls.Add(new AiCallRow(Guid.NewGuid(), Now, "a2-compression", "claude-opus-5-5", 3, 900, 400, 0, 5200, "valid", null,
+            ChildIds: [Rohan, manjunath, Guid.NewGuid()]));
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var call = Assert.Single((await client.GetFromJsonAsync<List<AiCallRow>>("/api/demo/ai-calls", Ct))!);
+
+        Assert.Equal(["Rohan", "Manjunath"], call.Children);
+        Assert.Equal(1, call.OtherChildren);
+        Assert.Null(call.ChildIds);
     }
 
     [Fact]
