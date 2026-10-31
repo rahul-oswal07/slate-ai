@@ -151,4 +151,23 @@ describe('GreetingScreen (T0 step 1)', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
   })
+
+  it('from Settings (T-71): Not now and Save both go back to Settings', async () => {
+    fakeApi({
+      'GET /api/me': () => ({ status: 200, body: withGreeting }),
+      'POST /api/me/greeting': () => ({ status: 200, body: withGreeting }),
+      ...eveningRoute,
+    })
+    renderApp('/settings/greeting')
+    await screen.findByRole('heading', { level: 1, name: 'A 10-second greeting in your voice' })
+    expect(screen.queryByText('Step 1 of 2')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Not now' })).toHaveAttribute('href', '/settings')
+
+    await record()
+    await userEvent.click(screen.getByRole('checkbox'))
+    await userEvent.click(screen.getByRole('button', { name: 'Save and continue' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument()
+    expect(saves()).toHaveLength(1)
+  })
 })

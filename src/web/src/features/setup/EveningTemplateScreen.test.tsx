@@ -93,6 +93,20 @@ describe('EveningTemplateScreen', () => {
     expect(calls.some((c) => c.key.startsWith('POST'))).toBe(false)
   })
 
+  it('from Settings (T-71): no step label, and approving leads back to Settings', async () => {
+    setup({
+      [`GET ${templateUrl}`]: () => ({ status: 200, body: template() }),
+      [`POST ${templateUrl}/approve`]: () => ({ status: 200, body: template('approved') }),
+    })
+    renderApp('/settings/evening')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Approve this message' }))
+
+    expect(screen.queryByText('Step 2 of 2')).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('button', { name: 'Back to Settings' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument()
+  })
+
   it('offline: says nothing was approved', async () => {
     setup({
       [`GET ${templateUrl}`]: () => ({ status: 200, body: template() }),

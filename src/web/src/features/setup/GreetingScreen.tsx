@@ -19,17 +19,18 @@ export const GREETING_MAX_MS = 10_000
  * plays it back, can record again, and ticks the voice consent. Saving sets `Teacher.ConsentAt`. With the microphone
  * blocked she continues without a greeting (D-34) and records it later from Today.
  *
- * `welcome` is the first run (Welcome → here → evening-message step); `later` is reached from Today by a teacher
+ * `welcome` is the first run (Welcome → here → evening-message step); `settings` re-records it from Settings and goes
+ * back there (T-71); `later` is reached from Today by a teacher
  * who is already set up. Online only for now: the offline state is roadmap (D-70).
  */
-export function GreetingScreen({ mode }: { mode: 'welcome' | 'later' }) {
+export function GreetingScreen({ mode }: { mode: 'welcome' | 'later' | 'settings' }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const announce = useAnnounce()
   const me = useMe()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const next = mode === 'welcome' ? '/setup/evening' : '/'
+  const next = mode === 'welcome' ? '/setup/evening' : mode === 'settings' ? '/settings' : '/'
 
   const [recording, setRecording] = useState<Blob | null>(null)
   const [consent, setConsent] = useState(false)
@@ -126,7 +127,7 @@ export function GreetingScreen({ mode }: { mode: 'welcome' | 'later' }) {
   return (
     <section aria-labelledby="greeting-title" className="mx-auto flex max-w-md flex-col gap-3">
       {mode === 'welcome' && <p className="mt-4 text-caption text-ink-muted">{t('setup.step1.progress')}</p>}
-      <h1 id="greeting-title" ref={headingRef} tabIndex={-1} className={`text-title ${mode === 'later' ? 'mt-4' : ''}`}>
+      <h1 id="greeting-title" ref={headingRef} tabIndex={-1} className={`text-title ${mode === 'welcome' ? '' : 'mt-4'}`}>
         {t('setup.greeting.heading')}
       </h1>
       <p className="text-body text-ink-muted">{t('setup.greeting.lead')}</p>
@@ -249,8 +250,8 @@ export function GreetingScreen({ mode }: { mode: 'welcome' | 'later' }) {
             {t('setup.greeting.save')}
           </button>
         )}
-        {mode === 'later' && (
-          <Link to="/" className="btn-link mt-1 block text-center">
+        {mode !== 'welcome' && (
+          <Link to={next} className="btn-link mt-1 block text-center">
             {t('setup.greeting.notNow')}
           </Link>
         )}

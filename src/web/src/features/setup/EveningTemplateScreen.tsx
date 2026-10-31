@@ -10,9 +10,10 @@ import { useApproveTemplate, useMessageTemplate } from '../evening/useEvening'
 /**
  * T0 step 2 (docs/design/T0-setup.md, state `2`): the evening message on a day of absence, shown filled with an
  * example. She approves it once (FR-20, D-21); "Not now" saves nothing and no message is sent until she approves.
- * The Telugu version is shown as text: its audio is stitched clips, which are roadmap (D-70).
+ * The Telugu version is shown as text: its audio is stitched clips, which are roadmap (D-70). From Settings (T-71) it
+ * has no step label and every way out goes back to Settings.
  */
-export function EveningTemplateScreen() {
+export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'settings' }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const me = useMe()
@@ -25,6 +26,8 @@ export function EveningTemplateScreen() {
   const example = languages.find((l) => l.language === uiLanguage) ?? languages.find((l) => l.language === 'kn')
   const telugu = languages.find((l) => l.language === 'te')
   const approved = template.data?.status === 'approved'
+  const settings = mode === 'settings'
+  const done = settings ? '/settings' : '/'
 
   function approveError() {
     const error = approve.error
@@ -35,8 +38,8 @@ export function EveningTemplateScreen() {
 
   return (
     <section aria-labelledby="template-title" className="mx-auto flex max-w-md flex-col gap-3">
-      <p className="mt-4 text-caption text-ink-muted">{t('setup.step2.progress')}</p>
-      <h1 id="template-title" ref={headingRef} tabIndex={-1} className="text-title">
+      {!settings && <p className="mt-4 text-caption text-ink-muted">{t('setup.step2.progress')}</p>}
+      <h1 id="template-title" ref={headingRef} tabIndex={-1} className={`text-title ${settings ? 'mt-4' : ''}`}>
         {t('setup.template.heading')}
       </h1>
       <p className="text-body text-ink-muted">{t('setup.template.lead')}</p>
@@ -90,10 +93,10 @@ export function EveningTemplateScreen() {
               </output>
               <button
                 type="button"
-                onClick={() => void navigate('/', { replace: true })}
+                onClick={() => void navigate(done, { replace: true })}
                 className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
               >
-                {t('common.goToday')}
+                {t(settings ? 'settings.backToSettings' : 'common.goToday')}
               </button>
             </>
           ) : (
@@ -108,7 +111,7 @@ export function EveningTemplateScreen() {
               </button>
               <button
                 type="button"
-                onClick={() => void navigate('/', { replace: true })}
+                onClick={() => void navigate(done, { replace: true })}
                 className="min-h-target w-full text-label text-primary-strong"
               >
                 {t('setup.template.notNow')}

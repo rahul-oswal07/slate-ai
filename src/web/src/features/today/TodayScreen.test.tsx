@@ -67,6 +67,15 @@ describe('TodayScreen', () => {
     expect(screen.queryByRole('region', { name: 'Record your greeting' })).not.toBeInTheDocument()
   })
 
+  it('has a gear to Settings, where the greeting can be recorded again (T-71)', async () => {
+    today(day())
+    renderApp('/')
+
+    await screen.findByRole('heading', { level: 1, name: /^Today, / })
+
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
+  })
+
 
   it('shows the SATS register with its source and time, and nothing waiting to send', async () => {
     today(day())
