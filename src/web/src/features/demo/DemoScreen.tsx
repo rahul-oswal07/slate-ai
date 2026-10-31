@@ -75,6 +75,7 @@ export function DemoScreen() {
   }
 
   const { parentChildId, lastResetAt, story } = info.data
+  const guide = story === 'video' ? 'demo.videoGuide' : 'demo.guide'
 
   return (
     <Page>
@@ -82,17 +83,13 @@ export function DemoScreen() {
         <h2 id="demo-guide" className="text-title font-extrabold">
           {story === 'video' ? t('demo.videoTitle') : t('demo.guide.title')}
         </h2>
-        {/* The judges' steps follow Ravi and Rohan; the video story (T-70) has its own children and no guide. */}
-        {story !== 'video' && (
-          <>
-            <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
-              {STEPS.map((step) => (
-                <li key={step}>{t(`demo.guide.${step}`)}</li>
-              ))}
-            </ol>
-            <p className="text-caption text-ink-muted">{t('demo.guide.calendar')}</p>
-          </>
-        )}
+        {/* The judges' steps follow Ravi and Rohan; the video story (T-70) has its own children and steps (T-74). */}
+        <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
+          {STEPS.map((step) => (
+            <li key={step}>{t(`${guide}.${step}`)}</li>
+          ))}
+        </ol>
+        <p className="text-caption text-ink-muted">{t(`${guide}.calendar`)}</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"

@@ -75,12 +75,17 @@ describe('DemoScreen (T-18)', () => {
     expect(await screen.findByText(/No messages yet/)).toBeInTheDocument()
   })
 
-  it('has no judges\' guide in the video story (T-70)', async () => {
+  it('shows the video story\'s own steps, not the judges\' (T-70, T-74)', async () => {
     setup({ demo: { ...info, story: 'video' } })
     renderApp('/demo')
 
-    expect(await screen.findByRole('heading', { name: 'Demo video story' })).toBeInTheDocument()
+    const guide = (await screen.findByRole('heading', { name: 'Demo video story' })).closest('section') as HTMLElement
+    const steps = within(guide).getAllByRole('listitem')
+    expect(steps).toHaveLength(6)
+    expect(steps[0]).toHaveTextContent('SATS shows only Ananya (roll 1) absent')
+    expect(steps[5]).toHaveTextContent("Back today has Arun's buddy card")
     expect(screen.queryByText(/SATS shows Ravi/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Manjunath/)).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reset demo' })).toBeInTheDocument()
     expect(screen.getByText("Ananya's family's phone")).toBeInTheDocument()
     expect(screen.queryByText("Rohan's family's phone")).not.toBeInTheDocument()

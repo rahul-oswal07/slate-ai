@@ -668,6 +668,15 @@
       "after": "Teacher phone: Missed lessons shows how Rohan did; Back today has Manjunath's buddy card; Week shows return speed and reasons.",
       "calendar": "The story follows the real calendar: Ravi has been away since Monday, so early in the week he has missed fewer lessons."
     },
+    "videoGuide": {
+      "today": "Teacher phone, Today: SATS shows only Ananya (roll 1) absent. She has been away all week. Arun is back today after Thursday and Friday.",
+      "lesson": "Record today's lesson in Kannada, or pick it from the list, and confirm it.",
+      "evening": "Ananya's family's phone already has an evening message for each day this week, in Kannada. Tap Send messages now for tonight's, then open it and pick a reason.",
+      "approve": "Approve: generate the week's four catch-ups: Kannada for Ananya (five lessons squeezed into the ones that matter), Telugu for Ravi (Mon–Tue), Hindi for Rohan (Wed) and Tamil for Arun (Thu–Fri). Listen, read the summary, tick and approve, then tap Send messages now.",
+      "parent": "Ananya's family's phone: open the catch-up, listen, do the activity and tap a picture.",
+      "after": "Teacher phone: Back today has Arun's buddy card, Week shows return speed and reasons, and Under the hood shows each AI call and which children it was for.",
+      "calendar": "Record on a Saturday so the whole week is behind. Earlier in the week only the days so far are filled in."
+    },
     "reset": {
       "button": "Reset demo",
       "title": "Reset the demo?",
