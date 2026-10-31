@@ -742,20 +742,47 @@
     }
   },
   "admin": {
+    "needsLink": "इस पेज के लिए पूरा लिंक चाहिए।",
+    "failed": "यह पेज लोड नहीं हुआ।",
+    "loading": "लोड हो रहा है…",
+    "play": "सुनें",
+    "loadingAudio": "लोड हो रहा है…",
+    "audioFailed": "यह ऑडियो लोड नहीं हुआ। फिर से कोशिश करें।",
+    "nav": {
+      "label": "एडमिन पेज",
+      "greetings": "अभिवादन",
+      "lessonAudio": "पाठ का ऑडियो"
+    },
     "greetings": {
       "title": "शिक्षकों के अभिवादन",
-      "needsLink": "इस पेज के लिए पूरा लिंक चाहिए।",
-      "failed": "अभिवादन लोड नहीं हो सके।",
-      "loading": "लोड हो रहा है…",
       "empty": "अभी तक कोई अभिवादन रिकॉर्ड नहीं हुआ।",
       "count_one": "{{count}} अभिवादन",
       "count_other": "{{count}} अभिवादन",
       "meta": "{{seconds}} से · रिकॉर्ड {{date}}",
       "play": "{{name}} का अभिवादन सुनें",
-      "playShort": "सुनें",
-      "loadingAudio": "लोड हो रहा है…",
-      "player": "{{name}} का अभिवादन",
-      "audioFailed": "यह अभिवादन लोड नहीं हुआ। फिर से कोशिश करें।"
+      "player": "{{name}} का अभिवादन"
+    },
+    "lessonAudio": {
+      "title": "पाठ का ऑडियो",
+      "date": "दिन",
+      "sent_one": "{{count}} पाठ ऑडियो परिवारों को भेजा गया",
+      "sent_other": "{{count}} पाठ ऑडियो परिवारों को भेजे गए",
+      "empty": "इस दिन कोई पाठ ऑडियो नहीं है।",
+      "status": {
+        "sent": "भेजा गया",
+        "approved": "मंज़ूर, भेजा नहीं",
+        "ready": "तैयार, मंज़ूर नहीं",
+        "generating": "बन रहा है",
+        "failed": "विफल"
+      },
+      "reason": "कारण: {{reason}}",
+      "approved": "{{name}} ने मंज़ूर किया, {{date}}",
+      "play": "{{language}} पाठ ऑडियो सुनें ({{seconds}} से)",
+      "player": "{{language}} पाठ ऑडियो",
+      "words": "बोले गए शब्द",
+      "families_one": "{{count}} परिवार को भेजा गया",
+      "families_other": "{{count}} परिवारों को भेजा गया",
+      "family": "{{name}} (रोल {{rollNo}})"
     }
   }
 }
