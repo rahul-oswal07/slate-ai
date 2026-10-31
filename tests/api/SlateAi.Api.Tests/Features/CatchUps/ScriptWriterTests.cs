@@ -83,7 +83,12 @@ public sealed class ScriptWriterTests
                 throw new LlmException(failure, "down");
             }
 
-            var call = new AiCall { Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch };
+            // Like LoggedLlmClient: the call row carries the children of the current scope (T-73).
+            var call = new AiCall
+            {
+                Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch,
+                ChildIds = AiCallScope.Current?.ToArray(),
+            };
             await calls.AddAsync(call, cancellationToken);
             return new LlmResponse(Json, "stub", new LlmUsage(0, 0, 0), call.Id);
         }

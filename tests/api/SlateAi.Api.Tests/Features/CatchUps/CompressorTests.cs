@@ -116,6 +116,10 @@ public sealed class CompressorTests
 
         // Ravi and Asha missed Tuesday only (one call); Kiran also missed Wednesday (a second call).
         Assert.Equal(2, _llm.Requests.Count);
+        // Each call says who it was about (T-73): the shared call both children, the other Kiran alone.
+        Assert.Equal(
+            [new HashSet<Guid> { Ravi, asha }, new HashSet<Guid> { kiran }],
+            _aiCalls.Calls.Select(c => c.ChildIds!.ToHashSet()).OrderByDescending(s => s.Count));
         Assert.Equal(new HashSet<Guid> { Ravi, asha, kiran }, results.Select(r => r.ChildId).ToHashSet());
         Assert.Equal(
             results.Single(r => r.ChildId == Ravi).Targets.Select(t => t.Id),
@@ -153,7 +157,12 @@ public sealed class CompressorTests
                 throw new LlmException(failure, "down");
             }
 
-            var call = new AiCall { Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch };
+            // Like LoggedLlmClient: the call row carries the children of the current scope (T-73).
+            var call = new AiCall
+            {
+                Id = Guid.NewGuid(), Purpose = request.Prompt.Id, Model = "stub", CreatedAt = DateTimeOffset.UnixEpoch,
+                ChildIds = AiCallScope.Current?.ToArray(),
+            };
             await calls.AddAsync(call, cancellationToken);
             return new LlmResponse(Json, "stub", new LlmUsage(0, 0, 0), call.Id);
         }

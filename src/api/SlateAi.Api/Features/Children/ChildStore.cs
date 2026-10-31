@@ -48,6 +48,11 @@ public sealed class ChildStore(AppDbContext db, TimeProvider clock) : IChildStor
             return ChildDelete.NotFound;
         }
 
+        // The AI log keeps no trace of them either: their ID leaves every call it tagged (T-73).
+        await db.Database.ExecuteSqlAsync(
+            $"""UPDATE "AiCalls" SET "ChildIds" = array_remove("ChildIds", {childId}) WHERE {childId} = ANY("ChildIds")""",
+            cancellationToken);
+
         // The child's assignments are gone with them; a catch-up nobody else has is about them alone.
         await db.CatchUpPackages
             .Where(p => packageIds.Contains(p.Id) && !db.CatchUpAssignments.Any(a => a.PackageId == p.Id))

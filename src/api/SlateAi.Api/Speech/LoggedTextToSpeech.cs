@@ -16,6 +16,7 @@ public sealed class LoggedTextToSpeech(
             Id = Guid.NewGuid(),
             CreatedAt = clock.GetUtcNow(),
             Purpose = "tts",
+            ChildIds = AiCallScope.Current?.ToArray(),
             Model = ai.Value.UseFakes ? "fake" : $"{sarvam.Value.TtsModel}/{sarvam.Value.TtsSpeaker}",
         };
         var started = clock.GetTimestamp();

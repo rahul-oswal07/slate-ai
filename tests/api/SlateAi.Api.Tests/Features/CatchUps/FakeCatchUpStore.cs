@@ -79,7 +79,8 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
         lock (_gate)
         {
             return Task.FromResult(Packages.Where(p => p.Id == packageId)
-                .Select(p => new PackageRecord(p.Id, p.ClassId, p.WeekOf, p.TargetCompetencyIds, p.TargetKey, p.Language, p.Status, p.ScriptVersion, p.Hint))
+                .Select(p => new PackageRecord(p.Id, p.ClassId, p.WeekOf, p.TargetCompetencyIds, p.TargetKey, p.Language, p.Status, p.ScriptVersion, p.Hint,
+                    Assignments.Where(a => a.PackageId == p.Id).Select(a => a.ChildId).ToList()))
                 .SingleOrDefault());
         }
     }

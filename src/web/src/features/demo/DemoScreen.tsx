@@ -362,6 +362,7 @@ function UnderTheHood({ since }: { since: string | null }) {
               <tr className="border-b-2 border-border">
                 <th scope="col" className="p-2">{t('demo.ai.time')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.step')}</th>
+                <th scope="col" className="p-2">{t('demo.ai.for')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.model')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.tokens')}</th>
                 <th scope="col" className="p-2">{t('demo.ai.latency')}</th>
@@ -390,6 +391,11 @@ function CallRow({ call, language }: { call: AiCall; language: string }) {
         {call.promptVersion !== null && (
           <span className="block text-ink-muted">{t('demo.ai.prompt', { id: call.purpose, version: call.promptVersion })}</span>
         )}
+      </td>
+      <td className="p-2">
+        {call.children.length > 0 || call.otherChildren > 0
+          ? [...call.children, ...(call.otherChildren > 0 ? [t('demo.ai.otherClass', { count: call.otherChildren })] : [])].join(', ')
+          : '–'}
       </td>
       <td className="p-2 whitespace-nowrap">{call.model}</td>
       <td className="p-2 whitespace-nowrap">

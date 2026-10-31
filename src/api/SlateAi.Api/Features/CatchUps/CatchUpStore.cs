@@ -27,9 +27,10 @@ public sealed record ActivityData(
 public sealed record CheckData(
     string CompetencyId, string Kind, string Question, IReadOnlyList<int> Options, int CorrectIndex, int Answer, string? Prompt);
 
+/// <param name="ChildIds">The children it is assigned to: the AI calls that write it are about them (T-73).</param>
 public sealed record PackageRecord(
     Guid Id, Guid ClassId, DateOnly WeekOf, IReadOnlyList<string> TargetIds, string TargetKey, string Language,
-    string Status, int ScriptVersion, string? Hint);
+    string Status, int ScriptVersion, string? Hint, IReadOnlyList<Guid>? ChildIds = null);
 
 /// <summary>The verifier's review of the stored attempt (A4); null before verification.</summary>
 public sealed record PackageReview(bool Passed, int Attempts, IReadOnlyList<VerifierCheck> Checks);
@@ -233,7 +234,8 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
     public Task<PackageRecord?> GetPackageAsync(Guid packageId, CancellationToken cancellationToken) =>
         db.CatchUpPackages.Where(p => p.Id == packageId)
             .Select(p => new PackageRecord(
-                p.Id, p.ClassId, p.WeekOf, p.TargetCompetencyIds, p.TargetKey, p.Language, p.Status, p.ScriptVersion, p.Hint))
+                p.Id, p.ClassId, p.WeekOf, p.TargetCompetencyIds, p.TargetKey, p.Language, p.Status, p.ScriptVersion, p.Hint,
+                db.CatchUpAssignments.Where(a => a.PackageId == p.Id).OrderBy(a => a.CreatedAt).Select(a => a.ChildId).ToList()))
             .SingleOrDefaultAsync(cancellationToken);
 
     public async Task SaveScriptAsync(Guid packageId, ScriptOutcome outcome, CancellationToken cancellationToken)

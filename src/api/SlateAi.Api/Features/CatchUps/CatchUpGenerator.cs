@@ -57,6 +57,9 @@ public sealed class CatchUpWriter(
             return;
         }
 
+        // A3, A4 and the voice are about the children this catch-up is for: the Under the hood panel says so (T-73).
+        using var about = AiCallScope.For(package.ChildIds ?? []);
+
         var promptVersion = prompts.Get(ScriptWriter.PromptId).Version;
         var problems = PackagePractice.For(
             package.TargetIds, curriculum,
