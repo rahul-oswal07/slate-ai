@@ -11,6 +11,8 @@ namespace SlateAi.Api.Data.Seed;
 /// file and only missing rows are inserted. Logs counts only, never names (NFR-05). The demo teacher's
 /// phone and PIN are filled in only while empty, so a PIN changed later is never overwritten. A child's consent comes
 /// from the file until the teacher records it herself (<c>ConsentChangedAt</c> set), so existing databases get it too.
+/// Seeded teachers' names always follow the file (no screen edits them), so a renamed login reaches existing databases
+/// on the next start (T-72: co-teacher Lakshmi became Savitha, apart from child Lakshmi).
 /// </summary>
 public sealed class DemoSeeder(
     AppDbContext db,
@@ -39,6 +41,8 @@ public sealed class DemoSeeder(
             added++;
         }
 
+        teacher.DisplayName = seed.Teacher.DisplayName;
+
         SetLogin(teacher, seed.Teacher.Phone, demo.Value.TeacherPin, "Demo:TeacherPin");
 
         var coTeacherIds = new List<Guid>();
@@ -51,6 +55,8 @@ public sealed class DemoSeeder(
                 db.Teachers.Add(coTeacher);
                 added++;
             }
+
+            coTeacher.DisplayName = co.DisplayName;
 
             SetLogin(coTeacher, co.Phone, demo.Value.CoTeacherPin, "Demo:CoTeacherPin");
             coTeacherIds.Add(co.Id);

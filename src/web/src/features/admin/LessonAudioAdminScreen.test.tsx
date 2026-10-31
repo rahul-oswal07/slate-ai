@@ -23,7 +23,7 @@ const day: AdminLessonAudioDay = {
       lessons: ['3-digit addition with carrying'],
       status: 'approved',
       verdict: 'valid',
-      approvedBy: 'Lakshmi',
+      approvedBy: 'Savitha',
       approvedAt: '2026-10-29T10:00:00Z',
       clipId,
       seconds: 42.5,
@@ -105,7 +105,7 @@ describe('LessonAudioAdminScreen (T-67)', () => {
     const card = (await screen.findByText('Shobha · Grade 3 · తెలుగు')).closest('li') as HTMLElement
     expect(within(card).getByText('Sent')).toBeInTheDocument()
     expect(within(card).getByText('3-digit addition with carrying')).toBeInTheDocument()
-    expect(within(card).getByText(/^Approved by Lakshmi/)).toBeInTheDocument()
+    expect(within(card).getByText(/^Approved by Savitha/)).toBeInTheDocument()
     expect(within(card).getByText('Sent to 2 families')).toBeInTheDocument()
     expect(within(card).getByText('Ravi (roll 4)')).toBeInTheDocument()
     expect(within(card).getByText('Rohan (roll 9)')).toBeInTheDocument()

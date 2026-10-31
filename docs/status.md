@@ -3,6 +3,13 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Co-teacher Lakshmi renamed Savitha (31 Oct, T-72, D-79), branch `fix/T-72-rename-co-teacher`
+
+- The co-teacher login on phone 9123456789 is now **Savitha** (same ID, phone and PIN), so no teacher shares a name with child Lakshmi (roll 13). Monika's login is unchanged.
+- `DemoSeeder` now sets seeded teachers' names from `demo-class.json` on every start (it only did on create), so local, staging and prod show Savitha after their next start or deploy; nothing to do by hand.
+- **For Monika:** `docs/user-testing.md` (her file) still lists the logins as Shobha, Lakshmi and Monika.
+- Seed review item "Reset leaves lesson-audio clips behind" is **dropped**: lesson clips are shared per lesson and language on purpose (reused by any class and after a Reset), so they are a cache, not leftovers.
+
 ## Settings: greeting and evening message (31 Oct, T-71, D-86), branch `feat/T-71-settings`
 
 - Gear on Today → `/settings`: **My greeting** (length, Play, Record again) and **Evening message** (Approved · date, or needs approval; Review). Record again opens the greeting screen in a new `settings` mode (no step label, back to Settings); `POST /api/me/greeting` already replaced the clip. Review opens the evening-message screen in `settings` mode. No API change. Strings in all five locales (kn, hi, te, ta drafts).
