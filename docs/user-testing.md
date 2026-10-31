@@ -1,6 +1,6 @@
 # User testing log
 
-Owner: Monika. First names only. Consent forms kept outside the repo. Plan and measures: `docs/quality.md` §3.
+Owner: Monika. No participant names: use IDs (P1, P2, …), as the consent script promises quotes without names. Consent forms kept outside the repo. Plan and measures: `docs/quality.md` §3.
 
 **Rule: never invent quotes, numbers or sessions.** Weak or mixed findings are fine; honest evidence beats polished fiction. Quotes only with the participant's quote consent. Every number in the deck or video comes from this file or from `evals/results/`.
 
@@ -126,11 +126,12 @@ Each line is checked across the participants of a round; record the result in *T
 
 | ID | Role | Context | Consent | Quote consent | Rounds |
 |---|---|---|---|---|---|
-| P1 | Teacher (Revathi) | Government school, Bengaluru; teaches Class 7, Kannada medium (close proxy: the app is built for Classes 1–3). In person, 28 Oct, on Monika's phone, demo login "Lakshmi", UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
-| P2 | Teacher (Nagaratna) | Same government school in Bengaluru as P1; teaches Class 4 (close proxy: the app is built for Classes 1–3). In person, 30 Oct, on Monika's phone, UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
+| P1 | Teacher | Government school, Bengaluru; teaches Class 7, Kannada medium (close proxy: the app is built for Classes 1–3). In person, 28 Oct, on Monika's phone, demo login "Lakshmi", UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
+| P2 | Teacher | Same government school in Bengaluru as P1; teaches Class 4 (close proxy: the app is built for Classes 1–3). In person, 30 Oct, on Monika's phone, UI in Kannada | Yes (also agreed to recording) | Yes | 1 |
 | P3 | Teacher | | | | |
-| P4 | Parent (Telugu) | | | | |
-| P5 | Parent (Telugu) | | | | |
+| P4 | Parent (Kannada) | Home language Kannada. In person, 30 Oct; shown the parent page on our phone | Yes | Yes (also agreed to be named; repo uses IDs) | 1 |
+| P5 | Parent (Hindi) | Home language Hindi. In person, 30 Oct; shown the parent page on our phone | Yes | Yes (also agreed to be named; repo uses IDs) | 1 |
+| P6 | Parent (Telugu) | | | | |
 
 ## Timed tasks
 
@@ -173,3 +174,5 @@ For each finding, trace where it broke so the fix goes to the right place.
 | F-05 | 1 | P1 | Wants to upload a photo (e.g. of what she taught) along with the voice note | Right thing | Requirement | P1 | Built (30 Oct): T-64, D-82; one photo with or instead of the voice note, matching only, never sent to families | #145, #149 |
 | F-06 | 1 | P2 | Did the whole teacher flow in Kannada in 5–7 minutes the first time; agreed with every feature shown and asked for nothing new | Works | — | — | Kept; a second teacher with the same result as P1 (F-01) | — |
 | F-07 | 1 | P2 | Liked most that the app sends messages to children who were absent. Today teachers call parents by phone to ask why a child was absent | Right thing | — | — | Kept: the evening message (FR-20, D-21) and the optional reason step (D-23) ask the same thing without a phone call; answers interview questions 1 and 3 | — |
+| F-08 | 1 | P4, P5 | After seeing the parent page, both parents liked getting the missed lesson as a WhatsApp audio and helping their child go through it | Right thing | — | — | Kept: home-language audio and the parent page from a link (FR-09, FR-10); real WhatsApp delivery is roadmap | — |
+| F-09 | 1 | P4 | Said it would also encourage and remind them to teach their child at home | Right thing | — | — | Kept: supports the home-engagement measure (D-20) and the evening message (FR-20, D-21) | — |
