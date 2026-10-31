@@ -7,6 +7,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 
 - Found while reviewing the seed: on a Sunday, second Saturday or holiday the simulated SATS feed returned no register, so the demo showed "No school today" and the guide's steps stopped (Sun 1 Nov is the hard deadline; judging runs past it).
 - `Attendance:Sats:EveryDayClassIds` (appsettings.json: the seeded demo class only): that class gets a register every day; `sats-scenario.json` has Ravi and Rohan away on Sundays too. Other classes (user testing) keep the school calendar. Reset's past days unchanged.
+- On those days Today's attendance card says "Demo only: schools are usually shut today. The demo class has attendance every day so you can try it." (`demoDayOff` on `GET …/attendance/{date}`; the calendar rule moved to `SchoolCalendar`). Ordinary Saturdays are school days and show nothing (Rahul, 31 Oct). Strings in all five locales (kn, hi, te, ta drafts).
 - Code comments, the Reset's OpenAPI description and the scenario note said Rohan's family is English; now Hindi (since 25 Oct).
 - Still open from the seed review: check the demo teacher has a greeting on the demo database; Reset leaves lesson-audio clips behind; co-teacher Lakshmi shares a name with child Lakshmi (roll 13).
 

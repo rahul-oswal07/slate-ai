@@ -37,10 +37,7 @@ public sealed class SimulatedSatsSource : IAttendanceSource
     }
 
     /// <summary>The school calendar; <see cref="SatsOptions.EveryDayClassIds"/> still get a register on other days.</summary>
-    public bool IsSchoolDay(DateOnly date) =>
-        date.DayOfWeek != DayOfWeek.Sunday
-        && !(date.DayOfWeek == DayOfWeek.Saturday && (date.Day - 1) / 7 == 1)
-        && !_options.Holidays.Contains(date);
+    public bool IsSchoolDay(DateOnly date) => SchoolCalendar.IsSchoolDay(date, _options.Holidays);
 
     /// <summary>The simulated absentees, ignoring the school calendar (the demo endpoint uses it directly).</summary>
     public IReadOnlySet<Guid> Simulate(Guid classId, DateOnly date, IReadOnlyList<RosterChild> roster)

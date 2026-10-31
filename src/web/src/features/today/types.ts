@@ -14,6 +14,8 @@ export type AttendanceDay = {
   retryAt: string | null
   absentChildIds: string[]
   children: RosterChild[]
+  /** The school is shut today but the demo class has a register anyway (D-84). Missing in older offline copies. */
+  demoDayOff?: boolean
   /** When this copy was saved on the phone, if it came from the offline snapshot (D-68). */
   savedAt?: number
 }

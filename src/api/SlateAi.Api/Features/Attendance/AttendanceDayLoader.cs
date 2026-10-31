@@ -42,6 +42,6 @@ public sealed class AttendanceDayLoader(
             }
         }
 
-        return AttendanceDay.Describe(date, roster, rows, noSchool, now, options.Value);
+        return AttendanceDay.Describe(classId, date, roster, rows, noSchool, now, options.Value);
     }
 }

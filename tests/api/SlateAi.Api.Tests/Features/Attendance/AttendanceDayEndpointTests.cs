@@ -83,6 +83,33 @@ public sealed class AttendanceDayEndpointTests
         Assert.Null(day.RetryAt);
     }
 
+    [Theory]
+    [InlineData("2026-10-18", true)] // Sunday
+    [InlineData("2026-10-10", true)] // second Saturday
+    [InlineData("2026-10-17", false)] // an ordinary Saturday is a school day
+    [InlineData("2026-10-21", false)] // Wednesday
+    public async Task The_demo_class_is_told_when_the_school_is_usually_shut(string date, bool dayOff)
+    {
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(12, 0));
+        await using var factory = Create(sats: o => o.EveryDayClassIds = [ClassId]);
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var day = await client.GetFromJsonAsync<AttendanceDayResponse>($"/api/classes/{ClassId}/attendance/{date}", Ct);
+
+        Assert.Equal(dayOff, day!.DemoDayOff);
+    }
+
+    [Fact]
+    public async Task Other_classes_are_never_told_it_is_a_demo_day_off()
+    {
+        _source.Result = new SourceResult.NoSchool();
+
+        var day = await GetDayAsync(new DateOnly(2026, 10, 18));
+
+        Assert.Equal("noSchool", day.Status);
+        Assert.False(day.DemoDayOff);
+    }
+
     [Fact]
     public async Task A_correction_shows_as_corrected()
     {
@@ -152,9 +179,14 @@ public sealed class AttendanceDayEndpointTests
 
     private static DateTimeOffset Ist(int hour, int minute) => SchoolClock.At(Today, new TimeOnly(hour, minute));
 
-    private ApiFactory Create(Action<SatsDemoHolds>? holds = null) =>
+    private ApiFactory Create(Action<SatsDemoHolds>? holds = null, Action<SatsOptions>? sats = null) =>
         FakeApi.Create(services =>
         {
+            if (sats is not null)
+            {
+                services.Configure(sats);
+            }
+
             var demoHolds = new SatsDemoHolds();
             holds?.Invoke(demoHolds);
             services.AddSingleton<IAttendanceStore>(_store);
@@ -163,12 +195,12 @@ public sealed class AttendanceDayEndpointTests
             services.AddSingleton<TimeProvider>(_clock);
         });
 
-    private async Task<AttendanceDayResponse> GetDayAsync()
+    private async Task<AttendanceDayResponse> GetDayAsync(DateOnly? date = null)
     {
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId);
         var day = await client.GetFromJsonAsync<AttendanceDayResponse>(
-            $"/api/classes/{ClassId}/attendance/{Today:yyyy-MM-dd}", Ct);
+            $"/api/classes/{ClassId}/attendance/{date ?? Today:yyyy-MM-dd}", Ct);
         return day!;
     }
 

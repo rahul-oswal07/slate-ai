@@ -26,6 +26,10 @@ public static class AttendanceDayStatus
 /// <param name="SatsDiffers">Status "manual" and SATS came in later with a different register (D-69).</param>
 /// <param name="SyncAt">While waiting: when the register comes in (IST, D-45).</param>
 /// <param name="RetryAt">While waiting: when it is checked again if late (IST, D-45).</param>
+/// <param name="DemoDayOff">
+/// The school is shut this day (Sunday, second Saturday, holiday) but this class has a register every day: the demo
+/// class (D-84), so Today says it is for the demo only.
+/// </param>
 public sealed record AttendanceDayResponse(
     DateOnly Date,
     string Status,
@@ -35,11 +39,13 @@ public sealed record AttendanceDayResponse(
     TimeOnly? SyncAt,
     TimeOnly? RetryAt,
     IReadOnlyList<Guid> AbsentChildIds,
-    IReadOnlyList<RosterChild> Children);
+    IReadOnlyList<RosterChild> Children,
+    bool DemoDayOff = false);
 
 public static class AttendanceDay
 {
     public static AttendanceDayResponse Describe(
+        Guid classId,
         DateOnly date,
         IReadOnlyList<RosterChild> roster,
         IReadOnlyList<AttendanceRow> rows,
@@ -47,6 +53,7 @@ public static class AttendanceDay
         DateTimeOffset now,
         SatsOptions options)
     {
+        var demoDayOff = options.EveryDayClassIds.Contains(classId) && !SchoolCalendar.IsSchoolDay(date, options.Holidays);
         if (rows.Count == 0)
         {
             var status = noSchool ? AttendanceDayStatus.NoSchool
@@ -54,7 +61,7 @@ public static class AttendanceDay
                 : AttendanceDayStatus.Waiting;
             var waiting = status == AttendanceDayStatus.Waiting;
             return new AttendanceDayResponse(date, status, null, false, false,
-                waiting ? options.ArrivesAt : null, waiting ? options.RetryAt : null, [], roster);
+                waiting ? options.ArrivesAt : null, waiting ? options.RetryAt : null, [], roster, demoDayOff);
         }
 
         var fromSats = rows.Any(r => r.Source == AttendanceSources.Sats);
@@ -67,6 +74,7 @@ public static class AttendanceDay
             SyncAt: null,
             RetryAt: null,
             rows.Where(r => !r.Present).Select(r => r.ChildId).ToList(),
-            roster);
+            roster,
+            demoDayOff);
     }
 }

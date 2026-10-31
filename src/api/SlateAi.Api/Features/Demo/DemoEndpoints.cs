@@ -169,7 +169,7 @@ public static class DemoEndpoints
                 request.ClassId, request.Date, roster.Select(c => c.Id).ToList(), register, cancellationToken);
         }
 
-        return TypedResults.Ok(AttendanceDay.Describe(request.Date, roster, rows, false, now, options.Value));
+        return TypedResults.Ok(AttendanceDay.Describe(request.ClassId, request.Date, roster, rows, false, now, options.Value));
     }
 
     private static async Task<Results<Ok<MeResponse>, NotFound>> LoginAsync(
