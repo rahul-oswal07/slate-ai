@@ -6,7 +6,8 @@ Update it at the end of every working session (what changed, what's next, blocke
 ## Teacher names removed from the repo (31 Oct), branch `claude/blissful-ride-mhlmvo`
 
 - `docs/user-testing.md` and `docs/spec.md` (D-82) named the two teachers we tested with; the consent script promised quotes without names and the repo is public. Now P1 and P2 only, and the log's header rule says "no participant names" instead of "first names only".
-- The names are still in Git history. The submission deck no longer names them either.
+- The names are still in Git history. All participants later agreed to be named, so the submission deck uses first names; the repo keeps IDs (Rahul, 31 Oct).
+- Parent sessions logged: P4 (Kannada) and P5 (Hindi), in person 30 Oct, shown the parent page; findings F-08, F-09. The empty Telugu parent row is now P6.
 
 ## Co-teacher Lakshmi renamed Savitha (31 Oct, T-72, D-79), branch `fix/T-72-rename-co-teacher`
 
