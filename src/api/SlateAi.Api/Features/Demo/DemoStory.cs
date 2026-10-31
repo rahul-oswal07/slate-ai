@@ -102,6 +102,45 @@ public static class DemoStory
         return days;
     }
 
+    /// <summary>Ananya: Kannada, the video story's parent phone. Away every day of the week, and today too.</summary>
+    public const int AnanyaRollNo = 1;
+
+    /// <summary>Arun: Tamil. Away Thursday and Friday in the video story, so he is back today (buddy card).</summary>
+    public const int ArunRollNo = 7;
+
+    /// <summary>The video story's absences by weekday (T-70, D-85): one pattern per family language.</summary>
+    private static readonly IReadOnlyDictionary<DayOfWeek, int[]> VideoAbsences = new Dictionary<DayOfWeek, int[]>
+    {
+        [DayOfWeek.Monday] = [AnanyaRollNo, RaviRollNo],
+        [DayOfWeek.Tuesday] = [AnanyaRollNo, RaviRollNo],
+        [DayOfWeek.Wednesday] = [AnanyaRollNo, RohanRollNo],
+        [DayOfWeek.Thursday] = [AnanyaRollNo, ArunRollNo],
+        [DayOfWeek.Friday] = [AnanyaRollNo, ArunRollNo],
+    };
+
+    /// <summary>Whose family the demo parent phone shows: Rohan (Hindi) for the judges, Ananya (Kannada) in the video.</summary>
+    public static int ParentRollNo(bool video) => video ? AnanyaRollNo : RohanRollNo;
+
+    /// <summary>
+    /// The video story (T-70, D-85): this week's Monday to Friday before <paramref name="today"/>, one of
+    /// <see cref="Lessons"/> a day. Ananya (Kannada) away all five days, Ravi (Telugu) Monday and Tuesday, Rohan (Hindi)
+    /// Wednesday, Arun (Tamil) Thursday and Friday. Recorded on a Saturday it is the whole week; earlier in the week only
+    /// the days so far. Today comes from the feed (its video scenario has Ananya away).
+    /// </summary>
+    public static IReadOnlyList<DemoDay> Video(DateOnly today, IReadOnlyList<RosterChild> roster)
+    {
+        var monday = CompressionPlanner.Week(today).From;
+        var byRoll = roster.ToDictionary(c => c.RollNo, c => c.Id);
+        return Enumerable.Range(0, Lessons.Count)
+            .Select(i => monday.AddDays(i))
+            .Where(date => date < today)
+            .Select((date, i) => new DemoDay(
+                date,
+                VideoAbsences[date.DayOfWeek].Where(byRoll.ContainsKey).Select(roll => byRoll[roll]).ToHashSet(),
+                Lessons[i]))
+            .ToList();
+    }
+
     private static void Add(HashSet<Guid> absent, Guid? childId, bool away)
     {
         if (away && childId is { } id)

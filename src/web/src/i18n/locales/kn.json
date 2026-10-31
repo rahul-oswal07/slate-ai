@@ -442,6 +442,7 @@
       "link": "ಈ ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಿ",
       "title": "{{child}}ಗಾಗಿ ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಬೇಕೆ?",
       "body": "ಇನ್ನು ಸಂದೇಶಗಳು ಬರುವುದಿಲ್ಲ. ಯಾವಾಗ ಬೇಕಾದರೂ ಮತ್ತೆ ಆರಂಭಿಸಬಹುದು.",
+      "bodyVideo": "ಡೆಮೊ ತರಗತಿಯಲ್ಲಿ ಮಾಡಿದ ಎಲ್ಲವೂ ಅಳಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ವೀಡಿಯೊ ಕಥೆ ಮತ್ತೆ ಶುರುವಾಗುತ್ತದೆ: ಈ ವಾರ ಅನನ್ಯ ಪ್ರತಿದಿನ ಗೈರು, ರವಿ ಸೋಮವಾರ ಮತ್ತು ಮಂಗಳವಾರ, ರೋಹನ್ ಬುಧವಾರ, ಅರುಣ್ ಗುರುವಾರ ಮತ್ತು ಶುಕ್ರವಾರ; ಪ್ರತಿ ಸಂಜೆಯ ಸಂದೇಶ ಈಗಾಗಲೇ ಹೋಗಿದೆ. ಇಂದು ಅನನ್ಯ ಮಾತ್ರ ಗೈರು.",
       "confirm": "ಸಂದೇಶ ನಿಲ್ಲಿಸಿ",
       "cancel": "ಬೇಡ, ಬರುತ್ತಿರಲಿ",
       "failed": "ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಲಾಗಲಿಲ್ಲ. ನೆಟ್‌ವರ್ಕ್ ನೋಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
@@ -656,6 +657,7 @@
     "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
+    "videoTitle": "ಡೆಮೊ ವೀಡಿಯೊ ಕಥೆ",
     "guide": {
       "title": "Try the loop in 5 minutes",
       "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
@@ -702,6 +704,8 @@
     "parentPhone": "Rohan's family's phone",
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
+    "videoParentPhone": "ಅನನ್ಯಳ ಕುಟುಂಬದ ಫೋನ್",
+    "videoParentPage": "ಅನನ್ಯಳ ಕುಟುಂಬಕ್ಕೆ ಕಳುಹಿಸಿದ ಪುಟ",
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "ಸಂದೇಶಗಳು",

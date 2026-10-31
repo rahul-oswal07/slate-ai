@@ -19,7 +19,8 @@ public sealed record DemoResetRequest(Guid ClientRequestId);
 
 /// <param name="ResetAt">The "Under the hood" panel lists AI calls from here.</param>
 /// <param name="PreMade">Whether a pre-made Ready catch-up was restored.</param>
-public sealed record DemoResetResponse(DateTimeOffset ResetAt, bool PreMade);
+/// <param name="EveningSent">Video story: evening messages sent for the week's earlier days (0 if the template isn't approved).</param>
+public sealed record DemoResetResponse(DateTimeOffset ResetAt, bool PreMade, int EveningSent = 0);
 
 public sealed record DemoSendNowRequest(Guid ClientRequestId);
 
@@ -30,9 +31,10 @@ public sealed record DemoSendNowRequest(Guid ClientRequestId);
 public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent, int CatchUpsSent);
 
 /// <summary>Who the demo shell is about.</summary>
-/// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, whose family reads Hindi; the EN toggle shows the app in English.</param>
+/// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, whose family reads Hindi (the EN toggle shows the app in English); Ananya (Kannada) in the video story.</param>
 /// <param name="LastResetAt">When anyone last reset the demo, so every viewer's "Under the hood" starts there; null if never.</param>
-public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt);
+/// <param name="Story">"judges" (the guide on /demo) or "video" (T-70, D-85).</param>
+public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt, string Story);
 
 /// <summary>
 /// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
@@ -46,8 +48,21 @@ public static class DemoEndpoints
     /// <summary>How many AI calls the "Under the hood" panel shows.</summary>
     public const int AiCallLimit = 50;
 
-    public static IServiceCollection AddDemo(this IServiceCollection services) =>
-        services.AddScoped<IDemoStore, DemoStore>();
+    /// <summary>The feed's scripted absences in the video story: Ananya away every day (T-70).</summary>
+    public const string VideoScenarioFile = "data/seed/sats-scenario-video.json";
+
+    public static IServiceCollection AddDemo(this IServiceCollection services)
+    {
+        // One setting switches the whole video story, today's register included.
+        services.AddOptions<SatsOptions>().PostConfigure<IOptions<DemoOptions>>((sats, demo) =>
+        {
+            if (demo.Value.IsVideo)
+            {
+                sats.ScenarioFile = VideoScenarioFile;
+            }
+        });
+        return services.AddScoped<IDemoStore, DemoStore>();
+    }
 
     public static IEndpointRouteBuilder MapDemoEndpoints(this IEndpointRouteBuilder app)
     {
@@ -189,7 +204,11 @@ public static class DemoEndpoints
     }
 
     private static async Task<Results<Ok<DemoInfoResponse>, NotFound>> GetInfoAsync(
-        HttpContext http, IDemoStore store, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)
+        HttpContext http,
+        IDemoStore store,
+        IOptions<DatabaseOptions> database,
+        IOptions<DemoOptions> demo,
+        CancellationToken cancellationToken)
     {
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
         if (http.User.GetClassId() != seed.Class.Id)
@@ -198,7 +217,12 @@ public static class DemoEndpoints
         }
 
         var lastReset = await store.GetLastResetAsync(cancellationToken);
-        return TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, Child(seed, DemoStory.RohanRollNo), lastReset));
+        var video = demo.Value.IsVideo;
+        return TypedResults.Ok(new DemoInfoResponse(
+            seed.Class.Id,
+            Child(seed, DemoStory.ParentRollNo(video)),
+            lastReset,
+            video ? DemoOptions.VideoStory : DemoOptions.JudgesStory));
     }
 
     private static async Task<Results<Ok<DemoResetResponse>, NotFound>> ResetAsync(
@@ -210,6 +234,8 @@ public static class DemoEndpoints
         IOptions<SatsOptions> sats,
         IOptions<DatabaseOptions> database,
         IOptions<DemoOptions> demo,
+        IOptions<EveningOptions> eveningOptions,
+        EveningSender evening,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -224,8 +250,10 @@ public static class DemoEndpoints
         var today = SchoolClock.Today(clock);
         var weekOf = CompressionPlanner.Week(today).From;
         var roster = seed.Children.Select(c => new RosterChild(c.Id, c.RollNo, c.FirstName)).ToList();
-        var days = DemoStory.Build(today, roster, source.IsSchoolDay);
-        var snapshot = await DemoSnapshot.LoadAsync(demo.Value.SnapshotFile, cancellationToken);
+        var video = demo.Value.IsVideo;
+        var days = video ? DemoStory.Video(today, roster) : DemoStory.Build(today, roster, source.IsSchoolDay);
+        // The video story makes every catch-up live, on camera.
+        var snapshot = video ? null : await DemoSnapshot.LoadAsync(demo.Value.SnapshotFile, cancellationToken);
 
         // The pre-made catch-up goes to the story child who speaks its language, with what they missed so far.
         var owner = snapshot is null
@@ -235,14 +263,27 @@ public static class DemoEndpoints
             ? []
             : days.Where(d => d.Date >= weekOf && d.AbsentChildIds.Contains(owner.Id)).Select(d => d.CompetencyId).ToList();
 
-        await store.ResetAsync(
+        var result = await store.ResetAsync(
             new DemoReset(
                 request.ClientRequestId, seed, days, sats.Value.ArrivesAt, weekOf, owner is null ? null : snapshot, owner?.Id, missed,
                 DemoStory.StarWeeks(today, roster, source.IsSchoolDay)),
             now,
             cancellationToken);
         holds.ReleaseAll(classId);
-        return TypedResults.Ok(new DemoResetResponse(now, owner is not null));
+
+        // Video story: each earlier evening's message has gone, at that day's 6 pm, through the 6 pm job's own path
+        // (approved template, consent Yes, guardrail 3). Nothing goes if the template isn't approved.
+        var eveningSent = 0;
+        if (video && result == DemoResetResult.Reset)
+        {
+            foreach (var day in days)
+            {
+                var sentAt = SchoolClock.At(day.Date, eveningOptions.Value.SendAt).ToUniversalTime();
+                eveningSent += (await evening.SendAsync(classId, day.Date, cancellationToken, sentAt))?.Sent ?? 0;
+            }
+        }
+
+        return TypedResults.Ok(new DemoResetResponse(now, owner is not null, eveningSent));
     }
 
     private static async Task<Results<Ok<DemoSendNowResponse>, NotFound, ValidationProblem>> SendNowAsync(

@@ -27,4 +27,15 @@ public sealed class DemoOptions
     /// Missing file: Reset skips it and every catch-up is generated live.
     /// </summary>
     public string SnapshotFile { get; set; } = "data/seed/demo-catchup.json";
+
+    /// <summary>
+    /// Which story the Reset writes: <see cref="JudgesStory"/> (the default, the guide on /demo) or
+    /// <see cref="VideoStory"/> for recording the demo video (T-70, D-85; local and staging only, never prod).
+    /// </summary>
+    public string Story { get; set; } = JudgesStory;
+
+    public const string JudgesStory = "judges";
+    public const string VideoStory = "video";
+
+    public bool IsVideo => Story == VideoStory;
 }

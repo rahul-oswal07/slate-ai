@@ -74,20 +74,25 @@ export function DemoScreen() {
     )
   }
 
-  const { parentChildId, lastResetAt } = info.data
+  const { parentChildId, lastResetAt, story } = info.data
 
   return (
     <Page>
       <section aria-labelledby="demo-guide" className="card flex flex-col gap-3">
         <h2 id="demo-guide" className="text-title font-extrabold">
-          {t('demo.guide.title')}
+          {story === 'video' ? t('demo.videoTitle') : t('demo.guide.title')}
         </h2>
-        <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
-          {STEPS.map((step) => (
-            <li key={step}>{t(`demo.guide.${step}`)}</li>
-          ))}
-        </ol>
-        <p className="text-caption text-ink-muted">{t('demo.guide.calendar')}</p>
+        {/* The judges' steps follow Ravi and Rohan; the video story (T-70) has its own children and no guide. */}
+        {story !== 'video' && (
+          <>
+            <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
+              {STEPS.map((step) => (
+                <li key={step}>{t(`demo.guide.${step}`)}</li>
+              ))}
+            </ol>
+            <p className="text-caption text-ink-muted">{t('demo.guide.calendar')}</p>
+          </>
+        )}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -166,7 +171,7 @@ export function DemoScreen() {
           </Phone>
         </PanelBox>
         <PanelBox name="parent" active={panel}>
-          <ParentPhone key={`parent-${frame}`} childId={parentChildId} />
+          <ParentPhone key={`parent-${frame}`} childId={parentChildId} video={story === 'video'} />
         </PanelBox>
         <PanelBox name="ai" active={panel}>
           <UnderTheHood since={later(resetAt, lastResetAt)} />
@@ -175,6 +180,7 @@ export function DemoScreen() {
 
       {confirming && (
         <ResetDialog
+          video={story === 'video'}
           pending={reset.isPending}
           failed={reset.isError}
           onClose={() => setConfirming(false)}
@@ -242,7 +248,8 @@ function Phone({ title, caption, children }: { title: string; caption: string; c
  * hand-off. No logo and no brand name. Each link a family was sent is a bubble; opening one slides the family's page
  * up under a thin bar, as an in-app browser does.
  */
-function ParentPhone({ childId }: { childId: string }) {
+/** `video`: the video story's parent phone is Ananya's family, not Rohan's (T-70). */
+function ParentPhone({ childId, video }: { childId: string; video: boolean }) {
   const { t, i18n } = useTranslation()
   const family = useFamily(childId)
   const [open, setOpen] = useState<FamilyMessage | null>(null)
@@ -250,7 +257,7 @@ function ParentPhone({ childId }: { childId: string }) {
   const messages = [...(family.data ?? [])].reverse()
 
   return (
-    <Phone title={t('demo.parentPhone')} caption={t('demo.parentCaption')}>
+    <Phone title={t(video ? 'demo.videoParentPhone' : 'demo.parentPhone')} caption={t('demo.parentCaption')}>
       <div className="relative flex size-full flex-col overflow-hidden">
         {/* Underneath the opened page the chat is inert, but keeps its scroll position. */}
         <div inert={open !== null} className="flex min-h-0 flex-1 flex-col">
@@ -321,7 +328,7 @@ function ParentPhone({ childId }: { childId: string }) {
               </div>
               <span className="w-12 shrink-0" />
             </div>
-            <iframe title={t('demo.parentPage')} src={`/p/${open.token}`} className="w-full flex-1" />
+            <iframe title={t(video ? 'demo.videoParentPage' : 'demo.parentPage')} src={`/p/${open.token}`} className="w-full flex-1" />
           </div>
         )}
       </div>
@@ -411,11 +418,13 @@ function CallRow({ call, language }: { call: AiCall; language: string }) {
 }
 
 function ResetDialog({
+  video,
   pending,
   failed,
   onClose,
   onConfirm,
 }: {
+  video: boolean
   pending: boolean
   failed: boolean
   onClose: () => void
@@ -457,7 +466,7 @@ function ResetDialog({
       <h2 id="reset-title" className="text-title font-extrabold">
         {t('demo.reset.title')}
       </h2>
-      <p className="mt-3 text-body">{t('demo.reset.body')}</p>
+      <p className="mt-3 text-body">{t(video ? 'demo.reset.bodyVideo' : 'demo.reset.body')}</p>
       {failed && (
         <p role="alert" className="mt-3 rounded-md border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
           {t('demo.reset.failed')}

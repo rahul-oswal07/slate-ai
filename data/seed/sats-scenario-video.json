@@ -1,0 +1,6 @@
+{
+  "_note": "Scripted absences for the simulated SATS feed in the demo video story (Demo:Story = video, T-70, D-85; local and staging only). Fictional. Only today's register comes from the feed (the Reset writes the week's earlier days): Ananya (1, Kannada, the video's parent phone) is away every day, so tonight's message goes to her family on camera. Arun, Ravi and Rohan are back.",
+  "weekly": [
+    { "rollNo": 1, "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] }
+  ]
+}

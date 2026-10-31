@@ -41,12 +41,16 @@ public sealed class EveningSender(
 {
     /// <summary>What would happen tonight, without sending. Null if the class doesn't exist.</summary>
     public async Task<EveningDayResponse?> PlanAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-        (await BuildAsync(classId, date, cancellationToken))?.Day;
+        (await BuildAsync(classId, date, null, cancellationToken))?.Day;
 
-    /// <summary>Sends to every family due a message and not yet sent one today. Safe to repeat.</summary>
-    public async Task<EveningDayResponse?> SendAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    /// <summary>
+    /// Sends to every family due a message and not yet sent one that day. Safe to repeat. <paramref name="sentAt"/>
+    /// dates the messages (default now): the demo video story fills in earlier evenings at their 6 pm (T-70).
+    /// </summary>
+    public async Task<EveningDayResponse?> SendAsync(
+        Guid classId, DateOnly date, CancellationToken cancellationToken, DateTimeOffset? sentAt = null)
     {
-        if (await BuildAsync(classId, date, cancellationToken) is not { } plan)
+        if (await BuildAsync(classId, date, sentAt, cancellationToken) is not { } plan)
         {
             return null;
         }
@@ -66,7 +70,7 @@ public sealed class EveningSender(
         return plan.Day with { Children = children, Sent = children.Count(c => c.Outcome == EveningOutcome.Sent) };
     }
 
-    private async Task<Plan?> BuildAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    private async Task<Plan?> BuildAsync(Guid classId, DateOnly date, DateTimeOffset? sentAt, CancellationToken cancellationToken)
     {
         if (await store.GetClassAsync(classId, cancellationToken) is not { } group
             || await attendance.LoadAsync(classId, date, cancellationToken) is not { } register)
@@ -86,7 +90,7 @@ public sealed class EveningSender(
         var lessonAudio = await store.GetApprovedLessonAudioAsync(classId, date, cancellationToken);
         var sent = await store.GetSentChildIdsAsync(classId, date, cancellationToken);
         var absent = register.AbsentChildIds.ToHashSet();
-        var now = clock.GetUtcNow();
+        var now = sentAt ?? clock.GetUtcNow();
         var children = new List<EveningChildView>();
         var pending = new List<NewEveningMessage>();
         foreach (var child in group.Children.Where(c => absent.Contains(c.Id)))
