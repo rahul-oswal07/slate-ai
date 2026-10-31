@@ -677,6 +677,7 @@
       "after": "Teacher phone: Back today has Arun's buddy card, Week shows return speed and reasons, and Under the hood shows each AI call and which children it was for.",
       "calendar": "Record on a Saturday so the whole week is behind. Earlier in the week only the days so far are filled in."
     },
+    "fixedDate": "The demo's date is fixed at {{date}}, 2026, so the whole week is behind whenever you open it.",
     "reset": {
       "button": "Reset demo",
       "title": "Reset the demo?",

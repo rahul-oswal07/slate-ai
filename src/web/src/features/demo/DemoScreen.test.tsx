@@ -91,6 +91,16 @@ describe('DemoScreen (T-18)', () => {
     expect(screen.queryByText("Rohan's family's phone")).not.toBeInTheDocument()
   })
 
+  it('says when the demo date is fixed (T-75)', async () => {
+    setup({ demo: { ...info, story: 'video', fixedToday: '2026-10-31' } })
+    renderApp('/demo')
+
+    expect(
+      await screen.findByText("The demo's date is fixed at Saturday, October 31, 2026, so the whole week is behind whenever you open it."),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Record on a Saturday/)).not.toBeInTheDocument()
+  })
+
   it('says so when the demo sign-in fails', async () => {
     setup({ login: () => ({ status: 404 }) })
     renderApp('/demo')

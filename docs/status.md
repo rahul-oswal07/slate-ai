@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Fixed demo date on staging (1 Nov, T-75, D-88), branch `feat/T-74-video-guide`
+
+- `Demo:Today=2026-10-31` makes the app treat Sat 31 Oct as today at the real time of day (`Features/Demo/DemoClock.cs` replaces the app's `TimeProvider`), so the video story's whole week is behind whenever staging is opened. The web follows the server's date from the `X-School-Today` header; /demo says the date is fixed. The session cookie keeps the real clock.
+- **Staging only** (Rahul, 1 Nov): App Service setting `Demo__Today=2026-10-31` on `slateai-staging`, which already has `Demo__Story=video`. Prod keeps the judges' story and the real date. Locally: `dotnet user-secrets set Demo:Today 2026-10-31 --project src/api/SlateAi.Api`.
+- Limitation: at midnight IST the clock goes back to 00:00 the same day; a Reset tidies it.
+
 ## Video story step guide (31 Oct, T-74, D-85), branch `feat/T-74-video-guide`
 
 - `/demo` in the video story (`Demo:Story=video`, local and staging) now shows its own 6 steps instead of no guide: Today with only Ananya away and Arun back, record the lesson, tonight's message on Ananya's family's phone, the week's four catch-ups (kn Ananya, te Ravi, hi Rohan, ta Arun), the parent page, then Back today (Arun's buddy card), Week and Under the hood. Strings in all five locales (Hindi translated; kn, te, ta in English like the judges' guide). The judges' guide is unchanged.

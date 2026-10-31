@@ -95,6 +95,18 @@ public sealed class DemoVideoStoryEndpointTests
         var ananya = Seed.Children.Single(c => c.Id == info!.ParentChildId);
         Assert.Equal((DemoStory.AnanyaRollNo, "kn"), (ananya.RollNo, ananya.HomeLanguage));
         Assert.Equal(DemoOptions.VideoStory, info!.Story);
+        Assert.Null(info.FixedToday);
+    }
+
+    [Fact]
+    public async Task Info_says_when_the_demo_date_is_fixed()
+    {
+        await using var factory = Create(new Dictionary<string, string?> { ["Demo:Today"] = "2026-10-31" });
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var info = await client.GetFromJsonAsync<DemoInfoResponse>("/api/demo", Ct);
+
+        Assert.Equal(new DateOnly(2026, 10, 31), info!.FixedToday);
     }
 
     [Fact]
@@ -125,7 +137,7 @@ public sealed class DemoVideoStoryEndpointTests
         return (await response.Content.ReadFromJsonAsync<DemoResetResponse>(Ct))!;
     }
 
-    private ApiFactory Create() =>
+    private ApiFactory Create(IReadOnlyDictionary<string, string?>? extra = null) =>
         FakeApi.Create(
             services =>
             {
@@ -136,7 +148,7 @@ public sealed class DemoVideoStoryEndpointTests
                 services.AddSingleton(Wording);
                 services.AddSingleton<TimeProvider>(new FixedClock(Now));
             },
-            settings: new Dictionary<string, string?>
+            settings: new Dictionary<string, string?>(extra ?? new Dictionary<string, string?>())
             {
                 ["Demo:Enabled"] = "true",
                 ["Demo:Story"] = DemoOptions.VideoStory,

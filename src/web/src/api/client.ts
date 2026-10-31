@@ -1,3 +1,5 @@
+import { setSchoolToday } from '../features/today/schoolTime'
+
 /** The server answered with an error status. */
 export class ApiError extends Error {
   readonly status: number
@@ -38,6 +40,8 @@ export async function api<T>(
   } catch {
     throw new NetworkError()
   }
+
+  setSchoolToday(response.headers.get('X-School-Today'))
 
   if (!response.ok) {
     let body: unknown = null

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data;
@@ -37,7 +38,11 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
         sp.GetRequiredService<IConfiguration>().GetConnectionString("Db")
         ?? throw new InvalidOperationException("ConnectionStrings:Db is not configured.")));
 
-builder.Services.AddSingleton(TimeProvider.System);
+// A fixed demo date (Demo:Today, T-75) swaps the whole clock, so every record is stamped on that day.
+builder.Services.AddSingleton<TimeProvider>(sp =>
+    sp.GetRequiredService<IOptions<DemoOptions>>().Value.FixedToday is { } today
+        ? new DemoClock(today, TimeProvider.System)
+        : TimeProvider.System);
 builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddCurriculum(builder.Configuration);
 builder.Services.AddAi(builder.Configuration);
@@ -66,6 +71,7 @@ app.CheckAiSetup();
 
 await app.InitialiseDatabaseAsync(app.Lifetime.ApplicationStopping);
 
+app.UseDemoDate();
 app.UseAuthentication();
 app.UseAuthorization();
 

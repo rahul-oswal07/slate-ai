@@ -4,7 +4,7 @@ import { Icon } from '../../components/Icon'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
 import { clock } from '../parent/clock'
 import { VoiceNote } from '../parent/VoiceNote'
-import { formatSchoolTime } from '../today/schoolTime'
+import { formatSchoolDate, formatSchoolTime } from '../today/schoolTime'
 import type { AiCall, FamilyMessage } from './types'
 import { storedResetAt, useAiCalls, useBringAttendance, useDemoInfo, useFamily, useResetDemo, useSendNow } from './useDemo'
 
@@ -36,7 +36,7 @@ function shortDate(date: string, language: string) {
  * one tap. Both phones are the real app in frames; nothing here is a mock-up.
  */
 export function DemoScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const info = useDemoInfo()
   const reset = useResetDemo()
   const bring = useBringAttendance(info.data?.classId ?? '')
@@ -74,7 +74,7 @@ export function DemoScreen() {
     )
   }
 
-  const { parentChildId, lastResetAt, story } = info.data
+  const { parentChildId, lastResetAt, story, fixedToday } = info.data
   const guide = story === 'video' ? 'demo.videoGuide' : 'demo.guide'
 
   return (
@@ -89,7 +89,11 @@ export function DemoScreen() {
             <li key={step}>{t(`${guide}.${step}`)}</li>
           ))}
         </ol>
-        <p className="text-caption text-ink-muted">{t(`${guide}.calendar`)}</p>
+        <p className="text-caption text-ink-muted">
+          {fixedToday
+            ? t('demo.fixedDate', { date: formatSchoolDate(fixedToday, i18n.language) })
+            : t(`${guide}.calendar`)}
+        </p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
