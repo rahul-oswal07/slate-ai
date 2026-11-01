@@ -3,11 +3,20 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+
+## Fixed demo date after a reload (1 Nov, T-80), branch `fix/T-80-demo-date-cached`
+
+- Seen on a laptop on staging: Today asked for `attendance/2026-11-01` and got 400 "Can't use a future date" (staging's date is fixed at 31 Oct); the phone was fine. Staging itself sends `X-School-Today: 2026-10-31` on every response (checked: 200, 400 and 404).
+- Fixed in the web app: (1) `api/client.ts` clears the fixed date only on a **successful** response without the header, so an error page that never reached the API (proxy, gateway) can't switch the demo back to the phone's clock; (2) `useSchoolToday()` in `schoolTime.ts` (a small store) so Today, Week, Back today and lesson confirm re-render when the date arrives after the first render (the saved sign-in renders Today before any response).
+- Test first: `TodayScreen.test.tsx` "moves to the server's fixed date when it opens from the saved sign-in" failed (Today stayed on Sunday 1 Nov), passes now. `verify.sh` OK (605 API, 347 web).
+- A browser still running a build from before T-75 has no header support at all; a reload (the service worker updates itself) or clearing site data fixes that.
+
 ## README: two ways to test (1 Nov, T-79), branch `docs/T-79-readme-two-ways`
 
 - README top rewritten: **guided demo on staging** (recommended; video story, `Demo__Today=2026-10-31`) and **the real app on prod** (`/login` on a phone, real date, families' messages after 6 pm IST; the prod `/demo` family phone shows what Rohan's family got). New "At a glance" table (5 languages, 5 Claude prompts with the latest eval scores, guardrails, user testing counts, test counts), a step list for each way, and a **login credentials table** (all three seeded teachers, Shobha, Savitha and Monika, on staging and prod; PINs **not** in the README: they go in the hackathon submission form (Rahul, 1 Nov), as the repo is public). All six logins checked on 1 Nov (`POST /api/auth/pin` → 200): every teacher uses the same PIN on staging and prod, and it is the co-teacher PIN committed in `appsettings.Development.json`; after judging, change the server PINs (clear the stored `PinHash`; the seeder never overwrites one). Prod still shows the co-teacher as **Lakshmi** until `v1.0` (T-72 rename).
 - Way 2 needs prod on `v1.0`: `v1.0-rc1` has no Settings and no Telugu/Tamil strings.
 - `Demo__Today=2026-10-31` was **not** actually on `slateai-staging` (only `Story`, `TeacherPin`, `CoTeacherPin`); set and restarted 1 Nov, ~08:15 UTC. Checked: `GET /api/demo` returns `fixedToday: "2026-10-31"` (the new container took a few minutes to serve). `Demo__CoTeacherPin` is set on both staging and prod.
+
 
 ## Next: release to prod before the code freeze (1 Nov, 11:59 pm)
 
