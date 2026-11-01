@@ -8,7 +8,9 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Attendance.Source;
 using SlateAi.Api.Features.EveningMessages;
+using SlateAi.Api.Features.LessonAudio;
 using SlateAi.Api.Tests.Features.Attendance;
+using SlateAi.Api.Tests.Features.LessonAudio;
 using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Tests.Features.Parent;
 using SlateAi.Api.Tests.Infrastructure;
@@ -53,10 +55,12 @@ public sealed class EveningEndpointTests
     private readonly FakeEveningStore _store = new(ClassId, TeacherId) { TeacherName = "Shobha" };
     private readonly FakeAttendanceStore _attendance = new(ClassId, All.Select(c => c.Id).ToList());
     private readonly MovableClock _clock = new() { Now = Ist(18, 30) };
+    private readonly FakeLessonAudioStore _lessonAudio = new();
 
     public EveningEndpointTests()
     {
         _store.Children.AddRange(All);
+        _store.ApprovedLessonAudio = _lessonAudio.ApprovedFor;
         _attendance.SetDay(Today, All
             .Select(c => new AttendanceRow(c.Id, c == Present, AttendanceSources.Manual, null, null, null))
             .ToList());
@@ -279,11 +283,7 @@ public sealed class EveningEndpointTests
         ApproveTemplate();
         ConfirmLesson();
         await using var factory = Create();
-        var worker = new EveningSendWorker(
-            factory.Services.GetRequiredService<IServiceScopeFactory>(),
-            Options.Create(new EveningOptions()),
-            _clock,
-            NullLogger<EveningSendWorker>.Instance);
+        var worker = Worker(factory);
 
         _clock.Now = Ist(17, 59);
         Assert.Equal(0, await worker.RunOnceAsync(Ct));
@@ -298,7 +298,87 @@ public sealed class EveningEndpointTests
         Assert.Equal(2, _store.Messages.Count);
     }
 
+    [Fact]
+    public async Task Worker_waits_while_a_ticked_clip_awaits_approval_then_sends_it()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        var clip = Guid.NewGuid();
+        var row = AddLessonAudio("kn", LessonAudioStatus.Generating, null, Ist(18, 0));
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(18, 1);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        row.Status = LessonAudioStatus.Ready;
+        row.ClipId = clip;
+        _clock.Now = Ist(19, 0);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        row.Status = LessonAudioStatus.Approved;
+        row.ApprovedClipId = clip;
+        _clock.Now = Ist(19, 5);
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.Equal(row.Id, _store.Messages.Single(m => m.Message.ChildId == Asha.Id).Message.LessonAudioId);
+        Assert.Null(_store.Messages.Single(m => m.Message.ChildId == Ravi.Id).Message.LessonAudioId);
+    }
+
+    [Fact]
+    public async Task Worker_sends_the_plain_message_at_the_cutoff_if_the_clip_was_never_approved()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        AddLessonAudio("kn", LessonAudioStatus.Ready, Guid.NewGuid(), Ist(18, 0));
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(20, 59);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        _clock.Now = Ist(21, 0);
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.Null(m.Message.LessonAudioId));
+    }
+
+    [Fact]
+    public async Task Worker_does_not_wait_for_a_failed_or_stuck_clip()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        AddLessonAudio("kn", LessonAudioStatus.Failed, null, Ist(18, 0));
+        AddLessonAudio("te", LessonAudioStatus.Generating, null, Ist(18, 0));
+        await using var factory = Create();
+
+        _clock.Now = Ist(18, 0) + LessonAudioService.StaleGenerating + TimeSpan.FromSeconds(1);
+        await Worker(factory).RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+    }
+
     private static DateTimeOffset Ist(int hour, int minute) => SchoolClock.At(Today, new TimeOnly(hour, minute));
+
+    private EveningSendWorker Worker(ApiFactory factory) =>
+        new(
+            factory.Services.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new EveningOptions()),
+            _clock,
+            NullLogger<EveningSendWorker>.Instance);
+
+    private FakeLessonAudioStore.Row AddLessonAudio(string language, string status, Guid? clipId, DateTimeOffset updatedAt)
+    {
+        var row = new FakeLessonAudioStore.Row
+        {
+            Id = Guid.NewGuid(), ClassId = ClassId, Date = Today, Language = language, Status = status, ClipId = clipId,
+            UpdatedAt = updatedAt,
+        };
+        _lessonAudio.Rows.Add(row);
+        return row;
+    }
 
     private void ApproveTemplate()
     {
@@ -314,6 +394,7 @@ public sealed class EveningEndpointTests
             services =>
             {
                 services.AddSingleton<IEveningStore>(_store);
+                services.AddSingleton<ILessonAudioStore>(_lessonAudio);
                 services.AddSingleton<IParentStore>(new FakeParentStore());
                 services.AddSingleton<IAttendanceStore>(_attendance);
                 services.AddSingleton<IAttendanceSource>(new NotYetSource());
