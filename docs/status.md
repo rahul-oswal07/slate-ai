@@ -4,6 +4,11 @@ Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/sp
 Update it at the end of every working session (what changed, what's next, blockers).
 
 
+## README refresh for judges (1 Nov), uncommitted on `main`
+
+- README: a note that the guided demo (staging, test data for judges, fixed date) and the real app (prod, today's date) are the same application; PINs now point to **slide 14 of the submitted deck** (not the submission form); a second Kannada voice-note sample (subtraction with borrowing, from the `sub-borrow` eval case) in a table with the carrying one; sample inputs updated (Ananya as the multi-lesson child, reason on the evening message, language buttons, photo never sent to families); web test count 347; Db test command; real clone URL; co-teacher PIN setting.
+- Still true: prod is on `v1.0-rc1`, so the real app lacks Settings and Telugu/Tamil strings and shows Lakshmi until `v1.0` is tagged.
+
 ## Fixed demo date after a reload (1 Nov, T-80), branch `fix/T-80-demo-date-cached`
 
 - Seen on a laptop on staging: Today asked for `attendance/2026-11-01` and got 400 "Can't use a future date" (staging's date is fixed at 31 Oct); the phone was fine. Staging itself sends `X-School-Today: 2026-10-31` on every response (checked: 200, 400 and 404).
