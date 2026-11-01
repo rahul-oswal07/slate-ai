@@ -1,11 +1,11 @@
 {
-  "_note": "DRAFT cases written by Claude for T-62, to be reviewed by Monika and native speakers (T-26). Each case is one day's lesson audio: the lessons the class learned that day and the family's language. Pass (code checks, the same ones production runs): A8's output passes LessonScriptValidator (valid JSON, at most 80 words, no names or braces, at least 80% of the letters in the family's script, only numbers from the lessons' textbook examples and page) after at most one retry, and the spoken length stays under the audio limit. The results file keeps every script for human review.",
+  "_note": "DRAFT cases written by Claude for T-62, to be reviewed by Monika and native speakers (T-26). Each case is one day's lesson audio: the lessons the class learned that day and the family's language. Pass (code checks, the same ones production runs): A8's output passes LessonScriptValidator (valid JSON, at most 80 words, no names or braces, at least 80% of the letters in the family's script, only numbers from the lessons' textbook examples and page) after at most one retry, and the spoken length stays under the audio limit. The results file keeps every script for human review. Updated 1 Nov for the 2026-27 book (T-81): face value became multiplication tables in all 5 languages, check-by-adding became making subtraction sums, and the bridge-course case became half (a lesson with pictures, not sums).",
   "cases": [
-    { "id": "face-value-kn", "language": "kn", "lessons": ["M3.PV.FACE"] },
-    { "id": "face-value-te", "language": "te", "lessons": ["M3.PV.FACE"] },
-    { "id": "face-value-ta", "language": "ta", "lessons": ["M3.PV.FACE"] },
-    { "id": "face-value-hi", "language": "hi", "lessons": ["M3.PV.FACE"] },
-    { "id": "face-value-en", "language": "en", "lessons": ["M3.PV.FACE"] },
+    { "id": "tables-kn", "language": "kn", "lessons": ["M3.MUL.TABLES"] },
+    { "id": "tables-te", "language": "te", "lessons": ["M3.MUL.TABLES"] },
+    { "id": "tables-ta", "language": "ta", "lessons": ["M3.MUL.TABLES"] },
+    { "id": "tables-hi", "language": "hi", "lessons": ["M3.MUL.TABLES"] },
+    { "id": "tables-en", "language": "en", "lessons": ["M3.MUL.TABLES"] },
     { "id": "add-carry-kn", "language": "kn", "lessons": ["M3.ADD.CARRY"] },
     { "id": "add-carry-te", "language": "te", "lessons": ["M3.ADD.CARRY"] },
     { "id": "sub-borrow-hi", "language": "hi", "lessons": ["M3.SUB.BORROW"] },
@@ -13,8 +13,8 @@
     { "id": "compare-order-kn", "language": "kn", "lessons": ["M3.NUM.COMPARE", "M3.NUM.ORDER"] },
     { "id": "compare-order-en", "language": "en", "lessons": ["M3.NUM.COMPARE", "M3.NUM.ORDER"] },
     { "id": "expand-hto-te", "language": "te", "lessons": ["M3.PV.HTO", "M3.PV.EXPAND"] },
-    { "id": "sub-nob-check-hi", "language": "hi", "lessons": ["M3.SUB.NOBORROW", "M3.SUB.CHECK"] },
+    { "id": "sub-nob-make-hi", "language": "hi", "lessons": ["M3.SUB.NOBORROW", "M3.SUB.MAKE"] },
     { "id": "add-word-ta", "language": "ta", "lessons": ["M3.ADD.WORD"] },
-    { "id": "tens-bridge-kn", "language": "kn", "lessons": ["M2.PV.TENS"] }
+    { "id": "half-kn", "language": "kn", "lessons": ["M3.FRAC.HALF"] }
   ]
 }

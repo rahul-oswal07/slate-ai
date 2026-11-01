@@ -27,7 +27,7 @@ public sealed class CatchUpEndpointTests
     private static readonly CurriculumGraph Book = new(
     [
         Item("M3.SUB.NOBORROW", 13, "none"),
-        Item("M3.SUB.CHECK", 14, "none", "M3.SUB.NOBORROW"),
+        Item("M3.SUB.MAKE", 14, "none", "M3.SUB.NOBORROW"),
         Item("M3.SUB.BORROW", 15, "tens", "M3.SUB.NOBORROW"),
         Item("M3.SUB.WORD", 16, "tens", "M3.SUB.BORROW"),
     ]);
@@ -78,7 +78,7 @@ public sealed class CatchUpEndpointTests
 
         var ravi = telugu.Children.Single(c => c.ChildId == Ravi);
         Assert.Equal(["M3.SUB.BORROW"], ravi.Rationale.Targets.Select(t => t.Id));
-        Assert.Equal(new HashSet<string> { "M3.SUB.NOBORROW", "M3.SUB.CHECK", "M3.SUB.BORROW" }, ravi.MissedCompetencyIds.ToHashSet());
+        Assert.Equal(new HashSet<string> { "M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW" }, ravi.MissedCompetencyIds.ToHashSet());
 
         Assert.Equal("kn", week.Packages.Single(p => p.Children.Any(c => c.ChildId == Asha)).Language);
     }
@@ -154,7 +154,7 @@ public sealed class CatchUpEndpointTests
     {
         var days = new (DateOnly Date, string Id)[]
         {
-            (Monday.AddDays(1), "M3.SUB.NOBORROW"), (Monday.AddDays(2), "M3.SUB.CHECK"), (Monday.AddDays(3), "M3.SUB.BORROW"),
+            (Monday.AddDays(1), "M3.SUB.NOBORROW"), (Monday.AddDays(2), "M3.SUB.MAKE"), (Monday.AddDays(3), "M3.SUB.BORROW"),
         };
         bool Away(Guid child, DateOnly date) =>
             child == Ravi || (child == Kiran && kiranAway) || (child == Asha && date == Monday.AddDays(1));

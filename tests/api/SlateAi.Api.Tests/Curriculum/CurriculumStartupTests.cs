@@ -27,8 +27,18 @@ public sealed class CurriculumStartupTests
         // D-22: homework points to the child's own book, so a missing page is a content bug.
         var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
 
-        Assert.Equal(16, graph.All.Count);
+        // The 2026-27 textbook, Parts 1 and 2 (T-81).
+        Assert.Equal(60, graph.All.Count);
         Assert.All(graph.All, c => Assert.NotNull(c.TextbookPage));
+    }
+
+    [Fact]
+    public void The_grade3_curriculum_names_every_lesson_for_every_family_language()
+    {
+        // FR-20: a family whose language has no lesson name gets no evening message that day.
+        var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
+
+        Assert.All(graph.All, c => Assert.All(["kn", "en", "te", "ta", "hi"], language => Assert.NotNull(c.Name(language))));
     }
 
     [Fact]
@@ -36,12 +46,23 @@ public sealed class CurriculumStartupTests
     {
         var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
 
-        // Away for no-carry addition, face value and comparing; next week is carrying.
+        // Away for no-carry addition, place value and comparing; next week is carrying.
         var candidates = graph.CandidateSet(
-            missed: ["M3.ADD.NOCARRY", "M3.PV.FACE", "M3.NUM.COMPARE"],
+            missed: ["M3.ADD.NOCARRY", "M3.PV.EXPAND", "M3.NUM.COMPARE"],
             nextWeek: ["M3.ADD.CARRY"]);
 
         Assert.Equal(["M3.ADD.NOCARRY"], candidates);
+    }
+
+    [Fact]
+    public void The_grade3_curriculum_has_no_catch_up_for_a_lesson_without_practice()
+    {
+        var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
+
+        // Tables and place value both lead to 2-digit × 1-digit, but code can't make sums for tables yet.
+        var candidates = graph.CandidateSet(missed: ["M3.MUL.TABLES", "M3.PV.HTO"], nextWeek: ["M3.MUL.2D1D"]);
+
+        Assert.Equal(["M3.PV.HTO"], candidates);
     }
 
     [Fact]

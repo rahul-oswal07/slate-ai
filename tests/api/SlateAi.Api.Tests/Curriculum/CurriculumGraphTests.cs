@@ -110,6 +110,22 @@ public sealed class CurriculumGraphTests
     }
 
     [Fact]
+    public void Candidate_set_leaves_out_lessons_code_cannot_make_practice_for()
+    {
+        // A catch-up needs sums made by code; without a practice rule it would fail (fallback:no-practice).
+        var graph = new CurriculumGraph(
+        [
+            C("M3.PV.TENS", chapter: 1, sequence: 1),
+            C("M3.MUL.TABLES", chapter: 1, sequence: 2) with { Practice = null },
+            C("M3.ADD.CARRY", chapter: 2, sequence: 3, "M3.PV.TENS", "M3.MUL.TABLES"),
+        ]);
+
+        var candidates = graph.CandidateSet(missed: ["M3.MUL.TABLES", "M3.PV.TENS"], nextWeek: ["M3.ADD.CARRY"]);
+
+        Assert.Equal(["M3.PV.TENS"], candidates);
+    }
+
+    [Fact]
     public void Candidate_set_of_empty_inputs_is_empty()
     {
         Assert.Empty(Graph.CandidateSet([], ["M3.ADD.CARRY"]));
@@ -134,5 +150,6 @@ public sealed class CurriculumGraphTests
     }
 
     private static Competency C(string id, int chapter, int sequence, params string[] prerequisites) =>
-        new(id, $"{id} kn", $"{id} en", prerequisites, null, chapter, sequence, [], null);
+        new(id, $"{id} kn", $"{id} en", prerequisites, null, chapter, sequence, [], null,
+            Practice: new PracticeRule("count", 3));
 }

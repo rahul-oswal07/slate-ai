@@ -52,8 +52,8 @@ public sealed class CurriculumGraph
     /// <summary>
     /// Missed competencies that next week's lessons build on: missed ∩ ancestors(nextWeek) (FR-06, spec §5.1 A2).
     /// Nearest first (fewest prerequisite hops to a next-week competency, then teaching order), so the rule
-    /// fallback can take the head of the list. A missed item that is itself taught next week is not a candidate.
-    /// Unknown IDs are ignored.
+    /// fallback can take the head of the list. A missed item that is itself taught next week is not a candidate, nor
+    /// is one without a practice rule: code can't make its sums, so its catch-up would fail (T-81). Unknown IDs are ignored.
     /// </summary>
     public IReadOnlyList<string> CandidateSet(IEnumerable<string> missed, IEnumerable<string> nextWeek)
     {
@@ -61,7 +61,7 @@ public sealed class CurriculumGraph
         var hops = HopsToAncestors(next);
         return missed
             .Distinct(StringComparer.Ordinal)
-            .Where(id => hops.ContainsKey(id) && !next.Contains(id))
+            .Where(id => hops.ContainsKey(id) && !next.Contains(id) && _byId[id].Practice is not null)
             .OrderBy(id => hops[id])
             .ThenBy(id => _byId[id].Sequence)
             .ThenBy(id => id, StringComparer.Ordinal)

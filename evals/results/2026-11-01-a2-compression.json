@@ -1,0 +1,314 @@
+{
+  "runAt": "2026-11-01T13:31:31.93509+00:00",
+  "prompt": "a2-compression",
+  "promptVersion": 2,
+  "model": "claude-sonnet-5-5",
+  "cases": 10,
+  "score": 1,
+  "target": 0.8,
+  "results": [
+    {
+      "id": "ravi-sub-tue-thu",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.NOBORROW",
+        "M3.SUB.BORROW"
+      ],
+      "targets": [
+        "M3.SUB.BORROW",
+        "M3.SUB.NOBORROW"
+      ],
+      "best": "M3.SUB.BORROW",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.SUB.BORROW",
+          "reason": "Making subtraction sums for a given difference next week builds directly on 3-digit subtraction with borrowing.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAA\u0CBE\u0CA0 \u0CA6\u0CB6\u0C95 \u0CB8\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0C86\u0CA7\u0CB0\u0CBF\u0CB8\u0CBF\u0CA6\u0CC6."
+        },
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Estimating a difference next week needs 3-digit subtraction without borrowing directly.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0 \u0CB5\u0CCD\u0CAF\u0CA4\u0CCD\u0CAF\u0CBE\u0CB8\u0CA6 \u0C85\u0C82\u0CA6\u0CBE\u0C9C\u0CBF\u0C97\u0CC6 \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.SUB.WORD",
+          "reason": "Next week\u0027s lessons do not build on subtraction word problems, so it can wait.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAA\u0CBE\u0CA0\u0C97\u0CB3\u0CC1 \u0C95\u0CA5\u0CBE \u0CB8\u0CAE\u0CB8\u0CCD\u0CAF\u0CC6\u0C97\u0CB3\u0CC1 (\u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8) \u0CAE\u0CC7\u0CB2\u0CC6 \u0C86\u0CA7\u0CB0\u0CBF\u0CB8\u0CBF\u0CB2\u0CCD\u0CB2, \u0CB9\u0CBE\u0C97\u0CBE\u0C97\u0CBF \u0C95\u0CBE\u0CAF\u0CAC\u0CB9\u0CC1\u0CA6\u0CC1."
+        }
+      ]
+    },
+    {
+      "id": "add-week",
+      "pass": true,
+      "candidates": [
+        "M3.ADD.CARRY",
+        "M3.ADD.NOCARRY"
+      ],
+      "targets": [
+        "M3.ADD.CARRY"
+      ],
+      "best": "M3.ADD.CARRY",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.ADD.CARRY",
+          "reason": "Next week\u0027s lesson on making addition sums for a given total builds directly on 3-digit addition with carrying.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAA\u0CBE\u0CA0\u0C95\u0CCD\u0C95\u0CC6 \u0CA6\u0CB6\u0C95 \u0CB8\u0CB9\u0CBF\u0CA4 \u0CB8\u0C82\u0C95\u0CB2\u0CA8 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CC1, \u0C86\u0CA6\u0CCD\u0CA6\u0CB0\u0CBF\u0C82\u0CA6 \u0CAE\u0C97\u0CC1 \u0C87\u0CA6\u0CA8\u0CCD\u0CA8\u0CC1 \u0C95\u0CB2\u0CBF\u0CAF\u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.ADD.NOCARRY",
+          "reason": "Next week does not need it on its own, and the carrying lesson covers the same adding idea.",
+          "reasonKn": "\u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB8\u0C82\u0C95\u0CB2\u0CA8 \u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0 \u0CAA\u0CCD\u0CB0\u0CA4\u0CCD\u0CAF\u0CC7\u0C95\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CBF\u0CB2\u0CCD\u0CB2; \u0CA6\u0CB6\u0C95 \u0CB8\u0CB9\u0CBF\u0CA4 \u0CB8\u0C82\u0C95\u0CB2\u0CA8 \u0CAA\u0CBE\u0CA0\u0CA6\u0CB2\u0CCD\u0CB2\u0CBF \u0C85\u0CA6\u0CB0 \u0C95\u0CB2\u0CCD\u0CAA\u0CA8\u0CC6 \u0CAC\u0CB0\u0CC1\u0CA4\u0CCD\u0CA4\u0CA6\u0CC6."
+        }
+      ]
+    },
+    {
+      "id": "one-day-hto",
+      "pass": true,
+      "candidates": [
+        "M3.PV.HTO"
+      ],
+      "targets": [
+        "M3.PV.HTO"
+      ],
+      "best": "M3.PV.HTO",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Next week\u0027s Expanded form and Biggest and smallest of 3-digit numbers both build directly on Hundreds, tens and ones, and the rest follows from those.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CB5\u0CBF\u0CB8\u0CCD\u0CA4\u0CB0\u0CA3\u0CBE \u0CB0\u0CC2\u0CAA \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 3 \u0C85\u0C82\u0C95\u0CBF\u0CAF \u0CB8\u0C82\u0C96\u0CCD\u0CAF\u0CC6\u0C97\u0CB3\u0CB2\u0CCD\u0CB2\u0CBF \u0CA6\u0CCA\u0CA1\u0CCD\u0CA1, \u0C9A\u0CBF\u0C95\u0CCD\u0C95 \u0CAA\u0CBE\u0CA0\u0C97\u0CB3\u0CC1 \u0CB8\u0CCD\u0CA5\u0CBE\u0CA8\u0CAC\u0CC6\u0CB2\u0CC6: \u0CA8\u0CC2\u0CB0\u0CC1, \u0CB9\u0CA4\u0CCD\u0CA4\u0CC1, \u0CAC\u0CBF\u0CA1\u0CBF \u0CAA\u0CBE\u0CA0\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CA8\u0CBF\u0C82\u0CA4\u0CBF\u0CB5\u0CC6."
+        }
+      ],
+      "dropped": []
+    },
+    {
+      "id": "expand-and-compare",
+      "pass": true,
+      "candidates": [
+        "M3.NUM.COMPARE"
+      ],
+      "targets": [
+        "M3.NUM.COMPARE"
+      ],
+      "best": "M3.NUM.COMPARE",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.NUM.COMPARE",
+          "reason": "Next week\u0027s Ascending and descending order and Making the biggest and smallest number both build directly on Biggest and smallest of 3-digit numbers.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0C86\u0CB0\u0CCB\u0CB9\u0CA3 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 \u0C85\u0CB5\u0CB0\u0CCB\u0CB9\u0CA3 \u0C95\u0CCD\u0CB0\u0CAE \u0CB9\u0CBE\u0C97\u0CC2 3 \u0C85\u0C82\u0C95\u0CC6\u0C97\u0CB3\u0CBF\u0C82\u0CA6 \u0CA6\u0CCA\u0CA1\u0CCD\u0CA1 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 \u0C9A\u0CBF\u0C95\u0CCD\u0C95 \u0CB8\u0C82\u0C96\u0CCD\u0CAF\u0CC6 \u0CB0\u0C9A\u0CA8\u0CC6\u0C97\u0CC6 \u0C85\u0CA4\u0CBF \u0CA6\u0CCA\u0CA1\u0CCD\u0CA1 \u0CB8\u0C82\u0C96\u0CCD\u0CAF\u0CC6 \u0CAA\u0CBE\u0CA0 \u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "Next week\u0027s lessons do not build on Expanded form, so it can wait.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAA\u0CBE\u0CA0\u0C97\u0CB3\u0CC1 \u0CB5\u0CBF\u0CB8\u0CCD\u0CA4\u0CB0\u0CA3\u0CBE \u0CB0\u0CC2\u0CAA \u0CAA\u0CBE\u0CA0\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0C86\u0CA7\u0CBE\u0CB0\u0CBF\u0CA4\u0CB5\u0CBE\u0C97\u0CBF\u0CB2\u0CCD\u0CB2, \u0C86\u0CA6\u0CCD\u0CA6\u0CB0\u0CBF\u0C82\u0CA6 \u0C85\u0CA6\u0CC1 \u0C95\u0CBE\u0CAF\u0CAC\u0CB9\u0CC1\u0CA6\u0CC1."
+        }
+      ]
+    },
+    {
+      "id": "five-days-numbers",
+      "pass": true,
+      "candidates": [
+        "M3.PV.HTO",
+        "M3.NUM.COMPARE"
+      ],
+      "targets": [
+        "M3.PV.HTO",
+        "M3.NUM.COMPARE"
+      ],
+      "best": "M3.PV.HTO",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Adding 2-digit numbers by tens and ones and 3-digit addition without carrying both build directly on Hundreds, tens and ones.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CB9\u0CA4\u0CCD\u0CA4\u0CC1-\u0CAC\u0CBF\u0CA1\u0CBF \u0C95\u0CC2\u0CA1\u0CBF\u0CB8\u0CC1\u0CB5\u0CBF\u0C95\u0CC6 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 3 \u0C85\u0C82\u0C95\u0CBF\u0CAF \u0C95\u0CC2\u0CA1\u0CC1\u0CB5\u0CBF\u0C95\u0CC6 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CB8\u0CCD\u0CA5\u0CBE\u0CA8\u0CAC\u0CC6\u0CB2\u0CC6: \u0CA8\u0CC2\u0CB0\u0CC1, \u0CB9\u0CA4\u0CCD\u0CA4\u0CC1, \u0CAC\u0CBF\u0CA1\u0CBF \u0CAE\u0CC7\u0CB2\u0CC6 \u0C86\u0CA7\u0CBE\u0CB0\u0CBF\u0CA4."
+        },
+        {
+          "id": "M3.NUM.COMPARE",
+          "reason": "Making the biggest and smallest number from 3 digits needs the child to compare 3-digit numbers first.",
+          "reasonKn": "3 \u0C85\u0C82\u0C95\u0CBF\u0C97\u0CB3\u0CBF\u0C82\u0CA6 \u0C85\u0CA4\u0CBF \u0CA6\u0CCA\u0CA1\u0CCD\u0CA1 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 \u0C9A\u0CBF\u0C95\u0CCD\u0C95 \u0CB8\u0C82\u0C96\u0CCD\u0CAF\u0CC6 \u0CAE\u0CBE\u0CA1\u0CB2\u0CC1 \u0CAE\u0C97\u0CC1\u0CB5\u0CBF\u0C97\u0CC6 \u0C85\u0CA4\u0CBF \u0CA6\u0CCA\u0CA1\u0CCD\u0CA1 \u0CB8\u0C82\u0C96\u0CCD\u0CAF\u0CC6 \u0C97\u0CC1\u0CB0\u0CC1\u0CA4\u0CBF\u0CB8\u0CC1\u0CB5\u0CC1\u0CA6\u0CC1 \u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "Next week does not need it directly, and Hundreds, tens and ones already covers its main idea.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0 \u0CB5\u0CBF\u0CB8\u0CCD\u0CA4\u0CB0\u0CA3\u0CBE \u0CB0\u0CC2\u0CAA \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CBF\u0CB2\u0CCD\u0CB2; \u0C85\u0CA6\u0CB0 \u0CAE\u0CC1\u0C96\u0CCD\u0CAF \u0C95\u0CB2\u0CCD\u0CAA\u0CA8\u0CC6 \u0CB8\u0CCD\u0CA5\u0CBE\u0CA8\u0CAC\u0CC6\u0CB2\u0CC6 \u0CAA\u0CBE\u0CA0\u0CA6\u0CB2\u0CCD\u0CB2\u0CBF \u0CAC\u0CB0\u0CC1\u0CA4\u0CCD\u0CA4\u0CA6\u0CC6."
+        },
+        {
+          "id": "M3.NUM.SEQUENCE",
+          "reason": "The catch-up has room for only 2 lessons, so Before, after, between and skip counting can wait for class revision.",
+          "reasonKn": "\u0C88 \u0C95\u0CCD\u0CAF\u0CBE\u0C9A\u0CCD-\u0C85\u0CAA\u0CCD\u200C\u0CA8\u0CB2\u0CCD\u0CB2\u0CBF 2 \u0CAA\u0CBE\u0CA0 \u0CAE\u0CBE\u0CA4\u0CCD\u0CB0 \u0CB8\u0CBE\u0CA7\u0CCD\u0CAF; \u0C9C\u0CBF\u0C97\u0CBF\u0CAF\u0CC1\u0CA4\u0CCD\u0CA4\u0CBE \u0C95\u0CB2\u0CBF \u0CAA\u0CBE\u0CA0\u0CB5\u0CA8\u0CCD\u0CA8\u0CC1 \u0CA4\u0CB0\u0C97\u0CA4\u0CBF\u0CAF \u0CAA\u0CC1\u0CA8\u0CB0\u0CBE\u0CB5\u0CB0\u0CCD\u0CA4\u0CA8\u0CC6\u0CAF\u0CB2\u0CCD\u0CB2\u0CBF \u0CAE\u0CBE\u0CA1\u0CAC\u0CB9\u0CC1\u0CA6\u0CC1."
+        },
+        {
+          "id": "M3.NUM.ORDER",
+          "reason": "Biggest and smallest of 3-digit numbers covers the comparing idea that Ascending and descending order uses.",
+          "reasonKn": "\u0C8F\u0CB0\u0CBF\u0C95\u0CC6 \u2013 \u0C87\u0CB3\u0CBF\u0C95\u0CC6 \u0CAA\u0CBE\u0CA0\u0C95\u0CCD\u0C95\u0CC6 \u0CAC\u0CC7\u0C95\u0CBE\u0CA6 \u0CB9\u0CCB\u0CB2\u0CBF\u0C95\u0CC6\u0CAF \u0C95\u0CB2\u0CCD\u0CAA\u0CA8\u0CC6 \u0C85\u0CA4\u0CBF \u0CA6\u0CCA\u0CA1\u0CCD\u0CA1 \u0CB8\u0C82\u0C96\u0CCD\u0CAF\u0CC6 \u0CAA\u0CBE\u0CA0\u0CA6\u0CB2\u0CCD\u0CB2\u0CBF \u0CAC\u0CB0\u0CC1\u0CA4\u0CCD\u0CA4\u0CA6\u0CC6."
+        }
+      ]
+    },
+    {
+      "id": "hto-and-noborrow",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.NOBORROW",
+        "M3.PV.HTO"
+      ],
+      "targets": [
+        "M3.SUB.NOBORROW"
+      ],
+      "best": "M3.SUB.NOBORROW",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Next week\u0027s subtraction with borrowing and estimating a difference both build directly on 3-digit subtraction without borrowing.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0C8E\u0CB0\u0CB5\u0CB2\u0CC1 \u0CB8\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 \u0CB5\u0CCD\u0CAF\u0CA4\u0CCD\u0CAF\u0CBE\u0CB8 \u0C85\u0C82\u0CA6\u0CBE\u0C9C\u0CC1 \u0C8E\u0CB0\u0CA1\u0CC2 \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0CA8\u0CBF\u0C82\u0CA4\u0CBF\u0CB5\u0CC6."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Next week does not need it on its own; the 3-digit subtraction catch-up already revisits hundreds, tens and ones.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0 \u0C87\u0CA6\u0CC1 \u0CAA\u0CCD\u0CB0\u0CA4\u0CCD\u0CAF\u0CC7\u0C95\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CBF\u0CB2\u0CCD\u0CB2; \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8\u0CA6 \u0CAA\u0CBE\u0CA0\u0CA6\u0CB2\u0CCD\u0CB2\u0CBF \u0CA8\u0CC2\u0CB0\u0CC1, \u0CB9\u0CA4\u0CCD\u0CA4\u0CC1, \u0CAC\u0CBF\u0CA1\u0CBF \u0CAE\u0CA4\u0CCD\u0CA4\u0CC6 \u0CAC\u0CB0\u0CC1\u0CA4\u0CCD\u0CA4\u0CA6\u0CC6."
+        }
+      ]
+    },
+    {
+      "id": "word-and-borrow",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.BORROW"
+      ],
+      "targets": [
+        "M3.SUB.BORROW"
+      ],
+      "best": "M3.SUB.BORROW",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.SUB.BORROW",
+          "reason": "Next week\u0027s Making subtraction sums for a given difference builds directly on 3-digit subtraction with borrowing.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0C95\u0CCA\u0C9F\u0CCD\u0C9F \u0CB5\u0CCD\u0CAF\u0CA4\u0CCD\u0CAF\u0CBE\u0CB8\u0C95\u0CCD\u0C95\u0CC6 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CB2\u0CC6\u0C95\u0CCD\u0C95 \u0CB0\u0C9A\u0CA8\u0CC6\u0C97\u0CC6 \u0CA6\u0CB6\u0C95 \u0CB8\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.SUB.WORD",
+          "reason": "No lesson next week builds on Subtraction word problems, so it can wait.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAF\u0CBE\u0CB5 \u0CAA\u0CBE\u0CA0\u0C95\u0CCD\u0C95\u0CC2 \u0C95\u0CA5\u0CBE \u0CB8\u0CAE\u0CB8\u0CCD\u0CAF\u0CC6\u0C97\u0CB3\u0CC1 (\u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8) \u0CAC\u0CC7\u0C95\u0CBE\u0C97\u0CBF\u0CB2\u0CCD\u0CB2, \u0C86\u0CA6\u0CCD\u0CA6\u0CB0\u0CBF\u0C82\u0CA6 \u0C87\u0CA6\u0CC1 \u0CA8\u0C82\u0CA4\u0CB0 \u0C86\u0C97\u0CAC\u0CB9\u0CC1\u0CA6\u0CC1."
+        }
+      ]
+    },
+    {
+      "id": "expand-nocarry-noborrow",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.NOBORROW"
+      ],
+      "targets": [
+        "M3.SUB.NOBORROW"
+      ],
+      "best": "M3.SUB.NOBORROW",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Next week\u0027s subtraction with borrowing and estimating a difference both build directly on 3-digit subtraction without borrowing.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAC\u0CBF\u0CA1\u0CBF\u0CB8\u0CBF \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 \u0CB5\u0CCD\u0CAF\u0CA4\u0CCD\u0CAF\u0CBE\u0CB8 \u0C85\u0C82\u0CA6\u0CBE\u0C9C\u0CC1 \u0C8E\u0CB0\u0CA1\u0CC2 \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0C86\u0CA7\u0CBE\u0CB0\u0CBF\u0CA4\u0CB5\u0CBE\u0C97\u0CBF\u0CB5\u0CC6."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "Next week\u0027s lessons do not build on Expanded form, so it can wait.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAA\u0CBE\u0CA0\u0C97\u0CB3\u0CC1 \u0CB5\u0CBF\u0CB8\u0CCD\u0CA4\u0CB0\u0CA3\u0CBE \u0CB0\u0CC2\u0CAA\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0C86\u0CA7\u0CBE\u0CB0\u0CBF\u0CA4\u0CB5\u0CBE\u0C97\u0CBF\u0CB2\u0CCD\u0CB2, \u0C86\u0CA6\u0CCD\u0CA6\u0CB0\u0CBF\u0C82\u0CA6 \u0C85\u0CA6\u0CC1 \u0CA8\u0C82\u0CA4\u0CB0 \u0C95\u0CB2\u0CBF\u0CAF\u0CAC\u0CB9\u0CC1\u0CA6\u0CC1."
+        },
+        {
+          "id": "M3.ADD.NOCARRY",
+          "reason": "Next week\u0027s lessons do not need 3-digit addition without carrying, so it can wait.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAA\u0CBE\u0CA0\u0C97\u0CB3\u0CBF\u0C97\u0CC6 \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB8\u0C82\u0C95\u0CB2\u0CA8 \u0C85\u0C97\u0CA4\u0CCD\u0CAF\u0CB5\u0CBF\u0CB2\u0CCD\u0CB2, \u0C86\u0CA6\u0CCD\u0CA6\u0CB0\u0CBF\u0C82\u0CA6 \u0C85\u0CA6\u0CC1 \u0CA8\u0C82\u0CA4\u0CB0 \u0C95\u0CB2\u0CBF\u0CAF\u0CAC\u0CB9\u0CC1\u0CA6\u0CC1."
+        }
+      ]
+    },
+    {
+      "id": "pv-and-adding",
+      "pass": true,
+      "candidates": [
+        "M3.PV.HTO",
+        "M3.ADD.NOCARRY"
+      ],
+      "targets": [
+        "M3.PV.HTO",
+        "M3.ADD.NOCARRY"
+      ],
+      "best": "M3.ADD.NOCARRY",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.PV.HTO",
+          "reason": "Next week\u0027s 3-digit subtraction without borrowing builds directly on Hundreds, tens and ones, so the child needs it on its own.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAC\u0CBF\u0CA1\u0CBF \u0C87\u0CB2\u0CCD\u0CB2\u0CA6 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8\u0C95\u0CCD\u0C95\u0CC6 \u0CB8\u0CCD\u0CA5\u0CBE\u0CA8\u0CAC\u0CC6\u0CB2\u0CC6: \u0CA8\u0CC2\u0CB0\u0CC1, \u0CB9\u0CA4\u0CCD\u0CA4\u0CC1, \u0CAC\u0CBF\u0CA1\u0CBF \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CAC\u0CC7\u0C95\u0CC1, \u0C85\u0CA6\u0CA8\u0CCD\u0CA8\u0CC1 \u0CAE\u0C97\u0CC1 \u0C95\u0CB2\u0CBF\u0CAF\u0CAC\u0CC7\u0C95\u0CC1."
+        },
+        {
+          "id": "M3.ADD.NOCARRY",
+          "reason": "Next week\u0027s 3-digit addition with carrying builds directly on 3-digit addition without carrying.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0C95\u0CC8\u0CB2\u0CBF\u0CA1\u0CC1\u0CB5 \u0CB8\u0C82\u0C95\u0CB2\u0CA8\u0CB5\u0CC1 \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB8\u0C82\u0C95\u0CB2\u0CA8\u0CA6 \u0CAE\u0CC7\u0CB2\u0CC6 \u0CA8\u0CC7\u0CB0\u0CB5\u0CBE\u0C97\u0CBF \u0CA8\u0CBF\u0C82\u0CA4\u0CBF\u0CA6\u0CC6, \u0C86\u0CA6\u0CCD\u0CA6\u0CB0\u0CBF\u0C82\u0CA6 \u0CAE\u0C97\u0CC1\u0CB5\u0CBF\u0C97\u0CC6 \u0C87\u0CA6\u0CC1 \u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": [
+        {
+          "id": "M3.PV.EXPAND",
+          "reason": "None of next week\u0027s lessons need Expanded form, and Hundreds, tens and ones already covers its place-value idea.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CAF\u0CBE\u0CB5 \u0CAA\u0CBE\u0CA0\u0C95\u0CCD\u0C95\u0CC2 \u0CB5\u0CBF\u0CB8\u0CCD\u0CA4\u0CB0\u0CA3\u0CBE \u0CB0\u0CC2\u0CAA \u0CAC\u0CC7\u0C95\u0CBF\u0CB2\u0CCD\u0CB2; \u0C85\u0CA6\u0CB0 \u0CB8\u0CCD\u0CA5\u0CBE\u0CA8\u0CAC\u0CC6\u0CB2\u0CC6 \u0C95\u0CB2\u0CCD\u0CAA\u0CA8\u0CC6\u0CAF\u0CA8\u0CCD\u0CA8\u0CC1 \u0CB8\u0CCD\u0CA5\u0CBE\u0CA8\u0CAC\u0CC6\u0CB2\u0CC6: \u0CA8\u0CC2\u0CB0\u0CC1, \u0CB9\u0CA4\u0CCD\u0CA4\u0CC1, \u0CAC\u0CBF\u0CA1\u0CBF \u0CAA\u0CBE\u0CA0 \u0C92\u0CB3\u0C97\u0CCA\u0C82\u0CA1\u0CBF\u0CA6\u0CC6."
+        }
+      ]
+    },
+    {
+      "id": "sub-two-days",
+      "pass": true,
+      "candidates": [
+        "M3.SUB.NOBORROW",
+        "M3.SUB.BORROW"
+      ],
+      "targets": [
+        "M3.SUB.BORROW",
+        "M3.SUB.NOBORROW"
+      ],
+      "best": "M3.SUB.BORROW",
+      "verdict": "valid",
+      "kannadaReasons": true,
+      "targetReasons": [
+        {
+          "id": "M3.SUB.BORROW",
+          "reason": "Next week\u0027s lesson on making subtraction sums for a given difference builds directly on 3-digit subtraction with borrowing.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0 \u0C95\u0CCA\u0C9F\u0CCD\u0C9F \u0CB5\u0CCD\u0CAF\u0CA4\u0CCD\u0CAF\u0CBE\u0CB8\u0C95\u0CCD\u0C95\u0CC6 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CB2\u0CC6\u0C95\u0CCD\u0C95 \u0CB0\u0C9A\u0CBF\u0CB8\u0CB2\u0CC1 \u0CAE\u0C97\u0CC1\u0CB5\u0CBF\u0C97\u0CC6 \u0CA6\u0CB6\u0C95 \u0CB8\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CAC\u0CC7\u0C95\u0CC1."
+        },
+        {
+          "id": "M3.SUB.NOBORROW",
+          "reason": "Next week\u0027s lesson on estimating a difference needs 3-digit subtraction without borrowing on its own.",
+          "reasonKn": "\u0CAE\u0CC1\u0C82\u0CA6\u0CBF\u0CA8 \u0CB5\u0CBE\u0CB0\u0CA6 \u0CB5\u0CCD\u0CAF\u0CA4\u0CCD\u0CAF\u0CBE\u0CB8 \u0C85\u0C82\u0CA6\u0CBE\u0C9C\u0CC1 \u0CAA\u0CBE\u0CA0\u0C95\u0CCD\u0C95\u0CC6 \u0CAE\u0C97\u0CC1\u0CB5\u0CBF\u0C97\u0CC6 \u0CA6\u0CB6\u0C95 \u0CB0\u0CB9\u0CBF\u0CA4 \u0CB5\u0CCD\u0CAF\u0CB5\u0C95\u0CB2\u0CA8 \u0CAC\u0CC7\u0C95\u0CC1."
+        }
+      ],
+      "dropped": []
+    }
+  ]
+}

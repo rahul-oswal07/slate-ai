@@ -35,7 +35,7 @@ public static class DemoStory
 
     /// <summary>The lessons taught on the seeded days, oldest first; today's next in the book is <c>M3.ADD.CARRY</c>.</summary>
     public static readonly IReadOnlyList<string> Lessons =
-        ["M3.PV.HTO", "M3.PV.EXPAND", "M3.PV.FACE", "M3.NUM.COMPARE", "M3.ADD.NOCARRY"];
+        ["M3.PV.HTO", "M3.PV.EXPAND", "M3.NUM.COMPARE", "M3.NUM.ORDER", "M3.ADD.NOCARRY"];
 
     /// <summary>
     /// The <see cref="Lessons"/>.Count school days before <paramref name="today"/>, oldest first. Ravi is away on this

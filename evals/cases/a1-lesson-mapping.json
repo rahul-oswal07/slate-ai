@@ -14,8 +14,7 @@
     {
       "id": "sub-noborrow-and-check",
       "transcript": "ಮೊದಲು 865 minus 432 ಮಾಡಿದೆವು, ಎರವಲು ಬೇಕಿರಲಿಲ್ಲ. ನಂತರ ಉತ್ತರಕ್ಕೆ 432 ಕೂಡಿಸಿ ಸರಿ ಇದೆಯಾ ಅಂತ ನೋಡಿದೆವು.",
-      "expected": "M3.SUB.NOBORROW",
-      "alsoAcceptable": ["M3.SUB.CHECK"]
+      "expected": "M3.SUB.NOBORROW"
     },
     {
       "id": "pv-hto",

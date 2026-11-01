@@ -19,7 +19,7 @@ public sealed class EveningSlotsTests
         [
             new Competency("M3.SUB.BORROW", "ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ", "subtraction with borrowing", [], null, 5, 4, [],
                 new TextbookPage("textbook", 2, 15), NameTe: "పది తీసుకుని తీసివేత"),
-            new Competency("M3.SUB.CHECK", "ತಾಳೆ", "checking subtraction", [], null, 5, 3, [],
+            new Competency("M3.SUB.MAKE", "ಸಮಸ್ಯಾ ರಚನೆ", "making subtraction sums", [], null, 5, 3, [],
                 new TextbookPage("textbook", null, 4), NameTe: "సరిచూడటం"),
             new Competency("M3.WORKBOOK", "ಕ", "workbook only", [], null, 5, 5, [],
                 new TextbookPage("workbook", 1, 3), NameTe: "వర్క్‌బుక్"),
@@ -49,9 +49,9 @@ public sealed class EveningSlotsTests
     [Fact]
     public void Several_lessons_are_joined_and_the_page_is_the_first_ones()
     {
-        var filled = EveningSlots.Fill(English, "en", "Ravi", ["M3.SUB.CHECK", "M3.SUB.BORROW"], Book);
+        var filled = EveningSlots.Fill(English, "en", "Ravi", ["M3.SUB.MAKE", "M3.SUB.BORROW"], Book);
 
-        Assert.Equal("checking subtraction, subtraction with borrowing", filled!.Slots.Lesson);
+        Assert.Equal("making subtraction sums, subtraction with borrowing", filled!.Slots.Lesson);
         Assert.Equal("page 4", filled.Slots.Page);
     }
 

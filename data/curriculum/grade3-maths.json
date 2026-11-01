@@ -1,158 +1,299 @@
 {
   "grade": 3,
   "subject": "maths",
-  "version": "2026-10-20",
+  "version": "2026-27",
   "chapters": [
     {
-      "number": 0,
-      "nameKn": "ಸೇತುಬಂಧ",
-      "nameEn": "Bridge course"
+      "number": 1,
+      "nameKn": "ಆಕೃತಿಗಳು",
+      "nameEn": "Shapes"
     },
     {
       "number": 2,
-      "nameKn": "ಎಣಿಸೋಣ – ಕುಣಿಯೋಣ",
-      "nameEn": "Let’s count, let’s dance"
+      "nameKn": "ಸಂಖ್ಯೆಗಳು",
+      "nameEn": "Numbers"
     },
     {
       "number": 3,
-      "nameKn": "ಸಂಖ್ಯೆಗಳೊಂದಿಗೆ ಆಟ",
-      "nameEn": "Playing with numbers"
+      "nameKn": "ಸಂಕಲನ",
+      "nameEn": "Addition"
     },
     {
       "number": 4,
-      "nameKn": "ಕೂಡಿ ನಲಿಯೋಣ",
-      "nameEn": "Let’s add and enjoy"
+      "nameKn": "ವ್ಯವಕಲನ",
+      "nameEn": "Subtraction"
     },
     {
       "number": 5,
-      "nameKn": "ಕಳೆಯುವ ಮೋಜು",
-      "nameEn": "The fun of subtracting"
+      "nameKn": "ಗುಣಾಕಾರ",
+      "nameEn": "Multiplication"
+    },
+    {
+      "number": 6,
+      "nameKn": "ಭಾಗಾಕಾರ",
+      "nameEn": "Division"
+    },
+    {
+      "number": 7,
+      "nameKn": "ಮಾನಸಿಕ ಲೆಕ್ಕಾಚಾರ",
+      "nameEn": "Mental maths"
+    },
+    {
+      "number": 8,
+      "nameKn": "ಭಿನ್ನರಾಶಿ ಸಂಖ್ಯೆಗಳು",
+      "nameEn": "Fractions"
+    },
+    {
+      "number": 9,
+      "nameKn": "ಹಣ",
+      "nameEn": "Money"
+    },
+    {
+      "number": 10,
+      "nameKn": "ಅಳತೆಗಳು",
+      "nameEn": "Measurement"
+    },
+    {
+      "number": 11,
+      "nameKn": "ದತ್ತಾಂಶ ನಿರ್ವಹಣೆ",
+      "nameEn": "Data handling"
+    },
+    {
+      "number": 12,
+      "nameKn": "ನಮೂನೆಗಳು",
+      "nameEn": "Patterns"
     }
   ],
   "competencies": [
     {
-      "id": "M2.PV.TENS",
-      "nameKn": "ಹತ್ತು ಮತ್ತು ಬಿಡಿ (ಸ್ಥಾನ ಬೆಲೆ)",
-      "nameEn": "Place value: tens and ones",
-      "nameTe": "పదులు, ఒకట్లు (స్థాన విలువ)",
-      "nameTa": "பத்துகள், ஒன்றுகள் (இட மதிப்பு)",
-      "nameHi": "दहाई और इकाई (स्थानीय मान)",
+      "id": "M3.GEO.2D",
+      "nameKn": "ಎರಡು ಆಯಾಮಗಳುಳ್ಳ ಆಕೃತಿಗಳು",
+      "nameEn": "2-D shapes: sides, corners, diagonals",
+      "nameTe": "రెండు కొలతల ఆకారాలు",
+      "nameTa": "இரு பரிமாண வடிவங்கள்",
+      "nameHi": "द्वि-आयामी आकृतियाँ",
       "prerequisites": [],
       "nipunOutcome": null,
-      "chapter": 0,
+      "chapter": 1,
       "sequence": 1,
       "examples": [
-        "Ten-rods and unit cubes: 1 rod + 3 cubes = 13"
+        "Triangle: 3 sides, 3 corners",
+        "Quadrilateral: 4 sides, 4 corners, 2 diagonals"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 6
+        "page": 3
       },
       "keyWordsKn": [
-        "ಹತ್ತು",
+        "ತ್ರಿಭುಜ",
+        "ಚತುರ್ಭುಜ",
+        "ಬಾಹು",
+        "ಮೂಲೆ",
+        "ಕರ್ಣ"
+      ]
+    },
+    {
+      "id": "M3.GEO.3D",
+      "nameKn": "ಮೂರು ಆಯಾಮಗಳುಳ್ಳ ಆಕೃತಿಗಳು",
+      "nameEn": "3-D shapes: solid and hollow cylinders",
+      "nameTe": "మూడు కొలతల ఆకారాలు",
+      "nameTa": "முப்பரிமாண வடிவங்கள்",
+      "nameHi": "त्रि-आयामी आकृतियाँ",
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 1,
+      "sequence": 2,
+      "examples": [
+        "Coins stacked make a solid cylinder; bangles stacked make a hollow one"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 5
+      },
+      "keyWordsKn": [
+        "ಉದ್ದ",
+        "ಅಗಲ",
+        "ಎತ್ತರ",
+        "ಗಟ್ಟಿ ಸ್ತಂಭ",
+        "ಟೊಳ್ಳು ಸ್ತಂಭ"
+      ]
+    },
+    {
+      "id": "M3.GEO.TILES",
+      "nameKn": "ಹಾಸುಗಲ್ಲುಗಳು",
+      "nameEn": "Tiles that fit and do not fit",
+      "nameTe": "సరిపోయే, సరిపోని పలకలు",
+      "nameTa": "பொருந்தும், பொருந்தாத ஓடுகள்",
+      "nameHi": "फ़िट होने वाली और न होने वाली टाइलें",
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 1,
+      "sequence": 3,
+      "examples": [
+        "Triangles tiled in two different patterns",
+        "Circles leave gaps; hexagons fit"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 9
+      },
+      "keyWordsKn": [
+        "ಹಾಸುಗಲ್ಲು",
+        "ಸರಿಹೊಂದುವ",
+        "ಸರಿಹೊಂದದ",
+        "ನಮೂನೆ"
+      ]
+    },
+    {
+      "id": "M3.GEO.MAP",
+      "nameKn": "ನಕಾಶೆ ಜ್ಞಾನ",
+      "nameEn": "Reading a simple map",
+      "nameTe": "పటం చదవడం",
+      "nameTa": "வரைபடம் படித்தல்",
+      "nameHi": "नक्शा पढ़ना",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 1,
+      "sequence": 4,
+      "examples": [
+        "Bagalkot district map: railway, highway NH-13, river symbols"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 12
+      },
+      "keyWordsKn": [
+        "ನಕಾಶೆ",
+        "ಸಂಕೇತ",
+        "ಹೆದ್ದಾರಿ",
+        "ನದಿ"
+      ]
+    },
+    {
+      "id": "M3.GEO.DRAW",
+      "nameKn": "ಚುಕ್ಕಿ ಆಕೃತಿ ಮತ್ತು ಟ್ಯಾನ್‌ಗ್ರಾಮ್",
+      "nameEn": "Making shapes: dot grids, straight and curved lines, tangram",
+      "nameTe": "చుక్కలతో ఆకారాలు, టాంగ్రామ్",
+      "nameTa": "புள்ளி வடிவங்கள், டாங்கிராம்",
+      "nameHi": "बिंदुओं से आकृतियाँ और टैनग्राम",
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 1,
+      "sequence": 5,
+      "examples": [
+        "Kite on a dot grid: 8 straight lines, 1 curved line",
+        "5-piece and 7-piece tangram"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 14
+      },
+      "keyWordsKn": [
+        "ಸರಳರೇಖೆ",
+        "ವಕ್ರರೇಖೆ",
+        "ಚುಕ್ಕಿ",
+        "ಟ್ಯಾನ್‌ಗ್ರಾಮ್"
+      ]
+    },
+    {
+      "id": "M3.NUM.COUNT999",
+      "nameKn": "ಎಣಿಸೋಣ ಬಾ (0–999)",
+      "nameEn": "Counting to 999",
+      "nameTe": "999 వరకు లెక్కించడం",
+      "nameTa": "999 வரை எண்ணுதல்",
+      "nameHi": "999 तक गिनती",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 6,
+      "examples": [
+        "9 bundles of ten + 1 = 91",
+        "99 + 1 = 100",
+        "Number chart 200–299"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 18
+      },
+      "keyWordsKn": [
+        "ಎಣಿಕೆ",
+        "ಕಟ್ಟು",
         "ಬಿಡಿ",
-        "ಸ್ಥಾನಬೆಲೆ"
+        "ನೂರು"
       ],
       "practice": {
         "kind": "count",
-        "digits": 2
+        "digits": 3
       }
     },
     {
-      "id": "M2.ADD.2D",
-      "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ",
-      "nameEn": "2-digit addition",
-      "nameTe": "రెండు అంకెల సంఖ్యల కూడిక",
-      "nameTa": "இரண்டு இலக்க எண்களின் கூட்டல்",
-      "nameHi": "दो अंकों का जोड़",
+      "id": "M3.NUM.NAMES",
+      "nameKn": "ಸಂಖ್ಯೆಗಳ ಹೆಸರು",
+      "nameEn": "Number names to 999",
+      "nameTe": "999 వరకు సంఖ్యల పేర్లు",
+      "nameTa": "999 வரை எண்களின் பெயர்கள்",
+      "nameHi": "999 तक संख्याओं के नाम",
       "prerequisites": [
-        "M2.PV.TENS"
+        "M3.NUM.COUNT999"
       ],
       "nipunOutcome": null,
-      "chapter": 0,
-      "sequence": 2,
+      "chapter": 2,
+      "sequence": 7,
       "examples": [
-        "25 + 13 coconuts",
-        "12 + 18"
+        "101 – ಒಂದುನೂರ ಒಂದು",
+        "196 – ಒಂದುನೂರ ತೊಂಬತ್ತಾರು"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 10
+        "page": 28
       },
       "keyWordsKn": [
-        "ಕೂಡಿಸು",
-        "ಮೊತ್ತ",
-        "ಹತ್ತು",
-        "ಬಿಡಿ"
-      ],
-      "practice": {
-        "kind": "add",
-        "digits": 2,
-        "carry": "ones"
-      }
-    },
-    {
-      "id": "M2.SUB.2D",
-      "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ವ್ಯವಕಲನ",
-      "nameEn": "2-digit subtraction",
-      "nameTe": "రెండు అంకెల సంఖ్యల తీసివేత",
-      "nameTa": "இரண்டு இலக்க எண்களின் கழித்தல்",
-      "nameHi": "दो अंकों का घटाव",
-      "prerequisites": [
-        "M2.PV.TENS"
-      ],
-      "nipunOutcome": null,
-      "chapter": 0,
-      "sequence": 3,
-      "examples": [
-        "66 + 23 cricket balls, 34 sold: 89 − 34"
-      ],
-      "textbookPage": {
-        "book": "textbook",
-        "part": 1,
-        "page": 13
-      },
-      "keyWordsKn": [
-        "ಕಳೆ",
-        "ವ್ಯತ್ಯಾಸ",
-        "ಹತ್ತು",
-        "ಬಿಡಿ"
-      ],
-      "practice": {
-        "kind": "sub",
-        "digits": 2,
-        "borrow": "tens"
-      }
+        "ಪದ",
+        "ಸಂಖ್ಯೆ",
+        "ನೂರು"
+      ]
     },
     {
       "id": "M3.PV.HTO",
-      "nameKn": "ನೂರು, ಹತ್ತು, ಬಿಡಿ",
+      "nameKn": "ಸ್ಥಾನಬೆಲೆ: ನೂರು, ಹತ್ತು, ಬಿಡಿ",
       "nameEn": "Hundreds, tens and ones (to 999)",
       "nameTe": "వందలు, పదులు, ఒకట్లు",
       "nameTa": "நூறுகள், பத்துகள், ஒன்றுகள்",
       "nameHi": "सैकड़ा, दहाई और इकाई (999 तक)",
       "prerequisites": [
-        "M2.PV.TENS"
+        "M3.NUM.COUNT999"
       ],
       "nipunOutcome": null,
       "chapter": 2,
-      "sequence": 4,
+      "sequence": 8,
       "examples": [
-        "1 hundred + 2 tens + 1 one = 121",
-        "2 hundreds + 1 ten + 3 ones"
+        "3 hundreds, 1 ten, 0 ones = 310",
+        "Abacus (ಮಣಿಕಟ್ಟು) for 282"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 42
+        "page": 35
       },
       "keyWordsKn": [
         "ನೂರು",
         "ಹತ್ತು",
         "ಬಿಡಿ",
-        "ಸ್ಥಾನಬೆಲೆ"
+        "ಸ್ಥಾನಬೆಲೆ",
+        "ಮಣಿಕಟ್ಟು"
       ],
       "practice": {
         "kind": "count",
@@ -161,7 +302,7 @@
     },
     {
       "id": "M3.PV.EXPAND",
-      "nameKn": "ಸಂಖ್ಯೆಗಳನ್ನು ಬಿಡಿಸಿ ಬರೆಯೋಣ",
+      "nameKn": "ವಿಸ್ತರಣಾ ರೂಪ",
       "nameEn": "Expanded form",
       "nameTe": "సంఖ్యలను విస్తరించి రాయడం",
       "nameTa": "எண்களை விரித்து எழுதுதல்",
@@ -171,19 +312,18 @@
       ],
       "nipunOutcome": null,
       "chapter": 2,
-      "sequence": 5,
+      "sequence": 9,
       "examples": [
-        "385 = 300 + 80 + 5",
-        "427",
-        "280"
+        "751 = 700 + 50 + 1",
+        "920 = 900 + 20"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 45
+        "page": 42
       },
       "keyWordsKn": [
-        "ಬಿಡಿಸಿ ಬರೆ",
+        "ವಿಸ್ತರಣಾ ರೂಪ",
         "ನೂರು",
         "ಹತ್ತು",
         "ಬಿಡಿ"
@@ -194,99 +334,61 @@
       }
     },
     {
-      "id": "M3.PV.FACE",
-      "nameKn": "ಸ್ಥಾನಬೆಲೆ ಮತ್ತು ಮುಖಬೆಲೆ",
-      "nameEn": "Place value and face value",
-      "nameTe": "స్థాన విలువ, ముఖ విలువ",
-      "nameTa": "இட மதிப்பு, முக மதிப்பு",
-      "nameHi": "स्थानीय मान और अंकित मान",
+      "id": "M3.NUM.SEQUENCE",
+      "nameKn": "ಜಿಗಿಯುತ್ತಾ ಕಲಿ",
+      "nameEn": "Before, after, between and skip counting",
+      "nameTe": "ముందు, తర్వాత, మధ్య సంఖ్యలు, దాటుతూ లెక్కించడం",
+      "nameTa": "முன், பின், இடை எண்கள், தாவி எண்ணுதல்",
+      "nameHi": "पहले, बाद और बीच की संख्या, उछलकर गिनती",
       "prerequisites": [
-        "M3.PV.HTO"
+        "M3.NUM.COUNT999"
       ],
       "nipunOutcome": null,
       "chapter": 2,
-      "sequence": 6,
+      "sequence": 10,
       "examples": [
-        "89: face value 8, place value 80",
-        "the 0 in 509"
+        "390, 392, 394, … (jumps of 2)",
+        "Number just after 899; between 724 and 726"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 49
+        "page": 47
       },
       "keyWordsKn": [
-        "ಸ್ಥಾನಬೆಲೆ",
-        "ಮುಖಬೆಲೆ",
-        "ನೂರು",
-        "ಹತ್ತು",
-        "ಬಿಡಿ"
-      ],
-      "practice": {
-        "kind": "placeValue",
-        "digits": 3
-      }
-    },
-    {
-      "id": "M3.PV.4D",
-      "nameKn": "9999 ರವರೆಗಿನ ಸಂಖ್ಯೆಗಳು (ಸಾವಿರ)",
-      "nameEn": "Numbers to 9999 (thousands)",
-      "nameTe": "9999 వరకు సంఖ్యలు (వేలు)",
-      "nameTa": "9999 வரை எண்கள் (ஆயிரங்கள்)",
-      "nameHi": "9999 तक की संख्याएँ (हज़ार)",
-      "prerequisites": [
-        "M3.PV.EXPAND"
-      ],
-      "nipunOutcome": null,
-      "chapter": 2,
-      "sequence": 7,
-      "examples": [
-        "3475 = 3000 + 400 + 70 + 5",
-        "2009 in words"
-      ],
-      "textbookPage": {
-        "book": "textbook",
-        "part": 1,
-        "page": 55
-      },
-      "keyWordsKn": [
-        "ಸಾವಿರ",
-        "ನೂರು",
-        "ಹತ್ತು",
-        "ಬಿಡಿ"
-      ],
-      "practice": {
-        "kind": "count",
-        "digits": 4
-      }
+        "ಮುಂದಿನ",
+        "ಹಿಂದಿನ",
+        "ಮಧ್ಯದ",
+        "ಜಿಗಿ"
+      ]
     },
     {
       "id": "M3.NUM.COMPARE",
-      "nameKn": "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ",
-      "nameEn": "Compare 3-digit numbers (>, <, =)",
-      "nameTe": "ఎక్కువ – తక్కువ – సమానం",
-      "nameTa": "அதிகம் – குறைவு – சமம்",
-      "nameHi": "बड़ा – छोटा – बराबर",
+      "nameKn": "ಅತಿ ದೊಡ್ಡ ಸಂಖ್ಯೆ",
+      "nameEn": "Biggest and smallest of 3-digit numbers",
+      "nameTe": "అతి పెద్ద, అతి చిన్న సంఖ్య",
+      "nameTa": "மிகப் பெரிய, மிகச் சிறிய எண்",
+      "nameHi": "सबसे बड़ी और सबसे छोटी संख्या",
       "prerequisites": [
         "M3.PV.HTO"
       ],
       "nipunOutcome": null,
-      "chapter": 3,
-      "sequence": 8,
+      "chapter": 2,
+      "sequence": 11,
       "examples": [
-        "737 □ 738",
-        "605 □ 650"
+        "157, 263, 475, 325: biggest 475, smallest 157",
+        "560, 524, 548, 599, 571"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 65
+        "page": 52
       },
       "keyWordsKn": [
-        "ನೂರು",
-        "ಹತ್ತು",
-        "ಬಿಡಿ",
-        "ಸ್ಥಾನಬೆಲೆ"
+        "ದೊಡ್ಡ",
+        "ಚಿಕ್ಕ",
+        "ಹೆಚ್ಚು",
+        "ಕಡಿಮೆ"
       ],
       "practice": {
         "kind": "biggest",
@@ -295,7 +397,7 @@
     },
     {
       "id": "M3.NUM.ORDER",
-      "nameKn": "ಏರಿಕೆ ಕ್ರಮ – ಇಳಿಕೆ ಕ್ರಮ",
+      "nameKn": "ಏರಿಕೆ – ಇಳಿಕೆ",
       "nameEn": "Ascending and descending order",
       "nameTe": "ఆరోహణ క్రమం – అవరోహణ క్రమం",
       "nameTa": "ஏறுவரிசை – இறங்குவரிசை",
@@ -304,26 +406,152 @@
         "M3.NUM.COMPARE"
       ],
       "nipunOutcome": null,
-      "chapter": 3,
-      "sequence": 9,
+      "chapter": 2,
+      "sequence": 12,
       "examples": [
-        "303 508 609 401",
-        "248 844 768 646"
+        "225, 352, 417, 561, 799, 833 (ascending)",
+        "833, 799, 561, 417, 352, 225 (descending)"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 68
+        "page": 57
       },
       "keyWordsKn": [
-        "ನೂರು",
-        "ಹತ್ತು",
-        "ಬಿಡಿ",
-        "ಸ್ಥಾನಬೆಲೆ"
+        "ಏರಿಕೆ ಕ್ರಮ",
+        "ಇಳಿಕೆ ಕ್ರಮ",
+        "ದೊಡ್ಡ",
+        "ಚಿಕ್ಕ"
       ],
       "practice": {
         "kind": "smallest",
         "digits": 3
+      }
+    },
+    {
+      "id": "M3.NUM.FORM",
+      "nameKn": "ಸಂಖ್ಯಾ ರಚನೆ",
+      "nameEn": "Making the biggest and smallest number from 3 digits",
+      "nameTe": "అంకెలతో పెద్ద, చిన్న సంఖ్య చేయడం",
+      "nameTa": "இலக்கங்களால் பெரிய, சிறிய எண் அமைத்தல்",
+      "nameHi": "अंकों से सबसे बड़ी और सबसे छोटी संख्या बनाना",
+      "prerequisites": [
+        "M3.NUM.COMPARE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 13,
+      "examples": [
+        "3, 1, 7 → biggest 731, smallest 137",
+        "2, 7, 0 → 702 and 027"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 61
+      },
+      "keyWordsKn": [
+        "ಅಂಕಿ",
+        "ಅತಿ ದೊಡ್ಡ",
+        "ಅತಿ ಚಿಕ್ಕ",
+        "ಸ್ಥಾನಬೆಲೆ"
+      ]
+    },
+    {
+      "id": "M3.NUM.LINE",
+      "nameKn": "ಸಂಖ್ಯಾರೇಖೆ",
+      "nameEn": "Number line",
+      "nameTe": "సంఖ్యా రేఖ",
+      "nameTa": "எண் கோடு",
+      "nameHi": "संख्या रेखा",
+      "prerequisites": [
+        "M3.NUM.SEQUENCE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 2,
+      "sequence": 14,
+      "examples": [
+        "Number between 140 and 160 on 100–200",
+        "Mark 600 on a 0–900 line"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 64
+      },
+      "keyWordsKn": [
+        "ಸಂಖ್ಯಾರೇಖೆ",
+        "ಎಡಭಾಗ",
+        "ಬಲಭಾಗ",
+        "ನಡುವೆ"
+      ]
+    },
+    {
+      "id": "M3.ADD.QUICK",
+      "nameKn": "ಸುಲಭವಾಗಿ ಕೂಡುವುದು",
+      "nameEn": "Adding 2-digit numbers by tens and ones",
+      "nameTe": "పదులు, ఒకట్లుగా సులభంగా కూడిక",
+      "nameTa": "பத்துகள், ஒன்றுகளாக எளிதில் கூட்டுதல்",
+      "nameHi": "दहाई और इकाई से आसान जोड़",
+      "prerequisites": [
+        "M3.PV.HTO"
+      ],
+      "nipunOutcome": null,
+      "chapter": 3,
+      "sequence": 15,
+      "examples": [
+        "45 + 20 + 1 = 66 on the 100 grid",
+        "43 + 35 = 40 + 30 + 3 + 5 = 78"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 67
+      },
+      "keyWordsKn": [
+        "ಕೂಡು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ಮೊತ್ತ"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 2,
+        "carry": "none"
+      }
+    },
+    {
+      "id": "M3.ADD.WORD",
+      "nameKn": "ಕಥಾ ಸಮಸ್ಯೆಗಳು (ಸಂಕಲನ)",
+      "nameEn": "Addition word problems",
+      "nameTe": "కూడిక మాటల లెక్కలు",
+      "nameTa": "கூட்டல் சொற்கணக்குகள்",
+      "nameHi": "जोड़ के शब्द-प्रश्न",
+      "prerequisites": [
+        "M3.ADD.NOCARRY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 3,
+      "sequence": 16,
+      "examples": [
+        "Snake's party: 109 frogs + 37 hens = 146",
+        "264 + 123 banana bunches"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 71
+      },
+      "keyWordsKn": [
+        "ಒಟ್ಟು",
+        "ಸೇರಿಸು",
+        "ಮೊತ್ತ",
+        "ಕೂಡು"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 3,
+        "carry": "any"
       }
     },
     {
@@ -335,25 +563,28 @@
       "nameHi": "हासिल के बिना जोड़",
       "prerequisites": [
         "M3.PV.HTO",
-        "M2.ADD.2D"
+        "M3.ADD.QUICK"
       ],
       "nipunOutcome": null,
-      "chapter": 4,
-      "sequence": 10,
+      "chapter": 3,
+      "sequence": 17,
       "examples": [
-        "718 + 221",
-        "452 + 224"
+        "348 + 231 = 579",
+        "253 + 323 = 576",
+        "422 + 576 in expanded form = 998"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 80
+        "page": 77
       },
       "keyWordsKn": [
-        "ಕೂಡಿಸು",
+        "ಸಂಕಲ್ಯ",
+        "ಸಂಕಲಕ",
         "ಮೊತ್ತ",
-        "ಒಟ್ಟು",
-        "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
       ],
       "practice": {
         "kind": "add",
@@ -369,65 +600,123 @@
       "nameTa": "எடுத்துச் செல்லும் கூட்டல்",
       "nameHi": "हासिल लेकर जोड़",
       "prerequisites": [
-        "M3.ADD.NOCARRY",
-        "M3.PV.EXPAND"
+        "M3.ADD.NOCARRY"
       ],
       "nipunOutcome": null,
-      "chapter": 4,
-      "sequence": 11,
+      "chapter": 3,
+      "sequence": 18,
       "examples": [
-        "317 + 536",
-        "247 + 365"
+        "248 + 438 = 686",
+        "466 + 176 = 642",
+        "456 + 367 = 823"
       ],
       "textbookPage": {
         "book": "textbook",
         "part": 1,
-        "page": 85
+        "page": 80
       },
       "keyWordsKn": [
-        "ಕೂಡಿಸು",
-        "ಮೊತ್ತ",
         "ದಶಕ",
-        "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
-      ],
-      "practice": {
-        "kind": "add",
-        "digits": 3,
-        "carry": "ones"
-      }
-    },
-    {
-      "id": "M3.ADD.WORD",
-      "nameKn": "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ಸಂಕಲನ)",
-      "nameEn": "Addition word problems",
-      "nameTe": "కూడిక మాటల లెక్కలు",
-      "nameTa": "கூட்டல் சொற்கணக்குகள்",
-      "nameHi": "जोड़ के शब्द-प्रश्न",
-      "prerequisites": [
-        "M3.ADD.CARRY"
-      ],
-      "nipunOutcome": null,
-      "chapter": 4,
-      "sequence": 12,
-      "examples": [
-        "324 boys and 258 girls: how many children?",
-        "230 + 565 guests"
-      ],
-      "textbookPage": {
-        "book": "textbook",
-        "part": 1,
-        "page": 88
-      },
-      "keyWordsKn": [
-        "ಕೂಡಿಸು",
-        "ಒಟ್ಟು",
         "ಮೊತ್ತ",
-        "ದಶಕ"
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
       ],
       "practice": {
         "kind": "add",
         "digits": 3,
         "carry": "any"
+      }
+    },
+    {
+      "id": "M3.ADD.MAKE",
+      "nameKn": "ಸಮಸ್ಯಾ ರಚನೆ (ಸಂಕಲನ)",
+      "nameEn": "Making addition sums for a given total",
+      "nameTe": "ఇచ్చిన మొత్తానికి కూడిక లెక్కలు రాయడం",
+      "nameTa": "கொடுத்த கூட்டுத்தொகைக்குக் கணக்குகள் அமைத்தல்",
+      "nameHi": "दिए गए योग के लिए जोड़ के सवाल बनाना",
+      "prerequisites": [
+        "M3.ADD.CARRY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 3,
+      "sequence": 19,
+      "examples": [
+        "215 + 115 = 235 + 95 = 330",
+        "499 = 200 + 299 = 385 + 114"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 89
+      },
+      "keyWordsKn": [
+        "ಸಮಸ್ಯೆ",
+        "ಉತ್ತರ",
+        "ಮೊತ್ತ"
+      ]
+    },
+    {
+      "id": "M3.ADD.ESTIMATE",
+      "nameKn": "ಅಂದಾಜು ಮೊತ್ತ",
+      "nameEn": "Rounding to the nearest ten and estimating a sum",
+      "nameTe": "దగ్గరి పదికి సరిచేసి మొత్తం అంచనా",
+      "nameTa": "அருகிலுள்ள பத்துக்கு முழுமையாக்கி கூட்டுத்தொகை மதிப்பீடு",
+      "nameHi": "निकटतम दहाई तक पूर्णांकन और योग का अनुमान",
+      "prerequisites": [
+        "M3.ADD.QUICK",
+        "M3.NUM.LINE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 3,
+      "sequence": 20,
+      "examples": [
+        "43 → 40, 47 → 50",
+        "46 + 23 ≈ 50 + 20 = 70"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 91
+      },
+      "keyWordsKn": [
+        "ಅಂದಾಜು",
+        "ಹತ್ತಿರದ",
+        "ಮೊತ್ತ"
+      ]
+    },
+    {
+      "id": "M3.SUB.WORD",
+      "nameKn": "ಕಥಾ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ)",
+      "nameEn": "Subtraction word problems",
+      "nameTe": "తీసివేత మాటల లెక్కలు",
+      "nameTa": "கழித்தல் சொற்கணக்குகள்",
+      "nameHi": "घटाव के शब्द-प्रश्न",
+      "prerequisites": [
+        "M3.SUB.NOBORROW"
+      ],
+      "nipunOutcome": null,
+      "chapter": 4,
+      "sequence": 21,
+      "examples": [
+        "Book shops: 468 − 365 = 103",
+        "Bill ₹150, paid ₹200: change ₹50",
+        "274 − 158 = 116"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 96
+      },
+      "keyWordsKn": [
+        "ಕಳೆ",
+        "ಉಳಿದ",
+        "ವ್ಯತ್ಯಾಸ",
+        "ಹೆಚ್ಚು"
+      ],
+      "practice": {
+        "kind": "sub",
+        "digits": 3,
+        "borrow": "tens"
       }
     },
     {
@@ -438,60 +727,27 @@
       "nameTa": "கடன் வாங்காத கழித்தல்",
       "nameHi": "उधार लिए बिना घटाव",
       "prerequisites": [
-        "M3.PV.HTO",
-        "M2.SUB.2D"
+        "M3.PV.HTO"
       ],
       "nipunOutcome": null,
-      "chapter": 5,
-      "sequence": 13,
+      "chapter": 4,
+      "sequence": 22,
       "examples": [
-        "532 − 401",
-        "448 − 335"
+        "456 − 325 = 131",
+        "228 − 105 = 123",
+        "399 − 278 in expanded form = 121"
       ],
       "textbookPage": {
         "book": "textbook",
-        "part": 2,
-        "page": 6
+        "part": 1,
+        "page": 104
       },
       "keyWordsKn": [
         "ಕಳೆ",
         "ವ್ಯತ್ಯಾಸ",
-        "ಉಳಿದ",
-        "ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ"
-      ],
-      "practice": {
-        "kind": "sub",
-        "digits": 3,
-        "borrow": "none"
-      }
-    },
-    {
-      "id": "M3.SUB.CHECK",
-      "nameKn": "ತಾಳೆ ನೋಡುವುದು (ಕೂಡಿಸುವುದು ಮತ್ತು ಕಳೆಯುವುದರ ಸಹಸಂಬಂಧ)",
-      "nameEn": "Check subtraction by adding",
-      "nameTe": "కూడిక ద్వారా తీసివేతను సరిచూడటం",
-      "nameTa": "கூட்டல் மூலம் கழித்தலைச் சரிபார்த்தல்",
-      "nameHi": "जोड़कर घटाव की जाँच",
-      "prerequisites": [
-        "M3.SUB.NOBORROW",
-        "M3.ADD.NOCARRY"
-      ],
-      "nipunOutcome": null,
-      "chapter": 5,
-      "sequence": 14,
-      "examples": [
-        "626 − 615 = 011; check 011 + 615 = 626"
-      ],
-      "textbookPage": {
-        "book": "textbook",
-        "part": 2,
-        "page": 4
-      },
-      "keyWordsKn": [
-        "ತಾಳೆ ನೋಡು",
-        "ಕಳೆ",
-        "ಕೂಡಿಸು",
-        "ವ್ಯತ್ಯಾಸ"
+        "ನೂರು",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
       ],
       "practice": {
         "kind": "sub",
@@ -507,59 +763,24 @@
       "nameTa": "கடன் வாங்கும் கழித்தல்",
       "nameHi": "उधार लेकर घटाव",
       "prerequisites": [
-        "M3.SUB.NOBORROW",
-        "M3.PV.EXPAND"
+        "M3.SUB.NOBORROW"
       ],
       "nipunOutcome": null,
-      "chapter": 5,
-      "sequence": 15,
+      "chapter": 4,
+      "sequence": 23,
       "examples": [
-        "438 − 229",
-        "452 − 358 (borrows twice)"
+        "872 − 586 = 286",
+        "290 − 178 = 112",
+        "847 − 563 = 284"
       ],
       "textbookPage": {
         "book": "textbook",
-        "part": 2,
-        "page": 15
+        "part": 1,
+        "page": 108
       },
       "keyWordsKn": [
-        "ಕಳೆ",
-        "ದಶಕ",
-        "ಹತ್ತು",
-        "ಬಿಡಿ",
-        "ವ್ಯತ್ಯಾಸ"
-      ],
-      "practice": {
-        "kind": "sub",
-        "digits": 3,
-        "borrow": "tens"
-      }
-    },
-    {
-      "id": "M3.SUB.WORD",
-      "nameKn": "ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ)",
-      "nameEn": "Subtraction word problems",
-      "nameTe": "తీసివేత మాటల లెక్కలు",
-      "nameTa": "கழித்தல் சொற்கணக்குகள்",
-      "nameHi": "घटाव के शब्द-प्रश्न",
-      "prerequisites": [
-        "M3.SUB.BORROW"
-      ],
-      "nipunOutcome": null,
-      "chapter": 5,
-      "sequence": 16,
-      "examples": [
-        "Book of 257 pages, 152 read: how many left?",
-        "875 − 673 stamps"
-      ],
-      "textbookPage": {
-        "book": "textbook",
-        "part": 2,
-        "page": 18
-      },
-      "keyWordsKn": [
-        "ಕಳೆ",
-        "ಉಳಿದ",
+        "ವ್ಯವಕಲ್ಯ",
+        "ವ್ಯವಕಲಕ",
         "ವ್ಯತ್ಯಾಸ",
         "ದಶಕ"
       ],
@@ -568,6 +789,1068 @@
         "digits": 3,
         "borrow": "tens"
       }
+    },
+    {
+      "id": "M3.SUB.MAKE",
+      "nameKn": "ಸಮಸ್ಯಾ ರಚನೆ (ವ್ಯವಕಲನ)",
+      "nameEn": "Making subtraction sums for a given difference",
+      "nameTe": "ఇచ్చిన తేడాకు తీసివేత లెక్కలు రాయడం",
+      "nameTa": "கொடுத்த வித்தியாசத்துக்குக் கணக்குகள் அமைத்தல்",
+      "nameHi": "दिए गए अंतर के लिए घटाव के सवाल बनाना",
+      "prerequisites": [
+        "M3.SUB.BORROW"
+      ],
+      "nipunOutcome": null,
+      "chapter": 4,
+      "sequence": 24,
+      "examples": [
+        "371 − 250 = 760 − 639 = 121",
+        "695 − 205 = 490"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 117
+      },
+      "keyWordsKn": [
+        "ಸಮಸ್ಯೆ",
+        "ವ್ಯತ್ಯಾಸ",
+        "ಉತ್ತರ"
+      ]
+    },
+    {
+      "id": "M3.SUB.ESTIMATE",
+      "nameKn": "ಅಂದಾಜು ವ್ಯತ್ಯಾಸ",
+      "nameEn": "Estimating a difference",
+      "nameTe": "తేడా అంచనా",
+      "nameTa": "வித்தியாசத்தை மதிப்பிடுதல்",
+      "nameHi": "अंतर का अनुमान",
+      "prerequisites": [
+        "M3.ADD.ESTIMATE",
+        "M3.SUB.NOBORROW"
+      ],
+      "nipunOutcome": null,
+      "chapter": 4,
+      "sequence": 25,
+      "examples": [
+        "24 − 11 ≈ 20 − 10 = 10",
+        "87 − 34 ≈ 90 − 30 = 60"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 121
+      },
+      "keyWordsKn": [
+        "ಅಂದಾಜು",
+        "ವ್ಯತ್ಯಾಸ",
+        "ಹತ್ತಿರದ"
+      ]
+    },
+    {
+      "id": "M3.MUL.REPEAT",
+      "nameKn": "ಪುನರಾವರ್ತಿತ ಸಂಕಲನ",
+      "nameEn": "Multiplication as repeated addition",
+      "nameTe": "మళ్ళీ మళ్ళీ కూడటమే గుణకారం",
+      "nameTa": "மீண்டும் மீண்டும் கூட்டுதலே பெருக்கல்",
+      "nameHi": "बार-बार जोड़ना ही गुणा है",
+      "prerequisites": [
+        "M3.ADD.QUICK"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 26,
+      "examples": [
+        "5 + 5 + 5 + 5 = 20, 5 × 4 = 20",
+        "3 rows of 10 children = 30"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 124
+      },
+      "keyWordsKn": [
+        "ಪುನರಾವರ್ತಿತ",
+        "ಸಂಕಲನ",
+        "ಸಲ",
+        "ಗುಣಾಕಾರ"
+      ]
+    },
+    {
+      "id": "M3.MUL.SIGN",
+      "nameKn": "ಗುಣಾಕಾರದ ಚಿಹ್ನೆ",
+      "nameEn": "The × sign: multiplicand, multiplier, product",
+      "nameTe": "గుణకార గుర్తు ×",
+      "nameTa": "பெருக்கல் குறி ×",
+      "nameHi": "गुणा का चिह्न ×",
+      "prerequisites": [
+        "M3.MUL.REPEAT"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 27,
+      "examples": [
+        "3 × 4 = 12 coconuts",
+        "3 × 2 = 6: ಗುಣ್ಯ 3, ಗುಣಕ 2, ಗುಣಲಬ್ಧ 6"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 128
+      },
+      "keyWordsKn": [
+        "ಗುಣ್ಯ",
+        "ಗುಣಕ",
+        "ಗುಣಲಬ್ಧ",
+        "ಚಿಹ್ನೆ"
+      ]
+    },
+    {
+      "id": "M3.MUL.TABLES",
+      "nameKn": "ಗುಣಾಕಾರ ಕೋಷ್ಟಕ",
+      "nameEn": "Multiplication tables 1 to 10",
+      "nameTe": "1 నుండి 10 వరకు ఎక్కాలు",
+      "nameTa": "1 முதல் 10 வரை வாய்ப்பாடு",
+      "nameHi": "1 से 10 तक के पहाड़े",
+      "prerequisites": [
+        "M3.MUL.SIGN"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 28,
+      "examples": [
+        "2 table: 2 × 1 = 2, 2 × 2 = 4, 2 × 3 = 6, 2 × 4 = 8, 2 × 5 = 10",
+        "5 table: 5 × 1 = 5, 5 × 2 = 10, 5 × 3 = 15, 5 × 4 = 20, 5 × 5 = 25",
+        "6 × 7 = 42; any number × 1 = itself, × 0 = 0",
+        "9 table: 9 × 2 = 18, 9 × 3 = 27 (digits add to 9)"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 131
+      },
+      "keyWordsKn": [
+        "ಮಗ್ಗಿ",
+        "ಕೋಷ್ಟಕ",
+        "ಗುಣಲಬ್ಧ"
+      ]
+    },
+    {
+      "id": "M3.MUL.DAILY",
+      "nameKn": "ನಿತ್ಯ ಜೀವನದಲ್ಲಿ ಗುಣಾಕಾರ",
+      "nameEn": "Multiplication in daily life (word problems)",
+      "nameTe": "రోజువారీ జీవితంలో గుణకారం",
+      "nameTa": "அன்றாட வாழ்வில் பெருக்கல்",
+      "nameHi": "रोज़मर्रा में गुणा",
+      "prerequisites": [
+        "M3.MUL.TABLES"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 29,
+      "examples": [
+        "3 notebooks at ₹6 = ₹18",
+        "8 benches × 4 children = 32"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 137
+      },
+      "keyWordsKn": [
+        "ಬೆಲೆ",
+        "ಒಟ್ಟು",
+        "ಗುಣಿಸು"
+      ]
+    },
+    {
+      "id": "M3.MUL.2D1D",
+      "nameKn": "ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ಗುಣಲಬ್ಧ",
+      "nameEn": "2-digit × 1-digit without carrying",
+      "nameTe": "రెండంకెల సంఖ్యను ఒక అంకెతో గుణించడం",
+      "nameTa": "இரண்டு இலக்க எண்ணை ஒரு இலக்கத்தால் பெருக்குதல்",
+      "nameHi": "दो अंकों की संख्या को एक अंक से गुणा",
+      "prerequisites": [
+        "M3.MUL.TABLES",
+        "M3.PV.HTO"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 30,
+      "examples": [
+        "12 × 3 = 36 (3 dozen bangles)",
+        "32 × 4 = 128"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 141
+      },
+      "keyWordsKn": [
+        "ಗುಣಲಬ್ಧ",
+        "ಹತ್ತು",
+        "ಬಿಡಿ",
+        "ಡಜನ್"
+      ]
+    },
+    {
+      "id": "M3.MUL.2D1D.CARRY",
+      "nameKn": "ದಶಕ ಸಹಿತವಾಗಿ ಗುಣಿಸುವುದು",
+      "nameEn": "2-digit × 1-digit with carrying",
+      "nameTe": "పది తీసుకువెళ్లి గుణించడం",
+      "nameTa": "எடுத்துச் செல்லும் பெருக்கல்",
+      "nameHi": "हासिल लेकर गुणा",
+      "prerequisites": [
+        "M3.MUL.2D1D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 31,
+      "examples": [
+        "13 × 4 = 52",
+        "65 × 7 = 455"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 144
+      },
+      "keyWordsKn": [
+        "ದಶಕ",
+        "ಗುಣಲಬ್ಧ",
+        "ಹತ್ತು",
+        "ಬಿಡಿ"
+      ]
+    },
+    {
+      "id": "M3.MUL.2D2D",
+      "nameKn": "ಎರಡಂಕಿ × ಎರಡಂಕಿ ಗುಣಾಕಾರ",
+      "nameEn": "2-digit × 2-digit",
+      "nameTe": "రెండంకెల సంఖ్యలను రెండంకెలతో గుణించడం",
+      "nameTa": "இரண்டு இலக்க எண்களைப் பெருக்குதல்",
+      "nameHi": "दो अंकों की संख्याओं का गुणा",
+      "prerequisites": [
+        "M3.MUL.2D1D.CARRY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 5,
+      "sequence": 32,
+      "examples": [
+        "11 × 10 = 110",
+        "11 × 12 = 132",
+        "72 × 13 = 936"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 1,
+        "page": 147
+      },
+      "keyWordsKn": [
+        "ಗುಣ್ಯ",
+        "ಗುಣಕ",
+        "ಗುಣಲಬ್ಧ"
+      ]
+    },
+    {
+      "id": "M3.DIV.SHARE",
+      "nameKn": "ಸಮನಾಗಿ ಹಂಚುವುದು ಮತ್ತು ಗುಂಪು ಮಾಡುವುದು",
+      "nameEn": "Sharing equally and making groups",
+      "nameTe": "సమానంగా పంచడం, గుంపులు చేయడం",
+      "nameTa": "சமமாகப் பகிர்தல், குழுக்களாக்குதல்",
+      "nameHi": "बराबर बाँटना और समूह बनाना",
+      "prerequisites": [
+        "M3.MUL.TABLES"
+      ],
+      "nipunOutcome": null,
+      "chapter": 6,
+      "sequence": 33,
+      "examples": [
+        "8 tablets, 2 a day: 4 days (8 − 2 − 2 − 2 − 2)",
+        "12 balloons among 4 friends: 3 each"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 1
+      },
+      "keyWordsKn": [
+        "ಸಮನಾಗಿ",
+        "ಹಂಚು",
+        "ಗುಂಪು",
+        "ಭಾಗಾಕಾರ"
+      ]
+    },
+    {
+      "id": "M3.DIV.MULREL",
+      "nameKn": "ಭಾಗಾಕಾರ ಮತ್ತು ಗುಣಾಕಾರಗಳ ಸಂಬಂಧ",
+      "nameEn": "Division and multiplication are linked",
+      "nameTe": "భాగహారం, గుణకారం సంబంధం",
+      "nameTa": "வகுத்தலும் பெருக்கலும் உள்ள தொடர்பு",
+      "nameHi": "भाग और गुणा का संबंध",
+      "prerequisites": [
+        "M3.DIV.SHARE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 6,
+      "sequence": 34,
+      "examples": [
+        "4 × 3 = 12, so 12 ÷ 4 = 3 and 12 ÷ 3 = 4",
+        "7 × 3 = 21, so 21 ÷ 3 = 7"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 5
+      },
+      "keyWordsKn": [
+        "ಭಾಗಾಕಾರ",
+        "ಗುಣಾಕಾರ",
+        "ಸಂಬಂಧ"
+      ]
+    },
+    {
+      "id": "M3.DIV.TABLES",
+      "nameKn": "ಮಗ್ಗಿ ಬಳಸಿ ಭಾಗಿಸು",
+      "nameEn": "Dividing with the tables",
+      "nameTe": "ఎక్కాలతో భాగించడం",
+      "nameTa": "வாய்ப்பாட்டைக் கொண்டு வகுத்தல்",
+      "nameHi": "पहाड़ों से भाग",
+      "prerequisites": [
+        "M3.DIV.MULREL"
+      ],
+      "nipunOutcome": null,
+      "chapter": 6,
+      "sequence": 35,
+      "examples": [
+        "45 ÷ 5 = 9",
+        "28 ÷ 7 = 4",
+        "Any number ÷ 1 = itself; ÷ itself = 1"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 8
+      },
+      "keyWordsKn": [
+        "ಭಾಜ್ಯ",
+        "ಭಾಜಕ",
+        "ಭಾಗಲಬ್ಧ",
+        "ಶೇಷ"
+      ]
+    },
+    {
+      "id": "M3.MENT.ADDSUB",
+      "nameKn": "ಮನಸ್ಸಿನಲ್ಲಿ ಲೆಕ್ಕ ಮಾಡು",
+      "nameEn": "Adding and subtracting 1- and 2-digit numbers in your head",
+      "nameTe": "మనసులో కూడిక, తీసివేత",
+      "nameTa": "மனக்கணக்கில் கூட்டல், கழித்தல்",
+      "nameHi": "मन में जोड़ और घटाव",
+      "prerequisites": [
+        "M3.ADD.QUICK"
+      ],
+      "nipunOutcome": null,
+      "chapter": 7,
+      "sequence": 36,
+      "examples": [
+        "Magic square: each side adds to 8",
+        "39 + 1 = 40, 43 + 7 = 50 (race to 100)"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 13
+      },
+      "keyWordsKn": [
+        "ಮನಸ್ಸಿನಲ್ಲಿ",
+        "ಕೂಡು",
+        "ಕಳೆ"
+      ],
+      "practice": {
+        "kind": "add",
+        "digits": 2,
+        "carry": "any"
+      }
+    },
+    {
+      "id": "M3.MENT.DOUBLE",
+      "nameKn": "ಎರಡು ಪಟ್ಟು",
+      "nameEn": "Doubling numbers (to 100)",
+      "nameTe": "రెట్టింపు చేయడం",
+      "nameTa": "இரட்டிப்பாக்குதல்",
+      "nameHi": "दोगुना करना",
+      "prerequisites": [
+        "M3.MENT.ADDSUB"
+      ],
+      "nipunOutcome": null,
+      "chapter": 7,
+      "sequence": 37,
+      "examples": [
+        "Double 13 = 26",
+        "Double 30 = 60, double 35 = 70"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 21
+      },
+      "keyWordsKn": [
+        "ಎರಡು ಪಟ್ಟು",
+        "ದುಪ್ಪಟ್ಟು",
+        "ಕೂಡು"
+      ]
+    },
+    {
+      "id": "M3.FRAC.HALF",
+      "nameKn": "ಅರ್ಧ",
+      "nameEn": "Half",
+      "nameTe": "సగం",
+      "nameTa": "பாதி",
+      "nameHi": "आधा",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 8,
+      "sequence": 38,
+      "examples": [
+        "A roti cut into 2 equal parts: each is half",
+        "Which pictures can be split into 2 equal halves?"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 26
+      },
+      "keyWordsKn": [
+        "ಅರ್ಧ",
+        "ಸಮಭಾಗ",
+        "ಪೂರ್ಣ"
+      ]
+    },
+    {
+      "id": "M3.FRAC.QUARTER",
+      "nameKn": "ಕಾಲು ಮತ್ತು ಮುಕ್ಕಾಲು",
+      "nameEn": "Quarter and three quarters",
+      "nameTe": "పావు, ముప్పావు",
+      "nameTa": "கால், முக்கால்",
+      "nameHi": "चौथाई और तीन-चौथाई",
+      "prerequisites": [
+        "M3.FRAC.HALF"
+      ],
+      "nipunOutcome": null,
+      "chapter": 8,
+      "sequence": 39,
+      "examples": [
+        "Bread shared by 4 cats: each gets a quarter",
+        "3 of 4 equal parts = three quarters"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 30
+      },
+      "keyWordsKn": [
+        "ಕಾಲು",
+        "ಮುಕ್ಕಾಲು",
+        "ಸಮಭಾಗ"
+      ]
+    },
+    {
+      "id": "M3.FRAC.SYMBOL",
+      "nameKn": "ಅರ್ಧ, ಕಾಲು, ಮುಕ್ಕಾಲು – ಸಾಂಖ್ಯಿಕ ರೂಪ",
+      "nameEn": "Writing ½, ¼ and ¾",
+      "nameTe": "½, ¼, ¾ రాయడం",
+      "nameTa": "½, ¼, ¾ எழுதுதல்",
+      "nameHi": "½, ¼ और ¾ लिखना",
+      "prerequisites": [
+        "M3.FRAC.QUARTER"
+      ],
+      "nipunOutcome": null,
+      "chapter": 8,
+      "sequence": 40,
+      "examples": [
+        "1 of 2 equal parts = ½",
+        "1 of 4 = ¼, 3 of 4 = ¾"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 39
+      },
+      "keyWordsKn": [
+        "ಭಿನ್ನರಾಶಿ",
+        "ಸಾಂಖ್ಯಿಕ ರೂಪ",
+        "ಅರ್ಧ",
+        "ಕಾಲು"
+      ]
+    },
+    {
+      "id": "M3.MONEY.COINS",
+      "nameKn": "ರೂಪಾಯಿಯನ್ನು ಪೈಸೆಗೆ ಪರಿವರ್ತಿಸುವುದು",
+      "nameEn": "Coins and notes: ₹1 = 100 paise",
+      "nameTe": "నాణేలు, నోట్లు: ₹1 = 100 పైసలు",
+      "nameTa": "நாணயங்கள், நோட்டுகள்: ₹1 = 100 பைசா",
+      "nameHi": "सिक्के और नोट: ₹1 = 100 पैसे",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 9,
+      "sequence": 41,
+      "examples": [
+        "₹1 = two 50 paise coins",
+        "₹5 = 500 paise",
+        "₹10 = two ₹5 coins"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 45
+      },
+      "keyWordsKn": [
+        "ರೂಪಾಯಿ",
+        "ಪೈಸೆ",
+        "ನಾಣ್ಯ",
+        "ನೋಟು"
+      ]
+    },
+    {
+      "id": "M3.MONEY.WRITE",
+      "nameKn": "ಹಣವನ್ನು ಬರೆಯುವುದು",
+      "nameEn": "Writing money in words and numbers",
+      "nameTe": "డబ్బును అక్షరాల్లో, అంకెల్లో రాయడం",
+      "nameTa": "பணத்தை எழுத்திலும் எண்ணிலும் எழுதுதல்",
+      "nameHi": "पैसे को शब्दों और अंकों में लिखना",
+      "prerequisites": [
+        "M3.MONEY.COINS"
+      ],
+      "nipunOutcome": null,
+      "chapter": 9,
+      "sequence": 42,
+      "examples": [
+        "20 rupees 50 paise = ₹20.50",
+        "75 paise = ₹0.75"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 50
+      },
+      "keyWordsKn": [
+        "ರೂಪಾಯಿ",
+        "ಪೈಸೆ",
+        "ಬಿಂದು",
+        "ಸಂಕೇತ"
+      ]
+    },
+    {
+      "id": "M3.MONEY.CONVERT",
+      "nameKn": "ರೂಪಾಯಿಗಳನ್ನು ಪೈಸೆಗಳಿಗೆ ಪರಿವರ್ತಿಸುವುದು",
+      "nameEn": "Rupees to paise",
+      "nameTe": "రూపాయలను పైసలుగా మార్చడం",
+      "nameTa": "ரூபாயைப் பைசாவாக மாற்றுதல்",
+      "nameHi": "रुपये को पैसे में बदलना",
+      "prerequisites": [
+        "M3.MONEY.WRITE",
+        "M3.MUL.TABLES"
+      ],
+      "nipunOutcome": null,
+      "chapter": 9,
+      "sequence": 43,
+      "examples": [
+        "₹3 = 3 × 100 = 300 paise",
+        "₹5.50 = 550 paise"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 52
+      },
+      "keyWordsKn": [
+        "ರೂಪಾಯಿ",
+        "ಪೈಸೆ",
+        "ಪರಿವರ್ತಿಸು"
+      ]
+    },
+    {
+      "id": "M3.MONEY.ADDSUB",
+      "nameKn": "ಹಣದ ಸಂಕಲನ ಮತ್ತು ವ್ಯವಕಲನ",
+      "nameEn": "Adding and subtracting money",
+      "nameTe": "డబ్బు కూడిక, తీసివేత",
+      "nameTa": "பணக் கூட்டல், கழித்தல்",
+      "nameHi": "पैसों का जोड़ और घटाव",
+      "prerequisites": [
+        "M3.MONEY.WRITE",
+        "M3.ADD.CARRY",
+        "M3.SUB.BORROW"
+      ],
+      "nipunOutcome": null,
+      "chapter": 9,
+      "sequence": 44,
+      "examples": [
+        "₹26.40 + ₹31.20 = ₹57.60",
+        "₹64.80 − ₹21.30 = ₹43.50",
+        "₹85.50 − ₹25.20 = ₹60.30"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 55
+      },
+      "keyWordsKn": [
+        "ರೂಪಾಯಿ",
+        "ಪೈಸೆ",
+        "ಒಟ್ಟು",
+        "ಉಳಿದ"
+      ]
+    },
+    {
+      "id": "M3.MONEY.BILL",
+      "nameKn": "ದರ ಪಟ್ಟಿ ಮತ್ತು ಸರಳ ರಶೀದಿ",
+      "nameEn": "Price lists and simple bills",
+      "nameTe": "ధరల పట్టిక, సాధారణ రసీదు",
+      "nameTa": "விலைப் பட்டியல், எளிய ரசீது",
+      "nameHi": "मूल्य सूची और साधारण बिल",
+      "prerequisites": [
+        "M3.MONEY.ADDSUB",
+        "M3.MUL.DAILY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 9,
+      "sequence": 45,
+      "examples": [
+        "2 notebooks at ₹15 = ₹30",
+        "Bill total with item, quantity and price"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 62
+      },
+      "keyWordsKn": [
+        "ದರ ಪಟ್ಟಿ",
+        "ರಶೀದಿ",
+        "ಬೆಲೆ",
+        "ಒಟ್ಟು"
+      ]
+    },
+    {
+      "id": "M3.MEAS.CM",
+      "nameKn": "ಅಳತೆ ಪಟ್ಟಿ: ಸೆಂಟಿಮೀಟರ್",
+      "nameEn": "Measuring length in centimetres with a ruler",
+      "nameTe": "స్కేలుతో సెంటీమీటర్లలో పొడవు కొలవడం",
+      "nameTa": "அளவுகோலால் சென்டிமீட்டரில் நீளம் அளத்தல்",
+      "nameHi": "पैमाने से सेंटीमीटर में लंबाई नापना",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 46,
+      "examples": [
+        "Everyone gets 20 spans for the blackboard? Use one standard scale",
+        "Pencil from 0 to 9 cm"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 68
+      },
+      "keyWordsKn": [
+        "ಅಳತೆ",
+        "ಉದ್ದ",
+        "ಸೆಂಟಿಮೀಟರ್",
+        "ಅಳತೆ ಪಟ್ಟಿ"
+      ]
+    },
+    {
+      "id": "M3.MEAS.METRE",
+      "nameKn": "ಮೀಟರ್ ಅಳತೆ ಪಟ್ಟಿ",
+      "nameEn": "Metres: 1 m = 100 cm",
+      "nameTe": "మీటర్: 1 మీ = 100 సెం.మీ",
+      "nameTa": "மீட்டர்: 1 மீ = 100 செ.மீ",
+      "nameHi": "मीटर: 1 मी = 100 सेमी",
+      "prerequisites": [
+        "M3.MEAS.CM"
+      ],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 47,
+      "examples": [
+        "1 metre = 100 cm",
+        "Which needs a metre tape: pen or playground?"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 74
+      },
+      "keyWordsKn": [
+        "ಮೀಟರ್",
+        "ಸೆಂಟಿಮೀಟರ್",
+        "ಉದ್ದ"
+      ]
+    },
+    {
+      "id": "M3.MEAS.ESTIMATE",
+      "nameKn": "ಅಂದಾಜು ಅಳತೆ",
+      "nameEn": "Estimating length, then measuring",
+      "nameTe": "పొడవును అంచనా వేయడం",
+      "nameTa": "நீளத்தை மதிப்பிடுதல்",
+      "nameHi": "लंबाई का अनुमान",
+      "prerequisites": [
+        "M3.MEAS.CM"
+      ],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 48,
+      "examples": [
+        "Guess the length of a pencil, then measure",
+        "Estimated and exact length side by side"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 78
+      },
+      "keyWordsKn": [
+        "ಅಂದಾಜು",
+        "ನಿಖರ",
+        "ಅಳತೆ"
+      ]
+    },
+    {
+      "id": "M3.MEAS.WEIGHT",
+      "nameKn": "ತೂಕ",
+      "nameEn": "Weight: heavier, lighter and the balance",
+      "nameTe": "బరువు, త్రాసు",
+      "nameTa": "எடை, தராசு",
+      "nameHi": "भार और तराज़ू",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 49,
+      "examples": [
+        "1 kg of sweets vs 1 kg of biscuits",
+        "Balance: how many marbles weigh as much as a bottle?"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 80
+      },
+      "keyWordsKn": [
+        "ತೂಕ",
+        "ಹೆಚ್ಚು",
+        "ಕಡಿಮೆ",
+        "ತಕ್ಕಡಿ",
+        "ಕಿಲೋಗ್ರಾಂ"
+      ]
+    },
+    {
+      "id": "M3.MEAS.CAPACITY",
+      "nameKn": "ಗಾತ್ರ",
+      "nameEn": "Capacity: how much a container holds",
+      "nameTe": "పాత్రలో ఎంత పడుతుంది (ఘనపరిమాణం)",
+      "nameTa": "கொள்ளளவு",
+      "nameHi": "धारिता",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 50,
+      "examples": [
+        "Big glass fills the pot in fewer turns than a small glass",
+        "Tank, pot, jug, bottle, glass in order"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 86
+      },
+      "keyWordsKn": [
+        "ಗಾತ್ರ",
+        "ಸಂಗ್ರಹ ಸಾಮರ್ಥ್ಯ",
+        "ಲೋಟ"
+      ]
+    },
+    {
+      "id": "M3.TIME.CALENDAR",
+      "nameKn": "ಕಾಲ: ಕ್ಯಾಲೆಂಡರ್",
+      "nameEn": "Calendar: days, months and dates",
+      "nameTe": "క్యాలెండర్: రోజులు, నెలలు, తేదీలు",
+      "nameTa": "நாட்காட்டி: நாட்கள், மாதங்கள், தேதிகள்",
+      "nameHi": "कैलेंडर: दिन, महीने और तारीख़",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 51,
+      "examples": [
+        "15/08/1947: day 15, month 08, year 1947",
+        "Months with 31 days"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 91
+      },
+      "keyWordsKn": [
+        "ದಿನ",
+        "ತಿಂಗಳು",
+        "ವರ್ಷ",
+        "ವಾರ",
+        "ದಿನಾಂಕ"
+      ]
+    },
+    {
+      "id": "M3.TIME.CLOCK",
+      "nameKn": "ಸಮಯ ಸೂಚಕ",
+      "nameEn": "Reading the clock (hours, about the hour)",
+      "nameTe": "గడియారంలో సమయం చూడడం",
+      "nameTa": "கடிகாரத்தில் நேரம் பார்த்தல்",
+      "nameHi": "घड़ी देखना",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 52,
+      "examples": [
+        "Big hand on 12, small hand on 3: 3 o'clock",
+        "60 minutes = 1 hour"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 97
+      },
+      "keyWordsKn": [
+        "ಗಡಿಯಾರ",
+        "ಗಂಟೆ",
+        "ನಿಮಿಷ",
+        "ಮುಳ್ಳು"
+      ]
+    },
+    {
+      "id": "M3.TIME.ORDER",
+      "nameKn": "ಕಾಲಾನುಕ್ರಮ",
+      "nameEn": "Putting the day's events in time order",
+      "nameTe": "రోజు పనులను సమయ క్రమంలో అమర్చడం",
+      "nameTa": "நாளின் நிகழ்வுகளை நேர வரிசைப்படுத்துதல்",
+      "nameHi": "दिन के कामों को समय के क्रम में रखना",
+      "prerequisites": [
+        "M3.TIME.CLOCK"
+      ],
+      "nipunOutcome": null,
+      "chapter": 10,
+      "sequence": 53,
+      "examples": [
+        "Veerayya's day: up at 6, breakfast 7.30, sleep 10.30",
+        "Order a trip's days"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 101
+      },
+      "keyWordsKn": [
+        "ಬೆಳಿಗ್ಗೆ",
+        "ಮಧ್ಯಾಹ್ನ",
+        "ಸಂಜೆ",
+        "ರಾತ್ರಿ",
+        "ಕ್ರಮ"
+      ]
+    },
+    {
+      "id": "M3.DATA.TALLY",
+      "nameKn": "ಗೀಟುಗಳಿಂದ ದತ್ತಾಂಶ",
+      "nameEn": "Recording data with tally marks",
+      "nameTe": "గీతలతో సమాచారం నమోదు",
+      "nameTa": "கோட்டுக் குறிகளால் தரவு பதிவு",
+      "nameHi": "मिलान चिह्नों से आँकड़े",
+      "prerequisites": [
+        "M3.NUM.COMPARE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 11,
+      "sequence": 54,
+      "examples": [
+        "Zoo animals counted with tally marks",
+        "Balloons by colour: most and fewest"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 105
+      },
+      "keyWordsKn": [
+        "ಗೀಟು",
+        "ದತ್ತಾಂಶ",
+        "ಹೆಚ್ಚು",
+        "ಕಡಿಮೆ"
+      ]
+    },
+    {
+      "id": "M3.DATA.PICTO",
+      "nameKn": "ಚಿತ್ರಾಲೇಖ",
+      "nameEn": "Reading a pictograph",
+      "nameTe": "చిత్ర పట్టిక చదవడం",
+      "nameTa": "படவிளக்கப்படம் படித்தல்",
+      "nameHi": "चित्रालेख पढ़ना",
+      "prerequisites": [
+        "M3.DATA.TALLY"
+      ],
+      "nipunOutcome": null,
+      "chapter": 11,
+      "sequence": 55,
+      "examples": [
+        "1 picture = 2 saplings: count by the key",
+        "Absentees by class from the register"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 110
+      },
+      "keyWordsKn": [
+        "ಚಿತ್ರಾಲೇಖ",
+        "ಸೂಕ್ತ ಮಾನ",
+        "ದತ್ತಾಂಶ"
+      ]
+    },
+    {
+      "id": "M3.PAT.SYMMETRY",
+      "nameKn": "ಸರಳ ಸಮಮಿತಿ ಆಕೃತಿ",
+      "nameEn": "Symmetry: shapes that fold into two matching halves",
+      "nameTe": "సౌష్ఠవం",
+      "nameTa": "சமச்சீர்",
+      "nameHi": "सममिति",
+      "prerequisites": [
+        "M3.FRAC.HALF"
+      ],
+      "nipunOutcome": null,
+      "chapter": 12,
+      "sequence": 56,
+      "examples": [
+        "Triangle, leaf, letter T: symmetrical",
+        "Draw the missing half"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 116
+      },
+      "keyWordsKn": [
+        "ಸಮಮಿತಿ",
+        "ಅರ್ಧ",
+        "ಬಿಂಬಾರ್ಧ"
+      ]
+    },
+    {
+      "id": "M3.PAT.SHAPE",
+      "nameKn": "ಜ್ಯಾಮಿತಿ ಮತ್ತು ಚಿತ್ರ ನಮೂನೆಗಳು",
+      "nameEn": "Shape, colour and size patterns",
+      "nameTe": "ఆకారం, రంగు, పరిమాణ నమూనాలు",
+      "nameTa": "வடிவம், நிறம், அளவு அமைப்புகள்",
+      "nameHi": "आकृति, रंग और आकार के पैटर्न",
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "nipunOutcome": null,
+      "chapter": 12,
+      "sequence": 57,
+      "examples": [
+        "Triangle up, triangle down, … continue",
+        "Circles getting smaller"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 121
+      },
+      "keyWordsKn": [
+        "ನಮೂನೆ",
+        "ಆಕೃತಿ",
+        "ಬಣ್ಣ",
+        "ಗಾತ್ರ"
+      ]
+    },
+    {
+      "id": "M3.PAT.NUMBER",
+      "nameKn": "ಸಂಖ್ಯಾ ನಮೂನೆಗಳು (ಸಮ ಮತ್ತು ಬೆಸ)",
+      "nameEn": "Number patterns, odd and even numbers",
+      "nameTe": "సంఖ్యా నమూనాలు, సరి, బేసి సంఖ్యలు",
+      "nameTa": "எண் அமைப்புகள், இரட்டை, ஒற்றை எண்கள்",
+      "nameHi": "संख्या पैटर्न, सम और विषम संख्याएँ",
+      "prerequisites": [
+        "M3.NUM.SEQUENCE"
+      ],
+      "nipunOutcome": null,
+      "chapter": 12,
+      "sequence": 58,
+      "examples": [
+        "1, 3, 5, 7, 9, … (+2)",
+        "1, 11, 21, 31, … (+10)",
+        "1 + 2 = 3, 2 + 3 = 5 (sums of two in a row are odd)"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 125
+      },
+      "keyWordsKn": [
+        "ನಮೂನೆ",
+        "ಸಮ ಸಂಖ್ಯೆ",
+        "ಬೆಸ ಸಂಖ್ಯೆ"
+      ]
+    },
+    {
+      "id": "M3.PAT.SPLIT",
+      "nameKn": "ಸಂಖ್ಯಾ ವಿಭಜನೆ",
+      "nameEn": "Splitting a number in different ways",
+      "nameTe": "ఒక సంఖ్యను రకరకాలుగా విడదీయడం",
+      "nameTa": "ஒரு எண்ணைப் பல வழிகளில் பிரித்தல்",
+      "nameHi": "एक संख्या को अलग-अलग तरह से तोड़ना",
+      "prerequisites": [
+        "M3.MENT.ADDSUB"
+      ],
+      "nipunOutcome": null,
+      "chapter": 12,
+      "sequence": 59,
+      "examples": [
+        "10 = 9 + 1 = 8 + 2 = 7 + 3",
+        "20 = 30 − 10 = 5 × 4 = 12 + 8"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 130
+      },
+      "keyWordsKn": [
+        "ವಿಭಜನೆ",
+        "ಸಂಕಲನ",
+        "ವ್ಯವಕಲನ"
+      ]
+    },
+    {
+      "id": "M3.PAT.TABLES",
+      "nameKn": "ಗುಣಾಕಾರ ಕೋಷ್ಟಕದಲ್ಲಿರುವ ಸಂಖ್ಯಾ ನಮೂನೆಗಳು",
+      "nameEn": "Patterns in the multiplication table",
+      "nameTe": "ఎక్కాల్లో నమూనాలు",
+      "nameTa": "வாய்ப்பாட்டில் உள்ள அமைப்புகள்",
+      "nameHi": "पहाड़ों में पैटर्न",
+      "prerequisites": [
+        "M3.MUL.TABLES",
+        "M3.PAT.NUMBER"
+      ],
+      "nipunOutcome": null,
+      "chapter": 12,
+      "sequence": 60,
+      "examples": [
+        "5, 10, 15, 20, … ones digit 5, 0, 5, 0",
+        "9, 18, 27, … digits add to 9"
+      ],
+      "textbookPage": {
+        "book": "textbook",
+        "part": 2,
+        "page": 140
+      },
+      "keyWordsKn": [
+        "ನಮೂನೆ",
+        "ಮಗ್ಗಿ",
+        "ಕೋಷ್ಟಕ"
+      ]
     }
   ]
 }

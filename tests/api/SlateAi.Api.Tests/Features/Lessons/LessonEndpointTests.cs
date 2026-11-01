@@ -19,7 +19,7 @@ public sealed class LessonEndpointTests
         [
             Item("M3.ADD.CARRY", chapter: 4, sequence: 1),
             Item("M3.SUB.NOBORROW", chapter: 5, sequence: 2),
-            Item("M3.SUB.CHECK", chapter: 5, sequence: 3),
+            Item("M3.SUB.MAKE", chapter: 5, sequence: 3),
             Item("M3.SUB.BORROW", chapter: 5, sequence: 4),
         ],
         [new Chapter(4, "ಕೂಡಿ", "Adding"), new Chapter(5, "ಕಳೆಯುವ ಮೋಜು", "The fun of subtracting")]);
@@ -40,17 +40,17 @@ public sealed class LessonEndpointTests
     {
         _store.Lessons[Today.AddDays(-1)] = new LessonRecord(["M3.SUB.NOBORROW", "M3.ADD.CARRY"], "picked", "confirmed");
 
-        Assert.Equal("M3.SUB.CHECK", (await GetAsync()).NextInBook);
+        Assert.Equal("M3.SUB.MAKE", (await GetAsync()).NextInBook);
     }
 
     [Fact]
     public async Task Picking_saves_a_confirmed_picked_lesson_in_book_order()
     {
-        var response = await PutAsync(Guid.NewGuid(), "M3.SUB.CHECK", "M3.SUB.NOBORROW");
+        var response = await PutAsync(Guid.NewGuid(), "M3.SUB.MAKE", "M3.SUB.NOBORROW");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var day = await response.Content.ReadFromJsonAsync<LessonDayResponse>(Ct);
-        Assert.Equal(new[] { "M3.SUB.NOBORROW", "M3.SUB.CHECK" }, day!.Lesson!.CompetencyIds);
+        Assert.Equal(new[] { "M3.SUB.NOBORROW", "M3.SUB.MAKE" }, day!.Lesson!.CompetencyIds);
         Assert.Equal("picked", day.Lesson.Source);
         Assert.Equal("confirmed", day.Lesson.Status);
     }
@@ -59,17 +59,17 @@ public sealed class LessonEndpointTests
     public async Task Change_replaces_the_days_lesson_and_a_replay_is_a_no_op()
     {
         var first = Guid.NewGuid();
-        await PutAsync(first, "M3.SUB.CHECK");
+        await PutAsync(first, "M3.SUB.MAKE");
         await PutAsync(Guid.NewGuid(), "M3.SUB.BORROW");
 
-        await PutAsync(first, "M3.SUB.CHECK");
+        await PutAsync(first, "M3.SUB.MAKE");
 
         Assert.Equal(["M3.SUB.BORROW"], _store.Lessons[Today].CompetencyIds);
     }
 
     [Theory]
     [InlineData("")]
-    [InlineData("M3.ADD.CARRY,M3.SUB.NOBORROW,M3.SUB.CHECK,M3.SUB.BORROW")]
+    [InlineData("M3.ADD.CARRY,M3.SUB.NOBORROW,M3.SUB.MAKE,M3.SUB.BORROW")]
     [InlineData("M9.NOT.REAL")]
     public async Task Rejects_none_more_than_three_or_unknown_lessons(string ids)
     {
@@ -86,8 +86,8 @@ public sealed class LessonEndpointTests
         using var client = factory.CreateTeacherClient(ClassId);
 
         var future = await client.PutAsJsonAsync(
-            $"/api/classes/{ClassId}/lessons/{Today.AddDays(1):yyyy-MM-dd}", new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.CHECK"]), Ct);
-        var noId = await client.PutAsJsonAsync(Url, new SaveLessonRequest(Guid.Empty, ["M3.SUB.CHECK"]), Ct);
+            $"/api/classes/{ClassId}/lessons/{Today.AddDays(1):yyyy-MM-dd}", new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), Ct);
+        var noId = await client.PutAsJsonAsync(Url, new SaveLessonRequest(Guid.Empty, ["M3.SUB.MAKE"]), Ct);
 
         Assert.Equal(HttpStatusCode.BadRequest, future.StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, noId.StatusCode);
@@ -103,7 +103,7 @@ public sealed class LessonEndpointTests
 
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync(Url, Ct)).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound,
-            (await other.PutAsJsonAsync(Url, new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.CHECK"]), Ct)).StatusCode);
+            (await other.PutAsJsonAsync(Url, new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), Ct)).StatusCode);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public sealed class LessonEndpointTests
         Assert.Equal([4, 5], curriculum!.Chapters.Select(c => c.Number));
         var five = curriculum.Chapters[1];
         Assert.Equal("The fun of subtracting", five.NameEn);
-        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.CHECK", "M3.SUB.BORROW"], five.Competencies.Select(c => c.Id));
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"], five.Competencies.Select(c => c.Id));
     }
 
     private ApiFactory Create() =>

@@ -8,7 +8,7 @@ export const curriculum: Curriculum = {
       nameKn: 'ಕಳೆಯುವ ಮೋಜು',
       nameEn: 'The fun of subtracting',
       competencies: [
-        { id: 'M3.SUB.CHECK', nameKn: 'ತಾಳೆ', nameEn: 'Check subtraction by adding', sequence: 14, textbookPage: null },
+        { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: null },
         { id: 'M3.SUB.BORROW', nameKn: 'ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ', nameEn: '3-digit subtraction with borrowing', sequence: 15, textbookPage: null },
       ],
     },
@@ -35,12 +35,12 @@ export function pkg(overrides: Partial<CatchUpPackage> = {}): CatchUpPackage {
         firstName: 'Ravi',
         sent: false,
         reachable: true,
-        missedCompetencyIds: ['M3.SUB.CHECK', 'M3.SUB.BORROW'],
+        missedCompetencyIds: ['M3.SUB.MAKE', 'M3.SUB.BORROW'],
         rationale: {
           targets: [
             { id: 'M3.SUB.BORROW', reason: 'Word problems next week need borrowing.', reasonKn: 'ಮುಂದಿನ ವಾರದ ಪದ ಸಮಸ್ಯೆಗಳಿಗೆ ಎರವಲು ಬೇಕು.' },
           ],
-          dropped: [{ id: 'M3.SUB.CHECK', reason: 'Checking can wait.' }],
+          dropped: [{ id: 'M3.SUB.MAKE', reason: 'Making sums can wait.' }],
           source: 'ai',
           verdict: 'valid',
         },
