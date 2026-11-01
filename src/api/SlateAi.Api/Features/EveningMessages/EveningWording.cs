@@ -10,10 +10,10 @@ public sealed class EveningOptions
     public TimeOnly SendAt { get; set; } = new(18, 0);
 
     /// <summary>
-    /// The latest the 6 pm job waits, IST, for a ticked lesson clip she hasn't approved yet (T-82). After it the plain
-    /// message goes.
+    /// How long the 6 pm job waits for her to check a ready lesson clip, from when it was ready or from
+    /// <see cref="SendAt"/> if it was ready earlier (T-85). After it the plain message goes.
     /// </summary>
-    public TimeOnly LessonAudioWaitUntil { get; set; } = new(21, 0);
+    public TimeSpan LessonAudioWait { get; set; } = TimeSpan.FromMinutes(5);
 
     /// <summary>Days a parent link keeps working (spec §4.4: 14 days).</summary>
     public int LinkDays { get; set; } = 14;
