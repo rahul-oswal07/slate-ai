@@ -1,459 +1,62 @@
 # Status and handoff
 
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
-Update it at the end of every working session (what changed, what's next, blockers).
+Keep it short: at the end of a session, update **Where things stand** and **Next**, and add one dated line under **Recent changes**. The full session-by-session log up to 1 Nov is in [`status-history.md`](status-history.md).
 
+## Where things stand (1 Nov 2026)
 
-## README refresh for judges (1 Nov), uncommitted on `main`
+- **Submitted** for the build stage on 31 Oct. Code freeze: **Sun 1 Nov, 23:59 IST**. Every task in `tasks.md` (T-01 … T-80) and every GitHub issue is closed.
+- **Repo:** https://github.com/rahul-oswal07/slate-ai (public, MIT). Merges to `main` deploy to staging; `v*` tags deploy to prod.
+- **Staging** (https://slateai-staging.azurewebsites.net, the judges' guided demo at `/demo`): on `main`. Settings `Demo__Story=video`, `Demo__Today=2026-10-31`, `Demo__TeacherPin`, `Demo__CoTeacherPin`, `Admin__Key`.
+- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): still on **`v1.0-rc1`** (31 Oct). It lacks Settings (#157), the Savitha rename (#158, shows Lakshmi), the Under the hood "For" column (#159) and the Telugu/Tamil strings (#166). Judges' story, real date, no `Admin__Key`.
+- **Logins:** Shobha `9000000000` (class teacher), Savitha `9123456789` and Monika `9123456788` (co-teachers), same class, on both servers. All use one PIN, which is on slide 14 of the submitted deck and not in the README. It equals the co-teacher PIN in `appsettings.Development.json`, so change the server PINs after judging (clear the stored `PinHash`; the seeder never overwrites one).
+- **Tests:** `verify.sh` OK, 605 API and 347 web tests. The Db suite runs in CI. 12 existing e2e specs, no new ones (22 Oct rule).
 
-- README: a note that the guided demo (staging, test data for judges, fixed date) and the real app (prod, today's date) are the same application; PINs now point to **slide 14 of the submitted deck** (not the submission form); a second Kannada voice-note sample (subtraction with borrowing, from the `sub-borrow` eval case) in a table with the carrying one; sample inputs updated (Ananya as the multi-lesson child, reason on the evening message, language buttons, photo never sent to families); web test count 347; Db test command; real clone URL; co-teacher PIN setting.
-- Still true: prod is on `v1.0-rc1`, so the real app lacks Settings and Telugu/Tamil strings and shows Lakshmi until `v1.0` is tagged.
+## What has been built
 
-## Fixed demo date after a reload (1 Nov, T-80), branch `fix/T-80-demo-date-cached`
+**Teacher app** (React PWA, Kannada / English / Hindi / Telugu / Tamil):
+- **Sign-in and setup:** phone + PIN, lockout after 5 wrong PINs, 30-day session (T-47). First-run Welcome, a 10-second greeting with voice consent (T-61), and approving the evening message once (T-44). Several teachers can share one class (D-79). Settings for the greeting and the evening message (T-71).
+- **Today:** a simulated SATS register arrives at 12:00 (retry 2 pm). The teacher's marking wins over a late feed, and the register works offline through the Dexie outbox (T-12, D-69). There is a day strip (T-49). The lesson comes from a Kannada voice note (Sarvam STT → name scrubber → A1) or a photo of the textbook page (T-07, T-64), or is picked from the list. The tonight card has optional lesson audio, which the teacher approves clip by clip (T-62).
+- **Approve:** the week's catch-ups, one per lesson group and language. Each has a segment player, a Kannada summary, **Why this**, the picture question, Simpler / Shorter, and a tick before Approve, bound to the version she read (T-14).
+- **Missed lessons:** by child or by lesson, child history, and deleting a child's data (T-13, T-19).
+- **Back today:** buddy cards with the buddy chosen from attendance, 3 sums made by code, textbook words and a print view (T-16).
+- **Week:** return speed this week and last, reasons for absence, the pacing nudge, attendance stars (T-46, T-63).
+- Slate & chalk look, AAA tokens, light and dark (D-77).
 
-- Seen on a laptop on staging: Today asked for `attendance/2026-11-01` and got 400 "Can't use a future date" (staging's date is fixed at 31 Oct); the phone was fine. Staging itself sends `X-School-Today: 2026-10-31` on every response (checked: 200, 400 and 404).
-- Fixed in the web app: (1) `api/client.ts` clears the fixed date only on a **successful** response without the header, so an error page that never reached the API (proxy, gateway) can't switch the demo back to the phone's clock; (2) `useSchoolToday()` in `schoolTime.ts` (a small store) so Today, Week, Back today and lesson confirm re-render when the date arrives after the first render (the saved sign-in renders Today before any response).
-- Test first: `TodayScreen.test.tsx` "moves to the server's fixed date when it opens from the saved sign-in" failed (Today stayed on Sunday 1 Nov), passes now. `verify.sh` OK (605 API, 347 web).
-- A browser still running a build from before T-75 has no header support at all; a reload (the service worker updates itself) or clearing site data fixes that.
+**Families** (`/p/<token>`, no sign-in): the evening message with a reason in 5 pictures (T-44, T-45). The catch-up flow is Listen → activity with sticks → 3-picture check scored by code → Done. A stop link is on every page (T-15).
 
-## README: two ways to test (1 Nov, T-79), branch `docs/T-79-readme-two-ways`
+**AI** (all through `Ai/ILlmClient`, logged to `AiCalls`, no names sent):
 
-- README top rewritten: **guided demo on staging** (recommended; video story, `Demo__Today=2026-10-31`) and **the real app on prod** (`/login` on a phone, real date, families' messages after 6 pm IST; the prod `/demo` family phone shows what Rohan's family got). New "At a glance" table (5 languages, 5 Claude prompts with the latest eval scores, guardrails, user testing counts, test counts), a step list for each way, and a **login credentials table** (all three seeded teachers, Shobha, Savitha and Monika, on staging and prod; PINs **not** in the README: they go in the hackathon submission form (Rahul, 1 Nov), as the repo is public). All six logins checked on 1 Nov (`POST /api/auth/pin` → 200): every teacher uses the same PIN on staging and prod, and it is the co-teacher PIN committed in `appsettings.Development.json`; after judging, change the server PINs (clear the stored `PinHash`; the seeder never overwrites one). Prod still shows the co-teacher as **Lakshmi** until `v1.0` (T-72 rename).
-- Way 2 needs prod on `v1.0`: `v1.0-rc1` has no Settings and no Telugu/Tamil strings.
-- `Demo__Today=2026-10-31` was **not** actually on `slateai-staging` (only `Story`, `TeacherPin`, `CoTeacherPin`); set and restarted 1 Nov, ~08:15 UTC. Checked: `GET /api/demo` returns `fixedToday: "2026-10-31"` (the new container took a few minutes to serve). `Demo__CoTeacherPin` is set on both staging and prod.
-
-
-## Next: release to prod before the code freeze (1 Nov, 11:59 pm)
-
-- Every task and issue is closed, but **prod (`slateai-prod`, the judges' demo link) is still on tag `v1.0-rc1` (31 Oct)**. Not on prod yet: #166 Telugu and Tamil strings, #159 Under the hood "For" column (the README's judges table promises it), #157 Settings, #158 Savitha rename, #165 video story and fixed date (staging-only settings).
-- To do: CI green on `main` → check staging (తెలుగు / தமிழ் at 360 px) → tag `v1.0` on `main` (deploys prod) → run the 6 demo steps once on prod. Rahul decides when to tag.
-
-## README "How to test" and mentor docs (1 Nov, T-77 #163, T-78 #164), branch `docs/T-77-how-to-test-mentor-docs`
-
-- README: new **How to test** section before "For judges": quickest path, roles (teacher via `/demo`, no PIN needed; the `/login` PIN stays unpublished; family links; admin not on prod), 5 sample inputs (Kannada voice note from the `add-carry` eval case, the two synthetic textbook photos, Ravi's Telugu catch-up with Simpler/Shorter, Rohan's Hindi family, the language switch), and the limits (Grade 3 maths only, WhatsApp and SATS simulated, one shared demo class, te/ta/hi drafts).
-- Mentor docs: `mentor-feedback-2026-10-24.md` is now the **technical** mentor session (and says the mentor liked the technical design and asked for no changes to it); `mentor-technical-2026-10-21.md` is marked as the prep sheet for that call. Fixed the mentions in `status.md`, `T-63-attendance-stars.md` and `judging-narrative.md`. "Education mentor" now only refers to 19 Oct.
-
-## Telugu and Tamil teacher app (1 Nov, T-76, #162), branch `feat/T-76-te-ta-teacher-strings`
-
-- `te.json` and `ta.json`: the 276 / 277 strings that were still English are now in Telugu and Tamil (Approve, Missed lessons, Back today, Week, the demo page and both guides, Under the hood, a few announcements). Terms follow the existing strings (ఆమోదం / ஒப்புதல், బడ్డీ కార్డ్ / நண்பர் அட்டை, SATS as is); children's names in each script, like Hindi. App name transliterated (తప్పిద పాఠ, தப்பித பாட).
-- Left the same as English on purpose, as in Hindi: the five language names and five strings that are only placeholders or numbers.
-- `locales.test.ts` now fails if te, ta or hi has English outside that list, or if any locale's `{{placeholders}}` differ from English.
-- **All of it is a draft for native review (T-26)**; Tamil and Telugu speakers should check the guide steps and the Week sentences first.
-
-## Fixed demo date on staging (1 Nov, T-75, D-88), branch `feat/T-74-video-guide`
-
-- `Demo:Today=2026-10-31` makes the app treat Sat 31 Oct as today at the real time of day (`Features/Demo/DemoClock.cs` replaces the app's `TimeProvider`), so the video story's whole week is behind whenever staging is opened. The web follows the server's date from the `X-School-Today` header; /demo says the date is fixed. The session cookie keeps the real clock.
-- **Staging only** (Rahul, 1 Nov): App Service setting `Demo__Today=2026-10-31` on `slateai-staging`, which already has `Demo__Story=video`. Prod keeps the judges' story and the real date. Locally: `dotnet user-secrets set Demo:Today 2026-10-31 --project src/api/SlateAi.Api`.
-- Limitation: at midnight IST the clock goes back to 00:00 the same day; a Reset tidies it.
-
-## Video story step guide (31 Oct, T-74, D-85), branch `feat/T-74-video-guide`
-
-- `/demo` in the video story (`Demo:Story=video`, local and staging) now shows its own 6 steps instead of no guide: Today with only Ananya away and Arun back, record the lesson, tonight's message on Ananya's family's phone, the week's four catch-ups (kn Ananya, te Ravi, hi Rohan, ta Arun), the parent page, then Back today (Arun's buddy card), Week and Under the hood. Strings in all five locales (Hindi translated; kn, te, ta in English like the judges' guide). The judges' guide is unchanged.
-## README demo and video links (31 Oct, T-65), branch `docs/T-65-readme-links`
-
-- `README.md` now links the demo (https://slateai-prod.azurewebsites.net/demo) and the video (https://www.youtube.com/watch?v=lDvo7b93d4A). The judges' note matches the app: `/demo` signs in by itself (there is no "Try the demo" button) and the guide has 6 steps, not 5. A new first "For judges" row points to the Under the hood tab.
-- **Next:** after merge, tag `v1.0-submission` so prod gets T-71–T-73 (prod runs `v1.0-rc1`), Reset prod, approve prod's evening message (it is still a draft, so "Send messages now" is blocked until it's approved), then close #146.
-
-## Teacher names removed from the repo (31 Oct), branch `claude/blissful-ride-mhlmvo`
-
-- `docs/user-testing.md` and `docs/spec.md` (D-82) named the two teachers we tested with; the consent script promised quotes without names and the repo is public. Now P1 and P2 only, and the log's header rule says "no participant names" instead of "first names only".
-- The names are still in Git history. All participants later agreed to be named, so the submission deck uses first names; the repo keeps IDs (Rahul, 31 Oct).
-- Parent sessions logged: P4 (Kannada) and P5 (Hindi), in person 30 Oct, shown the parent page; findings F-08, F-09. The empty Telugu parent row is now P6.
-## Under the hood: who a call was about (31 Oct, T-73, D-87), branch `feat/T-73-ai-calls-for`
-
-- New **For** column in the demo's Under the hood panel: first names of the children each Claude/Sarvam call was about, or "–" for class-level calls. Migration `AiCallChildIds` adds `AiCalls.ChildIds` (uuid[], IDs only); `Ai/AiCallScope` (AsyncLocal) tags A2 with every child sharing that request and A3/A4/the catch-up voice with the package's children, without changing the AI client interfaces.
-- Names come from the demo roster at read time; a child of another class (a real class on staging) is only counted ("2 in another class"). Names still never reach Claude or Sarvam, nor the AI log. Deleting a child removes their ID from every call (FR-15, covered in `ChildDeleteDbTests`).
-## Co-teacher Lakshmi renamed Savitha (31 Oct, T-72, D-79), branch `fix/T-72-rename-co-teacher`
-
-- The co-teacher login on phone 9123456789 is now **Savitha** (same ID, phone and PIN), so no teacher shares a name with child Lakshmi (roll 13). Monika's login is unchanged.
-- `DemoSeeder` now sets seeded teachers' names from `demo-class.json` on every start (it only did on create), so local, staging and prod show Savitha after their next start or deploy; nothing to do by hand.
-- **For Monika:** `docs/user-testing.md` (her file) still lists the logins as Shobha, Lakshmi and Monika.
-- Seed review item "Reset leaves lesson-audio clips behind" is **dropped**: lesson clips are shared per lesson and language on purpose (reused by any class and after a Reset), so they are a cache, not leftovers.
-
-## Settings: greeting and evening message (31 Oct, T-71, D-86), branch `feat/T-71-settings`
-
-- Gear on Today → `/settings`: **My greeting** (length, Play, Record again) and **Evening message** (Approved · date, or needs approval; Review). Record again opens the greeting screen in a new `settings` mode (no step label, back to Settings); `POST /api/me/greeting` already replaced the clip. Review opens the evening-message screen in `settings` mode. No API change. Strings in all five locales (kn, hi, te, ta drafts).
-- Bottom nav: tabs are plain links now, so Today is marked current for screen readers on its sub-screens (`/lesson`, `/settings`), not just visually.
-- Still roadmap (T10): Families, Help, app language, withdraw voice consent.
-
-## Demo video story (31 Oct, T-70, D-85), branch `feat/T-70-video-demo-story`
-
-- For recording the demo video. **Turn it on** locally with `dotnet user-secrets set Demo:Story video --project src/api/SlateAi.Api` (off: `dotnet user-secrets remove Demo:Story --project src/api/SlateAi.Api`), on staging with the App Service setting `Demo__Story=video`. **Never on prod**: the judges' guide follows the default story.
-- Reset then writes this week's Mon–Fri before today: Ananya (1, Kannada) away all five days, Ravi (4, Telugu) Mon–Tue, Rohan (24, Hindi) Wed, Arun (7, Tamil) Thu–Fri; one lesson a day (`M3.PV.HTO` … `M3.ADD.NOCARRY`). Each evening's message is sent by `EveningSender` (approved template only) and dated 6 pm that day: 5 for Ananya, 2 Ravi, 1 Rohan, 2 Arun. Today's feed has only Ananya away (`data/seed/sats-scenario-video.json`), so Arun is back today. Parent phone: Ananya's family. No pre-made catch-up; the judges' guide is hidden on /demo.
-- **Record on an ordinary Saturday** (31 Oct or 7 Nov), so the whole week is behind and no "Demo only" note shows. Approve the evening template before pressing Reset, or no evening messages go (the Reset response says how many went).
-
-## Demo works on any day (31 Oct, T-69, D-84), branch `fix/T-69-demo-every-day`
-
-- Found while reviewing the seed: on a Sunday, second Saturday or holiday the simulated SATS feed returned no register, so the demo showed "No school today" and the guide's steps stopped (Sun 1 Nov is the hard deadline; judging runs past it).
-- `Attendance:Sats:EveryDayClassIds` (appsettings.json: the seeded demo class only): that class gets a register every day; `sats-scenario.json` has Ravi and Rohan away on Sundays too. Other classes (user testing) keep the school calendar. Reset's past days unchanged.
-- On those days Today's attendance card says "Demo only: schools are usually shut today. The demo class has attendance every day so you can try it." (`demoDayOff` on `GET …/attendance/{date}`; the calendar rule moved to `SchoolCalendar`). Ordinary Saturdays are school days and show nothing (Rahul, 31 Oct). Strings in all five locales (kn, hi, te, ta drafts).
-- Code comments, the Reset's OpenAPI description and the scenario note said Rohan's family is English; now Hindi (since 25 Oct).
-- Still open from the seed review: check the demo teacher has a greeting on the demo database; Reset leaves lesson-audio clips behind; co-teacher Lakshmi shares a name with child Lakshmi (roll 13).
-
-## Download a greeting (31 Oct, T-68, D-83), branch `feat/T-68-greeting-download`
-
-- `/admin/greetings#key=…`: a Download button under each Play saves the greeting as `greeting-<teacher>-<yyyy-mm-dd>.ogg` (IST date). The clip comes from the existing audio route with the `X-Admin-Key` header, through an object URL, so the key never goes in a URL. Web only; no API or migration change.
-- `Admin__Key` is now set on `slateai-staging` (31 Oct); not on prod.
-
-## Teacher testing round 1, P2 (30 Oct), branch `docs/teacher-testing-p2`
-
-- Second teacher session logged in `docs/user-testing.md`: P2 (Class 4, same government school as P1), in person, UI in Kannada, whole teacher flow in 5–7 min first use, SUS-lite 5 on all five; findings F-06 and F-07 (she valued messages to absent children; today teachers phone parents to ask why).
-- Next: a parent session (P4) if one can happen before submission (Sat 31 Oct, 12:00).
-## Admin lesson-audio day view (30 Oct, T-67, D-83), branch `feat/T-67-admin-lesson-audio`
-
-- `/admin/lesson-audio#key=…`: pick a day (today in IST by default) to see how many lesson audios went to families, and for each class and language the lesson, status (failed with its verdict), who approved it and when, Play, the words spoken and the families it went to (first name, roll number, sent time). Audio that never went out is listed too.
-- API `GET /api/admin/lesson-audio?date=YYYY-MM-DD` and `GET /api/admin/lesson-audio/{clipId}/audio` (lesson clips only). Same `Admin:Key` rules as T-66. The admin pages now share a frame with links between them that keep the key (`AdminPage`, `ClipPlayer`).
-- No migration, no Db-suite change.
-
-## Admin greetings page (30 Oct, T-66, D-83), branch `feat/T-66-admin-greetings`
-
-- `/admin/greetings#key=…` plays every teacher's recorded greeting (teacher name, length, recorded date, Play). Linked from nowhere; no teacher sign-in. API `GET /api/admin/greetings` and `GET /api/admin/greetings/{clipId}/audio` (`Features/Admin/`), both need `X-Admin-Key`; wrong or missing key = 404; only greeting clips; `no-store`.
-- **To turn it on:** set `Admin__Key` (≥ 16 characters, e.g. `openssl rand -hex 24`) as an App Service setting on staging, or in user-secrets locally (`dotnet user-secrets set Admin:Key <key> --project src/api/SlateAi.Api`). Unset = the endpoints don't exist. Never commit the key.
-- No migration, no Db-suite change. Strings in all five locales (kn, hi, te, ta drafts).
-
-## README "For judges" (30 Oct, T-65), branch `docs/T-65-readme-judges`
-
-- New "For judges" section near the top of `README.md`: one table that links each AI claim (single logged LLM client, versioned prompts, evals, candidate set + validators, numbers by code, verifier, approval rule, name scrubber, user testing, decision log) to its code and tests. Team line now says Monika Sisodia. Every link checked against the repo.
-- Licence: MIT (`LICENSE`, D-15 accepted 30 Oct).
-- **Next:** fill in the demo and video links at submission (Sat 31 Oct), then close #146.
-
-## Photo of the lesson (30 Oct, T-64, D-82), merged (#149)
-
-- Today's lesson card: "Add a photo of the page" under the mic. One photo (downsized to ≤ 1280 px JPEG on the phone, kept in Dexie `photos`, db v3) with preview, Replace, Remove and "Match from photo". A voice note recorded while a photo is attached carries it; T2 shows the photo. Deleted from the phone when the lesson is confirmed.
-- API: `POST …/lessons/{date}/audio` takes an optional `photo` part (≤ 2 MB, jpeg/png/webp); `file` is optional when a photo is sent. Never stored: in memory for the A1 call only. `LlmRequest.Images` → image blocks in `ClaudeLlmClient`. A note that can't be heard is still matched from the photo. A1's summary/examples are name-scrubbed after Claude too.
-- Prompt `a1-lesson-mapping` v2; eval 13/13 (10 text + 3 synthetic photo cases in `evals/cases/images/`). Faces: warning only (D-82). Strings in all five locales (kn, hi, te, ta drafts for native review, T-26).
-- Screenshots and axe (0 violations) on #149; F-05 points to #149.
-
-## Attendance stars built (26 Oct, T-63), branch `feat/T-63-attendance-stars`
-
-- Rules in `Features/Stars/StarRules.cs` (pure, no store; `Stars:MaxDaysAwayPerWeek`, default 1, validated 0–5). `GET week` and the pacing PUT return `stars` (null with no register). T6 `StarsCard` after the reasons card (also in "No absences this week"); P4 Done has one line "{child} earned a star for doing this catch-up." Strings in all five locale files; te and ta teacher-side strings are English placeholders like the rest of `week.*`, hi and kn are drafts for native review (T-26).
-- **Demo:** `DemoStory.StarWeeks` adds three finished weeks of register only (4, 3 and 2 weeks before this one; roll 7 away once, roll 10 away three days) so the card has something to show. It is a separate list from `DemoStory.Build` and leaves the story, Missed lessons and return speed unchanged (tested). `Db/DemoResetDbTests` attendance assertion now counts story days and earlier weeks separately.
-- No AI, no migration, no new message to families. T-61 and T-62 are in *Done* (#136).
-- Also in this PR: the A8 lesson-recap eval results (`evals/results/2026-10-26-a8-lesson-recap.json`, 13/15 first pass) and its `quality.md` entry.
-
-## Task reset (24 Oct)
-
-- Rahul cleared every open task to start fresh: open rows removed from `tasks.md` (done and dropped tasks kept), the ten-day schedule in `plan.md` §4 replaced by a short note (submission Sat 31 Oct, 18:00 IST), unsettled decisions in `spec.md` §8 marked closed (D-06, D-14, D-15, D-74, D-75's nudge, D-76 (1b)), the unchecked open items below removed, and all 15 GitHub issues closed (T-11 and T-27 as completed, the rest as not planned).
-- **From now on:** Monika adds tasks one at a time in `tasks.md` (*Open*, IDs from T-48) with a GitHub issue; Rahul implements them one at a time. "Next:" lines in the dated sections below are history, not a to-do list.
-- Last merged: #109 demo "Send messages now", #110 P3 sticks fit a phone, #111 A2 "Why this" in Kannada.
-
-## Slate & chalk revamp (24 Oct, D-77), branch `feat/T-48-slate-foundation`: T-48, T-50, T-54, T-57, T-58 in one PR
-
-- **Built (looks only, no change to hooks, props, routes or ARIA names):**
-  - **T-48 foundation:** tokens (`accent`, `on-accent`, `chalk`, `edge`, radii, `--rule`/`--smudge`), fonts per language from `@fontsource` (Baloo 2 / Tamma / Tammudu / Thambi headings, Noto Sans family body, Caveat 700 for one Latin accent word), the `.slate-texture` background, shared classes (`btn-primary`, `btn-secondary`, `btn-hero`, `btn-link`, `card`, `card-hero`, `card-payoff`, `chip`), `AccentWord`/`AccentTitle`, the four-stroke tally, the AI label as a quiet pill with the same sentence (no new keys).
-  - **T-50 parent pages:** P1 (amber play button with halo, decorative waveform, "From" row with amber avatar, child's name as the accent), reason page (chalk icons in discs, amber disc and tick on the chosen tile, accent on "OK?" in English only), P2, P3, P4 (celebration banner, amber medal, confetti), Stopped, Expired.
-  - **T-54 teacher shell and screens:** app header, language chips, bottom nav (4 px active bar, 20 px badge), status tags as pills, cards, buttons, dialogs; the mic on Today is the amber hero (112 px, panel halo, dashed chalk ring). Today keeps its layout (T-49 not started).
-  - **T-57 demo chat view:** the family phone is a chat (header, wallpaper, day pills, bubbles, link rows, in-app-browser bar that slides up); "Under the hood" in the slate look. New keys `demo.chat.messages|pageLesson|pageEvening` in kn, en, te, ta (te and ta are drafts for Monika). Left out: the voice-note row (it needs a recorded greeting and would be a play button that plays nothing).
-  - **T-58 base switch:** the slate values are now the base colours; `.theme-slate` is gone; `tokens.md` Colours table updated; fonts and reduced-motion rules apply everywhere.
-- **Tests:** `tokens.test.ts` (light/dark pairs, amber, chat palette, reduced-motion rule), `ParentParts.test.tsx`. `verify.sh` OK; all 12 existing e2e specs pass. One assertion changed on purpose: `shell.spec.ts` dark canvas is now `rgb(27, 32, 30)` (the new base value).
-- **Measured at 360 px (gzip, audio excluded):** P1 was 204 KB; now 348 KB (kn), 343 KB (en), 411 KB (te); limit 500 KB. axe 0 on every parent page and teacher screen in light and dark, except **Approve list: `label-content-name-mismatch`** on the catch-up card links (their `aria-label` does not repeat the visible text). That `aria-label` was not touched here; it needs its own fix. `getAnimations()` is 0 with reduced motion. Screenshots: `docs/screenshots/D-77/`; the reference pictures are in `docs/design/screenshots/slate/`.
-- **For Monika:** (1) `chat-edge` is `#7C8782`, not `#7F8A85`: the spec value is 2.98:1 against the wallpaper and the test needs 3:1. (2) `primary` is no longer used for text on slate (5.9:1); two links moved to `primary-strong`. (3) The unwritten te/ta keys above.
-- **Known:** before the page data arrives, the parent frame uses the phone's saved language (kn), so an en or te family may fetch the Kannada fonts (about 65 KB) for the loading line.
-- **Not done:** T-49 Today re-layout (Monika's gate: her sign-off on the mockup).
-- **Next:** Hindi support, below (branch stacked on this one).
-
-## Today re-layout (24 Oct, T-49), branch `feat/T-59-hindi` (not committed)
-
-- **Built to `docs/design/screenshots/slate/T1-today-*.png` (Rahul confirmed Monika's sign-off):** accent on "Today" in the title (`nav.today`), a three-step day strip (`DayStrip.tsx`, `stepStates.ts`; Attendance, Lesson, Tonight), compact attendance card with red-tint name pills, the lesson card as the one amber hero (accent on "today" in the prompt; confirmed state is the "Done for today. Thank you." card with the lesson and Change), and "Added" + "Tonight" inside one payoff card. Hooks, props, routes, ARIA names and states unchanged.
-- **New keys:** `today.strip.*` (label, attendance, lesson, tonight, next, done, tonightTime, stepDone, stepCurrent, stepUpcoming) in kn, en, te, ta, hi. **All are drafts for Monika.**
-- **Tests:** new `DayStrip.test.tsx`; existing Vitest unchanged and green. `verify.sh` OK; all 12 existing e2e specs pass (including Today axe, dark).
-- **Left out on purpose:** "Since yesterday" (never built: no component, data or key). Dropped from the MVP on 25 Oct (roadmap); see the decisions below.
-- **Differs from the picture (the card's copy wins):** the date reads "Saturday, October 24" not "23 Oct", so the Saved tag wraps under the title at 360 px; the mic hint is the built copy; the payoff card keeps the built sentences, not the big "3 of 4" numerals (that would split a translated string).
-- **Not done:** the done-state screenshot, axe on light, and Kannada/Hindi wrapping check. Screenshots in `docs/screenshots/T-49/`.
-
-## Optional lesson audio on the evening message (25-26 Oct, T-62, D-80), branch `feat/T-62-lesson-audio` (stacked on T-61, not committed)
-
-- **What it does:** on Today's tonight card a checkbox, **unticked each day**, "Also send today's lesson as audio". Ticking makes one AI clip per (lesson, language) of tonight's families; she **listens to each and approves that exact clip** (guardrail 3); only an approved clip goes with that day's evening message, behind the spoken AI disclosure. The coded message (FR-20) is unchanged with or without it. One clip per day's lesson for a multi-day absence. Plan: `/Users/rahuloswal/.claude/plans/joyful-coalescing-moore.md`.
-- **Backend:** migration `LessonAudio` (`LessonAudios` table, `EveningMessages.LessonAudioId`, `AudioClips.Transcript`, `AudioKind.Lesson`); `Features/LessonAudio/` (endpoints `GET/PUT /api/classes/{id}/lesson-audio/{date}`, `POST .../{language}/approve|regenerate`; store; `LessonAudioService`; generator + in-memory queue + worker like the catch-up; `LessonScriptWriter` + `LessonScriptValidator`); prompt **`a8-lesson-recap` v1** (curriculum data only, no names, no teacher examples, so the clip is shared across classes); `DisclosureClips` extracted from `PackageAudio`; `EveningSender` attaches only approved clips (`IEveningStore.GetApprovedLessonAudioAsync`); parent `GET /api/p/{token}` carries `lessonAudio` and `GET /api/p/{token}/lesson-audio/{clipId}` serves only that message's two clips. Demo Reset deletes the class's rows.
-- **Web:** `LessonAudioCard` (checkbox, per-language rows, `SegmentPlayer` with new `onAllEnded` that unlocks Approve, words, Try again, read-only after send), `useLessonAudio`, parent `LessonAudioPlayer` in `EveningView`. New strings in kn, en, te, ta, hi (te, ta, hi are drafts for native review).
-- **Tests:** `verify.sh` OK (535 API, 301 web); Db suite 17/17. The new queries and the whole flow (tick, generate, approve, send, family page, read-only, Reset) were proved on real Postgres with a throwaway Db test that I deleted (no Db test added; ask first). No new e2e. Screenshots at 360 px in `docs/screenshots/T-62/`, axe **0** on all nine (card: unticked, generating, ready, failed, sent, dark, Kannada; parent player light and dark).
-- **Eval not run (guardrail 6):** `evals/cases/a8-lesson-recap.json` (15 cases) and `tests/.../Evals/A8LessonRecapEvals.cs` are written; run `dotnet test --filter Category=Eval` with an API key when Rahul says (costs credits) and attach the result to the PR. Until then the prompt's real-world pass rate (target 85% after one retry) is unmeasured.
-- **Limits:** listening to the end is enforced in the UI only (the server enforces approval of the exact clip); ticking after the messages are sent is not possible; "Try again" makes a new clip for her class only (other classes may reuse the older shared one until the prompt version changes); a clip adds one listen-and-approve per language on days she opts in (outside the 60 s/day budget); the clip names lessons from the curriculum data, so te, ta, hi names are drafts (T-26).
-- **To do:** run the A8 eval; try a real tick, listen and approve on a phone with real keys (the generation path is covered with fakes only); commit and PR when Rahul says; open the GitHub issue for T-62.
-
-## Teacher greeting + voice consent (25 Oct, T-61), branch `feat/T-61-greeting` (not committed)
-
-- **Built (T0 step 1, D-70 scope):** Welcome → Start → **greeting step** (`/welcome/greeting`: voice-consent tick, record ≤ 10 s, play back, record again, save) → evening-message step. Mic blocked → "Continue without a greeting" (D-34, calls `POST /api/me/welcome`). Teachers already set up get a **"Record your greeting" card on Today** (`/setup/greeting`) until they have one. Plan: `/Users/rahuloswal/.claude/plans/joyful-coalescing-moore.md`.
-- **How the audio gets here:** the phone decodes the recording and sends **16 kHz mono WAV** (`features/setup/wav.ts`, about 320 KB for 10 s); `POST /api/me/greeting` (multipart, `consent=true`, idempotent by `clientRequestId`) encodes it with `OpusEncoding.FromWav` (about 30 KB), replaces the teacher's old greeting, sets `ConsentAt` once and returns `/api/me` (now with `greeting`). The audio is only stored, never sent to speech-to-text or an LLM.
-- **Where it plays:** first segment of every catch-up generated after she records it (`PackageAudio`, fixed at generation so an approved catch-up never changes); the evening-message page (`parent.evening.voice`, token route `GET /api/p/{token}/greeting`, replacing the old `greetingAudioUrl` a parent could not fetch); a voice-note row in the demo chat (`FamilyMessage.greetingSeconds`).
-- **Data:** migration `GreetingClips` (`AudioClips.TeacherId`, FK cascade, index); `database.md`, `spec.md` (D-40 note, API list), `mvp-build-flow.md` and `tasks.md` (T-61) updated.
-- **Tests:** `verify.sh` OK (503 API, 291 web); Db suite 17/17 (no Db test added; the new queries were also proved once on real Postgres with a throwaway test and by hand against the local API: save, replay, replace, co-teacher access, parent token route, range request). Existing e2e kept: `auth.spec.ts` now goes Welcome → greeting (axe) → continue without a greeting → evening step (needs a fake refused mic, since a headless browser leaves the prompt unanswered); no new Playwright specs.
-- **Screenshots and axe (360 px):** `docs/screenshots/T-61/`: greeting idle (en light and dark, kn, hi), recorded, missing consent, mic blocked, Today card (light, dark), evening page voice row (hi). axe **0 violations** on all 11. The footer (consent + Save) is not sticky: sticky hid the mic on a 740 px phone.
-- **Limits to know:** a class uses its **main teacher's** greeting (Shobha's); a co-teacher can record one, used only where they are the main teacher. The demo Reset's pre-made catch-up has no greeting segment. No delete or withdraw, no per-language greetings, online only (all roadmap, D-70). te, ta and hi strings are drafts for native review (T-26).
-- **To do:** commit and open the PR (Rahul says when); open the GitHub issue for T-61 and close it with the PR; try a real recording on a phone (Chrome Android and iOS Safari: the browser-side decode in `wav.ts` is the one piece jsdom cannot prove). Nothing to configure on staging.
-
-## Several teachers per class (25 Oct, D-79)
-
-- Rahul asked for two more logins on the demo class: **Lakshmi** (9123456789) and **Monika** (9123456788), PIN 7755 for both, alongside Shobha (main teacher). Plan: `/Users/rahuloswal/.claude/plans/abundant-munching-lollipop.md`.
-- New table `ClassTeachers` (migration `ClassTeachers`, backfills each existing class's main teacher); `Class.TeacherId` stays the main teacher, so families see Shobha's name and greeting. `AuthStore.GetMeAsync` finds the class through it; the class guard (`ClassOwnerFilter`) and every class endpoint are unchanged. Seed: `coTeachers` in `data/seed/demo-class.json`, added even to an existing class; PIN from `Demo:CoTeacherPin` (`7755` in `appsettings.Development.json`).
-- Tests: Db suite 17/17 (co-teachers seeded with login and reaching the class, a teacher in no class gets none, migration backfill, counts 3 teachers / 3 memberships); `verify.sh` OK. Checked by hand: both new logins and Shobha sign in to the same class, a wrong PIN is 401.
-- **To do on staging after merge:** set the app setting `Demo__CoTeacherPin=7755` (like `Demo__TeacherPin`; `provision.sh` does not set either) and restart; the seeder then adds the teachers and memberships on startup. Each new teacher sees the Welcome once.
-- Shared class: all three teachers see and change the same data; demo Reset resets it for everyone; attendance saves are last-write-wins.
-
-## CI green again, Approve card names (25 Oct)
-
-- **`main` CI had been red since #126** on one Vitest test (`WelcomeScreen` Start → evening-message step), so `deploy` was skipped and staging stayed on an old build. Cause: Start updated the `me` cache, and `TeacherGate` on `/welcome` redirected to Today before the navigation to `/setup/evening` landed; which came first depended on timing (different on CI and on a laptop). Reordering the calls (`c4f3667`) was not enough. #130: `TeacherGate` only sends a teacher from `/welcome` to Today if setup was already complete **when they arrived**. The auth e2e now expects `/setup/evening` after Start (it had passed only through the old race). #129 (Hindi/Rohan) went in first with the check overridden, #130 turned `main` green; staging is on the build with both.
-- **Approve list axe `label-content-name-mismatch` fixed:** the catch-up card link no longer has an `aria-label`; its name is what it shows (language and count, children, lessons and length, status tag, "Goes after 6 pm" when approved), with real spaces between the pieces. New Vitest asserts the accessible name contains the visible text for a ready and an approved card (WCAG 2.5.3). Two existing regexes lost the full stops. No e2e covers the Approve screen, so axe on it was not re-run in a browser.
-- **T-49 checks done (25 Oct):** Today at 360 px on the light theme in English, Kannada and Hindi, with no lesson yet and with the lesson confirmed (the done state): axe **0 violations of any impact** in all six, no horizontal overflow, nothing clipped (Kannada title wraps to two lines; the five language chips take two rows in Kannada and Hindi). Screenshots `docs/screenshots/T-49/today-{en,kn,hi}-{todo,done}-light.png` (full-page captures, so the fixed bottom nav shows mid-page).
-- **A4 on Hindi (25 Oct):** 3 Hindi cases added (good, shaming line, wrong topic), 11/11 correct; see `docs/quality.md`.
-- **Decisions (25 Oct), recorded in T-60 (#132):** (1) Rohan's family stays Hindi (D-73 says so; English stays a supported family language); (2) **"Since yesterday" is dropped from the MVP** and is roadmap (D-53 kept, marked roadmap; removed from the T-49 scope, the T1 spec, journey, build flow, README and how-it-works; the `today.updates.*` copy rows stay in `T1-today.md`); (3) the Hindi copy is accepted as drafted (D-78 Accepted; strings stay drafts for native review, T-26). From now on Rahul takes product decisions unless Monika asks for a specific feature.
-- **Still open:** a listen to the Hindi audio (`evals/results/audio/*-hi.ogg`) and the native review (T-26). Nothing else is waiting on Monika.
-
-## Rohan is a Hindi-speaking family (25 Oct, Rahul)
-
-- `data/seed/demo-class.json`: roll 24 Rohan `homeLanguage` `hi` (was `en`). The demo Reset re-adds the seeded children, so an existing staging or prod database gets this on its next Reset (the seeder itself never changes a stored child's language).
-- Pre-made catch-up regenerated live: `data/seed/demo-catchup.json` is now Rohan's **Hindi** catch-up of `M3.ADD.CARRY` (A3 v4, verified, disclosure + script clips, ~200 KB, no names). It is matched to the story child by language, so the old English one would have attached to nobody.
-- `/demo` guide strings (`demo.guide.evening`, `demo.guide.approve`) say Hindi in en, kn, te, ta and hi. Code comments in `DemoScreen.tsx` and `types.ts`.
-- Tests: `StartupDbTests` (26 kn, 6 te, 3 ta, 1 hi), `DemoShellEndpointTests` (family language and the pre-made snapshot theory), `DemoResetDbTests` (package language). `verify.sh` OK (488 API); Db suite 15/15.
-- For Monika: D-73 and D-74 in `spec.md` still say Rohan's family is English ("so judges can follow the parent side"); with Hindi the judges' parent phone is in Hindi. English stays a supported family language. All Hindi text is still a draft.
-- Not done: a listen to the new Hindi catch-up audio; refreshing the screenshots in `docs/screenshots/` that show the English parent phone.
-
-## Hindi support (24 Oct, D-78, T-59), branch `feat/T-59-hindi`
-
-- **Asked by Rahul, scope "full":** `hi` in the teacher and parent screens and as a family home language. Plan: `/Users/rahuloswal/.claude/plans/hazy-scribbling-heron.md`. D-78 and T-59 added as **proposed**, with **[DECIDE: Monika]** on copy review.
-- **Web:** `hi.json` (499 keys, same as `en.json`; `language.hi`, `approve.in.hi`, `missed.language.hi` added to all five files), `SUPPORTED_LANGUAGES` has `hi`, five language chips (they wrap to two rows at 360 px), Noto Sans Devanagari 400 and 600 via fontsource, Baloo 2 for headings (its devanagari subset ships in the same package), `:lang(hi)` fonts and the larger Indic type scale. Handwriting accent stays English-only, so Hindi gets the plain word with the amber underline.
-- **API:** verifier script block (U+0900 to U+097F), `WordsPerSecond` `hi` 2.2 (a cautious guess, not measured), A3 language name, `Competency.NameHi` with `nameHi` on all 16 competencies, `hi` in the disclosure seed (wording-keyed, so a new clip is made on its own) and the evening-message seed (version 3, so the teacher approves again, D-49). TTS code is `{language}-IN`, so `hi-IN` needed no change. No schema change.
-- **Prompts:** `a3-script` v4 (Hindi named, plus a line on everyday spoken Hindi), `a4-check` v3; two Hindi cases added to `evals/cases/a3-script.json`. **Eval run not done: merged without it at Rahul's request (24 Oct).** Guardrail 6 still needs an A3/A4 eval run on the Hindi cases; do it next and attach the result.
-- **Tests:** 3 new xUnit (Devanagari script block, A3 asks for Hindi, `Name("hi")`), one updated (`EveningSlotsTests` language list); Vitest for the Hindi fonts and scale, the language switch and key parity. `verify.sh` OK (488 API, 268 web). Db suite run once: 15 of 15 (seed changed).
-- **Measured (360 px):** P1 in Hindi 463 KB gzip with audio excluded (limit 500; the Kannada fonts for the loading line add about 65 KB, the known issue above). axe 0 on every parent page and teacher screen in light and dark, except the Approve list (same existing finding). Screenshots in `docs/screenshots/D-78/`.
-- **For Monika:** all Hindi text is a draft (UI, disclosure line, evening message, competency names). Evening wording avoids gendered verbs: "आज हमें {child} की कमी खली", "एक सहपाठी ... ध्यान रख रहे हैं". `setup.template.audioNote` in every language still lists Telugu, Tamil and Kannada only. No seeded child speaks Hindi, so the demo roster (6 Telugu, 3 Tamil, 1 English) is unchanged. Whether to add a Hindi family is hers to decide.
-- **Known:** lesson names in the teacher UI show the English name for every language except Kannada (existing behaviour, `lessonName`); the Hindi names are used only in the evening message.
-- **Eval and speech (25 Oct):** A3 v4 14/14 first pass (2 Hindi cases), A4 v3 8/8; Sarvam `hi-IN` spoke the Hindi script in 43 s (whole catch-up 49.5 s, 135 KB). Measured 2.55 words/second from one script, so `WordsPerSecond.hi` 2.2 errs long (left as is). `TtsSmokeEvals` now covers `hi` and reads the latest A3 results file. Details in `docs/quality.md` "Hindi". Guardrail 6 is met.
-- **Not done:** someone plays `evals/results/audio/disclosure-hi.ogg` and `sub-borrow-hi.ogg` and a native speaker reviews the Hindi text (T-26); an A4 case with a Hindi-script script.
-
-## Current state — Wed 21 Oct 2026 (Day 3)
-
-- Repo: https://github.com/rahul-oswal07/slate-ai (`main`, public). Staging live: https://slateai-staging.azurewebsites.net (prod app exists; first `v*` tag deploys it).
-- Done: T-01–T-04 (skeleton, CI, deploy), **T-05** curriculum graph + `grade3-maths.json` (#68, #74), **T-06** attendance API + ledger query (#57), **T-07 PR 1** AI plumbing (#72). Ledger also computes absence spells and weekly return speed.
-- **Building screen by screen from Day 3** (order in `plan.md` §3). First slice: **T-47** teacher sign-in (phone once, then PIN) + first-run Welcome, class endpoints locked to the signed-in teacher's class (D-40), branch `feat/T-47-pin-login`.
-- Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59). See CLAUDE.md "Testing expectations".
-- Education mentor call held 19 Oct: notes and proposed decisions D-20–D-25 in `docs/mentor-feedback-2026-10-19.md` (#55, #56).
-- Technical mentor call held 24 Oct (MVP demo): notes and action items in `docs/mentor-feedback-2026-10-24.md` (Rahul: shared catch-up example, longer and simpler summaries, shorter/longer recording option; Monika: attendance stars, production token costs, share with the mentor). No decisions yet.
-- Monika's PRs #49–#53 merged.
-- Submission target: **Sat 31 Oct, 18:00 IST** (hard deadline 1 Nov, 23:59).
-
-## Open items
-
-- [x] Rahul: merge #59 (Db test suite)
-- [x] Rahul: Anthropic + Sarvam API keys into user-secrets (Anthropic key starts `sk-ant-usr-`, not `sk-ant-api03-`: confirm it works on the first live call; rotate both, they appeared in a session transcript)
-- [x] Rahul: accept D-05, D-11, D-12 in `spec.md` decision log
-- [x] Rahul: confirmed D-18 / D-19 (22 Oct): static disclosure clip per language via Sarvam TTS, played as segments; `Child.ParentStoppedAt` separate from consent, stop by link token, 409 on every send
-- [x] Monika: T-22 competency list drafted in `docs/design/curriculum.md` (16 competencies, textbook page each). D-01 revised to 3-digit. Open: † Kannada names to confirm with a teacher; NIPUN codes have no source yet
-- [x] Rahul: D-27 attendance source, decided as D-69 (21 Oct; times from D-45): fetched when needed, repeatable simulation + demo overrides, provenance columns on `Attendance`, teacher marking wins over late SATS. Was: Put attendance behind a source interface (`DemoSource` simulated SATS feed now; file import / state API later) feeding the existing T-06 register endpoint; store source + time per record; teacher corrections overlay, never written back. Update `plan.md` / `tasks.md` (T-12: grid becomes corrections + fallback only) and the demo label "simulated"
-- [x] Rahul: built `data/curriculum/grade3-maths.json` from T-22 (21 Oct). Note: 2-digit → 3-digit changes number ranges for generated sums, checks and buddy cards (≤ 999, no borrowing across zero); test fixtures use `M3.PV.TENS`, which is now `M2.PV.TENS`
-- [x] Monika: T-21 replaced by the clickable prototype v2 + UX review (outside the repo, `Documents/tappida-paatha-prototype`); D-03, D-07, D-08, D-09 accepted as prototyped
-- [x] Monika: T-21 delivered as the clickable prototype + design cards (#70, #73)
-- [x] Monika: decided D-20–D-26 (mentor review) and accepted `intent.md` (PR docs/mentor-decisions)
-- [x] Rahul: confirmed D-21 (20 Oct): approved `MessageTemplate` + code-filled slots; guardrail 3 in CLAUDE.md reworded
-- [x] Rahul: `plan.md` / `tasks.md` for FR-20–22 (new T-44 evening message, T-45 reason + A7, T-46 return-speed card) and the D-26 cuts (T-40 stretch; drop T-41–T-43); A7 reason classifier (prompt + evals in `quality.md`); data model (`AbsenceReason`, `HomeworkReturned`, textbook page refs)
-- [x] Mentor's 6 interview questions added to `user-testing.md`
-
-**Build scope: [`docs/design/mvp-build-flow.md`](design/mvp-build-flow.md) (D-70).** Build screens in its order; skip its "Not in the MVP" list (Settings, per-language greetings, family-details editing, bulk approve / withdraw, mic-blocked / sending states, stitched evening audio, parent-page polish, offline beyond attendance + voice note). Nothing already built changes.
-
-## T-19 consent + delete (23 Oct, branch `fix/T-19-delete-empty-catchup`)
-
-- Checked FR-15 against the build: consent capture on T8 is out of the MVP (D-70: seed holds consent, the send filter is in code); "nothing sent unless Yes" is covered by the evening and catch-up send tests; delete (T-13) with its Db test.
-- Fixed one gap: deleting the only child of a catch-up left the catch-up (and its audio) on Approve for nobody, still approvable. Delete now removes catch-ups with no children left in the same transaction; shared ones stay. Failing Db test first (`ChildDeleteEmptyCatchUpDbTests`), then the fix in `ChildStore`.
-- T-19 is done for the MVP; T8 consent editing stays on the roadmap.
-
-## D-76 (1a) "Why this" in Kannada (24 Oct, branch `feat/T-08-a2-reason-kn`)
-
-- Prompt `a2-compression` v2: each kept and dropped lesson gets `reason` (English) and `reasonKn` (Kannada, lessons by `nameKn`, "ಮಗು", digits) in the same call. `A2Validator` keeps a `reasonKn` only if ≥ 80% of its letters are Kannada; a bad one is dropped without failing the targets. `CompressionItem.ReasonKn` is optional, so stored assignments read as before (no migration).
-- T3 "Why this" shows the Kannada reason in the Kannada app (`lang="kn"`), else the English one, else code's wording. The demo's pre-made catch-up got a hand-written Kannada reason in `data/seed/demo-catchup.json`.
-- Eval: 10/10 on v2 (v1 was 10/10), every reason came back in Kannada; one lesson name for Monika to check (`docs/quality.md`). Db suite 15/15.
-
-## D-76 (5) P3 sticks fit a phone (24 Oct, branch `fix/T-15-sticks-fit`)
-
-- Problem: a 3-digit answer drew hundreds as tall bundles that wrapped, so a P3 tile was 188 px (296) to 240 px (999) and only one of the three choices showed at 360×640.
-- Now (`Sticks.tsx`): hundreds lie flat (24×28 px, two bands) in one row; tens (16 px) and loose sticks (5 px) share the row below. 999 is two rows and stays one row each even with the numeral shown after the tap. Every tile is the minimum picture-target height, 120 px (≤ ~160 per D-76). At 360×640 two tiles show whole and the top of the third (the header, AI label, prompt and sum take ~260 px); a fully visible third tile would need a smaller `target-picture` token (Monika's call).
-- Tests: `Sticks.test.tsx` (rows and widths for 999, empty rows left out, hidden from screen readers). axe 0 on P3 light/dark. Screenshots before/after in `docs/screenshots/T-15/`.
-
-## T-18 demo shell (23 Oct, branch `feat/T-18-demo-shell`)
-
-- Decided (Rahul, 23 Oct): Reset writes the **school days before the real today** (no demo clock); Reset restores a **pre-made Ready (not approved)** Telugu catch-up for Ravi when `data/seed/demo-catchup.json` exists (R5); **one-tap sign-in** for the demo teacher while `Demo:Enabled`.
-- API (`Features/Demo/`): pure `DemoStory` (5 school days before today, lessons `M3.PV.HTO` … `M3.ADD.NOCARRY` so today's next in the book is `M3.ADD.CARRY`; Ravi away this week's days, Manjunath away the last 2 days), `IDemoStore`, `DemoSnapshot` (package + audio as JSON, clip IDs remapped on restore). Endpoints: `POST /api/demo/login`, `GET /api/demo`, `POST /api/demo/reset` (one transaction, replay no-op, ~0.13 s locally), `GET /api/demo/family/{childId}`, `GET /api/demo/ai-calls?since=`, `GET /api/demo/snapshot/{id}` (Development only). Seed file loading moved to `DemoSeedFile`. `sats-scenario.json`: Ravi away every school day, Manjunath never drawn absent (new `present` list).
-- Reset leaves the evening template approval and the teacher's Welcome alone: code never approves for her (guardrail 3). On a fresh server the first judge sees Welcome + template approval once.
-- Web: `/demo` (outside the teacher shell): step guide, Reset (confirm dialog), "Bring in today's attendance", teacher app and parent page in 360×740 frames, Ravi's family inbox (polled 5 s), "Under the hood" table since the reset; tabs below `lg`. Strings `demo.*` in all four locales (English placeholders in kn/te/ta).
-- Checked against local Postgres: reset, ledger (Ravi 4 missed on Friday), Back today (Manjunath + buddy), Week (this/last), evening send → inbox, AI calls. Found and fixed an IST offset write the fakes couldn't catch.
-- Change (Rahul, 23 Oct): Approve showed 8 catch-ups because the simulated feed adds ~8% random absences. Now the demo has **exactly 3**, one per pattern: Ravi (Telugu, 4–5 lessons → 2 targets), Manjunath (Kannada, 2 days → 1 target), Rohan (roll 24, now an **English-speaking family**, away today only). `Attendance:Sats:AbsenceRate` 0 in appsettings; Back today has Manjunath. Pacing nudge (needs ≥ 5 children) no longer shows in the demo: decided to drop it there, unit tests still cover it.
-- The demo parent phone is **Rohan's family** (Rahul, 23 Oct: English for judges), so the evening message, reason and catch-up are all in English there. The pre-made catch-up goes to the story child of its language, so record it from Rohan's English package.
-- English as a family language: A3 `a3-script` v3 and A4 `a4-check` v2 (English added), verifier script check + words/second for `en`, Sarvam `en-IN`. Evals: A3 12/12 first pass incl. 2 English cases, A4 8/8 incl. 2 English. Live run: 3 packages Ready, English audio 55 s / 150 KB.
-- Pre-made catch-up committed: `data/seed/demo-catchup.json` = Rohan's English catch-up of `M3.ADD.CARRY` (A3 v3, 61 s, ~230 KB, no names). Reset restores it as Ready in ~0.06 s. To refresh it: generate live, then `GET /api/demo/snapshot/{packageId}` in Development.
-- Follow-ups done (23 Oct): Db test for Reset (#104, which also fixed `main`: the seed-language Db test). `/demo` polish (branch `feat/T-18-demo-polish`): "Under the hood" starts at anyone's last reset (`GET /api/demo` → `lastResetAt`, from the Reset's request record), so a judge's fresh browser doesn't list every call ever made; the AI table stops at phone height and scrolls in a focusable section; labelled header/main; model names unbroken. axe: 0 violations of any impact on 7 views (desktop light/dark, phone en/kn, parent, AI, reset dialog). Screenshots in `docs/screenshots/T-18/`.
-- "Send messages now" (Rahul, 24 Oct; branch `feat/T-18-demo-send-now`): messages only went at 6 pm (the app has no send button; Approve says "Goes to the families after 6 pm"), so a judge in the day never saw anything arrive on Rohan's family's phone. `/demo` now has a **Send messages now** button next to "Bring in today's attendance": `POST /api/demo/send-now` runs the 6 pm job's two steps for the demo class (`EveningSender.SendAsync`, `CatchUpSender.SendApprovedAsync`), approved only, idempotent, and says why tonight's message didn't go (template not approved / lesson not confirmed / no attendance). The guide's evening and approve steps point to it.
-- D-75 (pacing nudge in the demo story): built on 24 Oct, then rolled back at Rahul's request (he prefers the story as it is: only Ravi, Manjunath and Rohan away). Not done; Monika to be told.
-- For Monika: English as a fourth family language is new (D-02 lists kn/te/ta): confirm for the decision log; review the two English eval scripts. kn/te/ta for the `demo.*` strings (judges mostly use English); the guide wording.
-
-## T-46 T6 Week (23 Oct, branch `feat/T-46-week`)
-
-- Decided (Rahul, 23 Oct): a spell belongs to the **week it started in**; a child still away counts in the total but not as back within 2; the nudge sentence is a **code template** (no A5 prompt, no AI on T6); "Plan recap" is stored and shows a reminder card on Today all the next week.
-- Built: Week tab → `/week`: "This week" + range ("19–24 October"; English formatted en-IN), return-speed card (headline "10 of 12", sentence with last week, side-by-side bars this/last week with numbers, `sr-only` table), reasons card (5 categories + Not given, icon + word + count, "Only for you…"), pacing panel (template sentence with code numbers and curriculum names, Plan recap / Not this week → banner + Change that reopens the choice + announcement) or "Most children are on track…", "No absences this week." (D-61), offline snapshot, footer "Numbers are counted from attendance." Today: "Recap planned this week" card when last week's decision is recap. The ComingSoon placeholder is gone (no placeholder tabs left).
-- API (`Features/Week/`): pure `WeekBuilder` (return speed this/last week from one list of spells, reasons one per absent child, nudge ≥ 5 per D-60 with ties → latest and next lesson in book order), `GET /api/classes/{id}/week/{date}`, `PUT …/pacing`; `AbsenceSpells.Summarise(from, to)`; table `PacingDecisions`.
-- Copy change: "We’ll remind you on Monday morning" → "We’ll remind you on Today next week" (the reminder is a card on Today, not a push).
-- Tests: 10 xUnit (builder incl. the card's 10-of-12 / 9-of-13 reconciliation, endpoints), 7 Vitest (Week screen + Today recap card); Today nav test now opens the real Week screen; no new Db test.
-- Local run (Fri 23 Oct): 10 absences started this week (9 one-day, 1 two-day), 7 back within 2 (3 away today, still open); reasons 2 Unwell + 8 Not given = 10 absent children; nudge on Thursday's lesson (8 of 36) before "Expanded form". Plan recap → banner → Change works. Axe 0 serious/critical (en light/dark, kn); screenshots in `docs/screenshots/T-46/`. Found there: a zero still drew a thin bordered bar; zeros now show only the number.
-- Next: T-18 demo shell (`/demo`, two phones, Reset, Ravi's story).
-- For Monika: en/kn from the T6 card (the kn nudge's hard-coded "36" is now `{total}`); te/ta English placeholders; new copy: bucket labels, "Last week: no absences.", the no-next-lesson nudge, "We’ll remind you on Today next week.", the Today recap card lines, offline/load/save lines.
-
-## T-16 T5 Back today (23 Oct, branch `feat/T-16-back-today`)
-
-- Built: Back today tab → `/back`: one card per child back today (phone or not, stopped or not), "Card 1 of 2 · next: Manju", child name (focused when moving), "Back after n days", buddy panel ("was present both days" / "all n days" / "k of n days", D-59) or "Teacher-led: 10 minutes", 3 sums from code with the answers folded away for the teacher, textbook Kannada words, "Brought homework" with the page, Prev / Print / Next, "Mark buddy time done" → banner + Undo (no auto-advance), empty state, offline snapshot. Print shows only the card (shell, nav, buttons, answers hidden). Never the family's channel or a score (B-20).
-- API (`Features/Buddy/`): `BuddyCardBuilder` (pure: back today = present today with an absence spell ending today; buddy = present on the most missed days, ties spread across returners then roll; target = the week's catch-up first target, else the latest missed lesson; 3 distinct seeded sums), `GET /api/classes/{id}/buddy-cards/{date}`, `PUT …/{childId}` for the ticks. Table `BuddyCards` (ticks only; the card is recomputed).
-- Deviations: ticks are online only (D-70 rule; the card asked for an outbox); the pacing nudge (FR-13) moves to T6 with T-46 (build-flow row 12); one PUT replaces spec's `POST /api/buddy-cards/{id}/homework-returned` (no card ID before a tap). B-21 closed: no AI wording on buddy cards at all (sums by code, words from the textbook).
-- Tests: 12 xUnit (builder + endpoints), 9 Vitest; no new Db test. Today nav test's placeholder tab is now "Week".
-- Local run (Fri 23 Oct): 7 children back after Thursday, each with a buddy present that day; axe 0 serious/critical (en light/dark, kn); print shows only the card; screenshots in `docs/screenshots/T-16/`. Found there: Thursday's lesson is a "count" lesson, so the "sums" were bare numbers (`528 = 528`). Cards now carry `practiceKind` and word the items to suit: sums for add/sub/expanded, "Make 528 with sticks" for count (no answers fold-out), "Value of 4 in 347 = ?" / "Which is biggest? …" for the others.
-- Next: T-46 T6 Week (return speed, reasons card, pacing nudge FR-13).
-- For Monika: en/kn from the T5 card; te/ta English placeholders; kn needs the 1-day / all-n-days / k-of-n buddy forms (only "both days" exists); new copy: "3 numbers to make with sticks", "3 questions to do together", "Make {n} with sticks", "Value of {q} = ?", "Which is biggest/smallest? …", "Teacher-led: 10 minutes" sub-line "No classmate was in class on those days.", "Answers (for you)", "No lesson was recorded on the days away.", "page {n}" (no part), save/load failure lines.
-
-## T-13 T4 Missed lessons (23 Oct, branch `feat/T-13-missed-lessons`)
-
-- Built: Missed tab → `/missed`: By child / By lesson (`aria-pressed`, view and filter in the URL so Back keeps them); "Absent this week · n" (default) / "Everyone · n"; rows with days away, lessons missed this week (curriculum names), **learning tag + channel tag** (B-08); By lesson newest first with "n of 36 children missed it", status counts per child × lesson and an expander; empty state → Today; offline snapshot with its time; footer "No AI in this". `/missed/:childId`: name heading, roll + home language, tags, "This week" timeline (`<ol>`, day on every event, reason "from the parent"), Child's data → delete dialog (Keep focused + primary, Delete outlined, Esc/backdrop close; online only, so no "happens later" promise).
-- API: ledger now splits learning status (`missed/sent/caughtUp/needsBuddy`) from `channel` (`stopped/noPhone/noConsent`; T-15's "stopped" status moved there), adds `weekOf`, this week's `lessons`, `homeLanguage`, `daysAwayThisWeek`, `history` (this week = Monday to today IST). `DELETE /api/classes/{id}/children/{childId}?clientRequestId=` (cascade; idempotent). Demo seed adds children only with a new class (Rahul, 23 Oct), so a deleted child stays deleted.
-- Found by tests: the delete hook removed the child from the cache before the dialog's onSuccess ran, unmounting it (no announcement, no return to the list); now refetch-only. A curriculum-after-ledger race in my own tests (names briefly show as IDs) fixed by waiting.
-- Not built: Families and consent (T8 roadmap), "Listened" (not tracked, D-20/D-36), "back · brought homework" (T-16), "See the week" (T-46), offline delete.
-- Tests: 10 new xUnit cases (ledger split, channel, week/history, delete endpoint; API 418 → 428), 1 Db (`ChildDeleteDbTests`: every child row gone, others untouched, seed doesn't bring them back), 9 Vitest. Updated: T-15 ledger precedence test; Today nav test now uses "Back today" as the placeholder tab.
-- Local run: real data (10 absent this week, sent catch-ups, Lavanya needs buddy, Srinivas/Mahesh reasons, no-phone/no-consent tags) reads right in en and kn; axe 0 serious/critical on 5 screens × 2 themes + kn; screenshots in `docs/screenshots/T-13/`. Deleted a seed child, restarted: the seed added 0 rows and the child stayed deleted (then restored by hand).
-- Next: T-46 T6 Week (return speed + reasons card from `AbsenceReasons`) or T-16 T5 Back today.
-- For Monika: en/kn copy from the T4 card; te/ta English placeholders; new copy: "Show the children" (expander), "No consent" tag, "Could not load the list…", "This child is no longer in the list.", "Deleting…", "This can’t be undone. It needs the network." (replaces the card's offline promise), the delete failure line; weekday names come from the browser (Intl), so Wednesday needs no copy.
-
-## T-45 reason for absence (23 Oct, branch `feat/T-45-reason`)
-
-- Built (agreed scope: evening link only, store only): the evening link at `/p/{token}` now shows "Is everything OK? Tell us" → `?view=reason`: the question, 5 picture toggle buttons (unwell · family travel or work · festival or function · needed at home · other, prototype icons), Send (sticky, disabled until a tap) / Skip (sends nothing), Thank you + "Only {teacher} teacher sees this.", D-68 error + Try again with the same request ID. Reopened: "Thank you for telling us." + Change (preselected). A stopped evening link now shows Messages stopped. No AI on the path (test with a throwing LLM client).
-- API: `POST /api/p/{token}/reason { category, clientRequestId }` (evening links only; 400 outside the 5; 409 expired/stopped; a later tap replaces, a replayed request ID never does, via `ProcessedRequests`); evening GET gains `reason`. Table `AbsenceReasons` (migration `AbsenceReasons`), unique `(ChildId, Date)`. Source/Confidence dropped (D-63).
-- Found by a test: a late replay of the first tap overwrote a newer choice when idempotency only compared the row's last request ID; now `ProcessedRequests` (test unchanged).
-- Tests: 12 xUnit, the reason steps added to `ParentDbTests` (no new Db test), 7 Vitest.
-- Local run: reason stored once per child/day, also through a simulated failure + Try again; axe 0 serious/critical on 6 states × 2 themes; screenshots in `docs/screenshots/T-45/`. Found there: the could-not-send banner sat behind the sticky footer at 360×640; moved into the footer above the button, here and on P3 (same layout from T-15).
-- Next: T-13 Missed lessons (ledger statuses ready) or T-46 T6 Week (reads `AbsenceReasons` for the reasons card).
-- For Monika: te question uses D-72's neutral verb ("ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం. అంతా బాగుందా?"); kn category names from the T6 card, the rest of kn/ta English placeholders; new copy without a card: "Thank you for telling us." · "Change" · "Sending…" · the could-not-send line. FR-21 "on the parent page" is answered as evening link only (Rahul, 23 Oct): the P0 open item can close.
-
-## T-15 parent page P1–P4 (23 Oct, branch `feat/T-15-parent-page`)
-
-- Built: `/p/:token` outside the teacher shell, in the family's language through a cloned i18n instance (the phone's saved language is untouched). P1 Listen (156 px button, Listen / Loading… / Pause / Resume / Listen again, elapsed / total, segment labels, "Read the words", Next never blocked), P2 Activity (sticks SVG by code incl. hundreds, text equivalent, instruction, object option, homework card), P3 Question (3 shuffled pictures, numeral only on the tapped one, send / sending / could-not-send + Try again with the same request ID), P4 Done ("Well done" whatever the answer), stop link + dialog on every step, Stopped view with "Start them again", "This link is old" (homework + stop link), evening-link view (text + stop link). New `--color-stick` token (contrast-tested).
-- API (`Features/Parent/`): `GET /api/p/{token}` now serves catch-ups too (evening GET moved here, `kind` added): lesson only when approved/sent at the approved version, never the correct index, nothing but names when stopped, 410 body with the homework; `GET …/audio/{clipId}` (this link's segments only); `POST …/answer` scored by code, first answer counts (`CheckResponses`, migration `CheckResponses`); `POST …/stop` / `restart` (catch-up or evening link, also after expiry). Ledger statuses: caughtUp / needsBuddy > stopped > sent > missed.
-- Tests: 31 xUnit (endpoints, scoring, serve rule, ledger precedence), 1 Db test (lookup joins, 3 racing answers → 1 row, ledger, stop → evening send refuses, restart), 21 Vitest. No new Playwright (22 Oct rule). Page JS+CSS ≈ 183 KB gzipped (budget 500 KB).
-- Local run (23 Oct): this week's 6 approved catch-ups sent (no AI calls), 9 family links; Rahul checked Ravi's at 360 px. Screenshots in `docs/screenshots/T-15/` (axe: 0 serious/critical on 9 states, light + dark). Heading focus ring shows on first load, as on the teacher screens (app-wide decision). 3-digit stick pictures make each P3 tile ~300 px tall: design point for Monika.
-- Not built (D-70 roadmap): resume after a network drop, back 10 s, spoken prompts, offline answer queue, chat confirmation after a stop, "listened" event. Finish shows "You can close this page now." (no chat to return to until T-18).
-- Next: T-45 reason (picture buttons on the parent side) or T-13 Missed lessons (the ledger statuses are ready for it).
-- For Monika:
-  - te strings come from the P1–P4 cards with names as placeholders; kn/ta are English placeholders (T-26). New copy without a card source: sticks with hundreds ("3 bundles of a hundred…", also in te as English), "Could not play the lesson…", "Could not send. Your choice is still here. Check the network and tap Try again." (the card's "we'll send it again" would promise an offline queue the MVP doesn't have), "This link doesn't work…", "No network. Nothing was lost…", "You can close this page now.", evening view title, stop / restart failure lines
-  - `stop.doneBody` made gender-neutral: "When {child} comes back, the teacher will help as usual."
-  - 3-digit numbers: the hundreds bundle is a wider bundle with two bands; please check it reads as "a hundred" on a phone
-  - `tokens.md`: add `stick` (light #B45309, dark #FBBF24, same as warning, UI contrast)
-  - P4 open item answered in code: stop and restart work from an expired link too (Rahul to confirm)
-
-## T-14 T3 Approve (23 Oct, branch `feat/T-14-approve`)
-
-- Built: `/approve` list (cards per catch-up: language · children, names, lessons, duration, status tag; all-approved banner; empty state with "Make this week’s catch-ups"; "Check for new absences"; nav badge = ready + needs review) and `/approve/:id` detail (segment player, Kannada summary + English when the app is in English, key words, "Why this" with A2's reasons or code wording for rule choices, picture question with ✓, tick → Approve bound to the version she read, Simpler / Shorter, needs-review reasons with "Make it shorter", regenerating, approved, sent, failed → Try again). API: `GET /api/packages/{id}`, approve (409 unless ready at the current version), regenerate, send (409 unless approved at its version; links only for consent Yes + not stopped; 6 pm job sends approved ones). Db test for the approval rule found an EF tracking race (fixed: untracked view reads).
-- Next: T-15 parent page (P1–P4) on the assignment tokens: `GET /api/p/{token}` serving the catch-up (audio segments, activity, picture check without the answer), answer scoring, stop link.
-- For Monika: "Why this" reasons (A2, English by prompt) and the verifier's needs-review lines (code, English) show in English on the Kannada screen: decide whether A2 writes Kannada reasons and whether the verifier details get translated templates; new copy (empty state, "Make this week’s catch-ups", "Check for new absences", "Why this" wording for rule choices, error lines); segment labels follow D-58 ("Your greeting · Computer voice · Lesson") rather than the card's older "Your voice · Notice"; te/ta strings for T3 are English placeholders.
-
-## T-11 audio (23 Oct, branch `feat/T-11-audio`)
-
-- Built: Sarvam text-to-speech (`bulbul:v3`, voice `priya`) → 16 kHz WAV → **Ogg Opus 24 kbps** encoded in C# (Concentus; Sarvam's MP3 is a fixed 128 kbps, ~860 KB a catch-up); `AudioClips` table (Postgres, behind `IAudioStore`); disclosure clips per language made once per wording (`data/seed/disclosure.json`); segments disclosure → script (greeting first once T0 records one); real-audio check (≤ 95 s, ≤ 300 KB) added to the verifier review; `GET /api/audio/{id}`. Measured ~55 s and ~150 KB per catch-up; words/second retuned.
-- Next: T-14 Approve screen (list + detail with the segment player, Kannada summary, "Why this", picture question, tick → Approve bound to `ScriptVersion`, Simpler/Shorter, needs-review reasons).
-- For Monika: the kn/ta disclosure lines are drafts (`data/seed/disclosure.json`); listen to `evals/results/audio/*.ogg` on an Android phone (voice "priya"; Kannada key words inside Telugu/Tamil scripts are read by the te/ta voice: check they sound right).
-
-## T-10 verifier + D-72 (23 Oct, branch `feat/T-10-verifier`)
-
-- D-72: gender-neutral Telugu evening template, wording v2 (the teacher approves the evening message again).
-- A4 verifier: 6 code checks (numbers recomputed incl. sums written in the script, family's script ≥ 80%, spoken length ≤ 90 s estimated, key words twice, allowed objects via A3's new `objects` field, no names/placeholders) + Haiku content check (`a4-check` v1). One retry with the failed checks' details; `ready` / `needsReview` (words + reasons kept on `CatchUpPackages.Review`) / `failed`. A3 prompt v2 (objects, feedback). Evals: A3+A4 10/10 first pass; A4 6/6.
-- Next: T-11 audio (Sarvam TTS, segments greeting → disclosure → script; real duration ≤ 95 s; tune words/second), then T-14 Approve screen.
-- For Monika: review the 6 A4 cases (`evals/cases/a4-check.json`).
-
-## T-09 A3 script writer + catch-up packages (22 Oct, branch `feat/T-09-a3-script`)
-
-- Built: `keyWordsKn` + `practice` per lesson in `grade3-maths.json` (drafts); `ProblemGenerator` / `PackagePractice` (activity sum and 3-option check by code, distractors ≥ 10 apart, shuffled, correct index stored, seeded so a regenerate keeps the numbers); A3 `ScriptWriter` (prompt `a3-script` v1, Opus, words only, no names) + `A3Validator`; tables `CatchUpPackages` / `CatchUpAssignments` (migration `CatchUpPackages`); `POST /api/classes/{id}/catchups/generate` (202, A2 → group by targets + language → A3 in a background worker) and `GET …/packages`. Eval A3 10/10 (kn/te/ta). Buddy sums leave A3 (T-16 makes them in code).
-- Next: T-10 verifier (6 code checks + Haiku, one retry, `needsReview`), then T-11 audio, T-14 Approve screen.
-- For Monika: review the draft `keyWordsKn` per lesson and the 10 A3 scripts in `evals/results/2026-10-22-a3-script.json` (native speakers for te/ta, T-26).
-- D-72 Telugu evening template: done in T-10's PR.
-
-## T-08 A2 compression (22 Oct, branch `feat/T-08-a2-compression`)
-
-- Built (service only, no endpoint or table yet): `CompressionPlanner` (week = Monday up to the day; missed lessons from the ledger; next week = 5 lessons after the latest confirmed one; candidate set from the graph), `A2Validator` (targets ⊆ candidates, 1–2, else the nearest-prerequisite rule with no AI reasons), `Compressor` (prompt `a2-compression` v1, model key `Compression` = Sonnet 5.5, verdict logged; no LLM call when there are no candidates). 25 unit tests; eval 10/10 on 10 draft cases.
-- Next: T-09 A3 script writer, which adds the `CatchUpPackages` / `CatchUpAssignments` tables (T3's status enum + `ScriptVersion`) and `catchups/generate` calling `Compressor.CompressClassAsync`.
-- For Monika: review the 10 draft A2 cases' "best" labels (`evals/cases/a2-compression.json`) and Claude's reasons in `evals/results/2026-10-22-a2-compression.json`.
-
-## T-44 evening message, PR 1 (22 Oct, branch `feat/T-44-evening-message`)
-
-- Built: `Child.Consent` (yes/no/nophone, from the seed) + `ParentStoppedAt`; `MessageTemplates` / `EveningMessages` (migration `EveningMessages`); wording in `data/seed/evening-message.json` (v1); draft te/ta lesson names in `grade3-maths.json`; `EveningSlots` (code-filled `{child}` `{lesson}` `{page}`, refuses rather than half-fills); `EveningSender` + `EveningSendWorker` (every minute from 18:00 IST, one message per child per day; fetches SATS itself if nobody opened Today); `GET/POST …/message-template(/approve)`, `GET …/evening-messages/{date}`, `POST …/evening-messages/send` (409 rules, early send allowed while `Demo:Enabled`), `GET /api/p/{token}`. Web: T0 step 2 at `/setup/evening` (Welcome → here), tonight card on Today. No LLM on the path (test enforces).
-- Not built (later PRs): demo-chat bubble (T-18), parent stop/restart endpoints (T-15/P4), greeting recording (T0 step 1), stitched audio (roadmap).
-- Deviations from plan: no separate `/api/demo/evening-send`; the class send endpoint skips the 6 pm check while `Demo:Enabled`.
-- For Monika:
-  - review the draft te/ta lesson names (`data/curriculum/grade3-maths.json`) and the ta template (`data/seed/evening-message.json`); the Telugu verb గుర్తొచ్చాడు is still masculine
-  - Today shows "The evening message is not approved yet…" + "Review and approve" when the template isn't approved (T1 says hide the card; without it the demo teacher, already past Welcome, can't reach the step). Confirm or give copy
-  - new copy to confirm: tonight "Sent tonight to {families} of {absent} families", tag "No message in their language yet", T0 "You approved this message…", approve error lines
-  - `mvp-build-flow.md` §2 status: rows 3–4 built (#84, #86), row 5 template approval built, row 6 API + tonight card built (left for you to edit)
-
-**Monika approvals (D-72, 23 Oct):** #86 eval drafts + low-confidence copy; #88 te/ta lesson names and ta template as drafts (Telugu verb → neutral, see D-72), tonight / approve copy, the not-approved card on Today. `mvp-build-flow.md` status rows updated.
-
-## Next session (Day 4, Thu 22 Oct)
-
-- T1 attendance slice merged (#81). #81 was merged before its D-45/D-67/D-68 fix commit landed; the follow-up PR (`fix/T-12-d45-alignment`) brings 12:00 / 2:00 pm, the D-67 "missing" card, the D-68 offline banner, D-69 numbering and removes the duplicated D-40/D-41 rows from `spec.md`.
-- T2 merged in two parts: part A (#84, pick from the list) and part B (`feat/T-07-voice-lesson`: mic, voice upload, Sarvam → name scrubber → A1, T2 confirm states, add mode, 10 draft evals at 10/10). Next screen: T4 Missed lessons (T-13). Monika: review the 10 draft A1 eval transcripts and the English chapter titles; low-confidence copy uses the T2 card's "Please choose".
-- T2 part A (`feat/T-07-lesson-capture`): pick today's lesson from the list, Today done card, "Added to missed lessons". Next: part B (mic, audio upload, Sarvam + name scrubber + A1, T2 confirm states, 10 evals). English chapter titles in `grade3-maths.json` confirmed by Monika (D-71).
-- [x] Monika: copy for the two D-69 lines decided in D-71: "SATS attendance came in at {time}. We kept your marking." / "No school today (holiday in SATS)."
-- Then T2 Lesson confirm = T-07 PR 2 (capture endpoints, A1 prompt + validator returning 1–3 lessons per D-33, name scrubber, 10 evals).
-- [x] Monika: D-40 sign-in approved as built (D-71); te/ta strings go to the native review (T-26), not blocking.
-- Use plan mode first; one branch per task.
-
-## Local dev
-
-- `./scripts/run-local.sh` runs Postgres + API (:5080) + web (:5173); `--container` runs the image on :8080.
-- API keys: `dotnet user-secrets set "Anthropic:ApiKey" …` / `"Sarvam:ApiKey"` (see README). Stored locally (19 Oct); nothing reads them until T-07. Azure: App Service settings `Anthropic__ApiKey`, `Sarvam__ApiKey`.
-
-## Open questions
-
-- Real teachers reachable this week? (schools reportedly on Dasara break until ~21 Oct)
-- Open-source licence (D-15, MIT proposed)
-
-## Log
-
-| Date | Who | What |
+| Prompt | Job | Latest eval |
 |---|---|---|
-| 18 Oct | Rahul + Claude | Planning artifacts, repo setup, first commit and push |
-| 18 Oct | Rahul + Claude | T-01: CODEOWNERS, repo public, issues per P0/P1 task, Project board, branch protection |
-| 18 Oct | Rahul + Claude | T-02: API skeleton, Initial migration (Teacher/Class/Child), idempotent + concurrency-safe demo seed, `/health`, 5 integration tests (Testcontainers). xunit.v3 pinned to 3.x to keep VSTest `--filter` syntax |
-| 18 Oct | Rahul + Claude | T-03: Vite/React/TS PWA skeleton, i18n with draft kn/te/ta strings (need Monika's review), placeholder tokens, API serves SPA, Vitest + Playwright/axe. D-10 accepted |
-| 18 Oct | Rahul + Claude | T-04: Dockerfile (chiseled, non-root), compose app service, CI container smoke, `provision.sh` (idempotent) run on personal Free Trial sub, OIDC deploy workflow main→staging, v*→prod. D-13 accepted |
-| 18 Oct | Rahul + Claude | Started local Postgres, API (fake AI), and Vite dev server; `/health` and the web app respond successfully |
-| 18 Oct | Rahul + Claude | First deploy to staging green (image sha-6192a40). Fixed OIDC subject (GitHub immutable-ID format). GHCR package already public |
-| 18 Oct | Rahul + Claude | API docs: built-in OpenAPI document + Swagger UI at `/swagger` (dev + staging; off on prod via `OpenApi:Enabled`) |
-| 18 Oct | Rahul + Claude | Deploy smoke test now waits for `/health` to report the new build (`version`) on 3 consecutive polls; fixes false failures during App Service container swaps |
-| 18 Oct | Monika + Claude | T-00: accepted gate decisions D-01 (Grade 3 maths unit), D-02 (Kannada UI; Telugu+Kannada tested, Tamil spot-checked), D-16 (3 teachers + 2 parents/proxies incl. Telugu). Unblocks T-22, T-20, T-05, T-07 |
-| 18 Oct | Monika + Claude | Compared the external Build Kit (00–06) with the repo; adopted its design tokens, design-card template, copy rules, testing kit and roadmap; kept our stack and CLAUDE.md. PRs: #50 AAA tokens + system dark theme (T-23, D-04/D-17 accepted; fixed 1.5:1 border), #51 design cards + screen states + copy rules (T-21), #52 testing kit + Now/Next/Later roadmap (T-27), #53 spoken AI disclosure + parent stop (D-18/D-19 proposed). Merge order: #49 → #50 → #53; #51, #52 independent
-| 18 Oct | Rahul + Claude | `scripts/run-local.sh` (one-command local run); `UserSecretsId` + README secrets guidance (user-secrets locally, App Service settings on Azure). Next session: review Monika's PRs #49–#53, then T-06 |
-| 19 Oct | Rahul + Claude | Mentor session notes committed (#55); fixed real teacher name → `{teacher}` placeholder and flagged D-21 vs FR-08 conflict (#56). Reviewed the feedback: return speed folded into T-06; textbook-page homework and "bring it back" hook proposed for T-05/T-09/T-16 |
-| 19 Oct | Rahul + Claude | T-06 (#57): `POST attendance` (full register per date, idempotent by `clientRequestId`, corrections replace, IST future-date check), `GET ledger` (missed lessons, absence spells, return speed), `Attendance`/`Lesson`/`ProcessedRequest` + migration. Fixed startup migration race with an advisory lock |
-| 19 Oct | Rahul + Claude | Testing: no database in default tests, stores + fakes, CLAUDE.md updated (#58); small Postgres suite `Category=Db` run in CI (#59) |
-| 20 Oct | Monika + Claude | Mentor decisions: D-20 return speed as primary measure, D-21 pre-approved evening template (awaiting Rahul), D-22 textbook homework, D-23 optional reason, D-24 return-speed card, D-25 roadmap only, D-26 scope cuts. New FR-20–22 (renumbered; FR-19 was taken). `intent.md` accepted and revised; narrative, roadmap north star and user-testing script updated; mentor session logged as F-M1–F-M12 |
-| 20 Oct | Rahul + Claude | Docs follow-through for D-20–D-26: D-21 confirmed (guardrail 3 now covers approved evening templates), T-44–T-46 added, T-41–T-43 dropped, A7 in spec/quality, new tables in spec/database.md |
-| 20 Oct | Rahul + Claude | T-05 code on test data: `Curriculum/` loader (validates IDs, prerequisites, cycles, textbook pages; fails startup on a bad file, warns when empty), `CurriculumGraph` (ancestors, nearest-first candidate set), 29 tests; Dockerfile now copies `data/curriculum/`. Real JSON waits for T-22 |
-| 20 Oct | Monika + Claude | T-22: read Grade 3 maths textbook 2026–27 (Part 1 bridge + Ch 2–4, Part 2 Ch 5). Book is 3-digit only (sums ≤ 999), so D-01 revised: 3-digit chain, 2-digit skills as Grade 2 prerequisites. 16 competencies with Kannada names, prerequisites, homework page and examples in `docs/design/curriculum.md`; book errors and pages to avoid listed. Textbook PDFs kept out of the repo (public; "not to be republished") |
-| 20 Oct | Monika + Claude | Clickable end-to-end prototype of teacher + parent flows (outside the repo, `Documents/tappida-paatha-prototype`). D-27: attendance comes from the school system (simulated SATS feed in the MVP + manual fallback; real SATS/VSK feed is roadmap, no public API found). FR-01, NFR-01, T1 screen, intent and narrative updated |
-| 20 Oct | Monika + Claude | UX review of all prototype screens (heuristics, UX laws, WCAG 2.2 + axe): 93 findings, P0s fixed in prototype v2 (axe 0 violations on 71 states). Accepted as prototyped: D-03, D-07 (pictures are the answer), D-08, D-09; new D-28 bulk approve only after review + withdraw, D-29 buddy not named to parents, D-30 stop everywhere + STOP reply, D-31 tap-to-start mic. FR-02/08/19/20 and screens table updated |
-| 20 Oct | Monika + Claude | H2 design handoff: `docs/design/journey.md` + cards T0, T1, T2, T4 (states, kn/en copy, tokens, acceptance checklists traced to UX-review finding IDs), 360 px screenshots, clickable prototype and UX review in `docs/design/`. Spec follow-ups for Rahul listed in journey.md |
-| 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
-| 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
-| 21 Oct | Rahul + Claude | Technical mentor brief for the 24 Oct call: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
-| 23 Oct | Rahul + Claude | T-46: T6 Week (return speed this/last week reconciling, reasons, pacing nudge with code template, recap decision + Today reminder); spell rule decided: week it started in |
-| 23 Oct | Rahul + Claude | T-16: T5 Back today buddy cards (buddy by attendance, D-59 fallback, 3 sums by code, words, page), ticks + Undo, print view; `BuddyCards` ticks table |
-| 23 Oct | Rahul + Claude | T-13: T4 Missed lessons (by child / by lesson, child history, delete child data), ledger learning status split from channel, delete endpoint + seed-once; tests caught the delete dialog unmounting before its onSuccess |
-| 23 Oct | Rahul + Claude | T-45: reason for absence from the evening link (5 pictures, Skip, category only, latest tap wins), `AbsenceReasons`; a test caught a late replay overwriting a newer tap (fixed with `ProcessedRequests`) |
-| 23 Oct | Rahul + Claude | T-15: parent page P1–P4 at `/p/:token` (scoped language, sticks by code, stop / restart), `/api/p/*` catch-up payload without the answer, token-scoped audio, answer scored by code (`CheckResponses`, first counts), ledger statuses; 31 xUnit + 1 Db + 21 Vitest |
-| 23 Oct | Rahul + Claude | T-14: T3 Approve screens + approve / regenerate / send API (guardrail 3), 6 pm send of approved catch-ups; Db approval test caught an EF tracking race (fixed) |
-| 23 Oct | Rahul + Claude | T-11: Sarvam TTS + Opus re-encoding (300 KB was impossible with Sarvam's 128 kbps MP3), audio clips in Postgres, shared disclosure clips, segments, real-audio check, audio endpoint; live: ~55 s / ~150 KB per catch-up. Local run found a verifier bug: chained sums with a carry ("3 + 1 + 1 = 5") were read as "1 + 1 = 5"; fixed (test first), all 6 local catch-ups ready, 49–63 s, 137–168 KB |
-| 23 Oct | Rahul + Claude | T-10: A4 verifier (6 code checks + Haiku, one retry, needsReview with reasons), A3 prompt v2, D-72 Telugu template v2; evals A3+A4 10/10 first pass, A4 6/6 (after giving Haiku the object option) |
-| 22 Oct | Rahul + Claude | T-09: numbers by code (practice rules, generator), A3 script writer, `CatchUpPackages` / `CatchUpAssignments`, `catchups/generate` + background writer, `GET packages`; A3 eval 10/10 after two fixes (script capped by words not characters; 8192 output tokens); A2 asks Claude once per identical request (8 calls → 1 in a local run where everyone missed the same lesson) |
-| 22 Oct | Rahul + Claude | T-08: A2 compression service (planner, validator + rule fallback, compressor, prompt v1), 25 unit tests, eval 10/10 (a first run hit the 1024-token limit on a 5-day case; now 4096) |
-| 22 Oct | Rahul + Claude | T-44 PR 1: evening message API, 6 pm job, consent + stop filter, parent token view, T0 approve step, tonight card; 21 new API tests + 1 Db test (send race, seeded consent), 13 Vitest tests. Db helper now signs in as the seeded teacher (FK on `ApprovedByTeacherId`) |
-| 22 Oct | Rahul + Claude | T2 part B: mic on Today (tap/tap, hold, 30 s, too short, cancel, blocked), voice note through the outbox (multipart, 3-second rule), `POST …/lessons/{date}/audio` → background worker → Sarvam → `NameScrubber` (Latin↔Kannada loose match) → A1 prompt v1 (structured output, enum IDs) → `A1Validator` (0.7 rule, verdicts on AiCall); T2 screen (processing, slow, confident checklist, low radios, unclear, offline, note card) + add mode; recording kept on the phone only; 10 draft eval cases, live run 10/10 |
-| 22 Oct | Rahul + Claude | T2 part A (no AI): curriculum chapters + `GET /api/curriculum`, `NextInBook`, `GET/PUT /api/classes/{id}/lessons/{date}` (one lesson per day, idempotent, picked = confirmed), ledger counts confirmed lessons only, unique `(ClassId, Date)`. Web: pick sheet (native modal dialog, Next in the book, Another chapter), Today done card + Change + "Added to missed lessons", lesson picks through the outbox. Fixed #81's lost follow-up in #83. CLAUDE.md: no new Playwright tests for now |
-| 21 Oct | Rahul + Claude | T1 Today, attendance slice (T-12 part A, D-69): `IAttendanceSource` + `SimulatedSatsSource` (repeatable per class/date, ~8% absent, Ravi Tue–Thu, no school on Sundays/2nd Saturdays/holidays), fetched when Today asks after 12:00 IST (D-45), provenance columns + `RegisterMerge` (her marking wins over late SATS), `GET attendance/{date}`, demo `POST /api/demo/sats-feed`. Web: Today screen, correct/mark grid, Dexie outbox + sync badge + offline snapshot, bottom nav with placeholder tabs. Mic disabled until T-07 PR 2. Db test caught IST offsets reaching Npgsql (now stored as UTC) |
-| 21 Oct | Rahul + Claude | Switched to building screen by screen. T-47: phone + PIN sign-in (no registration, D-40), 30-day cookie session with keys in Postgres, lockout after 5 wrong PINs, `/api/me` + first-run Welcome gated on `Teacher.ConsentAt`, attendance and ledger endpoints limited to the teacher's own class. Web: TanStack Query, login + Welcome screens, offline open from the cached teacher. Mentor call moved to next week |
-| 21 Oct | Rahul + Claude | Brought Monika's T-24 cards to `main` (#71 had merged into an already-merged branch). T-05 done: `grade3-maths.json` (16 competencies, every one with a textbook page), CI-validated |
-| 21 Oct | Monika + Claude | D-32: English is the default locale for development and design references; prototype opens in English. Screenshots kept as captured (Kannada/Telugu with English captions) |
-| 21 Oct | Monika + Claude | Closed the open design gaps (D-33–D-39): multi-lesson checklist confirm, mic blocked + sending, tag colours (tokens.md), no evening-message listens, Withdraw until 6 pm, Sent / Generation failed / offline states, parent opt-in on new T8 Families screen. Prototype checked against every spec §3.1 state (83 states, axe 0 violations); FR-03/08/15 and §3.1 updated; cards updated, T8 card added |
-| 22 Oct | Monika + Claude | Decisions D-41–D-54 (setup, phone/consent/language on Family details, voice consent version, 12:00 attendance sync, no "Tomorrow", no names in computer voice, Settings, greeting per language, T1 answers). Spec FR-01/09/15/20 + data model (`TeacherGreeting`, `Child` consent/phone/language) updated. Prototype + cards follow in the next design PR |
-| 22 Oct | Monika + Claude | Pre-empted screen-build questions: D-55–D-68 (one note a day, summaryEn in the same A1 call, bulk approve = tick, audio labels, buddy fallback, nudge threshold 5, empty week, reopened link → Done, reason = pictures only (A7 voice cut), no STOP in demo, Help page, phone required for Yes, attendance missing after 2 pm, blanket loading/offline/error/409 rule). Prototype + cards updated |
-| 22 Oct | Monika + Claude | D-70 MVP build scope: `docs/design/mvp-build-flow.md` (judging criteria → screens in build order → MVP bullets → global simplifications → roadmap list); banners on unbuilt cards. D-71 answers Rahul's open copy/data questions (two SATS lines, chapter titles, sign-in approved) |
-| 23 Oct | Monika + Claude | D-72: approved everything pending from #86 and #88 (eval drafts, low-confidence copy, te/ta drafts with a neutral Telugu suggestion, tonight / approve copy, not-approved card); build-flow status rows updated |
+| `a1-lesson-mapping` v2 | voice note / photo → competencies | 13/13 (30 Oct) |
+| `a2-compression` v2 | choose 1–2 lessons from the code's candidate set, reasons in English and Kannada | 10/10 |
+| `a3-script` v4 | 90-second home-language script | 14/14 first pass |
+| `a4-check` v3 | content check alongside 6 code checks, one retry | 8/8 (11/11 incl. Hindi) |
+| `a8-lesson-recap` v1 | evening lesson audio | 13/15 first pass |
+
+Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24 kbps, ~55 s / ~150 KB per catch-up). Numbers, candidate sets, buddies, scores and pacing are all computed in code.
+
+**Demo and ops:** `/demo` has two phones, Reset, the simulated SATS feed, **Send messages now**, and Under the hood with a "For" column (T-18, T-73). It has two stories: `judges` (prod) and `video` (staging), with a 6-step guide each (T-70, T-74). `Demo:Today` fixes the date (T-75, T-80). The demo class has a register every day (T-69). Admin pages for greetings and lesson audio sit behind `Admin:Key` (T-66–T-68). The app is one container on Azure App Service with Postgres and blob storage.
+
+**Docs and evidence:** the README covers both ways to test, logins, sample inputs and a "For judges" table (T-65, T-77, T-79). User testing so far: P1 and P2 (teachers), P4 and P5 (parents), findings F-01–F-09, two mentor sessions (19 Oct education, 24 Oct technical) in `docs/user-testing.md`. Decisions are D-01 … D-88 in `spec.md` §8.
+
+## Next
+
+1. **Release prod before the freeze:** check CI is green on `main`, check staging at 360 px in తెలుగు / தமிழ், tag `v1.0` on `main`, then run the 6 demo steps once on prod. Rahul decides when to tag.
+2. Merge #171 (README refresh and this file).
+3. After judging, change the server PINs.
+
+## Known gaps and drafts
+
+- Telugu, Tamil and Hindi text (UI, scripts, evening messages, lesson names) are **drafts for native review** (T-26). The Hindi audio hasn't been listened to on a phone.
+- Only Grade 3 maths is loaded (13 competencies plus 3 Grade 2 prerequisites). WhatsApp and SATS are simulated. Each server has one shared class.
+- Roadmap (D-70): a Families screen and consent editing (T8), per-language greetings, withdraw voice consent, real WhatsApp delivery, offline beyond attendance and voice notes.
+- Staging's fixed date: at midnight IST the clock goes back to 00:00 the same day; a Reset tidies it.
+
+## Recent changes
+
+- 1 Nov: README refresh for judges (same-app note, PIN on deck slide 14, second lesson sample); this file shortened, with history moved to `status-history.md` (#171).
+- 1 Nov: fixed demo date kept after a reload (T-80, #170); README "two ways to test" and logins (T-79, #169).
+- 1 Nov: Telugu and Tamil teacher strings (T-76, #166); video story guide and fixed staging date (T-74, T-75, #165).
+- 31 Oct: Under the hood "For" column (T-73), Savitha rename (T-72), Settings (T-71), video story (T-70), demo on any day (T-69).
