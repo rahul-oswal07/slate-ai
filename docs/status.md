@@ -3,6 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## README "How to test" and mentor docs (1 Nov, T-77 #163, T-78 #164), branch `docs/T-77-how-to-test-mentor-docs`
+
+- README: new **How to test** section before "For judges": quickest path, roles (teacher via `/demo`, no PIN needed; the `/login` PIN stays unpublished; family links; admin not on prod), 5 sample inputs (Kannada voice note from the `add-carry` eval case, the two synthetic textbook photos, Ravi's Telugu catch-up with Simpler/Shorter, Rohan's Hindi family, the language switch), and the limits (Grade 3 maths only, WhatsApp and SATS simulated, one shared demo class, te/ta/hi drafts).
+- Mentor docs: `mentor-feedback-2026-10-24.md` is now the **technical** mentor session (and says the mentor liked the technical design and asked for no changes to it); `mentor-technical-2026-10-21.md` is marked as the prep sheet for that call. Fixed the mentions in `status.md`, `T-63-attendance-stars.md` and `judging-narrative.md`. "Education mentor" now only refers to 19 Oct.
+
 ## Telugu and Tamil teacher app (1 Nov, T-76, #162), branch `feat/T-76-te-ta-teacher-strings`
 
 - `te.json` and `ta.json`: the 276 / 277 strings that were still English are now in Telugu and Tamil (Approve, Missed lessons, Back today, Week, the demo page and both guides, Under the hood, a few announcements). Terms follow the existing strings (ఆమోదం / ஒப்புதல், బడ్డీ కార్డ్ / நண்பர் அட்டை, SATS as is); children's names in each script, like Hindi. App name transliterated (తప్పిద పాఠ, தப்பித பாட).
@@ -198,7 +203,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 - **Building screen by screen from Day 3** (order in `plan.md` §3). First slice: **T-47** teacher sign-in (phone once, then PIN) + first-run Welcome, class endpoints locked to the signed-in teacher's class (D-40), branch `feat/T-47-pin-login`.
 - Testing approach changed (#58): default tests use fakes and need no Docker; DB access sits behind per-feature stores (`IAttendanceStore`, `ILedgerStore`). A small Postgres suite (`Category=Db`) runs in CI (#59). See CLAUDE.md "Testing expectations".
 - Education mentor call held 19 Oct: notes and proposed decisions D-20–D-25 in `docs/mentor-feedback-2026-10-19.md` (#55, #56).
-- Second education mentor call held 24 Oct (MVP demo): notes and action items in `docs/mentor-feedback-2026-10-24.md` (Rahul: shared catch-up example, longer and simpler summaries, shorter/longer recording option; Monika: attendance stars, production token costs, share with the mentor). No decisions yet.
+- Technical mentor call held 24 Oct (MVP demo): notes and action items in `docs/mentor-feedback-2026-10-24.md` (Rahul: shared catch-up example, longer and simpler summaries, shorter/longer recording option; Monika: attendance stars, production token costs, share with the mentor). No decisions yet.
 - Monika's PRs #49–#53 merged.
 - Submission target: **Sat 31 Oct, 18:00 IST** (hard deadline 1 Nov, 23:59).
 
@@ -404,7 +409,7 @@ Update it at the end of every working session (what changed, what's next, blocke
 | 20 Oct | Monika + Claude | H2 design handoff: `docs/design/journey.md` + cards T0, T1, T2, T4 (states, kn/en copy, tokens, acceptance checklists traced to UX-review finding IDs), 360 px screenshots, clickable prototype and UX review in `docs/design/`. Spec follow-ups for Rahul listed in journey.md |
 | 20 Oct | Monika + Claude | H3 design handoff: cards T3 approve, T5 back today, T6 week, P0 messages and reason, P1–P4 parent steps, with screenshots |
 | 21 Oct | Rahul + Claude | T-07 PR 1: `Ai/` (`ILlmClient`, `ClaudeLlmClient` on the Anthropic SDK with structured outputs + cached system prompt, `LoggedLlmClient`, `PromptLibrary`, `FakeLlmClient`), `Speech/` (Sarvam `saaras:v4` STT, logged), `AiCalls` table + migration, 32 tests over stub HTTP. Found and fixed: stop reason must be read with `Raw()` |
-| 21 Oct | Rahul + Claude | Technical mentor brief: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
+| 21 Oct | Rahul + Claude | Technical mentor brief for the 24 Oct call: pre-read, 40-min agenda, 9 prioritised questions, notes template (`docs/mentor-technical-2026-10-21.md`) |
 | 23 Oct | Rahul + Claude | T-46: T6 Week (return speed this/last week reconciling, reasons, pacing nudge with code template, recap decision + Today reminder); spell rule decided: week it started in |
 | 23 Oct | Rahul + Claude | T-16: T5 Back today buddy cards (buddy by attendance, D-59 fallback, 3 sums by code, words, page), ticks + Undo, print view; `BuddyCards` ticks table |
 | 23 Oct | Rahul + Claude | T-13: T4 Missed lessons (by child / by lesson, child history, delete child data), ledger learning status split from channel, delete endpoint + seed-once; tests caught the delete dialog unmounting before its onSuccess |
