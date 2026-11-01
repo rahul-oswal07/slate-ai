@@ -5,12 +5,12 @@ Keep it short: at the end of a session, update **Where things stand** and **Next
 
 ## Where things stand (1 Nov 2026)
 
-- **Submitted** for the build stage on 31 Oct. Code freeze: **Sun 1 Nov, 23:59 IST**. Every task in `tasks.md` (T-01 … T-80) and every GitHub issue is closed.
+- **Submitted** for the build stage on 31 Oct. Code freeze: **Sun 1 Nov, 23:59 IST**. Every task in `tasks.md` (T-01 … T-80, T-82, T-83) and every GitHub issue is closed.
 - **Repo:** https://github.com/rahul-oswal07/slate-ai (public, MIT). Merges to `main` deploy to staging; `v*` tags deploy to prod.
 - **Staging** (https://slateai-staging.azurewebsites.net, the judges' guided demo at `/demo`): on `main`. Settings `Demo__Story=video`, `Demo__Today=2026-10-31`, `Demo__TeacherPin`, `Demo__CoTeacherPin`, `Admin__Key`.
-- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.0`** (tagged 1 Nov from `main` at #171). Judges' story, real date, no `Admin__Key`.
+- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.1`** (tagged 1 Nov from `main` at #174: T-82, T-83; `v1.0` was #171). Judges' story, real date, no `Admin__Key`.
 - **Logins:** Shobha `9000000000` (class teacher), Savitha `9123456789` and Monika `9123456788` (co-teachers), same class, on both servers. All use one PIN, which is on slide 14 of the submitted deck and not in the README. It equals the co-teacher PIN in `appsettings.Development.json`, so change the server PINs after judging (clear the stored `PinHash`; the seeder never overwrites one).
-- **Tests:** `verify.sh` OK, 605 API and 347 web tests. The Db suite runs in CI. 12 existing e2e specs, no new ones (22 Oct rule).
+- **Tests:** `verify.sh` OK, 608 API and 349 web tests. The Db suite runs in CI. 12 existing e2e specs, no new ones (22 Oct rule).
 
 ## What has been built
 
@@ -43,13 +43,13 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Next
 
-1. Run the 6 demo steps once on prod (`v1.0` is deployed; the run hasn't been done yet).
+1. Run the 6 demo steps once on prod (`v1.1` is deployed; the run hasn't been done yet).
 2. After judging, change the server PINs.
-3. Fix the Tamil layout gap below, if wanted (left out of `v1.0` on purpose).
+3. Fix the Tamil layout gap below, if wanted (left out of `v1.0` and `v1.1` on purpose).
 
 ## Known gaps and drafts
 
-- **Tamil layout at 360 px (found 1 Nov, not fixed in `v1.0`):** the teacher bottom-nav label "திரும்பியவர்கள்" (~100 px in a 64 px slot) runs into the Week tab, because `BottomNav.tsx` uses `[word-break:keep-all]`; and on `/demo` the "Under the hood" tab (திரைக்குப் பின்னால்) makes the page 32 px wide, because the tabs in `DemoScreen.tsx` have no `min-w-0`. Likely fix: `min-w-0` plus `[overflow-wrap:anywhere]` on both. Telugu, Kannada, Hindi and English fit.
+- **Tamil layout at 360 px (found 1 Nov, not fixed in `v1.0` or `v1.1`):** the teacher bottom-nav label "திரும்பியவர்கள்" (~100 px in a 64 px slot) runs into the Week tab, because `BottomNav.tsx` uses `[word-break:keep-all]`; and on `/demo` the "Under the hood" tab (திரைக்குப் பின்னால்) makes the page 32 px wide, because the tabs in `DemoScreen.tsx` have no `min-w-0`. Likely fix: `min-w-0` plus `[overflow-wrap:anywhere]` on both. Telugu, Kannada, Hindi and English fit.
 - Telugu, Tamil and Hindi text (UI, scripts, evening messages, lesson names) are **drafts for native review** (T-26). The Hindi audio hasn't been listened to on a phone.
 - Only Grade 3 maths is loaded (13 competencies plus 3 Grade 2 prerequisites). WhatsApp and SATS are simulated. Each server has one shared class.
 - Roadmap (D-70): a Families screen and consent editing (T8), per-language greetings, withdraw voice consent, real WhatsApp delivery, offline beyond attendance and voice notes.
@@ -57,6 +57,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Recent changes
 
+- 1 Nov: prod released as `v1.1` (T-82 evening send waits for lesson audio, T-83 video story Reset text).
 - 1 Nov: the video story's Reset dialog showed the raw key `demo.reset.bodyVideo`; text added in all locales, plus a test for keys missing from the locale files (T-83).
 - 1 Nov: the 6 pm job waits (until 9 pm) for a ticked lesson clip she hasn't approved, so Approve clip no longer hits 409 after a send (T-82).
 - 1 Nov: prod released as `v1.0`; staging checked at 360 px in Telugu and Tamil (Tamil layout gap logged above).
