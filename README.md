@@ -92,7 +92,7 @@ The PINs are on **slide 14 of the submitted deck**, not in this public repo. All
 
 ### Limits you will see
 
-- Only Grade 3 maths is loaded: 13 Grade 3 competencies plus the 3 Grade 2 ones they build on.
+- Only Grade 3 maths is loaded: the whole textbook, Parts 1 and 2, as 60 lessons in 12 chapters.
 - WhatsApp and the SATS attendance feed are simulated: messages appear on the demo's family phone, and the demo's **Bring in today's attendance** plays the SATS feed.
 - Each server has one class for everyone. If someone else uses it at the same time you may see their changes; on the guided demo, **Reset demo** starts again.
 - The AI calls are real, so catch-ups take a moment to write. Voice notes are in Kannada, the teacher's language.

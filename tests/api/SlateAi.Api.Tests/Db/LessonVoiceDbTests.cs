@@ -18,7 +18,7 @@ public sealed class LessonVoiceDbTests(PostgresFixture postgres)
         await using var api = await DemoClassApi.StartAsync(postgres);
         // 100 ns precision, as Linux clocks give (macOS clocks happen to stop at microseconds).
         var startedAt = new DateTimeOffset(2026, 10, 14, 6, 0, 0, TimeSpan.Zero).AddTicks(1_234_567);
-        var result = new A1Result("mapped", ["M3.SUB.NOBORROW", "M3.SUB.CHECK"], "ಕಳೆಯುವಿಕೆ", "Subtraction", ["865 - 432"], 0.86, "valid");
+        var result = new A1Result("mapped", ["M3.SUB.NOBORROW", "M3.SUB.MAKE"], "ಕಳೆಯುವಿಕೆ", "Subtraction", ["865 - 432"], 0.86, "valid");
 
         await api.ScopedAsync<ILessonStore>(async store =>
         {
@@ -28,7 +28,7 @@ public sealed class LessonVoiceDbTests(PostgresFixture postgres)
 
         var day = await api.ScopedAsync<ILessonStore, LessonRecord?>(store => store.GetDayAsync(api.ClassId, Day, DemoClassApi.Ct));
         Assert.Equal("mapped", day!.Status);
-        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.CHECK"], day.CompetencyIds);
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE"], day.CompetencyIds);
         Assert.Equal(["865 - 432"], day.ExamplesUsed);
         Assert.Equal("Subtraction", day.SummaryEn);
     }

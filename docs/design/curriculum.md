@@ -1,82 +1,131 @@
-# T-22 Competency list: Grade 3 maths, place value → carrying → borrowing
+# Competency list: Grade 3 maths, the whole textbook (T-81)
 
-Spec: D-01, D-14, D-22, FR-03, FR-06, FR-07 · Feeds: T-05 (`data/curriculum/grade3-maths.json`) · Owner: Monika (names, pages) · Reviewer: Rahul (graph has no cycles)
+Spec: D-01, D-14, D-22, D-89, FR-03, FR-06, FR-07 · Data: `data/curriculum/grade3-maths.json` · Names and pages: extracted by Rahul (Claude) on 1 Nov from the textbook PDFs; † names and key words to confirm with a teacher (D-14)
 
 ## Source
 
-Karnataka state textbook **ಮೂರನೇ ತರಗತಿ ಗಣಿತ (Nali-Kali, Kannada medium), 2026–27**, Part 1 and Part 2 (KTBS). The PDFs are not in the repo (they are marked "not to be republished" and the repo is public). Page numbers below are **printed** page numbers, which is what a child sees.
+Karnataka state Grade 3 maths textbook, **Kannada medium, KTBS, Part 1 and Part 2**. The PDFs are named "2026-27". Rahul chose this book on 1 Nov (D-89). It replaces the list built on 20 Oct (T-22) from a different edition, which had a Grade 2 bridge course, place value to 9999 and subtraction in Part 2.
 
-| Book | Chapter | Printed pages | Taught (book's own plan, Part 1 p 92) |
-|---|---|---|---|
-| Part 1 | ಸೇತುಬಂಧ (bridge course: Grade 2 revision) | 1–25 | June–July |
-| Part 1 | 2. ಎಣಿಸೋಣ – ಕುಣಿಯೋಣ (place value to 9999) | 40–60 | August |
-| Part 1 | 3. ಸಂಖ್ಯೆಗಳೊಂದಿಗೆ ಆಟ (compare, order, count on/back) | 61–74 | August–September |
-| Part 1 | 4. ಕೂಡಿ ನಲಿಯೋಣ (3-digit addition, sum ≤ 999) | 75–92 | September |
-| Part 2 | 5. ಕಳೆಯುವ ಮೋಜು (3-digit subtraction) | 1–19 | after Part 1 (≈ October) |
+The PDFs are not in the repo: they are marked "not to be republished", and the repo is public. Pages below are **printed** page numbers, which is what a child sees (PDF page − 10 in Part 1, − 2 in Part 2).
 
-Chapter 1 (shapes) is out of scope.
+**Edition note:** the PDFs' own pages carry dates from 2013–2016: a 2016 calendar (Part 2 p 92), bills dated 2016 that charge VAT (p 64–66), and an attendance sheet dated 2013 (p 110). They may be a reprint of an older edition. Check against a child's book before relying on page numbers in a real class.
 
-## What changed from D-01
+| Book | Chapter | Printed pages |
+|---|---|---|
+| Part 1 | 1. ಆಕೃತಿಗಳು (shapes) | 1–17 |
+| Part 1 | 2. ಸಂಖ್ಯೆಗಳು (numbers to 999) | 18–66 |
+| Part 1 | 3. ಸಂಕಲನ (addition) | 67–95 |
+| Part 1 | 4. ವ್ಯವಕಲನ (subtraction) | 96–123 |
+| Part 1 | 5. ಗುಣಾಕಾರ (multiplication) | 124–150 |
+| Part 2 | 6. ಭಾಗಾಕಾರ (division) | 1–12 |
+| Part 2 | 7. ಮಾನಸಿಕ ಲೆಕ್ಕಾಚಾರ (mental maths) | 13–25 |
+| Part 2 | 8. ಭಿನ್ನರಾಶಿ ಸಂಖ್ಯೆಗಳು (fractions) | 26–44 |
+| Part 2 | 9. ಹಣ (money) | 45–67 |
+| Part 2 | 10. ಅಳತೆಗಳು (length, weight, capacity, time) | 68–104 |
+| Part 2 | 11. ದತ್ತಾಂಶ ನಿರ್ವಹಣೆ (data handling) | 105–114 |
+| Part 2 | 12. ನಮೂನೆಗಳು (patterns) | 115–142 |
 
-D-01 assumed 2-digit numbers (tens and ones). **The Grade 3 book teaches addition and subtraction with 3-digit numbers only.** 2-digit sums appear only as revision in the bridge course, and carrying and borrowing are never taught there. So the main chain follows the book (Ch 2 → 4 → 5), and the 2-digit skills become Grade 2 prerequisite nodes (`M2.*`). Decided by Monika on 20 Oct. This is also what teachers in user testing will be teaching after the Dasara break.
+## Competencies (60)
 
-## Competencies (16)
+Kannada names are the book's section headings. † = my wording, where the book has no single heading for the lesson or two were joined. Each lesson in the JSON also has Telugu, Tamil and Hindi names: drafts for native review (T-26), except the 9 kept unchanged from the old list. **Practice** says how code makes the lesson's sums. A lesson marked "new" has no rule yet, so it gets **no catch-up** (FR-06, T-81): it still shows in the lesson picker, the ledger and the evening message.
 
-Kannada names are the book's words where it has a heading for the skill. † = proposed wording not printed in the book; Monika to confirm with a teacher (D-14).
+Ten IDs kept from the old list mean the same lesson here: `M3.PV.HTO`, `M3.PV.EXPAND`, `M3.NUM.COMPARE` (now biggest and smallest), `M3.NUM.ORDER`, `M3.ADD.NOCARRY`, `M3.ADD.CARRY`, `M3.ADD.WORD`, `M3.SUB.NOBORROW`, `M3.SUB.BORROW`, `M3.SUB.WORD`. Removed: `M2.PV.TENS`, `M2.ADD.2D`, `M2.SUB.2D` (no bridge course), `M3.PV.4D` (numbers stop at 999), `M3.PV.FACE` and `M3.SUB.CHECK` (no section for them).
 
-| Seq | ID | Kannada name | English name | Prerequisites | Homework page (D-22) | Textbook examples |
+| Ch | ID | Kannada | English | Part · page | Ex | Practice |
 |---|---|---|---|---|---|---|
-| 1 | `M2.PV.TENS` | ಹತ್ತು ಮತ್ತು ಬಿಡಿ (ಸ್ಥಾನ ಬೆಲೆ) | Place value: tens and ones | — | Part 1 p 6 | Ten-rods and unit cubes → groups of ten and ones, e.g. 1 rod + 3 cubes = 13 |
-| 2 | `M2.ADD.2D` | ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ † | 2-digit addition | `M2.PV.TENS` | Part 1 p 10 | 25 + 13 coconuts; 12 + 18 |
-| 3 | `M2.SUB.2D` | ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ವ್ಯವಕಲನ † | 2-digit subtraction | `M2.PV.TENS` | Part 1 p 13 | 66 + 23 cricket balls, 34 sold: 89 − 34 |
-| 4 | `M3.PV.HTO` | ನೂರು, ಹತ್ತು, ಬಿಡಿ | Hundreds, tens and ones (to 999) | `M2.PV.TENS` | Part 1 p 42 | 1 hundred + 2 tens + 1 one = 121; 2 hundreds + 1 ten + 3 ones |
-| 5 | `M3.PV.EXPAND` | ಸಂಖ್ಯೆಗಳನ್ನು ಬಿಡಿಸಿ ಬರೆಯೋಣ | Expanded form | `M3.PV.HTO` | Part 1 p 45 | 385 = 300 + 80 + 5; 427; 280 |
-| 6 | `M3.PV.FACE` | ಸ್ಥಾನಬೆಲೆ ಮತ್ತು ಮುಖಬೆಲೆ | Place value and face value | `M3.PV.HTO` | Part 1 p 49 | 89: face value 8, place value 80; the 0 in 509 |
-| 7 | `M3.PV.4D` | 9999 ರವರೆಗಿನ ಸಂಖ್ಯೆಗಳು (ಸಾವಿರ) † | Numbers to 9999 (thousands) | `M3.PV.EXPAND` | Part 1 p 55 | 3475 = 3000 + 400 + 70 + 5; 2009 in words |
-| 8 | `M3.NUM.COMPARE` | ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ | Compare 3-digit numbers (>, <, =) | `M3.PV.HTO` | Part 1 p 65 | 737 □ 738; 605 □ 650 |
-| 9 | `M3.NUM.ORDER` | ಏರಿಕೆ ಕ್ರಮ – ಇಳಿಕೆ ಕ್ರಮ | Ascending and descending order | `M3.NUM.COMPARE` | Part 1 p 68 (ascending), p 69 (descending) | 303 508 609 401; 248 844 768 646 |
-| 10 | `M3.ADD.NOCARRY` | ದಶಕ ರಹಿತ ಸಂಕಲನ † | 3-digit addition without carrying | `M3.PV.HTO`, `M2.ADD.2D` | Part 1 p 80 (or p 78 tables) | 718 + 221; 452 + 224 |
-| 11 | `M3.ADD.CARRY` | ದಶಕ ಸಹಿತ ಸಂಕಲನ † | 3-digit addition with carrying | `M3.ADD.NOCARRY`, `M3.PV.EXPAND` | Part 1 p 85 (or p 83 tables) | 317 + 536; 247 + 365 |
-| 12 | `M3.ADD.WORD` | ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ಸಂಕಲನ) | Addition word problems | `M3.ADD.CARRY` | Part 1 p 88 | 324 boys and 258 girls: how many children?; 230 + 565 guests |
-| 13 | `M3.SUB.NOBORROW` | ದಶಕ ರಹಿತ ವ್ಯವಕಲನ † | 3-digit subtraction without borrowing | `M3.PV.HTO`, `M2.SUB.2D` | Part 2 p 6 | 532 − 401; 448 − 335 |
-| 14 | `M3.SUB.CHECK` | ತಾಳೆ ನೋಡುವುದು (ಕೂಡಿಸುವುದು ಮತ್ತು ಕಳೆಯುವುದರ ಸಹಸಂಬಂಧ) | Check subtraction by adding | `M3.SUB.NOBORROW`, `M3.ADD.NOCARRY` | Part 2 p 4–5 | 626 − 615 = 011; check 011 + 615 = 626 |
-| 15 | `M3.SUB.BORROW` | ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ | 3-digit subtraction with borrowing | `M3.SUB.NOBORROW`, `M3.PV.EXPAND` | Part 2 p 15 | 438 − 229; 452 − 358 (borrows twice) |
-| 16 | `M3.SUB.WORD` | ಹೇಳಿಕೆ ರೂಪದ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ) | Subtraction word problems | `M3.SUB.BORROW` | Part 2 p 18 | Book of 257 pages, 152 read: how many left?; 875 − 673 stamps |
+| 1 | M3.GEO.2D | ಎರಡು ಆಯಾಮಗಳುಳ್ಳ ಆಕೃತಿಗಳು | 2-D shapes: sides, corners, diagonals | 1 · 3 | 1.1 | new: shape |
+| 1 | M3.GEO.3D | ಮೂರು ಆಯಾಮಗಳುಳ್ಳ ಆಕೃತಿಗಳು | 3-D shapes: solid and hollow cylinders | 1 · 5 | 1.1 | new: shape |
+| 1 | M3.GEO.TILES | ಹಾಸುಗಲ್ಲುಗಳು | Tiles that fit and do not fit | 1 · 9 | 1.2 | new: shape |
+| 1 | M3.GEO.MAP | ನಕಾಶೆ ಜ್ಞಾನ | Reading a simple map | 1 · 12 | 1.3 | new: map |
+| 1 | M3.GEO.DRAW | ಚುಕ್ಕಿ ಆಕೃತಿ ಮತ್ತು ಟ್ಯಾನ್‌ಗ್ರಾಮ್ † | Dot grids, straight and curved lines, tangram | 1 · 14 | 1.4 | new: shape |
+| 2 | M3.NUM.COUNT999 | ಎಣಿಸೋಣ ಬಾ (0–999) | Counting to 999 | 1 · 18 | 2.1 | count, 3 digits |
+| 2 | M3.NUM.NAMES | ಸಂಖ್ಯೆಗಳ ಹೆಸರು † | Number names to 999 | 1 · 28 | 2.1 | new: numberName |
+| 2 | M3.PV.HTO | ಸ್ಥಾನಬೆಲೆ: ನೂರು, ಹತ್ತು, ಬಿಡಿ † | Hundreds, tens and ones | 1 · 35 | 2.2 | count, 3 digits |
+| 2 | M3.PV.EXPAND | ವಿಸ್ತರಣಾ ರೂಪ | Expanded form | 1 · 42 | 2.2 | expanded, 3 digits |
+| 2 | M3.NUM.SEQUENCE | ಜಿಗಿಯುತ್ತಾ ಕಲಿ | Before, after, between, skip counting | 1 · 47 | 2.3 | new: sequence |
+| 2 | M3.NUM.COMPARE | ಅತಿ ದೊಡ್ಡ ಸಂಖ್ಯೆ | Biggest and smallest | 1 · 52 | 2.4 | biggest, 3 digits |
+| 2 | M3.NUM.ORDER | ಏರಿಕೆ – ಇಳಿಕೆ | Ascending and descending order | 1 · 57 | 2.4 | smallest, 3 digits |
+| 2 | M3.NUM.FORM | ಸಂಖ್ಯಾ ರಚನೆ | Biggest and smallest number from 3 digits | 1 · 61 | 2.5 | new: formNumber |
+| 2 | M3.NUM.LINE | ಸಂಖ್ಯಾರೇಖೆ | Number line | 1 · 64 | 2.6 | new: numberLine |
+| 3 | M3.ADD.QUICK | ಸುಲಭವಾಗಿ ಕೂಡುವುದು | Adding 2-digit numbers by tens and ones | 1 · 67 | – | add, 2 digits, no carry |
+| 3 | M3.ADD.WORD | ಕಥಾ ಸಮಸ್ಯೆಗಳು (ಸಂಕಲನ) † | Addition word problems | 1 · 71 | 3.1 | add, 3 digits, any carry |
+| 3 | M3.ADD.NOCARRY | ದಶಕ ರಹಿತ ಸಂಕಲನ | 3-digit addition without carrying | 1 · 77 | 3.2 | add, 3 digits, no carry |
+| 3 | M3.ADD.CARRY | ದಶಕ ಸಹಿತ ಸಂಕಲನ | 3-digit addition with carrying | 1 · 80 | 3.2 | add, 3 digits, any carry |
+| 3 | M3.ADD.MAKE | ಸಮಸ್ಯಾ ರಚನೆ (ಸಂಕಲನ) | Making sums for a given total | 1 · 89 | 3.2 | new: makeSum |
+| 3 | M3.ADD.ESTIMATE | ಅಂದಾಜು ಮೊತ್ತ | Rounding to the nearest ten, estimating a sum | 1 · 91 | 3.3 | new: round |
+| 4 | M3.SUB.WORD | ಕಥಾ ಸಮಸ್ಯೆಗಳು (ವ್ಯವಕಲನ) † | Subtraction word problems | 1 · 96 | 4.1 | sub, 3 digits, borrow tens |
+| 4 | M3.SUB.NOBORROW | ದಶಕ ರಹಿತ ವ್ಯವಕಲನ | 3-digit subtraction without borrowing | 1 · 104 | 4.2 | sub, 3 digits, no borrow |
+| 4 | M3.SUB.BORROW | ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ | 3-digit subtraction with borrowing | 1 · 108 | 4.2 | sub, 3 digits, borrow tens |
+| 4 | M3.SUB.MAKE | ಸಮಸ್ಯಾ ರಚನೆ (ವ್ಯವಕಲನ) | Making sums for a given difference | 1 · 117 | 4.3 | new: makeSum |
+| 4 | M3.SUB.ESTIMATE | ಅಂದಾಜು ವ್ಯತ್ಯಾಸ | Estimating a difference | 1 · 121 | 4.4 | new: round |
+| 5 | M3.MUL.REPEAT | ಪುನರಾವರ್ತಿತ ಸಂಕಲನ | Multiplication as repeated addition | 1 · 124 | 5.1 | new: mul |
+| 5 | M3.MUL.SIGN | ಗುಣಾಕಾರದ ಚಿಹ್ನೆ | The × sign; multiplicand, multiplier, product | 1 · 128 | 5.2 | new: mul |
+| 5 | M3.MUL.TABLES | ಗುಣಾಕಾರ ಕೋಷ್ಟಕ | Tables 1 to 10 | 1 · 131 | 5.3 | new: mul |
+| 5 | M3.MUL.DAILY | ನಿತ್ಯ ಜೀವನದಲ್ಲಿ ಗುಣಾಕಾರ | Multiplication word problems | 1 · 137 | 5.4 | new: mul |
+| 5 | M3.MUL.2D1D | ಎರಡಂಕಿ ಸಂಖ್ಯೆಗಳ ಗುಣಲಬ್ಧ | 2-digit × 1-digit, no carrying | 1 · 141 | 5.5 | new: mul |
+| 5 | M3.MUL.2D1D.CARRY | ದಶಕ ಸಹಿತವಾಗಿ ಗುಣಿಸುವುದು | 2-digit × 1-digit with carrying | 1 · 144 | 5.6 | new: mul |
+| 5 | M3.MUL.2D2D | ಎರಡಂಕಿ × ಎರಡಂಕಿ ಗುಣಾಕಾರ † | 2-digit × 2-digit | 1 · 147 | 5.7 | new: mul |
+| 6 | M3.DIV.SHARE | ಸಮನಾಗಿ ಹಂಚುವುದು ಮತ್ತು ಗುಂಪು ಮಾಡುವುದು | Sharing equally, making groups | 2 · 1 | 6.1 | new: div |
+| 6 | M3.DIV.MULREL | ಭಾಗಾಕಾರ ಮತ್ತು ಗುಣಾಕಾರಗಳ ಸಂಬಂಧ | Division and multiplication are linked | 2 · 5 | 6.2 | new: div |
+| 6 | M3.DIV.TABLES | ಮಗ್ಗಿ ಬಳಸಿ ಭಾಗಿಸು | Dividing with the tables | 2 · 8 | 6.3 | new: div |
+| 7 | M3.MENT.ADDSUB | ಮನಸ್ಸಿನಲ್ಲಿ ಲೆಕ್ಕ ಮಾಡು | Adding and subtracting in your head | 2 · 13 | 7.1 | add, 2 digits, any carry |
+| 7 | M3.MENT.DOUBLE | ಎರಡು ಪಟ್ಟು | Doubling (to 100) | 2 · 21 | 7.2 | new: double |
+| 8 | M3.FRAC.HALF | ಅರ್ಧ | Half | 2 · 26 | – | new: fraction |
+| 8 | M3.FRAC.QUARTER | ಕಾಲು ಮತ್ತು ಮುಕ್ಕಾಲು † | Quarter and three quarters | 2 · 30 | 8.1 | new: fraction |
+| 8 | M3.FRAC.SYMBOL | ಅರ್ಧ, ಕಾಲು, ಮುಕ್ಕಾಲು – ಸಾಂಖ್ಯಿಕ ರೂಪ | Writing ½, ¼, ¾ | 2 · 39 | 8.2 | new: fraction |
+| 9 | M3.MONEY.COINS | ರೂಪಾಯಿಯನ್ನು ಪೈಸೆಗೆ ಪರಿವರ್ತಿಸುವುದು | Coins and notes; ₹1 = 100 paise | 2 · 45 | 9.1 | new: money |
+| 9 | M3.MONEY.WRITE | ಹಣವನ್ನು ಬರೆಯುವುದು † | Writing money in words and numbers | 2 · 50 | 9.2 | new: money |
+| 9 | M3.MONEY.CONVERT | ರೂಪಾಯಿಗಳನ್ನು ಪೈಸೆಗಳಿಗೆ ಪರಿವರ್ತಿಸುವುದು | Rupees to paise | 2 · 52 | 9.3 | new: money |
+| 9 | M3.MONEY.ADDSUB | ಹಣದ ಸಂಕಲನ ಮತ್ತು ವ್ಯವಕಲನ | Adding and subtracting money | 2 · 55 | 9.4 | new: money |
+| 9 | M3.MONEY.BILL | ದರ ಪಟ್ಟಿ ಮತ್ತು ಸರಳ ರಶೀದಿ † | Price lists and simple bills | 2 · 62 | 9.5 | new: money |
+| 10 | M3.MEAS.CM | ಅಳತೆ ಪಟ್ಟಿ: ಸೆಂಟಿಮೀಟರ್ † | Length in centimetres | 2 · 68 | 10.1 | new: measure |
+| 10 | M3.MEAS.METRE | ಮೀಟರ್ ಅಳತೆ ಪಟ್ಟಿ | 1 m = 100 cm | 2 · 74 | 10.2 | new: measure |
+| 10 | M3.MEAS.ESTIMATE | ಅಂದಾಜು ಅಳತೆ † | Estimating length | 2 · 78 | 10.3 | new: measure |
+| 10 | M3.MEAS.WEIGHT | ತೂಕ | Weight and the balance | 2 · 80 | 10.4 | new: measure |
+| 10 | M3.MEAS.CAPACITY | ಗಾತ್ರ | Capacity | 2 · 86 | 10.5 | new: measure |
+| 10 | M3.TIME.CALENDAR | ಕಾಲ: ಕ್ಯಾಲೆಂಡರ್ † | Calendar: days, months, dates | 2 · 91 | – | new: time |
+| 10 | M3.TIME.CLOCK | ಸಮಯ ಸೂಚಕ | Reading the clock (hours) | 2 · 97 | – | new: time |
+| 10 | M3.TIME.ORDER | ಕಾಲಾನುಕ್ರಮ † | The day's events in order | 2 · 101 | – | new: time |
+| 11 | M3.DATA.TALLY | ಗೀಟುಗಳಿಂದ ದತ್ತಾಂಶ † | Tally marks | 2 · 105 | 11.1 | new: data |
+| 11 | M3.DATA.PICTO | ಚಿತ್ರಾಲೇಖ | Pictographs | 2 · 110 | 11.1 | new: data |
+| 12 | M3.PAT.SYMMETRY | ಸರಳ ಸಮಮಿತಿ ಆಕೃತಿ | Symmetry | 2 · 116 | 12.1 | new: pattern |
+| 12 | M3.PAT.SHAPE | ಜ್ಯಾಮಿತಿ ಮತ್ತು ಚಿತ್ರ ನಮೂನೆಗಳು † | Shape, colour and size patterns | 2 · 121 | 12.4 | new: pattern |
+| 12 | M3.PAT.NUMBER | ಸಂಖ್ಯಾ ನಮೂನೆಗಳು (ಸಮ ಮತ್ತು ಬೆಸ) † | Number patterns, odd and even | 2 · 125 | 12.2 | new: sequence |
+| 12 | M3.PAT.SPLIT | ಸಂಖ್ಯಾ ವಿಭಜನೆ | Splitting a number in different ways | 2 · 130 | 12.3 | new: makeSum |
+| 12 | M3.PAT.TABLES | ಗುಣಾಕಾರ ಕೋಷ್ಟಕದಲ್ಲಿರುವ ಸಂಖ್ಯಾ ನಮೂನೆಗಳು | Patterns in the tables | 2 · 140 | 12.5 | new: sequence |
 
-The graph has no cycles. Several nodes are reachable by more than one path (e.g. `M3.ADD.CARRY` reaches `M3.PV.HTO` through both `M3.ADD.NOCARRY` and `M3.PV.EXPAND`), which T-05 needs for its multi-path tests. `M3.PV.4D` is a leaf: nothing in the chain needs numbers above 999.
+## Practice kinds still to build
 
-## NIPUN codes
+- **Fits today (13 lessons):** counting, place value, expanded form, comparing and ordering, addition, subtraction, mental addition.
+- **Number kinds code could make (22 lessons):** `mul` (7), `div` (3), `sequence` (3), `makeSum` (3), `round` (2), `double`, `formNumber`, `numberLine`, `numberName`. Start with `mul` and `div`: chapters 5–6 are a big part of the year.
+- **Need pictures, not just numbers (25 lessons):** shapes, maps, fractions, money, measurement, time, data, patterns. The 3-picture check can't be scored from a number for these; they need a picture set per lesson (`data/pictures/`) or a different check.
 
-**Open.** The textbook prints no NIPUN or competency codes. Its only outcomes are the Kannada learning-outcome table on Part 1 p 92 (one per chapter, e.g. Ch 4: "ಮೊತ್ತವು 999 ಮೀರದಂತೆ … ಸಂಕಲನ ಮಾಡುವರು": "add, with the sum not exceeding 999, and apply it to everyday problems"). The `NipunOutcome` field needs a separate source (NIPUN Bharat Grade 3 numeracy goals). Until then T-05 can leave it empty; nothing in the MVP reads it.
+## Notes for generated sums
 
-## Rules for homework pages
-
-- **Don't use Part 2 pp 7–8 as "no borrowing" homework.** Some sums there need borrowing (342 − 287, 780 − 712) before borrowing is taught on p 10.
-- **Don't use Part 1 p 81** for no-carry homework: 815 + 424 = 1239 goes past 999.
-- **Avoid Part 1 p 89 Q "which two total 250?"**: no pair in its table adds to 250.
-- **Avoid Part 1 pp 5, 7 and 73**: they need vehicle plates, shop prices or a family Aadhaar number. A 5-minute task must work with only the book, and Aadhaar digits are personal data.
-- **Borrowing across zero** (e.g. 302 − 157) is never taught. Generated sums for `M3.SUB.BORROW` must not need it.
-- **Carrying is not staged.** The book's first carry example (365 + 248) carries twice. Generated sums can start with a single carry in the ones place, then move to double carries.
-- Generated sums stay ≤ 999 for both addition sums and subtraction minuends, as in the book.
+- **Carrying is not staged.** The book's carry examples carry twice early on (466 + 176 = 642), so `M3.ADD.CARRY` uses `any`.
+- **Borrowing across a zero is in the book** (Ex 4.2: 900 − 275), but code still never borrows across a zero. That's a safe subset; widen it with a new rule if teachers want it.
+- Addition sums and subtraction minuends stay ≤ 999, as in the book.
 
 ## Words to use in scripts and buddy cards
 
-These match the book, so a child hears the same word at home and in class. Use them as the "3 Kannada key words" in FR-07.
+These match the book, so a child hears the same word at home and in class. Each lesson's `keyWordsKn` lists its own; FR-07 picks 3.
 
 | Kannada | English | Note |
 |---|---|---|
-| ಬಿಡಿ / ಹತ್ತು / ನೂರು / ಸಾವಿರ | ones / tens / hundreds / thousands | Column heads ಬಿ / ಹ / ನೂ |
-| ಸ್ಥಾನಬೆಲೆ / ಮುಖಬೆಲೆ | place value / face value | |
-| ಸ್ಥಾನಬೆಲೆ ಕೋಷ್ಟಕ | place-value table | Main written method for carry and borrow |
-| ಬಿಡಿಸಿ ಬರೆ | write in expanded form | |
-| ಕೂಡಿಸು / ಮೊತ್ತ / ಒಟ್ಟು | add / sum / total | |
-| ಕಳೆ / ವ್ಯತ್ಯಾಸ / ಉಳಿದ | subtract / difference / remaining | |
-| **ದಶಕ** | the carried or borrowed ten | Carry: "ದಶಕ 1 ನ್ನು ಹತ್ತರ ಸ್ಥಾನಕ್ಕೆ ಕೂಡೋಣ" (p 82). Borrow: "ದಶಕ ಪಡೆಯೋಣ" (Part 2 p 12, 15). The book never uses ಎರವಲು. |
-| ತಾಳೆ ನೋಡು | check the answer | |
-| ಅಬಾಕಸ್ / ಮಣಿ | abacus / bead | Used for no-carry only |
+| ಬಿಡಿ / ಹತ್ತು / ನೂರು | ones / tens / hundreds | Column heads of the ಸ್ಥಾನಬೆಲೆ table |
+| ಮಣಿಕಟ್ಟು | abacus | Place value, Ch 2 |
+| ವಿಸ್ತರಣಾ ರೂಪ | expanded form | Also a second method for adding and subtracting |
+| ಸಂಕಲ್ಯ / ಸಂಕಲಕ / ಮೊತ್ತ | addend / addend / sum | Part 1 p 85 |
+| ವ್ಯವಕಲ್ಯ / ವ್ಯವಕಲಕ / ವ್ಯತ್ಯಾಸ | minuend / subtrahend / difference | Part 1 p 114 |
+| **ದಶಕ** | the carried or borrowed ten | ದಶಕ ಸಹಿತ / ರಹಿತ name the carry and borrow lessons |
+| ಗುಣ್ಯ / ಗುಣಕ / ಗುಣಲಬ್ಧ | multiplicand / multiplier / product | Part 1 p 129 |
+| ಭಾಜ್ಯ / ಭಾಜಕ / ಭಾಗಲಬ್ಧ / ಶೇಷ | dividend / divisor / quotient / remainder | Part 2 p 8 |
+| ಅಂದಾಜು | estimate | Rounding to the nearest ten (Ch 3–4) |
 
 ## Open
 
-- [ ] Monika: confirm the † names with a teacher (D-14)
-- [ ] NIPUN outcome codes: source not chosen
-- [ ] Rahul: check the graph and build `data/curriculum/grade3-maths.json` (T-05)
+- [ ] A teacher confirms the † names and the key words (D-14)
+- [ ] Native review of the Telugu, Tamil and Hindi names (T-26)
+- [ ] Check the page numbers against a child's book (edition note above)
+- [ ] NIPUN outcome codes: the book prints none; `nipunOutcome` stays null (nothing reads it)
+- [ ] Practice kinds for the 47 lessons without one (above)

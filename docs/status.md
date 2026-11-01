@@ -51,7 +51,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 - **Tamil layout at 360 px (found 1 Nov, not fixed in `v1.0` or `v1.1`):** the teacher bottom-nav label "திரும்பியவர்கள்" (~100 px in a 64 px slot) runs into the Week tab, because `BottomNav.tsx` uses `[word-break:keep-all]`; and on `/demo` the "Under the hood" tab (திரைக்குப் பின்னால்) makes the page 32 px wide, because the tabs in `DemoScreen.tsx` have no `min-w-0`. Likely fix: `min-w-0` plus `[overflow-wrap:anywhere]` on both. Telugu, Kannada, Hindi and English fit.
 - Telugu, Tamil and Hindi text (UI, scripts, evening messages, lesson names) are **drafts for native review** (T-26). The Hindi audio hasn't been listened to on a phone.
-- Only Grade 3 maths is loaded (13 competencies plus 3 Grade 2 prerequisites). WhatsApp and SATS are simulated. Each server has one shared class.
+- Only Grade 3 maths is loaded: the whole book, 60 competencies (T-81, branch `feat/T-81-textbook-2026-27`, not merged). Only 13 have a practice rule, so the other 47 get no catch-up yet. WhatsApp and SATS are simulated. Each server has one shared class.
 - Roadmap (D-70): a Families screen and consent editing (T8), per-language greetings, withdraw voice consent, real WhatsApp delivery, offline beyond attendance and voice notes.
 - Staging's fixed date: at midnight IST the clock goes back to 00:00 the same day; a Reset tidies it.
 
@@ -60,6 +60,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 - 1 Nov: prod released as `v1.1` (T-82 evening send waits for lesson audio, T-83 video story Reset text).
 - 1 Nov: the video story's Reset dialog showed the raw key `demo.reset.bodyVideo`; text added in all locales, plus a test for keys missing from the locale files (T-83).
 - 1 Nov: the 6 pm job waits (until 9 pm) for a ticked lesson clip she hasn't approved, so Approve clip no longer hits 409 after a send (T-82).
+- 1 Nov: T-81 built on a branch, held until after judging: the curriculum follows the textbook PDFs (60 lessons, 12 chapters, D-89), and lessons without a practice rule are left out of the candidate set. A1 eval 13/13 with 60 lessons; the seeded Hindi catch-up regenerated live (page 80, verified, no names). Eval cases moved to the new book (6 A2 cases rechecked on its graph; A8 now covers tables and half); evals on them: A2 10/10, A3 14/14 ready (13/14 first pass), A8 15/15, 14/15 first pass (after adding table rows to the tables lesson's examples; it was 9/15).
 - 1 Nov: prod released as `v1.0`; staging checked at 360 px in Telugu and Tamil (Tamil layout gap logged above).
 - 1 Nov: README refresh for judges (same-app note, PIN on deck slide 14, second lesson sample); this file shortened, with history moved to `status-history.md` (#171).
 - 1 Nov: fixed demo date kept after a reload (T-80, #170); README "two ways to test" and logins (T-79, #169).

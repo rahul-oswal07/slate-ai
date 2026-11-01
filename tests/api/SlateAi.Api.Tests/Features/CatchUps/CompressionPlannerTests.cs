@@ -29,9 +29,9 @@ public sealed class CompressionPlannerTests
     public void Next_week_is_the_next_five_lessons_after_the_latest_taught_and_fewer_at_the_end()
     {
         Assert.Equal(
-            ["M3.PV.EXPAND", "M3.ADD.NOCARRY", "M3.ADD.CARRY", "M3.SUB.NOBORROW", "M3.SUB.CHECK"],
+            ["M3.PV.EXPAND", "M3.ADD.NOCARRY", "M3.ADD.CARRY", "M3.SUB.NOBORROW", "M3.SUB.MAKE"],
             CompressionPlanner.NextWeek(CompressionBook.Graph, ["M3.PV.HTO"]));
-        Assert.Equal(["M3.SUB.WORD"], CompressionPlanner.NextWeek(CompressionBook.Graph, ["M3.SUB.CHECK", "M3.SUB.BORROW"]));
+        Assert.Equal(["M3.SUB.WORD"], CompressionPlanner.NextWeek(CompressionBook.Graph, ["M3.SUB.MAKE", "M3.SUB.BORROW"]));
         Assert.Empty(CompressionPlanner.NextWeek(CompressionBook.Graph, ["M3.SUB.WORD"]));
     }
 
@@ -45,7 +45,7 @@ public sealed class CompressionPlannerTests
                 (LastFriday, ["M3.PV.EXPAND"]),
                 (Monday, ["M3.ADD.NOCARRY"]),
                 (Monday.AddDays(1), ["M3.SUB.NOBORROW"]),
-                (Monday.AddDays(2), ["M3.SUB.CHECK"]),
+                (Monday.AddDays(2), ["M3.SUB.MAKE"]),
                 (Monday.AddDays(3), ["M3.SUB.BORROW"]),
                 (Friday, ["M3.SUB.BORROW"]),
             ],
@@ -54,7 +54,7 @@ public sealed class CompressionPlannerTests
         var input = Assert.Single(Plan(data));
 
         Assert.Equal(Ravi, input.ChildId);
-        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.CHECK", "M3.SUB.BORROW"], input.Missed.Select(m => m.Id));
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"], input.Missed.Select(m => m.Id));
         Assert.Equal([Monday.AddDays(3)], input.Missed[2].Dates);
         Assert.Equal(["M3.SUB.WORD"], input.NextWeek);
         Assert.Equal(["M3.SUB.BORROW", "M3.SUB.NOBORROW"], input.Candidates); // nearest first; CHECK isn't needed

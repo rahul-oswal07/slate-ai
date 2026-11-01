@@ -27,7 +27,7 @@ const curriculum: Curriculum = {
       nameEn: 'The fun of subtracting',
       competencies: [
         { id: 'M3.SUB.NOBORROW', nameKn: 'ಕಳೆಯುವಿಕೆ', nameEn: '3-digit subtraction without borrowing', sequence: 13, textbookPage: { book: 'textbook', part: 2, page: 6 } },
-        { id: 'M3.SUB.CHECK', nameKn: 'ಪರಿಶೀಲನೆ', nameEn: 'Check subtraction by adding', sequence: 14, textbookPage: { book: 'textbook', part: 2, page: 4 } },
+        { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: { book: 'textbook', part: 1, page: 117 } },
         { id: 'M3.SUB.BORROW', nameKn: 'ಎರವಲು', nameEn: '3-digit subtraction with borrowing', sequence: 15, textbookPage: { book: 'textbook', part: 2, page: 15 } },
       ],
     },
@@ -113,31 +113,31 @@ describe('picking today’s lesson', () => {
   })
 
   it('shows "Added to missed lessons" with the absent count and the lessons joined by +', async () => {
-    today(confirmed('M3.SUB.NOBORROW', 'M3.SUB.CHECK'))
+    today(confirmed('M3.SUB.NOBORROW', 'M3.SUB.MAKE'))
     renderApp('/')
 
     const added = await screen.findByRole('region', { name: 'Added to missed lessons: 2 children' })
-    expect(within(added).getByText('who missed 3-digit subtraction without borrowing + Check subtraction by adding')).toBeInTheDocument()
+    expect(within(added).getByText('who missed 3-digit subtraction without borrowing + Making subtraction sums')).toBeInTheDocument()
     expect(within(added).getByRole('link', { name: 'See the 2 children' })).toHaveAttribute('href', '/missed')
     expect(screen.getByRole('region', { name: 'Today’s lessons' })).toBeInTheDocument()
   })
 
   it('no "Added" card when nobody is absent (D-54)', async () => {
-    today(confirmed('M3.SUB.CHECK'), {}, [])
+    today(confirmed('M3.SUB.MAKE'), {}, [])
     renderApp('/')
 
-    expect(await screen.findByText('Check subtraction by adding')).toBeInTheDocument()
+    expect(await screen.findByText('Making subtraction sums')).toBeInTheDocument()
     expect(screen.queryByText(/Added to missed lessons/)).not.toBeInTheDocument()
   })
 
   it('Change opens the sheet with today’s lesson checked', async () => {
-    today(confirmed('M3.SUB.CHECK'))
+    today(confirmed('M3.SUB.MAKE'))
     renderApp('/')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Change' }))
 
     const sheet = screen.getByRole('dialog')
-    expect(within(sheet).getByRole('radio', { name: /Check subtraction by adding/ })).toBeChecked()
+    expect(within(sheet).getByRole('radio', { name: /Making subtraction sums/ })).toBeChecked()
   })
 
   it('"Another chapter" lists the chapters and opens the one she chooses', async () => {
@@ -169,18 +169,18 @@ describe('picking today’s lesson', () => {
     renderApp('/')
 
     await openPicker()
-    await userEvent.click(screen.getByRole('radio', { name: /Check subtraction by adding/ }))
+    await userEvent.click(screen.getByRole('radio', { name: /Making subtraction sums/ }))
 
     expect(await screen.findByText('1 waiting to send')).toBeInTheDocument()
-    expect(screen.getByText('Check subtraction by adding')).toBeInTheDocument()
+    expect(screen.getByText('Making subtraction sums')).toBeInTheDocument()
   })
 
   it('Kannada UI shows the Kannada lesson name', async () => {
     await i18n.changeLanguage('kn')
-    today(confirmed('M3.SUB.CHECK'))
+    today(confirmed('M3.SUB.MAKE'))
     renderApp('/')
 
-    expect(await screen.findByText('ಪರಿಶೀಲನೆ')).toBeInTheDocument()
-    expect(screen.getByText('ಭಾಗ 2, ಪುಟ 4')).toBeInTheDocument()
+    expect(await screen.findByText('ಸಮಸ್ಯಾ ರಚನೆ')).toBeInTheDocument()
+    expect(screen.getByText('ಭಾಗ 1, ಪುಟ 117')).toBeInTheDocument()
   })
 })

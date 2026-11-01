@@ -6,18 +6,18 @@ namespace SlateAi.Api.Tests.Features.Lessons.Voice;
 public sealed class A1ValidatorTests
 {
     private static readonly CurriculumGraph Book = new(
-        new[] { "M3.ADD.CARRY", "M3.SUB.NOBORROW", "M3.SUB.CHECK", "M3.SUB.BORROW" }
+        new[] { "M3.ADD.CARRY", "M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW" }
             .Select((id, i) => new Competency(id, "ಕ", id, [], null, 5, i, [], null)));
 
     [Fact]
     public void Confident_valid_ids_are_mapped()
     {
         var result = A1Validator.Validate(
-            """{"competencyIds":["M3.SUB.NOBORROW","M3.SUB.CHECK"],"confidence":0.86,"summaryKn":"ಕಳೆಯುವಿಕೆ","summaryEn":"Subtraction","examplesUsed":["452 - 131"]}""",
+            """{"competencyIds":["M3.SUB.NOBORROW","M3.SUB.MAKE"],"confidence":0.86,"summaryKn":"ಕಳೆಯುವಿಕೆ","summaryEn":"Subtraction","examplesUsed":["452 - 131"]}""",
             Book);
 
         Assert.Equal("mapped", result.Status);
-        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.CHECK"], result.CompetencyIds);
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE"], result.CompetencyIds);
         Assert.Equal("Subtraction", result.SummaryEn);
         Assert.Equal(["452 - 131"], result.ExamplesUsed);
         Assert.Equal("valid", result.Verdict);
@@ -32,10 +32,10 @@ public sealed class A1ValidatorTests
     public void Unknown_and_duplicate_ids_are_dropped_and_at_most_three_kept()
     {
         var result = A1Validator.Validate(
-            """{"competencyIds":["M9.FAKE","M3.SUB.CHECK","M3.SUB.CHECK","M3.ADD.CARRY","M3.SUB.BORROW","M3.SUB.NOBORROW"],"confidence":0.9,"summaryKn":"","summaryEn":"","examplesUsed":[]}""",
+            """{"competencyIds":["M9.FAKE","M3.SUB.MAKE","M3.SUB.MAKE","M3.ADD.CARRY","M3.SUB.BORROW","M3.SUB.NOBORROW"],"confidence":0.9,"summaryKn":"","summaryEn":"","examplesUsed":[]}""",
             Book);
 
-        Assert.Equal(["M3.SUB.CHECK", "M3.ADD.CARRY", "M3.SUB.BORROW"], result.CompetencyIds);
+        Assert.Equal(["M3.SUB.MAKE", "M3.ADD.CARRY", "M3.SUB.BORROW"], result.CompetencyIds);
     }
 
     [Theory]

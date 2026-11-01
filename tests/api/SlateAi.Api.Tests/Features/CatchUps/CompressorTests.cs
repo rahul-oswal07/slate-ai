@@ -16,7 +16,7 @@ public sealed class CompressorTests
 
     private static readonly CompressionInput Input = new(
         Ravi,
-        [Missed("M3.SUB.NOBORROW"), Missed("M3.SUB.CHECK"), Missed("M3.SUB.BORROW")],
+        [Missed("M3.SUB.NOBORROW"), Missed("M3.SUB.MAKE"), Missed("M3.SUB.BORROW")],
         ["M3.SUB.WORD"],
         ["M3.SUB.BORROW", "M3.SUB.NOBORROW"]);
 
@@ -40,7 +40,7 @@ public sealed class CompressorTests
     [Fact]
     public async Task A_target_outside_the_candidates_falls_back_to_the_rule_and_says_so_in_the_log()
     {
-        _llm.Json = """{"targets":[{"competencyId":"M3.SUB.CHECK","reason":"x"}],"dropped":[]}""";
+        _llm.Json = """{"targets":[{"competencyId":"M3.SUB.MAKE","reason":"x"}],"dropped":[]}""";
 
         var result = await Create().CompressAsync(Input, Ct);
 
@@ -76,7 +76,7 @@ public sealed class CompressorTests
 
         var request = _llm.Requests.Single();
         Assert.Contains("\"candidates\":[\"M3.SUB.BORROW\",\"M3.SUB.NOBORROW\"]", request.UserContent);
-        Assert.Contains("Name of M3.SUB.CHECK", request.UserContent);
+        Assert.Contains("Name of M3.SUB.MAKE", request.UserContent);
         Assert.DoesNotContain(Ravi.ToString(), request.UserContent);
         Assert.DoesNotContain("Ravi", request.UserContent);
         var targets = request.Schema.GetProperty("properties").GetProperty("targets").GetProperty("items")
@@ -110,7 +110,7 @@ public sealed class CompressorTests
                 new RegisterRow(Ravi, Tuesday, false), new RegisterRow(asha, Tuesday, false), new RegisterRow(kiran, Tuesday, false),
                 new RegisterRow(Ravi, wednesday, true), new RegisterRow(asha, wednesday, true), new RegisterRow(kiran, wednesday, false),
             ],
-            [new LessonRow(Guid.NewGuid(), Tuesday, ["M3.SUB.NOBORROW"]), new LessonRow(Guid.NewGuid(), wednesday, ["M3.SUB.CHECK"])]);
+            [new LessonRow(Guid.NewGuid(), Tuesday, ["M3.SUB.NOBORROW"]), new LessonRow(Guid.NewGuid(), wednesday, ["M3.SUB.MAKE"])]);
 
         var results = await Create().CompressClassAsync(ClassId, Friday, Ct);
 

@@ -40,7 +40,7 @@ describe('PackageScreen', () => {
     expect(screen.getByRole('list', { name: 'Parts of the catch-up' })).toHaveTextContent('Computer voice· Lesson · 1:24')
     expect(screen.getByText('ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು')).toHaveAttribute('lang', 'kn')
     expect(screen.getByText(/Word problems next week need borrowing\./)).toBeInTheDocument()
-    expect(screen.getByText(/Checking can wait\./)).toBeInTheDocument()
+    expect(screen.getByText(/Making sums can wait\./)).toBeInTheDocument()
     const options = screen.getByRole('list', { name: 'The three pictures' })
     expect(within(options).getByText(/263/)).toHaveTextContent('263 ✓correct answer')
   })
@@ -52,7 +52,7 @@ describe('PackageScreen', () => {
 
     expect(await screen.findByText('ಮುಂದಿನ ವಾರದ ಪದ ಸಮಸ್ಯೆಗಳಿಗೆ ಎರವಲು ಬೇಕು.')).toHaveAttribute('lang', 'kn')
     expect(screen.queryByText(/Word problems next week need borrowing\./)).not.toBeInTheDocument()
-    expect(screen.getByText(/Checking can wait\./)).toBeInTheDocument()
+    expect(screen.getByText(/Making sums can wait\./)).toBeInTheDocument()
   })
 
   it('Approve needs the tick and sends the version she read', async () => {

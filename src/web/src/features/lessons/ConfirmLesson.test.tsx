@@ -19,7 +19,7 @@ const curriculum: Curriculum = {
     number: 5, nameKn: 'ಕಳೆಯುವ ಮೋಜು', nameEn: 'The fun of subtracting',
     competencies: [
       lesson('M3.SUB.NOBORROW', 'Subtraction without borrowing', 13, 6),
-      lesson('M3.SUB.CHECK', 'Check subtraction by adding', 14, 4),
+      lesson('M3.SUB.MAKE', 'Making subtraction sums', 14, 117),
       lesson('M3.SUB.BORROW', 'Subtraction with borrowing', 15, 15),
       lesson('M3.SUB.WORD', 'Subtraction word problems', 16, 18),
     ],
@@ -57,7 +57,7 @@ describe('T2 Lesson confirm', () => {
     renderApp('/lesson')
 
     expect(await screen.findByText('Matching your note to the textbook…')).toBeInTheDocument()
-    state = voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.CHECK'])
+    state = voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.MAKE'])
 
     const group = await screen.findByRole('group', { name: 'Today’s lessons' }, { timeout: 4000 })
     expect(within(group).getAllByRole('checkbox').every((box) => (box as HTMLInputElement).checked)).toBe(true)
@@ -68,10 +68,10 @@ describe('T2 Lesson confirm', () => {
   })
 
   it('unticking updates the button; with none ticked it is disabled and says why', async () => {
-    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.CHECK']))
+    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.MAKE']))
     renderApp('/lesson')
 
-    await userEvent.click(await screen.findByRole('checkbox', { name: /Check subtraction by adding/ }))
+    await userEvent.click(await screen.findByRole('checkbox', { name: /Making subtraction sums/ }))
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled()
 
     await userEvent.click(screen.getByRole('checkbox', { name: /Subtraction without borrowing/ }))
@@ -82,7 +82,7 @@ describe('T2 Lesson confirm', () => {
 
   it('Confirm sends only the ticked lessons as a voice lesson and returns to Today', async () => {
     let saved: unknown
-    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.CHECK']), {
+    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.MAKE']), {
       [`PUT ${dayUrl}`]: ({ body }) => {
         saved = body
         return { status: 200, body: voice('confirmed', ['M3.SUB.NOBORROW']) }
@@ -90,7 +90,7 @@ describe('T2 Lesson confirm', () => {
     })
     renderApp('/lesson')
 
-    await userEvent.click(await screen.findByRole('checkbox', { name: /Check subtraction by adding/ }))
+    await userEvent.click(await screen.findByRole('checkbox', { name: /Making subtraction sums/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Confirm' }))
 
     expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
@@ -98,7 +98,7 @@ describe('T2 Lesson confirm', () => {
   })
 
   it('"Add another lesson" ticks more, up to 3', async () => {
-    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.CHECK']))
+    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.MAKE']))
     renderApp('/lesson')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Add another lesson' }))
@@ -115,7 +115,7 @@ describe('T2 Lesson confirm', () => {
 
   it('low confidence: two choices, one tap confirms', async () => {
     let saved: unknown
-    api(() => voice('low', ['M3.SUB.BORROW', 'M3.SUB.WORD', 'M3.SUB.CHECK']), {
+    api(() => voice('low', ['M3.SUB.BORROW', 'M3.SUB.WORD', 'M3.SUB.MAKE']), {
       [`PUT ${dayUrl}`]: ({ body }) => {
         saved = body
         return { status: 200, body: voice('confirmed', ['M3.SUB.WORD']) }
