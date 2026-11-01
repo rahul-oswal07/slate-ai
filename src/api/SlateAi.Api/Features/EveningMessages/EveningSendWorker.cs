@@ -7,8 +7,8 @@ namespace SlateAi.Api.Features.EveningMessages;
 /// <summary>
 /// The 6 pm job (FR-20, and approved catch-ups, FR-08). Once a minute from <see cref="EveningOptions.SendAt"/> IST until midnight it sends each
 /// class's evening messages. Sending is idempotent per child and day, so a lesson confirmed at 7 pm still goes on
-/// the next tick and a restart never sends twice. A class whose ticked lesson clip awaits her approval waits, at most
-/// until <see cref="EveningOptions.LessonAudioWaitUntil"/> (T-82).
+/// the next tick and a restart never sends twice. A class whose ticked lesson clip awaits her approval waits while it is
+/// made and then <see cref="EveningOptions.LessonAudioWait"/> for her to check it (T-82, T-85).
 /// </summary>
 public sealed class EveningSendWorker(
     IServiceScopeFactory scopes,
@@ -54,7 +54,8 @@ public sealed class EveningSendWorker(
                 {
                     var lessonAudio = await classScope.ServiceProvider.GetRequiredService<ILessonAudioStore>()
                         .GetDayAsync(classId, today, cancellationToken);
-                    if (LessonAudioWait.Holds(lessonAudio, clock.GetUtcNow(), SchoolClock.At(today, options.Value.LessonAudioWaitUntil)))
+                    if (LessonAudioWait.Holds(
+                            lessonAudio, clock.GetUtcNow(), SchoolClock.At(today, options.Value.SendAt), options.Value.LessonAudioWait))
                     {
                         // She ticked the lesson audio and hasn't approved a clip yet: sending now would lock her out (T-82).
                         logger.LogInformation(

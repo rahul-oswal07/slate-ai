@@ -312,15 +312,16 @@ public sealed class EveningEndpointTests
         await worker.RunOnceAsync(Ct);
         Assert.Empty(_store.Messages);
 
+        // Ready at 18:04: she has until 18:09 to check it.
         row.Status = LessonAudioStatus.Ready;
         row.ClipId = clip;
-        _clock.Now = Ist(19, 0);
+        row.UpdatedAt = Ist(18, 4);
+        _clock.Now = Ist(18, 8);
         await worker.RunOnceAsync(Ct);
         Assert.Empty(_store.Messages);
 
         row.Status = LessonAudioStatus.Approved;
         row.ApprovedClipId = clip;
-        _clock.Now = Ist(19, 5);
         await worker.RunOnceAsync(Ct);
         Assert.Equal(2, _store.Messages.Count);
         Assert.Equal(row.Id, _store.Messages.Single(m => m.Message.ChildId == Asha.Id).Message.LessonAudioId);
@@ -328,19 +329,39 @@ public sealed class EveningEndpointTests
     }
 
     [Fact]
-    public async Task Worker_sends_the_plain_message_at_the_cutoff_if_the_clip_was_never_approved()
+    public async Task Worker_waits_5_minutes_for_a_clip_ready_after_9_pm_then_sends_the_plain_message()
     {
+        // T-85: staging, 1 Nov: ticked after 9 pm, the message went before she could approve (no fixed cutoff now).
         ApproveTemplate();
         ConfirmLesson();
-        AddLessonAudio("kn", LessonAudioStatus.Ready, Guid.NewGuid(), Ist(18, 0));
+        AddLessonAudio("kn", LessonAudioStatus.Ready, Guid.NewGuid(), Ist(21, 10));
         await using var factory = Create();
         var worker = Worker(factory);
 
-        _clock.Now = Ist(20, 59);
+        _clock.Now = Ist(21, 14);
         await worker.RunOnceAsync(Ct);
         Assert.Empty(_store.Messages);
 
-        _clock.Now = Ist(21, 0);
+        _clock.Now = Ist(21, 15);
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.Null(m.Message.LessonAudioId));
+    }
+
+    [Fact]
+    public async Task Worker_waits_5_minutes_from_6_pm_for_a_clip_ready_earlier()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        AddLessonAudio("kn", LessonAudioStatus.Ready, Guid.NewGuid(), Ist(16, 0));
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(18, 4);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        _clock.Now = Ist(18, 5);
         await worker.RunOnceAsync(Ct);
         Assert.Equal(2, _store.Messages.Count);
         Assert.All(_store.Messages, m => Assert.Null(m.Message.LessonAudioId));
