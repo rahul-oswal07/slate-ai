@@ -7,11 +7,11 @@ Owner: **R** = Rahul, **M** = Monika.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
-| T-65 | **README "For judges" map (#146):** the repo's job in the submission is "check it yourself". Expand the README's judges note into a table of where to verify: AI client and call log (`Ai/`), versioned `prompts/`, `evals/cases` + `evals/results`, guardrail code and the approval tests, the PII guard, `user-testing.md` and mentor notes, the decision log. Demo and video links; team line "Monika Sisodia". **By Fri 30 Oct evening** | R | Each row's file one click from the README; all links work on GitHub; no marketing copy | Open every link on GitHub |
+| T-76 | **Telugu and Tamil teacher app (#162):** translate the ~270 teacher-side strings in `te.json` and `ta.json` that were still English (approve, missed, back, week, demo, …), keeping keys and `{{placeholders}}`. Drafts for native review (T-26), like Hindi. **By the code freeze, Sun 1 Nov 11:59 pm** | R | No te/ta key equals `en.json` except language names and placeholder-only strings (same 10 as Hindi); placeholders match English | `locales.test.ts` (no English left in te, ta, hi; placeholders match in all five); `verify.sh` |
 
 ## Done (24-30 Oct)
 
-T-73 Under the hood "For" column, T-72 co-teacher renamed Savitha, T-71 Settings (greeting, evening message), T-70 demo video story, T-69 demo every day, T-68 greeting download, T-67 admin lesson-audio day view and T-66 admin greetings page (D-83). T-64 lesson photo (D-82, #149). T-63 attendance stars (FR-24, D-81; plan in `T-63-attendance-stars.md`). T-61 greeting and T-62 lesson audio (#136). Slate & chalk revamp (D-77, #126, #128, #129) and Hindi (D-78, #127). T-49 shipped without "Since yesterday", which Monika dropped to the roadmap on 25 Oct.
+T-65 README "For judges" map (#161), T-73 Under the hood "For" column, T-72 co-teacher renamed Savitha, T-71 Settings (greeting, evening message), T-70 demo video story, T-69 demo every day, T-68 greeting download, T-67 admin lesson-audio day view and T-66 admin greetings page (D-83). T-64 lesson photo (D-82, #149). T-63 attendance stars (FR-24, D-81; plan in `T-63-attendance-stars.md`). T-61 greeting and T-62 lesson audio (#136). Slate & chalk revamp (D-77, #126, #128, #129) and Hindi (D-78, #127). T-49 shipped without "Since yesterday", which Monika dropped to the roadmap on 25 Oct.
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|

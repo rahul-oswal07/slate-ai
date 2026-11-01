@@ -25,6 +25,37 @@ describe('locale files', () => {
     const empty = Object.entries(flatten(locales[code] ?? {})).filter(([, value]) => value.trim() === '')
     expect(empty).toEqual([])
   })
+
+  it.each(Object.keys(locales))('%s uses the same {{placeholders}} as en', (code) => {
+    const placeholders = (value: string) => (value.match(/{{\w+}}/g) ?? []).sort().join(',')
+    const english = flatten(en)
+    const mismatched = Object.entries(flatten(locales[code] ?? {}))
+      .filter(([key, value]) => placeholders(value) !== placeholders(english[key] ?? ''))
+      .map(([key]) => key)
+    expect(mismatched).toEqual([])
+  })
+
+  // Language names and strings that are only placeholders and numbers read the same in every language.
+  const sameAsEnglish = [
+    'demo.ai.prompt',
+    'language.en',
+    'language.hi',
+    'language.kn',
+    'language.ta',
+    'language.te',
+    'mic.timer',
+    'mic.timerGreeting',
+    'missed.lessonMeta',
+    'today.attendance.tile',
+  ]
+
+  it.each(['te', 'ta', 'hi'])('%s has no English left outside names and numbers', (code) => {
+    const english = flatten(en)
+    const untranslated = Object.entries(flatten(locales[code] ?? {}))
+      .filter(([key, value]) => value === english[key] && !sameAsEnglish.includes(key))
+      .map(([key]) => key)
+    expect(untranslated).toEqual([])
+  })
 })
 
 describe('language switching', () => {

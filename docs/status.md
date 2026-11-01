@@ -3,6 +3,13 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Telugu and Tamil teacher app (1 Nov, T-76, #162), branch `feat/T-76-te-ta-teacher-strings`
+
+- `te.json` and `ta.json`: the 276 / 277 strings that were still English are now in Telugu and Tamil (Approve, Missed lessons, Back today, Week, the demo page and both guides, Under the hood, a few announcements). Terms follow the existing strings (ఆమోదం / ஒப்புதல், బడ్డీ కార్డ్ / நண்பர் அட்டை, SATS as is); children's names in each script, like Hindi. App name transliterated (తప్పిద పాఠ, தப்பித பாட).
+- Left the same as English on purpose, as in Hindi: the five language names and five strings that are only placeholders or numbers.
+- `locales.test.ts` now fails if te, ta or hi has English outside that list, or if any locale's `{{placeholders}}` differ from English.
+- **All of it is a draft for native review (T-26)**; Tamil and Telugu speakers should check the guide steps and the Week sentences first.
+
 ## Fixed demo date on staging (1 Nov, T-75, D-88), branch `feat/T-74-video-guide`
 
 - `Demo:Today=2026-10-31` makes the app treat Sat 31 Oct as today at the real time of day (`Features/Demo/DemoClock.cs` replaces the app's `TimeProvider`), so the video story's whole week is behind whenever staging is opened. The web follows the server's date from the `X-School-Today` header; /demo says the date is fixed. The session cookie keeps the real clock.
