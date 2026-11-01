@@ -682,6 +682,7 @@
       "button": "Reset demo",
       "title": "Reset the demo?",
       "body": "Everything done in the demo class is removed and the story starts again: the past school days with only Ravi and Manjunath away, and Ravi and Rohan away today.",
+      "bodyVideo": "Everything done in the demo class is removed and the video story starts again: Ananya away all week, Ravi on Mon–Tue, Rohan on Wed and Arun on Thu–Fri, with each earlier evening's message already sent.",
       "confirm": "Reset",
       "resetting": "Resetting…",
       "failed": "The reset didn't finish. Nothing was changed. Try again.",
