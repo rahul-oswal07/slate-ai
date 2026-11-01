@@ -5,6 +5,8 @@ Every absent child gets the lesson they missed, based on what their own teacher 
 Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism.
 
 > **Judges: two ways to try it, no sign-up.** The **guided demo** (recommended, about 5 minutes) has a whole school week ready and walks you through it. The **real app** is exactly what a teacher uses, ideally on your own phone. Both are below, with the sign-in details.
+>
+> **The demo and the real app are the same application** (same code, same screens, same AI). The only difference is the data: the guided demo runs on our **staging** server, where a fictional school week of test data is already set up for judges and the date is fixed so that week is always behind you. The real app runs on **production** on today's date, so you start from today's register.
 
 | | |
 |---|---|
@@ -22,15 +24,16 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 | **Measured, not claimed** | Latest eval runs: lesson mapping **13/13**, choosing what to teach **10/10**, scripts **14/14** first pass, verifier **8/8**, lesson recap **13/15**. Dated results in [`evals/results/`](evals/results/). |
 | **Safe by design, enforced in code** | No child or teacher names reach an AI provider. Every number a family sees is computed in code. Nothing reaches a parent until the teacher approves it. Each rule has tests ([For judges](#for-judges)). |
 | **Built with the people who will use it** | 2 government-school teachers, 2 parents, 2 mentor calls; 9 findings logged with what changed ([`user-testing.md`](docs/user-testing.md)). |
-| **Engineered to last** | 605 API tests and 346 web tests run on every PR; attendance and voice notes work offline and sync later; one container on Azure. |
+| **Engineered to last** | 605 API tests and 347 web tests run on every PR; attendance and voice notes work offline and sync later; one container on Azure. |
 
 ## Two ways to test
 
 | | ⭐ 1. Guided demo (recommended) | 📱 2. Real app |
 |---|---|---|
+| Server | Staging, with test data set up for judges | Production |
 | Open | https://slateai-staging.azurewebsites.net/demo | https://slateai-prod.azurewebsites.net, on your phone or a desktop browser |
-| Sign-in | Automatic, as the class teacher | Mobile number ([table below](#login-credentials)) and the PIN from the submission form |
-| Data | A full week is ready: the date is **fixed at Sat 31 Oct 2026**, so Monday to Friday's absences and lessons are already there | The same fictional Grade 3 class (36 children) on **today's real date** |
+| Sign-in | Automatic, as the class teacher | Mobile number ([table below](#login-credentials)) and the PIN on **slide 14 of the submitted deck** |
+| Data | A fictional Grade 3 class (36 children) with a full week ready: the date is **fixed at Sat 31 Oct 2026**, so Monday to Friday's absences, lessons and evening messages are already there | The same fictional class on **today's real date** |
 | What you see | The teacher's phone and a family's phone side by side, with 6 steps on screen | Exactly what a teacher sees. Families get their messages after 6 pm IST, as in a real school |
 | Time | About 5 minutes | About 10 minutes |
 
@@ -39,7 +42,7 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English; **Reset demo** starts the story again. The same 6 steps are on screen:
 
 1. **Today** (teacher's phone): the simulated SATS attendance shows only Ananya (roll 1) absent. She has been away all week. Arun is back today after missing Thursday and Friday.
-2. **Record today's lesson** in Kannada ([sample below](#sample-inputs)), or pick it from the list, and confirm it.
+2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), or pick it from the list, and confirm it. The next lesson in the book after Friday's is 3-digit addition with carrying (sample 1).
 3. **Tonight's message:** Ananya's family's phone already has an evening message in Kannada for each day this week. Tap **Send messages now** for tonight's (in a school it goes by itself at 6 pm), open it and pick a reason.
 4. **Approve:** tap *Make this week's catch-ups*. You get four, one per home language: Kannada for Ananya (five missed lessons squeezed into the ones that matter for next week), Telugu for Ravi (Mon–Tue), Hindi for Rohan (Wed) and Tamil for Arun (Thu–Fri). Listen, read the Kannada summary and **Why this**, tick, approve, then tap **Send messages now**.
 5. **The family's side:** on Ananya's family's phone, open the catch-up, listen, do the activity and tap a picture.
@@ -48,7 +51,7 @@ Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English;
 ### 2. Real app
 
 1. Open https://slateai-prod.azurewebsites.net on your phone (or a desktop browser). Your browser can install it as an app (*Add to Home screen*).
-2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN from the submission form. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up.
+2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN on slide 14 of the submitted deck. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up.
 3. **Today:** the simulated SATS attendance arrives at 12:00 (retry at 2 pm). Before then, or if it's wrong, mark or correct it yourself.
 4. **Record the lesson** by voice or with a photo of the textbook page, and confirm the match.
 5. **Approve the evening message** once (Today → tonight's card → *Review and approve*). After 6 pm IST it goes to each absent child's family with today's lesson and page.
@@ -61,31 +64,35 @@ To see what the families received, open https://slateai-prod.azurewebsites.net/d
 
 | Server | Role | Name | Mobile number | PIN | Notes |
 |---|---|---|---|---|---|
-| Production (real app) | Class teacher | Shobha | `9000000000` | in the submission form | Families see her name and greeting |
-| Production (real app) | Co-teacher | Savitha | `9123456789` | in the submission form | Same class: several teachers can share one class |
-| Production (real app) | Co-teacher | Monika | `9123456788` | in the submission form | Same class |
-| Staging (guided demo) | Class teacher | Shobha | `9000000000` | in the submission form | Not needed for `/demo`, which signs you in by itself; for `/login` on staging |
-| Staging (guided demo) | Co-teacher | Savitha | `9123456789` | in the submission form | |
-| Staging (guided demo) | Co-teacher | Monika | `9123456788` | in the submission form | |
+| Production (real app) | Class teacher | Shobha | `9000000000` | deck, slide 14 | Families see her name and greeting |
+| Production (real app) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | Same class: several teachers can share one class |
+| Production (real app) | Co-teacher | Monika | `9123456788` | deck, slide 14 | Same class |
+| Staging (guided demo) | Class teacher | Shobha | `9000000000` | deck, slide 14 | Not needed for `/demo`, which signs you in by itself; for `/login` on staging |
+| Staging (guided demo) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | |
+| Staging (guided demo) | Co-teacher | Monika | `9123456788` | deck, slide 14 | |
 | Both | Family | — | — | none | Families never sign in: each link carries its own token (`/p/<token>`) |
 | — | Admin | — | — | — | Not needed for judging and not switched on in production |
 
-The PINs are in the hackathon submission form, not in this public repo. Enter the 10-digit number without `+91`. Five wrong PINs lock that login for 15 minutes.
+The PINs are on **slide 14 of the submitted deck**, not in this public repo. All three teachers use the same PIN, on staging and production. Enter the 10-digit number without `+91`. Five wrong PINs lock that login for 15 minutes.
 
 ### Sample inputs
 
-1. **Kannada voice note** (Today → tap the mic) about 3-digit addition with carrying. Read this aloud:
-   > ಇವತ್ತು ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ ಮಾಡಿದೆವು, ದಶಕ ವರ್ಗಾವಣೆ ಜೊತೆ. 456 plus 278, ಬಿಡಿ ಸ್ಥಾನದಲ್ಲಿ 14 ಬಂತು, ಒಂದು ಹತ್ತು carry ಮಾಡಿದೆವು.
+1. **Kannada voice note** (Today → tap the mic). Read one of these aloud, then check the match and confirm it (or tap **Change**). Both are cases from our lesson-mapping evals, which matched them correctly on the latest run.
 
-   ("Today we did 3-digit addition with carrying. 456 plus 278: 14 in the ones place, so we carried one ten.") Expect the lesson "addition with carrying". If you don't read Kannada, pick the lesson from the list instead.
-2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*): download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect subtraction with borrowing) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect addition word problems). These are synthetic textbook pages from our evals.
-3. **Choosing what to teach** (Approve): open the catch-up of a child who missed several lessons and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
-4. **The family's answer:** after the family taps a picture, **Missed lessons** on the teacher's phone shows how the child did, and **Week** shows the reason the family gave.
-5. **Language switch:** the teacher app in తెలుగు, தமிழ் or हिन्दी. Children's catch-ups stay in their own home language.
+   | Lesson | Read aloud | What it says | Expect |
+   |---|---|---|---|
+   | A. Addition with carrying (the next lesson in the guided demo) | ಇವತ್ತು ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ ಮಾಡಿದೆವು, ದಶಕ ವರ್ಗಾವಣೆ ಜೊತೆ. 456 plus 278, ಬಿಡಿ ಸ್ಥಾನದಲ್ಲಿ 14 ಬಂತು, ಒಂದು ಹತ್ತು carry ಮಾಡಿದೆವು. | "Today we did 3-digit addition with carrying. 456 plus 278: 14 in the ones place, so we carried one ten." | *3-digit addition with carrying* |
+   | B. Subtraction with borrowing | ಇವತ್ತು ಕಳೆಯುವಿಕೆ, borrowing ಜೊತೆ. 523 minus 168. ಬಿಡಿಯಲ್ಲಿ 3 ರಿಂದ 8 ಕಳೆಯಲು ಆಗಲ್ಲ, ಹತ್ತರ ಸ್ಥಾನದಿಂದ ಒಂದು ಹತ್ತು ಎರವಲು ತಗೊಂಡೆವು. | "Today, subtraction with borrowing. 523 minus 168. In the ones we can't take 8 from 3, so we borrowed one ten from the tens place." | *3-digit subtraction with borrowing* |
+
+   If you don't read Kannada, pick the lesson from the list instead. Children's names in a voice note are replaced by `{child}` before anything reaches the AI.
+2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*), with or instead of the voice note: download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect *3-digit subtraction with borrowing*) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect *Addition word problems*). These are synthetic textbook pages from our evals. The photo is only used to find the lesson; it is never sent to families.
+3. **Choosing what to teach** (Approve → *Make this week's catch-ups*): open the catch-up of a child who missed several lessons (in the guided demo, Ananya, who missed all five) and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
+4. **The family's answer:** on the family's phone, pick a reason on the evening message and tap a picture on the catch-up. **Missed lessons** on the teacher's phone then shows how the child did, and **Week** shows the reason the family gave.
+5. **Language switch:** the language buttons at the top of the teacher app switch it to ಕನ್ನಡ, తెలుగు, தமிழ், हिन्दी or English. Children's catch-ups stay in their own home language.
 
 ### Limits you will see
 
-- Only Grade 3 maths (16 competencies) is loaded.
+- Only Grade 3 maths is loaded: 13 Grade 3 competencies plus the 3 Grade 2 ones they build on.
 - WhatsApp and the SATS attendance feed are simulated: messages appear on the demo's family phone, and the demo's **Bring in today's attendance** plays the SATS feed.
 - Each server has one class for everyone. If someone else uses it at the same time you may see their changes; on the guided demo, **Reset demo** starts again.
 - The AI calls are real, so catch-ups take a moment to write. Voice notes are in Kannada, the teacher's language.
@@ -112,7 +119,7 @@ Where to check how AI is used. Each row links to the files that prove it.
 
 ## How it works
 
-1. The teacher marks absentees and records a 20-second voice note in Kannada about what she taught.
+1. The teacher checks the absentees from the SATS register and records a 20-second voice note in Kannada about what she taught (or takes a photo of the textbook page).
 2. Claude maps the note to textbook competencies and logs it against each absent child.
 3. For a child who missed several lessons, Claude keeps only what blocks next week's lessons and writes a 90-second home-language catch-up, a household-object activity and a 3-picture check.
 4. The teacher approves once per lesson. The parent opens a link, taps Listen, and the child taps a picture to answer.
@@ -133,7 +140,7 @@ Parent web page ──────┼── SlateAi.Api (.NET) ┼── Sarvam 
 |---|---|
 | `src/api/SlateAi.Api` | .NET 10 Minimal API; `Features/` slices, `Ai/` (all LLM calls), `Speech/`, `Curriculum/`, `Data/` |
 | `src/web` | React + Vite + TypeScript PWA (teacher app, parent page, demo shell) |
-| `tests/api`, `src/web/e2e` | xUnit tests (fakes, no database); Playwright end-to-end + accessibility |
+| `tests/api`, `src/web/e2e` | xUnit tests (fakes by default, plus a small Postgres suite); Playwright end-to-end + accessibility |
 | `evals/` | Live evaluation cases and results for each Claude call |
 | `prompts/` | Versioned prompt files |
 | `data/` | Curriculum dependency graph, picture library manifest, seed data |
@@ -145,7 +152,7 @@ Parent web page ──────┼── SlateAi.Api (.NET) ┼── Sarvam 
 Prerequisites: .NET 10 SDK, Node 22 LTS, Docker.
 
 ```bash
-git clone <repo-url> slate-ai && cd slate-ai
+git clone https://github.com/rahul-oswal07/slate-ai.git && cd slate-ai
 docker compose -f deploy/docker-compose.yml up -d db
 dotnet run --project src/api/SlateAi.Api      # applies migrations + seeds demo class; http://localhost:5080
 cd src/web && npm ci && npm run dev           # http://localhost:5173
@@ -196,7 +203,7 @@ dotnet user-secrets list --project src/api/SlateAi.Api      # shows values
 dotnet user-secrets remove "Sarvam:ApiKey" --project src/api/SlateAi.Api
 ```
 
-**Demo teacher sign-in.** The seeded teacher signs in with phone `9000000000` and the PIN from `Demo:TeacherPin`. `appsettings.Development.json` sets `2468` for local use only (like the local database password). Staging and prod read `Demo__TeacherPin` from App Service settings; if it isn't set, the demo teacher can't sign in. The seeder hashes the PIN on first start and never overwrites an existing one.
+**Demo teacher sign-in.** The seeded class teacher signs in with phone `9000000000` and the PIN from `Demo:TeacherPin`; the co-teachers use `Demo:CoTeacherPin`. `appsettings.Development.json` sets PINs for local use only (like the local database password). Staging and prod read `Demo__TeacherPin` and `Demo__CoTeacherPin` from App Service settings; if they aren't set, those teachers can't sign in. The seeder hashes the PIN on first start and never overwrites an existing one.
 
 **Azure (staging/prod): App Service app settings.** They're encrypted at rest and reach the app as environment variables (`__` = section separator). Setting them restarts the app:
 
@@ -215,7 +222,8 @@ Use separate Anthropic keys for local and Azure (revoke one without breaking the
 |---|---|
 | Run the app locally | `./scripts/run-local.sh` (`--container` for the built image) |
 | Verify everything before a PR | `./scripts/verify.sh` |
-| API tests (no live AI) | `dotnet test --filter "Category!=Eval"` |
+| API tests (no live AI, no Docker) | `dotnet test --filter "Category!=Eval&Category!=Db"` |
+| Database tests (needs Docker; CI runs them) | `dotnet test --filter Category=Db` |
 | Live AI evals | `dotnet test --filter Category=Eval` |
 | Web unit tests | `cd src/web && npm test` |
 | Web build (into the API's `wwwroot`) | `cd src/web && npm run build` |
