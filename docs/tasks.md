@@ -8,6 +8,8 @@ Owner: **R** = Rahul, **M** = Monika.
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
 | T-80 | **Fixed demo date after a reload (bug, 1 Nov):** on staging (`Demo:Today`), a laptop asked for the real date (`attendance/2026-11-01` → 400 "Can't use a future date"). Header-less error responses reset the fixed date, and the screens read it once. Now the date only clears on a successful response without `X-School-Today`, and Today, Week, Back today and lesson confirm follow it through `useSchoolToday()` | R | A screen opened from the saved sign-in ends on the server's fixed date | `TodayScreen.test.tsx` "moves to the server's fixed date when it opens from the saved sign-in"; `verify.sh` |
+| T-79 | **README: two ways to test (Rahul, 1 Nov):** the guided demo on staging (recommended: week ready, date fixed at Sat 31 Oct) and the real app on prod (phone, real date); an "At a glance" table of facts with numbers; step lists for both ways; a login credentials table (Shobha, Savitha, Monika; staging and prod). **By the code freeze, Sun 1 Nov 11:59 pm** | R | Both links work; every number in the README matches its source (evals, tests, user testing); no PIN in the repo; the credentials table points to the submission form | Sign in on staging and prod with each login in the table; open every link on GitHub |
+
 
 ## Done (24 Oct – 1 Nov)
 
