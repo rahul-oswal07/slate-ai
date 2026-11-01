@@ -41,7 +41,12 @@ export async function api<T>(
     throw new NetworkError()
   }
 
-  setSchoolToday(response.headers.get('X-School-Today'))
+  // Only a successful response without the header means "no fixed date": an error page from a proxy or gateway
+  // never went through the API and must not switch a fixed demo date back to the phone's clock.
+  const schoolToday = response.headers.get('X-School-Today')
+  if (schoolToday !== null || response.ok) {
+    setSchoolToday(schoolToday)
+  }
 
   if (!response.ok) {
     let body: unknown = null

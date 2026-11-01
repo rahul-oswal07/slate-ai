@@ -6,7 +6,7 @@ import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useOnline } from '../../components/useOnline'
 import { useMe } from '../auth/useMe'
-import { istToday } from '../today/schoolTime'
+import { useSchoolToday } from '../today/schoolTime'
 import { findLesson, lessonName, pageText } from './lessonText'
 import { PickLessonSheet } from './PickLessonSheet'
 import type { Chapter } from './types'
@@ -28,7 +28,7 @@ export function ConfirmLessonScreen() {
   const online = useOnline()
   const me = useMe()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const date = istToday()
+  const date = useSchoolToday()
   const classId = me.data?.classId ?? ''
   const day = useLessonDay(classId, date)
   const curriculum = useCurriculum()

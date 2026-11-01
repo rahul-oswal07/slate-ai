@@ -5,7 +5,9 @@ Owner: **R** = Rahul, **M** = Monika.
 
 ## Open
 
-Nothing open (1 Nov). New tasks get the next free ID (T-79 onwards) and a GitHub issue.
+| ID | Task | Owner | Acceptance criteria | How it's tested |
+|---|---|---|---|---|
+| T-80 | **Fixed demo date after a reload (bug, 1 Nov):** on staging (`Demo:Today`), a laptop asked for the real date (`attendance/2026-11-01` → 400 "Can't use a future date"). Header-less error responses reset the fixed date, and the screens read it once. Now the date only clears on a successful response without `X-School-Today`, and Today, Week, Back today and lesson confirm follow it through `useSchoolToday()` | R | A screen opened from the saved sign-in ends on the server's fixed date | `TodayScreen.test.tsx` "moves to the server's fixed date when it opens from the saved sign-in"; `verify.sh` |
 
 ## Done (24 Oct – 1 Nov)
 

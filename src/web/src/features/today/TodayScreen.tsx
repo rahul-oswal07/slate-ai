@@ -17,7 +17,7 @@ import { DayStrip } from './DayStrip'
 import { GreetingCard } from './GreetingCard'
 import { LessonAudioCard } from './LessonAudioCard'
 import { LessonCard } from './LessonCard'
-import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
+import { formatSchoolDate, formatSchoolTime, useSchoolToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
 import { TonightCard } from './TonightCard'
 import { RecapCard } from '../week/RecapCard'
@@ -33,7 +33,7 @@ export function TodayScreen() {
   const me = useMe()
   const online = useOnline()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const date = istToday()
+  const date = useSchoolToday()
   const classId = me.data?.classId ?? ''
   const day = useAttendanceDay(classId, date)
   const save = useSaveAttendance(classId, date)

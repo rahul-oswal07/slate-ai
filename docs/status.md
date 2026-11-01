@@ -3,6 +3,13 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Fixed demo date after a reload (1 Nov, T-80), branch `fix/T-80-demo-date-cached`
+
+- Seen on a laptop on staging: Today asked for `attendance/2026-11-01` and got 400 "Can't use a future date" (staging's date is fixed at 31 Oct); the phone was fine. Staging itself sends `X-School-Today: 2026-10-31` on every response (checked: 200, 400 and 404).
+- Fixed in the web app: (1) `api/client.ts` clears the fixed date only on a **successful** response without the header, so an error page that never reached the API (proxy, gateway) can't switch the demo back to the phone's clock; (2) `useSchoolToday()` in `schoolTime.ts` (a small store) so Today, Week, Back today and lesson confirm re-render when the date arrives after the first render (the saved sign-in renders Today before any response).
+- Test first: `TodayScreen.test.tsx` "moves to the server's fixed date when it opens from the saved sign-in" failed (Today stayed on Sunday 1 Nov), passes now. `verify.sh` OK (605 API, 347 web).
+- A browser still running a build from before T-75 has no header support at all; a reload (the service worker updates itself) or clearing site data fixes that.
+
 ## Next: release to prod before the code freeze (1 Nov, 11:59 pm)
 
 - Every task and issue is closed, but **prod (`slateai-prod`, the judges' demo link) is still on tag `v1.0-rc1` (31 Oct)**. Not on prod yet: #166 Telugu and Tamil strings, #159 Under the hood "For" column (the README's judges table promises it), #157 Settings, #158 Savitha rename, #165 video story and fixed date (staging-only settings).

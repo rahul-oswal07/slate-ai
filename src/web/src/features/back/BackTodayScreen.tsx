@@ -4,7 +4,7 @@ import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
-import { istToday } from '../today/schoolTime'
+import { useSchoolToday } from '../today/schoolTime'
 import type { BuddyCard } from './types'
 import { useBuddyCards, useSaveTicks } from './useBuddyCards'
 
@@ -53,7 +53,7 @@ export function BackTodayScreen() {
   const { t } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const classId = useMe().data?.classId ?? ''
-  const today = istToday()
+  const today = useSchoolToday()
   const query = useBuddyCards(classId, today)
   const [index, setIndex] = useState(0)
   const cards = query.data?.cards ?? []
