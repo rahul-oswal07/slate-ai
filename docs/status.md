@@ -8,7 +8,7 @@ Keep it short: at the end of a session, update **Where things stand** and **Next
 - **Submitted** for the build stage on 31 Oct. Code freeze: **Sun 1 Nov, 23:59 IST**. Every task in `tasks.md` (T-01 … T-80) and every GitHub issue is closed.
 - **Repo:** https://github.com/rahul-oswal07/slate-ai (public, MIT). Merges to `main` deploy to staging; `v*` tags deploy to prod.
 - **Staging** (https://slateai-staging.azurewebsites.net, the judges' guided demo at `/demo`): on `main`. Settings `Demo__Story=video`, `Demo__Today=2026-10-31`, `Demo__TeacherPin`, `Demo__CoTeacherPin`, `Admin__Key`.
-- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): still on **`v1.0-rc1`** (31 Oct). It lacks Settings (#157), the Savitha rename (#158, shows Lakshmi), the Under the hood "For" column (#159) and the Telugu/Tamil strings (#166). Judges' story, real date, no `Admin__Key`.
+- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.0`** (tagged 1 Nov from `main` at #171). Judges' story, real date, no `Admin__Key`.
 - **Logins:** Shobha `9000000000` (class teacher), Savitha `9123456789` and Monika `9123456788` (co-teachers), same class, on both servers. All use one PIN, which is on slide 14 of the submitted deck and not in the README. It equals the co-teacher PIN in `appsettings.Development.json`, so change the server PINs after judging (clear the stored `PinHash`; the seeder never overwrites one).
 - **Tests:** `verify.sh` OK, 605 API and 347 web tests. The Db suite runs in CI. 12 existing e2e specs, no new ones (22 Oct rule).
 
@@ -43,12 +43,13 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Next
 
-1. **Release prod before the freeze:** check CI is green on `main`, check staging at 360 px in తెలుగు / தமிழ், tag `v1.0` on `main`, then run the 6 demo steps once on prod. Rahul decides when to tag.
-2. Merge #171 (README refresh and this file).
-3. After judging, change the server PINs.
+1. Run the 6 demo steps once on prod (`v1.0` is deployed; the run hasn't been done yet).
+2. After judging, change the server PINs.
+3. Fix the Tamil layout gap below, if wanted (left out of `v1.0` on purpose).
 
 ## Known gaps and drafts
 
+- **Tamil layout at 360 px (found 1 Nov, not fixed in `v1.0`):** the teacher bottom-nav label "திரும்பியவர்கள்" (~100 px in a 64 px slot) runs into the Week tab, because `BottomNav.tsx` uses `[word-break:keep-all]`; and on `/demo` the "Under the hood" tab (திரைக்குப் பின்னால்) makes the page 32 px wide, because the tabs in `DemoScreen.tsx` have no `min-w-0`. Likely fix: `min-w-0` plus `[overflow-wrap:anywhere]` on both. Telugu, Kannada, Hindi and English fit.
 - Telugu, Tamil and Hindi text (UI, scripts, evening messages, lesson names) are **drafts for native review** (T-26). The Hindi audio hasn't been listened to on a phone.
 - Only Grade 3 maths is loaded (13 competencies plus 3 Grade 2 prerequisites). WhatsApp and SATS are simulated. Each server has one shared class.
 - Roadmap (D-70): a Families screen and consent editing (T8), per-language greetings, withdraw voice consent, real WhatsApp delivery, offline beyond attendance and voice notes.
@@ -56,6 +57,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Recent changes
 
+- 1 Nov: prod released as `v1.0`; staging checked at 360 px in Telugu and Tamil (Tamil layout gap logged above).
 - 1 Nov: README refresh for judges (same-app note, PIN on deck slide 14, second lesson sample); this file shortened, with history moved to `status-history.md` (#171).
 - 1 Nov: fixed demo date kept after a reload (T-80, #170); README "two ways to test" and logins (T-79, #169).
 - 1 Nov: Telugu and Tamil teacher strings (T-76, #166); video story guide and fixed staging date (T-74, T-75, #165).
