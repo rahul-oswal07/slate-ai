@@ -3,6 +3,11 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## Next: release to prod before the code freeze (1 Nov, 11:59 pm)
+
+- Every task and issue is closed, but **prod (`slateai-prod`, the judges' demo link) is still on tag `v1.0-rc1` (31 Oct)**. Not on prod yet: #166 Telugu and Tamil strings, #159 Under the hood "For" column (the README's judges table promises it), #157 Settings, #158 Savitha rename, #165 video story and fixed date (staging-only settings).
+- To do: CI green on `main` → check staging (తెలుగు / தமிழ் at 360 px) → tag `v1.0` on `main` (deploys prod) → run the 6 demo steps once on prod. Rahul decides when to tag.
+
 ## README "How to test" and mentor docs (1 Nov, T-77 #163, T-78 #164), branch `docs/T-77-how-to-test-mentor-docs`
 
 - README: new **How to test** section before "For judges": quickest path, roles (teacher via `/demo`, no PIN needed; the `/login` PIN stays unpublished; family links; admin not on prod), 5 sample inputs (Kannada voice note from the `add-carry` eval case, the two synthetic textbook photos, Ravi's Telugu catch-up with Simpler/Shorter, Rohan's Hindi family, the language switch), and the limits (Grade 3 maths only, WhatsApp and SATS simulated, one shared demo class, te/ta/hi drafts).
