@@ -51,7 +51,7 @@ Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English;
 ### 2. Real app
 
 1. Open https://slateai-prod.azurewebsites.net on your phone (or a desktop browser). Your browser can install it as an app (*Add to Home screen*).
-2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN on slide 14 of the submitted deck. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up.
+2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN on slide 14 of the submitted deck. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up. To see that welcome, use Savitha's login ([steps](#3-first-time-sign-in-use-savithas-login)).
 3. **Today:** the simulated SATS attendance arrives at 12:00 (retry at 2 pm). Before then, or if it's wrong, mark or correct it yourself.
 4. **Record the lesson** by voice or with a photo of the textbook page, and confirm the match.
 5. **Approve the evening message** once (Today → tonight's card → *Review and approve*). After 6 pm IST it goes to each absent child's family with today's lesson and page.
@@ -60,15 +60,31 @@ Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English;
 
 To see what the families received, open https://slateai-prod.azurewebsites.net/demo. It's the same class, and its family phone shows Rohan's family's messages (WhatsApp is simulated in this build).
 
+### 3. First-time sign-in (use Savitha's login)
+
+To see what a new teacher sees the first time she opens the app, sign in as **Savitha**. Her login has been reset to its first-time state on both servers: no greeting recorded, no voice consent given. Shobha and Monika have already done the welcome, so they go straight to Today.
+
+1. Open https://slateai-prod.azurewebsites.net/login (or https://slateai-staging.azurewebsites.net/login). If you're already signed in as another teacher, tap **Log out** at the top of the screen first.
+2. Sign in with Savitha's number, `9123456789`, and the PIN on slide 14 of the submitted deck.
+3. **Welcome:** *"Namaskara, Savitha ma'am"*, with three promises: attendance comes from SATS, nothing reaches a parent until she approves it, and only she can see the records. Tap **Start**.
+4. **Step 1 of 2, a 10-second greeting:** tap the microphone and say the suggested line (or anything short), then tap again to stop. Allow the microphone when the browser asks.
+   - Tap **Play your greeting** to hear it back, or **Record again**.
+   - Tick *"I agree my voice is used only in messages to parents…"*. This is the voice consent, and **Save and continue** doesn't work without it.
+   - With no microphone, tap **Continue without a greeting**. She can record it later in **Settings**.
+5. **Step 2 of 2, the evening message:** the message a family gets on each day their child is absent, shown filled with an example child. Shobha has already approved it for this class, so this step shows *"You approved this message"*. Tap **Go to Today**. On a new class, she would approve it here, once.
+6. **Today:** the welcome is done. Her greeting is in **Settings**, where she can play it back or record it again.
+
+The reset can only be used once: whoever finishes these steps first completes Savitha's welcome. After that, her login goes straight to Today, like the others.
+
 ### Login credentials
 
 | Server | Role | Name | Mobile number | PIN | Notes |
 |---|---|---|---|---|---|
 | Production (real app) | Class teacher | Shobha | `9000000000` | deck, slide 14 | Families see her name and greeting |
-| Production (real app) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | Same class: several teachers can share one class |
+| Production (real app) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | Same class: several teachers can share one class. **Use for the [first-time sign-in](#3-first-time-sign-in-use-savithas-login)** |
 | Production (real app) | Co-teacher | Monika | `9123456788` | deck, slide 14 | Same class |
 | Staging (guided demo) | Class teacher | Shobha | `9000000000` | deck, slide 14 | Not needed for `/demo`, which signs you in by itself; for `/login` on staging |
-| Staging (guided demo) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | |
+| Staging (guided demo) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | **Use for the [first-time sign-in](#3-first-time-sign-in-use-savithas-login)** |
 | Staging (guided demo) | Co-teacher | Monika | `9123456788` | deck, slide 14 | |
 | Both | Family | — | — | none | Families never sign in: each link carries its own token (`/p/<token>`) |
 | — | Admin | — | — | — | Not needed for judging and not switched on in production |
