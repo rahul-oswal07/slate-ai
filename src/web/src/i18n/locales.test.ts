@@ -70,4 +70,26 @@ describe('language switching', () => {
     expect(i18n.t('language.hi')).toBe('हिन्दी')
     await i18n.changeLanguage('en')
   })
+
+  // A key used in the code but missing from en shows as the raw key on screen (demo.reset.bodyVideo, T-83).
+  // Catches literal keys anywhere in an expression, e.g. t(video ? 'a.b' : 'a.c').
+  it('has every key the code uses', () => {
+    const sources = import.meta.glob<string>(['../**/*.{ts,tsx}', '!../**/*.test.{ts,tsx}'], {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    })
+    const english = flatten(en)
+    const sections = new Set(Object.keys(en))
+    const known = (key: string) =>
+      key in english || `${key}_one` in english || `${key}_other` in english ||
+      Object.keys(english).some((k) => k.startsWith(`${key}.`))
+    const missing = Object.entries(sources).flatMap(([file, text]) =>
+      [...text.matchAll(/['"`]([a-z][A-Za-z]*(?:\.[A-Za-z0-9_]+)+)['"`]/g)]
+        .map((m) => m[1] ?? '')
+        .filter((key) => sections.has(key.split('.')[0] ?? '') && !known(key))
+        .map((key) => `${file}: ${key}`),
+    )
+    expect(missing).toEqual([])
+  })
 })

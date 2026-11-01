@@ -192,6 +192,17 @@ describe('DemoScreen (T-18)', () => {
     expect(localStorage.getItem('slate.demo.resetAt')).toBe(resetAt)
   })
 
+  it('explains the video story\'s reset in words, not a key (T-83)', async () => {
+    const user = userEvent.setup()
+    setup({ demo: { ...info, story: 'video' } })
+    renderApp('/demo')
+
+    await user.click(await screen.findByRole('button', { name: 'Reset demo' }))
+    const dialog = screen.getByRole('dialog', { name: 'Reset the demo?' })
+    expect(within(dialog).queryByText('demo.reset.bodyVideo')).not.toBeInTheDocument()
+    expect(within(dialog).getByText(/Ananya/)).toBeInTheDocument()
+  })
+
   it('lists AI calls from the last reset anyone made, in a keyboard-reachable region', async () => {
     const calls = setup({ demo: { ...info, lastResetAt: resetAt } })
     renderApp('/demo')

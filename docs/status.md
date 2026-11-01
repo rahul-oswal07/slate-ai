@@ -57,6 +57,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Recent changes
 
+- 1 Nov: the video story's Reset dialog showed the raw key `demo.reset.bodyVideo`; text added in all locales, plus a test for keys missing from the locale files (T-83).
 - 1 Nov: the 6 pm job waits (until 9 pm) for a ticked lesson clip she hasn't approved, so Approve clip no longer hits 409 after a send (T-82).
 - 1 Nov: T-81 built on a branch, held until after judging: the curriculum follows the textbook PDFs (60 lessons, 12 chapters, D-89), and lessons without a practice rule are left out of the candidate set. A1 eval 13/13 with 60 lessons; the seeded Hindi catch-up regenerated live (page 80, verified, no names). Eval cases moved to the new book (6 A2 cases rechecked on its graph; A8 now covers tables and half); evals on them: A2 10/10, A3 14/14 ready (13/14 first pass), A8 15/15, 14/15 first pass (after adding table rows to the tables lesson's examples; it was 9/15).
 - 1 Nov: prod released as `v1.0`; staging checked at 360 px in Telugu and Tamil (Tamil layout gap logged above).
