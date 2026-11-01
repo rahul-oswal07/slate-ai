@@ -57,6 +57,8 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Recent changes
 
+- 1 Nov: the video story's Reset dialog showed the raw key `demo.reset.bodyVideo`; text added in all locales, plus a test for keys missing from the locale files (T-83).
+- 1 Nov: the 6 pm job waits (until 9 pm) for a ticked lesson clip she hasn't approved, so Approve clip no longer hits 409 after a send (T-82).
 - 1 Nov: prod released as `v1.0`; staging checked at 360 px in Telugu and Tamil (Tamil layout gap logged above).
 - 1 Nov: README refresh for judges (same-app note, PIN on deck slide 14, second lesson sample); this file shortened, with history moved to `status-history.md` (#171).
 - 1 Nov: fixed demo date kept after a reload (T-80, #170); README "two ways to test" and logins (T-79, #169).

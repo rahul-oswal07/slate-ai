@@ -9,6 +9,12 @@ public sealed class EveningOptions
     /// <summary>Evening messages go after this time, IST (FR-20: after 6 pm).</summary>
     public TimeOnly SendAt { get; set; } = new(18, 0);
 
+    /// <summary>
+    /// The latest the 6 pm job waits, IST, for a ticked lesson clip she hasn't approved yet (T-82). After it the plain
+    /// message goes.
+    /// </summary>
+    public TimeOnly LessonAudioWaitUntil { get; set; } = new(21, 0);
+
     /// <summary>Days a parent link keeps working (spec §4.4: 14 days).</summary>
     public int LinkDays { get; set; } = 14;
 
