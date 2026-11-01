@@ -5,7 +5,9 @@ Owner: **R** = Rahul, **M** = Monika.
 
 ## Open
 
-Nothing open (1 Nov). New tasks get the next free ID (T-79 onwards) and a GitHub issue.
+| ID | Task | Owner | Acceptance criteria | How it's tested |
+|---|---|---|---|---|
+| T-79 | **README: two ways to test (Rahul, 1 Nov):** the guided demo on staging (recommended: week ready, date fixed at Sat 31 Oct) and the real app on prod (phone, real date); an "At a glance" table of facts with numbers; step lists for both ways; a login credentials table (Shobha, Savitha, Monika; staging and prod). **By the code freeze, Sun 1 Nov 11:59 pm** | R | Both links work; every number in the README matches its source (evals, tests, user testing); no PIN in the repo; the credentials table points to the submission form | Sign in on staging and prod with each login in the table; open every link on GitHub |
 
 ## Done (24 Oct – 1 Nov)
 

@@ -3,6 +3,12 @@
 Read this first in any new session, then `CLAUDE.md`, `docs/intent.md`, `docs/spec.md`, `docs/plan.md`, `docs/tasks.md`.
 Update it at the end of every working session (what changed, what's next, blockers).
 
+## README: two ways to test (1 Nov, T-79), branch `docs/T-79-readme-two-ways`
+
+- README top rewritten: **guided demo on staging** (recommended; video story, `Demo__Today=2026-10-31`) and **the real app on prod** (`/login` on a phone, real date, families' messages after 6 pm IST; the prod `/demo` family phone shows what Rohan's family got). New "At a glance" table (5 languages, 5 Claude prompts with the latest eval scores, guardrails, user testing counts, test counts), a step list for each way, and a **login credentials table** (all three seeded teachers, Shobha, Savitha and Monika, on staging and prod; PINs **not** in the README: they go in the hackathon submission form (Rahul, 1 Nov), as the repo is public). All six logins checked on 1 Nov (`POST /api/auth/pin` → 200): every teacher uses the same PIN on staging and prod, and it is the co-teacher PIN committed in `appsettings.Development.json`; after judging, change the server PINs (clear the stored `PinHash`; the seeder never overwrites one). Prod still shows the co-teacher as **Lakshmi** until `v1.0` (T-72 rename).
+- Way 2 needs prod on `v1.0`: `v1.0-rc1` has no Settings and no Telugu/Tamil strings.
+- `Demo__Today=2026-10-31` was **not** actually on `slateai-staging` (only `Story`, `TeacherPin`, `CoTeacherPin`); set and restarted 1 Nov, ~08:15 UTC. Checked: `GET /api/demo` returns `fixedToday: "2026-10-31"` (the new container took a few minutes to serve). `Demo__CoTeacherPin` is set on both staging and prod.
+
 ## Next: release to prod before the code freeze (1 Nov, 11:59 pm)
 
 - Every task and issue is closed, but **prod (`slateai-prod`, the judges' demo link) is still on tag `v1.0-rc1` (31 Oct)**. Not on prod yet: #166 Telugu and Tamil strings, #159 Under the hood "For" column (the README's judges table promises it), #157 Settings, #158 Savitha rename, #165 video story and fixed date (staging-only settings).
