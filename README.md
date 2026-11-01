@@ -4,42 +4,90 @@ Every absent child gets the lesson they missed, based on what their own teacher 
 
 Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism.
 
-> **Judges:** open the demo link. It signs you in as the demo teacher and shows the teacher's phone and a family's phone side by side. Follow the 6 steps on screen. No sign-up, no WhatsApp needed. Use the **EN** toggle for English. **Reset demo** starts the story again, and **Under the hood** lists every Claude and Sarvam call as it happens.
+> **Judges: two ways to try it, no sign-up.** The **guided demo** (recommended, about 5 minutes) has a whole school week ready and walks you through it. The **real app** is exactly what a teacher uses, ideally on your own phone. Both are below, with the sign-in details.
 
 | | |
 |---|---|
-| Demo | https://slateai-prod.azurewebsites.net/demo |
-| Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
+| ⭐ Guided demo (recommended) | https://slateai-staging.azurewebsites.net/demo |
+| 📱 Real app | https://slateai-prod.azurewebsites.net |
+| 🎬 Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
 | Status | Build stage submission, 31 Oct 2026 |
 
-## How to test
+## At a glance
 
-**Quickest path (about 5 minutes):** open https://slateai-prod.azurewebsites.net/demo, follow the 6 steps on screen, and use **EN** for English. **Reset demo** starts the story again.
-
-### Roles and how to get in
-
-| Role | How to get in |
+| | |
 |---|---|
-| Teacher | The demo link signs you in as the demo teacher (Shobha, a fictional Grade 3 class of 36). No sign-up or PIN needed. The normal sign-in at `/login` (phone `9000000000`) uses a PIN that isn't published; the demo link covers everything it does. |
-| Family (parent) | The family phone on the demo page. Messages arrive there instead of WhatsApp; **Open** shows the page the family gets (`/p/<token>`), in the family's language. Families never sign in: each link carries its own token. |
-| Admin | Not needed for judging, and not switched on in production. Two read-only team pages (`/admin/greetings`, `/admin/lesson-audio`) behind a secret key. |
+| **5 languages** | The teacher app and the family pages work in Kannada, Telugu, Tamil, Hindi and English. Each child's catch-up is in their own home language. |
+| **AI that shows its work** | 5 versioned Claude prompts (lesson mapping from voice or photo, choosing what to teach, script writing, verifying, lesson recap) plus Sarvam speech. **Under the hood** shows every call live: model, prompt version, tokens, the check's result and which children it was about. |
+| **Measured, not claimed** | Latest eval runs: lesson mapping **13/13**, choosing what to teach **10/10**, scripts **14/14** first pass, verifier **8/8**, lesson recap **13/15**. Dated results in [`evals/results/`](evals/results/). |
+| **Safe by design, enforced in code** | No child or teacher names reach an AI provider. Every number a family sees is computed in code. Nothing reaches a parent until the teacher approves it. Each rule has tests ([For judges](#for-judges)). |
+| **Built with the people who will use it** | 2 government-school teachers, 2 parents, 2 mentor calls; 9 findings logged with what changed ([`user-testing.md`](docs/user-testing.md)). |
+| **Engineered to last** | 605 API tests and 346 web tests run on every PR; attendance and voice notes work offline and sync later; one container on Azure. |
+
+## Two ways to test
+
+| | ⭐ 1. Guided demo (recommended) | 📱 2. Real app |
+|---|---|---|
+| Open | https://slateai-staging.azurewebsites.net/demo | https://slateai-prod.azurewebsites.net, on your phone or a desktop browser |
+| Sign-in | Automatic, as the class teacher | Mobile number ([table below](#login-credentials)) and the PIN from the submission form |
+| Data | A full week is ready: the date is **fixed at Sat 31 Oct 2026**, so Monday to Friday's absences and lessons are already there | The same fictional Grade 3 class (36 children) on **today's real date** |
+| What you see | The teacher's phone and a family's phone side by side, with 6 steps on screen | Exactly what a teacher sees. Families get their messages after 6 pm IST, as in a real school |
+| Time | About 5 minutes | About 10 minutes |
+
+### 1. Guided demo (recommended)
+
+Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English; **Reset demo** starts the story again. The same 6 steps are on screen:
+
+1. **Today** (teacher's phone): the simulated SATS attendance shows only Ananya (roll 1) absent. She has been away all week. Arun is back today after missing Thursday and Friday.
+2. **Record today's lesson** in Kannada ([sample below](#sample-inputs)), or pick it from the list, and confirm it.
+3. **Tonight's message:** Ananya's family's phone already has an evening message in Kannada for each day this week. Tap **Send messages now** for tonight's (in a school it goes by itself at 6 pm), open it and pick a reason.
+4. **Approve:** tap *Make this week's catch-ups*. You get four, one per home language: Kannada for Ananya (five missed lessons squeezed into the ones that matter for next week), Telugu for Ravi (Mon–Tue), Hindi for Rohan (Wed) and Tamil for Arun (Thu–Fri). Listen, read the Kannada summary and **Why this**, tick, approve, then tap **Send messages now**.
+5. **The family's side:** on Ananya's family's phone, open the catch-up, listen, do the activity and tap a picture.
+6. **Back on the teacher's phone:** **Back today** has Arun's buddy card, **Week** shows how fast children came back, the reasons and the attendance stars, and **Under the hood** lists every AI call.
+
+### 2. Real app
+
+1. Open https://slateai-prod.azurewebsites.net on your phone (or a desktop browser). Your browser can install it as an app (*Add to Home screen*).
+2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN from the submission form. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up.
+3. **Today:** the simulated SATS attendance arrives at 12:00 (retry at 2 pm). Before then, or if it's wrong, mark or correct it yourself.
+4. **Record the lesson** by voice or with a photo of the textbook page, and confirm the match.
+5. **Approve the evening message** once (Today → tonight's card → *Review and approve*). After 6 pm IST it goes to each absent child's family with today's lesson and page.
+6. **Approve:** *Make this week's catch-ups*, review one, try **Simpler** or **Shorter**, then approve. Approved catch-ups go out after 6 pm.
+7. Explore **Missed lessons**, **Back today**, **Week** and **Settings** (your greeting, the evening message).
+
+To see what the families received, open https://slateai-prod.azurewebsites.net/demo. It's the same class, and its family phone shows Rohan's family's messages (WhatsApp is simulated in this build).
+
+### Login credentials
+
+| Server | Role | Name | Mobile number | PIN | Notes |
+|---|---|---|---|---|---|
+| Production (real app) | Class teacher | Shobha | `9000000000` | in the submission form | Families see her name and greeting |
+| Production (real app) | Co-teacher | Savitha | `9123456789` | in the submission form | Same class: several teachers can share one class |
+| Production (real app) | Co-teacher | Monika | `9123456788` | in the submission form | Same class |
+| Staging (guided demo) | Class teacher | Shobha | `9000000000` | in the submission form | Not needed for `/demo`, which signs you in by itself; for `/login` on staging |
+| Staging (guided demo) | Co-teacher | Savitha | `9123456789` | in the submission form | |
+| Staging (guided demo) | Co-teacher | Monika | `9123456788` | in the submission form | |
+| Both | Family | — | — | none | Families never sign in: each link carries its own token (`/p/<token>`) |
+| — | Admin | — | — | — | Not needed for judging and not switched on in production |
+
+The PINs are in the hackathon submission form, not in this public repo. Enter the 10-digit number without `+91`. Five wrong PINs lock that login for 15 minutes.
 
 ### Sample inputs
 
-1. **Kannada voice note** (step 2, Today → tap the mic) about 3-digit addition with carrying. Read this aloud:
+1. **Kannada voice note** (Today → tap the mic) about 3-digit addition with carrying. Read this aloud:
    > ಇವತ್ತು ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ ಮಾಡಿದೆವು, ದಶಕ ವರ್ಗಾವಣೆ ಜೊತೆ. 456 plus 278, ಬಿಡಿ ಸ್ಥಾನದಲ್ಲಿ 14 ಬಂತು, ಒಂದು ಹತ್ತು carry ಮಾಡಿದೆವು.
 
    ("Today we did 3-digit addition with carrying. 456 plus 278: 14 in the ones place, so we carried one ten.") Expect the lesson "addition with carrying". If you don't read Kannada, pick the lesson from the list instead.
 2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*): download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect subtraction with borrowing) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect addition word problems). These are synthetic textbook pages from our evals.
-3. **Ravi's Telugu catch-up** (Approve → *Make this week's catch-ups*): he missed several lessons; read the Kannada summary and **Why this** to see which ones were kept for next week, then tap **Simpler** or **Shorter** to get a new version. **Under the hood** shows each call.
-4. **Rohan's Hindi family** (family phone): open tonight's evening message and pick a reason, then open the catch-up, listen and tap a picture. Back on the teacher's phone, **Missed lessons** shows how he did and **Week** shows the reason.
-5. **Language switch:** the teacher app in తెలుగు, தமிழ் or हिन्दी; children's catch-ups stay in their own home language.
+3. **Choosing what to teach** (Approve): open the catch-up of a child who missed several lessons and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
+4. **The family's answer:** after the family taps a picture, **Missed lessons** on the teacher's phone shows how the child did, and **Week** shows the reason the family gave.
+5. **Language switch:** the teacher app in తెలుగు, தமிழ் or हिन्दी. Children's catch-ups stay in their own home language.
 
 ### Limits you will see
 
 - Only Grade 3 maths (16 competencies) is loaded.
-- WhatsApp and the SATS attendance feed are simulated: messages appear on the demo family phone, and **Bring in today's attendance** plays the SATS feed.
-- There is one demo class for everyone. If someone else uses it at the same time you may see their changes; **Reset demo** starts again.
+- WhatsApp and the SATS attendance feed are simulated: messages appear on the demo's family phone, and the demo's **Bring in today's attendance** plays the SATS feed.
+- Each server has one class for everyone. If someone else uses it at the same time you may see their changes; on the guided demo, **Reset demo** starts again.
 - The AI calls are real, so catch-ups take a moment to write. Voice notes are in Kannada, the teacher's language.
 - Telugu, Tamil and Hindi text are drafts waiting for native review.
 
