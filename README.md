@@ -62,7 +62,7 @@ To see what the families received, open https://slateai-prod.azurewebsites.net/d
 
 ### 3. First-time sign-in (use Savitha's login)
 
-To see what a new teacher sees the first time she opens the app, sign in as **Savitha**. Her login has been reset to its first-time state on both servers: no greeting recorded, no voice consent given. Shobha and Monika have already done the welcome, so they go straight to Today.
+To see what a new teacher sees the first time she opens the app, sign in as **Savitha**. Her login has been reset to its first-time state on both servers: no greeting recorded, no voice consent given. Use her login for this: the other logins have usually done the welcome already, and then they go straight to Today.
 
 1. Open https://slateai-prod.azurewebsites.net/login (or https://slateai-staging.azurewebsites.net/login). If you're already signed in as another teacher, tap **Log out** at the top of the screen first.
 2. Sign in with Savitha's number, `9123456789`, and the PIN on slide 14 of the submitted deck.
