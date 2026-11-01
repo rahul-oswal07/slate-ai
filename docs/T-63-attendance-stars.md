@@ -4,7 +4,7 @@
 |---|---|
 | Task | T-63 (`docs/tasks.md`, *Done*) |
 | Requirement | FR-24 (`spec.md` §3) · Decision D-81 (`spec.md` §8) |
-| Source | Education mentor, 24 Oct (`mentor-feedback-2026-10-24.md` §2 point 5: "attendance incentives: stars and streaks") |
+| Source | Technical mentor, 24 Oct (`mentor-feedback-2026-10-24.md` §2 point 5: "attendance incentives: stars and streaks") |
 | Owner | Rahul (product owner with Monika from 26 Oct, and engineering) |
 | Status | **Built (26 Oct).** One PR |
 | Branch | `feat/T-63-attendance-stars` · one PR |

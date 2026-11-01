@@ -1,9 +1,10 @@
-# Education mentor session — 24 Oct 2026
+# Technical mentor session — 24 Oct 2026
 
 | | |
 |---|---|
-| Who | Education mentor, Monika, Rahul |
+| Who | Technical mentor (hackathon panel), Monika, Rahul |
 | Source | Meeting notes from the call, summarised automatically. The mentor is not named here (the repo is public) |
+| Prep sheet | [`mentor-technical-2026-10-21.md`](mentor-technical-2026-10-21.md) (written 21 Oct for this call) |
 | Status | **Notes recorded 26 Oct.** Action items below are open; nothing decided yet. Decisions that come out of them go to `spec.md` §8 and tasks to `tasks.md` |
 
 ## 1. Summary
@@ -12,6 +13,7 @@
 - It sends home-language catch-up content and activities through WhatsApp.
 - The mentor asked for simpler language, examples and audio in the explanations.
 - Pilot access, government approvals and production costs are still unresolved.
+- The mentor liked the technical design and asked for no specific changes to it; the points below are about the product and its use.
 
 ## 2. What the mentor said
 

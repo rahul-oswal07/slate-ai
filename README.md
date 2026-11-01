@@ -12,6 +12,37 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 | Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
 | Status | Build stage submission, 31 Oct 2026 |
 
+## How to test
+
+**Quickest path (about 5 minutes):** open https://slateai-prod.azurewebsites.net/demo, follow the 6 steps on screen, and use **EN** for English. **Reset demo** starts the story again.
+
+### Roles and how to get in
+
+| Role | How to get in |
+|---|---|
+| Teacher | The demo link signs you in as the demo teacher (Shobha, a fictional Grade 3 class of 36). No sign-up or PIN needed. The normal sign-in at `/login` (phone `9000000000`) uses a PIN that isn't published; the demo link covers everything it does. |
+| Family (parent) | The family phone on the demo page. Messages arrive there instead of WhatsApp; **Open** shows the page the family gets (`/p/<token>`), in the family's language. Families never sign in: each link carries its own token. |
+| Admin | Not needed for judging, and not switched on in production. Two read-only team pages (`/admin/greetings`, `/admin/lesson-audio`) behind a secret key. |
+
+### Sample inputs
+
+1. **Kannada voice note** (step 2, Today → tap the mic) about 3-digit addition with carrying. Read this aloud:
+   > ಇವತ್ತು ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ ಮಾಡಿದೆವು, ದಶಕ ವರ್ಗಾವಣೆ ಜೊತೆ. 456 plus 278, ಬಿಡಿ ಸ್ಥಾನದಲ್ಲಿ 14 ಬಂತು, ಒಂದು ಹತ್ತು carry ಮಾಡಿದೆವು.
+
+   ("Today we did 3-digit addition with carrying. 456 plus 278: 14 in the ones place, so we carried one ten.") Expect the lesson "addition with carrying". If you don't read Kannada, pick the lesson from the list instead.
+2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*): download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect subtraction with borrowing) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect addition word problems). These are synthetic textbook pages from our evals.
+3. **Ravi's Telugu catch-up** (Approve → *Make this week's catch-ups*): he missed several lessons; read the Kannada summary and **Why this** to see which ones were kept for next week, then tap **Simpler** or **Shorter** to get a new version. **Under the hood** shows each call.
+4. **Rohan's Hindi family** (family phone): open tonight's evening message and pick a reason, then open the catch-up, listen and tap a picture. Back on the teacher's phone, **Missed lessons** shows how he did and **Week** shows the reason.
+5. **Language switch:** the teacher app in తెలుగు, தமிழ் or हिन्दी; children's catch-ups stay in their own home language.
+
+### Limits you will see
+
+- Only Grade 3 maths (16 competencies) is loaded.
+- WhatsApp and the SATS attendance feed are simulated: messages appear on the demo family phone, and **Bring in today's attendance** plays the SATS feed.
+- There is one demo class for everyone. If someone else uses it at the same time you may see their changes; **Reset demo** starts again.
+- The AI calls are real, so catch-ups take a moment to write. Voice notes are in Kannada, the teacher's language.
+- Telugu, Tamil and Hindi text are drafts waiting for native review.
+
 ## For judges
 
 Where to check how AI is used. Each row links to the files that prove it.

@@ -8,6 +8,8 @@ Owner: **R** = Rahul, **M** = Monika.
 | ID | Task | Owner | Acceptance criteria | How it's tested |
 |---|---|---|---|---|
 | T-76 | **Telugu and Tamil teacher app (#162):** translate the ~270 teacher-side strings in `te.json` and `ta.json` that were still English (approve, missed, back, week, demo, …), keeping keys and `{{placeholders}}`. Drafts for native review (T-26), like Hindi. **By the code freeze, Sun 1 Nov 11:59 pm** | R | No te/ta key equals `en.json` except language names and placeholder-only strings (same 10 as Hindi); placeholders match English | `locales.test.ts` (no English left in te, ta, hi; placeholders match in all five); `verify.sh` |
+| T-77 | **README "How to test" (#163):** quickest path through `/demo`, how each role gets in (teacher, family, admin), 5 sample inputs, the limits judges will see. **By the code freeze, Sun 1 Nov 11:59 pm** | R | No placeholder text in the README; every role has a stated way in; 3–5 sample inputs; no PIN committed | Read on GitHub; image links open |
+| T-78 | **Mentor docs fixed (#164):** the 24 Oct call was the technical mentor, not the education mentor; the 21 Oct file is the prep sheet for it, not a session | R | No file says the 24 Oct call was the education mentor or that a technical call took place on 21 Oct | `grep -rn "education mentor" docs README.md` |
 
 ## Done (24-30 Oct)
 

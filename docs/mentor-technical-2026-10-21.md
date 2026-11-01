@@ -1,11 +1,11 @@
-# Technical mentor session — 21 Oct 2026
+# Technical mentor session — prep sheet (written 21 Oct for the 24 Oct call)
 
 | | |
 |---|---|
 | Who | Technical mentor (hackathon panel), Rahul (Monika optional) |
 | Length | 40 minutes |
 | Parts | **A.** Pre-read (share before or screen-share) · **B.** Agenda and questions · **C.** Notes and decisions (fill in during and after the call) |
-| Status | Prepared 21 Oct. Notes to be added after the call; decisions go to `spec.md` §8 |
+| Status | Prepared 21 Oct for the technical mentor call held on **24 Oct**; no call took place on 21 Oct. The call's notes are in [`mentor-feedback-2026-10-24.md`](mentor-feedback-2026-10-24.md), so part C below was left blank |
 
 ---
 
