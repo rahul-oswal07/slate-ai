@@ -81,6 +81,20 @@ public sealed class WhatsAppTestEndpointTests
         Assert.Empty(_http.Requests);
     }
 
+    [Fact]
+    public async Task The_app_sends_deliveries_as_hello_world_until_T104()
+    {
+        await using var factory = Create(Key, channel: DeliveryChannels.WhatsApp);
+        using var scope = factory.Services.CreateScope();
+        var channel = scope.ServiceProvider.GetRequiredService<IParentChannel>();
+
+        var result = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Evening, "te", ["Ravi", "lesson", "page 15"], "tok_1", "3"), Ct);
+
+        Assert.Equal(DeliveryStatus.Sent, result.Outcome);
+        Assert.Contains("\"name\":\"hello_world\"", Assert.Single(_http.Requests).Body);
+    }
+
     [Theory]
     [InlineData(Key, "wrong-key-wrong-key-wrong-key-xx")]
     [InlineData(Key, null)]
@@ -96,7 +110,7 @@ public sealed class WhatsAppTestEndpointTests
         Assert.Empty(_http.Requests);
     }
 
-    private ApiFactory Create(string? key) => FakeApi.Create(
+    private ApiFactory Create(string? key, string channel = DeliveryChannels.Demo) => FakeApi.Create(
         services => services.AddHttpClient<WhatsAppClient>().ConfigurePrimaryHttpMessageHandler(() => _http),
         settings: new Dictionary<string, string?>
         {
@@ -104,6 +118,7 @@ public sealed class WhatsAppTestEndpointTests
             ["WhatsApp:PhoneNumberId"] = "1234567890",
             ["WhatsApp:AccessToken"] = "test-token",
             [$"WhatsApp:Recipients:{Ravi}"] = Number,
+            ["Delivery:Channel"] = channel,
         });
 
     private static HttpClient AdminClient(ApiFactory factory, string? key)
