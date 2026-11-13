@@ -1,6 +1,6 @@
 # WhatsApp delivery plan (proposal for Rahul)
 
-**Status (13 Nov): approved by Rahul as D-90 (not D-73, which was already taken); FR-16 is M; step 1 is built (T-40).** Step 1 differs from this proposal in three ways:
+**Status (13 Nov): approved by Rahul as D-97 (not D-73 or D-90, which were already taken); FR-16 is M; step 1 is built (T-40).** Step 1 differs from this proposal in three ways:
 - the template carries a **URL button** to `/p/{token}` instead of a quick-reply, so no webhook or 24-hour window is needed yet (the parent page already plays the greeting, lesson clip and catch-up);
 - sends go through an **outbox table** (`ParentDeliveries`), not columns on `EveningMessage`;
 - **no ffmpeg**: greetings and clips are already stored as Ogg Opus (`Speech/OpusEncoding.cs`).

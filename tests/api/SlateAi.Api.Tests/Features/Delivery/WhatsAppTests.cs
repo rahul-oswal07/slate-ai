@@ -25,14 +25,19 @@ public sealed class WhatsAppTests
         new(Guid.NewGuid(), child, DeliveryKinds.Evening, language, ["Ravi", "పది తీసుకుని తీసివేత", "పేజీ 15"], "tok_123", wordingVersion);
 
     private static (WhatsAppChannel Channel, StubHttpHandler Http) Create(
-        WhatsAppOptions? settings = null, params Func<HttpResponseMessage>[] responses)
+        WhatsAppOptions? settings = null, params Func<HttpResponseMessage>[] responses) =>
+        Create(settings, helloWorld: false, responses);
+
+    /// <param name="helloWorld">The T-104 stand-in; off here so the approved-template path stays tested.</param>
+    private static (WhatsAppChannel Channel, StubHttpHandler Http) Create(
+        WhatsAppOptions? settings, bool helloWorld, params Func<HttpResponseMessage>[] responses)
     {
         var http = new StubHttpHandler(responses.Length > 0
             ? responses
             : [() => StubHttpHandler.Json("""{"messaging_product":"whatsapp","messages":[{"id":"wamid.ABC"}]}""")]);
         var options = Options.Create(settings ?? Settings());
         var client = new WhatsAppClient(new HttpClient(http), options, NullLogger<WhatsAppClient>.Instance);
-        return (new WhatsAppChannel(client, options), http);
+        return (new WhatsAppChannel(client, options, helloWorld), http);
     }
 
     [Fact]
@@ -81,6 +86,36 @@ public sealed class WhatsAppTests
         Assert.DoesNotContain("wamid", result.ProviderMessageId);
     }
 
+    [Theory]
+    [InlineData(DeliveryKinds.Evening, "4")]
+    [InlineData(DeliveryKinds.CatchUp, null)]
+    public async Task Until_T104_every_delivery_sends_hello_world_without_names_or_button(string kind, string? wordingVersion)
+    {
+        // Language and wording version don't matter, since no text of ours goes.
+        var (channel, http) = Create(null, helloWorld: true);
+
+        var result = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "xx", ["Ravi", "Shobha"], "tok_123", wordingVersion), Ct);
+
+        Assert.Equal(DeliveryStatus.Sent, result.Outcome);
+        using var body = JsonDocument.Parse(Assert.Single(http.Requests).Body);
+        var template = body.RootElement.GetProperty("template");
+        Assert.Equal("hello_world", template.GetProperty("name").GetString());
+        Assert.Equal("en_US", template.GetProperty("language").GetProperty("code").GetString());
+        Assert.False(template.TryGetProperty("components", out _));
+        Assert.DoesNotContain("Ravi", body.RootElement.GetRawText());
+        Assert.DoesNotContain("tok_123", body.RootElement.GetRawText());
+    }
+
+    [Fact]
+    public async Task Until_T104_an_unregistered_child_is_still_skipped()
+    {
+        var (channel, http) = Create(null, helloWorld: true);
+
+        Assert.Equal(ChannelResult.Skipped("no-recipient"), await channel.SendAsync(Evening(Unregistered), Ct));
+        Assert.Empty(http.Requests);
+    }
+
     [Fact]
     public async Task Catch_up_uses_its_own_template()
     {
@@ -101,6 +136,16 @@ public sealed class WhatsAppTests
 
         Assert.Equal(ChannelResult.Skipped("no-recipient"), result);
         Assert.Empty(http.Requests);
+    }
+
+    [Fact]
+    public void A_recipient_key_without_hyphens_is_read_the_same()
+    {
+        // App Service rejects setting names with "-", so staging writes WhatsApp__Recipients__<32 hex digits>.
+        var settings = new WhatsAppOptions { Recipients = { [Ravi.ToString("N")] = "+919812345678" } };
+
+        Assert.Equal("+919812345678", settings.RecipientFor(Ravi));
+        Assert.Null(settings.RecipientFor(Unregistered));
     }
 
     [Fact]

@@ -1,6 +1,8 @@
 # WhatsApp setup (T-40, step 1)
 
-How to switch staging from the demo chat to real WhatsApp for the registered test phones. The code is in `src/api/SlateAi.Api/Features/Delivery/`. Decision D-90 and FR-16 are in `spec.md`, and the original proposal is in [`whatsapp-delivery-plan.md`](whatsapp-delivery-plan.md).
+How to switch staging from the demo chat to real WhatsApp for the registered test phones. The code is in `src/api/SlateAi.Api/Features/Delivery/`. Decision D-97 and FR-16 are in `spec.md`, and the original proposal is in [`whatsapp-delivery-plan.md`](whatsapp-delivery-plan.md).
+
+> **For now (T-104, #182):** every WhatsApp delivery sends Meta's `hello_world` instead of our templates, hardcoded in `WhatsAppChannel`, until they are approved. It carries no names, no button and none of our text, so it only proves a message reaches the phone.
 
 **How it works:**
 - When an evening message or catch-up is sent (guardrail 3 already passed), a `ParentDeliveries` row is queued in the same transaction.
@@ -27,7 +29,7 @@ Secrets go only in user-secrets (local) or App Service settings (staging), never
 | `Delivery__Channel` | `whatsapp` (default `demo`: nothing leaves the server) |
 | `WhatsApp__PhoneNumberId` | from API Setup |
 | `WhatsApp__AccessToken` | the system-user token (**secret**) |
-| `WhatsApp__Recipients__<childId>` | `+91…`, one per registered phone. Child IDs are in `data/seed/demo-class.json`. The seeded `parentPhone` values are fictional and never dialled |
+| `WhatsApp__Recipients__<childId>` | `+91…`, one per registered phone. Child IDs are in `data/seed/demo-class.json`. **On App Service, write the ID without hyphens** (`1e95443fd2d9…`): Azure rejects setting names with `-`, and both forms are read the same. The seeded `parentPhone` values are fictional and never dialled |
 | `WhatsApp__Evening__Name`, `WhatsApp__CatchUp__Name` | only if the approved names differ from `evening_absence_v1` / `catchup_ready_v1` |
 | `WhatsApp__Evening__Languages__te` (etc.) | only to stop a language that isn't approved yet: remove it or point it elsewhere. A language missing from the map is skipped |
 
