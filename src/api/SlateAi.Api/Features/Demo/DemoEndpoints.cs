@@ -9,6 +9,7 @@ using SlateAi.Api.Features.Attendance.Source;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.CatchUps.Compression;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Features.Demo;
@@ -122,7 +123,8 @@ public static class DemoEndpoints
             .WithDescription(
                 "Does for the demo class what the 6 pm job does: tonight's evening message from the approved template, " +
                 "then every approved, unsent catch-up of the week. Same rules as the job: nothing unapproved, only " +
-                "families with consent Yes who haven't stopped (guardrail 3). Safe to repeat: nobody gets a message " +
+                "families with consent Yes who haven't stopped (guardrail 3). Then delivers what is queued to registered " +
+                "WhatsApp test phones when `Delivery:Channel` is whatsapp (T-40). Safe to repeat: nobody gets a message " +
                 "twice. 404 unless signed in as the demo teacher. Demo only.");
 
         app.MapGet("/api/demo/family/{childId:guid}", GetFamilyAsync)
@@ -311,6 +313,7 @@ public static class DemoEndpoints
         HttpContext http,
         EveningSender evening,
         CatchUpSender catchUps,
+        DeliveryDispatcher delivery,
         IOptions<DatabaseOptions> database,
         TimeProvider clock,
         CancellationToken cancellationToken)
@@ -335,6 +338,8 @@ public static class DemoEndpoints
         var before = (await evening.PlanAsync(classId, today, cancellationToken))?.Sent ?? 0;
         var day = await evening.SendAsync(classId, today, cancellationToken);
         var sent = await catchUps.SendApprovedAsync(classId, today, cancellationToken);
+        // Registered test phones get WhatsApp now rather than on the next minute's tick (T-40); demo channel: nothing.
+        await delivery.RunOnceAsync(cancellationToken);
         return TypedResults.Ok(new DemoSendNowResponse(day?.Blocked, (day?.Sent ?? 0) - before, sent));
     }
 

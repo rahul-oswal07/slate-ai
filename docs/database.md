@@ -25,6 +25,8 @@ erDiagram
     Lessons ||--o{ EveningMessages : "slots from"
     Classes ||--o{ LessonAudios : "one per day and language, if ticked"
     LessonAudios ||--o{ EveningMessages : "approved clip goes with"
+    EveningMessages ||--o| ParentDeliveries : "queued for the phone"
+    CatchUpAssignments ||--o| ParentDeliveries : "queued for the phone"
     AudioClips ||--o{ LessonAudios : "clip she listens to"
     Classes ||--o{ CatchUpPackages : "one per targets + language per week"
     CatchUpPackages ||--o{ CatchUpAssignments : "for"
@@ -132,6 +134,20 @@ erDiagram
         varchar30 Token "unique"
         timestamptz SentAt
         timestamptz ExpiresAt
+    }
+    ParentDeliveries {
+        uuid Id PK
+        uuid ClassId FK
+        uuid ChildId FK
+        uuid EveningMessageId FK "nullable, unique"
+        uuid CatchUpAssignmentId FK "nullable, unique"
+        varchar10 Status "pending, sent, skipped, failed"
+        varchar10 Channel "demo, whatsapp; null while pending"
+        varchar100 ProviderMessageId "nullable, sha256 of the wamid"
+        int Attempts
+        varchar40 LastError "nullable, code only"
+        timestamptz CreatedAt
+        timestamptz SentAt "nullable"
     }
     CatchUpPackages {
         uuid Id PK
@@ -272,6 +288,8 @@ erDiagram
 
 **`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). The send step gives a `Token` (128-bit, unique), `ScheduledAt`, `SentAt` and `ExpiresAt` (+14 days) only to assignments whose child has consent `yes` and no `ParentStoppedAt`; the others stay on the buddy-card path. `OpenedAt` is not written: opens are never counted (D-20). The parent page (`/api/p/{token}`, T-15) shows the lesson only while the package is approved or sent at its approved version, the link hasn't expired and the child isn't stopped. FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
 
+**`ParentDeliveries`** — the outbox for families' phones (T-40, FR-16, migration `ParentDelivery`). A row is added **in the same transaction** as the `EveningMessages` row (`EveningStore.AddMessagesAsync`) or the catch-up token (`CatchUpStore.SendAsync`) it carries, so only what passed guardrail 3 is ever queued. Exactly one of `EveningMessageId` / `CatchUpAssignmentId` is set (check constraint `CK_ParentDeliveries_OneSource`); each is unique, so a repeated send queues nothing new. Evenings the demo video story fills in after the fact (T-70) are not queued. `DeliveryDispatcher` (run every minute by the 6 pm job and by the demo's Send messages now) claims a pending row with a conditional update on `Attempts`, so two runs never send it twice, then re-checks stop, consent and link expiry and sends it over `Delivery:Channel`: `demo` marks it `skipped`; `whatsapp` sends the approved template to the child's number in `WhatsApp:Recipients` (config, not this table; others are `skipped`) and stores the SHA-256 of the `wamid` as `ProviderMessageId` (`sha256:…`): the raw wamid is base64 that contains the recipient's number, so it is never stored, logged or returned. A temporary failure stays `pending` until `Delivery:MaxAttempts` (3), then `failed`; `LastError` is a short code (`http-502`, `graph-131026`, `stopped`, `no-recipient`). **No names, numbers or message text are stored here**; they are looked up at send time. Index on `Status`. FKs: `ChildId` (cascade, FR-15), `EveningMessageId` and `CatchUpAssignmentId` (cascade), `ClassId`.
+
 **`CheckResponses`** — the family's picture tap on P3, scored by code (FR-11): `ChoiceId` is the position shown (0–2), `Correct` compares it with the package's stored correct index, `Outcome` is `caughtUp` or `needsBuddy`. Primary key `AssignmentId`, so one answer per assignment: the first counts (D-62), later taps and replays change nothing. The family never sees the outcome (D-20); the ledger does. FK `AssignmentId` (cascade, so a deleted child's answers go too).
 
 **`AbsenceReasons`** — why a child was away, as the family tapped it from the evening message (FR-21, D-23, T-45): the category only, never symptoms, a transcript or audio. Unique `(ChildId, Date)`, where `Date` is the evening message's day; a later tap replaces the category (the family may correct it), and replays are caught by `ProcessedRequests` (endpoint `parent-reason`). Only the teacher sees it: T6 Week counts per category (T-46, index `(ClassId, Date)`). FKs `ChildId` (cascade, FR-15), `ClassId`.
@@ -288,7 +306,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments → ParentDeliveries. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -305,6 +323,7 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: T
 | Two pacing decisions for the same week racing | `pg_advisory_xact_lock(hashtextextended('pacing:{classId}:{week}', 0))` + `ProcessedRequests` + unique `(ClassId, WeekOf)` | `Features/Week/WeekStore.cs` |
 | Two taps on the same buddy card racing | `pg_advisory_xact_lock(hashtextextended('buddy:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Buddy/BuddyStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
+| Two delivery runs (the minute job and Send messages now) taking the same message | conditional `UPDATE … SET Attempts = n + 1 WHERE Status = 'pending' AND Attempts = n`; only the run that changed the row sends | `Features/Delivery/DeliveryStore.cs` |
 
 All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api.Tests/Db/`), which runs in CI.
 
@@ -331,7 +350,7 @@ From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 
 ## 5. Privacy
 
-- Personal data is limited to `Teachers.DisplayName`, `Teachers.Phone`, `Children.FirstName` (first name only) and `Children.ParentPhone`. None of it is ever sent to Claude, Sarvam or WhatsApp templates (guardrail 1, NFR-05); AI inputs use IDs and `{child}` / `{teacher}` placeholders.
+- Personal data is limited to `Teachers.DisplayName`, `Teachers.Phone`, `Children.FirstName` (first name only) and `Children.ParentPhone`. None of it is ever sent to Claude or Sarvam (guardrail 1, NFR-05); AI inputs use IDs and `{child}` / `{teacher}` placeholders. WhatsApp gets the child's and teacher's first names only in the final send to the family (T-40), and the number comes from `WhatsApp:Recipients` config, never from `ParentPhone`.
 - The demo seed (`data/seed/demo-class.json`) is fictional, with placeholder phone numbers that must never be messaged.
 - Logs record counts and IDs, never names.
 - Deleting a child removes all their rows by cascade; audio in blob storage is deleted in code (T-19).

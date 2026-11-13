@@ -7,9 +7,11 @@ using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Attendance.Source;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.LessonAudio;
 using SlateAi.Api.Tests.Features.Attendance;
+using SlateAi.Api.Tests.Features.Delivery;
 using SlateAi.Api.Tests.Features.LessonAudio;
 using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Tests.Features.Parent;
@@ -56,6 +58,7 @@ public sealed class EveningEndpointTests
     private readonly FakeAttendanceStore _attendance = new(ClassId, All.Select(c => c.Id).ToList());
     private readonly MovableClock _clock = new() { Now = Ist(18, 30) };
     private readonly FakeLessonAudioStore _lessonAudio = new();
+    private readonly FakeDeliveryStore _delivery = new();
 
     public EveningEndpointTests()
     {
@@ -278,6 +281,48 @@ public sealed class EveningEndpointTests
     }
 
     [Fact]
+    public async Task A_live_send_queues_each_message_for_the_family_phone()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+
+        Assert.Equal(HttpStatusCode.OK, (await SendAsync()).StatusCode);
+
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.True(m.Message.Deliver));
+    }
+
+    [Fact]
+    public async Task An_evening_the_demo_story_fills_in_afterwards_is_never_queued_for_a_phone()
+    {
+        // The video story's Reset sends earlier evenings at their 6 pm (T-70): demo chat only, not WhatsApp (T-40).
+        ApproveTemplate();
+        ConfirmLesson();
+        await using var factory = Create();
+        await using var scope = factory.Services.CreateAsyncScope();
+
+        await scope.ServiceProvider.GetRequiredService<EveningSender>().SendAsync(ClassId, Today, Ct, sentAt: Ist(18, 0));
+
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.False(m.Message.Deliver));
+    }
+
+    [Fact]
+    public async Task Worker_delivers_queued_messages_on_every_tick_even_before_6_pm()
+    {
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(10, 0);
+        Assert.Equal(0, await worker.RunOnceAsync(Ct));
+        Assert.Equal(1, _delivery.Runs);
+
+        _clock.Now = Ist(18, 0);
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _delivery.Runs);
+    }
+
+    [Fact]
     public async Task Worker_does_nothing_before_6_pm_and_sends_after()
     {
         ApproveTemplate();
@@ -423,6 +468,7 @@ public sealed class EveningEndpointTests
                 services.AddSingleton(Wording);
                 services.AddSingleton<ILlmClient>(new ThrowingLlmClient());
                 services.AddSingleton<TimeProvider>(_clock);
+                services.AddSingleton<IDeliveryStore>(_delivery);
             },
             settings: new Dictionary<string, string?> { ["Demo:Enabled"] = demo.ToString() });
 
