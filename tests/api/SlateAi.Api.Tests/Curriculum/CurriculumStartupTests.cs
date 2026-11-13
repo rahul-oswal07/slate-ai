@@ -27,9 +27,27 @@ public sealed class CurriculumStartupTests
         // D-22: homework points to the child's own book, so a missing page is a content bug.
         var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
 
-        // The 2026-27 textbook, Parts 1 and 2 (T-81).
-        Assert.Equal(60, graph.All.Count);
+        // The 2026-27 textbook, Parts 1 and 2 (T-81), plus the Nalikali demo lesson (T-87).
+        Assert.Equal(61, graph.All.Count);
         Assert.All(graph.All, c => Assert.NotNull(c.TextbookPage));
+    }
+
+    [Fact]
+    public void The_nalikali_demo_lesson_is_the_bridge_course_s_page_4_and_only_it_names_nalikali()
+    {
+        // T-87, D-90: the other 60 lessons keep the D-89 pages until they are re-pointed after the final.
+        var graph = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data", "curriculum"));
+
+        var lesson = Assert.IsType<Competency>(graph.Get("M3.BRIDGE.COMPARE"));
+        Assert.Equal(0, lesson.Chapter);
+        Assert.Equal(new TextbookPage(TextbookPage.Nalikali, 1, 4), lesson.TextbookPage);
+        Assert.Contains("ಹೆಚ್ಚು", lesson.KeyWordsKn!);
+        Assert.Null(lesson.Practice);
+        Assert.Equal(10, lesson.Exercises!.Compare!.Count);
+        Assert.Equal(5, lesson.Exercises.Extremes!.Count);
+        Assert.Equal(["M3.BRIDGE.COMPARE"], graph.All.Where(c => c.TextbookPage?.Book == TextbookPage.Nalikali).Select(c => c.Id));
+        Assert.Contains(graph.Chapters, c => c.Number == 0);
+        Assert.NotEqual("M3.BRIDGE.COMPARE", graph.NextInBook(null)?.Id);
     }
 
     [Fact]

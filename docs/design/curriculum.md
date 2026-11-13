@@ -122,13 +122,13 @@ These match the book, so a child hears the same word at home and in class. Each 
 | ಭಾಜ್ಯ / ಭಾಜಕ / ಭಾಗಲಬ್ಧ / ಶೇಷ | dividend / divisor / quotient / remainder | Part 2 p 8 |
 | ಅಂದಾಜು | estimate | Rounding to the nearest ten (Ch 3–4) |
 
-## Nalikali demo lesson (proposed for the final, D-90, D-93)
+## Nalikali demo lesson (built in T-87, D-90, D-93)
 
 Source: **Nalikali Grade 3 Maths 2026-27, Part 1, printed page 4**, bridge course (ಸೇ.ಬಂ = ಸೇತುಬಂಧ). Read from Monika's PDFs on 13 Nov. The book's words and numbers are copied as facts; no page image goes in the repo.
 
 | Field | Value |
 |---|---|
-| Proposed ID | `M3.BRIDGE.COMPARE` (new; the closest D-89 lesson is `M3.NUM.COMPARE`, 3-digit) |
+| ID | `M3.BRIDGE.COMPARE` (in `grade3-maths.json`, chapter 0 "ಸೇತುಬಂಧ / Bridge course", `textbookPage.book` `nalikali`, both activities in `exercises`; answers computed by `ExerciseAnswers`; the closest D-89 lesson is `M3.NUM.COMPARE`, 3-digit) |
 | Kannada / English | ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ / More – less – equal: comparing 2-digit numbers |
 | Book | Nalikali Maths, Grade 3, 2026-27 · Part 1 · bridge course · p 4 |
 | Before / after | p 3 counting forwards and backwards (ಮುಮ್ಮುಖ – ಹಿಮ್ಮುಖ ಎಣಿಕೆ) · p 5 ascending and descending order (ಏರಿಕೆ – ಇಳಿಕೆ) · p 6 place value with bundles (ಸ್ಥಾನ ಬೆಲೆ) |
@@ -166,7 +166,7 @@ Source: **Nalikali Grade 3 Maths 2026-27, Part 1, printed page 4**, bridge cours
 
 ## Open
 
-- [ ] D-90: the D-89 pages don't match Nalikali 2026-27; re-point all lessons after the final
+- [ ] D-90: the D-89 pages don't match Nalikali 2026-27; re-point all lessons after the final (T-87 did only the demo lesson; the others still use `book: textbook`)
 - [ ] A teacher confirms the † names and the key words (D-14)
 - [ ] Native review of the Telugu, Tamil and Hindi names (T-26)
 - [ ] Check the page numbers against a child's book (edition note above)

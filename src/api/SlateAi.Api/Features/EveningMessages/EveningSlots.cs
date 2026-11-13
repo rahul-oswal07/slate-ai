@@ -32,7 +32,9 @@ public static class EveningSlots
         }
 
         var names = lessons.Select(l => l!.Name(language)).ToList();
-        if (names.Any(n => n is null) || lessons[0]!.TextbookPage is not { Book: "textbook" } page)
+        // The approved text says "textbook {page}": a workbook page would be wrong. A Nalikali page (D-90) is the child's
+        // textbook too; the book's name stays out of the text, which would change the approved wording (D-49, T-87).
+        if (names.Any(n => n is null) || lessons[0]!.TextbookPage is not { Book: "textbook" or TextbookPage.Nalikali } page)
         {
             return null;
         }

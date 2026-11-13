@@ -62,7 +62,11 @@ export function DoneStep({ page }: { page: ParentCatchUp }) {
       </p>
       <p className="text-body-lg">{t('parent.done.teacherSees', { teacher: page.teacherName })}</p>
       {page.homework && (
-        <p className="text-caption text-ink-muted">{t('parent.done.bringPage', { page: page.homework.page })}</p>
+        <p className="text-caption text-ink-muted">
+          {t(page.homework.book === 'nalikali' ? 'parent.done.bringPageNalikali' : 'parent.done.bringPage', {
+            page: page.homework.page,
+          })}
+        </p>
       )}
       {finished ? (
         <output className="block text-body">{t('parent.done.closeHint')}</output>

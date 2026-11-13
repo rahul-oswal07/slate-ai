@@ -23,6 +23,8 @@ public sealed class EveningSlotsTests
                 new TextbookPage("textbook", null, 4), NameTe: "సరిచూడటం"),
             new Competency("M3.WORKBOOK", "ಕ", "workbook only", [], null, 5, 5, [],
                 new TextbookPage("workbook", 1, 3), NameTe: "వర్క్‌బుక్"),
+            new Competency("M3.BRIDGE.COMPARE", "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ", "more, less, equal", [], null, 0, 0, [],
+                new TextbookPage(TextbookPage.Nalikali, 1, 4)),
         ],
         []);
 
@@ -53,6 +55,15 @@ public sealed class EveningSlotsTests
 
         Assert.Equal("making subtraction sums, subtraction with borrowing", filled!.Slots.Lesson);
         Assert.Equal("page 4", filled.Slots.Page);
+    }
+
+    [Fact]
+    public void A_nalikali_page_fills_the_page_with_the_approved_wording()
+    {
+        // T-87: the approved text already says "textbook"; naming the book would change it (D-49).
+        var filled = EveningSlots.Fill(English, "en", "Ravi", ["M3.BRIDGE.COMPARE"], Book);
+
+        Assert.Equal("Part 1, page 4", filled!.Slots.Page);
     }
 
     [Theory]

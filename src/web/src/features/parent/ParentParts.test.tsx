@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { I18nextProvider } from 'react-i18next'
 import { initI18n } from '../../i18n'
-import { AiLabel, StepDots } from './ParentParts'
+import { AiLabel, HomeworkCard, StepDots } from './ParentParts'
 
 const i18n = initI18n()
 
@@ -43,5 +43,20 @@ describe('AiLabel, the quiet pill (NFR-08, D-77)', () => {
 
     expect(screen.getByText('AI-assisted, approved by Shobha teacher')).toBeInTheDocument()
     expect(container.querySelector('svg')).not.toBeNull()
+  })
+})
+
+describe("HomeworkCard, the child's own book (D-22)", () => {
+  it('names Nalikali Maths for the Nalikali lesson (T-87)', async () => {
+    await renderEn(<HomeworkCard homework={{ book: 'nalikali', part: 1, page: 4 }} teacher="Shobha" />)
+
+    expect(screen.getByRole('heading', { name: 'Homework: page 4' })).toBeInTheDocument()
+    expect(screen.getByText('Nalikali Maths · Part 1 · show Shobha teacher when you come back.')).toBeInTheDocument()
+  })
+
+  it('says “Textbook” for the other lessons', async () => {
+    await renderEn(<HomeworkCard homework={{ book: 'textbook', part: 2, page: 15 }} teacher="Shobha" />)
+
+    expect(screen.getByText('Textbook Part 2 · show Shobha teacher when you come back.')).toBeInTheDocument()
   })
 })

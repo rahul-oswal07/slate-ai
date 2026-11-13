@@ -34,10 +34,11 @@ Source: Karnataka state Grade 2–3 maths textbook (Kannada medium) and NIPUN Bh
 | `prerequisites` | IDs that must be learnt first. Each must exist (in any file); no self-reference; no cycles |
 | `chapter`, `sequence` | Chapter number and teaching order (sequence orders the chapter list and breaks ties). `0` = the Part 1 bridge course (Grade 2 revision) |
 | `nipunOutcome`, `examples` | Optional. 1–2 textbook example problems each, used as A1/A3 grounding |
-| `textbookPage` | Where the child finds it in their own book (D-22). `book` is `textbook` or `workbook`; `part` optional; `page` > 0 |
+| `textbookPage` | Where the child finds it in their own book (D-22). `book` is `textbook` or `workbook` (the D-89 book), or `nalikali` (Nalikali Grade 3 Maths 2026-27, D-90; screens name the book: "Nalikali Maths · Part 1 · p 4"); `part` optional; `page` > 0 |
+| `exercises` | Optional (D-93): the book's own exercise numbers, never answers. `compare`: pairs for >, < or = (2 numbers each); `extremes`: sets to find the smallest and biggest in (2–6 different numbers). Numbers 0–999. Code computes the answers (`Curriculum/ExerciseAnswers.cs`) |
 
 A bad file stops the app at startup with every problem listed, and `CurriculumStartupTests` fails in CI. With no files, the app starts with an empty graph and logs a warning.
 
 ## `grade3-maths.json`
 
-The whole Grade 3 maths textbook, Kannada medium, Part 1 and Part 2 (T-81, D-89; `docs/design/curriculum.md`): 60 competencies in 12 chapters, numbers to 999. Pages are printed page numbers. 13 lessons have a `practice` rule; the other 47 get no catch-up until their practice kind is built (the candidate set leaves them out). `nameTe` / `nameTa` / `nameHi` are drafts awaiting native review (T-26), and the † Kannada names are to be confirmed with a teacher (D-14). `nipunOutcome` is null (nothing reads it yet). Change names and pages in `curriculum.md` first, then here.
+The whole Grade 3 maths textbook, Kannada medium, Part 1 and Part 2 (T-81, D-89; `docs/design/curriculum.md`): 60 competencies in 12 chapters, numbers to 999, plus the Nalikali demo lesson `M3.BRIDGE.COMPARE` (T-87, D-90: Nalikali Part 1 p 4, chapter 0 = bridge course, with the book's exercises). Pages are printed page numbers. 13 lessons have a `practice` rule; the other 47 get no catch-up until their practice kind is built (the candidate set leaves them out). `nameTe` / `nameTa` / `nameHi` are drafts awaiting native review (T-26), and the † Kannada names are to be confirmed with a teacher (D-14). `nipunOutcome` is null (nothing reads it yet). Change names and pages in `curriculum.md` first, then here.

@@ -14,7 +14,7 @@ public sealed class CurriculumException(IReadOnlyList<string> errors)
 public static partial class CurriculumLoader
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-    private static readonly string[] Books = ["textbook", "workbook"];
+    private static readonly string[] Books = ["textbook", "workbook", TextbookPage.Nalikali];
 
     public static CurriculumGraph LoadDirectory(string directory)
     {
@@ -163,11 +163,19 @@ public static partial class CurriculumLoader
             yield return "lists itself as a prerequisite";
         }
 
+        if (c.Exercises is { } exercises)
+        {
+            foreach (var error in ExerciseAnswers.Check(exercises))
+            {
+                yield return error;
+            }
+        }
+
         if (c.TextbookPage is { } page)
         {
             if (!Books.Contains(page.Book))
             {
-                yield return "textbookPage.book must be \"textbook\" or \"workbook\"";
+                yield return "textbookPage.book must be \"textbook\", \"workbook\" or \"nalikali\"";
             }
 
             if (page.Page <= 0 || page.Part <= 0)

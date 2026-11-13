@@ -44,15 +44,13 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 ## Next
 
 
-**Grand Finale, Wed 18 Nov (Top 10, shortlisted 12 Nov):** 14 minutes (5 min slides, 3 min live demo, 6 min Q&A); presentation and demo links due **Mon 16 Nov**, so builds merge by **Sun 15 Nov**. Jury feedback, demo rules and guidelines: `hackathon-requirements.md` §5. **Rahul: review the proposal** in `tasks.md` "Proposed for the Grand Finale" (T-87 to T-103, M-1 to M-6) and decisions D-90 to D-96 (Nalikali book, daily approved "today's message", teacher edits, demo loop). Demo lesson: Nalikali Maths Part 1 p 4, more–less–equal (`curriculum.md`).
+**Grand Finale, Wed 18 Nov (Top 10, shortlisted 12 Nov):** 14 minutes (5 min slides, 3 min live demo, 6 min Q&A); presentation and demo links due **Mon 16 Nov**, so builds merge by **Sun 15 Nov**. Jury feedback, demo rules and guidelines: `hackathon-requirements.md` §5. **Rahul approved the Must rows (13 Nov):** T-87 to T-94 are *Open* (#184–#191) and D-90 to D-96 are accepted; build order T-87 → T-93 → T-88 → T-89 → T-91 → T-90 → T-92 → T-94. The Should rows (T-95 to T-103) are still proposed. Demo lesson: Nalikali Maths Part 1 p 4, more–less–equal (`curriculum.md`).
 
-1. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
-2. After judging, change the server PINs.
-3. After judging: the Tamil layout gap (T-84, #176) and one Tonight's message card on Today (T-86, #177).
-1. **WhatsApp (T-40, D-97): step 1 merged (#180), on staging with Meta's test number.** Token, phone number ID and one recipient (Rahul's phone, as Ravi) are set; the admin `hello_world` test send reached the phone from staging. Until our templates are approved, WhatsApp deliveries send `hello_world`, hardcoded in `WhatsAppChannel` (T-104). Next: Rahul submits `evening_absence_v1` / `catchup_ready_v1` ([`whatsapp-setup.md`](whatsapp-setup.md) §3), then T-104 removes it. Step 2 (webhook, voice note, STOP) after that.
-2. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
-3. After judging, change the server PINs.
-4. After judging: the Tamil layout gap (T-84, #176) and one Tonight's message card on Today (T-86, #177).
+1. **Grand Finale build, starting with T-87** (Nalikali demo lesson, #184).
+2. **WhatsApp (T-40, D-97): step 1 merged (#180), on staging with Meta's test number.** Token, phone number ID and one recipient (Rahul's phone, as Ravi) are set; the admin `hello_world` test send reached the phone from staging. Until our templates are approved, WhatsApp deliveries send `hello_world`, hardcoded in `WhatsAppChannel` (T-104). Next: Rahul submits `evening_absence_v1` / `catchup_ready_v1` ([`whatsapp-setup.md`](whatsapp-setup.md) §3), then T-104 removes it. Step 2 (webhook, voice note, STOP) after that.
+3. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
+4. After judging, change the server PINs.
+5. After judging: the Tamil layout gap (T-84, #176) and one Tonight's message card on Today (T-86, #177).
 
 ## Known gaps and drafts
 
@@ -64,6 +62,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Recent changes
 
+- 13 Nov: Nalikali demo lesson (T-87, #184): `M3.BRIDGE.COMPARE` (more, less, equal; Nalikali Part 1 p 4) in chapter 0 with the book's exercises (`exercises`, answers by `ExerciseAnswers`); `textbookPage.book` `nalikali` shows "Nalikali Maths · Part 1 · p 4" on lesson confirm, the picker, Today, Back today and the family pages; A1 v3 gets each lesson's page (eval 16/16). The other 60 lessons are unchanged. Rahul approved the finale's Must rows: T-87–T-94 open (#184–#191), D-90–D-96 accepted.
 - 13 Nov: Grand Finale proposal (docs only, nothing built): jury feedback J1–J4, demo rules, guidelines G1–G5; D-90–D-96 proposed; T-87–T-103 proposed; Nalikali p 4 lesson content in `curriculum.md`. WhatsApp Cloud API test number tried: one message delivered, then Meta restricted the account (error 131031), so it's parked for the roadmap.
 
 - 13 Nov: WhatsApp delivery step 1 (T-40, D-97, FR-16 now M): `ParentDeliveries` outbox queued in the send transaction, dispatcher on the 6 pm job's tick and Send messages now, demo channel by default, WhatsApp template + URL button to registered test phones only; the evening template must copy the approved wording version; admin `POST /api/admin/whatsapp/test` sends Meta's `hello_world` to check the setup before our templates are approved. Migration `ParentDelivery`. Meta setup not started.

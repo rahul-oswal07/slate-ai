@@ -122,6 +122,38 @@ public sealed class CurriculumLoaderTests
     }
 
     [Fact]
+    public void Loads_a_nalikali_page_and_the_book_s_exercises()
+    {
+        var json = File("""
+            { "id": "M3.BRIDGE.COMPARE", "nameKn": "kn", "nameEn": "en",
+              "textbookPage": { "book": "nalikali", "part": 1, "page": 4 },
+              "exercises": { "compare": [[48, 33], [86, 86]], "extremes": [[3, 38, 64, 24]] } }
+            """);
+
+        var lesson = Assert.IsType<Competency>(CurriculumLoader.Load([("f.json", json)]).Get("M3.BRIDGE.COMPARE"));
+
+        Assert.Equal(new TextbookPage(TextbookPage.Nalikali, 1, 4), lesson.TextbookPage);
+        Assert.Equal([[48, 33], [86, 86]], lesson.Exercises!.Compare!);
+        Assert.Equal([[3, 38, 64, 24]], lesson.Exercises.Extremes!);
+    }
+
+    [Theory]
+    [InlineData("""{ "compare": [[48, 33, 12]] }""", "each item is a pair")]
+    [InlineData("""{ "compare": [[48, 1000]] }""", "0 to 999")]
+    [InlineData("""{ "compare": [[-1, 4]] }""", "0 to 999")]
+    [InlineData("""{ "extremes": [[5]] }""", "2 to 6 different numbers")]
+    [InlineData("""{ "extremes": [[5, 5, 7]] }""", "2 to 6 different numbers")]
+    [InlineData("""{ }""", "not empty")]
+    public void Rejects_bad_exercises(string exercises, string expected)
+    {
+        var json = File($$"""{ "id": "M3.PV.TENS", "nameKn": "kn", "nameEn": "en", "exercises": {{exercises}} }""");
+
+        var error = Assert.Throws<CurriculumException>(() => CurriculumLoader.Load([("f.json", json)]));
+
+        Assert.Contains(expected, Assert.Single(error.Errors));
+    }
+
+    [Fact]
     public void Reports_every_problem_at_once()
     {
         var error = Assert.Throws<CurriculumException>(() => CurriculumLoader.Load([

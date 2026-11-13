@@ -31,9 +31,9 @@ public sealed class LessonMapperTests
         _store.StartVoiceAsync(ClassId, Guid.NewGuid(), Day, Started, Ct).GetAwaiter().GetResult();
     }
 
-    private LessonMapper Mapper() => new(
+    private LessonMapper Mapper(CurriculumGraph? book = null) => new(
         _speech, _llm, _aiCalls, PromptLibrary.Load([("a1-lesson-mapping.md", "---\nid: a1-lesson-mapping\nversion: 1\nmodel_key: Mapping\n---\nPrompt.")], ["Mapping"]),
-        Book, _store);
+        book ?? Book, _store);
 
     private static MappingJob Job() => new(ClassId, Day, Started, [1, 2, 3], "note.webm", "audio/webm");
 
@@ -116,6 +116,22 @@ public sealed class LessonMapperTests
 
         Assert.Equal("mapped", result.Status);
         Assert.Single(_llm.Requests[0].Images!);
+    }
+
+    [Fact]
+    public async Task Each_lesson_goes_to_claude_with_its_textbook_page()
+    {
+        // A1 v3 (T-87): "page 4" in a note tells the Nalikali lesson apart from the 3-digit one on page 52.
+        var book = new CurriculumGraph([
+            new Competency("M3.BRIDGE.COMPARE", "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ", "More, less, equal", [], null, 0, 0, [],
+                new TextbookPage(TextbookPage.Nalikali, 1, 4)),
+        ]);
+
+        await Mapper(book).MapAsync(Job(), Ct);
+
+        var lesson = JsonDocument.Parse(_llm.Requests.Single().UserContent).RootElement.GetProperty("lessons")[0];
+        var page = lesson.GetProperty("textbookPage");
+        Assert.Equal(("nalikali", 1, 4), (page.GetProperty("book").GetString(), page.GetProperty("part").GetInt32(), page.GetProperty("page").GetInt32()));
     }
 
     [Fact]

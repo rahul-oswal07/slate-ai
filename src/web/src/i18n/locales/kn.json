@@ -267,7 +267,9 @@
   "lesson": {
     "partPage": "ಭಾಗ {{part}}, ಪುಟ {{page}}",
     "page": "ಪುಟ {{page}}",
-    "workbookPage": "ಅಭ್ಯಾಸ ಪುಸ್ತಕ ಪುಟ {{page}}"
+    "workbookPage": "ಅಭ್ಯಾಸ ಪುಸ್ತಕ ಪುಟ {{page}}",
+    "nalikaliPage": "ನಲಿ-ಕಲಿ ಗಣಿತ · ಭಾಗ {{part}} · ಪುಟ {{page}}",
+    "nalikaliPageNoPart": "ನಲಿ-ಕಲಿ ಗಣಿತ · ಪುಟ {{page}}"
   },
   "confirm": {
     "title": "ಇಂದಿನ ಪಾಠ",
@@ -416,7 +418,8 @@
       "next": "ಮುಂದೆ: ಪ್ರಶ್ನೆ",
       "homeworkTitle": "ಮನೆಕೆಲಸ: ಪುಟ {{page}}",
       "homeworkBody": "ಪಠ್ಯಪುಸ್ತಕ ಭಾಗ {{part}} · ಶಾಲೆಗೆ ಬಂದಾಗ {{teacher}} ಟೀಚರ್‌ಗೆ ತೋರಿಸಿ.",
-      "homeworkBodyNoPart": "ಪಠ್ಯಪುಸ್ತಕ · ಶಾಲೆಗೆ ಬಂದಾಗ {{teacher}} ಟೀಚರ್‌ಗೆ ತೋರಿಸಿ."
+      "homeworkBodyNoPart": "ಪಠ್ಯಪುಸ್ತಕ · ಶಾಲೆಗೆ ಬಂದಾಗ {{teacher}} ಟೀಚರ್‌ಗೆ ತೋರಿಸಿ.",
+      "homeworkBodyNalikali": "ನಲಿ-ಕಲಿ ಗಣಿತ ಭಾಗ {{part}} · ಶಾಲೆಗೆ ಬಂದಾಗ {{teacher}} ಟೀಚರ್‌ಗೆ ತೋರಿಸಿ."
     },
     "answer": {
       "title": "ಪ್ರಶ್ನೆ",
@@ -434,6 +437,7 @@
       "wellDone": "ಭೇಷ್, {{child}}",
       "teacherSees": "{{teacher}} ಟೀಚರ್ ಇದನ್ನು ನೋಡುತ್ತಾರೆ.",
       "bringPage": "ಪುಟ {{page}} ಶಾಲೆಗೆ ತನ್ನಿ.",
+      "bringPageNalikali": "ನಲಿ-ಕಲಿ ಗಣಿತ ಪುಟ {{page}} ಶಾಲೆಗೆ ತನ್ನಿ.",
       "finish": "ಮುಗಿಸಿ",
       "closeHint": "ಈಗ ಈ ಪುಟ ಮುಚ್ಚಬಹುದು.",
       "star": "ಈ ಕ್ಯಾಚ್‑ಅಪ್ ಮಾಡಿದ್ದಕ್ಕೆ {{child}} ನಕ್ಷತ್ರ ಗಳಿಸಿದ್ದಾರೆ."

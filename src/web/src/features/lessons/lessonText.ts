@@ -9,6 +9,12 @@ export function pageText(t: TFunction, page: TextbookPage | null) {
   if (!page) {
     return ''
   }
+  if (page.book === 'nalikali') {
+    // "Nalikali Maths · Part 1 · p 4" (T-87): the jury asked which book we follow.
+    return page.part
+      ? t('lesson.nalikaliPage', { part: page.part, page: page.page })
+      : t('lesson.nalikaliPageNoPart', { page: page.page })
+  }
   if (page.book === 'workbook') {
     return t('lesson.workbookPage', { page: page.page })
   }

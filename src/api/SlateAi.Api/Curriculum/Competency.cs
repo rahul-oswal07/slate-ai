@@ -6,6 +6,8 @@ namespace SlateAi.Api.Curriculum;
 /// <param name="NameHi">Hindi name, as <paramref name="NameTe"/> (D-78).</param>
 /// <param name="KeyWordsKn">Textbook Kannada words for this lesson; A3 picks the catch-up's 3 key words from them (FR-07).</param>
 /// <param name="Practice">How code makes this lesson's numbers (activity and learning check; guardrail 4).</param>
+/// <param name="Exercises">The book's own exercise numbers (D-93), for lessons whose exercises are extracted; answers are
+/// computed by <see cref="ExerciseAnswers"/>, never stored.</param>
 public sealed record Competency(
     string Id,
     string NameKn,
@@ -20,7 +22,8 @@ public sealed record Competency(
     string? NameTa = null,
     string? NameHi = null,
     IReadOnlyList<string>? KeyWordsKn = null,
-    PracticeRule? Practice = null)
+    PracticeRule? Practice = null,
+    ExerciseList? Exercises = null)
 {
     /// <summary>The name in <paramref name="language"/> ("kn", "te", "ta", "en", "hi"), or null if there is none.</summary>
     public string? Name(string language)
@@ -39,8 +42,24 @@ public sealed record Competency(
 }
 
 /// <summary>Where the child finds this in their own book (D-22). Structured so code can word it in any language.</summary>
-/// <param name="Book">"textbook" or "workbook".</param>
-public sealed record TextbookPage(string Book, int? Part, int Page);
+/// <param name="Book">
+/// "textbook" or "workbook" (the D-89 book), or <see cref="Nalikali"/>: Nalikali Grade 3 Maths 2026-27 (D-90), named on
+/// screen as "Nalikali Maths · Part 1 · p 4". Only lessons re-pointed to Nalikali use it (T-87).
+/// </param>
+public sealed record TextbookPage(string Book, int? Part, int Page)
+{
+    public const string Nalikali = "nalikali";
+}
+
+/// <summary>
+/// The book's exercises for one lesson, numbers only (D-93; docs/design/curriculum.md). Code checks every item and
+/// computes the answer, so the AI never does arithmetic (guardrail 4).
+/// </summary>
+/// <param name="Compare">Pairs to compare with &gt;, &lt; or = (e.g. Nalikali p 4 Activity 2: 48 · 33).</param>
+/// <param name="Extremes">Sets to find the smallest and biggest in (p 4 Activity 1: 3, 38, 64, 24).</param>
+public sealed record ExerciseList(
+    IReadOnlyList<IReadOnlyList<int>>? Compare = null,
+    IReadOnlyList<IReadOnlyList<int>>? Extremes = null);
 
 /// <summary>
 /// The kind of sum or question code generates for a lesson. Kinds: count, expanded, placeValue, biggest, smallest,
