@@ -4,6 +4,11 @@
   "version": "2026-27",
   "chapters": [
     {
+      "number": 0,
+      "nameKn": "ಸೇತುಬಂಧ",
+      "nameEn": "Bridge course"
+    },
+    {
       "number": 1,
       "nameKn": "ಆಕೃತಿಗಳು",
       "nameEn": "Shapes"
@@ -65,6 +70,111 @@
     }
   ],
   "competencies": [
+    {
+      "id": "M3.BRIDGE.COMPARE",
+      "nameKn": "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ",
+      "nameEn": "More, less, equal: comparing 2-digit numbers",
+      "nameTe": "ఎక్కువ – తక్కువ – సమానం",
+      "nameTa": "அதிகம் – குறைவு – சமம்",
+      "nameHi": "ज़्यादा – कम – बराबर",
+      "prerequisites": [],
+      "nipunOutcome": null,
+      "chapter": 0,
+      "sequence": 0,
+      "examples": [
+        "48 ☐ 33: >, < or =",
+        "3, 38, 64, 24: circle the smallest, square the biggest"
+      ],
+      "textbookPage": {
+        "book": "nalikali",
+        "part": 1,
+        "page": 4
+      },
+      "keyWordsKn": [
+        "ಹೆಚ್ಚು",
+        "ಕಡಿಮೆ",
+        "ಸಮ",
+        "ಹೋಲಿಸು",
+        "ಅತಿ ದೊಡ್ಡ",
+        "ಅತಿ ಚಿಕ್ಕ"
+      ],
+      "exercises": {
+        "compare": [
+          [
+            48,
+            33
+          ],
+          [
+            48,
+            84
+          ],
+          [
+            75,
+            57
+          ],
+          [
+            50,
+            78
+          ],
+          [
+            86,
+            86
+          ],
+          [
+            68,
+            68
+          ],
+          [
+            69,
+            71
+          ],
+          [
+            33,
+            66
+          ],
+          [
+            26,
+            26
+          ],
+          [
+            99,
+            86
+          ]
+        ],
+        "extremes": [
+          [
+            3,
+            38,
+            64,
+            24
+          ],
+          [
+            36,
+            26,
+            16,
+            46
+          ],
+          [
+            82,
+            18,
+            59,
+            41
+          ],
+          [
+            71,
+            81,
+            65,
+            56
+          ],
+          [
+            50,
+            90,
+            40,
+            70
+          ]
+        ]
+      }
+    },
     {
       "id": "M3.GEO.2D",
       "nameKn": "ಎರಡು ಆಯಾಮಗಳುಳ್ಳ ಆಕೃತಿಗಳು",

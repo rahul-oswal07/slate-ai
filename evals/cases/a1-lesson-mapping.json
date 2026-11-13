@@ -1,5 +1,5 @@
 {
-  "_note": "DRAFT cases written by Claude for T-07 PR 2b, to be reviewed and replaced by Monika / a teacher (T-38 grows this to 25). Transcripts imitate a Sarvam transcript of a Grade 3 teacher's voice note: Kannada with English words. Names are fictional (seed roster) and must be scrubbed before Claude sees them. expected = the lesson that must come first; alsoAcceptable = other lessons that count as a correct first choice; expectLow = vague or off-topic, must come back low or unclear. Photo cases (T-64, A1 v2): `photo` is a file in cases/images/ (synthetic, rendered by images/render.mjs, until real teacher photos replace them); the transcript may be empty; `noNames` cases fail if a name from the photo reaches the summary or examples.",
+  "_note": "DRAFT cases written by Claude for T-07 PR 2b, to be reviewed and replaced by Monika / a teacher (T-38 grows this to 25). Transcripts imitate a Sarvam transcript of a Grade 3 teacher's voice note: Kannada with English words. Names are fictional (seed roster) and must be scrubbed before Claude sees them. expected = the lesson that must come first; alsoAcceptable = other lessons that count as a correct first choice; expectLow = vague or off-topic, must come back low or unclear. Photo cases (T-64, A1 v2): `photo` is a file in cases/images/ (synthetic, rendered by images/render.mjs, until real teacher photos replace them); the transcript may be empty; `noNames` cases fail if a name from the photo reaches the summary or examples. Nalikali cases (T-87, A1 v3): two notes about Nalikali Part 1 p 4 (more, less, equal) and one 3-digit biggest/smallest note that must stay M3.NUM.COMPARE.",
   "cases": [
     {
       "id": "add-carry",
@@ -32,16 +32,35 @@
       "expected": "M3.NUM.COMPARE"
     },
     {
+      "id": "nalikali-p4-mixed",
+      "transcript": "ಇವತ್ತು ಪುಟ 4, we compared numbers with more, less, equal. 48 and 33, ಯಾವುದು ಹೆಚ್ಚು ಅಂತ ನೋಡಿದೆವು, greater than, less than sign ಹಾಕಿದೆವು.",
+      "expected": "M3.BRIDGE.COMPARE"
+    },
+    {
+      "id": "nalikali-p4-kannada",
+      "transcript": "ಇವತ್ತು ಪುಟ ನಾಲ್ಕು ರಲ್ಲಿ ಹೆಚ್ಚು ಕಡಿಮೆ ಸಮ ಹೋಲಿಸಿದೆವು. ಎಂಬತ್ತಾರು ಮತ್ತು ಎಂಬತ್ತಾರು ಸಮ. ಎಲೆಯಲ್ಲಿ ಅತಿ ಚಿಕ್ಕ ಸಂಖ್ಯೆಗೆ ವೃತ್ತ ಹಾಕಿದೆವು.",
+      "expected": "M3.BRIDGE.COMPARE"
+    },
+    {
+      "id": "compare-3digit-not-nalikali",
+      "transcript": "ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳು, 475, 157, 263. ಅತಿ ದೊಡ್ಡ ಸಂಖ್ಯೆ ಮತ್ತು ಅತಿ ಚಿಕ್ಕ ಸಂಖ್ಯೆ ಕಂಡುಹಿಡಿದೆವು, ನೂರರ ಸ್ಥಾನ ಮೊದಲು ನೋಡಿದೆವು.",
+      "expected": "M3.NUM.COMPARE"
+    },
+    {
       "id": "sub-word",
       "transcript": "ಹೇಳಿಕೆ ಲೆಕ್ಕ ಮಾಡಿದೆವು. ಒಂದು ಅಂಗಡಿಯಲ್ಲಿ 650 ಬಾಳೆಹಣ್ಣು ಇದ್ವು, 275 ಮಾರಾಟ ಆದ್ವು, ಎಷ್ಟು ಉಳಿದವು ಅಂತ.",
       "expected": "M3.SUB.WORD",
-      "alsoAcceptable": ["M3.SUB.BORROW"]
+      "alsoAcceptable": [
+        "M3.SUB.BORROW"
+      ]
     },
     {
       "id": "add-word",
       "transcript": "ಶಾಲೆಯಲ್ಲಿ 345 ಹುಡುಗರು, 287 ಹುಡುಗಿಯರು, ಒಟ್ಟು ಎಷ್ಟು ಮಕ್ಕಳು ಅಂತ story sum ಮಾಡಿದೆವು.",
       "expected": "M3.ADD.WORD",
-      "alsoAcceptable": ["M3.ADD.CARRY"]
+      "alsoAcceptable": [
+        "M3.ADD.CARRY"
+      ]
     },
     {
       "id": "vague",

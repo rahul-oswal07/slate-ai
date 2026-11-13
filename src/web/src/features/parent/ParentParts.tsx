@@ -111,7 +111,9 @@ export function HomeworkCard({ homework, teacher }: { homework: Homework; teache
         <p className="text-caption text-ink-muted">
           {homework.part === null
             ? t('parent.activity.homeworkBodyNoPart', { teacher })
-            : t('parent.activity.homeworkBody', { part: homework.part, teacher })}
+            : homework.book === 'nalikali'
+              ? t('parent.activity.homeworkBodyNalikali', { part: homework.part, teacher })
+              : t('parent.activity.homeworkBody', { part: homework.part, teacher })}
         </p>
       </div>
     </section>

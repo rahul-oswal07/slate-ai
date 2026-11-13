@@ -1,5 +1,6 @@
 /** Where the child finds the lesson in their own book (D-22). */
-export type TextbookPage = { book: 'textbook' | 'workbook'; part: number | null; page: number }
+/** `nalikali`: Nalikali Grade 3 Maths 2026-27 (D-90), named on screen; `textbook` / `workbook`: the D-89 book. */
+export type TextbookPage = { book: 'textbook' | 'workbook' | 'nalikali'; part: number | null; page: number }
 
 export type CurriculumLesson = {
   id: string

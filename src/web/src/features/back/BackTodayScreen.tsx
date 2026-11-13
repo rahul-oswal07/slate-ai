@@ -4,6 +4,7 @@ import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
+import { pageText } from '../lessons/lessonText'
 import { useSchoolToday } from '../today/schoolTime'
 import type { BuddyCard } from './types'
 import { useBuddyCards, useSaveTicks } from './useBuddyCards'
@@ -232,9 +233,11 @@ function Cards({
                     {t('back.homework')}
                   </label>
                   <span id={`homework-page-${card.childId}`} className="text-caption text-ink-muted">
-                    {card.homework.part === null
-                      ? t('back.homeworkPageNoPart', { page: card.homework.page })
-                      : t('back.homeworkPage', { part: card.homework.part, page: card.homework.page })}
+                    {card.homework.book === 'nalikali'
+                      ? pageText(t, card.homework)
+                      : card.homework.part === null
+                        ? t('back.homeworkPageNoPart', { page: card.homework.page })
+                        : t('back.homeworkPage', { part: card.homework.part, page: card.homework.page })}
                   </span>
                 </span>
               </div>

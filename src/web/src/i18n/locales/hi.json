@@ -267,7 +267,9 @@
   "lesson": {
     "partPage": "भाग {{part}}, पृष्ठ {{page}}",
     "page": "पृष्ठ {{page}}",
-    "workbookPage": "अभ्यास-पुस्तिका पृष्ठ {{page}}"
+    "workbookPage": "अभ्यास-पुस्तिका पृष्ठ {{page}}",
+    "nalikaliPage": "नलि-कलि गणित · भाग {{part}} · पृष्ठ {{page}}",
+    "nalikaliPageNoPart": "नलि-कलि गणित · पृष्ठ {{page}}"
   },
   "confirm": {
     "title": "आज का पाठ",
@@ -416,7 +418,8 @@
       "next": "आगे: सवाल",
       "homeworkTitle": "गृहकार्य: पृष्ठ {{page}}",
       "homeworkBody": "पाठ्यपुस्तक भाग {{part}} · लौटने पर {{teacher}} टीचर को दिखाएँ।",
-      "homeworkBodyNoPart": "पाठ्यपुस्तक · लौटने पर {{teacher}} टीचर को दिखाएँ।"
+      "homeworkBodyNoPart": "पाठ्यपुस्तक · लौटने पर {{teacher}} टीचर को दिखाएँ।",
+      "homeworkBodyNalikali": "नलि-कलि गणित भाग {{part}} · लौटने पर {{teacher}} टीचर को दिखाएँ।"
     },
     "answer": {
       "title": "सवाल",
@@ -434,6 +437,7 @@
       "wellDone": "शाबाश, {{child}}",
       "teacherSees": "{{teacher}} टीचर इसे देखेंगी।",
       "bringPage": "पृष्ठ {{page}} स्कूल लाएँ।",
+      "bringPageNalikali": "नलि-कलि गणित पृष्ठ {{page}} स्कूल लाएँ।",
       "finish": "पूरा करें",
       "closeHint": "अब आप यह पृष्ठ बंद कर सकते हैं।",
       "star": "यह कैच-अप करने के लिए {{child}} ने एक सितारा कमाया।"

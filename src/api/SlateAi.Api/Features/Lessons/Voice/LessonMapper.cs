@@ -123,7 +123,8 @@ public sealed class LessonMapper(
         {
             transcript = scrubbedTranscript,
             photo = hasPhoto,
-            lessons = curriculum.All.Select(c => new { c.Id, c.NameKn, c.NameEn, c.Chapter, c.Examples }),
+            // The page lets "page 4" in a note pick the lesson (A1 v3, T-87); book is "nalikali", "textbook" or "workbook".
+            lessons = curriculum.All.Select(c => new { c.Id, c.NameKn, c.NameEn, c.Chapter, c.Examples, c.TextbookPage }),
         }, Json);
 
     /// <summary>Lesson names help Sarvam with maths vocabulary. Never child or teacher names.</summary>
