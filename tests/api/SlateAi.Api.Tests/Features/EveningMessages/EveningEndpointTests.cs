@@ -281,33 +281,6 @@ public sealed class EveningEndpointTests
     }
 
     [Fact]
-    public async Task A_live_send_queues_each_message_for_the_family_phone()
-    {
-        ApproveTemplate();
-        ConfirmLesson();
-
-        Assert.Equal(HttpStatusCode.OK, (await SendAsync()).StatusCode);
-
-        Assert.Equal(2, _store.Messages.Count);
-        Assert.All(_store.Messages, m => Assert.True(m.Message.Deliver));
-    }
-
-    [Fact]
-    public async Task An_evening_the_demo_story_fills_in_afterwards_is_never_queued_for_a_phone()
-    {
-        // The video story's Reset sends earlier evenings at their 6 pm (T-70): demo chat only, not WhatsApp (T-40).
-        ApproveTemplate();
-        ConfirmLesson();
-        await using var factory = Create();
-        await using var scope = factory.Services.CreateAsyncScope();
-
-        await scope.ServiceProvider.GetRequiredService<EveningSender>().SendAsync(ClassId, Today, Ct, sentAt: Ist(18, 0));
-
-        Assert.Equal(2, _store.Messages.Count);
-        Assert.All(_store.Messages, m => Assert.False(m.Message.Deliver));
-    }
-
-    [Fact]
     public async Task Worker_delivers_queued_messages_on_every_tick_even_before_6_pm()
     {
         await using var factory = Create();

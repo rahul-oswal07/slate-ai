@@ -6,7 +6,7 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
-import { formatSchoolTime, useSchoolToday } from '../today/schoolTime'
+import { formatSchoolTime, istToday } from '../today/schoolTime'
 import type { ReturnSpeed, Week, WeekReasons } from './types'
 import { StarsCard } from './StarsCard'
 import { nudgeText } from './weekText'
@@ -30,7 +30,7 @@ export function WeekScreen() {
   const { t, i18n } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const classId = useMe().data?.classId ?? ''
-  const today = useSchoolToday()
+  const today = istToday()
   const query = useWeek(classId, today)
   const chapters = useCurriculum().data?.chapters ?? []
   const week = query.data
