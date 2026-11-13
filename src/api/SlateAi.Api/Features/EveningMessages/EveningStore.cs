@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.Lessons;
 
 namespace SlateAi.Api.Features.EveningMessages;
@@ -32,6 +33,10 @@ public sealed record TemplateRecord(
 
 public sealed record ConfirmedLesson(Guid Id, DateOnly Date, IReadOnlyList<string> CompetencyIds);
 
+/// <param name="Deliver">
+/// Queue it for the family's phone (T-40). False for evenings the demo story fills in after the fact (T-70): those
+/// belong in the demo chat only, never on a real phone.
+/// </param>
 public sealed record NewEveningMessage(
     Guid ChildId,
     Guid TemplateId,
@@ -41,7 +46,8 @@ public sealed record NewEveningMessage(
     string Token,
     DateTimeOffset SentAt,
     DateTimeOffset ExpiresAt,
-    Guid? LessonAudioId = null);
+    Guid? LessonAudioId = null,
+    bool Deliver = true);
 
 /// <summary>The lesson clip she approved for this message's day and language (T-62), played after the disclosure.</summary>
 public sealed record ParentLessonAudio(Guid ClipId, double Seconds, string? Transcript);
@@ -238,11 +244,13 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
         await using var transaction = await LockAsync($"evening:{classId}:{date:yyyy-MM-dd}", cancellationToken);
         var sent = await GetSentChildIdsAsync(classId, date, cancellationToken);
         var added = 0;
+        var now = clock.GetUtcNow();
         foreach (var message in messages.Where(m => !sent.Contains(m.ChildId)))
         {
+            var id = Guid.NewGuid();
             db.EveningMessages.Add(new EveningMessage
             {
-                Id = Guid.NewGuid(),
+                Id = id,
                 ClassId = classId,
                 ChildId = message.ChildId,
                 Date = date,
@@ -255,6 +263,12 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 SentAt = message.SentAt.ToUniversalTime(),
                 ExpiresAt = message.ExpiresAt.ToUniversalTime(),
             });
+            if (message.Deliver)
+            {
+                // Same transaction as the message: only what passed guardrail 3 is ever queued for a phone.
+                db.ParentDeliveries.Add(DeliveryStore.Queue(classId, message.ChildId, now, eveningMessageId: id));
+            }
+
             added++;
         }
 

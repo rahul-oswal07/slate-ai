@@ -801,6 +801,70 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("PacingDecisions");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.ParentDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("CatchUpAssignmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Channel")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("EveningMessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CatchUpAssignmentId")
+                        .IsUnique();
+
+                    b.HasIndex("ChildId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("EveningMessageId")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("ParentDeliveries", t =>
+                        {
+                            t.HasCheckConstraint("CK_ParentDeliveries_OneSource", "(\"EveningMessageId\" IS NULL) <> (\"CatchUpAssignmentId\" IS NULL)");
+                        });
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.ProcessedRequest", b =>
                 {
                     b.Property<Guid>("ClientRequestId")
@@ -1080,6 +1144,31 @@ namespace SlateAi.Api.Data.Migrations
                         .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.ParentDelivery", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.CatchUpAssignment", null)
+                        .WithOne()
+                        .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "CatchUpAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Child", null)
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.EveningMessage", null)
+                        .WithOne()
+                        .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "EveningMessageId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

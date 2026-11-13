@@ -43,20 +43,22 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Next
 
-1. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
-2. After judging, change the server PINs.
-3. After judging: the Tamil layout gap (T-84, #176) and one Tonight's message card on Today (T-86, #177).
+1. **WhatsApp (T-40, D-90), step 1 built, PR open on `feat/T-40-whatsapp-link`.** Rahul: do the Meta setup and submit the templates ([`whatsapp-setup.md`](whatsapp-setup.md)); check it with the admin test send (§2b); then set `Delivery__Channel=whatsapp` and the recipients on staging and check on a registered phone. Step 2 (webhook, voice note, STOP) after that.
+2. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
+3. After judging, change the server PINs.
+4. After judging: the Tamil layout gap (T-84, #176) and one Tonight's message card on Today (T-86, #177).
 
 ## Known gaps and drafts
 
 - **Tamil layout at 360 px (found 1 Nov, not fixed in `v1.0` or `v1.1`):** the teacher bottom-nav label "திரும்பியவர்கள்" (~100 px in a 64 px slot) runs into the Week tab, because `BottomNav.tsx` uses `[word-break:keep-all]`; and on `/demo` the "Under the hood" tab (திரைக்குப் பின்னால்) makes the page 32 px wide, because the tabs in `DemoScreen.tsx` have no `min-w-0`. Likely fix: `min-w-0` plus `[overflow-wrap:anywhere]` on both. Telugu, Kannada, Hindi and English fit.
 - Telugu, Tamil and Hindi text (UI, scripts, evening messages, lesson names) are **drafts for native review** (T-26). The Hindi audio hasn't been listened to on a phone.
-- Only Grade 3 maths is loaded: the whole book, 60 competencies (T-81, on prod since `v1.2`). Only 13 have a practice rule, so the other 47 get no catch-up yet. WhatsApp and SATS are simulated. Each server has one shared class.
+- Only Grade 3 maths is loaded: the whole book, 60 competencies (T-81, on prod since `v1.2`). Only 13 have a practice rule, so the other 47 get no catch-up yet. SATS is simulated; WhatsApp is simulated unless `Delivery:Channel=whatsapp` (T-40). Each server has one shared class.
 - Roadmap (D-70): a Families screen and consent editing (T8), per-language greetings, withdraw voice consent, real WhatsApp delivery, offline beyond attendance and voice notes.
 - Staging's fixed date: at midnight IST the clock goes back to 00:00 the same day; a Reset tidies it.
 
 ## Recent changes
 
+- 13 Nov: WhatsApp delivery step 1 (T-40, D-90, FR-16 now M): `ParentDeliveries` outbox queued in the send transaction, dispatcher on the 6 pm job's tick and Send messages now, demo channel by default, WhatsApp template + URL button to registered test phones only; the evening template must copy the approved wording version; admin `POST /api/admin/whatsapp/test` sends Meta's `hello_world` to check the setup before our templates are approved. Migration `ParentDelivery`. Meta setup not started.
 - 1 Nov: prod released as `v1.3` (T-85). The lesson audio wait is now 5 minutes from when the clip is ready (or from 6 pm), with no 9 pm cutoff (T-85, #178). Staging's stop-gap setting is deleted; prod's is unused. `v1.2` (T-81, the textbook curriculum) went to prod earlier the same evening.
 - 1 Nov: Approve clip on staging returned 409 when testing after 9 pm IST (Reset at 21:00, day sent before approval). Set `EveningMessages__LessonAudioWaitUntil=23:59` on staging and prod; no code change.
 - 1 Nov: prod released as `v1.1` (T-82 evening send waits for lesson audio, T-83 video story Reset text).

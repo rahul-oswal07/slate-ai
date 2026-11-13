@@ -1,9 +1,11 @@
 # WhatsApp delivery plan (proposal for Rahul)
 
-**Status: proposal, `[CONFIRM: Rahul]`.** Nothing in the spec changes until Rahul approves. On approval:
-- this becomes decision **D-73**, replacing D-05's "WhatsApp stretch";
-- **FR-16 moves from S to M**;
-- T-40 is updated in `tasks.md`.
+**Status (13 Nov): approved by Rahul as D-90 (not D-73, which was already taken); FR-16 is M; step 1 is built (T-40).** Step 1 differs from this proposal in three ways:
+- the template carries a **URL button** to `/p/{token}` instead of a quick-reply, so no webhook or 24-hour window is needed yet (the parent page already plays the greeting, lesson clip and catch-up);
+- sends go through an **outbox table** (`ParentDeliveries`), not columns on `EveningMessage`;
+- **no ffmpeg**: greetings and clips are already stored as Ogg Opus (`Speech/OpusEncoding.cs`).
+
+Setup steps and the final template wording are in [`whatsapp-setup.md`](whatsapp-setup.md). §2's two-step flow (quick-reply → voice note) and the webhook/STOP rows of §3 are **step 2**, still to build. The rest of this file is kept as the original proposal.
 
 ## 1. What Monika wants
 

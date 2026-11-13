@@ -107,7 +107,8 @@ public sealed class EveningSender(
             {
                 pending.Add(new NewEveningMessage(
                     child.Id, template!.Id, lesson!.Id, child.HomeLanguage, filled.Slots, NewToken(), now,
-                    now.AddDays(options.Value.LinkDays), lessonAudio.TryGetValue(child.HomeLanguage, out var audioId) ? audioId : null));
+                    now.AddDays(options.Value.LinkDays), lessonAudio.TryGetValue(child.HomeLanguage, out var audioId) ? audioId : null,
+                    Deliver: sentAt is null));
             }
         }
 
