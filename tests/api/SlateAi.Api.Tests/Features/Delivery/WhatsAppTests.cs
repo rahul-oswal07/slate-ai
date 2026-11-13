@@ -42,7 +42,7 @@ public sealed class WhatsAppTests
 
         var result = await channel.SendAsync(Evening(Ravi), Ct);
 
-        Assert.Equal(ChannelResult.Sent("wamid.ABC"), result);
+        Assert.Equal(ChannelResult.Sent(ProviderMessageIds.Hash("wamid.ABC")), result);
         var (request, body) = Assert.Single(http.Requests);
         Assert.Equal(HttpMethod.Post, request.Method);
         Assert.Equal("https://graph.facebook.com/v23.0/1234567890/messages", request.RequestUri!.ToString());
@@ -64,6 +64,21 @@ public sealed class WhatsAppTests
         Assert.Equal("url", components[1].GetProperty("sub_type").GetString());
         Assert.Equal("0", components[1].GetProperty("index").GetString());
         Assert.Equal("tok_123", components[1].GetProperty("parameters")[0].GetProperty("text").GetString());
+    }
+
+    [Fact]
+    public async Task The_wamid_is_kept_only_as_a_hash_because_it_encodes_the_number()
+    {
+        // Shaped like a real wamid: base64 that contains the recipient's number (here the fictional 919812345678).
+        const string wamid = "wamid.GAw5MTk4MTIzNDU2NzgVAgARGBJBQkNERUYwMTIzNDU2Nzg5QUIA";
+        var (channel, _) = Create(null, () => StubHttpHandler.Json($$"""{"messages":[{"id":"{{wamid}}"}]}"""));
+
+        var result = await channel.SendAsync(Evening(Ravi), Ct);
+
+        Assert.Equal(ProviderMessageIds.Hash(wamid), result.ProviderMessageId);
+        Assert.StartsWith("sha256:", result.ProviderMessageId);
+        Assert.Equal(71, result.ProviderMessageId!.Length);
+        Assert.DoesNotContain("wamid", result.ProviderMessageId);
     }
 
     [Fact]

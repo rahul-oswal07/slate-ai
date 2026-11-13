@@ -9,6 +9,7 @@ namespace SlateAi.Api.Features.Delivery;
 public sealed record WhatsAppTestRequest(Guid ClientRequestId, Guid ChildId);
 
 /// <summary>What WhatsApp said. Never echoes the phone number.</summary>
+/// <param name="ProviderMessageId">The SHA-256 of WhatsApp's message ID ("sha256:…"), not the wamid itself, which encodes the number.</param>
 /// <param name="Outcome">"sent", "skipped", "failed" or "retry".</param>
 /// <param name="Error">A short code, e.g. "no-recipient", "graph-190" (bad token), "graph-131030" (number not registered).</param>
 public sealed record WhatsAppTestResponse(string Outcome, string? Error, string? ProviderMessageId, bool Replay);
@@ -41,7 +42,7 @@ public static class DeliveryEndpoints
                 $"Needs the {AdminEndpoints.KeyHeader} header; 404 without it. childId must be in WhatsApp:Recipients " +
                 "(otherwise outcome skipped, error no-recipient). Works whatever Delivery:Channel is, so the Meta setup " +
                 "can be checked before switching it on. A repeated clientRequestId returns the first result without " +
-                "sending again. The response never contains the phone number. Admin only.");
+                "sending again. The response never contains the phone number, and the message ID is hashed. Admin only.");
         return app;
     }
 

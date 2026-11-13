@@ -10,7 +10,8 @@ namespace SlateAi.Api.Features.Delivery;
 
 /// <summary>
 /// WhatsApp Cloud API, the one call step 1 needs: a template message with body parameters and a URL button whose
-/// suffix is the parent link token (T-40). Logs status, error code and latency only: no text, no numbers.
+/// suffix is the parent link token (T-40). Logs status, error code and latency only: no text, no numbers. The returned
+/// message ID is already hashed (<see cref="ProviderMessageIds"/>), because the raw wamid encodes the phone number.
 /// </summary>
 public sealed class WhatsAppClient(HttpClient http, IOptions<WhatsAppOptions> options, ILogger<WhatsAppClient> logger)
 {
@@ -85,7 +86,7 @@ public sealed class WhatsAppClient(HttpClient http, IOptions<WhatsAppOptions> op
         if (response.IsSuccessStatusCode)
         {
             return parsed?.Messages is [{ Id: { Length: > 0 } id }, ..]
-                ? ChannelResult.Sent(id)
+                ? ChannelResult.Sent(ProviderMessageIds.Hash(id))
                 : ChannelResult.Failed("no-message-id");
         }
 

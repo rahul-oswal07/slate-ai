@@ -50,7 +50,7 @@ Meta's `hello_world` template is approved on every test number. The admin test s
 How the endpoint works:
 - It runs only where `Admin__Key` is set (staging, not prod), and works whatever `Delivery:Channel` is set to.
 - A repeated `clientRequestId` returns the first result without sending again.
-- The response never contains the number.
+- The response never contains the number. The message ID is a SHA-256 hash, because WhatsApp's raw `wamid` encodes the number.
 
 ```bash
 curl -s -X POST https://slateai-staging.azurewebsites.net/api/admin/whatsapp/test \
@@ -58,7 +58,7 @@ curl -s -X POST https://slateai-staging.azurewebsites.net/api/admin/whatsapp/tes
   -d "{\"clientRequestId\":\"$(uuidgen)\",\"childId\":\"<childId in WhatsApp__Recipients>\"}"
 ```
 
-`{"outcome":"sent","providerMessageId":"wamid…"}` means the phone gets "Hello World" within seconds. The error codes are in the table in §4: `graph-190` is the token, `graph-131030` is the number not being on the recipient list.
+`{"outcome":"sent","providerMessageId":"sha256:…"}` means the phone gets "Hello World" within seconds. The error codes are in the table in §4: `graph-190` is the token, `graph-131030` is the number not being on the recipient list.
 
 ## 3. Template wording
 

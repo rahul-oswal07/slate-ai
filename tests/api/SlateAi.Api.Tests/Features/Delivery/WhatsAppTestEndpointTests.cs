@@ -30,7 +30,8 @@ public sealed class WhatsAppTestEndpointTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var text = await response.Content.ReadAsStringAsync(Ct);
         Assert.DoesNotContain("9812345678", text);
-        Assert.Equal(new WhatsAppTestResponse("sent", null, "wamid.HELLO", false), JsonSerializer.Deserialize<WhatsAppTestResponse>(text, JsonSerializerOptions.Web));
+        Assert.DoesNotContain("wamid", text);
+        Assert.Equal(new WhatsAppTestResponse("sent", null, ProviderMessageIds.Hash("wamid.HELLO"), false), JsonSerializer.Deserialize<WhatsAppTestResponse>(text, JsonSerializerOptions.Web));
 
         using var body = JsonDocument.Parse(Assert.Single(_http.Requests).Body);
         var template = body.RootElement.GetProperty("template");
@@ -51,7 +52,7 @@ public sealed class WhatsAppTestEndpointTests
         var replay = await (await client.PostAsJsonAsync(Url, request, Ct)).Content.ReadFromJsonAsync<WhatsAppTestResponse>(Ct);
 
         Assert.True(replay!.Replay);
-        Assert.Equal("wamid.HELLO", replay.ProviderMessageId);
+        Assert.Equal(ProviderMessageIds.Hash("wamid.HELLO"), replay.ProviderMessageId);
         Assert.Single(_http.Requests);
     }
 
