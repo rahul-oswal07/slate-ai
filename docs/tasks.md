@@ -3,6 +3,52 @@
 **Reset 24 Oct (Rahul):** every open task was cleared to start fresh; the GitHub issues were closed (done ones as completed, the rest as not planned). From now on **Monika adds tasks one at a time** under *Open*, and Rahul implements them one at a time. Each new task gets the next free ID (T-48 onwards) and one GitHub issue.
 Owner: **R** = Rahul, **M** = Monika.
 
+## Proposed for the Grand Finale (13 Nov, awaiting Rahul)
+
+Monika's proposal for the final on Wed 18 Nov, from the jury's feedback (J1–J4), the organisers' demo rules (R1–R9) and common suggestions (G1–G5), all in `hackathon-requirements.md` §5. Decisions D-90 to D-96 in `spec.md` §8 are *Proposed*. **Rahul: approve, cut or reorder;** approved rows move to *Open* and get a GitHub issue. Links are due Mon 16 Nov (R8), so **builds merge by Sun 15 Nov**. Sizes: S ≤ half a day, M ≈ 1 day, L > 1 day. T-86 (one Tonight card) is folded into T-89 and T-92.
+
+**Must: the demo loop** (record → AI output → edit → approve → family phone → child answers → teacher sees it)
+
+| ID | Task | Source | Owner | Size | Acceptance criteria | How it's tested |
+|---|---|---|---|---|---|---|
+| T-87 | **Nalikali demo lesson and the book on every screen:** add `M3.BRIDGE.COMPARE` (Part 1 p 4, `curriculum.md` "Nalikali demo lesson") with its key words and the book's exercise list (D-93); the lesson and page read "Nalikali Maths · Part 1 · p 4" on lesson confirm, today's message, Approve, Today and the family pages; A1 can map a voice note about p 4 to it | J4, D-90, D-93 | R | S | A voice note "we compared numbers with more, less, equal on page 4" maps to the lesson; every screen names the book and page; no other lesson changes | `CurriculumGraphTests`; A1 eval case added and run; Vitest for the label; `verify.sh` |
+| T-88 | **Today's message (API and generation):** a daily package per class and language for absent children, with sections concept (text + audio), activity (≤ 3 steps), picture question, video, teacher's note; a new versioned prompt (or A8 extended) writes concept and activity around numbers chosen by code; scrubber, code checks and verifier as for catch-ups; status and script version as T-14; send refused unless Approved (guardrail 3), fallback to the D-21 plain message at 6 pm | J1, D-91 | R | L | No name reaches Claude or Sarvam; an unapproved message never sends; numbers equal the book's list; a removed section is not sent | Endpoint tests with fake `ILlmClient`; guardrail-3 test (Db suite, approval rule); new eval set run and logged; `database.md` updated with the migration |
+| T-89 | **Approve → two tabs, Today's message editor:** tabs **Today's message** \| **Catch-ups**; today's message as collapsed sections (one open at a time), each with Edit and Remove; Add my note (typed, placeholder "e.g. We wrote numbers on leaves and compared them"); picture question: pick another pair from the book's list; tick "I've checked this" → **Approve and send**; every save is a new version that clears the tick | J2, G2, G3, D-92 | R | M–L | She can change, remove and approve each section in Kannada; Approve is bound to the version she ticked; edits re-run the checks | Vitest per state (ready, editing, regenerating, approved); endpoint test for version binding; 360 px screenshots and axe |
+| T-90 | **Picture question ">, <, =":** a new question type: two numbers drawn as bundles and loose sticks, three big buttons >, <, =; code scores it | J1, D-93 | R | S | The child taps a sign; code records right or wrong; works in all 5 languages | Vitest; scorer unit test |
+| T-91 | **Family page for today's message:** the teacher's voice → Concept (text + audio) → Activity steps → Video ("uses data, ~N MB") → Picture question → Done ⭐; stop link on every page; the book and page shown | J1, J3, G2 | R | M | A parent goes through it without help; works at 360 px; the video is optional | Vitest per step; 360 px screenshots; axe |
+| T-92 | **Answers back to the teacher:** after the send, Today shows "Sent to N · M answered" and a small table child · answer · level (D-95); Children shows the same level; updates without a reload in the demo | J3, G1, G5, D-95 | R | M | A child's answer appears on the teacher's Today within seconds | Endpoint test for the level (code, not AI); Vitest; 360 px screenshots |
+| T-93 | **Demo loop and Reset:** in demo mode, Approve sends today's message at once to the family phone; Reset gives the p 4 story every time (a Kannada child away, a sample voice note, no failed card, time 12:00 not 2:37 AM, "goes at 6 pm" before the send); the family phone is labelled with the family | J3, R1–R7, D-94 | R | M | From Reset, the 3-minute story runs with no dead ends, twice in a row | Demo endpoint tests; a timed manual run logged in `status.md` |
+| T-94 | **DIKSHA link per lesson:** a checked URL field per lesson, shown as "Watch how it's taught" on today's message and the family page; the teacher can remove it; chosen by code, never by the AI | J1, D-91 | M finds, R builds | S | Only links Monika checked appear; removed means not sent | Unit test; Vitest |
+
+**Should: guidelines and UX** (after the Must rows; cut from the bottom)
+
+| ID | Task | Source | Owner | Size | Acceptance criteria | How it's tested |
+|---|---|---|---|---|---|---|
+| T-95 | **Header and navigation:** small language switch in the header on every screen (Approve too); Log out moves to Settings; the gear gets a "Settings" label; bottom nav Today · Approve · Children · Week, with Back today as a filter in Children | G1, G3, D-96 | R | S–M | Same header on every screen; existing routes still work | Vitest; existing e2e specs pass; 360 px screenshots |
+| T-96 | **One next step per screen:** Today shows the next action as one button (Record today's lesson → Check today's message → See answers); after Approve the app returns to Today; placeholders in every input | G3 | R | S | Each screen has one primary button and it leads to the next step | Vitest |
+| T-97 | **Learner level colours:** four tokens with icon and word (D-95), used the same way on Today, Children, the child view, Back today and Week | G1, D-95 | R | S | Contrast AAA in light and dark; colour is never the only signal | `tokens.test.ts`; Vitest |
+| T-98 | **Children as a table; child view tidy:** rows name · days away · lessons missed · level; the child view groups absences, one chip per lesson, Delete under "More" | G1, G2 | R | S | No lesson list in the row; delete still needs confirm | Vitest; 360 px screenshots |
+| T-99 | **Week as the head teacher's view:** one headline ("6 away · 4 got it · 2 need help") + the chart; zero rows hidden; stars collapsed to "N earned a star · See all" | G2, G5 | R | S | Week fits in about two screens at 360 px | Vitest; 360 px screenshots |
+| T-100 | **Catch-ups tab tidy:** sort by action needed (ready, failed, sent); Try again on a failed card; a lesson without a practice rule never shows as "Generation failed" (staging showed "Multiplication in daily life" failed); "In Hindi · 1 child" plural bug | G1, G3 | R | S | No failed card from a lesson that can't have a catch-up | Unit test for candidates; Vitest |
+| T-101 | **Family page text fixes:** leftover English on Kannada pages ("Use sticks", "Tap the answer"), "28 + 15? = ?" shows "=" twice, the child's name in Latin script inside Kannada ("Ananyaಯ"); T-84 (Tamil overflow) with it | G3 | R | S | No English on a Kannada family page; one "=" | Locale test; Vitest |
+| T-102 | **AI explained (PAIR):** a short card on Welcome: what the AI does and doesn't, "you approve everything"; lesson confirm shows "What I heard: '…'" and the matched page; her lesson corrections and edits are saved as eval cases | G3, PAIR | R | S | She sees why the AI chose the lesson | Vitest; unit test for the saved feedback |
+| T-103 | **Catch-ups get the same sections and editing** as today's message (Concept · Activity · Picture · Video · Note) | J1, J2 | R | M | Same editor on both tabs | As T-89 |
+
+**Monika (no code)**
+
+| ID | Task | When |
+|---|---|---|
+| M-1 | p 4 learning outcome from the book's outcomes table; DIKSHA link for comparing numbers, checked on a phone (T-94) | Fri 13 |
+| M-2 | Design cards: T1 Today, T3 Approve (two tabs, editor), P1–P3 family pages, T4 Children, T6 Week, matching T-89 to T-99 | Fri–Sat |
+| M-3 | Unguided tests (G4): a teacher who has never seen the app and a parent with a Grade 3 child; one-sentence task, no help; log P6, P7, F-10 onwards in `user-testing.md`; fix 1–2 findings by Sunday | Sat 14 |
+| M-4 | Deck (5–6 slides, guidelines §2), 3-minute demo script through one child from the homepage, backup video with voice-over, a "what's real / simulated" line (R7) | Sun–Mon |
+| M-5 | Send the presentation and demo links to the organisers (R8); README "For judges" points to the new flow | Mon 16 |
+| M-6 | Rehearse the exact click path on our phones and laptop, twice, timed; pack phones, cables, hotspot (R4, R9) | Tue 17 |
+
+**After the final / roadmap slide:** real WhatsApp delivery (Cloud API test number tried 13 Nov: one message delivered, then Meta restricted the account; needs a verified school or government business number), re-point all lessons to Nalikali (D-90), a CRP view across classes (G5), the teacher's spoken note, our own explainer videos, change the server PINs.
+
+**If time runs short, build in this order:** T-87 → T-93 → T-88 → T-89 → T-91 → T-90 → T-92 → T-94 → T-101 → T-95 → T-96 → T-100 → T-97 → T-98 → T-99 → T-102 → T-103.
+
 ## Open
 
 | ID | Task | Owner | Acceptance criteria | How it's tested |

@@ -43,6 +43,8 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Next
 
+**Grand Finale, Wed 18 Nov (Top 10, shortlisted 12 Nov):** 14 minutes (5 min slides, 3 min live demo, 6 min Q&A); presentation and demo links due **Mon 16 Nov**, so builds merge by **Sun 15 Nov**. Jury feedback, demo rules and guidelines: `hackathon-requirements.md` §5. **Rahul: review the proposal** in `tasks.md` "Proposed for the Grand Finale" (T-87 to T-103, M-1 to M-6) and decisions D-90 to D-96 (Nalikali book, daily approved "today's message", teacher edits, demo loop). Demo lesson: Nalikali Maths Part 1 p 4, more–less–equal (`curriculum.md`).
+
 1. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
 2. After judging, change the server PINs.
 3. After judging: the Tamil layout gap (T-84, #176) and one Tonight's message card on Today (T-86, #177).
@@ -56,6 +58,8 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 - Staging's fixed date: at midnight IST the clock goes back to 00:00 the same day; a Reset tidies it.
 
 ## Recent changes
+
+- 13 Nov: Grand Finale proposal (docs only, nothing built): jury feedback J1–J4, demo rules, guidelines G1–G5; D-90–D-96 proposed; T-87–T-103 proposed; Nalikali p 4 lesson content in `curriculum.md`. WhatsApp Cloud API test number tried: one message delivered, then Meta restricted the account (error 131031), so it's parked for the roadmap.
 
 - 1 Nov: prod released as `v1.3` (T-85). The lesson audio wait is now 5 minutes from when the clip is ready (or from 6 pm), with no 9 pm cutoff (T-85, #178). Staging's stop-gap setting is deleted; prod's is unused. `v1.2` (T-81, the textbook curriculum) went to prod earlier the same evening.
 - 1 Nov: Approve clip on staging returned 409 when testing after 9 pm IST (Reset at 21:00, day sent before approval). Set `EveningMessages__LessonAudioWaitUntil=23:59` on staging and prod; no code change.

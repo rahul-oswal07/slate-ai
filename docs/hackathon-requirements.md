@@ -48,10 +48,44 @@ User constraints from our proposal: one Android phone, patchy data, 35+ children
   - User inputs and testing (1–2 pages): evidence of feedback collected and acted on
   - Future roadmap (1–2 pages)
 
-## 5. Later stage (if shortlisted to Top 10)
+## 5. Grand Finale (Top 10, shortlisted 12 Nov)
 
-- 18 Nov 2026, in person: 10–12 slide pitch + **live demo**; organisers recommend a pre-recorded backup video.
-- Additional USD 500 Claude credits for Top 10.
+Source: "Grand Finale: Team Presentation & Demo Guidelines" (organisers' PDF) and the jury's feedback email to the team. Tasks that answer each point: `tasks.md` "Proposed for the Grand Finale".
+
+**Format, Wed 18 Nov, in person, 14 minutes:** presentation 5 min (5–6 slides: problem & solution · innovation · user inputs & testing · technology & data · future pathways), **live demo 3 min**, jury Q&A 6 min.
+
+| ID | Demo rule (guidelines §3, §5, §6) |
+|---|---|
+| R1 | Start from the homepage; show the journeys of different personas (teacher, parent, child, CRP) |
+| R2 | Live test: give an input, show the expected output |
+| R3 | Tell the story through one user; don't show every feature |
+| R4 | Rehearse the exact click path on the demo machine and network |
+| R5 | Backup demo video with voice-over |
+| R6 | Pre-load data: logged in, test data ready, tabs open |
+| R7 | Say what is real and what is simulated or hard-coded |
+| R8 | **Share the final presentation and demo links by Mon 16 Nov** (so all builds merge by Sun 15) |
+| R9 | Arrive early; bring our own accessories (phones, cables, hotspot) |
+
+**Jury feedback on our solution (13 Nov):**
+
+| ID | They said | Our answer |
+|---|---|---|
+| J1 | One minute of AI audio is not enough to recover learning: add an age-appropriate home activity led by the parent, a short concept explainer (video/audio, existing resources) and let teachers personalise the content | D-91 today's message: concept, activity, DIKSHA video, picture question, teacher's note |
+| J2 | Teachers must listen to the whole audio and cannot edit: give an editable text script with the audio | D-92 teacher edits each section in Kannada |
+| J3 | They could not reach the family and child views, so they could not judge the whole journey | D-94 demo shows the loop end to end on two phones |
+| J4 | Unclear which textbook or official learning outcomes are used; contextualise to one state's curriculum | D-90 Nalikali Grade 3 Maths 2026-27 (Karnataka), named on every screen |
+
+**Common suggestions for all solutions (guidelines §7):**
+
+| ID | Suggestion |
+|---|---|
+| G1 | Declutter: tables, icons with a clear meaning, section breaks, consistent colours for groups (e.g. beginner / advancing / proficient) |
+| G2 | Reduce on-screen text: tabs, accordions, expandable sections |
+| G3 | Simple and intuitive: clear calls to action, helpful placeholders, intuitive navigation, logical flow between screens |
+| G4 | Test with people outside the team, without guidance; note where they hesitate |
+| G5 | Design for personas: teacher, parent and administrator need different views of the same information |
+
+Additional USD 500 Claude credits for Top 10.
 
 ## 6. Support available now
 
