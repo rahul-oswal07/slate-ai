@@ -122,8 +122,51 @@ These match the book, so a child hears the same word at home and in class. Each 
 | ಭಾಜ್ಯ / ಭಾಜಕ / ಭಾಗಲಬ್ಧ / ಶೇಷ | dividend / divisor / quotient / remainder | Part 2 p 8 |
 | ಅಂದಾಜು | estimate | Rounding to the nearest ten (Ch 3–4) |
 
+## Nalikali demo lesson (proposed for the final, D-90, D-93)
+
+Source: **Nalikali Grade 3 Maths 2026-27, Part 1, printed page 4**, bridge course (ಸೇ.ಬಂ = ಸೇತುಬಂಧ). Read from Monika's PDFs on 13 Nov. The book's words and numbers are copied as facts; no page image goes in the repo.
+
+| Field | Value |
+|---|---|
+| Proposed ID | `M3.BRIDGE.COMPARE` (new; the closest D-89 lesson is `M3.NUM.COMPARE`, 3-digit) |
+| Kannada / English | ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ / More – less – equal: comparing 2-digit numbers |
+| Book | Nalikali Maths, Grade 3, 2026-27 · Part 1 · bridge course · p 4 |
+| Before / after | p 3 counting forwards and backwards (ಮುಮ್ಮುಖ – ಹಿಮ್ಮುಖ ಎಣಿಕೆ) · p 5 ascending and descending order (ಏರಿಕೆ – ಇಳಿಕೆ) · p 6 place value with bundles (ಸ್ಥಾನ ಬೆಲೆ) |
+| Key words | ಹೆಚ್ಚು (more) · ಕಡಿಮೆ (less) · ಸಮ (equal) · ಹೋಲಿಸು (compare) · ಅತಿ ದೊಡ್ಡ / ಅತಿ ಚಿಕ್ಕ (biggest / smallest) · ಹತ್ತರ ಗುಂಪು / ಬಿಡಿಗಳು (bundles of ten / loose ones, p 6) |
+| Learning outcome | To extract: the book's outcomes table (e.g. p 92) |
+
+**Activity 1** (ಸೂಚನೆ: ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳಲ್ಲಿ ಅತಿ ಚಿಕ್ಕ ಸಂಖ್ಯೆಗೆ ವೃತ್ತವನ್ನು ಮತ್ತು ಅತಿ ದೊಡ್ಡ ಸಂಖ್ಯೆಗೆ ಚೌಕವನ್ನು ಹಾಕೋಣ): in each leaf, circle the smallest number and put a square round the biggest.
+
+| Leaf | Numbers | Smallest | Biggest |
+|---|---|---|---|
+| 1 | 3, 38, 64, 24 | 3 | 64 |
+| 2 | 36, 26, 16, 46 | 16 | 46 |
+| 3 | 82, 18, 59, 41 | 18 | 82 |
+| 4 | 71, 81, 65, 56 | 56 | 81 |
+| 5 | 50, 90, 40, 70 | 40 | 90 |
+
+**Activity 2** (ಸೂಚನೆ: ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ ಹೆಚ್ಚು (>), ಕಡಿಮೆ (<), ಸಮ (=) ಚಿಹ್ನೆ ಹಾಕೋಣ): compare and write >, < or =. Answers computed, not printed in the book.
+
+| Pair | Sign | Pair | Sign |
+|---|---|---|---|
+| 48 · 33 | > | 48 · 84 | < |
+| 75 · 57 | > | 50 · 78 | < |
+| 86 · 86 | = | 68 · 68 | = |
+| 69 · 71 | < | 33 · 66 | < |
+| 26 · 26 | = | 99 · 86 | > |
+
+48 · 84 and 75 · 57 swap the digits: they test whether the child reads tens before ones.
+
+**For today's message (D-91), proposed content:**
+- **Concept** (our wording; p 4 has no explanation, the method is p 6's bundles): "To see which number is more, look at the bundles of ten first: 48 has 4 bundles, 33 has 3, so 48 is more. If the bundles are the same, look at the loose ones."
+- **Activity**, parent-led: 1. You: make 48 and 33 with bundles of ten sticks and loose sticks. 2. Your child: says which is more and puts a card with >, < or = between them. 3. Make 84: which is more now, 48 or 84?
+- **Picture question:** "48 ☐ 33", the child taps >, < or = (a new question type, T-90); pairs come from Activity 2; code knows the answer.
+- **Video:** one checked DIKSHA link on comparing numbers (Monika to find and check).
+- **Homework:** Nalikali Maths Part 1, page 4.
+
 ## Open
 
+- [ ] D-90: the D-89 pages don't match Nalikali 2026-27; re-point all lessons after the final
 - [ ] A teacher confirms the † names and the key words (D-14)
 - [ ] Native review of the Telugu, Tamil and Hindi names (T-26)
 - [ ] Check the page numbers against a child's book (edition note above)
