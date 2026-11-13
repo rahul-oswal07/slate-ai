@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.CatchUps;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.Lessons;
 
 namespace SlateAi.Api.Tests.Db;
@@ -50,6 +51,10 @@ public sealed class CatchUpApprovalDbTests(PostgresFixture postgres)
         var tokens = await api.QueryAsync(db => db.CatchUpAssignments.Where(a => a.Token != null).Select(a => new { a.ChildId, a.Token }).ToListAsync(DemoClassApi.Ct));
         var only = Assert.Single(tokens);
         Assert.Equal(ravi, only.ChildId);
+        var queued = Assert.Single(await api.QueryAsync(db => db.ParentDeliveries.ToListAsync(DemoClassApi.Ct)));
+        Assert.Equal((ravi, DeliveryStatus.Pending), (queued.ChildId, queued.Status));
+        Assert.NotNull(queued.CatchUpAssignmentId);
+        Assert.Equal(1, await api.ScopedAsync<DeliveryDispatcher, int>(d => d.RunOnceAsync(DemoClassApi.Ct)));
         Assert.Equal(PackageStatus.Sent, await api.QueryAsync(db => db.CatchUpPackages.Where(p => p.Id == packageId).Select(p => p.Status).SingleAsync(DemoClassApi.Ct)));
     }
 

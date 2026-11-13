@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Features.Delivery;
+using SlateAi.Api.Tests.Features.Delivery;
 
 namespace SlateAi.Api.Tests.Infrastructure;
 
@@ -16,6 +18,8 @@ public static class FakeApi
         {
             // Session cookies need keys; the real ones live in Postgres.
             all.AddDataProtection().UseEphemeralDataProtectionProvider();
+            // The 6 pm job and the demo send run the delivery outbox (T-40); tests may replace this empty one.
+            all.AddSingleton<IDeliveryStore>(new FakeDeliveryStore());
             services?.Invoke(all);
         });
 }

@@ -5,6 +5,7 @@ using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.CatchUps.Script;
 using SlateAi.Api.Features.CatchUps.Verify;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.Lessons;
 
 namespace SlateAi.Api.Features.CatchUps;
@@ -362,6 +363,9 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
             family.Assignment.ScheduledAt = now;
             family.Assignment.SentAt = now;
             family.Assignment.ExpiresAt = expiresAt;
+            // Same transaction as the token: only an approved package's consenting families are queued (T-40).
+            db.ParentDeliveries.Add(DeliveryStore.Queue(
+                package.ClassId, family.Assignment.ChildId, now, assignmentId: family.Assignment.Id));
         }
 
         package.Status = PackageStatus.Sent;

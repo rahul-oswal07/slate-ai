@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.LessonAudio;
 
 namespace SlateAi.Api.Features.EveningMessages;
@@ -33,8 +34,31 @@ public sealed class EveningSendWorker(
         while (await timer.WaitForNextTickAsync(stoppingToken));
     }
 
-    /// <summary>One tick: does nothing before the send time, otherwise sends for every class. Returns classes processed.</summary>
+    /// <summary>
+    /// One tick: before the send time it only delivers what is already queued (a catch-up sent from the demo); otherwise
+    /// it sends for every class, then delivers to families' phones (T-40). Returns classes processed.
+    /// </summary>
     public async Task<int> RunOnceAsync(CancellationToken cancellationToken)
+    {
+        var classes = await SendClassesAsync(cancellationToken);
+        await DeliverAsync(cancellationToken);
+        return classes;
+    }
+
+    private async Task DeliverAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var scope = scopes.CreateAsyncScope();
+            await scope.ServiceProvider.GetRequiredService<DeliveryDispatcher>().RunOnceAsync(cancellationToken);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            logger.LogError(e, "Delivery to families' phones failed");
+        }
+    }
+
+    private async Task<int> SendClassesAsync(CancellationToken cancellationToken)
     {
         var today = SchoolClock.Today(clock);
         if (clock.GetUtcNow() < SchoolClock.At(today, options.Value.SendAt))

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Lessons;
 
@@ -50,5 +51,12 @@ public sealed class EveningMessageDbTests(PostgresFixture postgres)
         var parent = (await api.Client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{message.Token}", DemoClassApi.Ct))!;
         Assert.Contains("పది తీసుకుని తీసివేత", parent.Text);
         Assert.Contains("Ravi", parent.Text);
+
+        // T-40: queued for the phone in the same transaction, once despite the race; the demo channel settles it.
+        var queued = Assert.Single(await api.QueryAsync(db => db.ParentDeliveries.ToListAsync(DemoClassApi.Ct)));
+        Assert.Equal((message.Id, ravi, DeliveryStatus.Pending), (queued.EveningMessageId, queued.ChildId, queued.Status));
+        Assert.Equal(1, await api.ScopedAsync<DeliveryDispatcher, int>(d => d.RunOnceAsync(DemoClassApi.Ct)));
+        var settled = Assert.Single(await api.QueryAsync(db => db.ParentDeliveries.ToListAsync(DemoClassApi.Ct)));
+        Assert.Equal((DeliveryStatus.Skipped, DeliveryChannels.Demo, 1), (settled.Status, settled.Channel, settled.Attempts));
     }
 }

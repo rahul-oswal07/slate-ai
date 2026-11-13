@@ -141,13 +141,14 @@ public static class AdminEndpoints
         return TypedResults.File(clip.Bytes, clip.ContentType, enableRangeProcessing: true);
     }
 
-    private static bool HasKey(HttpContext http, AdminOptions options) =>
+    /// <summary>The request carries the admin key (constant-time compare). Also used by the WhatsApp test send (T-40).</summary>
+    internal static bool HasKey(HttpContext http, AdminOptions options) =>
         options.Enabled
         && CryptographicOperations.FixedTimeEquals(
             Encoding.UTF8.GetBytes(http.Request.Headers[KeyHeader].ToString()),
             Encoding.UTF8.GetBytes(options.Key!));
 
-    private static void NoStore(HttpContext http)
+    internal static void NoStore(HttpContext http)
     {
         http.Response.Headers.CacheControl = "no-store";
         http.Response.Headers["X-Robots-Tag"] = "noindex";

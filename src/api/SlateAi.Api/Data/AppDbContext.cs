@@ -24,6 +24,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<AbsenceReason> AbsenceReasons => Set<AbsenceReason>();
     public DbSet<BuddyCard> BuddyCards => Set<BuddyCard>();
     public DbSet<PacingDecision> PacingDecisions => Set<PacingDecision>();
+    public DbSet<ParentDelivery> ParentDeliveries => Set<ParentDelivery>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -155,6 +156,25 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(r => r.Outcome).HasMaxLength(20);
             e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<CheckResponse>(r => r.AssignmentId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ParentDelivery>(e =>
+        {
+            e.Property(d => d.Status).HasMaxLength(10);
+            e.Property(d => d.Channel).HasMaxLength(10);
+            e.Property(d => d.ProviderMessageId).HasMaxLength(100);
+            e.Property(d => d.LastError).HasMaxLength(40);
+            e.HasOne<Class>().WithMany().HasForeignKey(d => d.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(d => d.ChildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<EveningMessage>().WithOne().HasForeignKey<ParentDelivery>(d => d.EveningMessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<ParentDelivery>(d => d.CatchUpAssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(d => d.EveningMessageId).IsUnique(); // one delivery per message: a repeated send queues nothing new
+            e.HasIndex(d => d.CatchUpAssignmentId).IsUnique();
+            e.HasIndex(d => d.Status); // the dispatcher reads pending rows
+            e.ToTable(t => t.HasCheckConstraint(
+                "CK_ParentDeliveries_OneSource", "(\"EveningMessageId\" IS NULL) <> (\"CatchUpAssignmentId\" IS NULL)"));
         });
 
         modelBuilder.Entity<AbsenceReason>(e =>

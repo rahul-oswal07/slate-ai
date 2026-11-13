@@ -67,7 +67,7 @@ slate-ai/
 | 9 | Offline outbox | NFR-02 | Playwright offline test |
 | 10 | Demo mode + reset + "Under the hood" AI panel. **Built (T-18, 23 Oct):** `/demo` with the teacher app and the parent page in two 360 px frames (tabs on a phone), one-tap demo sign-in, step guide, Reset that writes the 5 school days before the real today (no demo clock; Ravi away this week, Manjunath back today) plus a pre-made Ready Telugu catch-up from `data/seed/demo-catchup.json` (R5), "Bring in today's attendance", AI calls since the reset. The parent phone's inbox stands in for the demo chat bubble (step 7b) | FR-14 | Outsider completes loop in ≤ 5 min |
 | 11 | Consent + delete | FR-15 | Integration test |
-| 12 | Stretch: WhatsApp only (board photo and spoken answers dropped, D-26) | FR-16 | Only after Day 7 freeze |
+| 12 | WhatsApp delivery (board photo and spoken answers dropped, D-26). **Step 1 built (T-40, 13 Nov, D-90):** `Features/Delivery/` outbox (`ParentDeliveries`, queued in the send transaction), `DeliveryDispatcher` on the 6 pm job's minute tick and on Send messages now, `IParentChannel` with `DemoChannel` (default) and `WhatsAppChannel` (template + URL button to `/p/{token}`, registered test numbers only). Step 2 (webhook, voice note, STOP) next | FR-16 | Unit tests with a fake HTTP handler and fake store; Db test: queued once in the send transaction, dispatcher SQL; manual check on a registered phone |
 
 **Build order from Day 3 (21 Oct): screen by screen.** Each screen is one vertical slice (UI + API + any AI step) built against its design card: sign-in + Welcome (T-47) → T1 Today → T2 Lesson confirm → T4 Missed lessons → T0 setup steps + T8 Families → T3 Approve → P1–P4 parent page → P0 evening message + reason → T5 Back today → T6 Week → demo shell (`POST /api/demo/login` stays with T-18). Cut T6 and T5 first if time runs short. **From 22 Oct the order is D-70's** ([`mvp-build-flow.md`](design/mvp-build-flow.md) §2): T-44 (evening message) was built before T-14/T-15 because it is in the demo loop.
 
@@ -96,7 +96,7 @@ Acceptance criteria per requirement are in `spec.md` §2 and per task in `tasks.
 |---|---|---|---|---|
 | R1 | Sarvam STT inaccurate on teacher Kannada | M / H | A1 eval < 80% on Day 3 | One-tap chapter picker (FR-04) is always available; Claude prompt tolerates noisy transcripts |
 | R2 | Telugu TTS sounds unnatural to parents | M / H | Round 0 feedback Day 3 | Try other Bulbul voices / Google TTS; for the demo, a native speaker records the approved script (labelled as human-voiced) |
-| R3 | WhatsApp Cloud API setup or template approval delays | H / M | Not working by Day 7 | Simulated parent phone in demo (primary); `wa.me` share link from teacher phone |
+| R3 | WhatsApp Cloud API setup or template approval delays | H / M | Template not approved within 2 days of submitting | Simulated parent phone in demo (primary, and the default `Delivery:Channel`); submit the English templates first; `wa.me` share link from teacher phone |
 | R4 | Wrong AI output (arithmetic, language, off-topic) | M / H | Verifier failure rate > 15% | Verifier + one auto-retry + teacher approval; show the guardrail in the demo |
 | R5 | Claude API slow or down during judging | L / H | Latency p95 > 20 s | Demo seed includes pre-generated, approved packages; live generation is one step, with cached result if it fails |
 | R6 | Credits run out | L / M | AiCall log > USD 300 spent | Haiku for checks, prompt caching, evals on demand only |
