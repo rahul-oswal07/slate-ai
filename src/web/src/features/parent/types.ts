@@ -38,6 +38,21 @@ export type ParentEvening = {
   stopped: boolean
   /** The reason the family already gave for this day (FR-21), or null. */
   reason: ReasonCategory | null
+  /** Today's message she approved (D-91, T-91), in this family's language; null or missing: the plain message. */
+  todaysMessage?: ParentTodaysMessage | null
+}
+
+/** A sign the child taps on the picture question (T-90). */
+export type Sign = '>' | '<' | '='
+
+/** Today's message as the family gets it: removed sections are null. The picture never carries its answer. */
+export type ParentTodaysMessage = {
+  concept: string | null
+  steps: string[] | null
+  /** `done`: right, or two taps; the child can't tap again. */
+  picture: { a: number; b: number; firstAnswer: Sign | null; secondAnswer: Sign | null; done: boolean } | null
+  video: { url: string } | null
+  note: string | null
 }
 
 /** The five picture buttons on the reason page (FR-21, D-23): a category, never a diagnosis. */

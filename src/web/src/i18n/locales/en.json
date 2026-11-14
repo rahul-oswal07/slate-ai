@@ -509,6 +509,33 @@
       "thanks": "Thank you",
       "private": "Only {{teacher}} teacher sees this.",
       "ok": "OK"
+    },
+    "todays": {
+      "title": {
+        "concept": "What {{child}} learned today",
+        "activity": "Try this at home",
+        "video": "Watch how it's taught",
+        "picture": "{{child}}'s turn",
+        "done": "Well done!"
+      },
+      "note": "A note from {{teacher}}",
+      "next": "Next",
+      "activityIntro": "A few minutes with sticks, leaves or stones.",
+      "videoIntro": "A short video from DIKSHA shows how this is taught in class.",
+      "watch": "Watch the video",
+      "videoData": "Uses mobile data. You can skip it.",
+      "skipVideo": "Next (skip the video)",
+      "pictureIntro": "Let {{child}} look at the bundles and loose sticks, then tap the sign that goes between the numbers.",
+      "lookAgain": "Look at the bundles of ten again, then the loose sticks, and try once more.",
+      "thanks": "Thank you. The teacher will see it.",
+      "signs": "Which sign goes between {{a}} and {{b}}?",
+      "sign": {
+        "more": "{{a}} is more than {{b}}",
+        "less": "{{a}} is less than {{b}}",
+        "equal": "{{a}} is equal to {{b}}"
+      },
+      "sendFailed": "Could not send. Check the network and tap again.",
+      "doneBody": "{{child}} has a star for today. {{teacher}} will see the answer. See you in class tomorrow!"
     }
   },
   "missed": {

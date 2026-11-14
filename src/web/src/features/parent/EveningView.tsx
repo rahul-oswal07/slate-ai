@@ -4,12 +4,14 @@ import { clock } from './clock'
 import { LessonAudioPlayer } from './LessonAudioPlayer'
 import { ParentHeader, StopControl, StoppedView } from './ParentParts'
 import { ReasonView } from './ReasonView'
+import { TodaysPages } from './TodaysPages'
 import type { ParentEvening } from './types'
 import { VoiceNote } from './VoiceNote'
 
 /**
  * An evening-message link opened on its own (the demo chat shows it as a bubble, T-18): the text, "Is everything OK?
- * Tell us" (FR-21) and the stop link. The reason page is `?view=reason`, so the phone's Back returns here.
+ * Tell us" (FR-21) and the stop link; with today's message, its step-by-step pages (T-91). The reason page is
+ * `?view=reason`, so the phone's Back returns here.
  */
 export function EveningView({ token, message }: { token: string; message: ParentEvening }) {
   const { t } = useTranslation()
@@ -20,10 +22,17 @@ export function EveningView({ token, message }: { token: string; message: Parent
   }
 
   if (params.get('view') === 'reason') {
-    return <ReasonView token={token} message={message} onDone={() => setParams({}, { replace: true })} />
+    // Back to where she came from: Done for today's message, the message itself otherwise.
+    const back: Record<string, string> = message.todaysMessage ? { step: 'done' } : {}
+    return <ReasonView token={token} message={message} onDone={() => setParams(back, { replace: true })} />
   }
 
   const openReason = () => setParams({ view: 'reason' })
+  // Today's message she approved (D-91): its own steps; without it, the plain message as before (D-21).
+  if (message.todaysMessage) {
+    return <TodaysPages token={token} message={{ ...message, todaysMessage: message.todaysMessage }} onReason={openReason} />
+  }
+
   return (
     <>
       <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />

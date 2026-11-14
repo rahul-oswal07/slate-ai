@@ -22,6 +22,15 @@ public sealed class EveningMessage
     /// </summary>
     public Guid? TodaysMessageId { get; set; }
 
+    /// <summary>The child's first tap on today's picture question (T-90): "&gt;", "&lt;" or "=", or null. Scored by code.</summary>
+    public string? PictureFirst { get; set; }
+
+    /// <summary>The second tap, only after a first one that wasn't right; or null.</summary>
+    public string? PictureSecond { get; set; }
+
+    /// <summary>When the last tap came in.</summary>
+    public DateTimeOffset? PictureAnsweredAt { get; set; }
+
     /// <summary>"kn", "te", "ta", "en" or "hi": the child's home language when it was sent.</summary>
     public required string Language { get; set; }
 

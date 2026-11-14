@@ -570,6 +570,17 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<Guid>("LessonId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("PictureAnsweredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PictureFirst")
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)");
+
+                    b.Property<string>("PictureSecond")
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)");
+
                     b.Property<DateTimeOffset>("SentAt")
                         .HasColumnType("timestamp with time zone");
 

@@ -122,7 +122,7 @@ public sealed class TodaysMessageTests
 
         Assert.Equal("हिंदी", view.Concept);
         Assert.Null(view.Steps);
-        Assert.Equal(Pair, view.Picture);
+        Assert.Equal(new SlateAi.Api.Features.EveningMessages.ParentPicture(48, 33), view.Picture); // never the answer (T-90)
         Assert.Null(view.Video);
         Assert.Null(view.Note);
     }
@@ -181,6 +181,18 @@ public sealed class TodaysMessageTests
         Assert.True(edited.Teacher);
         Assert.Null(Sections().WithKannada(TodaysSectionKind.Picture, "48", null)); // numbers only by code
         Assert.Equal("ನನ್ನ ಟಿಪ್ಪಣಿ", Sections().WithKannada(TodaysSectionKind.Note, "ನನ್ನ ಟಿಪ್ಪಣಿ", null)!.Kannada.Note);
+    }
+
+    [Theory]
+    [InlineData(null, null, "notAnswered", false)]
+    [InlineData(">", null, "gotIt", true)]
+    [InlineData("<", null, "notAnswered", false)] // one more try to come
+    [InlineData("<", ">", "gettingThere", true)]
+    [InlineData("<", "=", "needsHelp", true)]
+    public void The_level_comes_from_the_taps_by_code(string? first, string? second, string level, bool done)
+    {
+        Assert.Equal(level, TodaysLevel.For(first, second, ">"));
+        Assert.Equal(done, TodaysLevel.Done(first, second, ">"));
     }
 
     internal static TodaysSections Sections() => new(
