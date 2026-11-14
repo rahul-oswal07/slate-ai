@@ -18,7 +18,10 @@ public static class CompressionSource
 public sealed record CompressionItem(string Id, string? Reason, string? ReasonKn = null);
 
 /// <summary>What A2 decided after validation (guardrail 2: invalid output falls back to the rule).</summary>
-/// <param name="Targets">1–2 lessons to catch up, most important first (the learning check tests the first).</param>
+/// <param name="Targets">
+/// 1–2 lessons to catch up, most important first (the learning check tests the first). Empty only from the rule, when
+/// none of the child's missed lessons has a practice rule: then the child gets no catch-up this week.
+/// </param>
 /// <param name="Dropped">Every other missed lesson.</param>
 /// <param name="Verdict">Logged on the AiCall: valid, fallback:*, rule:no-candidates, error:*.</param>
 public sealed record A2Result(
@@ -82,15 +85,16 @@ public static class A2Validator
     }
 
     /// <summary>
-    /// The nearest-prerequisite rule: the head of the candidate set, or with no candidates the latest missed lesson,
-    /// so every absent child still gets a catch-up. No reasons: T3 words a rule choice itself.
+    /// The nearest-prerequisite rule: the head of the candidate set, or with no candidates the latest missed lesson
+    /// that has a practice rule, so every absent child who can have a catch-up gets one. With none, no target: a
+    /// catch-up code can't make sums for would only fail (D-89, T-100). No reasons: T3 words a rule choice itself.
     /// </summary>
     public static A2Result Rule(CompressionInput input, string verdict)
     {
-        var target = input.Candidates.Count > 0 ? input.Candidates[0] : input.Missed[^1].Id;
+        var target = input.Candidates.Count > 0 ? input.Candidates[0] : input.Practicable.LastOrDefault();
         return new A2Result(
             input.ChildId,
-            [new CompressionItem(target, null)],
+            target is null ? [] : [new CompressionItem(target, null)],
             input.Missed.Where(m => m.Id != target).Select(m => new CompressionItem(m.Id, null)).ToList(),
             CompressionSource.Rule,
             verdict);

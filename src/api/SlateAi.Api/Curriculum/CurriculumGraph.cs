@@ -68,6 +68,13 @@ public sealed class CurriculumGraph
             .ToList();
     }
 
+    /// <summary>
+    /// The given lessons that have a practice rule, in the given order: code can make their sums, so they can have a
+    /// catch-up (D-89). Unknown IDs are ignored.
+    /// </summary>
+    public IReadOnlyList<string> WithPractice(IEnumerable<string> ids) =>
+        ids.Distinct(StringComparer.Ordinal).Where(id => _byId.TryGetValue(id, out var c) && c.Practice is not null).ToList();
+
     /// <summary>Breadth-first walk up the prerequisites; value = fewest hops from any start node.</summary>
     private Dictionary<string, int> HopsToAncestors(IEnumerable<string> starts)
     {

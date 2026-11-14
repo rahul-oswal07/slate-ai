@@ -18,7 +18,8 @@ public sealed class CompressorTests
         Ravi,
         [Missed("M3.SUB.NOBORROW"), Missed("M3.SUB.MAKE"), Missed("M3.SUB.BORROW")],
         ["M3.SUB.WORD"],
-        ["M3.SUB.BORROW", "M3.SUB.NOBORROW"]);
+        ["M3.SUB.BORROW", "M3.SUB.NOBORROW"],
+        ["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"]);
 
     private readonly FakeAiCallStore _aiCalls = new();
     private readonly StubLedger _ledger = new();

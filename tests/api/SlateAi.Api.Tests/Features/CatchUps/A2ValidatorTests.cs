@@ -8,7 +8,8 @@ public sealed class A2ValidatorTests
         Guid.NewGuid(),
         [Missed("M3.SUB.NOBORROW"), Missed("M3.SUB.MAKE"), Missed("M3.SUB.BORROW")],
         ["M3.SUB.WORD"],
-        ["M3.SUB.BORROW", "M3.SUB.NOBORROW"]);
+        ["M3.SUB.BORROW", "M3.SUB.NOBORROW"],
+        ["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"]);
 
     [Fact]
     public void Valid_targets_keep_their_order_and_reasons_and_every_other_missed_lesson_is_dropped()
@@ -113,6 +114,30 @@ public sealed class A2ValidatorTests
         var result = A2Validator.Rule(input, "rule:no-candidates");
 
         Assert.Equal([new CompressionItem("M3.SUB.BORROW", null)], result.Targets);
+        Assert.Equal(CompressionSource.Rule, result.Source);
+    }
+
+    [Fact]
+    public void With_no_candidates_the_rule_skips_a_latest_lesson_that_has_no_practice_rule()
+    {
+        // status.md 14 Nov (a): the bridge lesson confirmed last made a catch-up that could only fail (D-89, FR-06).
+        var input = Input with { Candidates = [], Practicable = ["M3.SUB.NOBORROW", "M3.SUB.MAKE"] };
+
+        var result = A2Validator.Rule(input, "rule:no-candidates");
+
+        Assert.Equal([new CompressionItem("M3.SUB.MAKE", null)], result.Targets);
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.BORROW"], result.Dropped.Select(d => d.Id));
+    }
+
+    [Fact]
+    public void With_no_lesson_that_has_a_practice_rule_the_rule_picks_no_target()
+    {
+        var input = Input with { Candidates = [], Practicable = [] };
+
+        var result = A2Validator.Rule(input, "rule:no-candidates");
+
+        Assert.Empty(result.Targets);
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"], result.Dropped.Select(d => d.Id));
         Assert.Equal(CompressionSource.Rule, result.Source);
     }
 
