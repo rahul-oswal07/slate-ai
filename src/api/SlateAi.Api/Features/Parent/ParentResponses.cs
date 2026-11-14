@@ -54,6 +54,15 @@ public sealed record AnswerRequest(int ChoiceId, Guid ClientRequestId);
 /// <summary>Never says right or wrong: the family sees "Well done" whatever the answer (D-20).</summary>
 public sealed record AnswerResponse(bool Answered);
 
+/// <summary>The child's tap on today's picture question (T-90): "&gt;", "&lt;" or "=".</summary>
+public sealed record PictureAnswerRequest(Guid ClientRequestId, string Sign);
+
+/// <summary>
+/// What the phone needs after a tap (T-90): whether this tap was right (the page offers one more try when it wasn't),
+/// which try it was, and whether the question is done. Never the answer itself.
+/// </summary>
+public sealed record PictureAnswerResponse(bool Correct, int Attempt, bool Done);
+
 /// <param name="Category">One of <see cref="ReasonCategory"/>.</param>
 public sealed record ReasonRequest(string Category, Guid ClientRequestId);
 

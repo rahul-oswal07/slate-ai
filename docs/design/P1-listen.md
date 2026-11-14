@@ -119,3 +119,15 @@ The Listen button has no `aria-label`: its accessible name is its visible label 
 - Offline-on-open and audio-file-error states not designed.
 - Spec NFR-08 label is "AI-assisted, approved by your teacher"; prototype says "AI-assisted, approved by Lakshmi teacher". Pick one wording for all locales.
 - Spec §3.1 P1 shows "Teacher photo initial"; the prototype uses an initial only (no photo, consistent with §7 "no photos").
+
+## Today's message pages (T-91 + T-90, 14 Nov, built; **for Monika's review**)
+
+An evening link that carries today's message (D-91) opens these steps instead of the plain card (no today's message: the plain card, unchanged). Screenshots: `docs/screenshots/T-91/` (Kannada, 360 px).
+
+1. **"{child} learned today"**: her voice, the evening text (lesson and page), her note if any, the concept, the concept's voice behind the AI notice, Next.
+2. **"Try this at home"**: the activity steps, Next.
+3. **"Watch how it's taught"** (only with a DIKSHA link, T-94): Watch the video · "Uses mobile data. You can skip it.", Next (skip the video).
+4. **"{child}'s turn"**: both numbers drawn as bundles of ten and loose sticks, three big signs > < =. A first tap that isn't right shows "Look at the bundles of ten again, then the loose sticks, and try once more." (never "wrong"); the second tap is final. This second try is our reading of D-95 ("getting there" = right on the second try); please confirm the copy.
+5. **"Well done!"**: the star, "{child} has a star for today. {teacher} will see the answer.", and "Is everything OK? Tell us".
+
+The stop link is on every step. Steps for removed sections are skipped. A reopened link whose question is done opens on Done.

@@ -291,6 +291,81 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
+    public async Task The_childs_taps_are_scored_by_code_with_one_more_try_and_the_answer_never_reaches_the_phone()
+    {
+        var token = await SentTokenAsync();
+        await using var factory = Create();
+        using var phone = factory.CreateHttpsClient();
+        var url = $"/api/p/{token}/picture";
+
+        var page = await phone.GetStringAsync($"/api/p/{token}", Ct);
+        var first = await (await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), "<"), Ct)).Content.ReadFromJsonAsync<PictureAnswerResponse>(Ct);
+        var replayId = Guid.NewGuid();
+        var second = await (await phone.PostAsJsonAsync(url, new PictureAnswerRequest(replayId, "="), Ct)).Content.ReadFromJsonAsync<PictureAnswerResponse>(Ct);
+        var replay = await (await phone.PostAsJsonAsync(url, new PictureAnswerRequest(replayId, "="), Ct)).Content.ReadFromJsonAsync<PictureAnswerResponse>(Ct);
+        var third = await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), ">"), Ct);
+        var after = (await phone.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        Assert.DoesNotContain("\"answer\"", page);
+        Assert.Equal(new PictureAnswerResponse(false, 1, false), first);
+        Assert.Equal(new PictureAnswerResponse(false, 2, true), second);
+        Assert.Equal(second, replay);
+        Assert.Equal(HttpStatusCode.Conflict, third.StatusCode);
+        Assert.Equal(("<", "=", true), (after.TodaysMessage!.Picture!.FirstAnswer, after.TodaysMessage.Picture.SecondAnswer, after.TodaysMessage.Picture.Done));
+    }
+
+    [Fact]
+    public async Task Right_first_time_is_done()
+    {
+        var token = await SentTokenAsync();
+        await using var factory = Create();
+        using var phone = factory.CreateHttpsClient();
+
+        var first = await (await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), ">"), Ct))
+            .Content.ReadFromJsonAsync<PictureAnswerResponse>(Ct);
+        var again = await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), "<"), Ct);
+
+        Assert.Equal(new PictureAnswerResponse(true, 1, true), first);
+        Assert.Equal(HttpStatusCode.Conflict, again.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("x", HttpStatusCode.BadRequest)]
+    [InlineData("≥", HttpStatusCode.BadRequest)]
+    public async Task Only_the_three_signs_are_taken(string sign, HttpStatusCode expected)
+    {
+        var token = await SentTokenAsync();
+        await using var factory = Create();
+        using var phone = factory.CreateHttpsClient();
+
+        var response = await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), sign), Ct);
+
+        Assert.Equal(expected, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_plain_message_or_a_removed_picture_has_no_question()
+    {
+        var token = await SentTokenAsync();
+        _evening.TodaysMessage = _evening.TodaysMessage! with { Picture = null };
+        await using var factory = Create();
+        using var phone = factory.CreateHttpsClient();
+
+        var response = await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), ">"), Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    /// <summary>Approved in the demo, so it is sent at once; returns Manjunath's family's link.</summary>
+    private async Task<string> SentTokenAsync()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _evening.TodaysMessage = TodaysFamilyView.For(TodaysMessageTests.Sections(), "kn");
+        await ApproveAsync(1, sendOnApprove: true);
+        return _evening.Messages.Single(m => m.Message.ChildId == Manjunath.Id).Message.Token;
+    }
+
+    [Fact]
     public async Task Another_class_gets_404_and_signed_out_gets_401()
     {
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());

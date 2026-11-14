@@ -14,7 +14,7 @@ const CONFETTI: { x: number; y: number; kind: 'dot' | 'bit' | 'squiggle'; amber:
 ]
 
 /** The banner on Done (D-77): an amber medal with a chalk star drawn on, and a little confetti. Decorative only. */
-function Celebration() {
+export function Celebration() {
   return (
     <div aria-hidden="true" className="relative flex h-[172px] w-full items-center justify-center overflow-hidden rounded-card border-[1.5px] border-edge bg-panel">
       {CONFETTI.map((piece, i) => (
