@@ -67,6 +67,15 @@ public sealed class TodaysMessageDbTests(PostgresFixture postgres)
         var stored = await api.QueryAsync(db => db.EveningMessages.SingleAsync(m => m.ChildId == manjunath, DemoClassApi.Ct));
         Assert.Equal(("<", ">", TodaysLevel.GettingThere), (stored.PictureFirst, stored.PictureSecond, TodaysLevel.For(stored.PictureFirst, stored.PictureSecond, ">")));
 
+        // "Is everything OK?" on today's family page (T-91, D-98): the reason endpoint takes the same link, and the reason
+        // is stored for the day like on the plain evening page, so the teacher sees it as before.
+        var token = messages.Single(m => m.ChildId == manjunath).Token;
+        (await api.Client.PostAsJsonAsync($"/api/p/{token}/reason",
+            new SlateAi.Api.Features.Parent.ReasonRequest("unwell", Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        var reason = await api.QueryAsync(db => db.AbsenceReasons.SingleAsync(r => r.ChildId == manjunath, DemoClassApi.Ct));
+        Assert.Equal(("unwell", today), (reason.Category, reason.Date));
+        Assert.Equal("unwell", (await api.Client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", DemoClassApi.Ct))!.Reason);
+
         // The teacher's Today (T-92): both families, Manjunath's last tap and level by code; Ravi hasn't answered.
         var answers = (await api.Client.GetFromJsonAsync<TodaysAnswersView>(
             $"/api/classes/{api.ClassId}/todays-message/{today:yyyy-MM-dd}/answers", DemoClassApi.Ct))!;

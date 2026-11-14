@@ -20,7 +20,18 @@ const ICONS: Record<ReasonCategory, IconName> = {
  * the category is stored, only the teacher sees it. Skip sends nothing. Online only (D-70); a failed send keeps the
  * choice and offers Try again. Voice note and A7 are cut (D-63).
  */
-export function ReasonView({ token, message, onDone }: { token: string; message: ParentEvening; onDone: () => void }) {
+/** `onBack`: the header's Back (today's message pages go back a step, T-91); otherwise the same as `onDone`. */
+export function ReasonView({
+  token,
+  message,
+  onDone,
+  onBack = onDone,
+}: {
+  token: string
+  message: ParentEvening
+  onDone: () => void
+  onBack?: () => void
+}) {
   const { t, i18n } = useTranslation()
   const announce = useAnnounce()
   const reason = useReason(token)
@@ -62,7 +73,7 @@ export function ReasonView({ token, message, onDone }: { token: string; message:
     <>
       <ParentHeader
         title={t('parent.reason.title', { teacher: message.teacherName })}
-        onBack={onDone}
+        onBack={onBack}
         headingRef={headingRef}
       />
       <div className="flex flex-col gap-4 px-4 pt-4">

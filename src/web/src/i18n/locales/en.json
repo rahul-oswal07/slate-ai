@@ -512,11 +512,12 @@
     },
     "todays": {
       "title": {
-        "concept": "What {{child}} learned today",
+        "concept": "The idea, in a few words",
         "activity": "Try this at home",
         "video": "Watch how it's taught",
         "picture": "{{child}}'s turn",
-        "done": "Well done!"
+        "done": "Well done!",
+        "voice": "What {{child}} learned today"
       },
       "note": "A note from {{teacher}}",
       "next": "Next",
