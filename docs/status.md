@@ -29,7 +29,7 @@ Read this first in any new session. Then the map in [`README.md`](README.md), th
 3. **T-94**, DIKSHA link per lesson ([task](tasks/T-94-diksha-link-per-lesson.md)): waits for M-1 ([finale prep](tasks/M-1-to-M-6-finale-prep.md)).
 4. **Should rows**, if time is left, in this order: T-95 → T-96 → T-100 → T-97 → T-98 → T-99 → T-102 → T-103. T-109 waits for Rahul's approval.
 5. **T-104**, our own WhatsApp templates ([task](tasks/T-104-whatsapp-own-templates.md)); T-106 after the final. Where WhatsApp stands: [`areas/delivery/status.md`](areas/delivery/status.md).
-6. **Two problems that need a task each:** after 6 pm the plain evening message can go before she approves today's message ([`areas/delivery/status.md`](areas/delivery/status.md)); an approved today's message stays after the lesson is changed ([`screens/T3-approve/status.md`](screens/T3-approve/status.md)).
+6. **A problem that needs a task:** an approved today's message stays after the lesson is changed ([`screens/T3-approve/status.md`](screens/T3-approve/status.md)).
 7. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
 8. **After judging:** change the server PINs; delete the unused `EveningMessages__LessonAudioWaitUntil` setting on prod; one Tonight's message card on Today (T-86, [task](tasks/T-86-tonights-message-card.md)).
 

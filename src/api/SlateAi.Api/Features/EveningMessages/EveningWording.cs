@@ -15,6 +15,12 @@ public sealed class EveningOptions
     /// </summary>
     public TimeSpan LessonAudioWait { get; set; } = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    /// How long the 6 pm job waits for her to approve a ready today's message, from when it was ready or from
+    /// <see cref="SendAt"/> if it was ready earlier (T-111, D-100). After it the plain message goes.
+    /// </summary>
+    public TimeSpan TodaysMessageWait { get; set; } = TimeSpan.FromMinutes(5);
+
     /// <summary>Days a parent link keeps working (spec §4.4: 14 days).</summary>
     public int LinkDays { get; set; } = 14;
 
