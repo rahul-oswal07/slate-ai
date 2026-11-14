@@ -1,28 +1,26 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { api, ApiError } from '../../api/client'
-import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { saveCachedMe } from './session'
 import { meQueryKey } from './useMe'
 
 /**
- * Small "Log out" button in the app header, shown on every screen except sign-in. Ends the session, forgets the cached
+ * Log out, for the profile menu (T-109; before that the header's own button). Ends the session, forgets the cached
  * teacher and every query's data, and opens the sign-in screen. The remembered phone stays, so the next sign-in
- * on this phone asks for the PIN only. Offline it stays signed in (the server can't end the session) and says so.
+ * on this phone asks for the PIN only. Offline it stays signed in (the server can't end the session) and says so;
+ * `logout` then resolves to false.
  */
-export function LogoutButton() {
+export function useLogout() {
   const { t } = useTranslation()
-  const { pathname } = useLocation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const announce = useAnnounce()
-
   const [pending, setPending] = useState(false)
 
-  async function logout() {
+  async function logout(): Promise<boolean> {
     setPending(true)
     try {
       await api<void>('/api/auth/logout', { method: 'POST' })
@@ -31,30 +29,15 @@ export function LogoutButton() {
       if (!(failure instanceof ApiError && failure.status === 401)) {
         setPending(false)
         announce(t('offline.noNetwork'))
-        return
+        return false
       }
     }
     saveCachedMe(null)
     queryClient.clear()
     queryClient.setQueryData(meQueryKey, null)
     void navigate('/login', { replace: true })
+    return true
   }
 
-  // The sign-in screen is the only one a signed-out teacher can see. Not reading `me` here on purpose: the welcome
-  // screen's hand-off to the evening step is timing-sensitive to who else watches that query.
-  if (pathname === '/login') {
-    return null
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => void logout()}
-      disabled={pending}
-      className="btn-link -mr-2 shrink-0 px-2 text-caption no-underline"
-    >
-      <Icon name="logOut" size={18} />
-      {t('auth.logout')}
-    </button>
-  )
+  return { logout, pending }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
@@ -75,16 +75,8 @@ export function TodayScreen() {
         <h1 id="today-title" ref={headingRef} tabIndex={-1} className="text-title">
           <AccentTitle title={t('today.title', { date: formatSchoolDate(date, i18n.language) })} accent={t('nav.today')} />
         </h1>
-        <div className="flex items-center gap-2">
-          <SyncBadge />
-          <Link
-            to="/settings"
-            aria-label={t('settings.open')}
-            className="flex size-target items-center justify-center rounded-button text-primary-strong"
-          >
-            <Icon name="settings" />
-          </Link>
-        </div>
+        {/* Settings moved to the header's profile menu (T-109); the sync badge stays beside the title. */}
+        <SyncBadge />
       </div>
 
       <DayStrip

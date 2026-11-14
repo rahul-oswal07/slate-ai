@@ -23,8 +23,19 @@ public sealed record GreetingInfo(string Url, double Seconds);
 /// until she has recorded one (Today then offers it).
 /// </summary>
 /// <param name="Demo">Only on <c>GET /api/me</c> for the demo teacher (T-93); null otherwise.</param>
+/// <param name="PhoneLast4">The last 4 digits of her phone, for her Profile screen (T-109). The full number never leaves the server.</param>
+/// <param name="Grade">Her class's grade (T-109); null without a class.</param>
+/// <param name="Medium">Her class's medium of instruction as a language code, e.g. "kn" (T-109); null without a class.</param>
 public sealed record MeResponse(
-    Guid TeacherId, string DisplayName, Guid? ClassId, bool SetupComplete, GreetingInfo? Greeting = null, DemoFlags? Demo = null);
+    Guid TeacherId,
+    string DisplayName,
+    Guid? ClassId,
+    bool SetupComplete,
+    GreetingInfo? Greeting = null,
+    DemoFlags? Demo = null,
+    string? PhoneLast4 = null,
+    int? Grade = null,
+    string? Medium = null);
 
 public sealed record PinLockedResponse(DateTimeOffset LockedUntil);
 

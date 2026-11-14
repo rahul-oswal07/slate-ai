@@ -7,11 +7,11 @@ Spec: [`spec.md`](spec.md)
 ## Built
 
 - Settings for the greeting and the evening message (T-71).
+- Opened from the profile menu in the header on every teacher screen (T-109).
 
 ## Known gaps and drafts
 
 - Not built from the card: families, withdraw voice consent, help (roadmap, D-70).
-- Settings can be reached only from the gear on Today (T-109 proposes a profile menu on every screen).
 
 ## Open tasks
 

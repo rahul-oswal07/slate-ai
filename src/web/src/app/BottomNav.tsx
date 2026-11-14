@@ -15,10 +15,11 @@ const tabs: { to: string; key: 'today' | 'approve' | 'missed' | 'back' | 'week';
 /** Teacher bottom nav (T1 card §8): five equal tabs, active tab marked with aria-current. Hidden during setup. */
 export function BottomNav() {
   const { t } = useTranslation()
-  // T2 Lesson confirm and Settings (T-71, opened from Today's gear) are sub-screens of Today (T1 card §8, T10).
+  // T2 Lesson confirm, Settings (T-71) and Profile (T-109, both opened from the header's profile menu) are
+  // sub-screens of Today (T1 card §8, T10).
   // A plain Link, not NavLink: NavLink can't mark Today current on its sub-screens for screen readers.
   const pathname = useLocation().pathname
-  const onTodaySubScreen = pathname === '/lesson' || pathname.startsWith('/settings')
+  const onTodaySubScreen = pathname === '/lesson' || pathname.startsWith('/settings') || pathname === '/profile'
   const active = (to: string) =>
     to === '/' ? pathname === '/' || onTodaySubScreen : pathname === to || pathname.startsWith(`${to}/`)
   // Catch-ups waiting for her (ready or needs review); neutral badge, never error-coloured (T3).

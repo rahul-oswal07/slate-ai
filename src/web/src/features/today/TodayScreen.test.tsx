@@ -67,13 +67,15 @@ describe('TodayScreen', () => {
     expect(screen.queryByRole('region', { name: 'Record your greeting' })).not.toBeInTheDocument()
   })
 
-  it('has a gear to Settings, where the greeting can be recorded again (T-71)', async () => {
+  it('has no gear in the title row: Settings is in the header\'s profile menu (T-109)', async () => {
     today(day())
     renderApp('/')
 
     await screen.findByRole('heading', { level: 1, name: /^Today, / })
 
-    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
+    expect(screen.queryByRole('link', { name: 'Settings' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Profile and settings' }))
+    expect(screen.getByRole('menuitem', { name: 'Settings' })).toHaveAttribute('href', '/settings')
   })
 
 
