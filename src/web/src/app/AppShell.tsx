@@ -27,14 +27,16 @@ export function AppShell() {
           {t('a11y.skipToContent')}
         </a>
         <header className="border-b border-edge px-4 py-3 print:hidden">
+          {/* Name and Log out, then the tagline beside the language dropdown: at 360 px a third control in the
+              first row squeezes the name to ~90 px and breaks it in Tamil (T-107). */}
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-heading text-title font-extrabold">{t('app.name')}</p>
-              <p className="text-caption text-ink-muted">{t('app.tagline')}</p>
-            </div>
+            <p className="min-w-0 font-heading text-title font-extrabold">{t('app.name')}</p>
             <LogoutButton />
           </div>
-          <LanguageSwitcher />
+          <div className="flex items-center justify-between gap-3">
+            <p className="min-w-0 text-caption text-ink-muted">{t('app.tagline')}</p>
+            <LanguageSwitcher />
+          </div>
         </header>
         <main id="main" className="px-4 py-6">
           <Outlet />

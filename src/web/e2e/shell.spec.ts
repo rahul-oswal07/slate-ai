@@ -16,7 +16,7 @@ test.describe('signed out', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'kn')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('ಸೈನ್ ಇನ್ ಮಾಡಿ')
 
-    await page.getByRole('button', { name: 'తెలుగు' }).click()
+    await page.getByRole('combobox', { name: 'ಭಾಷೆ' }).selectOption('te')
     await expect(page.locator('html')).toHaveAttribute('lang', 'te')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('సైన్ ఇన్ చేయండి')
 

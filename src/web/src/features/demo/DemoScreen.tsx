@@ -200,9 +200,13 @@ function Page({ children }: { children: ReactNode }) {
     <div className="min-h-dvh font-sans text-ink">
       {/* Labelled: the teacher app in its frame has its own header and main. */}
       <header aria-label={t('demo.title')} className="border-b border-edge px-4 py-3">
-        <h1 className="text-title font-extrabold">{t('demo.title')}</h1>
-        <p className="text-caption text-ink-muted">{t('demo.subtitle')}</p>
-        <LanguageSwitcher />
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-title font-extrabold">{t('demo.title')}</h1>
+            <p className="text-caption text-ink-muted">{t('demo.subtitle')}</p>
+          </div>
+          <LanguageSwitcher />
+        </div>
       </header>
       <main id="main" aria-label={t('demo.panels')} className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4">
         {children}

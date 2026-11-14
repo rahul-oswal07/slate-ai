@@ -52,11 +52,11 @@ describe('App shell', () => {
     fakeApi({ 'GET /api/me': () => ({ status: 401 }) })
     renderApp('/login')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'English' }))
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: 'ಭಾಷೆ' }), 'en')
 
     expect(screen.getByText('Tappida Paatha')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Sign in')
-    expect(screen.getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('combobox', { name: 'Language' })).toHaveValue('en')
     expect(document.documentElement.lang).toBe('en')
     expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('en')
   })
