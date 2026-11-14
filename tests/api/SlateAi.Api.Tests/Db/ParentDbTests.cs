@@ -29,7 +29,7 @@ public sealed class ParentDbTests(PostgresFixture postgres)
             new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
         (await api.Client.PostAsJsonAsync($"/api/classes/{api.ClassId}/catchups/generate",
             new GenerateCatchUpsRequest(Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
-        await WaitAsync(api, () => api.QueryAsync(db => db.CatchUpPackages.AllAsync(p => p.Status != PackageStatus.Generating, DemoClassApi.Ct)));
+        await WaitAsync(() => api.QueryAsync(db => db.CatchUpPackages.AllAsync(p => p.Status != PackageStatus.Generating, DemoClassApi.Ct)));
 
         await api.QueryAsync(db => db.CatchUpPackages.ExecuteUpdateAsync(
             s => s.SetProperty(p => p.Status, PackageStatus.Ready).SetProperty(p => p.ScriptVersion, 1), DemoClassApi.Ct));
@@ -81,7 +81,7 @@ public sealed class ParentDbTests(PostgresFixture postgres)
         Assert.Null(await api.QueryAsync(db => db.Children.Where(c => c.Id == ravi).Select(c => c.ParentStoppedAt).SingleAsync(DemoClassApi.Ct)));
     }
 
-    private static async Task WaitAsync(DemoClassApi api, Func<Task<bool>> done)
+    private static async Task WaitAsync(Func<Task<bool>> done)
     {
         for (var i = 0; i < 50 && !await done(); i++)
         {

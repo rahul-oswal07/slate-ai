@@ -176,12 +176,12 @@ public sealed class FakeTodaysMessageStore : ITodaysMessageStore
     public Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
         Task.FromResult(Find(classId, date) is null ? null : Answers(classId, date));
 
-    public Task<TodaysMessageRow?> GetApprovedAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-        Task.FromResult(Find(classId, date) is { Status: TodaysMessageStatus.Approved } row && row.ApprovedVersion == row.Version ? row : null);
-
-    /// <summary>What the evening store's GetApprovedTodaysMessageAsync returns for this store.</summary>
+    /// <summary>
+    /// What the evening store's GetApprovedTodaysMessageAsync returns for this store: the day's message only when it is
+    /// approved at its current version (guardrail 3).
+    /// </summary>
     public (Guid Id, IReadOnlySet<string> Languages)? ApprovedFor(Guid classId, DateOnly date) =>
-        GetApprovedAsync(classId, date, CancellationToken.None).Result is { Sections: { } sections } row
+        Find(classId, date) is { Status: TodaysMessageStatus.Approved, Sections: { } sections } row && row.ApprovedVersion == row.Version
             ? (row.Id, sections.Languages.ToHashSet())
             : null;
 

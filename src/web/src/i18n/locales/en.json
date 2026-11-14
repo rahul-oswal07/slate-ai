@@ -470,7 +470,6 @@
       "link": "Stop these messages",
       "title": "Stop messages for {{child}}?",
       "body": "No more messages will come. You can start them again any time.",
-      "bodyVideo": "Everything done in the demo class is removed and the video story starts again: this week Ananya was away every day, Ravi on Monday and Tuesday, Rohan on Wednesday and Arun on Thursday and Friday, with each evening's message already sent. Today only Ananya is away.",
       "confirm": "Stop messages",
       "cancel": "No, keep them coming",
       "failed": "Could not stop the messages. Check the network and try again.",
@@ -770,7 +769,6 @@
     "message": {
       "evening": "Evening message · {{date}}",
       "catchUp": "Catch-up lesson · week of {{date}}",
-      "sentAt": "Sent {{time}}",
       "open": "Open",
       "voice": "Voice message · {{duration}}"
     },
