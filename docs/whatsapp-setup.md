@@ -3,6 +3,8 @@
 How to switch staging from the demo chat to real WhatsApp for the registered test phones. The code is in `src/api/SlateAi.Api/Features/Delivery/`. Decision D-97 and FR-16 are in `spec.md`, and the original proposal is in [`whatsapp-delivery-plan.md`](whatsapp-delivery-plan.md).
 
 > **For now (T-104, #182):** every WhatsApp delivery sends Meta's `hello_world` instead of our templates, hardcoded in `WhatsAppChannel`, until they are approved. It carries no names, no button and none of our text, so it only proves a message reaches the phone.
+>
+> **14 Nov (D-98):** Monika submitted `todays_lesson_link_v1`, `todays_lesson_chat_v1` and `catchup_link_v1` (§3), in review. **Approval alone changes nothing:** T-104 must first send them with the right values (today's message after T-88/T-91; the catch-up's lesson names and pages) and check they live in the same WhatsApp Business account as staging's phone number.
 
 **How it works:**
 - When an evening message or catch-up is sent (guardrail 3 already passed), a `ParentDeliveries` row is queued in the same transaction.
@@ -64,6 +66,54 @@ curl -s -X POST https://slateai-staging.azurewebsites.net/api/admin/whatsapp/tes
 
 ## 3. Template wording
 
+### Submitted 14 Nov by Monika (in review, D-98)
+
+Three templates, each in en, kn, te, ta and hi, in **Monika's** WhatsApp Business account (templates belong to the account they were made in: see T-104 d). Same settings for all: category **Utility**, type Default, variables **Number**, no media, no header, no footer, message validity 12 h. Every URL button: **Visit website**, **Dynamic**, `https://slateai-staging.azurewebsites.net/p/{{1}}` (the code passes the token), sample `abc123`. Meta's language codes are `en`, `kn`, `te`, `ta`, `hi`, matching `WhatsAppTemplate.Languages`.
+
+| Template | Used for | Variables (filled by code) | Buttons |
+|---|---|---|---|
+| `todays_lesson_link_v1` | Today's message (T-88, T-91) | `{{1}}` child · `{{2}}` lesson name · `{{3}}` page number | URL |
+| `todays_lesson_chat_v1` | Today's message in the chat (step 2, T-106) | same | Quick reply, then URL |
+| `catchup_link_v1` | Friday catch-up | `{{1}}` child · `{{2}}` target lesson names ("A and B") · `{{3}}` pages with the word ("page 4", "pages 4 and 6") | URL |
+
+Not created: `catchup_chat_v1` (flagged as Marketing in every wording; the catch-up stays link-only).
+
+**`todays_lesson_link_v1`**
+
+| Lang | Body | Button |
+|---|---|---|
+| en | Class update – {{1}}. Today's lesson: {{2}}, Nalikali Maths page {{3}}. The lesson audio, a home activity and a picture question are ready. Tap the button below to open them. | Open today's lesson |
+| kn | ತರಗತಿಯ ಮಾಹಿತಿ – {{1}}. ಇಂದಿನ ಪಾಠ: {{2}}, ನಲಿಕಲಿ ಗಣಿತ ಪುಟ {{3}}. ಪಾಠದ ಧ್ವನಿ, ಮನೆಯಲ್ಲಿ ಮಾಡುವ ಚಟುವಟಿಕೆ ಮತ್ತು ಚಿತ್ರ ಪ್ರಶ್ನೆ ಸಿದ್ಧವಾಗಿವೆ. ತೆರೆಯಲು ಕೆಳಗಿನ ಬಟನ್ ಒತ್ತಿ. | ಇಂದಿನ ಪಾಠ ತೆರೆಯಿರಿ |
+| te | తరగతి సమాచారం – {{1}}. ఈ రోజు పాఠం: {{2}}, నలికలి గణితం పేజీ {{3}}. పాఠం ఆడియో, ఇంట్లో చేసే కార్యకలాపం, బొమ్మ ప్రశ్న సిద్ధంగా ఉన్నాయి. తెరవడానికి కింది బటన్ నొక్కండి. | ఈ రోజు పాఠం తెరవండి |
+| ta | வகுப்புத் தகவல் – {{1}}. இன்றைய பாடம்: {{2}}, நலிகலி கணிதம் பக்கம் {{3}}. பாட ஒலி, வீட்டில் செய்யும் செயல்பாடு, படக் கேள்வி தயாராக உள்ளன. திறக்க கீழே உள்ள பொத்தானை அழுத்தவும். | பாடத்தைத் திறக்கவும் |
+| hi | कक्षा की जानकारी – {{1}}। आज का पाठ: {{2}}, नलि-कलि गणित पृष्ठ {{3}}। पाठ का ऑडियो, घर पर करने की गतिविधि और चित्र वाला प्रश्न तैयार हैं। खोलने के लिए नीचे का बटन दबाएँ। | आज का पाठ खोलें |
+
+**`todays_lesson_chat_v1`** (the English entry reads "Class update, {{1}} ." as submitted; cosmetic)
+
+| Lang | Body | Quick reply | URL button |
+|---|---|---|---|
+| en | Class update – {{1}}. Today's lesson: {{2}}, Nalikali Maths page {{3}}. Tap "Send it here" to get the teacher's voice note, a home activity and a picture question in this chat, or open the full lesson on the website. | Send it here | Open on website |
+| kn | ತರಗತಿಯ ಮಾಹಿತಿ – {{1}}. ಇಂದಿನ ಪಾಠ: {{2}}, ನಲಿಕಲಿ ಗಣಿತ ಪುಟ {{3}}. ಶಿಕ್ಷಕರ ಧ್ವನಿ ಸಂದೇಶ, ಮನೆಯ ಚಟುವಟಿಕೆ ಮತ್ತು ಚಿತ್ರ ಪ್ರಶ್ನೆಯನ್ನು ಇಲ್ಲೇ ಪಡೆಯಲು "ಇಲ್ಲೇ ಕಳುಹಿಸಿ" ಒತ್ತಿ, ಅಥವಾ ಪೂರ್ಣ ಪಾಠವನ್ನು ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ತೆರೆಯಿರಿ. | ಇಲ್ಲೇ ಕಳುಹಿಸಿ | ವೆಬ್‌ಸೈಟ್ ತೆರೆಯಿರಿ |
+| te | తరగతి సమాచారం – {{1}}. ఈ రోజు పాఠం: {{2}}, నలికలి గణితం పేజీ {{3}}. టీచర్ వాయిస్ సందేశం, ఇంటి కార్యకలాపం, బొమ్మ ప్రశ్న ఈ చాట్‌లోనే పొందడానికి "ఇక్కడే పంపండి" నొక్కండి, లేదా పూర్తి పాఠం వెబ్‌సైట్‌లో తెరవండి. | ఇక్కడే పంపండి | వెబ్‌సైట్‌లో తెరవండి |
+| ta | வகுப்புத் தகவல் – {{1}}. இன்றைய பாடம்: {{2}}, நலிகலி கணிதம் பக்கம் {{3}}. ஆசிரியரின் குரல் செய்தி, வீட்டுச் செயல்பாடு, படக் கேள்வியை இந்த உரையாடலிலேயே பெற "இங்கே அனுப்பவும்" அழுத்தவும், அல்லது முழுப் பாடத்தை இணையதளத்தில் திறக்கவும். | இங்கே அனுப்பவும் | இணையதளத்தில் திற |
+| hi | कक्षा की जानकारी – {{1}}। आज का पाठ: {{2}}, नलि-कलि गणित पृष्ठ {{3}}। शिक्षक का वॉइस संदेश, घर की गतिविधि और चित्र वाला प्रश्न इसी चैट में पाने के लिए "यहीं भेजें" दबाएँ, या पूरा पाठ वेबसाइट पर खोलें। | यहीं भेजें | वेबसाइट पर खोलें |
+
+**`catchup_link_v1`**
+
+| Lang | Body | Button |
+|---|---|---|
+| en | Class update – {{1}}. Catch-up lessons: {{2}}, Nalikali Maths {{3}}. The lesson audio and a picture question are ready. Tap the button below to open them. | Open catch-up lesson |
+| kn | ತರಗತಿಯ ಮಾಹಿತಿ – {{1}}. ತಪ್ಪಿದ ಪಾಠಗಳು: {{2}}, ನಲಿಕಲಿ ಗಣಿತ {{3}}. ಪಾಠದ ಧ್ವನಿ, ಮನೆಯಲ್ಲಿ ಮಾಡುವ ಚಟುವಟಿಕೆ ಮತ್ತು ಚಿತ್ರ ಪ್ರಶ್ನೆ ಸಿದ್ಧವಾಗಿವೆ. ತೆರೆಯಲು ಕೆಳಗಿನ ಬಟನ್ ಒತ್ತಿ. | ಪಾಠ ತೆರೆಯಿರಿ |
+| te | తరగతి సమాచారం – {{1}}. తప్పిన పాఠాలు: {{2}}, నలికలి గణితం {{3}}. పాఠం ఆడియో, ఇంట్లో చేసే కార్యకలాపం, బొమ్మ ప్రశ్న సిద్ధంగా ఉన్నాయి. తెరవడానికి కింది బటన్ నొక్కండి. | పాఠం తెరవండి |
+| ta | வகுப்புத் தகவல் – {{1}}. தவறிய பாடங்கள்: {{2}}, நலிகலி கணிதம் {{3}}. பாட ஒலி, வீட்டில் செய்யும் செயல்பாடு, படக் கேள்வி தயாராக உள்ளன. திறக்க கீழே உள்ள பொத்தானை அழுத்தவும். | பாடத்தைத் திறக்கவும் |
+| hi | कक्षा की जानकारी – {{1}}। छूटे पाठ: {{2}}, नलि-कलि गणित {{3}}। पाठ का ऑडियो, घर पर करने की गतिविधि और चित्र वाला प्रश्न तैयार हैं। खोलने के लिए नीचे का बटन दबाएँ। | पाठ खोलें |
+
+`{{3}}` in the catch-up carries the word for page, so code writes it per language: en "page 4" / "pages 4 and 6", kn "ಪುಟ 4" / "ಪುಟ 4 ಮತ್ತು 6", te "పేజీ 4" / "పేజీలు 4, 6", ta "பக்கம் 4" / "பக்கங்கள் 4, 6", hi "पृष्ठ 4" / "पृष्ठ 4 और 6". Lesson names come from the curriculum in the family's language. Indic wording is a draft for native review (T-26).
+
+**What Meta's category check did (14 Nov):** "Category does not match, will be rejected, suggests Marketing" on the warm evening wording ("We missed {{1}} today…"), on catch-up bodies saying "Lessons missed this week" or "Catch-up … from {teacher}", and on every `catchup_chat_v1` body, even the shortest. Passed: bodies that start "Class update – {{1}}" and name the lesson and page. Keep that shape for any `_v2`.
+
+### Earlier proposal (not submitted: Meta classes this wording as Marketing)
+
 The evening body **copies the wording the teacher approves word for word** (`data/seed/evening-message.json`, version **3**), with `{child}` → `{{1}}`, `{lesson}` → `{{2}}` and `{page}` → `{{3}}`. That keeps guardrail 3: WhatsApp shows only text she approved.
 
 Code checks this. `WhatsApp:Evening:WordingVersion` (default `3`) must match the version she approved, or the evening send is skipped (`wording-version`). A test fails if the JSON's version moves without the setting.
@@ -122,9 +172,11 @@ What a skipped or failed delivery means (`ParentDeliveries.LastError`):
 | `graph-190` | the token expired or is wrong |
 | `http-5xx`, `graph-131048`, `timeout`, … | temporary; tried again each minute, 3 tries in all |
 
-## 5. Next (step 2, separate task)
+## 5. Next (step 2, T-106)
 
-- The "Listen" quick-reply, which opens the 24-hour window.
+The full list is in T-106 (`tasks.md`): after "Send it here" on `todays_lesson_chat_v1`, the teacher's greeting and the lesson audio as voice notes, one text with the concept, activity, page and video link, the picture question with > < = buttons, and the reason for absence as a list message.
+
+- The "Send it here" quick-reply, which opens the 24-hour window.
 - The webhook (`GET` verify + `POST` with an `X-Hub-Signature-256` check).
 - The greeting as a voice note in the chat. The clip is already Ogg Opus, so no ffmpeg is needed.
 - A `STOP` reply sets `ParentStoppedAt`.
