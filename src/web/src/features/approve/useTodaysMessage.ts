@@ -6,20 +6,14 @@ export const todaysKey = (classId: string, date: string) => ['todays-message', c
 
 const url = (classId: string, date: string) => `/api/classes/${classId}/todays-message/${date}`
 
-/** Today's message (T-89). null: none yet (404). Checks again every 2 s while a new version is being written. */
+/**
+ * Today's message (T-89). null: none yet (204). A 404 is a real error (not her class), never "none yet". Checks again
+ * every 2 s while a new version is being written.
+ */
 export function useTodaysMessage(classId: string, date: string) {
   return useQuery({
     queryKey: todaysKey(classId, date),
-    queryFn: async () => {
-      try {
-        return await api<TodaysMessage>(url(classId, date))
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return null
-        }
-        throw error
-      }
-    },
+    queryFn: async () => (await api<TodaysMessage | undefined>(url(classId, date))) ?? null,
     enabled: classId !== '',
     retry: false,
     refetchInterval: (query) => (query.state.data?.status === 'generating' ? 2000 : false),

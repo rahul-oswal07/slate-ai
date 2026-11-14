@@ -68,11 +68,11 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
-    public async Task Not_found_until_a_draft_exists_then_shows_each_language_and_the_picture_by_code()
+    public async Task No_content_until_a_draft_exists_then_shows_each_language_and_the_picture_by_code()
     {
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
-        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(DayUrl, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.GetAsync(DayUrl, Ct)).StatusCode);
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
 
         var view = (await client.GetFromJsonAsync<TodaysMessageView>(DayUrl, Ct))!;
@@ -390,11 +390,11 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
-    public async Task Answers_are_404_without_a_todays_message_and_for_another_class()
+    public async Task Answers_are_204_without_a_todays_message_and_404_for_another_class()
     {
         await using var factory = Create();
         using var teacher = factory.CreateTeacherClient(ClassId, TeacherId);
-        Assert.Equal(HttpStatusCode.NotFound, (await teacher.GetAsync($"{DayUrl}/answers", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await teacher.GetAsync($"{DayUrl}/answers", Ct)).StatusCode);
 
         await SentTokenAsync();
         using var other = factory.CreateTeacherClient(Guid.NewGuid());

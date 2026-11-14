@@ -62,7 +62,7 @@ describe('Answers back on Today (T-92)', () => {
   })
 
   it('stays hidden before anything was sent, or without a today’s message', async () => {
-    const calls = fakeApi({ [url]: () => ({ status: 404 }) })
+    const calls = fakeApi({ [url]: () => ({ status: 204 }) })
     const { container } = renderCard()
 
     await waitFor(() => expect(calls.length).toBeGreaterThan(0))
