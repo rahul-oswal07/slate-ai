@@ -51,6 +51,14 @@ public sealed class TodaysMessageEndpointTests
         _evening.Children.AddRange(All);
         _evening.ApprovedTodaysMessage = date => _todays.ApprovedFor(ClassId, date);
         _todays.IsSent = id => _evening.Messages.Any(m => m.Message.TodaysMessageId == id);
+        _todays.Answers = (_, _) => (_evening.PictureAnswer, _evening.Messages
+            .Where(m => m.Message.TodaysMessageId is not null)
+            .Select(m => (Message: m.Message, Child: _evening.Children.Single(c => c.Id == m.Message.ChildId)))
+            .OrderBy(x => x.Child.RollNo)
+            .Select(x => new TodaysAnswerRow(
+                x.Child.Id, x.Child.FirstName, x.Child.RollNo,
+                _evening.PictureTaps.GetValueOrDefault(x.Message.Token).First, _evening.PictureTaps.GetValueOrDefault(x.Message.Token).Second))
+            .ToList());
         _attendance.SetDay(Today, All
             .Select(c => new AttendanceRow(c.Id, c == Present, AttendanceSources.Manual, null, null, null))
             .ToList());
@@ -354,6 +362,43 @@ public sealed class TodaysMessageEndpointTests
         var response = await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), ">"), Ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(new string[0], null, "notAnswered", 0)]
+    [InlineData(new[] { ">" }, ">", "gotIt", 1)]
+    [InlineData(new[] { "<" }, "<", "notAnswered", 0)] // one more try to come
+    [InlineData(new[] { "<", ">" }, ">", "gettingThere", 1)]
+    [InlineData(new[] { "<", "=" }, "=", "needsHelp", 1)]
+    public async Task Today_shows_each_childs_answer_and_level_worked_out_by_code(string[] taps, string? answer, string level, int answered)
+    {
+        var token = await SentTokenAsync();
+        await using var factory = Create();
+        using var phone = factory.CreateHttpsClient();
+        using var teacher = factory.CreateTeacherClient(ClassId, TeacherId);
+        foreach (var sign in taps)
+        {
+            (await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), sign), Ct)).EnsureSuccessStatusCode();
+        }
+
+        var view = (await teacher.GetFromJsonAsync<TodaysAnswersView>($"{DayUrl}/answers", Ct))!;
+
+        Assert.Equal((2, answered), (view.Sent, view.Answered)); // Manjunath (kn) and Rohan (hi)
+        var row = view.Rows.Single(r => r.ChildId == Manjunath.Id);
+        Assert.Equal(("Manjunath", answer, level), (row.FirstName, row.Answer, row.Level));
+        Assert.Equal(TodaysLevel.NotAnswered, view.Rows.Single(r => r.ChildId == Rohan.Id).Level);
+    }
+
+    [Fact]
+    public async Task Answers_are_404_without_a_todays_message_and_for_another_class()
+    {
+        await using var factory = Create();
+        using var teacher = factory.CreateTeacherClient(ClassId, TeacherId);
+        Assert.Equal(HttpStatusCode.NotFound, (await teacher.GetAsync($"{DayUrl}/answers", Ct)).StatusCode);
+
+        await SentTokenAsync();
+        using var other = factory.CreateTeacherClient(Guid.NewGuid());
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"{DayUrl}/answers", Ct)).StatusCode);
     }
 
     /// <summary>Approved in the demo, so it is sent at once; returns Manjunath's family's link.</summary>

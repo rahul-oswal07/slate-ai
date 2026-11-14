@@ -44,6 +44,15 @@ public static class TodaysMessageEndpoints
                 "someone is due tonight's message. generating → ready (check, then approve this version) → approved. " +
                 "sent: families have it, read only. The picture numbers and answer come from code, never the AI.");
 
+        app.MapGet($"{Day}/answers", GetAnswersAsync)
+            .RequireClassOwner()
+            .WithTags("Today's message")
+            .WithSummary("The children's answers to today's picture question, with their level (T-92, D-95)")
+            .WithDescription(
+                "sent: families who got today's message; answered: questions finished (right, or two taps). Each row has " +
+                "the child's last tap (>, < or =, or null) and the level worked out by code: gotIt (right first time), " +
+                "gettingThere (right on the second try), needsHelp (wrong twice), notAnswered. 404 without a today's message.");
+
         app.MapPost($"{Day}/generate", RetryAsync)
             .RequireClassOwner()
             .WithTags("Today's message")
@@ -94,6 +103,10 @@ public static class TodaysMessageEndpoints
     private static async Task<Results<Ok<TodaysMessageView>, NotFound>> GetAsync(
         Guid classId, DateOnly date, TodaysMessageService service, CancellationToken cancellationToken) =>
         await service.GetAsync(classId, date, cancellationToken) is { } view ? TypedResults.Ok(view) : TypedResults.NotFound();
+
+    private static async Task<Results<Ok<TodaysAnswersView>, NotFound>> GetAnswersAsync(
+        Guid classId, DateOnly date, TodaysMessageService service, CancellationToken cancellationToken) =>
+        await service.GetAnswersAsync(classId, date, cancellationToken) is { } answers ? TypedResults.Ok(answers) : TypedResults.NotFound();
 
     private static async Task<Results<Accepted<TodaysMessageView>, Conflict, ValidationProblem>> RetryAsync(
         Guid classId, DateOnly date, RetryTodaysMessageRequest request, TodaysMessageService service, CancellationToken cancellationToken)

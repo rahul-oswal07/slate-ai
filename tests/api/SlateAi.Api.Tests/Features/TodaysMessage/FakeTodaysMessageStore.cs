@@ -170,6 +170,12 @@ public sealed class FakeTodaysMessageStore : ITodaysMessageStore
         }
     }
 
+    /// <summary>What GetAnswersAsync returns; tests wire it to the fake evening store's sent messages and taps.</summary>
+    public Func<Guid, DateOnly, (string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> Answers { get; set; } = (_, _) => null;
+
+    public Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
+        Task.FromResult(Find(classId, date) is null ? null : Answers(classId, date));
+
     public Task<TodaysMessageRow?> GetApprovedAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
         Task.FromResult(Find(classId, date) is { Status: TodaysMessageStatus.Approved } row && row.ApprovedVersion == row.Version ? row : null);
 

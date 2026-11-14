@@ -15,6 +15,7 @@ import { AttendanceCard } from './AttendanceCard'
 import { AttendanceGrid } from './AttendanceGrid'
 import { DayStrip } from './DayStrip'
 import { GreetingCard } from './GreetingCard'
+import { AnswersCard } from './AnswersCard'
 import { LessonAudioCard } from './LessonAudioCard'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
@@ -140,6 +141,7 @@ export function TodayScreen() {
           <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
           {evening.data && day.data && <TonightCard day={evening.data} roster={day.data.children} />}
           {evening.data && <LessonAudioCard classId={classId} date={date} evening={evening.data} />}
+          <AnswersCard classId={classId} date={date} />
         </div>
       )}
 

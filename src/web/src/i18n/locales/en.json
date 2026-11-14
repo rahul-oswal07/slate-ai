@@ -905,5 +905,19 @@
     "otherPair": "Choose another pair",
     "pairsFromBook": "Pairs from the book's page",
     "pair": "{{a}} and {{b}}"
+  },
+  "level": {
+    "gotIt": "Got it",
+    "gettingThere": "Getting there",
+    "needsHelp": "Needs help",
+    "notAnswered": "Not answered yet"
+  },
+  "answers": {
+    "title": "Today's message: sent to {{sent}} · {{answered}} answered",
+    "caption": "Each child's answer to today's picture question and their level",
+    "child": "Child",
+    "answer": "Answer",
+    "level": "Level",
+    "none": "No answer yet"
   }
 }

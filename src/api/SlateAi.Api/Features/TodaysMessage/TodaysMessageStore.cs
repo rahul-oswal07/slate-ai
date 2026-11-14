@@ -21,6 +21,9 @@ public sealed record TodaysMessageRow(
     DateTimeOffset UpdatedAt,
     bool Sent);
 
+/// <summary>One family that got today's message, with the child's taps on the picture question (T-90).</summary>
+public sealed record TodaysAnswerRow(Guid ChildId, string FirstName, int RollNo, string? First, string? Second);
+
 public enum TodaysChange
 {
     Applied,
@@ -75,6 +78,12 @@ public interface ITodaysMessageStore
         bool redraft,
         DateTimeOffset now,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The families the day's message went to, with the taps, and the picture's answer to score them by (T-92); null when
+    /// the class has no today's message that day.
+    /// </summary>
+    Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 
     /// <summary>The day's message when it is approved at its current version: the only one the evening send attaches (guardrail 3).</summary>
     Task<TodaysMessageRow?> GetApprovedAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
@@ -262,6 +271,28 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
             db.TodaysMessages.Where(t => t.ClassId == classId && t.Date == date
                 && t.Status == TodaysMessageStatus.Approved && t.ApprovedVersion == t.Version),
             cancellationToken);
+
+    public async Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(
+        Guid classId, DateOnly date, CancellationToken cancellationToken)
+    {
+        var row = await db.TodaysMessages.AsNoTracking()
+            .Where(t => t.ClassId == classId && t.Date == date)
+            .Select(t => new { t.Id, t.Sections })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (row is null || TodaysSections.Parse(row.Sections) is not { } sections)
+        {
+            return null;
+        }
+
+        var rows = await (
+                from m in db.EveningMessages
+                where m.TodaysMessageId == row.Id
+                join c in db.Children on m.ChildId equals c.Id
+                orderby c.RollNo
+                select new TodaysAnswerRow(c.Id, c.FirstName, c.RollNo, m.PictureFirst, m.PictureSecond))
+            .ToListAsync(cancellationToken);
+        return (sections.Picture.Answer, rows);
+    }
 
     private async Task<TodaysMessageRow?> RowAsync(IQueryable<Data.Entities.TodaysMessage> query, CancellationToken cancellationToken)
     {

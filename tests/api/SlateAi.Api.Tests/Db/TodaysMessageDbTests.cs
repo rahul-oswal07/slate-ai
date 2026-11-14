@@ -67,6 +67,13 @@ public sealed class TodaysMessageDbTests(PostgresFixture postgres)
         var stored = await api.QueryAsync(db => db.EveningMessages.SingleAsync(m => m.ChildId == manjunath, DemoClassApi.Ct));
         Assert.Equal(("<", ">", TodaysLevel.GettingThere), (stored.PictureFirst, stored.PictureSecond, TodaysLevel.For(stored.PictureFirst, stored.PictureSecond, ">")));
 
+        // The teacher's Today (T-92): both families, Manjunath's last tap and level by code; Ravi hasn't answered.
+        var answers = (await api.Client.GetFromJsonAsync<TodaysAnswersView>(
+            $"/api/classes/{api.ClassId}/todays-message/{today:yyyy-MM-dd}/answers", DemoClassApi.Ct))!;
+        Assert.Equal((2, 1), (answers.Sent, answers.Answered));
+        Assert.Equal((">", TodaysLevel.GettingThere), (answers.Rows.Single(r => r.ChildId == manjunath).Answer, answers.Rows.Single(r => r.ChildId == manjunath).Level));
+        Assert.Equal(TodaysLevel.NotAnswered, answers.Rows.Single(r => r.ChildId == ravi).Level);
+
         // Sent: read only.
         Assert.Equal(TodaysChange.Conflict, await api.ScopedAsync<ITodaysMessageStore, TodaysChange>(
             s => s.SetRemovedAsync(api.ClassId, today, Guid.NewGuid(), TodaysSectionKind.Concept, true, DateTimeOffset.UtcNow, DemoClassApi.Ct)));
