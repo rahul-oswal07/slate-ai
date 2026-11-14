@@ -50,7 +50,22 @@ public sealed class TodaysMessageDbTests(PostgresFixture postgres)
             $"/api/p/{messages.Single(m => m.ChildId == manjunath).Token}", DemoClassApi.Ct))!;
         Assert.Equal("ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ.", page.TodaysMessage!.Concept);
         Assert.Null(page.TodaysMessage.Steps);
-        Assert.Equal((48, 33, ">"), (page.TodaysMessage.Picture!.A, page.TodaysMessage.Picture.B, page.TodaysMessage.Picture.Answer));
+        Assert.Equal((48, 33), (page.TodaysMessage.Picture!.A, page.TodaysMessage.Picture.B));
+        var raw = await api.Client.GetStringAsync($"/api/p/{messages.Single(m => m.ChildId == manjunath).Token}", DemoClassApi.Ct);
+        Assert.DoesNotContain("\"answer\"", raw); // scored on the server only (T-90)
+
+        // The child's taps (T-90): wrong first, then right; stored on the message; a third is refused.
+        var picture = $"/api/p/{messages.Single(m => m.ChildId == manjunath).Token}/picture";
+        var first = await (await api.Client.PostAsJsonAsync(picture, new SlateAi.Api.Features.Parent.PictureAnswerRequest(Guid.NewGuid(), "<"), DemoClassApi.Ct))
+            .Content.ReadFromJsonAsync<SlateAi.Api.Features.Parent.PictureAnswerResponse>(DemoClassApi.Ct);
+        var second = await (await api.Client.PostAsJsonAsync(picture, new SlateAi.Api.Features.Parent.PictureAnswerRequest(Guid.NewGuid(), ">"), DemoClassApi.Ct))
+            .Content.ReadFromJsonAsync<SlateAi.Api.Features.Parent.PictureAnswerResponse>(DemoClassApi.Ct);
+        var third = await api.Client.PostAsJsonAsync(picture, new SlateAi.Api.Features.Parent.PictureAnswerRequest(Guid.NewGuid(), "="), DemoClassApi.Ct);
+        Assert.Equal(new SlateAi.Api.Features.Parent.PictureAnswerResponse(false, 1, false), first);
+        Assert.Equal(new SlateAi.Api.Features.Parent.PictureAnswerResponse(true, 2, true), second);
+        Assert.Equal(System.Net.HttpStatusCode.Conflict, third.StatusCode);
+        var stored = await api.QueryAsync(db => db.EveningMessages.SingleAsync(m => m.ChildId == manjunath, DemoClassApi.Ct));
+        Assert.Equal(("<", ">", TodaysLevel.GettingThere), (stored.PictureFirst, stored.PictureSecond, TodaysLevel.For(stored.PictureFirst, stored.PictureSecond, ">")));
 
         // Sent: read only.
         Assert.Equal(TodaysChange.Conflict, await api.ScopedAsync<ITodaysMessageStore, TodaysChange>(

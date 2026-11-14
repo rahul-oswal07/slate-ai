@@ -118,6 +118,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<Lesson>().WithMany().HasForeignKey(m => m.LessonId);
             e.HasOne<LessonAudio>().WithMany().HasForeignKey(m => m.LessonAudioId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne<TodaysMessage>().WithMany().HasForeignKey(m => m.TodaysMessageId).OnDelete(DeleteBehavior.SetNull);
+            e.Property(m => m.PictureFirst).HasMaxLength(1);
+            e.Property(m => m.PictureSecond).HasMaxLength(1);
             e.HasIndex(m => new { m.ChildId, m.Date }).IsUnique(); // one message per child per day: the send is idempotent
             e.HasIndex(m => m.Token).IsUnique();
             e.HasIndex(m => new { m.ClassId, m.Date });

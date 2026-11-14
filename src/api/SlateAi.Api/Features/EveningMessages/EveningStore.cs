@@ -51,7 +51,10 @@ public sealed record ParentLessonAudio(Guid ClipId, double Seconds, string? Tran
 /// <summary>The class's main teacher's greeting clip, played first on the evening page.</summary>
 public sealed record ParentGreeting(Guid ClipId, double Seconds);
 
-/// <summary>A sent message as the parent view needs it. Names are allowed here: this is the final send (guardrail 1).</summary>
+/// <summary>
+/// A sent message as the parent view needs it. Names are allowed here: this is the final send (guardrail 1).
+/// <c>PictureAnswer</c> is the picture question's answer, for scoring on the server only; never sent to the phone.
+/// </summary>
 public sealed record ParentMessageRecord(
     DateOnly Date,
     string Language,
@@ -64,14 +67,22 @@ public sealed record ParentMessageRecord(
     DateTimeOffset ExpiresAt,
     bool Stopped,
     ParentLessonAudio? LessonAudio = null,
-    ParentTodaysMessage? TodaysMessage = null);
+    ParentTodaysMessage? TodaysMessage = null,
+    string? PictureAnswer = null);
 
 /// <summary>
 /// Today's message as sent with this evening message (D-91), in the family's language, without the sections she
 /// removed. Its concept clip is the message's <see cref="ParentMessageRecord.LessonAudio"/>.
 /// </summary>
 public sealed record ParentTodaysMessage(
-    string? Concept, IReadOnlyList<string>? Steps, Features.TodaysMessage.TodaysPicture? Picture, Features.TodaysMessage.TodaysVideo? Video, string? Note);
+    string? Concept, IReadOnlyList<string>? Steps, ParentPicture? Picture, Features.TodaysMessage.TodaysVideo? Video, string? Note);
+
+/// <summary>
+/// The picture question as the family's phone sees it (T-90): the two numbers and the child's own taps so far. Never the
+/// answer: code scores each tap on the server.
+/// </summary>
+/// <param name="Done">Right, or two taps: the phone shows Done (no more taps are taken).</param>
+public sealed record ParentPicture(int A, int B, string? FirstAnswer = null, string? SecondAnswer = null, bool Done = false);
 
 public enum ApproveResult
 {
@@ -119,6 +130,14 @@ public interface IEveningStore
         Guid classId, DateOnly date, IReadOnlyList<NewEveningMessage> messages, CancellationToken cancellationToken);
 
     Task<ParentMessageRecord?> FindByTokenAsync(string token, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Records a tap on today's picture question (T-90): the first, or a second after a first that isn't
+    /// <paramref name="answer"/>. Returns the taps after it, or null when nothing more can be recorded (or no such
+    /// message). A replayed <paramref name="clientRequestId"/> changes nothing and returns the taps as they are.
+    /// </summary>
+    Task<(string? First, string? Second)?> SavePictureAnswerAsync(
+        string token, Guid clientRequestId, string sign, string answer, DateTimeOffset now, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Guid>> GetClassIdsAsync(CancellationToken cancellationToken);
 }
@@ -337,6 +356,8 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                         .FirstOrDefault(),
                     // Sent only when it was approved at its version; an edit after that can't happen (it is read only once sent).
                     Todays = db.TodaysMessages.Where(t => t.Id == m.TodaysMessageId).Select(t => t.Sections).FirstOrDefault(),
+                    m.PictureFirst,
+                    m.PictureSecond,
                 })
             .SingleOrDefaultAsync(cancellationToken);
         if (row is null)
@@ -346,9 +367,24 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
 
         var lessonAudio = row.LessonAudio;
         ParentTodaysMessage? todays = null;
+        string? pictureAnswer = null;
         if (row.Todays is not null && Features.TodaysMessage.TodaysSections.Parse(row.Todays) is { } sections)
         {
             todays = Features.TodaysMessage.TodaysFamilyView.For(sections, row.Language);
+            if (todays.Picture is { } picture)
+            {
+                todays = todays with
+                {
+                    Picture = picture with
+                    {
+                        FirstAnswer = row.PictureFirst,
+                        SecondAnswer = row.PictureSecond,
+                        Done = Features.TodaysMessage.TodaysLevel.Done(row.PictureFirst, row.PictureSecond, sections.Picture.Answer),
+                    },
+                };
+                pictureAnswer = sections.Picture.Answer;
+            }
+
             // Its concept, voiced, plays instead of the lesson clip (T-88); removed concept means no audio.
             lessonAudio = !sections.Concept.Removed && sections.Concept.Clips.TryGetValue(row.Language, out var clipId)
                 ? await db.AudioClips.Where(a => a.Id == clipId).Select(a => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
@@ -358,7 +394,42 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
 
         return new ParentMessageRecord(
             row.Date, row.Language, row.FirstName, row.DisplayName, row.Greeting, row.Text,
-            JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped, lessonAudio, todays);
+            JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped, lessonAudio, todays,
+            pictureAnswer);
+    }
+
+    public async Task<(string? First, string? Second)?> SavePictureAnswerAsync(
+        string token, Guid clientRequestId, string sign, string answer, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockAsync($"picture:{token}", cancellationToken);
+        if (await db.EveningMessages.SingleOrDefaultAsync(m => m.Token == token, cancellationToken) is not { } message)
+        {
+            return null;
+        }
+
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
+        {
+            return (message.PictureFirst, message.PictureSecond);
+        }
+
+        if (message.PictureFirst is null)
+        {
+            message.PictureFirst = sign;
+        }
+        else if (message.PictureFirst != answer && message.PictureSecond is null)
+        {
+            message.PictureSecond = sign;
+        }
+        else
+        {
+            return null;
+        }
+
+        message.PictureAnsweredAt = now;
+        db.ProcessedRequests.Add(new ProcessedRequest { ClientRequestId = clientRequestId, Endpoint = "picture-answer", CreatedAt = now });
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return (message.PictureFirst, message.PictureSecond);
     }
 
     public async Task<IReadOnlyList<Guid>> GetClassIdsAsync(CancellationToken cancellationToken) =>

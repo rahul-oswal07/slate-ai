@@ -135,7 +135,7 @@ public static class TodaysFamilyView
     public static EveningMessages.ParentTodaysMessage For(TodaysSections sections, string language) => new(
         sections.Concept.Removed ? null : sections.Concept.Text.GetValueOrDefault(language),
         sections.Activity.Removed ? null : sections.Activity.Steps.GetValueOrDefault(language),
-        sections.Picture.Removed ? null : sections.Picture,
+        sections.Picture.Removed ? null : new EveningMessages.ParentPicture(sections.Picture.A, sections.Picture.B),
         sections.Video is { Removed: false } video ? video : null,
         sections.Note is { Removed: false } note ? note.Text.GetValueOrDefault(language) : null);
 }
