@@ -4,6 +4,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Features.Lessons.Voice;
+using SlateAi.Api.Features.TodaysMessage;
 
 namespace SlateAi.Api.Features.Lessons;
 
@@ -215,6 +216,7 @@ public static class LessonEndpoints
         SaveLessonRequest request,
         ILessonStore store,
         CurriculumGraph curriculum,
+        TodaysMessageService todays,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -251,8 +253,10 @@ public static class LessonEndpoints
 
         // Teaching order, so the done card and missed lessons read in book order.
         var ordered = ids.OrderBy(id => curriculum.Get(id)!.Sequence).ToList();
-        await store.SaveConfirmedAsync(
+        var saved = await store.SaveConfirmedAsync(
             classId, request.ClientRequestId, date, ordered, request.Source ?? LessonValues.Picked, cancellationToken);
+        // D-91: confirming the lesson starts today's message for absent families (a replay of the same lesson doesn't).
+        await todays.StartAsync(classId, date, saved.CompetencyIds, force: false, cancellationToken);
         return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
     }
 

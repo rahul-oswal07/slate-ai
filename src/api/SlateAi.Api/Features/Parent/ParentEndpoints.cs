@@ -126,7 +126,8 @@ public static class ParentEndpoints
                 ? new ParentGreetingView($"/api/p/{token}/greeting", Math.Round(greeting.Seconds, 1))
                 : null,
             message.SentAt, message.Stopped, reason,
-            message.Stopped ? null : await LessonAudioAsync(token, message, disclosure, cancellationToken)));
+            message.Stopped ? null : await LessonAudioAsync(token, message, disclosure, cancellationToken),
+            message.Stopped ? null : message.TodaysMessage));
     }
 
     /// <summary>

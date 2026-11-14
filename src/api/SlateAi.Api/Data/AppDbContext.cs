@@ -20,6 +20,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<CatchUpAssignment> CatchUpAssignments => Set<CatchUpAssignment>();
     public DbSet<AudioClip> AudioClips => Set<AudioClip>();
     public DbSet<LessonAudio> LessonAudios => Set<LessonAudio>();
+    public DbSet<TodaysMessage> TodaysMessages => Set<TodaysMessage>();
     public DbSet<CheckResponse> CheckResponses => Set<CheckResponse>();
     public DbSet<AbsenceReason> AbsenceReasons => Set<AbsenceReason>();
     public DbSet<BuddyCard> BuddyCards => Set<BuddyCard>();
@@ -116,6 +117,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<MessageTemplate>().WithMany().HasForeignKey(m => m.TemplateId);
             e.HasOne<Lesson>().WithMany().HasForeignKey(m => m.LessonId);
             e.HasOne<LessonAudio>().WithMany().HasForeignKey(m => m.LessonAudioId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<TodaysMessage>().WithMany().HasForeignKey(m => m.TodaysMessageId).OnDelete(DeleteBehavior.SetNull);
             e.HasIndex(m => new { m.ChildId, m.Date }).IsUnique(); // one message per child per day: the send is idempotent
             e.HasIndex(m => m.Token).IsUnique();
             e.HasIndex(m => new { m.ClassId, m.Date });
@@ -211,6 +213,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<AudioClip>().WithMany().HasForeignKey(l => l.ClipId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne<AudioClip>().WithMany().HasForeignKey(l => l.ApprovedClipId).OnDelete(DeleteBehavior.SetNull);
             e.HasIndex(l => new { l.ClassId, l.Date, l.Language }).IsUnique(); // one per class, day and language
+        });
+
+        modelBuilder.Entity<TodaysMessage>(e =>
+        {
+            e.Property(t => t.Status).HasMaxLength(12);
+            e.Property(t => t.Verdict).HasMaxLength(60);
+            e.Property(t => t.Sections).HasColumnType("jsonb");
+            e.HasOne<Class>().WithMany().HasForeignKey(t => t.ClassId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Teacher>().WithMany().HasForeignKey(t => t.ApprovedByTeacherId);
+            e.HasIndex(t => new { t.ClassId, t.Date }).IsUnique(); // one per class per day
         });
 
         modelBuilder.Entity<AudioClip>(e =>
