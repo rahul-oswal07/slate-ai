@@ -9,8 +9,11 @@ using SlateAi.Api.Features.LessonAudio;
 
 namespace SlateAi.Api.Features.TodaysMessage;
 
-/// <summary>A9's text for one language: the concept and the activity steps.</summary>
-public sealed record TodaysText(string Concept, IReadOnlyList<string> Steps);
+/// <summary>The text for one language: the concept, the activity steps and, when she wrote one, her note.</summary>
+public sealed record TodaysText(string Concept, IReadOnlyList<string> Steps, string? Note = null);
+
+/// <summary>Her own Kannada (D-92), kept word for word; A9 writes the other languages to say the same.</summary>
+public sealed record TeacherKannada(string Concept, IReadOnlyList<string> Steps, string? Note);
 
 /// <param name="Texts">By language; null when refused.</param>
 /// <param name="Verdict">Logged on the AiCall and kept on the row: valid, fallback:* or error:*.</param>
@@ -27,7 +30,9 @@ public static partial class TodaysMessageValidator
     public const int MaxConceptWords = 60;
     public const int MaxSteps = 3;
     public const int MaxStepWords = 30;
-    public const int MaxChars = 700;
+    public const int MaxNoteSentences = 2;
+    public const int MaxNoteWords = 40;
+    public const int MaxChars = 900;
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -55,6 +60,7 @@ public static partial class TodaysMessageValidator
                             ["type"] = "array",
                             ["items"] = new Dictionary<string, object> { ["type"] = "string" },
                         },
+                        ["note"] = new Dictionary<string, object> { ["type"] = "string" },
                     },
                 },
             },
@@ -62,8 +68,14 @@ public static partial class TodaysMessageValidator
     });
 
     /// <param name="names">The class's child names, only to refuse output that contains one; never sent.</param>
+    /// <param name="expectNote">Her note is being translated: every language must have one.</param>
     public static TodaysWriteResult Validate(
-        string json, IReadOnlyList<string> languages, IReadOnlyList<Competency> lessons, TodaysPicture picture, IEnumerable<string> names)
+        string json,
+        IReadOnlyList<string> languages,
+        IReadOnlyList<Competency> lessons,
+        TodaysPicture picture,
+        IEnumerable<string> names,
+        bool expectNote = false)
     {
         Output? output;
         try
@@ -76,11 +88,11 @@ public static partial class TodaysMessageValidator
         }
 
         var items = output?.Languages ?? [];
-        if (items.Any(i => i.Language is null || i.Concept is null || i.Activity is null)
+        if (items.Any(i => i.Language is null || i.Concept is null || i.Activity is null || (expectNote && string.IsNullOrWhiteSpace(i.Note)))
             || items.Select(i => i.Language).Distinct().Count() != items.Count
             || !languages.Order().SequenceEqual(items.Select(i => i.Language!).Order()))
         {
-            return Refused("fallback:invalid-output", $"write exactly these languages, once each: {string.Join(", ", languages)}");
+            return Refused("fallback:invalid-output", $"write exactly these languages, once each{(expectNote ? ", each with the note" : "")}: {string.Join(", ", languages)}");
         }
 
         var allowed = AllowedNumbers(lessons, picture);
@@ -88,43 +100,59 @@ public static partial class TodaysMessageValidator
         var texts = new Dictionary<string, TodaysText>();
         foreach (var item in items)
         {
-            var concept = item.Concept!.Trim();
-            var steps = item.Activity!.Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
-            if (concept.Length == 0 || steps.Count == 0)
+            var text = new TodaysText(
+                item.Concept!.Trim(),
+                item.Activity!.Select(s => s.Trim()).Where(s => s.Length > 0).ToList(),
+                expectNote ? item.Note!.Trim() : null);
+            if (Check(item.Language!, text, allowed, namesList) is { } refused)
             {
-                return Refused("fallback:invalid-output");
+                return refused;
             }
 
-            if (steps.Count > MaxSteps || steps.Any(s => Words(s) > MaxStepWords)
-                || Sentences(concept) > MaxSentences || Words(concept) > MaxConceptWords
-                || concept.Length + steps.Sum(s => s.Length) > MaxChars)
-            {
-                return Refused("fallback:too-long",
-                    $"{item.Language}: concept {Sentences(concept)} sentences, {Words(concept)} words; {steps.Count} steps, longest {steps.Max(Words)} words");
-            }
-
-            var all = steps.Prepend(concept).ToList();
-            if (A3Validator.UnsafeText(all, namesList) is { } problem)
-            {
-                return Refused(problem);
-            }
-
-            if (CodeChecks.ScriptShare(string.Join(' ', all), item.Language!) is not var (share, _)
-                || share < LessonScriptValidator.MinScriptShare)
-            {
-                return Refused("fallback:script", $"{item.Language}: too few letters in the language's own script");
-            }
-
-            var extra = all.SelectMany(t => Digits().Matches(t)).Select(m => m.Value).Where(n => !allowed.Contains(n)).Distinct().ToList();
-            if (extra.Count > 0)
-            {
-                return Refused("fallback:numbers", $"{item.Language}: numbers not allowed: {string.Join(", ", extra)}");
-            }
-
-            texts[item.Language!] = new TodaysText(concept, steps);
+            texts[item.Language!] = text;
         }
 
         return new TodaysWriteResult(texts, "valid");
+    }
+
+    /// <summary>
+    /// The checks every language's text goes through, A9's and hers alike (D-92): not empty, the length limits, no names,
+    /// braces or signs, the language's own script, only the allowed numbers. Null when it passes.
+    /// </summary>
+    public static TodaysWriteResult? Check(string language, TodaysText text, IReadOnlySet<string> allowed, IReadOnlyList<string> names)
+    {
+        var (concept, steps, note) = (text.Concept, text.Steps, text.Note);
+        if (concept.Length == 0 || steps.Count == 0 || note is { Length: 0 })
+        {
+            return Refused("fallback:invalid-output", $"{language}: empty concept, activity or note");
+        }
+
+        if (steps.Count > MaxSteps || steps.Any(s => Words(s) > MaxStepWords)
+            || Sentences(concept) > MaxSentences || Words(concept) > MaxConceptWords
+            || (note is not null && (Sentences(note) > MaxNoteSentences || Words(note) > MaxNoteWords))
+            || concept.Length + steps.Sum(s => s.Length) + (note?.Length ?? 0) > MaxChars)
+        {
+            return Refused("fallback:too-long",
+                $"{language}: concept {Sentences(concept)} sentences, {Words(concept)} words; {steps.Count} steps, longest {steps.Max(Words)} words"
+                + (note is null ? "" : $"; note {Sentences(note)} sentences, {Words(note)} words"));
+        }
+
+        var all = steps.Prepend(concept).Concat(note is null ? [] : [note]).ToList();
+        if (A3Validator.UnsafeText(all, names) is { } problem)
+        {
+            return Refused(problem, $"{language}: {(problem == "fallback:name" ? "a child's name" : "braces, angle brackets or markup")}");
+        }
+
+        if (CodeChecks.ScriptShare(string.Join(' ', all), language) is not var (share, _)
+            || share < LessonScriptValidator.MinScriptShare)
+        {
+            return Refused("fallback:script", $"{language}: too few letters in the language's own script");
+        }
+
+        var extra = all.SelectMany(t => Digits().Matches(t)).Select(m => m.Value).Where(n => !allowed.Contains(n)).Distinct().ToList();
+        return extra.Count > 0
+            ? Refused("fallback:numbers", $"{language}: numbers not allowed: {string.Join(", ", extra)}")
+            : null;
     }
 
     public static TodaysWriteResult Refused(string verdict, string? detail = null) => new(null, verdict, detail);
@@ -165,7 +193,7 @@ public static partial class TodaysMessageValidator
 
     private sealed record Output(List<Item>? Languages);
 
-    private sealed record Item(string? Language, string? Concept, List<string>? Activity);
+    private sealed record Item(string? Language, string? Concept, List<string>? Activity, string? Note);
 }
 
 /// <summary>
@@ -181,17 +209,20 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
+    /// <param name="languages">The languages to write; with <paramref name="teacher"/>, the other languages only (not Kannada).</param>
     /// <param name="names">The class's child names, only to refuse output that contains one; never sent.</param>
+    /// <param name="teacher">Her edited Kannada (D-92): A9 says the same in <paramref name="languages"/>. Checked for names before.</param>
     public async Task<TodaysWriteResult> WriteAsync(
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
         TodaysPicture picture,
         IReadOnlyList<string>? feedback,
         IEnumerable<string> names,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        TeacherKannada? teacher = null)
     {
         var request = new LlmRequest(
-            prompts.Get(PromptId), UserContent(languages, lessons, picture, feedback), TodaysMessageValidator.Schema(), MaxTokens: 8192);
+            prompts.Get(PromptId), UserContent(languages, lessons, picture, feedback, teacher), TodaysMessageValidator.Schema(), MaxTokens: 8192);
         LlmResponse response;
         try
         {
@@ -203,7 +234,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
             return TodaysMessageValidator.Refused($"error:{e.Failure}");
         }
 
-        var result = TodaysMessageValidator.Validate(response.Json, languages, lessons, picture, names);
+        var result = TodaysMessageValidator.Validate(response.Json, languages, lessons, picture, names, expectNote: teacher?.Note is not null);
         if (response.AiCallId != Guid.Empty)
         {
             await aiCalls.SetVerdictAsync(response.AiCallId, result.Verdict, cancellationToken);
@@ -212,9 +243,16 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
         return result;
     }
 
-    /// <summary>Curriculum data and code-chosen numbers only: no names, no child or class IDs (guardrail 1).</summary>
+    /// <summary>
+    /// Curriculum data, code-chosen numbers and, when she edited it, her Kannada (already checked for names): no names, no
+    /// child or class IDs (guardrail 1).
+    /// </summary>
     public static string UserContent(
-        IReadOnlyList<string> languages, IReadOnlyList<Competency> lessons, TodaysPicture picture, IReadOnlyList<string>? feedback) =>
+        IReadOnlyList<string> languages,
+        IReadOnlyList<Competency> lessons,
+        TodaysPicture picture,
+        IReadOnlyList<string>? feedback,
+        TeacherKannada? teacher = null) =>
         JsonSerializer.Serialize(new
         {
             languages = languages.Select(l => new { code = l, name = ScriptWriter.LanguageNames.GetValueOrDefault(l, l) }),
@@ -230,6 +268,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
                 exercises = c.Exercises,
             }),
             pictureQuestion = new { picture.A, picture.B },
+            teacherKannada = teacher is null ? null : new { teacher.Concept, activity = teacher.Steps, teacher.Note },
             previousAttemptProblems = feedback ?? [],
         }, Json);
 }

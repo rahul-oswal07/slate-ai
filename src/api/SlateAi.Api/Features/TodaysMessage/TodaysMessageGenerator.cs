@@ -43,7 +43,9 @@ public sealed class TodaysMessageGenerator(
         }
 
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        if (lessons.Count != row.CompetencyIds.Count || TodaysPicturePicker.Pick(lessons) is not { } picture)
+        // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.
+        var teacher = row.Sections is { Teacher: true } edited ? edited : null;
+        if (lessons.Count != row.CompetencyIds.Count || (teacher?.Picture ?? TodaysPicturePicker.Pick(lessons)) is not { } picture)
         {
             await Fail(row.Id, "fallback:no-exercises", cancellationToken);
             return;
@@ -59,18 +61,34 @@ public sealed class TodaysMessageGenerator(
         try
         {
             var names = (await evening.GetClassAsync(row.ClassId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
-            TodaysWriteResult result = TodaysMessageValidator.Refused("fallback:invalid-output");
-            IReadOnlyList<string>? feedback = null;
-            for (var attempt = 1; attempt <= Attempts && result.Texts is null; attempt++)
+            var kannada = teacher?.Kannada;
+            // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any.
+            var toWrite = kannada is null ? job.Languages : job.Languages.Where(l => l != "kn").ToList();
+            var texts = new Dictionary<string, TodaysText>();
+            var verdict = "valid";
+            if (toWrite.Count > 0)
             {
-                result = await writer.WriteAsync(job.Languages, lessons, picture, feedback, names, cancellationToken);
-                feedback = [$"output: {result.Verdict}" + (result.Detail is { } detail ? $" ({detail})" : "")];
+                TodaysWriteResult result = TodaysMessageValidator.Refused("fallback:invalid-output");
+                IReadOnlyList<string>? feedback = null;
+                for (var attempt = 1; attempt <= Attempts && result.Texts is null; attempt++)
+                {
+                    result = await writer.WriteAsync(toWrite, lessons, picture, feedback, names, cancellationToken, kannada);
+                    feedback = [$"output: {result.Verdict}" + (result.Detail is { } detail ? $" ({detail})" : "")];
+                }
+
+                if (result.Texts is null)
+                {
+                    await Fail(row.Id, result.Verdict, cancellationToken);
+                    return;
+                }
+
+                texts = result.Texts.ToDictionary();
+                verdict = result.Verdict;
             }
 
-            if (result.Texts is not { } texts)
+            if (kannada is not null)
             {
-                await Fail(row.Id, result.Verdict, cancellationToken);
-                return;
+                texts["kn"] = new TodaysText(kannada.Concept, kannada.Steps, kannada.Note);
             }
 
             var clips = new Dictionary<string, Guid>();
@@ -85,15 +103,19 @@ public sealed class TodaysMessageGenerator(
                 clips[language] = clipId;
             }
 
-            var sections = new TodaysSections(
-                new TodaysConcept(texts.ToDictionary(t => t.Key, t => t.Value.Concept), clips),
-                new TodaysActivity(texts.ToDictionary(t => t.Key, t => t.Value.Steps)),
-                picture);
+            var concept = new TodaysConcept(texts.ToDictionary(t => t.Key, t => t.Value.Concept), clips, teacher?.Concept.Removed ?? false);
+            var activity = new TodaysActivity(texts.ToDictionary(t => t.Key, t => t.Value.Steps), teacher?.Activity.Removed ?? false);
+            var note = kannada?.Note is null
+                ? null
+                : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed);
+            var sections = teacher is null
+                ? new TodaysSections(concept, activity, picture)
+                : teacher with { Concept = concept, Activity = activity, Note = note };
             // A newer confirm may have restarted it meanwhile; that run writes its own draft.
             if (await store.GetByIdAsync(row.Id, cancellationToken) is { Status: TodaysMessageStatus.Generating } current
                 && current.CompetencyIds.SequenceEqual(row.CompetencyIds))
             {
-                await store.SetReadyAsync(row.Id, sections, result.Verdict, clock.GetUtcNow(), cancellationToken);
+                await store.SetReadyAsync(row.Id, sections, verdict, clock.GetUtcNow(), cancellationToken);
             }
         }
         catch (SpeechException e)
