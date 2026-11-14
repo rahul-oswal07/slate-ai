@@ -1,0 +1,290 @@
+using System.Net;
+using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Ai;
+using SlateAi.Api.Curriculum;
+using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.Attendance.Source;
+using SlateAi.Api.Features.EveningMessages;
+using SlateAi.Api.Features.Lessons;
+using SlateAi.Api.Features.Parent;
+using SlateAi.Api.Features.TodaysMessage;
+using SlateAi.Api.Tests.Features.Attendance;
+using SlateAi.Api.Tests.Features.EveningMessages;
+using SlateAi.Api.Tests.Features.Lessons;
+using SlateAi.Api.Tests.Features.Parent;
+using SlateAi.Api.Tests.Infrastructure;
+
+namespace SlateAi.Api.Tests.Features.TodaysMessage;
+
+/// <summary>Today's message over HTTP (T-88): approval bound to a version, sections, the evening send, the lesson hook.</summary>
+public sealed class TodaysMessageEndpointTests
+{
+    private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
+    private static readonly Guid ClassId = Guid.NewGuid();
+    private static readonly Guid TeacherId = Guid.NewGuid();
+    private static readonly DateOnly Today = new(2026, 11, 16);
+    private static readonly string DayUrl = $"/api/classes/{ClassId}/todays-message/{Today:yyyy-MM-dd}";
+
+    private static readonly EveningWording Wording = new("1", new Dictionary<string, LanguageWording>
+    {
+        ["kn"] = new("ಇಂದು {child} … {lesson} … {page}", "ಭಾಗ {part}, ಪುಟ {page}", "ಪುಟ {page}"),
+        ["hi"] = new("आज {child} … {lesson} … {page}", "भाग {part}, पृष्ठ {page}", "पृष्ठ {page}"),
+    });
+
+    private static readonly CurriculumGraph Book = new([TodaysMessageTests.Compare, TodaysMessageTests.NoExercises], []);
+
+    private static readonly EveningChild Manjunath = new(Guid.NewGuid(), 15, "Manjunath", "kn", "yes", false);
+    private static readonly EveningChild Rohan = new(Guid.NewGuid(), 24, "Rohan", "hi", "yes", false);
+    private static readonly EveningChild NoForm = new(Guid.NewGuid(), 2, "Bhavana", "kn", "no", false);
+    private static readonly EveningChild Present = new(Guid.NewGuid(), 1, "Ananya", "kn", "yes", false);
+    private static readonly EveningChild[] All = [Manjunath, Rohan, NoForm, Present];
+
+    private readonly FakeEveningStore _evening = new(ClassId, TeacherId) { TeacherName = "Shobha" };
+    private readonly FakeTodaysMessageStore _todays = new();
+    private readonly FakeAttendanceStore _attendance = new(ClassId, All.Select(c => c.Id).ToList());
+    private readonly FakeLessonStore _lessons = new();
+    private readonly MovableClock _clock = new() { Now = SchoolClock.At(Today, new TimeOnly(15, 0)) };
+
+    public TodaysMessageEndpointTests()
+    {
+        _evening.Children.AddRange(All);
+        _evening.ApprovedTodaysMessage = date => _todays.ApprovedFor(ClassId, date);
+        _todays.IsSent = id => _evening.Messages.Any(m => m.Message.TodaysMessageId == id);
+        _attendance.SetDay(Today, All
+            .Select(c => new AttendanceRow(c.Id, c == Present, AttendanceSources.Manual, null, null, null))
+            .ToList());
+        _evening.GetTemplatesAsync(ClassId, Wording, Ct).GetAwaiter().GetResult();
+        _evening.ApproveAsync(ClassId, Guid.NewGuid(), Wording.Version, TeacherId, Ct).GetAwaiter().GetResult();
+        _evening.Lessons.Add(new ConfirmedLesson(Guid.NewGuid(), Today, [TodaysMessageTests.Compare.Id]));
+    }
+
+    [Fact]
+    public async Task Not_found_until_a_draft_exists_then_shows_each_language_and_the_picture_by_code()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(DayUrl, Ct)).StatusCode);
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+
+        var view = (await client.GetFromJsonAsync<TodaysMessageView>(DayUrl, Ct))!;
+
+        Assert.Equal((TodaysMessageStatus.Ready, 1, false), (view.Status, view.Version, view.Sent));
+        Assert.Equal(new TodaysPicture("compare", 48, 33, ">"), view.Picture);
+        Assert.Equal(1, view.Languages.Single(l => l.Language == "kn").Families); // Bhavana's form isn't back
+        Assert.Equal(1, view.Languages.Single(l => l.Language == "hi").Families);
+        Assert.StartsWith("/api/audio/", view.Languages[0].ConceptClipUrl);
+        Assert.Empty(view.Removed);
+    }
+
+    [Fact]
+    public async Task Approve_is_bound_to_the_version_she_read()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections(), version: 2);
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var stale = await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct);
+        var approved = await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 2), Ct);
+
+        Assert.Equal(HttpStatusCode.Conflict, stale.StatusCode);
+        Assert.Equal(TodaysMessageStatus.Ready, (await stale.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!.Status);
+        Assert.Equal(HttpStatusCode.OK, approved.StatusCode);
+        var view = (await approved.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!;
+        Assert.Equal((TodaysMessageStatus.Approved, 2), (view.Status, view.ApprovedVersion));
+        Assert.Empty(_evening.Messages); // 6 pm, not now: no send-on-approve outside the demo
+    }
+
+    [Fact]
+    public async Task Removing_a_section_makes_a_new_version_and_she_must_approve_again()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+        await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct);
+
+        var removed = await client.PatchAsJsonAsync($"{DayUrl}/sections/activity", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
+        var oldTick = await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct);
+
+        var view = (await removed.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!;
+        Assert.Equal((TodaysMessageStatus.Ready, 2, (int?)null), (view.Status, view.Version, view.ApprovedVersion));
+        Assert.Equal(["activity"], view.Removed);
+        Assert.Equal(HttpStatusCode.Conflict, oldTick.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("greeting", HttpStatusCode.BadRequest)]
+    [InlineData("video", HttpStatusCode.Conflict)] // no video until T-94
+    public async Task Unknown_or_missing_sections_are_refused(string kind, HttpStatusCode expected)
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.PatchAsJsonAsync($"{DayUrl}/sections/{kind}", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
+
+        Assert.Equal(expected, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task At_6_pm_an_unapproved_message_never_goes_and_families_get_the_plain_one()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _clock.Now = SchoolClock.At(Today, new TimeOnly(18, 30));
+
+        await SendEveningAsync();
+
+        Assert.Equal(2, _evening.Messages.Count);
+        Assert.All(_evening.Messages, m => Assert.Null(m.Message.TodaysMessageId));
+    }
+
+    [Fact]
+    public async Task At_6_pm_an_approved_message_goes_with_each_family_in_its_language_instead_of_the_lesson_clip()
+    {
+        var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await ApproveAsync(1);
+        _evening.ApprovedLessonAudio = _ => new Dictionary<string, Guid> { ["kn"] = Guid.NewGuid() };
+        _clock.Now = SchoolClock.At(Today, new TimeOnly(18, 30));
+
+        await SendEveningAsync();
+
+        Assert.Equal(new[] { Manjunath.Id, Rohan.Id }.Order(), _evening.Messages.Select(m => m.Message.ChildId).Order());
+        Assert.Equal(["hi", "kn"], _evening.Messages.Select(m => m.Message.Language).Order());
+        Assert.All(_evening.Messages, m => Assert.Equal(row.Id, m.Message.TodaysMessageId));
+        Assert.All(_evening.Messages, m => Assert.Null(m.Message.LessonAudioId));
+    }
+
+    [Fact]
+    public async Task Once_sent_it_is_read_only()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await ApproveAsync(1);
+        _clock.Now = SchoolClock.At(Today, new TimeOnly(18, 30));
+        await SendEveningAsync();
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var remove = await client.PatchAsJsonAsync($"{DayUrl}/sections/concept", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
+        var retry = await client.PostAsJsonAsync($"{DayUrl}/generate", new RetryTodaysMessageRequest(Guid.NewGuid()), Ct);
+
+        Assert.Equal(HttpStatusCode.Conflict, remove.StatusCode);
+        Assert.True((await remove.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!.Sent);
+        Assert.Equal(HttpStatusCode.Conflict, retry.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(true, 2)]
+    [InlineData(false, 0)]
+    public async Task In_the_demo_approve_sends_at_once(bool sendOnApprove, int sent)
+    {
+        var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+
+        await ApproveAsync(1, sendOnApprove);
+
+        Assert.Equal(sent, _evening.Messages.Count);
+        Assert.All(_evening.Messages, m => Assert.Equal(row.Id, m.Message.TodaysMessageId));
+    }
+
+    [Fact]
+    public async Task The_family_page_carries_it_and_a_family_that_stopped_gets_nothing_of_it()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _evening.TodaysMessage = TodaysFamilyView.For(TodaysMessageTests.Sections().WithRemoved(TodaysSectionKind.Activity, true)!, "kn");
+        await ApproveAsync(1, sendOnApprove: true);
+        var token = _evening.Messages.Single(m => m.Message.ChildId == Manjunath.Id).Message.Token;
+        await using var factory = Create();
+        using var anonymous = factory.CreateHttpsClient();
+
+        var page = (await anonymous.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        Assert.Equal("ಕನ್ನಡ", page.TodaysMessage!.Concept);
+        Assert.Null(page.TodaysMessage.Steps);
+        Assert.Equal(48, page.TodaysMessage.Picture!.A);
+    }
+
+    [Fact]
+    public async Task Confirming_a_lesson_with_the_books_exercises_starts_a_draft_once()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+        var url = $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}";
+        var request = new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.Compare.Id], LessonValues.Voice);
+
+        (await client.PutAsJsonAsync(url, request, Ct)).EnsureSuccessStatusCode();
+        (await client.PutAsJsonAsync(url, request, Ct)).EnsureSuccessStatusCode();
+
+        Assert.Equal(1, _todays.Starts);
+        Assert.Equal([TodaysMessageTests.Compare.Id], _todays.Rows.Single().CompetencyIds);
+    }
+
+    [Fact]
+    public async Task Confirming_a_lesson_without_exercises_starts_nothing()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        (await client.PutAsJsonAsync(
+            $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.NoExercises.Id]),
+            Ct)).EnsureSuccessStatusCode();
+
+        Assert.Equal(0, _todays.Starts);
+    }
+
+    [Fact]
+    public async Task Another_class_gets_404_and_signed_out_gets_401()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await using var factory = Create();
+        using var other = factory.CreateTeacherClient(Guid.NewGuid());
+        using var anonymous = factory.CreateHttpsClient();
+
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync(DayUrl, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized,
+            (await anonymous.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct)).StatusCode);
+    }
+
+    private async Task ApproveAsync(int version, bool sendOnApprove = false)
+    {
+        await using var factory = Create(sendOnApprove);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+        (await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), version), Ct))
+            .EnsureSuccessStatusCode();
+    }
+
+    private async Task SendEveningAsync()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+        (await client.PostAsJsonAsync($"/api/classes/{ClassId}/evening-messages/send", new SendEveningRequest(Guid.NewGuid()), Ct))
+            .EnsureSuccessStatusCode();
+    }
+
+    private ApiFactory Create(bool sendOnApprove = false) =>
+        FakeApi.Create(
+            services =>
+            {
+                services.AddSingleton<IEveningStore>(_evening);
+                services.AddSingleton<ITodaysMessageStore>(_todays);
+                services.AddSingleton<ILessonStore>(_lessons);
+                services.AddSingleton<IParentStore>(new FakeParentStore());
+                services.AddSingleton<IAttendanceStore>(_attendance);
+                services.AddSingleton<IAttendanceSource>(new NotYetSource());
+                services.AddSingleton(Book);
+                services.AddSingleton(Wording);
+                services.AddSingleton<ILlmClient>(new ThrowingLlmClient());
+                services.AddSingleton<TimeProvider>(_clock);
+            },
+            settings: new Dictionary<string, string?>
+            {
+                ["Demo:Enabled"] = "true",
+                ["Demo:SendOnApprove"] = sendOnApprove.ToString(),
+            });
+
+    private sealed class NotYetSource : IAttendanceSource
+    {
+        public Task<SourceResult> FetchAsync(
+            Guid classId, DateOnly date, IReadOnlyList<RosterChild> roster, CancellationToken cancellationToken) =>
+            Task.FromResult<SourceResult>(new SourceResult.NotYet());
+    }
+}

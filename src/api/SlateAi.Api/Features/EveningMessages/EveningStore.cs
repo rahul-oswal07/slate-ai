@@ -42,7 +42,8 @@ public sealed record NewEveningMessage(
     string Token,
     DateTimeOffset SentAt,
     DateTimeOffset ExpiresAt,
-    Guid? LessonAudioId = null);
+    Guid? LessonAudioId = null,
+    Guid? TodaysMessageId = null);
 
 /// <summary>The lesson clip she approved for this message's day and language (T-62), played after the disclosure.</summary>
 public sealed record ParentLessonAudio(Guid ClipId, double Seconds, string? Transcript);
@@ -62,7 +63,15 @@ public sealed record ParentMessageRecord(
     DateTimeOffset SentAt,
     DateTimeOffset ExpiresAt,
     bool Stopped,
-    ParentLessonAudio? LessonAudio = null);
+    ParentLessonAudio? LessonAudio = null,
+    ParentTodaysMessage? TodaysMessage = null);
+
+/// <summary>
+/// Today's message as sent with this evening message (D-91), in the family's language, without the sections she
+/// removed. Its concept clip is the message's <see cref="ParentMessageRecord.LessonAudio"/>.
+/// </summary>
+public sealed record ParentTodaysMessage(
+    string? Concept, IReadOnlyList<string>? Steps, Features.TodaysMessage.TodaysPicture? Picture, Features.TodaysMessage.TodaysVideo? Video, string? Note);
 
 public enum ApproveResult
 {
@@ -98,6 +107,12 @@ public interface IEveningStore
 
     /// <summary>The lesson audio she approved for that day, language to row id (T-62). Only approved rows: guardrail 3.</summary>
     Task<IReadOnlyDictionary<string, Guid>> GetApprovedLessonAudioAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The day's today's message (D-91) with the languages it is written in, only when it is approved at its current
+    /// version (guardrail 3); null otherwise, so families get the plain message.
+    /// </summary>
+    Task<(Guid Id, IReadOnlySet<string> Languages)?> GetApprovedTodaysMessageAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 
     /// <summary>Stores the messages, skipping any child who already has one that date. Returns how many were added.</summary>
     Task<int> AddMessagesAsync(
@@ -232,12 +247,41 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
             .Where(l => l.ClassId == classId && l.Date == date && l.Status == "approved" && l.ApprovedClipId != null && l.ApprovedClipId == l.ClipId)
             .ToDictionaryAsync(l => l.Language, l => l.Id, cancellationToken);
 
+    public async Task<(Guid Id, IReadOnlySet<string> Languages)?> GetApprovedTodaysMessageAsync(
+        Guid classId, DateOnly date, CancellationToken cancellationToken)
+    {
+        var row = await db.TodaysMessages
+            .Where(t => t.ClassId == classId && t.Date == date && t.Status == Features.TodaysMessage.TodaysMessageStatus.Approved
+                && t.ApprovedVersion == t.Version)
+            .Select(t => new { t.Id, t.Sections })
+            .SingleOrDefaultAsync(cancellationToken);
+        return row is not null && Features.TodaysMessage.TodaysSections.Parse(row.Sections) is { } sections
+            ? (row.Id, sections.Languages.ToHashSet())
+            : null;
+    }
+
     public async Task<int> AddMessagesAsync(
         Guid classId, DateOnly date, IReadOnlyList<NewEveningMessage> messages, CancellationToken cancellationToken)
     {
         // The 6 pm job and a demo send can overlap; the lock plus the (ChildId, Date) index keep it to one each.
         await using var transaction = await LockAsync($"evening:{classId}:{date:yyyy-MM-dd}", cancellationToken);
         var sent = await GetSentChildIdsAsync(classId, date, cancellationToken);
+        // Guardrail 3 again, under today's message's own lock: an edit or a new draft between the plan and now clears its
+        // approval, and then the family gets the plain message instead.
+        var todaysId = messages.Select(m => m.TodaysMessageId).FirstOrDefault(id => id is not null);
+        if (todaysId is not null)
+        {
+            var key = $"todays:{classId}:{date:yyyy-MM-dd}";
+            await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))", cancellationToken);
+            var current = await db.TodaysMessages.AnyAsync(
+                t => t.Id == todaysId && t.Status == Features.TodaysMessage.TodaysMessageStatus.Approved && t.ApprovedVersion == t.Version,
+                cancellationToken);
+            if (!current)
+            {
+                messages = messages.Select(m => m with { TodaysMessageId = null }).ToList();
+            }
+        }
+
         var added = 0;
         var now = clock.GetUtcNow();
         foreach (var message in messages.Where(m => !sent.Contains(m.ChildId)))
@@ -252,6 +296,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 TemplateId = message.TemplateId,
                 LessonId = message.LessonId,
                 LessonAudioId = message.LessonAudioId,
+                TodaysMessageId = message.TodaysMessageId,
                 Language = message.Language,
                 SlotValues = JsonSerializer.Serialize(message.Slots, Json),
                 Token = message.Token,
@@ -290,13 +335,30 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                         .Where(l => l.Id == m.LessonAudioId && l.Status == "approved" && l.ApprovedClipId == l.ClipId)
                         .Join(db.AudioClips, l => l.ApprovedClipId, a => a.Id, (l, a) => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
                         .FirstOrDefault(),
+                    // Sent only when it was approved at its version; an edit after that can't happen (it is read only once sent).
+                    Todays = db.TodaysMessages.Where(t => t.Id == m.TodaysMessageId).Select(t => t.Sections).FirstOrDefault(),
                 })
             .SingleOrDefaultAsync(cancellationToken);
-        return row is null
-            ? null
-            : new ParentMessageRecord(
-                row.Date, row.Language, row.FirstName, row.DisplayName, row.Greeting, row.Text,
-                JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped, row.LessonAudio);
+        if (row is null)
+        {
+            return null;
+        }
+
+        var lessonAudio = row.LessonAudio;
+        ParentTodaysMessage? todays = null;
+        if (row.Todays is not null && Features.TodaysMessage.TodaysSections.Parse(row.Todays) is { } sections)
+        {
+            todays = Features.TodaysMessage.TodaysFamilyView.For(sections, row.Language);
+            // Its concept, voiced, plays instead of the lesson clip (T-88); removed concept means no audio.
+            lessonAudio = !sections.Concept.Removed && sections.Concept.Clips.TryGetValue(row.Language, out var clipId)
+                ? await db.AudioClips.Where(a => a.Id == clipId).Select(a => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
+                    .SingleOrDefaultAsync(cancellationToken)
+                : null;
+        }
+
+        return new ParentMessageRecord(
+            row.Date, row.Language, row.FirstName, row.DisplayName, row.Greeting, row.Text,
+            JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped, lessonAudio, todays);
     }
 
     public async Task<IReadOnlyList<Guid>> GetClassIdsAsync(CancellationToken cancellationToken) =>

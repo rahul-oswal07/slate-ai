@@ -580,6 +580,9 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<Guid>("TemplateId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("TodaysMessageId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -592,6 +595,8 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasIndex("LessonId");
 
                     b.HasIndex("TemplateId");
+
+                    b.HasIndex("TodaysMessageId");
 
                     b.HasIndex("Token")
                         .IsUnique();
@@ -924,6 +929,63 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("Teachers");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.TodaysMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedByTeacherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ApprovedVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.PrimitiveCollection<List<string>>("CompetencyIds")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Sections")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Verdict")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByTeacherId");
+
+                    b.HasIndex("ClassId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("TodaysMessages");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.AbsenceReason", b =>
                 {
                     b.HasOne("SlateAi.Api.Data.Entities.Child", null)
@@ -1088,6 +1150,11 @@ namespace SlateAi.Api.Data.Migrations
                         .HasForeignKey("TemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.TodaysMessage", null)
+                        .WithMany()
+                        .HasForeignKey("TodaysMessageId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Lesson", b =>
@@ -1169,6 +1236,19 @@ namespace SlateAi.Api.Data.Migrations
                         .WithOne()
                         .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "EveningMessageId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.TodaysMessage", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedByTeacherId");
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

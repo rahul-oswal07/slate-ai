@@ -1,0 +1,15 @@
+{
+  "_note": "DRAFT cases written by Claude for T-88 (D-91), to be reviewed by Monika and native speakers (T-26). Each case is one day's today's message: the lesson (Nalikali Part 1 p 4, the only lesson with the book's exercise list so far, D-93), the languages (Kannada for the teacher plus the absent families' languages) and the picture pair code picks (index into the lesson's compare list). Pass (code checks, the same ones production runs): A9's output passes TodaysMessageValidator after at most one retry: valid JSON with exactly the requested languages; concept at most 3 sentences and 60 words; 1 to 3 activity steps of at most 30 words; no names, braces or > < signs; at least 80% of the letters in each language's script; only the book's numbers, the page, 10 and the tens and ones of the picture pair. The results file keeps every message for human review.",
+  "cases": [
+    { "id": "p4-kn", "languages": ["kn"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 0 },
+    { "id": "p4-kn-hi", "languages": ["kn", "hi"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 0 },
+    { "id": "p4-kn-te", "languages": ["kn", "te"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 0 },
+    { "id": "p4-kn-ta", "languages": ["kn", "ta"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 0 },
+    { "id": "p4-kn-en", "languages": ["kn", "en"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 0 },
+    { "id": "p4-all-five", "languages": ["kn", "en", "hi", "ta", "te"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 0 },
+    { "id": "p4-kn-less-than", "languages": ["kn"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 1 },
+    { "id": "p4-kn-equal", "languages": ["kn", "hi"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 4 },
+    { "id": "p4-kn-close-numbers", "languages": ["kn", "te"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 6 },
+    { "id": "p4-kn-last-pair", "languages": ["kn", "ta"], "lessons": ["M3.BRIDGE.COMPARE"], "pair": 9 }
+  ]
+}
