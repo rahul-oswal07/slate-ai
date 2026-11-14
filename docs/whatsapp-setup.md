@@ -174,7 +174,7 @@ What a skipped or failed delivery means (`ParentDeliveries.LastError`):
 
 ## 5. Next (step 2, T-106)
 
-The full list is in T-106 (`tasks.md`): after "Send it here" on `todays_lesson_chat_v1`, the teacher's greeting and the lesson audio as voice notes, one text with the concept, activity, page and video link, the picture question with > < = buttons, and the reason for absence as a list message.
+The full list is in T-106 (`tasks/T-106-whatsapp-step-2-in-chat.md`): after "Send it here" on `todays_lesson_chat_v1`, the teacher's greeting and the lesson audio as voice notes, one text with the concept, activity, page and video link, the picture question with > < = buttons, and the reason for absence as a list message.
 
 - The "Send it here" quick-reply, which opens the 24-hour window.
 - The webhook (`GET` verify + `POST` with an `X-Hub-Signature-256` check).

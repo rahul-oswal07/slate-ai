@@ -1,6 +1,6 @@
 # CLAUDE.md — Tappida Paatha (slate-ai)
 
-Hackathon MVP: absent children get a home-language catch-up of the lesson they missed. **Start every session with `docs/status.md`** (current state, next tasks), then read `docs/intent.md` → `docs/spec.md` → `docs/plan.md` before changing behaviour. Task IDs (T-xx) are in `docs/tasks.md`; requirement IDs (FR-xx, NFR-xx) in `docs/spec.md`.
+Hackathon MVP: absent children get a home-language catch-up of the lesson they missed. **Start every session with `docs/status.md`** (project state, next tasks), then the map in `docs/README.md`, then the task's file (`docs/tasks/T-xx-*.md`) and the folders of the screens it touches (`docs/screens/<screen>/`, `docs/areas/<area>/`). Read `docs/intent.md` → `docs/spec.md` → `docs/plan.md` before changing behaviour. Requirement IDs (FR-xx, NFR-xx) are indexed in `docs/spec.md` §2 and kept in the owning screen's `spec.md`; decisions (D-xx) are in `docs/decisions/`.
 
 ## Commands
 
@@ -56,12 +56,21 @@ dotnet ef migrations add <Name> -p src/api/SlateAi.Api   # new migration
 
 ## Collaboration
 
-- Rahul owns code, `CLAUDE.md`, `.claude/`, `prompts/`. Monika owns `intent.md`, UX and copy in `spec.md`, `docs/design/`, `docs/user-testing.md`.
-- Open decisions are tagged `[DECIDE: Monika]` / `[CONFIRM: Rahul]` in `spec.md` §8. Don't implement past an open gate; build behind a flag or ask.
+- Rahul owns code, `CLAUDE.md`, `.claude/`, `prompts/`. Monika owns `intent.md`, UX and copy in `spec.md` and in each `docs/screens/*/spec.md`, `docs/design/`, `docs/user-testing.md`.
+- Open decisions are tagged `[DECIDE: Monika]` / `[CONFIRM: Rahul]` and have status **Proposed** in `docs/decisions/` (D-01 to D-99 in the frozen log, one file each after that). Don't implement past an open gate; build behind a flag or ask.
 - If implementation drifts from `plan.md`, update `plan.md` in the same PR.
-- At the end of each session, update `docs/status.md` (what changed, next step, blockers).
+- At the end of each session, add a dated note to the task's file (what changed, what's left, blockers) and update the `status.md` of each screen or area whose behaviour changed. Touch `docs/status.md` only for a release, a change to a server or a change of priorities.
 - Use plan mode for anything touching more than 3 files; save accepted plans into the PR description.
 - Branches: `feat|fix|design|docs/T-xx-slug`, short-lived, squash-merged into `main`.
+
+## Docs (so two people don't collide)
+
+- One folder per screen (`docs/screens/`) and per cross-cutting area (`docs/areas/`), each with `spec.md` and `status.md`. One file per live task (`docs/tasks/`) and per new decision (`docs/decisions/`). The map and the rules are in `docs/README.md`.
+- New task: next free `T-` number, a GitHub issue, a file from the template in `docs/tasks/README.md`. New decision: next free `D-` number, a file from the template in `docs/decisions/README.md`.
+- Never add to `docs/archive/` or to the frozen log `docs/decisions/D-01-to-D-99.md` (only a status change there).
+- Dated notes go in the task's file. A screen's `status.md` says what is true now, one fact per bullet, no dates.
+- Don't renumber `docs/spec.md` sections or rename `docs/design/` cards: code comments cite them.
+- `./scripts/check-docs.sh` (part of `verify.sh`) fails on a task or decision number used twice and on a broken relative link.
 
 ## Recurring mistakes
 

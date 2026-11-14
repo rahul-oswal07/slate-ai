@@ -110,7 +110,7 @@ Real SATS / state attendance feed, real WhatsApp at scale, school setup and Sett
 
 ## Built so far vs still to build
 
-*As of 23 Oct 2026; the live state is in [`status.md`](status.md).*
+*As of 23 Oct 2026; the live state is in [`status.md`](status.md) and in each screen's `status.md` (map: [`README.md`](README.md)).*
 
 | ✅ Built | ⏳ Still to build |
 |---|---|
@@ -130,7 +130,9 @@ Real SATS / state attendance feed, real WhatsApp at scale, school setup and Sett
 | For | Read |
 |---|---|
 | Why we're building this, and for whom | [`intent.md`](intent.md) |
-| Requirements and every decision (FR-xx, D-xx) | [`spec.md`](spec.md) |
+| Every screen: its spec and what is built | [`README.md`](README.md) |
+| Requirements (FR-xx) and what cuts across screens | [`spec.md`](spec.md) |
+| Every decision (D-xx) | [`decisions/`](decisions/README.md) |
 | What to build first, and what is roadmap | [`design/mvp-build-flow.md`](design/mvp-build-flow.md) |
 | Each screen in detail (states, copy, checks) | [`design/README.md`](design/README.md) and the cards it lists |
 | The clickable design prototype | [`design/prototype/index.html`](design/prototype/index.html) (download, open in a browser) |

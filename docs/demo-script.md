@@ -33,4 +33,4 @@ Save the clip as WebM/Opus (the teacher app's recorder makes one: record it on T
 | 5 | Family page → answer | "The child answers the picture question; code scores it." | Real |
 | 6 | Teacher, Today | "Her answer is back on the teacher's phone." | Real |
 
-Steps 3–6 use **today's message** (T-88, T-89, T-91, T-92); until those land, step 3 uses the week's catch-up and step 6 uses Missed lessons. Log each timed run in `status.md`.
+Steps 3–6 use **today's message** (T-88, T-89, T-91, T-92); until those land, step 3 uses the week's catch-up and step 6 uses Missed lessons. Log each timed run in T-93's file (`tasks/T-93-demo-loop-and-reset.md`).

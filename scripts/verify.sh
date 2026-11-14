@@ -4,6 +4,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+echo "==> docs: task and decision numbers, links"
+./scripts/check-docs.sh
+
 if [ -f SlateAi.sln ]; then
   echo "==> dotnet build"
   dotnet build SlateAi.sln --nologo -warnaserror

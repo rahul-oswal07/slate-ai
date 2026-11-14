@@ -13,7 +13,7 @@ public sealed class CatchUpPlannerTests
     [Fact]
     public void A_child_with_no_target_gets_no_catch_up_and_no_failed_package()
     {
-        // status.md 14 Nov (a), T-100: a lesson code can't make sums for never shows as "Generation failed".
+        // T-100 (docs/tasks/T-100-catch-ups-tab-tidy.md, 14 Nov): a lesson code can't make sums for never shows as "Generation failed".
         A2Result[] results =
         [
             new(Ravi, [new CompressionItem("M3.SUB.BORROW", null)], [], CompressionSource.Rule, "rule:no-candidates"),

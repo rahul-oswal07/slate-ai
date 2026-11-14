@@ -1,6 +1,6 @@
 # Design tokens
 
-Owner: Monika · Decisions: D-04, D-17 (`docs/spec.md` §8) · Code: [`src/web/src/styles/tokens.css`](../../src/web/src/styles/tokens.css) · Test: [`tokens.test.ts`](../../src/web/src/styles/tokens.test.ts)
+Owner: Monika · Decisions: D-04, D-17 (`docs/decisions/D-01-to-D-99.md`) · Code: [`src/web/src/styles/tokens.css`](../../src/web/src/styles/tokens.css) · Test: [`tokens.test.ts`](../../src/web/src/styles/tokens.test.ts)
 
 Source: the Build Kit design system (02-DESIGN §2), which continues the Ideate deck's look: warm canvas, deep ink, one teal accent. The kit calls the teal `accent`; in our code it is **`primary`**.
 
