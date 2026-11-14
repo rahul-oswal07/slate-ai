@@ -6,22 +6,31 @@ import { clock } from './clock'
 import { Celebration } from './DoneStep'
 import { LessonAudioPlayer } from './LessonAudioPlayer'
 import { ParentHeader, PrimaryButton, SecondaryButton, StepDots, StopControl } from './ParentParts'
+import { ReasonView } from './ReasonView'
 import { Sticks } from './Sticks'
 import { sticksText } from './sticksText'
 import type { ParentEvening, ParentTodaysMessage, Sign } from './types'
 import { usePicture } from './useParentPage'
 import { VoiceNote } from './VoiceNote'
 
-type Step = 'concept' | 'activity' | 'video' | 'picture' | 'done'
+type Step = 'voice' | 'reason' | 'concept' | 'activity' | 'video' | 'picture' | 'done'
 
-/** Where each step sits in the four chalk strokes: the video counts with the activity, Done is the fourth (P-cards). */
-const DOT: Record<Step, number> = { concept: 1, activity: 2, video: 2, picture: 3, done: 4 }
+/**
+ * Where each step sits in the four chalk strokes: her voice, the reason and the concept are the first, the video counts
+ * with the activity, Done is the fourth (P-cards).
+ */
+const DOT: Record<Step, number> = { voice: 1, reason: 1, concept: 1, activity: 2, video: 2, picture: 3, done: 4 }
 
 const SIGNS: Sign[] = ['>', '<', '=']
 
-/** The steps this message has: a section she removed is skipped; the video only when there is one (T-94). */
-function todaysSteps(m: ParentTodaysMessage): Step[] {
-  const steps: Step[] = []
+/**
+ * The steps this message has. Her voice first, then "Is everything OK?" (D-98) unless the family already told us (it
+ * stays while they are on it, so sending doesn't pull the page away); a section she removed is skipped; the video only
+ * when there is one (T-94).
+ */
+function todaysSteps(m: ParentTodaysMessage, reasonGiven: boolean, current: string | null): Step[] {
+  const steps: Step[] = ['voice']
+  if (!reasonGiven || current === 'reason') steps.push('reason')
   if (m.concept) steps.push('concept')
   if (m.steps?.length) steps.push('activity')
   if (m.video) steps.push('video')
@@ -48,8 +57,8 @@ export function TodaysPages({
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const todays = message.todaysMessage
-  const steps = todaysSteps(todays)
   const requested = params.get('step') as Step | null
+  const steps = todaysSteps(todays, message.reason !== null, requested)
   const first = steps[0] ?? 'done'
   // A reopened link whose question is done opens on Done.
   const step: Step = requested && steps.includes(requested) ? requested : todays.picture?.done ? 'done' : first
@@ -63,6 +72,12 @@ export function TodaysPages({
 
   useEffect(() => heading.current?.focus(), [step])
 
+  // "Is everything OK?" (FR-21, D-98): the evening page's own reason screen, as a step. Send or Skip moves on; Back goes
+  // back to her voice. Optional: nothing here blocks the lesson.
+  if (step === 'reason') {
+    return <ReasonView token={token} message={message} onDone={next} onBack={() => window.history.back()} />
+  }
+
   return (
     <>
       <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />
@@ -72,7 +87,7 @@ export function TodaysPages({
           {t(`parent.todays.title.${step}`, { child: message.childName })}
         </h2>
 
-        {step === 'concept' && (
+        {step === 'voice' && (
           <>
             {message.greeting && (
               <VoiceNote
@@ -89,6 +104,12 @@ export function TodaysPages({
                 {todays.note}
               </p>
             )}
+            <PrimaryButton onClick={next}>{t('parent.todays.next')}</PrimaryButton>
+          </>
+        )}
+
+        {step === 'concept' && (
+          <>
             <p lang={message.language} className="card text-body">
               {todays.concept}
             </p>

@@ -124,7 +124,9 @@ The Listen button has no `aria-label`: its accessible name is its visible label 
 
 An evening link that carries today's message (D-91) opens these steps instead of the plain card (no today's message: the plain card, unchanged). Screenshots: `docs/screenshots/T-91/` (Kannada, 360 px).
 
-1. **"{child} learned today"**: her voice, the evening text (lesson and page), her note if any, the concept, the concept's voice behind the AI notice, Next.
+1. **"{child} learned today"**: her voice, the evening text (lesson and page), her note if any, Next.
+   - **"Is everything OK?"** (D-98, 14 Nov): the evening page's reason screen, five pictures, Send, Skip; not shown again once the family has told us.
+   - **"The idea, in a few words"**: the concept and its voice behind the AI notice, Next.
 2. **"Try this at home"**: the activity steps, Next.
 3. **"Watch how it's taught"** (only with a DIKSHA link, T-94): Watch the video · "Uses mobile data. You can skip it.", Next (skip the video).
 4. **"{child}'s turn"**: both numbers drawn as bundles of ten and loose sticks, three big signs > < =. A first tap that isn't right shows "Look at the bundles of ten again, then the loose sticks, and try once more." (never "wrong"); the second tap is final. This second try is our reading of D-95 ("getting there" = right on the second try); please confirm the copy.
