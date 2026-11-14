@@ -13,8 +13,9 @@ public static class FakeApi
     public static ApiFactory Create(
         Action<IServiceCollection>? services = null,
         IReadOnlyDictionary<string, string?>? settings = null,
-        string? webRoot = null) =>
-        new(NoDatabase, initialiseDatabase: false, webRoot: webRoot, settings: settings, services: all =>
+        string? webRoot = null,
+        string environment = "Testing") =>
+        new(NoDatabase, initialiseDatabase: false, webRoot: webRoot, settings: settings, environment: environment, services: all =>
         {
             // Session cookies need keys; the real ones live in Postgres.
             all.AddDataProtection().UseEphemeralDataProtectionProvider();

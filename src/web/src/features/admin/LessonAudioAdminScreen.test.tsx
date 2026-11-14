@@ -61,7 +61,7 @@ function renderAt(url: string) {
 }
 
 /** The admin API for the day view: any date answers with `body`, only with the right key. */
-function stubApi(body: AdminLessonAudioDay, key = 'secret-key') {
+function stubApi(body: AdminLessonAudioDay, key: string | null = 'secret-key') {
   const fetch = vi.fn<typeof globalThis.fetch>(async (input, init) => {
     if (new Headers(init?.headers).get('X-Admin-Key') !== key) {
       return new Response(null, { status: 404 })
@@ -95,6 +95,14 @@ describe('LessonAudioAdminScreen (T-67)', () => {
 
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/lesson-audio?date=2026-10-29', expect.anything()))
     expect(fetch.mock.calls.every(([url]) => !String(url).includes('secret-key'))).toBe(true)
+  })
+
+  it('opens without a key when the API allows it (local dev, D-102)', async () => {
+    const fetch = stubApi(day, null)
+    renderAt('/admin/lesson-audio')
+
+    expect(await screen.findByText('2 lesson audios sent to families')).toBeInTheDocument()
+    expect(new Headers(fetch.mock.calls[0]?.[1]?.headers).has('X-Admin-Key')).toBe(false)
   })
 
   it('details a sent audio: lesson, approval, words, families, and plays it', async () => {

@@ -20,8 +20,8 @@ function renderAt(url: string) {
   )
 }
 
-/** The admin API: the list and one clip, each only with the right key. */
-function stubApi(greetings: unknown[], key = 'secret-key') {
+/** The admin API: the list and one clip, each only with the right key (`null`: no key, as locally, D-102). */
+function stubApi(greetings: unknown[], key: string | null = 'secret-key') {
   const fetch = vi.fn<typeof globalThis.fetch>(async (input, init) => {
     const sent = new Headers(init?.headers).get('X-Admin-Key')
     if (sent !== key) {
@@ -91,12 +91,25 @@ describe('GreetingsAdminScreen (T-66)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Couldn’t download this audio. Try again.')
   })
 
-  it('asks for the full link without a key and calls nothing', async () => {
-    const fetch = stubApi([shobha])
+  it('opens without a key when the API allows it (local dev, D-102) and plays a greeting', async () => {
+    const user = userEvent.setup()
+    const fetch = stubApi([shobha], null)
     renderAt('/admin/greetings')
 
-    expect(screen.getByRole('alert')).toHaveTextContent('This page needs its full link.')
-    expect(fetch).not.toHaveBeenCalled()
+    expect(await screen.findByText('Shobha')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Lesson audio' })).toHaveAttribute('href', '/admin/lesson-audio')
+    await user.click(screen.getByRole('button', { name: 'Play Shobha’s greeting' }))
+
+    expect(await screen.findByLabelText('Shobha’s greeting')).toHaveAttribute('src', 'blob:greeting')
+    expect(fetch.mock.calls.every(([, init]) => !new Headers(init?.headers).has('X-Admin-Key'))).toBe(true)
+  })
+
+  it('asks for the full link without a key where the API needs one', async () => {
+    stubApi([shobha])
+    renderAt('/admin/greetings')
+
+    expect(await screen.findByText('This page needs its full link.')).toBeInTheDocument()
+    expect(screen.queryByText('Shobha')).not.toBeInTheDocument()
   })
 
   it('a wrong key gets the same message as no key', async () => {

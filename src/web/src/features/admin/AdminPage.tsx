@@ -10,33 +10,32 @@ const PAGES = [
 ] as const
 
 /**
- * The frame of every admin page (D-83): title, the links between them (each keeps `#key=…`) and the "needs its full
- * link" state when there is no key. Linked from nowhere in the app.
+ * The frame of every admin page (D-83): title, the links between them (each keeps `#key=…`) and the page. Without a
+ * key the page still asks the API, which answers locally in Development (D-102) and 404s elsewhere, shown by
+ * `AdminQuery` as "needs its full link". Linked from nowhere in the app.
  */
-export function AdminPage({ title, children }: { title: string; children: (key: string) => ReactNode }) {
+export function AdminPage({ title, children }: { title: string; children: (key: string | null) => ReactNode }) {
   const { t } = useTranslation()
   const { hash } = useLocation()
   const key = adminKey(hash)
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 bg-canvas px-4 py-6 text-ink">
-      {key !== null && (
-        <nav aria-label={t('admin.nav.label')} className="flex gap-4">
-          {PAGES.map((page) => (
-            <NavLink
-              key={page.path}
-              to={{ pathname: page.path, hash }}
-              className={({ isActive }) =>
-                `inline-flex min-h-target items-center text-label ${isActive ? 'text-ink underline' : 'text-primary-strong'}`
-              }
-            >
-              {t(page.label)}
-            </NavLink>
-          ))}
-        </nav>
-      )}
+      <nav aria-label={t('admin.nav.label')} className="flex gap-4">
+        {PAGES.map((page) => (
+          <NavLink
+            key={page.path}
+            to={{ pathname: page.path, hash }}
+            className={({ isActive }) =>
+              `inline-flex min-h-target items-center text-label ${isActive ? 'text-ink underline' : 'text-primary-strong'}`
+            }
+          >
+            {t(page.label)}
+          </NavLink>
+        ))}
+      </nav>
       <h1 className="text-title">{title}</h1>
-      {key === null ? <NeedsLink /> : children(key)}
+      {children(key)}
     </main>
   )
 }

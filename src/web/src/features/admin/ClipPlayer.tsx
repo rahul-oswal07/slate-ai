@@ -9,7 +9,7 @@ export function ClipPlayer({
   playLabel,
   playerLabel,
 }: {
-  adminKey: string
+  adminKey: string | null
   url: string
   playLabel: string
   playerLabel: string

@@ -75,6 +75,54 @@ public sealed class AdminEndpointTests
     }
 
     [Fact]
+    public async Task In_development_the_pages_open_without_a_key_D102()
+    {
+        await using var factory = Create(key: null, environment: "Development");
+        using var client = Client(factory, key: null);
+
+        string[] urls =
+        [
+            "/api/admin/greetings",
+            $"/api/admin/greetings/{_store.Greeting.ClipId}/audio",
+            $"/api/admin/lesson-audio?date={Day}",
+            $"/api/admin/lesson-audio/{FakeAdminStore.LessonClipId}/audio",
+        ];
+        foreach (var url in urls)
+        {
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(url, Ct)).StatusCode);
+        }
+    }
+
+    [Theory]
+    [InlineData("Production")]
+    [InlineData("Staging")]
+    public async Task Outside_development_a_key_is_still_needed_D102(string environment)
+    {
+        await using var factory = Create(Key, environment);
+        using var client = Client(factory, key: null);
+
+        var list = await client.GetAsync("/api/admin/greetings", Ct);
+        var day = await client.GetAsync($"/api/admin/lesson-audio?date={Day}", Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, list.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, day.StatusCode);
+        Assert.False(_store.Read);
+    }
+
+    [Fact]
+    public async Task No_setting_can_open_the_pages_without_a_key_D102()
+    {
+        await using var factory = FakeApi.Create(
+            services => services.AddSingleton<IAdminStore>(_store),
+            settings: new Dictionary<string, string?> { ["Admin:Key"] = null, ["Admin:OpenWithoutKey"] = "true" },
+            environment: "Production");
+        using var client = Client(factory, key: null);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/admin/greetings", Ct)).StatusCode);
+        Assert.False(_store.Read);
+    }
+
+    [Fact]
     public async Task Each_audio_route_serves_only_its_own_kind_of_clip()
     {
         await using var factory = Create(Key);
@@ -148,9 +196,10 @@ public sealed class AdminEndpointTests
         return client;
     }
 
-    private ApiFactory Create(string? key) => FakeApi.Create(
+    private ApiFactory Create(string? key, string environment = "Testing") => FakeApi.Create(
         services => services.AddSingleton<IAdminStore>(_store),
-        settings: new Dictionary<string, string?> { ["Admin:Key"] = key });
+        settings: new Dictionary<string, string?> { ["Admin:Key"] = key },
+        environment: environment);
 
     /// <summary>One greeting, one lesson clip and one day with a sent and a failed lesson audio.</summary>
     private sealed class FakeAdminStore : IAdminStore

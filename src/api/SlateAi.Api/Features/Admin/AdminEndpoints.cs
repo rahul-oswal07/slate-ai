@@ -30,7 +30,8 @@ public sealed record AdminLessonAudioDay(DateOnly Date, int SentCount, IReadOnly
 /// <summary>
 /// The admin pages (D-83): every teacher's greeting (T-66) and the lesson audio of a day (T-67). Read-only and linked
 /// from nowhere. Mapped only when <c>Admin:Key</c> is set; every request must carry that key as <c>X-Admin-Key</c>,
-/// and a missing or wrong key gets the same 404 as a route that doesn't exist.
+/// and a missing or wrong key gets the same 404 as a route that doesn't exist. In Development the pages open without
+/// a key (D-102); staging and prod still need it.
 /// </summary>
 public static class AdminEndpoints
 {
@@ -39,12 +40,14 @@ public static class AdminEndpoints
     public static IServiceCollection AddAdmin(this IServiceCollection services)
     {
         services.AddScoped<IAdminStore, AdminStore>();
+        services.AddOptions<AdminOptions>()
+            .PostConfigure<IHostEnvironment>((options, environment) => options.OpenWithoutKey = environment.IsDevelopment());
         return services;
     }
 
     public static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        if (!app.ServiceProvider.GetRequiredService<IOptions<AdminOptions>>().Value.Enabled)
+        if (!app.ServiceProvider.GetRequiredService<IOptions<AdminOptions>>().Value.PagesEnabled)
         {
             return app;
         }
@@ -52,20 +55,20 @@ public static class AdminEndpoints
         app.MapGet("/api/admin/greetings", ListGreetingsAsync)
             .WithTags("Admin")
             .WithSummary("Every teacher's recorded greeting, newest first")
-            .WithDescription($"Needs the {KeyHeader} header; 404 without it. Admin only.");
+            .WithDescription($"Needs the {KeyHeader} header (not in Development); 404 without it. Admin only.");
 
         app.MapGet("/api/admin/greetings/{clipId:guid}/audio", (Guid clipId, HttpContext http, IAdminStore store,
                 IOptions<AdminOptions> options, CancellationToken cancellationToken) =>
                 GetClipAsync(clipId, AudioKind.Greeting, http, store, options, cancellationToken))
             .WithTags("Admin")
             .WithSummary("One greeting's audio (Ogg Opus)")
-            .WithDescription($"Needs the {KeyHeader} header. 404 without it, or for a clip that isn't a greeting. Admin only.");
+            .WithDescription($"Needs the {KeyHeader} header (not in Development). 404 without it, or for a clip that isn't a greeting. Admin only.");
 
         app.MapGet("/api/admin/lesson-audio", GetLessonAudioDayAsync)
             .WithTags("Admin")
             .WithSummary("Lesson audio of one day: how many families got it, and every class's clip, sent or not")
             .WithDescription(
-                $"date=YYYY-MM-DD (400 if missing or invalid). Needs the {KeyHeader} header; 404 without it. sentCount " +
+                $"date=YYYY-MM-DD (400 if missing or invalid). Needs the {KeyHeader} header (not in Development); 404 without it. sentCount " +
                 "counts that day's evening messages that carried a lesson audio; each audio lists the families it went " +
                 "to, or none with its status and verdict when it wasn't sent. Admin only.");
 
@@ -74,14 +77,14 @@ public static class AdminEndpoints
                 GetClipAsync(clipId, AudioKind.Lesson, http, store, options, cancellationToken))
             .WithTags("Admin")
             .WithSummary("One lesson audio clip (Ogg Opus)")
-            .WithDescription($"Needs the {KeyHeader} header. 404 without it, or for a clip that isn't lesson audio. Admin only.");
+            .WithDescription($"Needs the {KeyHeader} header (not in Development). 404 without it, or for a clip that isn't lesson audio. Admin only.");
         return app;
     }
 
     private static async Task<Results<Ok<IReadOnlyList<AdminGreeting>>, NotFound>> ListGreetingsAsync(
         HttpContext http, IAdminStore store, IOptions<AdminOptions> options, CancellationToken cancellationToken)
     {
-        if (!HasKey(http, options.Value))
+        if (!CanRead(http, options.Value))
         {
             return TypedResults.NotFound();
         }
@@ -98,7 +101,7 @@ public static class AdminEndpoints
         IOptions<AdminOptions> options,
         CancellationToken cancellationToken)
     {
-        if (!HasKey(http, options.Value))
+        if (!CanRead(http, options.Value))
         {
             return TypedResults.NotFound();
         }
@@ -132,7 +135,7 @@ public static class AdminEndpoints
     private static async Task<Results<FileContentHttpResult, NotFound>> GetClipAsync(
         Guid clipId, string kind, HttpContext http, IAdminStore store, IOptions<AdminOptions> options, CancellationToken cancellationToken)
     {
-        if (!HasKey(http, options.Value) || await store.GetClipAsync(clipId, kind, cancellationToken) is not { } clip)
+        if (!CanRead(http, options.Value) || await store.GetClipAsync(clipId, kind, cancellationToken) is not { } clip)
         {
             return TypedResults.NotFound();
         }
@@ -141,7 +144,13 @@ public static class AdminEndpoints
         return TypedResults.File(clip.Bytes, clip.ContentType, enableRangeProcessing: true);
     }
 
-    /// <summary>The request carries the admin key (constant-time compare). Also used by the WhatsApp test send (T-40).</summary>
+    /// <summary>The admin pages may be read: in Development without a key (D-102), elsewhere only with it.</summary>
+    private static bool CanRead(HttpContext http, AdminOptions options) => options.OpenWithoutKey || HasKey(http, options);
+
+    /// <summary>
+    /// The request carries the admin key (constant-time compare). Also used by the WhatsApp test send (T-40), which
+    /// needs the key even in Development because it sends a real message.
+    /// </summary>
     internal static bool HasKey(HttpContext http, AdminOptions options) =>
         options.Enabled
         && CryptographicOperations.FixedTimeEquals(

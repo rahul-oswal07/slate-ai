@@ -110,7 +110,19 @@ public sealed class WhatsAppTestEndpointTests
         Assert.Empty(_http.Requests);
     }
 
-    private ApiFactory Create(string? key, string channel = DeliveryChannels.Demo) => FakeApi.Create(
+    [Fact]
+    public async Task In_development_it_still_needs_the_admin_key_D102()
+    {
+        await using var factory = Create(key: null, environment: "Development");
+        using var client = AdminClient(factory, key: null);
+
+        var response = await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.NewGuid(), Ravi), Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Empty(_http.Requests);
+    }
+
+    private ApiFactory Create(string? key, string channel = DeliveryChannels.Demo, string environment = "Testing") => FakeApi.Create(
         services => services.AddHttpClient<WhatsAppClient>().ConfigurePrimaryHttpMessageHandler(() => _http),
         settings: new Dictionary<string, string?>
         {
@@ -119,7 +131,8 @@ public sealed class WhatsAppTestEndpointTests
             ["WhatsApp:AccessToken"] = "test-token",
             [$"WhatsApp:Recipients:{Ravi}"] = Number,
             ["Delivery:Channel"] = channel,
-        });
+        },
+        environment: environment);
 
     private static HttpClient AdminClient(ApiFactory factory, string? key)
     {

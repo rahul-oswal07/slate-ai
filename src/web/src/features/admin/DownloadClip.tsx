@@ -12,7 +12,7 @@ export function DownloadClip({
   fileName,
   label,
 }: {
-  adminKey: string
+  adminKey: string | null
   url: string
   fileName: string
   label: string
