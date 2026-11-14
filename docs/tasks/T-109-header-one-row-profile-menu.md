@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
-| Issue | #210 |
+| Status | Done |
+| Issue | #210 · PR #218 |
 | Owner | M (layout and copy), R builds |
 | Screens | app-shell, T1-today, T9-sign-in, T10-settings, T11-profile |
 | Source | Monika, 14 Nov · Finale Should · replaces the header part of T-95 / D-96 |
