@@ -84,9 +84,6 @@ public interface ITodaysMessageStore
     /// the class has no today's message that day.
     /// </summary>
     Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
-
-    /// <summary>The day's message when it is approved at its current version: the only one the evening send attaches (guardrail 3).</summary>
-    Task<TodaysMessageRow?> GetApprovedAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 }
 
 public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
@@ -265,12 +262,6 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
         await transaction.CommitAsync(cancellationToken);
         return TodaysChange.Applied;
     }
-
-    public async Task<TodaysMessageRow?> GetApprovedAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-        await RowAsync(
-            db.TodaysMessages.Where(t => t.ClassId == classId && t.Date == date
-                && t.Status == TodaysMessageStatus.Approved && t.ApprovedVersion == t.Version),
-            cancellationToken);
 
     public async Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(
         Guid classId, DateOnly date, CancellationToken cancellationToken)

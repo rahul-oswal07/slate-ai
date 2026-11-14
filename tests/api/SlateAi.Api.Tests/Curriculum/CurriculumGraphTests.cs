@@ -18,31 +18,6 @@ public sealed class CurriculumGraphTests
     ]);
 
     [Fact]
-    public void Ancestors_are_transitive()
-    {
-        Assert.Equal(
-            ["M3.ADD.NOCARRY", "M3.PV.ONES", "M3.PV.TENS"],
-            Graph.Ancestors("M3.ADD.CARRY").Order(StringComparer.Ordinal));
-    }
-
-    [Fact]
-    public void Ancestors_through_several_paths_are_listed_once_and_exclude_the_competency_itself()
-    {
-        var ancestors = Graph.Ancestors("M3.SUB.BORROW");
-
-        Assert.Equal(5, ancestors.Count);
-        Assert.DoesNotContain("M3.SUB.BORROW", ancestors);
-        Assert.DoesNotContain("M3.MEAS.LEN", ancestors);
-    }
-
-    [Fact]
-    public void A_root_or_unknown_competency_has_no_ancestors()
-    {
-        Assert.Empty(Graph.Ancestors("M3.PV.ONES"));
-        Assert.Empty(Graph.Ancestors("M3.NOPE"));
-    }
-
-    [Fact]
     public void Candidate_set_keeps_missed_items_that_next_week_builds_on()
     {
         var candidates = Graph.CandidateSet(
@@ -133,7 +108,7 @@ public sealed class CurriculumGraphTests
     }
 
     [Fact]
-    public void Chapter_lists_competencies_in_teaching_order()
+    public void All_lists_competencies_in_teaching_order()
     {
         var graph = new CurriculumGraph(
         [
@@ -142,8 +117,6 @@ public sealed class CurriculumGraphTests
             C("M3.ADD.NOCARRY", chapter: 2, sequence: 3),
         ]);
 
-        Assert.Equal(["M3.ADD.NOCARRY", "M3.ADD.CARRY"], graph.InChapter(2).Select(c => c.Id));
-        Assert.Empty(graph.InChapter(9));
         Assert.Equal(["M3.PV.TENS", "M3.ADD.NOCARRY", "M3.ADD.CARRY"], graph.All.Select(c => c.Id));
         Assert.True(graph.Contains("M3.PV.TENS"));
         Assert.Null(graph.Get("M3.NOPE"));

@@ -43,12 +43,6 @@ public sealed class CurriculumGraph
 
     public Competency? Get(string id) => _byId.GetValueOrDefault(id);
 
-    /// <summary>A chapter's competencies in teaching order (A1 input, FR-04 picker).</summary>
-    public IReadOnlyList<Competency> InChapter(int chapter) => All.Where(c => c.Chapter == chapter).ToList();
-
-    /// <summary>All transitive prerequisites of <paramref name="id"/>, excluding itself. Unknown IDs have none.</summary>
-    public IReadOnlySet<string> Ancestors(string id) => HopsToAncestors([id]).Keys.ToHashSet(StringComparer.Ordinal);
-
     /// <summary>
     /// Missed competencies that next week's lessons build on: missed ∩ ancestors(nextWeek) (FR-06, spec §5.1 A2).
     /// Nearest first (fewest prerequisite hops to a next-week competency, then teaching order), so the rule

@@ -27,7 +27,7 @@ public sealed class CatchUpApprovalDbTests(PostgresFixture postgres)
             new GenerateCatchUpsRequest(Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
 
         // Both children speak different languages, so wait for whichever packages exist, then make them ready at v3.
-        await WaitAsync(api, async () => await api.QueryAsync(db => db.CatchUpPackages.AllAsync(p => p.Status != PackageStatus.Generating, DemoClassApi.Ct)));
+        await WaitAsync(async () => await api.QueryAsync(db => db.CatchUpPackages.AllAsync(p => p.Status != PackageStatus.Generating, DemoClassApi.Ct)));
         await api.QueryAsync(db => db.CatchUpPackages.ExecuteUpdateAsync(
             s => s.SetProperty(p => p.Status, PackageStatus.Ready).SetProperty(p => p.ScriptVersion, 3), DemoClassApi.Ct));
         var packageId = await api.QueryAsync(db => db.CatchUpAssignments.Where(a => a.ChildId == ravi).Select(a => a.PackageId).SingleAsync(DemoClassApi.Ct));
@@ -58,7 +58,7 @@ public sealed class CatchUpApprovalDbTests(PostgresFixture postgres)
         Assert.Equal(PackageStatus.Sent, await api.QueryAsync(db => db.CatchUpPackages.Where(p => p.Id == packageId).Select(p => p.Status).SingleAsync(DemoClassApi.Ct)));
     }
 
-    private static async Task WaitAsync(DemoClassApi api, Func<Task<bool>> done)
+    private static async Task WaitAsync(Func<Task<bool>> done)
     {
         for (var i = 0; i < 50 && !await done(); i++)
         {

@@ -52,7 +52,7 @@ public sealed class CurriculumLoaderTests
             ("b.json", File(Item("M3.PV.TENS", "M2.PV.ONES"))),
         ]);
 
-        Assert.Equal(["M2.PV.ONES"], graph.Ancestors("M3.PV.TENS"));
+        Assert.Equal(["M2.PV.ONES"], graph.Get("M3.PV.TENS")!.Prerequisites);
     }
 
     [Theory]
