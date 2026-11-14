@@ -24,7 +24,7 @@ grep -l "^| Screens | .*T1-today" docs/tasks/[TM]-*.md  # by screen or area
 
 - Dated notes go under **Notes**, newest first, one line each: what was built, what was seen live, what was left out. This is where the old "Recent changes" in `status.md` went.
 - When what a screen does changes, update that screen's `status.md` in the same PR.
-- When it ships: set **Status** to `Done`, add the PR number, and close the GitHub issue with the PR in a comment. The file stays here so links keep working; done files are moved to the archive in one go after a milestone.
+- In the PR that finishes the task, set **Status** to `Done` and add the PR number, so the file is right the moment it merges and no follow-up PR is needed. After the merge, close the GitHub issue with the PR in a comment. The file stays here so links keep working; done files are moved to the archive in one go after a milestone.
 
 ## Status values
 

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
+| Status | Done |
 | Issue | #214 · PR #213 |
 | Owner | R |
 | Screens | none (docs only) |
@@ -34,5 +34,6 @@ Now:
 
 ## Notes
 
+- 15 Nov: merged as #213; issue #214 closed.
 - 15 Nov: PR #213 opened. `verify.sh` OK locally; every `docs/` link in the root README resolves on the branch.
 - 15 Nov: built on `docs/T-110-docs-per-screen` from `main` at #212.
