@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
-| Issue | #216 |
+| Status | Done |
+| Issue | #216 · PR #217 |
 | Owner | R |
 | Screens | delivery, T3-approve, P5-todays-message |
 | Source | Bug found 14 Nov on a local server after 6 pm IST; D-100 (Rahul, 15 Nov) |
