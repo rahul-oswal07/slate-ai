@@ -130,7 +130,7 @@ Where to check how AI is used. Each row links to the files that prove it.
 | Nothing reaches a parent without teacher approval | [`CatchUpApprovalDbTests`](tests/api/SlateAi.Api.Tests/Db/CatchUpApprovalDbTests.cs), [`EveningMessageDbTests`](tests/api/SlateAi.Api.Tests/Db/EveningMessageDbTests.cs), [`EveningEligibilityTests`](tests/api/SlateAi.Api.Tests/Features/EveningMessages/EveningEligibilityTests.cs) |
 | No names sent to AI providers | [`NameScrubber`](src/api/SlateAi.Api/Features/Lessons/Voice/NameScrubber.cs) (names become `{child}` / `{teacher}`) · [tests](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/NameScrubberTests.cs) |
 | User testing and mentor input | [`docs/user-testing.md`](docs/user-testing.md), [`docs/mentor-feedback-2026-10-19.md`](docs/mentor-feedback-2026-10-19.md), [`docs/mentor-feedback-2026-10-24.md`](docs/mentor-feedback-2026-10-24.md) |
-| Decisions and why | [`docs/spec.md` §8 decision log](docs/spec.md#8-decision-log) |
+| Decisions and why | [`docs/decisions/` decision log](docs/decisions/D-01-to-D-99.md) |
 | Rules for AI in this repo | [`CLAUDE.md`](CLAUDE.md) "AI guardrails" |
 
 ## How it works
@@ -141,7 +141,7 @@ Where to check how AI is used. Each row links to the files that prove it.
 4. The teacher approves once per lesson. The parent opens a link, taps Listen, and the child taps a picture to answer.
 5. The teacher sees who caught up, gets a buddy card for each returning child, and a weekly pacing nudge.
 
-Product and design detail: [`docs/intent.md`](docs/intent.md) · [`docs/spec.md`](docs/spec.md) · [`docs/plan.md`](docs/plan.md)
+Product and design detail: [`docs/intent.md`](docs/intent.md) · [`docs/spec.md`](docs/spec.md) · [`docs/plan.md`](docs/plan.md) · every screen: [`docs/README.md`](docs/README.md)
 
 ## Architecture
 
@@ -161,7 +161,7 @@ Parent web page ──────┼── SlateAi.Api (.NET) ┼── Sarvam 
 | `prompts/` | Versioned prompt files |
 | `data/` | Curriculum dependency graph, picture library manifest, seed data |
 | `deploy/` | Dockerfile, docker-compose, hosting notes |
-| `docs/` | SDLC artifacts: intent, spec, plan, tasks, quality, user testing, judging narrative |
+| `docs/` | SDLC artifacts: intent, spec, plan, quality, user testing, judging narrative; a spec and status per screen (`screens/`), one file per task (`tasks/`) and per decision (`decisions/`). Map: [`docs/README.md`](docs/README.md) |
 
 ## Local setup
 
@@ -251,7 +251,7 @@ Use separate Anthropic keys for local and Azure (revoke one without breaking the
 
 We work trunk-based with short-lived branches.
 
-1. Pick an issue (task ID `T-xx` from `docs/tasks.md`) and move it to **Doing**.
+1. Pick an issue (task ID `T-xx`, its file is in `docs/tasks/`) and move it to **Doing**.
 2. Branch: `feat/T-07-lesson-mapping`, `fix/…`, `design/…`, `docs/…`.
 3. Commit with Conventional Commits and the task ID: `feat(api): map transcript to competencies (T-07)`.
 4. Run `./scripts/verify.sh`. Open a PR using the template; add screenshots for UI changes.

@@ -30,7 +30,7 @@ Development default language is **English** (D-32); Kannada, Telugu and Tamil co
 | [P3-answer.md](P3-answer.md) | Picture answer (scored by code) | T-15 |
 | [P4-done.md](P4-done.md) | Done; stop / restart messages (defined here) | T-15 |
 
-Reference: tokens and usage rules in [`tokens.md`](tokens.md); copy rules in `spec.md` §3.3–3.4; screens and states in `spec.md` §3.1.
+Reference: tokens and usage rules in [`tokens.md`](tokens.md); copy rules in `spec.md` §3.3–3.4; screens and states in each screen's `spec.md` under `docs/screens/` (map: [`../README.md`](../README.md)).
 
 ---
 

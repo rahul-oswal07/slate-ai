@@ -120,7 +120,7 @@ public sealed class A2ValidatorTests
     [Fact]
     public void With_no_candidates_the_rule_skips_a_latest_lesson_that_has_no_practice_rule()
     {
-        // status.md 14 Nov (a): the bridge lesson confirmed last made a catch-up that could only fail (D-89, FR-06).
+        // T-100 (docs/tasks/T-100-catch-ups-tab-tidy.md, 14 Nov): the bridge lesson confirmed last made a catch-up that could only fail (D-89, FR-06).
         var input = Input with { Candidates = [], Practicable = ["M3.SUB.NOBORROW", "M3.SUB.MAKE"] };
 
         var result = A2Validator.Rule(input, "rule:no-candidates");

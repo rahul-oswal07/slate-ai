@@ -50,7 +50,7 @@ User constraints from our proposal: one Android phone, patchy data, 35+ children
 
 ## 5. Grand Finale (Top 10, shortlisted 12 Nov)
 
-Source: "Grand Finale: Team Presentation & Demo Guidelines" (organisers' PDF) and the jury's feedback email to the team. Tasks that answer each point: `tasks.md` "Proposed for the Grand Finale".
+Source: "Grand Finale: Team Presentation & Demo Guidelines" (organisers' PDF) and the jury's feedback email to the team. Tasks that answer each point: the task files in `tasks/` (those still open) and `archive/tasks-until-2026-11-15.md` "Proposed for the Grand Finale" (those shipped).
 
 **Format, Wed 18 Nov, in person, 14 minutes:** presentation 5 min (5–6 slides: problem & solution · innovation · user inputs & testing · technology & data · future pathways), **live demo 3 min**, jury Q&A 6 min.
 

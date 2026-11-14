@@ -14,7 +14,8 @@ Applies to human and Claude reviews. Findings inform; a human approves.
 - Unapproved packages can't be sent.
 
 ## Pass 3 — Compliance with our artifacts
-- Matches `spec.md` (FR/NFR IDs) and `plan.md`; if not, the PR updates them.
+- Matches `spec.md`, the screen's `docs/screens/<screen>/spec.md` (FR/NFR IDs) and `plan.md`; if not, the PR updates them.
+- The task's file in `docs/tasks/` has a dated note, and the `status.md` of each screen it changed is up to date.
 - AI guardrails in `CLAUDE.md` respected; prompt changes include an eval run.
 - UI: all strings localised (kn/en/te/ta), tokens used, axe clean, 360 px screenshot attached.
 

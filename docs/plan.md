@@ -6,7 +6,7 @@
 | Reads | `docs/intent.md`, `docs/spec.md` |
 | Owners | Rahul (engineering), Monika (product, design, user testing) |
 | Status | **Draft — accept together with `spec.md`** |
-| Task detail | `docs/tasks.md` · Quality: `docs/quality.md` · Narrative: `docs/judging-narrative.md` |
+| Task detail | `docs/tasks/` (one file per task; before 15 Nov: `docs/archive/tasks-until-2026-11-15.md`) · Quality: `docs/quality.md` · Narrative: `docs/judging-narrative.md` |
 
 Keep this file honest: when implementation drifts, update `plan.md` in the same PR.
 
@@ -26,7 +26,10 @@ slate-ai/
 ├─ CLAUDE.md  README.md  REVIEW.md  LICENSE  .gitignore  .gitattributes  .editorconfig  .env.example
 ├─ SlateAi.sln
 ├─ docs/
-│  ├─ intent.md  spec.md  plan.md  tasks.md  quality.md  judging-narrative.md
+│  ├─ README.md                   map of every screen and area (since 15 Nov)
+│  ├─ intent.md  spec.md  plan.md  status.md  quality.md  judging-narrative.md
+│  ├─ screens/  areas/            spec.md + status.md per screen and per cross-cutting area
+│  ├─ tasks/  decisions/  archive/  one file per task and per decision; history
 │  ├─ hackathon-requirements.md  user-testing.md  lessons.md
 │  ├─ design/                     exported frames, design handoff notes
 │  └─ hackathon/                  source PDFs (not committed, see .gitignore)
@@ -74,7 +77,7 @@ slate-ai/
 
 ## 4. Delivery
 
-**Reset 24 Oct (Rahul):** the ten-day schedule (Days 0–10 with T-xx per day) was retired with the open tasks; what it delivered is in `tasks.md` (*Done*) and `status.md`. From now on Monika adds tasks one at a time in `tasks.md` and Rahul implements them one at a time, in the order she adds them.
+**Reset 24 Oct (Rahul):** the ten-day schedule (Days 0–10 with T-xx per day) was retired with the open tasks; what it delivered is in `archive/tasks-until-2026-11-15.md` (*Done*) and `archive/status-history.md`. From now on Monika adds tasks one at a time (since 15 Nov as one file each in `tasks/`) and Rahul implements them one at a time, in the order she adds them.
 
 Fixed dates: **submit on Hack2Skill by Sat 31 Oct, 18:00 IST** (hard deadline Sun 1 Nov, 23:59); tag `v1.0-submission` and make the repo public on submission.
 
@@ -84,7 +87,7 @@ Each handoff is a PR labelled `design` that adds `docs/design/<screen>.md` with:
 
 ## 5. Acceptance and test strategy
 
-Acceptance criteria per requirement are in `spec.md` §2 and per task in `tasks.md`. Test layers, tools and gates are in `docs/quality.md`. Summary:
+Acceptance criteria per requirement are in the owning screen's `spec.md` (index in `spec.md` §2) and per task in its file in `tasks/`. Test layers, tools and gates are in `docs/quality.md`. Summary:
 
 - `dotnet test` (unit + integration) and `npm test` must pass before merge (CI).
 - Live AI evals run on demand and before each tag; results in `evals/results/`.

@@ -13,5 +13,6 @@ Task: T-__ · Requirements: FR-__ / NFR-__
 
 ## Checks
 - [ ] No names or phone numbers sent to AI/speech providers or written to logs
-- [ ] `plan.md` / `spec.md` updated if this drifts from them
+- [ ] `plan.md` / `spec.md` / the screen's `spec.md` updated if this drifts from them
+- [ ] Dated note in the task's file (`docs/tasks/`); the changed screens' `status.md` updated
 - [ ] Needs Monika's approval (UI, copy, intent/spec)  ·  Needs Rahul's approval (code, prompts, CLAUDE.md)

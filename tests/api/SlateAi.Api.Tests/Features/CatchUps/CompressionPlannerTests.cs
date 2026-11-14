@@ -65,7 +65,7 @@ public sealed class CompressionPlannerTests
     [Fact]
     public void A_missed_lesson_without_a_practice_rule_is_not_practicable()
     {
-        // The demo story (status.md 14 Nov, a): addition missed on Monday, the bridge lesson on Friday.
+        // The demo story (docs/tasks/T-100-catch-ups-tab-tidy.md, 14 Nov): addition missed on Monday, the bridge lesson on Friday.
         var graph = new CurriculumGraph(
         [
             CompressionBook.WithoutPractice("M3.BRIDGE.COMPARE", 0, 0),
