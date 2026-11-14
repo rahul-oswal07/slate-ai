@@ -89,6 +89,42 @@ describe('TodayScreen', () => {
     expect(screen.getByRole('button', { name: 'Record' })).toHaveAttribute('aria-pressed', 'false')
   })
 
+  it('offers the sample voice note only to the demo teacher, and sends it like a recording (T-93)', async () => {
+    const user = userEvent.setup()
+    const audioUrl = `POST /api/classes/${teacher.classId}/lessons/${date}/audio`
+    const calls = today(day(), {
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, demo: { sendOnApprove: true, sampleVoiceNote: true } } }),
+      'GET /api/demo/voice-note': () => ({ status: 200, body: 'webm' }),
+      [audioUrl]: () => ({ status: 202, body: { date, lesson: null, nextInBook: null } }),
+    })
+    renderApp('/')
+
+    await user.click(await screen.findByRole('button', { name: 'Use the sample voice note (demo)' }))
+
+    await waitFor(() => expect(calls.map((c) => c.key)).toContain(audioUrl))
+  })
+
+  it('has no sample voice note outside the demo', async () => {
+    today(day())
+    renderApp('/')
+
+    await screen.findByRole('button', { name: 'Record' })
+
+    expect(screen.queryByRole('button', { name: /sample voice note/ })).not.toBeInTheDocument()
+  })
+
+  it('says so when the sample voice note cannot be loaded', async () => {
+    const user = userEvent.setup()
+    today(day(), {
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, demo: { sendOnApprove: false, sampleVoiceNote: true } } }),
+    })
+    renderApp('/')
+
+    await user.click(await screen.findByRole('button', { name: 'Use the sample voice note (demo)' }))
+
+    expect(await screen.findByText('Could not load the sample voice note. Record one instead.')).toBeInTheDocument()
+  })
+
   it('a correction edits a draft, saves through the outbox and shows "corrected by you"', async () => {
     let saved: unknown
     let server = day()

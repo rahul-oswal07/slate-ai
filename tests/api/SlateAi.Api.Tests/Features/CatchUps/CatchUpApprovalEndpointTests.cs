@@ -166,6 +166,54 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     [Fact]
+    public async Task With_send_on_approve_approving_sends_at_once_to_consenting_families_only()
+    {
+        // D-94, T-93: the demo's Approve sends now (15:00), not at 6 pm.
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2), sendOnApprove: true);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var view = (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!;
+        Assert.Equal(PackageStatus.Sent, view.Status);
+        Assert.Equal(1, view.FamiliesSent);
+        Assert.NotNull(_store.Assignments.Single(a => a.ChildId == Ravi).Token);
+        Assert.Null(_store.Assignments.Single(a => a.ChildId == NoForm).Token);
+        Assert.Null(_store.Assignments.Single(a => a.ChildId == Stopped).Token);
+    }
+
+    [Fact]
+    public async Task Without_send_on_approve_an_approved_catch_up_waits_for_6_pm()
+    {
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2), sendOnApprove: false);
+
+        var view = (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!;
+        Assert.Equal(PackageStatus.Approved, view.Status);
+        Assert.All(_store.Assignments, a => Assert.Null(a.Token));
+    }
+
+    [Theory]
+    [InlineData(1, PackageStatus.Ready)] // she ticked an older version
+    [InlineData(2, PackageStatus.NeedsReview)]
+    [InlineData(2, PackageStatus.Generating)]
+    public async Task Send_on_approve_never_sends_what_was_not_approved(int version, string status)
+    {
+        _store.Packages.Single().Status = status;
+
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), version), sendOnApprove: true);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(status, _store.Packages.Single().Status);
+        Assert.All(_store.Assignments, a => Assert.Null(a.Token));
+    }
+
+    [Fact]
+    public async Task Send_on_approve_is_off_when_the_demo_is_off()
+    {
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2), demo: false, sendOnApprove: true);
+
+        Assert.Equal(PackageStatus.Approved, (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!.Status);
+    }
+
+    [Fact]
     public async Task The_6_pm_job_sends_approved_catch_ups_and_never_unapproved_ones()
     {
         var sender = new CatchUpSender(_store, _clock, NullLogger<CatchUpSender>.Instance);
@@ -192,14 +240,15 @@ public sealed class CatchUpApprovalEndpointTests
             (await anonymous.PostAsJsonAsync($"/api/packages/{_packageId}/send", new SendPackageRequest(Guid.NewGuid()), Ct)).StatusCode);
     }
 
-    private async Task<HttpResponseMessage> PostAsync<T>(string action, T body, CatchUpQueue? queue = null, bool demo = true)
+    private async Task<HttpResponseMessage> PostAsync<T>(
+        string action, T body, CatchUpQueue? queue = null, bool demo = true, bool sendOnApprove = false)
     {
-        await using var factory = Create(queue ?? new CatchUpQueue(), demo);
+        await using var factory = Create(queue ?? new CatchUpQueue(), demo, sendOnApprove);
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
         return await client.PostAsJsonAsync($"/api/packages/{_packageId}/{action}", body, Ct);
     }
 
-    private ApiFactory Create(CatchUpQueue queue, bool demo) =>
+    private ApiFactory Create(CatchUpQueue queue, bool demo, bool sendOnApprove = false) =>
         FakeApi.Create(
             services =>
             {
@@ -207,5 +256,9 @@ public sealed class CatchUpApprovalEndpointTests
                 services.AddSingleton(queue);
                 services.AddSingleton<TimeProvider>(_clock);
             },
-            settings: new Dictionary<string, string?> { ["Demo:Enabled"] = demo.ToString() });
+            settings: new Dictionary<string, string?>
+            {
+                ["Demo:Enabled"] = demo.ToString(),
+                ["Demo:SendOnApprove"] = sendOnApprove.ToString(),
+            });
 }

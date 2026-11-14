@@ -78,23 +78,24 @@ public sealed class SimulatedSatsSourceTests
     }
 
     [Fact]
-    public void The_demo_story_marks_roll_4_absent_every_school_day()
+    public void The_demo_story_marks_roll_15_absent_every_school_day()
     {
+        // T-93: Manjunath (Kannada), the demo's family phone.
         var source = Create();
-        var ravi = Roster.Single(c => c.RollNo == 4).Id;
+        var manjunath = Roster.Single(c => c.RollNo == 15).Id;
 
-        Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 20), Roster)); // Tue
-        Assert.Contains(ravi, source.Simulate(ClassId, Wednesday, Roster));
-        Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 22), Roster)); // Thu
-        Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 19), Roster)); // Mon
-        Assert.Contains(ravi, source.Simulate(ClassId, new DateOnly(2026, 10, 24), Roster)); // Sat
+        Assert.Contains(manjunath, source.Simulate(ClassId, new DateOnly(2026, 10, 20), Roster)); // Tue
+        Assert.Contains(manjunath, source.Simulate(ClassId, Wednesday, Roster));
+        Assert.Contains(manjunath, source.Simulate(ClassId, new DateOnly(2026, 10, 22), Roster)); // Thu
+        Assert.Contains(manjunath, source.Simulate(ClassId, new DateOnly(2026, 10, 19), Roster)); // Mon
+        Assert.Contains(manjunath, source.Simulate(ClassId, new DateOnly(2026, 10, 24), Roster)); // Sat
     }
 
     [Theory]
     [InlineData("2026-11-01")] // Sunday
     [InlineData("2026-11-14")] // second Saturday
     [InlineData("2026-10-20")] // configured holiday
-    public async Task The_demo_class_has_a_register_every_day_with_ravi_and_rohan_away(string date)
+    public async Task The_demo_class_has_a_register_every_day_with_only_manjunath_away(string date)
     {
         var source = Create(o =>
         {
@@ -104,7 +105,7 @@ public sealed class SimulatedSatsSourceTests
 
         var register = Assert.IsType<SourceResult.Arrived>(await source.FetchAsync(ClassId, DateOnly.Parse(date), Roster, Ct));
 
-        Assert.Equivalent(Roster.Where(c => c.RollNo is 4 or 24).Select(c => c.Id), register.AbsentChildIds);
+        Assert.Equivalent(Roster.Where(c => c.RollNo is 15).Select(c => c.Id), register.AbsentChildIds);
     }
 
     [Fact]

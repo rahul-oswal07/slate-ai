@@ -82,6 +82,13 @@ describe('ApproveScreen', () => {
     expect(await screen.findByText('All 2 approved. 5 families get them after 6 pm.')).toBeInTheDocument()
   })
 
+  it('all sent (the demo sends on Approve): says they have them, not "after 6 pm"', async () => {
+    setup(week(pkg({ status: 'sent', familiesSent: 1 })))
+    renderApp('/approve')
+
+    expect(await screen.findByText('All approved and sent. Families reached: 1.')).toBeInTheDocument()
+  })
+
   it('cannot load: says so and offers Try again', async () => {
     setup(() => ({ status: 500 }))
     renderApp('/approve')

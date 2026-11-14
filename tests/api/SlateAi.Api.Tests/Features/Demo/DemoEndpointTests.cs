@@ -50,6 +50,19 @@ public sealed class DemoEndpointTests
     }
 
     [Fact]
+    public async Task Arriving_before_noon_reads_12_00_not_the_time_of_the_tap()
+    {
+        // T-93: a 2:37 AM rehearsal (or a 10 am demo) still shows the feed's usual 12:00.
+        await using var factory = Create(now: SchoolClock.At(Today, new TimeOnly(2, 37)));
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var arrive = await client.PostAsJsonAsync("/api/demo/sats-feed", new SatsFeedRequest(ClassId, Today, "arrive"), Ct);
+        var arrived = await arrive.Content.ReadFromJsonAsync<AttendanceDayResponse>(Ct);
+
+        Assert.Equal(SchoolClock.At(Today, new TimeOnly(12, 0)), arrived!.ReceivedAt);
+    }
+
+    [Fact]
     public async Task Only_for_the_signed_in_teachers_class_and_known_modes()
     {
         await using var factory = Create();
@@ -66,12 +79,12 @@ public sealed class DemoEndpointTests
         Assert.Equal(HttpStatusCode.Unauthorized, signedOut.StatusCode);
     }
 
-    private ApiFactory Create(bool enabled = true) =>
+    private ApiFactory Create(bool enabled = true, DateTimeOffset? now = null) =>
         FakeApi.Create(
             services =>
             {
                 services.AddSingleton<IAttendanceStore>(_store);
-                services.AddSingleton<TimeProvider>(new FixedClock(Now));
+                services.AddSingleton<TimeProvider>(new FixedClock(now ?? Now));
             },
             settings: new Dictionary<string, string?> { ["Demo:Enabled"] = enabled.ToString() });
 }

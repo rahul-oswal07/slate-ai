@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { AccentTitle } from '../../components/AccentWord'
+import { useMe } from '../auth/useMe'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
@@ -37,7 +38,9 @@ export function LessonCard({
   const announce = useAnnounce()
   const queued = useNoteQueued(classId, date)
   const send = useSendNote(classId, date)
+  const sampleVoiceNote = useMe().data?.demo?.sampleVoiceNote === true
   const [sending, setSending] = useState(false)
+  const [sampleFailed, setSampleFailed] = useState(false)
   // A recording, or null for her photo alone; either way the day's photo goes with it.
   const sendNote = (note: Blob | null) => {
     let slow = false
@@ -55,6 +58,20 @@ export function LessonCard({
     })
   }
   const recorder = useRecorder(sendNote)
+
+  // Demo only (T-93): the bundled Kannada note about Nalikali p 4 goes the same way as a recording (STT, scrubber, A1).
+  const sendSample = async () => {
+    setSampleFailed(false)
+    try {
+      const response = await fetch('/api/demo/voice-note', { credentials: 'same-origin' })
+      if (!response.ok) {
+        throw new Error(String(response.status))
+      }
+      sendNote(await response.blob())
+    } catch {
+      setSampleFailed(true)
+    }
+  }
 
   useEffect(() => {
     if (recorder.status === 'recording') {
@@ -231,6 +248,17 @@ export function LessonCard({
           <button type="button" onClick={onPick} disabled={!canPick} className={textButton}>
             {t('today.lesson.pickInstead')}
           </button>
+          {sampleVoiceNote && (
+            <button type="button" onClick={() => void sendSample()} className="btn-secondary mt-3 inline-flex items-center justify-center gap-2">
+              <Icon name="mic" size={20} />
+              {t('today.lesson.sample')}
+            </button>
+          )}
+          {sampleFailed && (
+            <p role="alert" className="mt-2 text-caption text-error">
+              {t('today.lesson.sampleFailed')}
+            </p>
+          )}
         </>
       )}
     </section>

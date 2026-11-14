@@ -76,6 +76,23 @@ describe('PackageScreen', () => {
     expect(calls.find((c) => c.key === 'POST /api/packages/pkg-te/approve')?.body).toMatchObject({ scriptVersion: 2 })
   })
 
+  it('in the demo, Approve sends at once and says so (D-94, T-93)', async () => {
+    let current = pkg()
+    setup(() => current, {
+      'POST /api/packages/pkg-te/approve': () => {
+        current = pkg({ status: 'sent', sentAt: '2026-10-23T09:32:00Z', familiesSent: 1 })
+        return { status: 200, body: current }
+      },
+    })
+    renderApp('/approve/pkg-te')
+
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'I’ve checked the Kannada summary' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Approve' }))
+
+    expect(await screen.findByText("Approved and sent to the family's phone.")).toBeInTheDocument()
+    expect(screen.queryByText('Approved. Goes to the families after 6 pm.')).not.toBeInTheDocument()
+  })
+
   it('Simpler clears the tick and shows that a new version is being written', async () => {
     let current = pkg()
     const calls = setup(() => current, {

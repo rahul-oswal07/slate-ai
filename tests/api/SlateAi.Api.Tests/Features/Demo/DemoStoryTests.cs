@@ -11,15 +11,13 @@ public sealed class DemoStoryTests
     private static readonly IReadOnlyList<RosterChild> Roster =
         Enumerable.Range(1, 36).Select(roll => new RosterChild(Guid.NewGuid(), roll, $"Child {roll}")).ToList();
 
-    private static readonly Guid Ravi = Roster.Single(c => c.RollNo == DemoStory.RaviRollNo).Id;
     private static readonly Guid Manjunath = Roster.Single(c => c.RollNo == DemoStory.ManjunathRollNo).Id;
-    private static readonly Guid Rohan = Roster.Single(c => c.RollNo == DemoStory.RohanRollNo).Id;
 
     private static readonly DateOnly Friday = new(2026, 10, 23);
     private static readonly DateOnly Monday = new(2026, 10, 19);
 
     [Fact]
-    public void On_a_friday_ravi_has_been_away_monday_to_thursday_and_present_last_week()
+    public void On_a_friday_the_seeded_days_are_the_five_school_days_before_it()
     {
         var days = Build(Friday);
 
@@ -27,9 +25,6 @@ public sealed class DemoStoryTests
         Assert.Equal(
             [new(2026, 10, 17), new(2026, 10, 19), new(2026, 10, 20), new(2026, 10, 21), new(2026, 10, 22)],
             days.Select(d => d.Date).ToList());
-        Assert.Equal(
-            [false, true, true, true, true],
-            days.Select(d => d.AbsentChildIds.Contains(Ravi)).ToList());
     }
 
     [Fact]
@@ -44,29 +39,20 @@ public sealed class DemoStoryTests
     }
 
     [Fact]
-    public void On_a_monday_every_seeded_day_is_last_week_so_ravi_was_present()
-    {
-        var days = Build(Monday);
-
-        Assert.All(days, d => Assert.True(d.Date < Monday));
-        Assert.All(days, d => Assert.DoesNotContain(Ravi, d.AbsentChildIds));
-    }
-
-    [Fact]
-    public void Manjunath_is_away_the_two_days_before_today_and_rohan_only_today()
+    public void Manjunath_is_away_the_two_days_before_today()
     {
         var days = Build(Friday);
 
         Assert.Equal([false, false, false, true, true], days.Select(d => d.AbsentChildIds.Contains(Manjunath)).ToList());
-        Assert.All(days, d => Assert.DoesNotContain(Rohan, d.AbsentChildIds));
     }
 
     [Fact]
     public void Nobody_else_is_away_on_the_seeded_days()
     {
+        // T-93, D-94: one child, one Kannada family (R3).
         var days = Build(Friday);
 
-        Assert.Equal(new[] { Ravi, Manjunath }.Order(), days.SelectMany(d => d.AbsentChildIds).Distinct().Order());
+        Assert.Equal([Manjunath], days.SelectMany(d => d.AbsentChildIds).Distinct());
     }
 
     [Fact]
@@ -123,13 +109,11 @@ public sealed class DemoStoryTests
     };
 
     [Fact]
-    public void Star_weeks_never_touch_the_story_children()
+    public void Star_weeks_never_touch_the_story_child()
     {
         var stars = DemoStory.StarWeeks(Friday, Roster, IsSchoolDay);
 
-        Assert.All(stars, d => Assert.DoesNotContain(Ravi, d.AbsentChildIds));
         Assert.All(stars, d => Assert.DoesNotContain(Manjunath, d.AbsentChildIds));
-        Assert.All(stars, d => Assert.DoesNotContain(Rohan, d.AbsentChildIds));
     }
 
     private static bool IsSchoolDay(DateOnly date) =>

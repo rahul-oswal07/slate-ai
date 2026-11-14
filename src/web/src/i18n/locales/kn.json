@@ -162,7 +162,9 @@
         "remove": "ಫೋಟೋ ತೆಗೆದುಹಾಕಿ",
         "added": "ಫೋಟೋ ಸೇರಿಸಲಾಗಿದೆ",
         "removed": "ಫೋಟೋ ತೆಗೆದುಹಾಕಲಾಗಿದೆ"
-      }
+      },
+      "sample": "ಮಾದರಿ ಧ್ವನಿ ಸಂದೇಶ ಬಳಸಿ (ಡೆಮೊ)",
+      "sampleFailed": "ಮಾದರಿ ಧ್ವನಿ ಸಂದೇಶ ಸಿಗಲಿಲ್ಲ. ನೀವೇ ರೆಕಾರ್ಡ್ ಮಾಡಿ."
     },
     "done": "ಇಂದಿನ ಕೆಲಸ ಮುಗಿಯಿತು. ಧನ್ಯವಾದ.",
     "added": {
@@ -307,6 +309,7 @@
     "title": "ಈ ವಾರದ ಪುನರಾವರ್ತನೆಗಳು",
     "intro": "ಮಗುವಿಗೊಂದಲ್ಲ, ಪ್ರತಿ ಪುನರಾವರ್ತನೆಗೆ ಒಂದು ಅನುಮೋದನೆ. ನೀವು ಒಪ್ಪುವವರೆಗೆ ಏನೂ ಕಳುಹಿಸುವುದಿಲ್ಲ.",
     "allDone": "{{n}} ಕೂ ಅನುಮೋದಿಸಿದ್ದೀರಿ. {{families}} ಕುಟುಂಬಗಳಿಗೆ ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ.",
+    "allSent": "ಎಲ್ಲವೂ ಅನುಮೋದಿಸಿ ಕಳುಹಿಸಲಾಗಿದೆ. ತಲುಪಿದ ಕುಟುಂಬಗಳು: {{families}}.",
     "empty": "ಈ ವಾರ ಇನ್ನೂ ಪುನರಾವರ್ತನೆಗಳಿಲ್ಲ.",
     "generate": "ಈ ವಾರದ ಪುನರಾವರ್ತನೆಗಳನ್ನು ಸಿದ್ಧಪಡಿಸಿ",
     "checkNew": "ಹೊಸ ಗೈರುಹಾಜರಿ ನೋಡಿ",
@@ -373,7 +376,8 @@
     "announce": {
       "approved": "ಅನುಮೋದಿಸಿದ್ದೀರಿ. ಸಂಜೆ 6 ರ ನಂತರ ಹೋಗುತ್ತದೆ.",
       "regenStarted": "ಹೊಸ ಆವೃತ್ತಿ ಬರೆಯುತ್ತಿದೆ",
-      "regenReady": "ಹೊಸ ಆವೃತ್ತಿ ಸಿದ್ಧ. ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ."
+      "regenReady": "ಹೊಸ ಆವೃತ್ತಿ ಸಿದ್ಧ. ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ.",
+      "sent": "ಅನುಮೋದಿಸಿ ಕುಟುಂಬದ ಫೋನ್‌ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ."
     }
   },
   "parent": {
@@ -662,19 +666,19 @@
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
     "guide": {
-      "title": "Try the loop in 5 minutes",
-      "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
-      "lesson": "Record today's lesson in Kannada, or pick it from the list, and confirm it.",
-      "evening": "Tap Send messages now (in a real school this goes by itself at 6 pm). Tonight's message arrives on Rohan's family's phone, in Hindi; tap it and pick a reason.",
-      "approve": "Approve: generate the week's three catch-ups: Telugu for Ravi (4 lessons squeezed into 1 or 2), Kannada for Manjunath (2 days) and Hindi for Rohan (today's lesson). Listen, read the summary, tick and approve, then tap Send messages now.",
-      "parent": "Rohan's family's phone: open the catch-up, listen, do the activity and tap a picture.",
-      "after": "Teacher phone: Missed lessons shows how Rohan did; Back today has Manjunath's buddy card; Week shows return speed and reasons.",
-      "calendar": "The story follows the real calendar: Ravi has been away since Monday, so early in the week he has missed fewer lessons."
+      "title": "Try the loop in 3 minutes",
+      "today": "Teacher phone, Today: the simulated SATS register came in at 12:00 and shows Manjunath (roll 15, Kannada) absent.",
+      "lesson": "Tap Use the sample voice note (Nalikali Maths Part 1, p 4: more, less, equal), or record your own in Kannada, and confirm the lesson.",
+      "evening": "Tonight's message goes at 6 pm in a real school. Here tap Send messages now: it arrives on Manjunath's family's phone, in Kannada. Open it and pick a reason.",
+      "approve": "Approve: make the week's catch-up for Manjunath (2 days missed). Listen, read the summary, tick and approve. In the demo it goes to the family's phone at once.",
+      "parent": "Manjunath's family's phone: open the catch-up, listen, do the activity and tap a picture.",
+      "after": "Teacher phone: Missed lessons shows how Manjunath did; Week shows return speed and reasons.",
+      "calendar": "The story follows the real calendar: Manjunath was away the two school days before today and is away today. SATS and WhatsApp delivery are simulated; the AI calls are real."
     },
     "reset": {
       "button": "Reset demo",
       "title": "Reset the demo?",
-      "body": "Everything done in the demo class is removed and the story starts again: the past school days with only Ravi and Manjunath away, and Ravi and Rohan away today.",
+      "body": "Everything done in the demo class is removed and the story starts again: Manjunath away the two school days before today and today, today's register in at 12:00, and no lesson yet.",
       "confirm": "Reset",
       "resetting": "Resetting…",
       "failed": "The reset didn't finish. Nothing was changed. Try again.",
@@ -704,9 +708,9 @@
     },
     "teacherPhone": "Teacher's phone",
     "teacherCaption": "Shobha, the class teacher (fictional).",
-    "parentPhone": "Rohan's family's phone",
+    "parentPhone": "{{name}}'s family's phone · {{language}}",
     "parentCaption": "Messages arrive here instead of WhatsApp.",
-    "parentPage": "Page sent to Rohan's family",
+    "parentPage": "Page sent to {{name}}'s family",
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "ಸಂದೇಶಗಳು",

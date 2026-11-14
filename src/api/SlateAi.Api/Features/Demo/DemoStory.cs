@@ -10,37 +10,28 @@ public sealed record DemoDay(DateOnly Date, IReadOnlySet<Guid> AbsentChildIds, s
 public sealed record DemoRegisterDay(DateOnly Date, IReadOnlySet<Guid> AbsentChildIds);
 
 /// <summary>
-/// Ravi's story on the real calendar (T-18): the school days before today, so the demo lines up whatever day a
-/// judge opens it. Pure; the Reset store writes what this returns. Only three children are ever away, one per family
-/// language and length of absence, so this week makes exactly three catch-ups (Telugu, Kannada, Hindi). Today itself
-/// is left to the simulated feed, whose scenario marks Ravi and Rohan absent every day; the demo class has a register
-/// even on Sundays and holidays (T-69), so the story works whatever day it is opened. No random absences in the demo.
+/// Manjunath's story on the real calendar (T-18, T-93, D-94): the school days before today, so the demo lines up
+/// whatever day a judge opens it. Pure; the Reset store writes what this returns. One child, one Kannada family (R3):
+/// Manjunath is away the two school days before today and today, so this week makes exactly one catch-up (Kannada) and
+/// today's lesson (Nalikali p 4) goes into today's message. Today itself comes from the simulated feed, whose scenario
+/// marks only Manjunath absent every day; the Reset writes today's register too, stamped at the feed's 12:00, so Today
+/// is ready at any hour (R6). The demo class has a register even on Sundays and holidays (T-69). No random absences.
 /// </summary>
 public static class DemoStory
 {
-    /// <summary>Ravi: Telugu, consent Yes. Away all of this week up to today, so the catch-up covers the week.</summary>
-    public const int RaviRollNo = 4;
-
-    /// <summary>Manjunath: Kannada. Away the two school days before today and back today, so T5 has a buddy card.</summary>
+    /// <summary>Manjunath: Kannada, consent Yes, the demo's family phone. Away the two school days before today and today.</summary>
     public const int ManjunathRollNo = 15;
 
-    /// <summary>
-    /// Rohan: Hindi-speaking family, the demo's parent phone. Away today only (from the feed), so his family gets
-    /// tonight's message, the reason buttons and a Hindi catch-up of today's lesson.
-    /// </summary>
-    public const int RohanRollNo = 24;
-
-    /// <summary>The children the story follows; one of them owns the pre-made catch-up (its language).</summary>
-    public static readonly IReadOnlySet<int> StoryRollNos = new HashSet<int> { RaviRollNo, ManjunathRollNo, RohanRollNo };
+    /// <summary>The children the story follows; one of them owns the pre-made catch-up when its language matches.</summary>
+    public static readonly IReadOnlySet<int> StoryRollNos = new HashSet<int> { ManjunathRollNo };
 
     /// <summary>The lessons taught on the seeded days, oldest first; today's next in the book is <c>M3.ADD.CARRY</c>.</summary>
     public static readonly IReadOnlyList<string> Lessons =
         ["M3.PV.HTO", "M3.PV.EXPAND", "M3.NUM.COMPARE", "M3.NUM.ORDER", "M3.ADD.NOCARRY"];
 
     /// <summary>
-    /// The <see cref="Lessons"/>.Count school days before <paramref name="today"/>, oldest first. Ravi is away on this
-    /// week's days (present last week, so his spell starts this week) and Manjunath on the last two days; everyone else,
-    /// Rohan too, is present.
+    /// The <see cref="Lessons"/>.Count school days before <paramref name="today"/>, oldest first. Manjunath is away on
+    /// the last two; everyone else is present.
     /// </summary>
     public static IReadOnlyList<DemoDay> Build(DateOnly today, IReadOnlyList<RosterChild> roster, Func<DateOnly, bool> isSchoolDay)
     {
@@ -54,14 +45,11 @@ public static class DemoStory
         }
 
         dates.Reverse();
-        var ravi = roster.SingleOrDefault(c => c.RollNo == RaviRollNo)?.Id;
         var manjunath = roster.SingleOrDefault(c => c.RollNo == ManjunathRollNo)?.Id;
-        var weekStart = CompressionPlanner.Week(today).From;
 
         return dates.Select((date, i) =>
         {
             var absent = new HashSet<Guid>();
-            Add(absent, ravi, date >= weekStart);
             Add(absent, manjunath, i >= dates.Count - 2);
             return new DemoDay(date, absent, Lessons[i]);
         }).ToList();

@@ -216,7 +216,11 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
             onClick={() =>
               approve.mutate(
                 { id: pkg.id, scriptVersion: pkg.scriptVersion },
-                { onSuccess: () => announce(t('approve.announce.approved')) },
+                {
+                  // In the demo (D-94) Approve sends at once, so the package comes back sent.
+                  onSuccess: (updated) =>
+                    announce(t(updated.status === 'sent' ? 'approve.announce.sent' : 'approve.announce.approved')),
+                },
               )
             }
             className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-50"

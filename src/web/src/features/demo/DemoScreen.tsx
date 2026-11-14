@@ -31,7 +31,7 @@ function shortDate(date: string, language: string) {
 }
 
 /**
- * /demo (FR-14, T-18): the teacher's phone and Rohan's family's phone (Hindi) side by side, a step guide, Reset and the
+ * /demo (FR-14, T-18, T-93): the teacher's phone and Manjunath's family's phone (Kannada) side by side, a step guide, Reset and the
  * "Under the hood" list of AI calls, so a judge can run the loop alone. Signs in as the fictional demo teacher with
  * one tap. Both phones are the real app in frames; nothing here is a mock-up.
  */
@@ -74,7 +74,7 @@ export function DemoScreen() {
     )
   }
 
-  const { parentChildId, lastResetAt } = info.data
+  const { parentChildId, parentChildName, parentLanguage, lastResetAt } = info.data
 
   return (
     <Page>
@@ -166,7 +166,7 @@ export function DemoScreen() {
           </Phone>
         </PanelBox>
         <PanelBox name="parent" active={panel}>
-          <ParentPhone key={`parent-${frame}`} childId={parentChildId} />
+          <ParentPhone key={`parent-${frame}`} childId={parentChildId} name={parentChildName} language={parentLanguage} />
         </PanelBox>
         <PanelBox name="ai" active={panel}>
           <UnderTheHood since={later(resetAt, lastResetAt)} />
@@ -238,11 +238,11 @@ function Phone({ title, caption, children }: { title: string; caption: string; c
 }
 
 /**
- * Rohan's family's phone as a chat (D-77, surface B): a stand-in for a messaging app, so judges see the real
+ * The story family's phone as a chat (D-77, surface B): a stand-in for a messaging app, so judges see the real
  * hand-off. No logo and no brand name. Each link a family was sent is a bubble; opening one slides the family's page
  * up under a thin bar, as an in-app browser does.
  */
-function ParentPhone({ childId }: { childId: string }) {
+function ParentPhone({ childId, name, language }: { childId: string; name: string; language: string }) {
   const { t, i18n } = useTranslation()
   const family = useFamily(childId)
   const [open, setOpen] = useState<FamilyMessage | null>(null)
@@ -250,7 +250,7 @@ function ParentPhone({ childId }: { childId: string }) {
   const messages = [...(family.data ?? [])].reverse()
 
   return (
-    <Phone title={t('demo.parentPhone')} caption={t('demo.parentCaption')}>
+    <Phone title={t('demo.parentPhone', { name, language: t(`missed.language.${language}`) })} caption={t('demo.parentCaption')}>
       <div className="relative flex size-full flex-col overflow-hidden">
         {/* Underneath the opened page the chat is inert, but keeps its scroll position. */}
         <div inert={open !== null} className="flex min-h-0 flex-1 flex-col">
@@ -321,7 +321,7 @@ function ParentPhone({ childId }: { childId: string }) {
               </div>
               <span className="w-12 shrink-0" />
             </div>
-            <iframe title={t('demo.parentPage')} src={`/p/${open.token}`} className="w-full flex-1" />
+            <iframe title={t('demo.parentPage', { name })} src={`/p/${open.token}`} className="w-full flex-1" />
           </div>
         )}
       </div>

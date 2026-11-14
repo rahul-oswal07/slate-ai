@@ -41,12 +41,12 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 
 Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English; **Reset demo** starts the story again. The same 6 steps are on screen:
 
-1. **Today** (teacher's phone): the simulated SATS attendance shows Ravi (roll 4) and Rohan (roll 24) absent. Ravi has been away since Monday; Manjunath is back today after two days away.
-2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), or pick it from the list, and confirm it. The next lesson in the book is 3-digit addition with carrying (sample A). The story follows the real calendar: early in the week Ravi has missed fewer lessons.
-3. **Tonight's message:** tap **Send messages now** (in a school it goes by itself at 6 pm). Tonight's message arrives on Rohan's family's phone, in Hindi; open it and pick a reason.
-4. **Approve:** tap *Make this week's catch-ups*. You get three, one per home language: Telugu for Ravi (this week's lessons squeezed into the ones that matter for next week), Kannada for Manjunath (2 days) and Hindi for Rohan (today's lesson). Listen, read the Kannada summary and **Why this**, tick, approve, then tap **Send messages now**.
-5. **The family's side:** on Rohan's family's phone, open the catch-up, listen, do the activity and tap a picture.
-6. **Back on the teacher's phone:** **Missed lessons** shows how Rohan did, **Back today** has Manjunath's buddy card, **Week** shows how fast children came back, the reasons and the attendance stars, and **Under the hood** lists every AI call.
+1. **Today** (teacher's phone): the simulated SATS register came in at 12:00 and shows Manjunath (roll 15, Kannada) absent. He was also away the two school days before today.
+2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), tap **Use the sample voice note (demo)** where it is offered, or pick it from the list, and confirm it. The demo lesson is Nalikali Maths Part 1, p 4 (more, less, equal).
+3. **Tonight's message:** tap **Send messages now** (in a school it goes by itself at 6 pm). Tonight's message arrives on Manjunath's family's phone, in Kannada; open it and pick a reason.
+4. **Approve:** tap *Make this week's catch-ups*. You get one, in Kannada, for the two lessons Manjunath missed before today. Listen, read the Kannada summary and **Why this**, tick and approve. In the demo, Approve sends it to the family's phone at once.
+5. **The family's side:** on Manjunath's family's phone, open the catch-up, listen, do the activity and tap a picture.
+6. **Back on the teacher's phone:** **Missed lessons** shows how Manjunath did, **Week** shows how fast children came back, the reasons and the attendance stars, and **Under the hood** lists every AI call.
 
 ### 2. Real app
 
@@ -58,7 +58,7 @@ Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English;
 6. **Approve:** *Make this week's catch-ups*, review one, try **Simpler** or **Shorter**, then approve. Approved catch-ups go out after 6 pm.
 7. Explore **Missed lessons**, **Back today**, **Week** and **Settings** (your greeting, the evening message).
 
-To see what the families received, open https://slateai-prod.azurewebsites.net/demo. It's the same class, and its family phone shows Rohan's family's messages (WhatsApp is simulated in this build).
+To see what the families received, open https://slateai-prod.azurewebsites.net/demo. It's the same class, and its family phone shows Manjunath's family's messages (WhatsApp is simulated in this build).
 
 ### 3. First-time sign-in (use Savitha's login)
 
@@ -102,7 +102,7 @@ The PINs are on **slide 14 of the submitted deck**, not in this public repo. All
 
    If you don't read Kannada, pick the lesson from the list instead. Children's names in a voice note are replaced by `{child}` before anything reaches the AI.
 2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*), with or instead of the voice note: download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect *3-digit subtraction with borrowing*) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect *Addition word problems*). These are synthetic textbook pages from our evals. The photo is only used to find the lesson; it is never sent to families.
-3. **Choosing what to teach** (Approve → *Make this week's catch-ups*): open the catch-up of a child who missed several lessons (in the guided demo, Ravi, who has been away all week) and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
+3. **Choosing what to teach** (Approve → *Make this week's catch-ups*): open the catch-up of a child who missed several lessons (in the guided demo, Manjunath, who missed two lessons before today) and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
 4. **The family's answer:** on the family's phone, pick a reason on the evening message and tap a picture on the catch-up. **Missed lessons** on the teacher's phone then shows how the child did, and **Week** shows the reason the family gave.
 5. **Language switch:** the language buttons at the top of the teacher app switch it to ಕನ್ನಡ, తెలుగు, தமிழ், हिन्दी or English. Children's catch-ups stay in their own home language.
 

@@ -27,4 +27,18 @@ public sealed class DemoOptions
     /// Missing file: Reset skips it and every catch-up is generated live.
     /// </summary>
     public string SnapshotFile { get; set; } = "data/seed/demo-catchup.json";
+
+    /// <summary>
+    /// The sample Kannada voice note about Nalikali p 4 (T-93), relative to the app's output directory. The demo
+    /// teacher's Today offers "Use the sample voice note", which sends it through the real STT and A1 path. Missing
+    /// file: the button is hidden.
+    /// </summary>
+    public string VoiceNoteFile { get; set; } = "data/seed/demo-voice-note.webm";
+
+    /// <summary>
+    /// Approving on this server sends at once instead of at 6 pm (D-94, T-93), so the family phone gets it during the
+    /// 3-minute demo. Same approval rules (guardrail 3): only what she approved at its current version goes. Off by
+    /// default; on in Development and on staging (<c>Demo__SendOnApprove=true</c>); prod keeps 6 pm.
+    /// </summary>
+    public bool SendOnApprove { get; set; }
 }
