@@ -31,6 +31,7 @@ public sealed record AiCallRow(
 /// <summary>
 /// What Reset writes besides the seed class: the story's past days and, when there is one, the pre-made catch-up for
 /// <see cref="SnapshotChildId"/> with what they missed so far (<see cref="SnapshotMissed"/>, or the snapshot's own).
+/// <see cref="Today"/> is today's simulated register, written as if SATS sent it at <see cref="RegisterArrivesAt"/> (T-93).
 /// </summary>
 public sealed record DemoReset(
     Guid ClientRequestId,
@@ -41,7 +42,8 @@ public sealed record DemoReset(
     DemoSnapshot? Snapshot,
     Guid? SnapshotChildId,
     IReadOnlyList<string> SnapshotMissed,
-    IReadOnlyList<DemoRegisterDay>? StarDays = null);
+    IReadOnlyList<DemoRegisterDay>? StarDays = null,
+    DemoRegisterDay? Today = null);
 
 public enum DemoResetResult
 {
@@ -119,8 +121,9 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
             }));
         }
 
-        // Earlier weeks of register only (no lessons), for the stars card (T-63).
-        foreach (var day in reset.StarDays ?? [])
+        // Earlier weeks of register only (no lessons), for the stars card (T-63), and today's register with no lesson
+        // yet, so Today is ready at any hour (T-93, R6).
+        foreach (var day in (reset.StarDays ?? []).Concat(reset.Today is { } today ? [today] : []))
         {
             db.Attendance.AddRange(reset.Seed.Children.Select(c => new Data.Entities.Attendance
             {

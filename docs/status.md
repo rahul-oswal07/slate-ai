@@ -10,7 +10,7 @@ Keep it short: at the end of a session, update **Where things stand** and **Next
 - **Staging** (https://slateai-staging.azurewebsites.net, the judges' guided demo at `/demo`): on `main`. Settings `Demo__TeacherPin`, `Demo__CoTeacherPin`, `Admin__Key`, and WhatsApp (T-40): `Delivery__Channel=whatsapp`, `WhatsApp__AccessToken`, `WhatsApp__PhoneNumberId`, one `WhatsApp__Recipients__*`.
 - **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.3`** (tagged 1 Nov at #178: T-85; `v1.2` was #173, T-81; `v1.1` was #174). Judges' story, real date, no `Admin__Key`. The old `EveningMessages__LessonAudioWaitUntil` setting is still there but unused since `v1.3`; delete it after judging.
 - **Logins:** Shobha `9000000000` (class teacher), Savitha `9123456789` and Monika `9123456788` (co-teachers), same class, on both servers. All use one PIN, which is on slide 14 of the submitted deck and not in the README. It equals the co-teacher PIN in `appsettings.Development.json`, so change the server PINs after judging (clear the stored `PinHash`; the seeder never overwrites one).
-- **Tests:** `verify.sh` OK, 612 API and 349 web tests. The Db suite runs in CI. 12 existing e2e specs, no new ones (22 Oct rule).
+- **Tests:** `verify.sh` OK, 662 API and 353 web tests (14 Nov). The Db suite runs in CI. 12 existing e2e specs, no new ones (22 Oct rule).
 
 ## What has been built
 
@@ -37,7 +37,7 @@ Keep it short: at the end of a session, update **Where things stand** and **Next
 
 Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24 kbps, ~55 s / ~150 KB per catch-up). Numbers, candidate sets, buddies, scores and pacing are all computed in code.
 
-**Demo and ops:** `/demo` has two phones, Reset, the simulated SATS feed, **Send messages now**, and Under the hood with a "For" column (T-18, T-73). It has one story, the judges' (Ravi, Manjunath, Rohan), on the real date: the video story and the fixed 31 Oct date were removed on 14 Nov (T-105). The demo class has a register every day (T-69). Admin pages for greetings and lesson audio sit behind `Admin:Key` (T-66–T-68). The app is one container on Azure App Service with Postgres and blob storage.
+**Demo and ops:** `/demo` has two phones, Reset, the simulated SATS feed, **Send messages now**, and Under the hood with a "For" column (T-18, T-73). It has one story on the real date, told through one child: Manjunath (Kannada), away the two days before today and today (T-93, D-94). The video story and the fixed 31 Oct date were removed on 14 Nov (T-105). The demo class has a register every day (T-69). Admin pages for greetings and lesson audio sit behind `Admin:Key` (T-66–T-68). The app is one container on Azure App Service with Postgres and blob storage.
 
 **Docs and evidence:** the README covers both ways to test, logins, sample inputs and a "For judges" table (T-65, T-77, T-79). User testing so far: P1 and P2 (teachers), P4 and P5 (parents), findings F-01–F-09, two mentor sessions (19 Oct education, 24 Oct technical) in `docs/user-testing.md`. Decisions are D-01 … D-88 in `spec.md` §8.
 
@@ -46,7 +46,9 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 **Grand Finale, Wed 18 Nov (Top 10, shortlisted 12 Nov):** 14 minutes (5 min slides, 3 min live demo, 6 min Q&A); presentation and demo links due **Mon 16 Nov**, so builds merge by **Sun 15 Nov**. Jury feedback, demo rules and guidelines: `hackathon-requirements.md` §5. **Rahul approved the Must rows (13 Nov):** T-87 to T-94 are *Open* (#184–#191) and D-90 to D-96 are accepted; build order T-87 → T-93 → T-88 → T-89 → T-91 → T-90 → T-92 → T-94. The Should rows (T-95 to T-103) are still proposed. Demo lesson: Nalikali Maths Part 1 p 4, more–less–equal (`curriculum.md`).
 
-1. **Grand Finale build, starting with T-87** (Nalikali demo lesson, #184).
+1. **Grand Finale build: T-88 next** (today's message, #185). T-87 and T-105 are merged; T-93 (#190) is built in part on `feat/T-93-demo-loop-reset`.
+   - **To finish T-93:** record the sample voice note (`docs/demo-script.md`) as `data/seed/demo-voice-note.webm`; set `Demo__SendOnApprove=true` on staging; after T-88–T-92, do the timed 3-minute run twice from Reset and log it here.
+   - The pre-made catch-up `data/seed/demo-catchup.json` is Hindi, so Reset no longer uses it (no story child speaks Hindi). Export a Kannada one from a live run if we want the R5 fallback.
 2. **WhatsApp (T-40, D-97): step 1 merged (#180), on staging with Meta's test number.** Token, phone number ID and one recipient (Rahul's phone, as Ravi) are set; the admin `hello_world` test send reached the phone from staging. Until our templates are approved, WhatsApp deliveries send `hello_world`, hardcoded in `WhatsAppChannel` (T-104). Next: Rahul submits `evening_absence_v1` / `catchup_ready_v1` ([`whatsapp-setup.md`](whatsapp-setup.md) §3), then T-104 removes it. Step 2 (webhook, voice note, STOP) after that.
 3. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
 4. After judging, change the server PINs.
@@ -62,6 +64,7 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Recent changes
 
+- 14 Nov: finale demo story (T-93, #190, in part): Reset follows one child, Manjunath (Kannada), and writes today's register stamped 12:00 IST; "Bring in attendance" before noon reads 12:00, not the time of the tap; the family phone reads "Manjunath's family's phone · Kannada"; with `Demo:SendOnApprove` (on in Development, for staging) Approve sends a catch-up at once and says so; Today offers "Use the sample voice note (demo)" when `data/seed/demo-voice-note.webm` exists (clip not recorded yet). `/api/me` carries `demo` flags for the demo teacher. Guide, Reset text and README follow the new story. Db suite 17/17.
 - 14 Nov: removed the 31 Oct demo setup (T-105, #193): the fixed date (`Demo:Today`, `DemoClock`, `X-School-Today`) and the video story (`Demo:Story=video`, its seeded week and scenario file, the evening backfill, the video guide). Staging and local run on the real date with the judges' story; `Demo__Today` and `Demo__Story` come off staging after the deploy.
 - 13 Nov: Nalikali demo lesson (T-87, #184): `M3.BRIDGE.COMPARE` (more, less, equal; Nalikali Part 1 p 4) in chapter 0 with the book's exercises (`exercises`, answers by `ExerciseAnswers`); `textbookPage.book` `nalikali` shows "Nalikali Maths · Part 1 · p 4" on lesson confirm, the picker, Today, Back today and the family pages; A1 v3 gets each lesson's page (eval 16/16). The other 60 lessons are unchanged. Rahul approved the finale's Must rows: T-87–T-94 open (#184–#191), D-90–D-96 accepted.
 - 13 Nov: Grand Finale proposal (docs only, nothing built): jury feedback J1–J4, demo rules, guidelines G1–G5; D-90–D-96 proposed; T-87–T-103 proposed; Nalikali p 4 lesson content in `curriculum.md`. WhatsApp Cloud API test number tried: one message delivered, then Meta restricted the account (error 131031), so it's parked for the roadmap.

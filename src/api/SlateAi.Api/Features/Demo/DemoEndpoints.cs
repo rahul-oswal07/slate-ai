@@ -31,9 +31,12 @@ public sealed record DemoSendNowRequest(Guid ClientRequestId);
 public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent, int CatchUpsSent);
 
 /// <summary>Who the demo shell is about.</summary>
-/// <param name="ParentChildId">The child whose family the demo parent phone shows: Rohan, whose family reads Hindi (the EN toggle shows the app in English).</param>
+/// <param name="ParentChildId">The child whose family the demo parent phone shows: Manjunath, whose family reads Kannada (T-93, D-94).</param>
 /// <param name="LastResetAt">When anyone last reset the demo, so every viewer's "Under the hood" starts there; null if never.</param>
-public sealed record DemoInfoResponse(Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt);
+/// <param name="ParentChildName">The child's first name (fictional), so the family phone is labelled with the family.</param>
+/// <param name="ParentLanguage">The family's home language code, e.g. "kn".</param>
+public sealed record DemoInfoResponse(
+    Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt, string ParentChildName, string ParentLanguage);
 
 /// <summary>
 /// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
@@ -48,7 +51,7 @@ public static class DemoEndpoints
     public const int AiCallLimit = 50;
 
     public static IServiceCollection AddDemo(this IServiceCollection services) =>
-        services.AddScoped<IDemoStore, DemoStore>();
+        services.AddScoped<IDemoStore, DemoStore>().AddScoped<DemoSendOnApprove>();
 
     public static IEndpointRouteBuilder MapDemoEndpoints(this IEndpointRouteBuilder app)
     {
@@ -77,11 +80,10 @@ public static class DemoEndpoints
             .WithSummary("Put the demo class back to the start of the story")
             .WithDescription(
                 "Deletes everything the class has done and re-adds the 36 seeded children, then writes the five school " +
-                "days before today (SATS registers and confirmed lessons; only Ravi (Telugu, this week) and Manjunath (Kannada, " +
-                "2 days, back today) away; Rohan (Hindi) is away today, so the week makes three catch-ups) and, " +
-                "when data/seed/demo-catchup.json exists, that catch-up as Ready (not approved) for the story child of its " +
-                "language. Today's register " +
-                "comes from the simulated feed as usual. The evening template and the teacher's sign-in stay as they are. " +
+                "days before today (SATS registers and confirmed lessons; only Manjunath (Kannada) away, on the last two) " +
+                "and today's simulated register, stamped 12:00 IST, with Manjunath away and no lesson yet (T-93). " +
+                "When data/seed/demo-catchup.json exists in Manjunath's language, that catch-up is restored as Ready. " +
+                "The evening template and the teacher's sign-in stay as they are. " +
                 "A replayed clientRequestId changes nothing. 404 unless signed in as the demo teacher. Demo only.");
 
         app.MapPost("/api/demo/send-now", SendNowAsync)
@@ -130,7 +132,17 @@ public static class DemoEndpoints
             .WithSummary("Make the simulated SATS register late, or arrive now")
             .WithDescription(
                 "mode=waiting removes the date's register and holds SATS back (Today shows \"not in yet\"); " +
-                "mode=arrive releases it and stores the simulated register with receivedAt = now. Demo only.");
+                "mode=arrive releases it and stores the simulated register with receivedAt = now, or the feed's usual " +
+                "time (12:00 IST) when that is later, so a morning demo doesn't show 2:37 AM (T-93). Demo only.");
+
+        app.MapGet("/api/demo/voice-note", GetVoiceNoteAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("The sample Kannada voice note about Nalikali p 4")
+            .WithDescription(
+                "The clip behind Today's \"Use the sample voice note\" (T-93): the teacher app uploads it like a recording, " +
+                "so it goes through the real STT, name scrubber and A1. 404 when Demo:VoiceNoteFile is missing or the " +
+                "signed-in teacher isn't the demo teacher. Demo only.");
         return app;
     }
 
@@ -168,7 +180,8 @@ public static class DemoEndpoints
         else
         {
             holds.Release(request.ClassId, request.Date);
-            var register = new SourceResult.Arrived(source.Simulate(request.ClassId, request.Date, roster), now);
+            var usual = SchoolClock.At(request.Date, options.Value.ArrivesAt).ToUniversalTime();
+            var register = new SourceResult.Arrived(source.Simulate(request.ClassId, request.Date, roster), now > usual ? now : usual);
             rows = await store.SaveSourceRegisterAsync(
                 request.ClassId, request.Date, roster.Select(c => c.Id).ToList(), register, cancellationToken);
         }
@@ -205,7 +218,8 @@ public static class DemoEndpoints
         }
 
         var lastReset = await store.GetLastResetAsync(cancellationToken);
-        return TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, Child(seed, DemoStory.RohanRollNo), lastReset));
+        var child = seed.Children.Single(c => c.RollNo == DemoStory.ManjunathRollNo);
+        return TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, child.Id, lastReset, child.FirstName, child.HomeLanguage));
     }
 
     private static async Task<Results<Ok<DemoResetResponse>, NotFound>> ResetAsync(
@@ -245,7 +259,8 @@ public static class DemoEndpoints
         var result = await store.ResetAsync(
             new DemoReset(
                 request.ClientRequestId, seed, days, sats.Value.ArrivesAt, weekOf, owner is null ? null : snapshot, owner?.Id, missed,
-                DemoStory.StarWeeks(today, roster, source.IsSchoolDay)),
+                DemoStory.StarWeeks(today, roster, source.IsSchoolDay),
+                new DemoRegisterDay(today, source.Simulate(classId, today, roster))),
             now,
             cancellationToken);
         holds.ReleaseAll(classId);
@@ -319,5 +334,12 @@ public static class DemoEndpoints
             ? TypedResults.Ok(snapshot)
             : TypedResults.NotFound();
 
-    private static Guid Child(DemoSeedFile seed, int rollNo) => seed.Children.Single(c => c.RollNo == rollNo).Id;
+    private static async Task<Results<PhysicalFileHttpResult, NotFound>> GetVoiceNoteAsync(
+        HttpContext http, IOptions<DatabaseOptions> database, IOptions<DemoOptions> demo, CancellationToken cancellationToken)
+    {
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        return http.User.GetClassId() == seed.Class.Id && DemoVoiceNote.Path(demo.Value) is { } path
+            ? TypedResults.PhysicalFile(path, "audio/webm")
+            : TypedResults.NotFound();
+    }
 }

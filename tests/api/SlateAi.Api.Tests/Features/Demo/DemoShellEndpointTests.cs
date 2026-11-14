@@ -16,7 +16,8 @@ public sealed class DemoShellEndpointTests
     private static readonly DemoSeedFile Seed = DemoSeedFile.LoadAsync("data/seed/demo-class.json", Ct).GetAwaiter().GetResult();
     private static readonly Guid ClassId = Seed.Class.Id;
     private static readonly Guid TeacherId = Seed.Teacher.Id;
-    private static readonly Guid Rohan = Seed.Children.Single(c => c.RollNo == DemoStory.RohanRollNo).Id;
+    private static readonly Guid Manjunath = Seed.Children.Single(c => c.RollNo == DemoStory.ManjunathRollNo).Id;
+    private static readonly Guid Rohan = Seed.Children.Single(c => c.RollNo == 24).Id;
 
     // Fri 23 Oct 2026, 10:00 IST.
     private static readonly DateTimeOffset Now = SchoolClock.At(new DateOnly(2026, 10, 23), new TimeOnly(10, 0));
@@ -37,6 +38,70 @@ public sealed class DemoShellEndpointTests
         Assert.Contains("slate.session=", Assert.Single(response.Headers.GetValues("Set-Cookie")));
         Assert.Equal(TeacherId, me!.TeacherId);
         Assert.Equal(ClassId, me.ClassId);
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public async Task Me_tells_the_demo_teacher_whether_approve_sends_at_once(bool sendOnApprove, bool expected)
+    {
+        await using var factory = Create(sendOnApprove: sendOnApprove);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+        Assert.Equal(new DemoFlags(expected, SampleVoiceNote: false), me!.Demo);
+    }
+
+    [Fact]
+    public async Task Me_has_no_demo_flags_when_the_demo_is_off()
+    {
+        await using var factory = Create(enabled: false, sendOnApprove: true);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+        Assert.Null(me!.Demo);
+    }
+
+    [Fact]
+    public async Task Voice_note_is_404_until_the_sample_clip_is_there()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.GetAsync("/api/demo/voice-note", Ct);
+        var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.False(me!.Demo!.SampleVoiceNote);
+    }
+
+    [Fact]
+    public async Task Voice_note_serves_the_sample_clip_to_the_demo_teacher_only()
+    {
+        var file = Path.Combine(AppContext.BaseDirectory, $"demo-voice-{Guid.NewGuid():N}.webm");
+        await File.WriteAllBytesAsync(file, [0x1a, 0x45, 0xdf, 0xa3], Ct);
+        try
+        {
+            await using var factory = Create(voiceNoteFile: Path.GetFileName(file));
+            using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+            using var other = factory.CreateTeacherClient(Guid.NewGuid());
+
+            var response = await client.GetAsync("/api/demo/voice-note", Ct);
+            var notDemo = await other.GetAsync("/api/demo/voice-note", Ct);
+            var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("audio/webm", response.Content.Headers.ContentType!.MediaType);
+            Assert.Equal([0x1a, 0x45, 0xdf, 0xa3], await response.Content.ReadAsByteArrayAsync(Ct));
+            Assert.Equal(HttpStatusCode.NotFound, notDemo.StatusCode);
+            Assert.True(me!.Demo!.SampleVoiceNote);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
     }
 
     [Fact]
@@ -70,7 +135,7 @@ public sealed class DemoShellEndpointTests
     }
 
     [Fact]
-    public async Task Info_puts_rohans_hindi_speaking_family_on_the_parent_phone_and_gives_the_last_reset()
+    public async Task Info_puts_manjunaths_kannada_family_on_the_parent_phone_and_gives_the_last_reset()
     {
         _store.LastReset = Now.AddMinutes(-3);
         await using var factory = Create();
@@ -78,8 +143,7 @@ public sealed class DemoShellEndpointTests
 
         var info = await client.GetFromJsonAsync<DemoInfoResponse>("/api/demo", Ct);
 
-        Assert.Equal(new DemoInfoResponse(ClassId, Rohan, Now.AddMinutes(-3)), info);
-        Assert.Equal("hi", Seed.Children.Single(c => c.Id == Rohan).HomeLanguage);
+        Assert.Equal(new DemoInfoResponse(ClassId, Manjunath, Now.AddMinutes(-3), "Manjunath", "kn"), info);
     }
 
     [Fact]
@@ -104,11 +168,27 @@ public sealed class DemoShellEndpointTests
         Assert.Null(reset.SnapshotChildId);
     }
 
-    [Theory]
-    [InlineData("te", DemoStory.RaviRollNo, 4)] // Mon–Thu this week; Sat 17 Oct is last week
-    [InlineData("hi", DemoStory.RohanRollNo, 0)] // away today only, so the snapshot's own missed lessons stand
-    public async Task Reset_gives_the_pre_made_catch_up_to_the_story_child_of_its_language(string language, int rollNo, int missed)
+    [Fact]
+    public async Task Reset_writes_todays_register_with_only_manjunath_away()
     {
+        // T-93, R6: Today is ready at 10:00, before the feed's 12:00; the store stamps it 12:00 (RegisterArrivesAt).
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        await client.PostAsJsonAsync("/api/demo/reset", new DemoResetRequest(Guid.NewGuid()), Ct);
+
+        var reset = Assert.Single(_store.Resets);
+        Assert.Equal(new DateOnly(2026, 10, 23), reset.Today!.Date);
+        Assert.Equal([Manjunath], reset.Today.AbsentChildIds);
+        Assert.Equal(new TimeOnly(12, 0), reset.RegisterArrivesAt);
+        Assert.DoesNotContain(reset.Days, d => d.Date == reset.Today.Date);
+    }
+
+    [Theory]
+    [InlineData("kn", 2)] // Wed–Thu this week
+    public async Task Reset_gives_the_pre_made_catch_up_to_the_story_child_of_its_language(string language, int missed)
+    {
+        var rollNo = DemoStory.ManjunathRollNo;
         var file = Path.Combine(AppContext.BaseDirectory, $"demo-snapshot-{language}-{Guid.NewGuid():N}.json");
         await File.WriteAllTextAsync(file, $$"""
             { "targetCompetencyIds": ["M3.ADD.CARRY"], "targetKey": "M3.ADD.CARRY", "language": "{{language}}",
@@ -211,7 +291,37 @@ public sealed class DemoShellEndpointTests
         Assert.False(_store.Exported);
     }
 
-    private ApiFactory Create(bool enabled = true, string snapshotFile = "no-such-snapshot.json") =>
+    [Fact]
+    public async Task Reset_skips_a_pre_made_catch_up_in_a_language_no_story_child_speaks()
+    {
+        var file = Path.Combine(AppContext.BaseDirectory, $"demo-snapshot-hi-{Guid.NewGuid():N}.json");
+        await File.WriteAllTextAsync(file, """
+            { "targetCompetencyIds": ["M3.ADD.CARRY"], "targetKey": "M3.ADD.CARRY", "language": "hi",
+              "keyWordsKn": [], "activity": "{}", "checkItem": "{}", "missedCompetencyIds": ["M3.ADD.CARRY"],
+              "compressionRationale": "{}", "clips": [] }
+            """, Ct);
+        try
+        {
+            await using var factory = Create(snapshotFile: Path.GetFileName(file));
+            using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+            var body = await (await client.PostAsJsonAsync("/api/demo/reset", new DemoResetRequest(Guid.NewGuid()), Ct))
+                .Content.ReadFromJsonAsync<DemoResetResponse>(Ct);
+
+            Assert.False(body!.PreMade);
+            Assert.Null(Assert.Single(_store.Resets).SnapshotChildId);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
+    private ApiFactory Create(
+        bool enabled = true,
+        string snapshotFile = "no-such-snapshot.json",
+        bool sendOnApprove = false,
+        string voiceNoteFile = "no-such-voice-note.webm") =>
         FakeApi.Create(
             services =>
             {
@@ -223,6 +333,8 @@ public sealed class DemoShellEndpointTests
             {
                 ["Demo:Enabled"] = enabled.ToString(),
                 ["Demo:SnapshotFile"] = snapshotFile,
+                ["Demo:SendOnApprove"] = sendOnApprove.ToString(),
+                ["Demo:VoiceNoteFile"] = voiceNoteFile,
             });
 
     private sealed class FakeDemoStore : IDemoStore

@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Data.Seed;
+using SlateAi.Api.Features.Demo;
 
 namespace SlateAi.Api.Features.Auth;
 
@@ -19,7 +22,9 @@ public sealed record GreetingInfo(string Url, double Seconds);
 /// The signed-in teacher. <c>SetupComplete</c> is false until the first-run welcome is done; <c>Greeting</c> is null
 /// until she has recorded one (Today then offers it).
 /// </summary>
-public sealed record MeResponse(Guid TeacherId, string DisplayName, Guid? ClassId, bool SetupComplete, GreetingInfo? Greeting = null);
+/// <param name="Demo">Only on <c>GET /api/me</c> for the demo teacher (T-93); null otherwise.</param>
+public sealed record MeResponse(
+    Guid TeacherId, string DisplayName, Guid? ClassId, bool SetupComplete, GreetingInfo? Greeting = null, DemoFlags? Demo = null);
 
 public sealed record PinLockedResponse(DateTimeOffset LockedUntil);
 
@@ -186,7 +191,12 @@ public static class AuthEndpoints
     }
 
     private static async Task<Results<Ok<MeResponse>, UnauthorizedHttpResult>> GetMeAsync(
-        HttpContext http, IAuthStore store, CancellationToken cancellationToken)
+        HttpContext http,
+        IAuthStore store,
+        IOptions<DemoOptions> demo,
+        IOptions<DatabaseOptions> database,
+        DemoSendOnApprove sendOnApprove,
+        CancellationToken cancellationToken)
     {
         var me = http.User.GetTeacherId() is { } teacherId
             ? await store.GetMeAsync(teacherId, cancellationToken)
@@ -198,7 +208,8 @@ public static class AuthEndpoints
             return TypedResults.Unauthorized();
         }
 
-        return TypedResults.Ok(me);
+        var flags = await DemoVoiceNote.FlagsAsync(me.ClassId, demo.Value, database.Value, sendOnApprove, cancellationToken);
+        return TypedResults.Ok(me with { Demo = flags });
     }
 
     private static async Task<Results<Ok<MeResponse>, ValidationProblem, UnauthorizedHttpResult>> WelcomeAsync(

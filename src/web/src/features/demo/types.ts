@@ -1,8 +1,12 @@
-/** GET /api/demo: the demo class, whose family the parent phone shows (Rohan's, in Hindi), and the last reset. */
+/** GET /api/demo: the demo class, whose family the parent phone shows (Manjunath's, in Kannada, T-93), and the last reset. */
 export interface DemoInfo {
   classId: string
   parentChildId: string
   lastResetAt: string | null
+  /** The child's first name (fictional), so the family phone is labelled with the family. */
+  parentChildName: string
+  /** The family's home language code, e.g. "kn". */
+  parentLanguage: string
 }
 
 /** POST /api/demo/reset. `preMade`: a pre-made catch-up was restored as Ready. */

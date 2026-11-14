@@ -6,7 +6,12 @@ export type Me = {
   setupComplete: boolean
   /** Her recorded greeting (T0 step 1), or null. Missing in a `me` cached before greetings existed. */
   greeting?: Greeting | null
+  /** Only for the demo teacher (T-93): Approve sends at once; Today offers the sample voice note. */
+  demo?: DemoFlags | null
 }
+
+/** What the teacher app does differently in the demo class (T-93). */
+export type DemoFlags = { sendOnApprove: boolean; sampleVoiceNote: boolean }
 
 /** Where to play her greeting (`/api/audio/{id}`) and how long it is. */
 export type Greeting = { url: string; seconds: number }

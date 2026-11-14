@@ -7,7 +7,13 @@ import type { AiCall, DemoInfo, FamilyMessage } from './types'
 
 const i18n = initI18n()
 
-const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1', lastResetAt: null }
+const info: DemoInfo = {
+  classId: teacher.classId,
+  parentChildId: 'manjunath-1',
+  lastResetAt: null,
+  parentChildName: 'Manjunath',
+  parentLanguage: 'kn',
+}
 const resetAt = '2026-10-23T04:30:00Z'
 
 const evening: FamilyMessage = { kind: 'evening', date: '2026-10-22', sentAt: '2026-10-22T12:30:00Z', token: 'tok-evening' }
@@ -44,7 +50,7 @@ function setup({
   return fakeApi({
     'POST /api/demo/login': login,
     'GET /api/demo': () => ({ status: 200, body: demo }),
-    'GET /api/demo/family/rohan-1': () => ({ status: 200, body: family }),
+    'GET /api/demo/family/manjunath-1': () => ({ status: 200, body: family }),
     'GET /api/demo/ai-calls': () => ({ status: 200, body: calls }),
     [`GET /api/demo/ai-calls?since=${encodeURIComponent(resetAt)}`]: () => ({ status: 200, body: [] }),
     'POST /api/demo/reset': () => ({
@@ -69,7 +75,7 @@ describe('DemoScreen (T-18)', () => {
     const calls = setup()
     renderApp('/demo')
 
-    expect(await screen.findByRole('heading', { name: 'Try the loop in 5 minutes' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Try the loop in 3 minutes' })).toBeInTheDocument()
     expect(calls.map((c) => c.key).slice(0, 2)).toEqual(['POST /api/demo/login', 'GET /api/demo'])
     expect(screen.getByTitle("Teacher's phone")).toHaveAttribute('src', '/')
     expect(await screen.findByText(/No messages yet/)).toBeInTheDocument()
@@ -83,14 +89,21 @@ describe('DemoScreen (T-18)', () => {
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
   })
 
-  it("opens a message on Rohan's family's phone as the family's page", async () => {
+  it("labels the family phone with the story family and its language (T-93)", async () => {
+    setup()
+    renderApp('/demo')
+
+    expect(await screen.findByRole('region', { name: "Manjunath's family's phone · Kannada" })).toBeInTheDocument()
+  })
+
+  it("opens a message on Manjunath's family's phone as the family's page", async () => {
     const user = userEvent.setup()
     setup({ family: [evening] })
     renderApp('/demo')
 
     await user.click(await screen.findByRole('button', { name: /Evening message · 22 Oct/ }))
 
-    expect(screen.getByTitle("Page sent to Rohan's family")).toHaveAttribute('src', '/p/tok-evening')
+    expect(screen.getByTitle("Page sent to Manjunath's family")).toHaveAttribute('src', '/p/tok-evening')
     await user.click(screen.getByRole('button', { name: '‹ Messages' }))
     expect(screen.getByRole('button', { name: /Evening message/ })).toBeInTheDocument()
   })
@@ -216,7 +229,7 @@ describe('DemoScreen (T-18)', () => {
     const send = calls.findIndex((c) => c.key === 'POST /api/demo/send-now')
     expect(calls[send]?.body).toEqual({ clientRequestId: expect.any(String) })
     await waitFor(() =>
-      expect(calls.slice(send + 1).map((c) => c.key)).toContain('GET /api/demo/family/rohan-1'),
+      expect(calls.slice(send + 1).map((c) => c.key)).toContain('GET /api/demo/family/manjunath-1'),
     )
   })
 

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Attendance;
@@ -17,11 +18,16 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
     {
         // T-18 on a real database: the delete set and its cascades, children back from the seed, the story's days, the
         // pre-made catch-up with its clips, and a replay changing nothing. Only Postgres proves the SQL and the cascades.
-        await using var api = await DemoClassApi.StartAsync(postgres);
+        // The seeded snapshot is Hindi; a Kannada copy goes to Manjunath, the one story child (T-93).
+        var snapshotFile = $"demo-snapshot-kn-{Guid.NewGuid():N}.json";
+        var seeded = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "data/seed/demo-catchup.json"), DemoClassApi.Ct))!;
+        seeded["language"] = "kn";
+        await File.WriteAllTextAsync(Path.Combine(AppContext.BaseDirectory, snapshotFile), seeded.ToJsonString(), DemoClassApi.Ct);
+        await using var api = await DemoClassApi.StartAsync(postgres, new Dictionary<string, string?> { ["Demo:SnapshotFile"] = snapshotFile });
         var today = SchoolClock.Today(TimeProvider.System);
         var ananya = api.ChildIds[0];  // roll 1, deleted by the teacher
         var bhavana = api.ChildIds[1]; // roll 2, family stopped messages, consent changed to No
-        var rohan = api.ChildIds[23];  // roll 24, Hindi: owns the pre-made catch-up
+        var manjunath = api.ChildIds[14];  // roll 15, Kannada: the story child, owns the pre-made catch-up
 
         // A class that has been used: today's register, a lesson, a deleted child, a stop, a changed consent, a package
         // with its own audio, a shared disclosure clip and an AI call.
@@ -65,7 +71,7 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.Equal("yes", restored.Consent);
         Assert.True(await api.QueryAsync(db => db.Children.AnyAsync(c => c.Id == ananya, DemoClassApi.Ct)));
 
-        // Five school days before today, each a full SATS register and a confirmed lesson; today is left to the feed.
+        // Five school days before today, each a full SATS register and a confirmed lesson.
         var days = await api.QueryAsync(db => db.Lessons.OrderBy(l => l.Date).ToListAsync(DemoClassApi.Ct));
         Assert.Equal(DemoStory.Lessons, days.Select(l => l.CompetencyIds.Single()));
         Assert.All(days, l => Assert.Equal(LessonValues.Confirmed, l.Status));
@@ -76,23 +82,29 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         var earlier = await api.QueryAsync(db => db.Attendance.Where(a => !lessonDates.Contains(a.Date)).Select(a => a.Date).ToListAsync(DemoClassApi.Ct));
         Assert.NotEmpty(earlier);
         Assert.Equal(0, earlier.Count % 36);
-        Assert.All(earlier, d => Assert.True(d < lessonDates.Min()));
-        Assert.Equal(0, await api.QueryAsync(db => db.Attendance.CountAsync(a => a.Date == today, DemoClassApi.Ct)));
+        Assert.All(earlier.Where(d => d != today), d => Assert.True(d < lessonDates.Min()));
+        // Today's register (T-93): full, only Manjunath away, as if SATS sent it at 12:00 IST; no lesson yet.
+        var todays = await api.QueryAsync(db => db.Attendance.Where(a => a.Date == today).ToListAsync(DemoClassApi.Ct));
+        Assert.Equal(36, todays.Count);
+        Assert.Equal([manjunath], todays.Where(a => !a.Present).Select(a => a.ChildId));
+        Assert.All(todays, a => Assert.Equal(SchoolClock.At(today, new TimeOnly(12, 0)), a.ReceivedAt));
+        Assert.DoesNotContain(today, lessonDates);
 
-        // The old package and its own audio are gone; the shared clip and the AI log stay; Rohan has the pre-made one.
+        // The old package and its own audio are gone; the shared clip and the AI log stay; Manjunath has the pre-made one.
         Assert.False(await api.QueryAsync(db => db.CatchUpPackages.AnyAsync(p => p.Id == oldPackage, DemoClassApi.Ct)));
         Assert.True(await api.QueryAsync(db => db.AudioClips.AnyAsync(c => c.Id == sharedClip, DemoClassApi.Ct)));
         Assert.Equal(1, await api.QueryAsync(db => db.AiCalls.CountAsync(DemoClassApi.Ct)));
         var package = await api.QueryAsync(db => db.CatchUpPackages.SingleAsync(DemoClassApi.Ct));
-        Assert.Equal(("hi", PackageStatus.Ready), (package.Language, package.Status));
-        Assert.Equal(rohan, await api.QueryAsync(db => db.CatchUpAssignments.Select(a => a.ChildId).SingleAsync(DemoClassApi.Ct)));
+        Assert.Equal(("kn", PackageStatus.Ready), (package.Language, package.Status));
+        Assert.Equal(manjunath, await api.QueryAsync(db => db.CatchUpAssignments.Select(a => a.ChildId).SingleAsync(DemoClassApi.Ct)));
         var clipIds = DemoSnapshot.ClipIds(package);
         Assert.Equal(clipIds.Count, await api.QueryAsync(db => db.AudioClips.CountAsync(c => clipIds.Contains(c.Id), DemoClassApi.Ct)));
 
         // A replay of the same request changes nothing, even after the class was used again.
         (await api.MarkAsync(Guid.NewGuid(), today, bhavana)).EnsureSuccessStatusCode();
         (await api.Client.PostAsJsonAsync("/api/demo/reset", new DemoResetRequest(requestId), DemoClassApi.Ct)).EnsureSuccessStatusCode();
-        Assert.Equal(36, await api.QueryAsync(db => db.Attendance.CountAsync(a => a.Date == today, DemoClassApi.Ct)));
+        Assert.False(await api.QueryAsync(db => db.Attendance.Where(a => a.Date == today && a.ChildId == bhavana).Select(a => a.Present).SingleAsync(DemoClassApi.Ct)));
+        File.Delete(Path.Combine(AppContext.BaseDirectory, snapshotFile));
     }
 
     private static AudioClip Clip(Guid id, string kind, Guid? packageId, string? textHash) => new()

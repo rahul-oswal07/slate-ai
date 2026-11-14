@@ -28,9 +28,10 @@ public sealed class DemoClassApi : IAsyncDisposable
 
     public static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    public static async Task<DemoClassApi> StartAsync(PostgresFixture postgres)
+    public static async Task<DemoClassApi> StartAsync(
+        PostgresFixture postgres, IReadOnlyDictionary<string, string?>? settings = null)
     {
-        var factory = new ApiFactory(await postgres.CreateEmptyDatabaseAsync(Ct));
+        var factory = new ApiFactory(await postgres.CreateEmptyDatabaseAsync(Ct), settings: settings);
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var demoClass = await db.Classes.SingleAsync(Ct);

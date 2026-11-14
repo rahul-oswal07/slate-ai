@@ -27,6 +27,8 @@ export function ApproveScreen() {
   const packages = week.data?.packages ?? []
   const done = packages.filter((p) => p.status === 'approved' || p.status === 'sent')
   const allDone = packages.length > 0 && done.length === packages.length
+  // In the demo Approve sends at once (D-94), so every one may already be sent.
+  const allSent = allDone && done.every((p) => p.status === 'sent')
   // Counted by the API: families with consent who haven't stopped (sent ones, or those it goes to after 6 pm).
   const families = done.reduce((sum, p) => sum + (p.status === 'sent' ? p.familiesSent : p.familiesReachable), 0)
 
@@ -66,7 +68,7 @@ export function ApproveScreen() {
 
       {allDone && (
         <output className="rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-3 text-body">
-          {t('approve.allDone', { n: packages.length, families })}
+          {t(allSent ? 'approve.allSent' : 'approve.allDone', { n: packages.length, families })}
         </output>
       )}
 

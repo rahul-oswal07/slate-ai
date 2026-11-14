@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Features.CatchUps;
@@ -36,7 +37,8 @@ public static class CatchUpApprovalEndpoints
             .WithDescription(
                 "Only a ready catch-up whose scriptVersion is current. 409 with the latest otherwise (needs review, " +
                 "generating, a newer version after Simpler/Shorter, already approved or sent). Replaying the same " +
-                "clientRequestId is a no-op.");
+                "clientRequestId is a no-op. With Demo:SendOnApprove (staging's demo, D-94) the approved catch-up is sent " +
+                "at once and comes back as sent; elsewhere the 6 pm job sends it.");
 
         app.MapPost("/api/packages/{id:guid}/regenerate", RegenerateAsync)
             .RequireAuthorization()
@@ -61,7 +63,13 @@ public static class CatchUpApprovalEndpoints
         await OwnedAsync(id, http, store, cancellationToken) is { } view ? TypedResults.Ok(view) : TypedResults.NotFound();
 
     private static async Task<Results<Ok<PackageView>, Conflict<PackageView>, NotFound, ValidationProblem>> ApproveAsync(
-        Guid id, ApprovePackageRequest request, HttpContext http, ICatchUpStore store, CancellationToken cancellationToken)
+        Guid id,
+        ApprovePackageRequest request,
+        HttpContext http,
+        ICatchUpStore store,
+        CatchUpSender sender,
+        DemoSendOnApprove sendOnApprove,
+        CancellationToken cancellationToken)
     {
         if (request.ClientRequestId == Guid.Empty)
         {
@@ -75,6 +83,12 @@ public static class CatchUpApprovalEndpoints
 
         var result = await store.ApproveAsync(
             id, request.ClientRequestId, request.ScriptVersion, http.User.GetTeacherId()!.Value, cancellationToken);
+        if (result == PackageChange.Applied)
+        {
+            // Demo only (D-94): the send keeps its own check that this exact version is approved (guardrail 3).
+            await sendOnApprove.RunAsync(ct => sender.SendAsync(id, ct), cancellationToken);
+        }
+
         var latest = (await store.GetViewAsync(id, cancellationToken))!;
         return result == PackageChange.Conflict ? TypedResults.Conflict(latest) : TypedResults.Ok(latest);
     }
