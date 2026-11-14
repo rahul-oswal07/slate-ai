@@ -205,7 +205,8 @@ public sealed class TodaysMessageEndpointTests
     [Fact]
     public async Task Confirming_a_lesson_with_the_books_exercises_starts_a_draft_once()
     {
-        await using var factory = Create();
+        // A9 never answers here, so the draft stays generating and the replayed confirm finds it.
+        await using var factory = Create(llm: new HangingLlmClient());
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
         var url = $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}";
         var request = new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.Compare.Id], LessonValues.Voice);
@@ -229,6 +230,64 @@ public sealed class TodaysMessageEndpointTests
             Ct)).EnsureSuccessStatusCode();
 
         Assert.Equal(0, _todays.Starts);
+    }
+
+    [Theory]
+    [InlineData("Manjunath ಕಡ್ಡಿ ಕಟ್ಟು ಮಾಡಲಿ.", "name")]
+    [InlineData("ಮೊದಲು 73 ನೋಡಿ.", "numbers")]
+    [InlineData("ಒಂದು. ಎರಡು. ಮೂರು. ನಾಲ್ಕು.", "too-long")]
+    public async Task Her_text_that_fails_a_check_is_not_saved_and_says_why(string text, string problem)
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.PutAsJsonAsync($"{DayUrl}/sections/concept", new EditTodaysSectionRequest(Guid.NewGuid(), 1, text), Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync(Ct);
+        Assert.Contains($"\"{problem}\"", body);
+        Assert.Contains("\"48\"", body); // the numbers she may use
+        Assert.DoesNotContain("Manjunath", body);
+        var row = _todays.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Ready, 1, "ಕನ್ನಡ"), (row.Status, row.Version, row.Sections!.Concept.Text["kn"]));
+    }
+
+    [Fact]
+    public async Task Her_edit_clears_the_approval_and_redrafts_from_her_kannada()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await ApproveAsync(1);
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.PutAsJsonAsync(
+            $"{DayUrl}/sections/note", new EditTodaysSectionRequest(Guid.NewGuid(), 1, "ನಾವು ಎಲೆಗಳ ಮೇಲೆ 48 ಮತ್ತು 33 ಬರೆದು ಹೋಲಿಸಿದೆವು."), Ct);
+        var stale = await client.PutAsJsonAsync($"{DayUrl}/sections/concept", new EditTodaysSectionRequest(Guid.NewGuid(), 0, "ಹೊಸದು."), Ct);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        var row = _todays.Rows.Single();
+        Assert.Null(row.ApprovedVersion);
+        Assert.Equal("ನಾವು ಎಲೆಗಳ ಮೇಲೆ 48 ಮತ್ತು 33 ಬರೆದು ಹೋಲಿಸಿದೆವು.", row.Sections!.Note!.Text["kn"]);
+        Assert.True(row.Sections.Teacher);
+        Assert.Equal(HttpStatusCode.Conflict, stale.StatusCode);
+    }
+
+    [Fact]
+    public async Task Another_pair_from_the_book_gets_its_answer_from_code_and_a_new_version()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await ApproveAsync(1);
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.PutAsJsonAsync($"{DayUrl}/picture", new SetTodaysPictureRequest(Guid.NewGuid(), 1, 3), Ct);
+        var outside = await client.PutAsJsonAsync($"{DayUrl}/picture", new SetTodaysPictureRequest(Guid.NewGuid(), 2, 99), Ct);
+
+        var view = (await response.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!;
+        Assert.Equal(new TodaysPicture("compare", 86, 86, "="), view.Picture);
+        Assert.Equal((2, (int?)null, 3, 4), (view.Version, view.ApprovedVersion, view.PictureIndex, view.Pairs.Count));
+        Assert.Equal(HttpStatusCode.Conflict, outside.StatusCode);
     }
 
     [Fact]
@@ -260,7 +319,7 @@ public sealed class TodaysMessageEndpointTests
             .EnsureSuccessStatusCode();
     }
 
-    private ApiFactory Create(bool sendOnApprove = false) =>
+    private ApiFactory Create(bool sendOnApprove = false, ILlmClient? llm = null) =>
         FakeApi.Create(
             services =>
             {
@@ -272,7 +331,7 @@ public sealed class TodaysMessageEndpointTests
                 services.AddSingleton<IAttendanceSource>(new NotYetSource());
                 services.AddSingleton(Book);
                 services.AddSingleton(Wording);
-                services.AddSingleton<ILlmClient>(new ThrowingLlmClient());
+                services.AddSingleton<ILlmClient>(llm ?? new ThrowingLlmClient());
                 services.AddSingleton<TimeProvider>(_clock);
             },
             settings: new Dictionary<string, string?>

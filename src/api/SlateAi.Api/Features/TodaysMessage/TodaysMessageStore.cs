@@ -60,6 +60,22 @@ public interface ITodaysMessageStore
     Task<TodaysChange> SetRemovedAsync(
         Guid classId, DateOnly date, Guid clientRequestId, string kind, bool removed, DateTimeOffset now, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Applies her change to the sections of <paramref name="version"/> (ready or approved, not sent): with
+    /// <paramref name="redraft"/> it goes back to generating (A9 and the voice run again, then ready at version + 1); without,
+    /// it is ready at version + 1 at once. Either way her approval is cleared (D-92). Conflict when <paramref name="change"/>
+    /// returns null.
+    /// </summary>
+    Task<TodaysChange> ReviseAsync(
+        Guid classId,
+        DateOnly date,
+        Guid clientRequestId,
+        int version,
+        Func<TodaysSections, TodaysSections?> change,
+        bool redraft,
+        DateTimeOffset now,
+        CancellationToken cancellationToken);
+
     /// <summary>The day's message when it is approved at its current version: the only one the evening send attaches (guardrail 3).</summary>
     Task<TodaysMessageRow?> GetApprovedAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 }
@@ -96,6 +112,12 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
         else if (await SentAsync(row.Id, cancellationToken))
         {
             return null;
+        }
+
+        if (!row.CompetencyIds.SequenceEqual(competencyIds))
+        {
+            // Another lesson: nothing of the old draft (or her edits to it) carries over.
+            row.Sections = "null";
         }
 
         row.CompetencyIds = [.. competencyIds];
@@ -182,6 +204,51 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
         row.Sections = changed.ToJson();
         row.Status = TodaysMessageStatus.Ready;
         row.Version++;
+        ClearApproval(row);
+        row.UpdatedAt = now;
+        Processed(clientRequestId, SectionEndpoint, now);
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return TodaysChange.Applied;
+    }
+
+    public async Task<TodaysChange> ReviseAsync(
+        Guid classId,
+        DateOnly date,
+        Guid clientRequestId,
+        int version,
+        Func<TodaysSections, TodaysSections?> change,
+        bool redraft,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockAsync(classId, date, cancellationToken);
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
+        {
+            return TodaysChange.Replay;
+        }
+
+        if (await db.TodaysMessages.SingleOrDefaultAsync(t => t.ClassId == classId && t.Date == date, cancellationToken) is not { } row)
+        {
+            return TodaysChange.NotFound;
+        }
+
+        if (row.Version != version
+            || row.Status is not (TodaysMessageStatus.Ready or TodaysMessageStatus.Approved)
+            || TodaysSections.Parse(row.Sections) is not { } sections
+            || change(sections) is not { } changed
+            || await SentAsync(row.Id, cancellationToken))
+        {
+            return TodaysChange.Conflict;
+        }
+
+        row.Sections = changed.ToJson();
+        row.Status = redraft ? TodaysMessageStatus.Generating : TodaysMessageStatus.Ready;
+        if (!redraft)
+        {
+            row.Version++;
+        }
+
         ClearApproval(row);
         row.UpdatedAt = now;
         Processed(clientRequestId, SectionEndpoint, now);

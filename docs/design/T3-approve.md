@@ -159,3 +159,19 @@ The "Why this" lines and the Kannada summary are A2/A3 output, not locale string
 - Resolved (D-50): the summary ends "Show your teacher" (ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು); no `{teacher}` slot is needed in the script.
 - The detail player still labels its segments "Your voice · Notice · Lesson", while P1 uses "Teacher’s greeting · Computer voice · Lesson" (D-52). Decide whether the teacher view keeps its own wording.
 - A Tamil card with one child reads "ತಮಿಳಿನಲ್ಲಿ · 1 ಮಕ್ಕಳು" in the prototype; kn needs a singular form ("1 ಮಗು").
+
+## Today's message tab (T-89, 14 Nov, built by Rahul and Claude; **for Monika's review**, M-2 card pending)
+
+Approve now has two tabs: **Today's message** (default) and **Catch-ups** (the list above, unchanged). The title is "Check and approve". Screenshots: `docs/screenshots/T-89/` (360 px, English).
+
+| State | What she sees | Copy (en) |
+|---|---|---|
+| None | Why there is none yet, link to Today | "Today's message is made when you confirm today's lesson and a child is away." |
+| Generating | One line, no buttons | "Writing today's message…" / "Writing the new version from your Kannada…" |
+| Failed | Alert, Try again | "…Families will get the plain evening message unless you try again." |
+| Ready | Lesson name, book and page, version; sections Concept (text + audio), Activity at home, Picture question, My note, one open at a time; Edit, Remove / Put back; "Also goes in Hindi to 1 family"; tick → **Approve and send** | "I've checked this" |
+| Editing | Kannada textarea(s); a refusal says why and lists the book's numbers; nothing is saved | "Saving makes a new version: the other languages are written again and you check it again." |
+| Picture | The pair and the answer worked out by the app; "Choose another pair" shows the book's pairs (she never types numbers) | "{{a}} ☐ {{b}}: the child taps >, < or =" |
+| Approved / Sent | Read only | "Approved. Goes with the evening message after 6 pm." / "Sent to the families." |
+
+Open for Monika: the order and names of the sections, whether the concept audio should sit in its own row, and the length of the "You can use" number list in a refusal.

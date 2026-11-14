@@ -119,6 +119,72 @@ public sealed class TodaysMessageGeneratorTests
         Assert.Equal("fallback:audio-too-long", _store.Rows.Single().Verdict);
     }
 
+    [Fact]
+    public async Task Her_kannada_edit_with_only_kannada_families_asks_no_AI_and_keeps_her_words()
+    {
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ. ನಂತರ ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಎಣಿಸಿ.", note: null, languages: ["kn"]);
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Ready, 2), (row.Status, row.Version));
+        Assert.Equal("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ. ನಂತರ ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಎಣಿಸಿ.", row.Sections!.Concept.Text["kn"]);
+        Assert.True(row.Sections.Teacher);
+        Assert.Empty(_llm.Requests);
+        Assert.Contains("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ. ನಂತರ ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಎಣಿಸಿ.", _tts.Texts);
+    }
+
+    [Fact]
+    public async Task Her_kannada_edit_is_written_into_the_other_languages_by_A9_and_never_rewritten()
+    {
+        _llm.Json = TodaysMessageTests.Output(TodaysMessageTests.Hindi.Replace("\"]}", "\"],\"note\":\"हमने पत्तों पर संख्याएँ लिखकर तुलना की।\"}"));
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: "ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.", languages: ["kn", "hi"]);
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal(TodaysMessageStatus.Ready, row.Status);
+        Assert.Equal("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", row.Sections!.Concept.Text["kn"]);
+        Assert.Equal("ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.", row.Sections.Note!.Text["kn"]);
+        Assert.StartsWith("हमने", row.Sections.Note.Text["hi"]);
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("teacherKannada", request);
+        Assert.Contains("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", request);
+        Assert.Contains("\"code\":\"hi\"", request);
+        Assert.DoesNotContain("\"code\":\"kn\"", request); // she wrote the Kannada; A9 only writes the others
+    }
+
+    [Fact]
+    public async Task A_new_draft_after_her_edit_keeps_her_picture_pair()
+    {
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: null, languages: ["kn"], picture: new TodaysPicture("compare", 86, 86, "="));
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
+
+        Assert.Equal(new TodaysPicture("compare", 86, 86, "="), _store.Rows.Single().Sections!.Picture);
+    }
+
+    /// <summary>A ready v1 draft whose Kannada she has just edited (as the service saves it), back to generating.</summary>
+    private async Task<Guid> EditedAsync(string concept, string? note, IReadOnlyList<string> languages, TodaysPicture? picture = null)
+    {
+        var id = await StartAsync();
+        var draft = TodaysMessageTests.Sections();
+        var sections = draft.WithKannada(TodaysSectionKind.Concept, concept, null)!;
+        if (note is not null)
+        {
+            sections = sections.WithKannada(TodaysSectionKind.Note, note, null)!;
+        }
+
+        sections = sections with
+        {
+            Concept = sections.Concept with { Text = sections.Concept.Text.Where(t => languages.Contains(t.Key)).ToDictionary() },
+            Picture = picture ?? sections.Picture,
+        };
+        await _store.SetReadyAsync(id, sections, "valid", DateTimeOffset.UnixEpoch, Ct);
+        await _store.ReviseAsync(ClassId, Today, Guid.NewGuid(), 1, s => s, redraft: true, DateTimeOffset.UnixEpoch, Ct);
+        return id;
+    }
+
     private async Task<Guid> StartAsync() =>
         (await _store.StartAsync(ClassId, Today, [TodaysMessageTests.Compare.Id], DateTimeOffset.UnixEpoch, Ct))!.Value;
 
