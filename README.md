@@ -33,7 +33,7 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 | Server | Staging, with test data set up for judges | Production |
 | Open | https://slateai-staging.azurewebsites.net/demo | https://slateai-prod.azurewebsites.net, on your phone or a desktop browser |
 | Sign-in | Automatic, as the class teacher | Mobile number ([table below](#login-credentials)) and the PIN on **slide 14 of the submitted deck** |
-| Data | A fictional Grade 3 class (36 children) with a full week ready: the date is **fixed at Sat 31 Oct 2026**, so Monday to Friday's absences, lessons and evening messages are already there | The same fictional class on **today's real date** |
+| Data | A fictional Grade 3 class (36 children) on **today's real date**, with this week's absences and lessons already there. **Reset demo** starts the story again | The same fictional class on **today's real date** |
 | What you see | The teacher's phone and a family's phone side by side, with 6 steps on screen | Exactly what a teacher sees. Families get their messages after 6 pm IST, as in a real school |
 | Time | About 5 minutes | About 10 minutes |
 
@@ -41,12 +41,12 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 
 Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English; **Reset demo** starts the story again. The same 6 steps are on screen:
 
-1. **Today** (teacher's phone): the simulated SATS attendance shows only Ananya (roll 1) absent. She has been away all week. Arun is back today after missing Thursday and Friday.
-2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), or pick it from the list, and confirm it. The next lesson in the book after Friday's is 3-digit addition with carrying (sample 1).
-3. **Tonight's message:** Ananya's family's phone already has an evening message in Kannada for each day this week. Tap **Send messages now** for tonight's (in a school it goes by itself at 6 pm), open it and pick a reason.
-4. **Approve:** tap *Make this week's catch-ups*. You get four, one per home language: Kannada for Ananya (five missed lessons squeezed into the ones that matter for next week), Telugu for Ravi (Mon–Tue), Hindi for Rohan (Wed) and Tamil for Arun (Thu–Fri). Listen, read the Kannada summary and **Why this**, tick, approve, then tap **Send messages now**.
-5. **The family's side:** on Ananya's family's phone, open the catch-up, listen, do the activity and tap a picture.
-6. **Back on the teacher's phone:** **Back today** has Arun's buddy card, **Week** shows how fast children came back, the reasons and the attendance stars, and **Under the hood** lists every AI call.
+1. **Today** (teacher's phone): the simulated SATS attendance shows Ravi (roll 4) and Rohan (roll 24) absent. Ravi has been away since Monday; Manjunath is back today after two days away.
+2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), or pick it from the list, and confirm it. The next lesson in the book is 3-digit addition with carrying (sample A). The story follows the real calendar: early in the week Ravi has missed fewer lessons.
+3. **Tonight's message:** tap **Send messages now** (in a school it goes by itself at 6 pm). Tonight's message arrives on Rohan's family's phone, in Hindi; open it and pick a reason.
+4. **Approve:** tap *Make this week's catch-ups*. You get three, one per home language: Telugu for Ravi (this week's lessons squeezed into the ones that matter for next week), Kannada for Manjunath (2 days) and Hindi for Rohan (today's lesson). Listen, read the Kannada summary and **Why this**, tick, approve, then tap **Send messages now**.
+5. **The family's side:** on Rohan's family's phone, open the catch-up, listen, do the activity and tap a picture.
+6. **Back on the teacher's phone:** **Missed lessons** shows how Rohan did, **Back today** has Manjunath's buddy card, **Week** shows how fast children came back, the reasons and the attendance stars, and **Under the hood** lists every AI call.
 
 ### 2. Real app
 
@@ -102,7 +102,7 @@ The PINs are on **slide 14 of the submitted deck**, not in this public repo. All
 
    If you don't read Kannada, pick the lesson from the list instead. Children's names in a voice note are replaced by `{child}` before anything reaches the AI.
 2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*), with or instead of the voice note: download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect *3-digit subtraction with borrowing*) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect *Addition word problems*). These are synthetic textbook pages from our evals. The photo is only used to find the lesson; it is never sent to families.
-3. **Choosing what to teach** (Approve → *Make this week's catch-ups*): open the catch-up of a child who missed several lessons (in the guided demo, Ananya, who missed all five) and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
+3. **Choosing what to teach** (Approve → *Make this week's catch-ups*): open the catch-up of a child who missed several lessons (in the guided demo, Ravi, who has been away all week) and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
 4. **The family's answer:** on the family's phone, pick a reason on the evening message and tap a picture on the catch-up. **Missed lessons** on the teacher's phone then shows how the child did, and **Week** shows the reason the family gave.
 5. **Language switch:** the language buttons at the top of the teacher app switch it to ಕನ್ನಡ, తెలుగు, தமிழ், हिन्दी or English. Children's catch-ups stay in their own home language.
 
@@ -202,8 +202,6 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 | `Storage__AzureBlob__ConnectionString` | prod | Audio storage |
 | `WhatsApp__Token`, `WhatsApp__PhoneNumberId` | stretch | WhatsApp Cloud API |
 | `Demo__Enabled` | no | Enables `/demo`, reset and the demo SATS controls `POST /api/demo/sats-feed` (default `true`) |
-| `Demo__Story` | no | `judges` (default) or `video`: the story the demo Reset writes (D-85; not on prod) |
-| `Demo__Today` | no | Fixes the date the app treats as today, e.g. `2026-10-31` (D-88; staging only) |
 | `VITE_API_BASE` | no | Front-end API base when not same-origin |
 
 ### API keys and other secrets

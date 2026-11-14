@@ -661,7 +661,6 @@
     "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
-    "videoTitle": "ಡೆಮೊ ವೀಡಿಯೊ ಕಥೆ",
     "guide": {
       "title": "Try the loop in 5 minutes",
       "today": "Teacher phone, Today: SATS shows Ravi (roll 4) and Rohan (roll 24) absent. Manjunath is back today.",
@@ -672,21 +671,10 @@
       "after": "Teacher phone: Missed lessons shows how Rohan did; Back today has Manjunath's buddy card; Week shows return speed and reasons.",
       "calendar": "The story follows the real calendar: Ravi has been away since Monday, so early in the week he has missed fewer lessons."
     },
-    "videoGuide": {
-      "today": "Teacher phone, Today: SATS shows only Ananya (roll 1) absent. She has been away all week. Arun is back today after Thursday and Friday.",
-      "lesson": "Record today's lesson in Kannada, or pick it from the list, and confirm it.",
-      "evening": "Ananya's family's phone already has an evening message for each day this week, in Kannada. Tap Send messages now for tonight's, then open it and pick a reason.",
-      "approve": "Approve: generate the week's four catch-ups: Kannada for Ananya (five lessons squeezed into the ones that matter), Telugu for Ravi (Mon–Tue), Hindi for Rohan (Wed) and Tamil for Arun (Thu–Fri). Listen, read the summary, tick and approve, then tap Send messages now.",
-      "parent": "Ananya's family's phone: open the catch-up, listen, do the activity and tap a picture.",
-      "after": "Teacher phone: Back today has Arun's buddy card, Week shows return speed and reasons, and Under the hood shows each AI call and which children it was for.",
-      "calendar": "Record on a Saturday so the whole week is behind. Earlier in the week only the days so far are filled in."
-    },
-    "fixedDate": "The demo's date is fixed at {{date}}, 2026, so the whole week is behind whenever you open it.",
     "reset": {
       "button": "Reset demo",
       "title": "Reset the demo?",
       "body": "Everything done in the demo class is removed and the story starts again: the past school days with only Ravi and Manjunath away, and Ravi and Rohan away today.",
-      "bodyVideo": "Everything done in the demo class is removed and the video story starts again: Ananya away all week, Ravi on Mon–Tue, Rohan on Wed and Arun on Thu–Fri, with each earlier evening's message already sent.",
       "confirm": "Reset",
       "resetting": "Resetting…",
       "failed": "The reset didn't finish. Nothing was changed. Try again.",
@@ -719,8 +707,6 @@
     "parentPhone": "Rohan's family's phone",
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to Rohan's family",
-    "videoParentPhone": "ಅನನ್ಯಳ ಕುಟುಂಬದ ಫೋನ್",
-    "videoParentPage": "ಅನನ್ಯಳ ಕುಟುಂಬಕ್ಕೆ ಕಳುಹಿಸಿದ ಪುಟ",
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "ಸಂದೇಶಗಳು",

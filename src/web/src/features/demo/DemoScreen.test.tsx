@@ -7,7 +7,7 @@ import type { AiCall, DemoInfo, FamilyMessage } from './types'
 
 const i18n = initI18n()
 
-const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1', lastResetAt: null, story: 'judges' }
+const info: DemoInfo = { classId: teacher.classId, parentChildId: 'rohan-1', lastResetAt: null }
 const resetAt = '2026-10-23T04:30:00Z'
 
 const evening: FamilyMessage = { kind: 'evening', date: '2026-10-22', sentAt: '2026-10-22T12:30:00Z', token: 'tok-evening' }
@@ -73,32 +73,6 @@ describe('DemoScreen (T-18)', () => {
     expect(calls.map((c) => c.key).slice(0, 2)).toEqual(['POST /api/demo/login', 'GET /api/demo'])
     expect(screen.getByTitle("Teacher's phone")).toHaveAttribute('src', '/')
     expect(await screen.findByText(/No messages yet/)).toBeInTheDocument()
-  })
-
-  it('shows the video story\'s own steps, not the judges\' (T-70, T-74)', async () => {
-    setup({ demo: { ...info, story: 'video' } })
-    renderApp('/demo')
-
-    const guide = (await screen.findByRole('heading', { name: 'Demo video story' })).closest('section') as HTMLElement
-    const steps = within(guide).getAllByRole('listitem')
-    expect(steps).toHaveLength(6)
-    expect(steps[0]).toHaveTextContent('SATS shows only Ananya (roll 1) absent')
-    expect(steps[5]).toHaveTextContent("Back today has Arun's buddy card")
-    expect(screen.queryByText(/SATS shows Ravi/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/Manjunath/)).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Reset demo' })).toBeInTheDocument()
-    expect(screen.getByText("Ananya's family's phone")).toBeInTheDocument()
-    expect(screen.queryByText("Rohan's family's phone")).not.toBeInTheDocument()
-  })
-
-  it('says when the demo date is fixed (T-75)', async () => {
-    setup({ demo: { ...info, story: 'video', fixedToday: '2026-10-31' } })
-    renderApp('/demo')
-
-    expect(
-      await screen.findByText("The demo's date is fixed at Saturday, October 31, 2026, so the whole week is behind whenever you open it."),
-    ).toBeInTheDocument()
-    expect(screen.queryByText(/Record on a Saturday/)).not.toBeInTheDocument()
   })
 
   it('says so when the demo sign-in fails', async () => {
@@ -190,17 +164,6 @@ describe('DemoScreen (T-18)', () => {
     )
     expect(await screen.findByText(/No AI calls since the reset yet/)).toBeInTheDocument()
     expect(localStorage.getItem('slate.demo.resetAt')).toBe(resetAt)
-  })
-
-  it('explains the video story\'s reset in words, not a key (T-83)', async () => {
-    const user = userEvent.setup()
-    setup({ demo: { ...info, story: 'video' } })
-    renderApp('/demo')
-
-    await user.click(await screen.findByRole('button', { name: 'Reset demo' }))
-    const dialog = screen.getByRole('dialog', { name: 'Reset the demo?' })
-    expect(within(dialog).queryByText('demo.reset.bodyVideo')).not.toBeInTheDocument()
-    expect(within(dialog).getByText(/Ananya/)).toBeInTheDocument()
   })
 
   it('lists AI calls from the last reset anyone made, in a keyboard-reachable region', async () => {

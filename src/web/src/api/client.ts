@@ -1,4 +1,3 @@
-import { setSchoolToday } from '../features/today/schoolTime'
 
 /** The server answered with an error status. */
 export class ApiError extends Error {
@@ -39,13 +38,6 @@ export async function api<T>(
     })
   } catch {
     throw new NetworkError()
-  }
-
-  // Only a successful response without the header means "no fixed date": an error page from a proxy or gateway
-  // never went through the API and must not switch a fixed demo date back to the phone's clock.
-  const schoolToday = response.headers.get('X-School-Today')
-  if (schoolToday !== null || response.ok) {
-    setSchoolToday(schoolToday)
   }
 
   if (!response.ok) {

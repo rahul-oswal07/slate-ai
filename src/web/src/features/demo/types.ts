@@ -3,10 +3,6 @@ export interface DemoInfo {
   classId: string
   parentChildId: string
   lastResetAt: string | null
-  /** "video": the story for recording the demo video (T-70, D-85), with Ananya's family on the parent phone. */
-  story: 'judges' | 'video'
-  /** The school date fixed by Demo:Today (T-75, D-88; staging only), or null for the real date. */
-  fixedToday?: string | null
 }
 
 /** POST /api/demo/reset. `preMade`: a pre-made catch-up was restored as Ready. */
