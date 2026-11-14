@@ -29,7 +29,9 @@ public sealed class AuthEndpointTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var me = await response.Content.ReadFromJsonAsync<MeResponse>(Ct);
-        Assert.Equal(new MeResponse(_store.TeacherId, "Shobha", _store.ClassId, SetupComplete: false), me);
+        Assert.Equal(
+            new MeResponse(_store.TeacherId, "Shobha", _store.ClassId, SetupComplete: false, PhoneLast4: "0000", Grade: 3, Medium: "kn"),
+            me);
         var cookie = Assert.Single(response.Headers.GetValues("Set-Cookie"));
         Assert.Contains("slate.session=", cookie);
         Assert.Contains("httponly", cookie, StringComparison.OrdinalIgnoreCase);
@@ -47,6 +49,23 @@ public sealed class AuthEndpointTests
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
 
         Assert.Equal(_store.TeacherId, me!.TeacherId);
+    }
+
+    [Fact]
+    public async Task Me_carries_the_class_and_the_last_4_digits_never_the_whole_phone()
+    {
+        // T-109: the Profile screen shows "•••• 0000" and "Grade 3 · Kannada medium".
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+        await SignInAsync(client, Phone, Pin);
+
+        var body = await client.GetStringAsync("/api/me", Ct);
+        var me = System.Text.Json.JsonSerializer.Deserialize<MeResponse>(body, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+
+        Assert.Equal(Phone[^4..], me.PhoneLast4);
+        Assert.Equal(3, me.Grade);
+        Assert.Equal("kn", me.Medium);
+        Assert.DoesNotContain(Phone, body);
     }
 
     [Fact]
@@ -239,7 +258,8 @@ public sealed class AuthEndpointTests
 
         public Task<MeResponse?> GetMeAsync(Guid teacherId, CancellationToken cancellationToken) =>
             Task.FromResult(teacherId == TeacherId
-                ? new MeResponse(TeacherId, "Shobha", ClassId, ConsentAt is not null)
+                ? new MeResponse(
+                    TeacherId, "Shobha", ClassId, ConsentAt is not null, PhoneLast4: PhoneMask.Last4(_phone), Grade: 3, Medium: "kn")
                 : null);
 
         public Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

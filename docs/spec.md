@@ -205,7 +205,7 @@ The ledger is a query (attendance × lessons × assignments × responses), not a
 ```
 POST /api/auth/pin                          { phone, pin } → session cookie; seeded teachers only, no registration (D-40); a class can have several teachers (D-79); 5 wrong → 15 min lock (429)
 POST /api/auth/logout                       ends the session
-GET  /api/me                                { teacherId, displayName, classId, setupComplete }; 401 when signed out
+GET  /api/me                                { teacherId, displayName, classId, setupComplete, phoneLast4, grade, medium }; 401 when signed out. phoneLast4 is the last 4 digits only, for T11 Profile (T-109): the full number never leaves the server
 POST /api/me/welcome                        { clientRequestId } → sets Teacher.ConsentAt once; for continuing without a greeting (D-34)
 POST /api/me/greeting                       multipart: file (16 kHz mono WAV, 1–12 s, ≤ 1 MB), clientRequestId, consent=true → stores her greeting (replaces the old one), sets Teacher.ConsentAt once, returns /api/me (T-61). 400 without consent or outside the length; 413; 415 not a WAV. The audio is never sent to speech-to-text or an LLM
 GET  /api/p/{token}/greeting                the evening message's greeting audio for a valid, unstopped link (Ogg Opus, range requests); 404 otherwise (T-61)

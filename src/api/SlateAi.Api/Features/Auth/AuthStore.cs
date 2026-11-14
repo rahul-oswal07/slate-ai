@@ -44,7 +44,7 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
     {
         var teacher = await db.Teachers
             .Where(t => t.Id == teacherId)
-            .Select(t => new { t.Id, t.DisplayName, t.ConsentAt })
+            .Select(t => new { t.Id, t.DisplayName, t.ConsentAt, t.Phone })
             .SingleOrDefaultAsync(cancellationToken);
         if (teacher is null)
         {
@@ -62,7 +62,22 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
             .Where(c => c.TeacherId == teacherId && c.Kind == "greeting")
             .Select(c => new GreetingInfo("/api/audio/" + c.Id, Math.Round(c.Seconds, 1)))
             .FirstOrDefaultAsync(cancellationToken);
-        return new MeResponse(teacher.Id, teacher.DisplayName, classId, teacher.ConsentAt is not null, greeting);
+        // Profile (T-109): the class as she knows it, and only the last 4 digits of her phone.
+        var group = classId is null
+            ? null
+            : await db.Classes
+                .Where(c => c.Id == classId)
+                .Select(c => new { c.Grade, c.Medium })
+                .SingleOrDefaultAsync(cancellationToken);
+        return new MeResponse(
+            teacher.Id,
+            teacher.DisplayName,
+            classId,
+            teacher.ConsentAt is not null,
+            greeting,
+            PhoneLast4: PhoneMask.Last4(teacher.Phone),
+            Grade: group?.Grade,
+            Medium: group?.Medium);
     }
 
     public async Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

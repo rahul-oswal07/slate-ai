@@ -13,6 +13,7 @@ import { MissedScreen } from '../features/missed/MissedScreen'
 import { ParentScreen } from '../features/parent/ParentScreen'
 import { EveningTemplateScreen } from '../features/setup/EveningTemplateScreen'
 import { GreetingScreen } from '../features/setup/GreetingScreen'
+import { ProfileScreen } from '../features/profile/ProfileScreen'
 import { SettingsScreen } from '../features/settings/SettingsScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
@@ -45,6 +46,7 @@ export function App() {
           <Route element={<TeacherLayout />}>
             <Route index element={<TodayScreen />} />
             <Route path="settings" element={<SettingsScreen />} />
+            <Route path="profile" element={<ProfileScreen />} />
             <Route path="lesson" element={<ConfirmLessonScreen />} />
             <Route path="approve" element={<ApproveScreen />} />
             <Route path="approve/:id" element={<PackageScreen />} />

@@ -20,6 +20,7 @@ Each folder has two files: **`spec.md`** (purpose, states, requirements, the dec
 | T8 Families | Consent, parent phone and home language per child. **Roadmap, not built** | none | none | none | [T8](design/T8-families.md) | card only |
 | T9 Sign in | Phone number and PIN | `/login` | `features/auth/` | `Auth` | [T9](design/T9-sign-in.md) | [spec](screens/T9-sign-in/spec.md) · [status](screens/T9-sign-in/status.md) |
 | T10 Settings | Her greeting and the evening message, after set-up | `/settings` | `features/settings/` | `Greeting`, `EveningMessages` | [T10](design/T10-settings.md) | [spec](screens/T10-settings/spec.md) · [status](screens/T10-settings/status.md) |
+| T11 Profile | Her name, the last 4 digits of her phone, her class; read only. Opened from the header's profile menu | `/profile` | `features/profile/` | `Auth` | none yet | [spec](screens/T11-profile/spec.md) · [status](screens/T11-profile/status.md) |
 
 **Family pages** (`/p/:token`, no sign-in; web `features/parent/`, API `Parent`)
 

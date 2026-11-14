@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Status | Proposed · needs Rahul's approval before building |
-| Issue | #210 |
+| Status | Done |
+| Issue | #210 · PR #218 |
 | Owner | M (layout and copy), R builds |
-| Screens | app-shell, T1-today, T9-sign-in, T10-settings |
+| Screens | app-shell, T1-today, T9-sign-in, T10-settings, T11-profile |
 | Source | Monika, 14 Nov · Finale Should · replaces the header part of T-95 / D-96 |
 
 ## What
@@ -48,6 +48,12 @@ Vitest: the menu (opens, the three items, Escape and an outside tap close it, fo
 
 ## Notes
 
+- 15 Nov: built on `feat/T-109-header-profile-menu` (D-101). Header in one row; `ProfileMenu` (Profile · Settings · Log out; Escape, a tap outside and choosing close it; arrow keys, Home, End); read-only `/profile` (T11); the gear is gone from Today, the Saved badge stays; sign-in has no profile button; before set-up the menu has Log out only. `LogoutButton` became `useLogout`.
+- 15 Nov, Rahul's calls: the profile data rides on `GET /api/me` (`phoneLast4`, `grade`, `medium`; `PhoneMask.Last4`), no new endpoint, so Profile also shows offline. The header doesn't read `me` (the welcome hand-off is timing-sensitive): it decides by path.
+- 15 Nov, measured at 360 px in all five languages (built app, existing e2e harness): with the full language name the app name wrapped to two lines in Tamil and English and the header was 157 px in Tamil. So beside the profile button the closed dropdown shows a short label (`language.short.*`: "ಕ", "En", "हि", "తె", "த"); the picker still lists the full names; sign-in and `/demo` keep the full name. After that: name on one line in all five, header 91 to 95 px (117 px in Tamil, where the tagline takes two lines, as on sign-in before), no page wider than 360 px, the menu inside the screen.
+- 15 Nov: axe found nothing on Today, the open menu and Profile, in kn and ta, light and dark. Screenshots in `docs/screenshots/T-109/`. The 12 existing e2e specs pass unchanged; no new spec.
+- 15 Nov, not done: the T1 design card, T-95 and D-96 are Monika's to update (D-96 is in the frozen log; D-101 records the change). The kn / hi / te / ta strings and the short labels are drafts for her.
+- 15 Nov: approved by Rahul (he picked it as the next task).
 - 15 Nov: moved here from issue #210 and `status.md` (T-110).
 - 14 Nov, Monika: **Build after #209 (T-108) merges:** both change the title row in `TodayScreen.tsx`.
 - 14 Nov, Monika: If Sunday is tight, the menu can ship with Settings and Log out first and Profile can follow.

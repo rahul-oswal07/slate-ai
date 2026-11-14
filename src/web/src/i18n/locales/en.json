@@ -10,7 +10,14 @@
     "en": "English",
     "te": "తెలుగు",
     "ta": "தமிழ்",
-    "hi": "हिन्दी"
+    "hi": "हिन्दी",
+    "short": {
+      "kn": "ಕ",
+      "en": "En",
+      "te": "తె",
+      "ta": "த",
+      "hi": "हि"
+    }
   },
   "notFound": {
     "title": "Page not found",
@@ -843,7 +850,6 @@
   },
   "settings": {
     "title": "Settings",
-    "open": "Settings",
     "backToToday": "‹ Today",
     "backToSettings": "Back to Settings",
     "greeting": {
@@ -860,6 +866,14 @@
       "needsApproval": "Needs your approval. No evening messages go until you approve it.",
       "review": "Review the message"
     }
+  },
+  "profile": {
+    "menuLabel": "Profile and settings",
+    "title": "Profile",
+    "name": "Name",
+    "phone": "Phone",
+    "class": "Class",
+    "classValue": "Grade {{grade}} · {{medium}} medium"
   },
   "todays": {
     "title": "Today's message",

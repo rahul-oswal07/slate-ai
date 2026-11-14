@@ -8,6 +8,11 @@ export type Me = {
   greeting?: Greeting | null
   /** Only for the demo teacher (T-93): Approve sends at once; Today offers the sample voice note. */
   demo?: DemoFlags | null
+  /** For her Profile screen (T-109). The last 4 digits only: the full number never leaves the server. */
+  phoneLast4?: string | null
+  grade?: number | null
+  /** Medium of instruction as a language code, e.g. "kn". */
+  medium?: string | null
 }
 
 /** What the teacher app does differently in the demo class (T-93). */

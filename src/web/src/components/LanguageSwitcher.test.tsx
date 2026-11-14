@@ -6,10 +6,10 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 
 const i18n = initI18n()
 
-function renderSwitcher() {
+function renderSwitcher(compact = false) {
   return render(
     <I18nextProvider i18n={i18n}>
-      <LanguageSwitcher />
+      <LanguageSwitcher compact={compact} />
     </I18nextProvider>,
   )
 }
@@ -49,5 +49,20 @@ describe('LanguageSwitcher (T-107)', () => {
     expect(i18n.language).toBe('ta')
     expect(document.documentElement.lang).toBe('ta')
     expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('ta')
+  })
+
+  it('compact (T-109): shows a short label, and is still the same dropdown with the full names', async () => {
+    renderSwitcher(true)
+
+    const select = screen.getByRole('combobox', { name: 'ಭಾಷೆ' })
+    expect(select).toHaveValue('kn')
+    expect(screen.getByText('ಕ', { selector: 'span' })).toHaveAttribute('lang', 'kn')
+    expect(within(select).getAllByRole('option').map((o) => o.textContent)).toEqual(['ಕನ್ನಡ', 'English', 'తెలుగు', 'தமிழ்', 'हिन्दी'])
+
+    await userEvent.selectOptions(select, 'ta')
+
+    expect(screen.getByRole('combobox', { name: 'மொழி' })).toHaveValue('ta')
+    expect(screen.getByText('த', { selector: 'span' })).toHaveAttribute('lang', 'ta')
+    expect(document.documentElement.lang).toBe('ta')
   })
 })

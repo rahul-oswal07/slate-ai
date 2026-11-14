@@ -16,7 +16,7 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - SATS is simulated.
-- The design card is not updated for T-108 (Monika's file).
+- The design card is not updated for T-108, or for T-109 (the gear left the title row; Settings is in the header's profile menu) (Monika's file).
 
 ## Open tasks
 
