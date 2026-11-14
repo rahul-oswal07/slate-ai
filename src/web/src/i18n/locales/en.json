@@ -172,9 +172,17 @@
       "sub": "who missed {{lessons}}",
       "see": "See the {{n}} children"
     },
+    "todays": {
+      "waiting": "Today’s message is waiting for you",
+      "waitingHint": "Until you approve it, families get the plain evening message.",
+      "check": "Check and approve",
+      "approved": "Today’s message: approved · goes after 6 pm",
+      "see": "See today’s message"
+    },
     "tonight": {
       "title": "After 6 pm tonight: message to {{families}} of {{absent}} families",
       "body": "The message you approved once, with today’s lesson and page.",
+      "bodyTodays": "With today’s message, which you checked and approved today.",
       "see": "See the message",
       "sent": "Sent tonight to {{families}} of {{absent}} families",
       "none": "No messages tonight.",

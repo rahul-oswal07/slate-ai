@@ -13,9 +13,19 @@ const tagKey: Partial<Record<EveningOutcome, string>> = {
 /**
  * Tonight's card (T1 `done`, FR-20): "After 6 pm tonight: message to 3 of 4 families". Counts come from the API
  * (absent ∩ consent Yes ∩ not stopped, D-39); every absent child left out is named with a tag (A-26). Before the
- * template is approved it links to the approval step instead.
+ * template is approved it links to the approval step instead. The line under the title says what goes: the message she
+ * approved once, or with it today's message once she has approved that (T-108).
  */
-export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterChild[] }) {
+export function TonightCard({
+  day,
+  roster,
+  todaysApproved = false,
+}: {
+  day: EveningDay
+  roster: RosterChild[]
+  /** Today's message is approved (or already sent), so it goes with tonight's message (T-108). */
+  todaysApproved?: boolean
+}) {
   const { t } = useTranslation()
   const names = new Map(roster.map((c) => [c.id, c.firstName]))
   const leftOut = day.children.filter((c) => tagKey[c.outcome])
@@ -48,7 +58,7 @@ export function TonightCard({ day, roster }: { day: EveningDay; roster: RosterCh
       <h2 id="tonight-title" className="text-label text-primary-strong">
         {title}
       </h2>
-      {day.families > 0 && <p className="mt-1 text-body text-ink">{t('today.tonight.body')}</p>}
+      {day.families > 0 && <p className="mt-1 text-body text-ink">{t(todaysApproved ? 'today.tonight.bodyTodays' : 'today.tonight.body')}</p>}
       {leftOut.length > 0 && (
         <ul className="mt-2 flex flex-col gap-1">
           {leftOut.map((c) => (

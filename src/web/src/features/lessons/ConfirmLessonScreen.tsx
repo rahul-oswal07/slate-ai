@@ -5,6 +5,7 @@ import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useOnline } from '../../components/useOnline'
+import { useTodaysWaiting } from '../approve/useTodaysMessage'
 import { useMe } from '../auth/useMe'
 import { istToday } from '../today/schoolTime'
 import { findLesson, lessonName, pageText } from './lessonText'
@@ -33,6 +34,7 @@ export function ConfirmLessonScreen() {
   const day = useLessonDay(classId, date)
   const curriculum = useCurriculum()
   const save = useSaveLesson(classId, date)
+  const todaysWaiting = useTodaysWaiting(classId, date)
   const chapters = curriculum.data?.chapters ?? []
   const lesson = day.data?.lesson
   const status = lesson?.status
@@ -40,6 +42,8 @@ export function ConfirmLessonScreen() {
   const [now, setNow] = useState(() => Date.now())
   const [ticked, setTicked] = useState<string[] | null>(null)
   const [sheet, setSheet] = useState<'single' | 'add' | null>(null)
+  // From her tap until we know where she goes next (T-108): Today must not show in between.
+  const [confirming, setConfirming] = useState(false)
 
   useEffect(() => {
     if (status !== 'processing') {
@@ -55,16 +59,25 @@ export function ConfirmLessonScreen() {
     }
   }, [status, announce, t])
 
-  if (day.data && (!lesson || status === 'confirmed')) {
+  if (!confirming && day.data && (!lesson || status === 'confirmed')) {
     return <Navigate to="/" replace />
   }
 
   const chosen = ticked ?? lesson?.competencyIds ?? []
 
-  function confirm(ids: string[], source: 'voice' | 'picked') {
+  /**
+   * Confirms, then goes to today's message when the server started one for her to check (T-108), else to Today.
+   * Offline the lesson waits in the outbox and she goes to Today at once.
+   */
+  async function confirm(ids: string[], source: 'voice' | 'picked') {
     announce(t(source === 'voice' ? 'announce.lessonConfirmed' : 'announce.lessonSaved'))
-    void save(ids, source)
-    void navigate('/')
+    if (!online) {
+      void save(ids, source)
+      void navigate('/')
+      return
+    }
+    setConfirming(true)
+    void navigate((await todaysWaiting(save(ids, source))) ? '/approve' : '/')
   }
 
   return (
@@ -111,6 +124,17 @@ export function ConfirmLessonScreen() {
         </output>
       )}
 
+      {/* Her tap is saved; for a moment the screen waits to learn where she goes next (T-108). */}
+      {confirming && (
+        <output className="flex items-center gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px] text-body">
+          <span
+            aria-hidden="true"
+            className="size-6 shrink-0 animate-spin rounded-full border-4 border-panel border-t-primary motion-reduce:animate-none"
+          />
+          {t('announce.lessonConfirmed')}
+        </output>
+      )}
+
       {status === 'unclear' && (
         <div role="alert" className="rounded-card border-[1.5px] border-edge border-l-4 border-l-error bg-error-bg p-[14px]">
           <p className="flex items-start gap-2 text-body">
@@ -147,8 +171,8 @@ export function ConfirmLessonScreen() {
           </fieldset>
           <button
             type="button"
-            onClick={() => confirm(chosen, 'voice')}
-            disabled={chosen.length === 0}
+            onClick={() => void confirm(chosen, 'voice')}
+            disabled={chosen.length === 0 || confirming}
             aria-describedby={chosen.length === 0 ? 'keep-one' : undefined}
             className={`${primary} mt-3`}
           >
@@ -184,7 +208,8 @@ export function ConfirmLessonScreen() {
                 chapters={chapters}
                 type="radio"
                 checked={false}
-                onChange={() => confirm([id], 'voice')}
+                disabled={confirming}
+                onChange={() => void confirm([id], 'voice')}
               />
             ))}
           </fieldset>
@@ -204,7 +229,7 @@ export function ConfirmLessonScreen() {
           onClose={() => setSheet(null)}
           onPick={(id) => {
             setSheet(null)
-            confirm([id], 'picked')
+            void confirm([id], 'picked')
           }}
           add={
             sheet === 'add'
@@ -260,12 +285,14 @@ function LessonOption({
   chapters,
   type,
   checked,
+  disabled = false,
   onChange,
 }: {
   id: string
   chapters: Chapter[]
   type: 'checkbox' | 'radio'
   checked: boolean
+  disabled?: boolean
   onChange: () => void
 }) {
   const { t, i18n } = useTranslation()
@@ -276,6 +303,7 @@ function LessonOption({
         type={type}
         name={type === 'radio' ? 'low-choice' : undefined}
         checked={checked}
+        disabled={disabled}
         onChange={onChange}
         className="size-6 shrink-0 accent-primary"
       />

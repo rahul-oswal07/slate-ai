@@ -4,12 +4,14 @@ import { initI18n } from '../../i18n'
 import { db } from '../../offline/db'
 import { installFakeMedia } from '../../test/fakeMedia'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
+import { todaysMessage } from '../approve/fixtures'
 import { istToday } from '../today/schoolTime'
 import type { Curriculum, LessonDay, LessonStatus } from './types'
 
 const i18n = initI18n()
 const date = istToday()
 const dayUrl = `/api/classes/${teacher.classId}/lessons/${date}`
+const todaysUrl = `/api/classes/${teacher.classId}/todays-message/${date}`
 
 const lesson = (id: string, nameEn: string, sequence: number, page: number) => ({
   id, nameKn: `ಕ ${id}`, nameEn, sequence, textbookPage: { book: 'textbook' as const, part: 2, page },
@@ -49,7 +51,10 @@ describe('T2 Lesson confirm', () => {
     await i18n.changeLanguage('en')
   })
 
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
 
   it('shows processing, then the matched lessons all ticked once A1 is done', async () => {
     let state = voice('processing')
@@ -95,6 +100,65 @@ describe('T2 Lesson confirm', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
     await waitFor(() => expect(saved).toMatchObject({ competencyIds: ['M3.SUB.NOBORROW'], source: 'voice' }))
+  })
+
+  it("when confirming starts today's message, she goes straight to it on Approve (T-108)", async () => {
+    let confirmed = false
+    const calls = api(() => voice(confirmed ? 'confirmed' : 'mapped', ['M3.SUB.NOBORROW']), {
+      [`PUT ${dayUrl}`]: () => {
+        confirmed = true
+        return { status: 200, body: voice('confirmed', ['M3.SUB.NOBORROW']) }
+      },
+      // The server starts the draft when the lesson is saved, so there is none before.
+      [`GET ${todaysUrl}`]: () =>
+        confirmed ? { status: 200, body: todaysMessage({ status: 'generating', version: 0, languages: [] }) } : { status: 204 },
+    })
+    renderApp('/lesson')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Confirm' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Check and approve' })).toBeInTheDocument()
+    expect(await screen.findByText("Writing today's message…")).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: "Today's message" })).toHaveAttribute('aria-selected', 'true')
+    const keys = calls.map((c) => c.key)
+    expect(keys.indexOf(`GET ${todaysUrl}`)).toBeGreaterThan(keys.indexOf(`PUT ${dayUrl}`))
+  })
+
+  it("without a today's message (no child away, or a lesson without the book's exercises) she returns to Today", async () => {
+    api(() => voice('mapped', ['M3.SUB.NOBORROW']), {
+      [`PUT ${dayUrl}`]: () => ({ status: 200, body: voice('confirmed', ['M3.SUB.NOBORROW']) }),
+      [`GET ${todaysUrl}`]: () => ({ status: 204 }),
+    })
+    renderApp('/lesson')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Confirm' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+  })
+
+  it("a today's message she already approved doesn't take her to Approve again", async () => {
+    api(() => voice('mapped', ['M3.SUB.NOBORROW']), {
+      [`PUT ${dayUrl}`]: () => ({ status: 200, body: voice('confirmed', ['M3.SUB.NOBORROW']) }),
+      [`GET ${todaysUrl}`]: () => ({ status: 200, body: todaysMessage({ status: 'approved', approvedVersion: 1 }) }),
+    })
+    renderApp('/lesson')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Confirm' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+  })
+
+  it("offline: the lesson waits in the outbox and she returns to Today without asking for today's message", async () => {
+    // No "offline" event: it would pause every later query in this file (TanStack's online manager is shared).
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    const calls = api(() => voice('mapped', ['M3.SUB.NOBORROW']), { [`PUT ${dayUrl}`]: () => 'offline' })
+    renderApp('/lesson')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Confirm' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+    expect(calls.map((c) => c.key)).not.toContain(`GET ${todaysUrl}`)
+    await waitFor(async () => expect(await db.outbox.count()).toBe(1))
   })
 
   it('"Add another lesson" ticks more, up to 3', async () => {

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { db } from '../../offline/db'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
+import { todaysMessage } from '../approve/fixtures'
 import { istToday } from '../today/schoolTime'
 import type { AttendanceDay } from '../today/types'
 import type { Curriculum, LessonDay } from './types'
@@ -10,6 +11,7 @@ import type { Curriculum, LessonDay } from './types'
 const i18n = initI18n()
 const date = istToday()
 const lessonUrl = `/api/classes/${teacher.classId}/lessons/${date}`
+const todaysUrl = `/api/classes/${teacher.classId}/todays-message/${date}`
 
 const curriculum: Curriculum = {
   chapters: [
@@ -78,6 +80,25 @@ describe('picking today’s lesson', () => {
   })
 
   afterEach(() => vi.unstubAllGlobals())
+
+  it("picking a lesson that starts today's message takes her to it on Approve, like Confirm does (T-108)", async () => {
+    let server = noLesson
+    today(() => server, {
+      [`PUT ${lessonUrl}`]: () => {
+        server = confirmed('M3.SUB.BORROW')
+        return { status: 200, body: server }
+      },
+      [`GET ${todaysUrl}`]: () =>
+        server === noLesson ? { status: 204 } : { status: 200, body: todaysMessage({ status: 'generating', version: 0, languages: [] }) },
+    })
+    renderApp('/')
+
+    await openPicker()
+    await userEvent.click(screen.getByRole('radio', { name: /Next in the book/ }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Check and approve' })).toBeInTheDocument()
+    expect(await screen.findByText("Writing today's message…")).toBeInTheDocument()
+  })
 
   it('opens the chapter of "Next in the book", lists it first, and one tap confirms it', async () => {
     let server = noLesson
