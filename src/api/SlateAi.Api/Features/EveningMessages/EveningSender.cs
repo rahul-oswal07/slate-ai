@@ -84,6 +84,8 @@ public sealed class EveningSender(
 
         // Only a clip she approved goes with the message; no clip, or one for another language, means the plain message.
         var lessonAudio = await store.GetApprovedLessonAudioAsync(classId, date, cancellationToken);
+        // Today's message (D-91) goes only when approved at its current version; its concept replaces the lesson clip.
+        var todays = await store.GetApprovedTodaysMessageAsync(classId, date, cancellationToken);
         var sent = await store.GetSentChildIdsAsync(classId, date, cancellationToken);
         var absent = register.AbsentChildIds.ToHashSet();
         var now = clock.GetUtcNow();
@@ -101,9 +103,12 @@ public sealed class EveningSender(
             children.Add(new EveningChildView(child.Id, outcome));
             if (outcome == EveningOutcome.WillSend && filled is not null && blocked is null)
             {
+                var withTodays = todays is { } t && t.Languages.Contains(child.HomeLanguage) ? t.Id : (Guid?)null;
                 pending.Add(new NewEveningMessage(
                     child.Id, template!.Id, lesson!.Id, child.HomeLanguage, filled.Slots, NewToken(), now,
-                    now.AddDays(options.Value.LinkDays), lessonAudio.TryGetValue(child.HomeLanguage, out var audioId) ? audioId : null));
+                    now.AddDays(options.Value.LinkDays),
+                    withTodays is null && lessonAudio.TryGetValue(child.HomeLanguage, out var audioId) ? audioId : null,
+                    withTodays));
             }
         }
 

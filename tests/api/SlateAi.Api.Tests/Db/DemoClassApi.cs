@@ -17,11 +17,13 @@ public sealed class DemoClassApi : IAsyncDisposable
         _factory = factory;
         Client = factory.CreateTeacherClient(classId, teacherId);
         ClassId = classId;
+        TeacherId = teacherId;
         ChildIds = childIds;
     }
 
     public HttpClient Client { get; }
     public Guid ClassId { get; }
+    public Guid TeacherId { get; }
 
     /// <summary>Demo children ordered by roll number.</summary>
     public IReadOnlyList<Guid> ChildIds { get; }
