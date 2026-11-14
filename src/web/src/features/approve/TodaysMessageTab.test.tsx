@@ -90,11 +90,19 @@ describe("Approve → Today's message (T-89)", () => {
   })
 
   it('without a message yet: says when it is made and links to Today', async () => {
-    setup(() => ({ status: 404 }))
+    setup(() => ({ status: 204 }))
     renderApp('/approve')
 
     expect(await screen.findByText(/made when you confirm today's lesson/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Go to Today' })).toHaveAttribute('href', '/')
+  })
+
+  it('a 404 is an error, never "no message yet"', async () => {
+    setup(() => ({ status: 404 }))
+    renderApp('/approve')
+
+    expect(await screen.findByRole('button', { name: 'Try again' })).toBeInTheDocument()
+    expect(screen.queryByText(/made when you confirm today's lesson/)).not.toBeInTheDocument()
   })
 
   it('while it is written: says so and shows no approve button', async () => {

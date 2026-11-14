@@ -40,7 +40,7 @@ public static class TodaysMessageEndpoints
             .WithTags("Today's message")
             .WithSummary("Today's message: concept, activity, picture question, per language, with its status and version")
             .WithDescription(
-                "404 until a draft exists. A draft starts when she confirms a lesson with the book's exercises (D-93) and " +
+                "204 until a draft exists (no message yet is a normal state, not an error; 404 means the class isn't hers). A draft starts when she confirms a lesson with the book's exercises (D-93) and " +
                 "someone is due tonight's message. generating → ready (check, then approve this version) → approved. " +
                 "sent: families have it, read only. The picture numbers and answer come from code, never the AI.");
 
@@ -51,7 +51,7 @@ public static class TodaysMessageEndpoints
             .WithDescription(
                 "sent: families who got today's message; answered: questions finished (right, or two taps). Each row has " +
                 "the child's last tap (>, < or =, or null) and the level worked out by code: gotIt (right first time), " +
-                "gettingThere (right on the second try), needsHelp (wrong twice), notAnswered. 404 without a today's message.");
+                "gettingThere (right on the second try), needsHelp (wrong twice), notAnswered. 204 without a today's message.");
 
         app.MapPost($"{Day}/generate", RetryAsync)
             .RequireClassOwner()
@@ -100,13 +100,13 @@ public static class TodaysMessageEndpoints
         return app;
     }
 
-    private static async Task<Results<Ok<TodaysMessageView>, NotFound>> GetAsync(
+    private static async Task<Results<Ok<TodaysMessageView>, NoContent>> GetAsync(
         Guid classId, DateOnly date, TodaysMessageService service, CancellationToken cancellationToken) =>
-        await service.GetAsync(classId, date, cancellationToken) is { } view ? TypedResults.Ok(view) : TypedResults.NotFound();
+        await service.GetAsync(classId, date, cancellationToken) is { } view ? TypedResults.Ok(view) : TypedResults.NoContent();
 
-    private static async Task<Results<Ok<TodaysAnswersView>, NotFound>> GetAnswersAsync(
+    private static async Task<Results<Ok<TodaysAnswersView>, NoContent>> GetAnswersAsync(
         Guid classId, DateOnly date, TodaysMessageService service, CancellationToken cancellationToken) =>
-        await service.GetAnswersAsync(classId, date, cancellationToken) is { } answers ? TypedResults.Ok(answers) : TypedResults.NotFound();
+        await service.GetAnswersAsync(classId, date, cancellationToken) is { } answers ? TypedResults.Ok(answers) : TypedResults.NoContent();
 
     private static async Task<Results<Accepted<TodaysMessageView>, Conflict, ValidationProblem>> RetryAsync(
         Guid classId, DateOnly date, RetryTodaysMessageRequest request, TodaysMessageService service, CancellationToken cancellationToken)

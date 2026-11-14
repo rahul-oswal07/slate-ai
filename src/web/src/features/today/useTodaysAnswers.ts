@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { api, ApiError } from '../../api/client'
+import { api } from '../../api/client'
 
 /** D-95's levels, worked out by code from the child's taps (T-90). */
 export type Level = 'gotIt' | 'gettingThere' | 'needsHelp' | 'notAnswered'
@@ -21,22 +21,13 @@ export interface TodaysAnswers {
 }
 
 /**
- * The answers to today's picture question (T-92). null: no today's message. While some families haven't finished it,
+ * The answers to today's picture question (T-92). null: no today's message (204). While some families haven't finished it,
  * checks again every 5 s (only while the page is in front), so a child's tap shows on Today within seconds.
  */
 export function useTodaysAnswers(classId: string, date: string) {
   return useQuery({
     queryKey: ['todays-answers', classId, date],
-    queryFn: async () => {
-      try {
-        return await api<TodaysAnswers>(`/api/classes/${classId}/todays-message/${date}/answers`)
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return null
-        }
-        throw error
-      }
-    },
+    queryFn: async () => (await api<TodaysAnswers | undefined>(`/api/classes/${classId}/todays-message/${date}/answers`)) ?? null,
     enabled: classId !== '',
     retry: false,
     refetchInterval: (query) => {
