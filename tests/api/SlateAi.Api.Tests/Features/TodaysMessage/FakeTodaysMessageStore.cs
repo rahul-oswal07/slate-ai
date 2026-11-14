@@ -41,6 +41,7 @@ public sealed class FakeTodaysMessageStore : ITodaysMessageStore
 
             var started = (row ?? new TodaysMessageRow(Guid.NewGuid(), classId, date, [], "", 0, null, null, null, null, now, false)) with
             {
+                Sections = row is not null && row.CompetencyIds.SequenceEqual(competencyIds) ? row.Sections : null,
                 CompetencyIds = competencyIds, Status = TodaysMessageStatus.Generating, ApprovedVersion = null, ApprovedAt = null,
                 Verdict = null, UpdatedAt = now,
             };
@@ -123,6 +124,47 @@ public sealed class FakeTodaysMessageStore : ITodaysMessageStore
             {
                 Sections = changed, Status = TodaysMessageStatus.Ready, Version = row.Version + 1, ApprovedVersion = null,
                 ApprovedAt = null, UpdatedAt = now,
+            });
+            return Task.FromResult(TodaysChange.Applied);
+        }
+    }
+
+    public Task<TodaysChange> ReviseAsync(
+        Guid classId,
+        DateOnly date,
+        Guid clientRequestId,
+        int version,
+        Func<TodaysSections, TodaysSections?> change,
+        bool redraft,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (!_processed.Add(clientRequestId))
+            {
+                return Task.FromResult(TodaysChange.Replay);
+            }
+
+            if (Find(classId, date) is not { } row)
+            {
+                return Task.FromResult(TodaysChange.NotFound);
+            }
+
+            if (row.Version != version || row.Status is not (TodaysMessageStatus.Ready or TodaysMessageStatus.Approved) || row.Sent
+                || row.Sections is null || change(row.Sections) is not { } changed)
+            {
+                return Task.FromResult(TodaysChange.Conflict);
+            }
+
+            Replace(Rows.Single(r => r.Id == row.Id), row with
+            {
+                Sections = changed,
+                Status = redraft ? TodaysMessageStatus.Generating : TodaysMessageStatus.Ready,
+                Version = redraft ? row.Version : row.Version + 1,
+                ApprovedVersion = null,
+                ApprovedAt = null,
+                UpdatedAt = now,
             });
             return Task.FromResult(TodaysChange.Applied);
         }

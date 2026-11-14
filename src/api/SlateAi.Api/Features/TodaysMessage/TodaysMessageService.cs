@@ -14,6 +14,9 @@ public sealed record TodaysLanguageView(string Language, int Families, string Co
 /// <param name="Version">She approves this version; any edit makes a new one and clears her tick (D-92).</param>
 /// <param name="Sent">Families have it: read only.</param>
 /// <param name="Removed">Sections she removed: they are not sent.</param>
+/// <param name="Pairs">The book's pairs she can choose for the picture question (D-92); <paramref name="PictureIndex"/> is the one in use.</param>
+/// <param name="Edited">The Kannada is hers (D-92).</param>
+/// <param name="Note">Her note per language, or null.</param>
 public sealed record TodaysMessageView(
     DateOnly Date,
     string Status,
@@ -27,7 +30,13 @@ public sealed record TodaysMessageView(
     TodaysVideo? Video,
     TodaysNote? Note,
     IReadOnlyList<string> Removed,
-    IReadOnlyList<TodaysLanguageView> Languages);
+    IReadOnlyList<TodaysLanguageView> Languages,
+    IReadOnlyList<IReadOnlyList<int>> Pairs,
+    int? PictureIndex,
+    bool Edited);
+
+/// <summary>Why her edit was not saved (D-92): the check's code, what exactly was wrong, and the numbers she may use.</summary>
+public sealed record TodaysEditProblem(string Problem, string? Detail, IReadOnlyList<string> Allowed);
 
 /// <summary>
 /// Today's message (D-91, T-88): drafted when she confirms the lesson, changed by her, approved at one version, and sent
@@ -100,6 +109,8 @@ public sealed class TodaysMessageService(
         var removed = sections is null
             ? []
             : TodaysSectionKind.All.Where(k => IsRemoved(sections, k)).ToList();
+        var pairs = Pairs(row.CompetencyIds);
+        var index = sections is null ? -1 : pairs.FindIndex(p => p[0] == sections.Picture.A && p[1] == sections.Picture.B);
         return new TodaysMessageView(
             row.Date,
             stale ? TodaysMessageStatus.Failed : row.Status,
@@ -113,8 +124,87 @@ public sealed class TodaysMessageService(
             sections?.Video,
             sections?.Note,
             removed,
-            languages);
+            languages,
+            pairs,
+            index < 0 ? null : index,
+            sections?.Teacher ?? false);
     }
+
+    /// <summary>
+    /// Her Kannada for one section (D-92). Her text goes through the same checks as A9's (names, numbers, script, length);
+    /// on a problem nothing is saved. Otherwise the message goes back to generating: the other languages are written from
+    /// her Kannada and every concept is voiced again, then it is ready at the next version and she ticks again.
+    /// </summary>
+    public async Task<(TodaysChange Change, TodaysEditProblem? Problem)> EditAsync(
+        Guid classId,
+        DateOnly date,
+        Guid clientRequestId,
+        int version,
+        string kind,
+        string? text,
+        IReadOnlyList<string>? steps,
+        CancellationToken cancellationToken)
+    {
+        if (await store.GetAsync(classId, date, cancellationToken) is not { } row)
+        {
+            return (TodaysChange.NotFound, null);
+        }
+
+        if (row.Sections is not { } sections || row.Version != version)
+        {
+            return (TodaysChange.Conflict, null);
+        }
+
+        var cleaned = steps?.Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
+        if (sections.WithKannada(kind, text?.Trim(), cleaned) is not { } edited)
+        {
+            return (TodaysChange.Conflict, null);
+        }
+
+        var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
+        var allowed = TodaysMessageValidator.AllowedNumbers(lessons, edited.Picture);
+        var names = (await evening.GetClassAsync(classId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
+        var kannada = edited.Kannada;
+        if (TodaysMessageValidator.Check("kn", new TodaysText(kannada.Concept, kannada.Steps, kannada.Note), allowed, names) is { } refused)
+        {
+            // Never echo a name back: the detail only says what kind of problem it was.
+            return (TodaysChange.Conflict, new TodaysEditProblem(
+                refused.Verdict.Replace("fallback:", ""), refused.Detail, allowed.OrderBy(n => n.Length).ThenBy(n => n, StringComparer.Ordinal).ToList()));
+        }
+
+        var change = await store.ReviseAsync(classId, date, clientRequestId, version, _ => edited, redraft: true, clock.GetUtcNow(), cancellationToken);
+        if (change == TodaysChange.Applied)
+        {
+            queue.TryEnqueue(new TodaysJob(row.Id, edited.Languages));
+        }
+
+        return (change, null);
+    }
+
+    /// <summary>Another pair from the book's list for the picture question (D-92); code recomputes the answer. No AI.</summary>
+    public async Task<TodaysChange> SetPictureAsync(
+        Guid classId, DateOnly date, Guid clientRequestId, int version, int index, CancellationToken cancellationToken)
+    {
+        if (await store.GetAsync(classId, date, cancellationToken) is not { } row)
+        {
+            return TodaysChange.NotFound;
+        }
+
+        var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
+        if (index < 0 || index >= Pairs(row.CompetencyIds).Count || TodaysPicturePicker.Pick(lessons, index) is not { } picture)
+        {
+            return TodaysChange.Conflict;
+        }
+
+        return await store.ReviseAsync(
+            classId, date, clientRequestId, version,
+            s => s with { Picture = picture with { Removed = s.Picture.Removed } },
+            redraft: false, clock.GetUtcNow(), cancellationToken);
+    }
+
+    private List<IReadOnlyList<int>> Pairs(IReadOnlyList<string> competencyIds) =>
+        competencyIds.Select(curriculum.Get).OfType<Competency>()
+            .Select(l => l.Exercises?.Compare).FirstOrDefault(c => c is { Count: > 0 })?.ToList() ?? [];
 
     /// <summary>Approves the version she read; in the demo it then goes at once (D-94), elsewhere at 6 pm.</summary>
     public async Task<TodaysChange> ApproveAsync(

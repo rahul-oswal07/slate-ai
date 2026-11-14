@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { NetworkError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
@@ -8,19 +8,78 @@ import { useMe } from '../auth/useMe'
 import { useCurriculum } from '../lessons/useLessons'
 import { duration, lessonNames } from './packageText'
 import { StatusTag } from './StatusTag'
+import { TodaysMessageTab } from './TodaysMessageTab'
 import type { CatchUpPackage } from './types'
 import { useGenerate, usePackages } from './usePackages'
 
+const TABS = ['today', 'catchUps'] as const
+type Tab = (typeof TABS)[number]
+
 /**
- * T3 Approve, list (docs/design/T3-approve.md; D-70: one catch-up at a time, no bulk approve or Withdraw).
- * One card per catch-up (targets × language), not per child. Online only, with the D-68 states.
+ * T3 Approve (docs/design/T3-approve.md) with two tabs (T-89): **Today's message** (D-91, the default) and
+ * **Catch-ups** (D-70: one catch-up at a time, no bulk approve or Withdraw). The tab is in the URL
+ * (`?tab=catch-ups`), so coming back from a catch-up keeps it. Online only, with the D-68 states.
  */
 export function ApproveScreen() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const me = useMe()
   const online = useOnline()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const classId = me.data?.classId ?? ''
+  const [params, setParams] = useSearchParams()
+  const tab: Tab = params.get('tab') === 'catch-ups' ? 'catchUps' : 'today'
+  const select = (next: Tab) => setParams(next === 'catchUps' ? { tab: 'catch-ups' } : {}, { replace: true })
+
+  return (
+    <section aria-labelledby="approve-title" className="flex flex-col gap-3">
+      <h1 id="approve-title" ref={headingRef} tabIndex={-1} className="text-title">
+        {t('approve.title')}
+      </h1>
+
+      {!online && (
+        <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">
+          <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
+          <span className="text-body text-ink">{t('offline.noNetwork')}</span>
+        </output>
+      )}
+
+      <div role="tablist" aria-label={t('approve.tabs')} className="flex gap-2">
+        {TABS.map((name) => (
+          <button
+            key={name}
+            type="button"
+            role="tab"
+            id={`approve-tab-${name}`}
+            aria-selected={tab === name}
+            aria-controls={`approve-panel-${name}`}
+            tabIndex={tab === name ? 0 : -1}
+            onClick={() => select(name)}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                const next = TABS[(TABS.indexOf(name) + 1) % TABS.length] ?? name
+                select(next)
+                document.getElementById(`approve-tab-${next}`)?.focus()
+              }
+            }}
+            className={`min-h-target min-w-0 flex-1 rounded-button border-2 px-2 text-label font-bold [overflow-wrap:anywhere] ${
+              tab === name ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-ink'
+            }`}
+          >
+            {t(`approve.tab.${name}`)}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" id={`approve-panel-${tab}`} aria-labelledby={`approve-tab-${tab}`} className="flex flex-col gap-3">
+        {tab === 'today' ? <TodaysMessageTab classId={classId} /> : <CatchUpsTab classId={classId} />}
+      </div>
+    </section>
+  )
+}
+
+/** The week's catch-ups: one card per catch-up (targets × language), not per child. */
+function CatchUpsTab({ classId }: { classId: string }) {
+  const { t, i18n } = useTranslation()
   const week = usePackages(classId)
   const generate = useGenerate(classId)
   const chapters = useCurriculum().data?.chapters ?? []
@@ -33,18 +92,8 @@ export function ApproveScreen() {
   const families = done.reduce((sum, p) => sum + (p.status === 'sent' ? p.familiesSent : p.familiesReachable), 0)
 
   return (
-    <section aria-labelledby="approve-title" className="flex flex-col gap-3">
-      <h1 id="approve-title" ref={headingRef} tabIndex={-1} className="text-title">
-        {t('approve.title')}
-      </h1>
+    <>
       <p className="text-body text-ink-muted">{t('approve.intro')}</p>
-
-      {!online && (
-        <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-3">
-          <Icon name="cloudOff" size={18} className="mt-1 shrink-0 text-warning" />
-          <span className="text-body text-ink">{t('offline.noNetwork')}</span>
-        </output>
-      )}
 
       {week.isPending && classId !== '' && (
         <>
@@ -99,7 +148,7 @@ export function ApproveScreen() {
           {generate.error instanceof NetworkError ? t('offline.noNetwork') : t('approve.generateError')}
         </p>
       )}
-    </section>
+    </>
   )
 }
 

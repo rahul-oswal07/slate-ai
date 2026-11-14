@@ -9,6 +9,14 @@ public sealed record SetTodaysSectionRequest(Guid ClientRequestId, bool Removed)
 
 public sealed record RetryTodaysMessageRequest(Guid ClientRequestId);
 
+/// <param name="Version">The version she was editing; a newer one means 409 with the latest.</param>
+/// <param name="Text">Concept or note, in Kannada.</param>
+/// <param name="Steps">Activity steps, in Kannada (1 to 3).</param>
+public sealed record EditTodaysSectionRequest(Guid ClientRequestId, int Version, string? Text = null, IReadOnlyList<string>? Steps = null);
+
+/// <param name="Index">Which pair of the book's list (the view's <c>pairs</c>).</param>
+public sealed record SetTodaysPictureRequest(Guid ClientRequestId, int Version, int Index);
+
 /// <summary>Today's message (D-91, T-88): read, try again, remove or restore a section, approve.</summary>
 public static class TodaysMessageEndpoints
 {
@@ -52,6 +60,25 @@ public static class TodaysMessageEndpoints
                 "A removed section is not sent. Each change is a new version and clears her approval, so she ticks again " +
                 "(D-92). 409 while generating, once sent, or when it would remove the last section. Replaying the same " +
                 "clientRequestId is a no-op.");
+
+        app.MapPut($"{Day}/sections/{{kind}}", EditSectionAsync)
+            .RequireClassOwner()
+            .WithTags("Today's message")
+            .WithSummary("Save her Kannada for the concept, the activity or her note (D-92)")
+            .WithDescription(
+                "Her text goes through the same checks as A9's: no child's name, only the book's numbers (their tens and ones, " +
+                "the page and 10), her language's script, the length limits. 400 with problem, detail and the allowed numbers " +
+                "when a check fails; nothing is saved. 202 otherwise: back to generating, the other languages are written " +
+                "from her Kannada and the concepts voiced, then ready at the next version (she ticks again). 409 with the " +
+                "latest for an older version, while generating, or once sent.");
+
+        app.MapPut($"{Day}/picture", SetPictureAsync)
+            .RequireClassOwner()
+            .WithTags("Today's message")
+            .WithSummary("Choose another pair from the book's list for the picture question (D-92)")
+            .WithDescription(
+                "Code takes pair `index` of the lesson's exercise list and works out the answer (guardrail 4): a new version, " +
+                "her approval cleared. 409 for an older version, an index outside the list, while generating, or once sent.");
 
         app.MapPost($"{Day}/approve", ApproveAsync)
             .RequireClassOwner()
@@ -104,6 +131,60 @@ public static class TodaysMessageEndpoints
         }
 
         var result = await service.SetRemovedAsync(classId, date, request.ClientRequestId, kind, request.Removed, cancellationToken);
+        return await Reply(result, classId, date, service, cancellationToken);
+    }
+
+    private static async Task<Results<Accepted<TodaysMessageView>, Conflict<TodaysMessageView>, NotFound, ValidationProblem>> EditSectionAsync(
+        Guid classId,
+        DateOnly date,
+        string kind,
+        EditTodaysSectionRequest request,
+        TodaysMessageService service,
+        CancellationToken cancellationToken)
+    {
+        if (request.ClientRequestId == Guid.Empty)
+        {
+            return Required();
+        }
+
+        if (kind is not (TodaysSectionKind.Concept or TodaysSectionKind.Activity or TodaysSectionKind.Note))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["kind"] = ["Use concept, activity or note."] });
+        }
+
+        var (change, problem) = await service.EditAsync(
+            classId, date, request.ClientRequestId, request.Version, kind, request.Text, request.Steps, cancellationToken);
+        if (problem is not null)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["problem"] = [problem.Problem],
+                ["detail"] = [problem.Detail ?? ""],
+                ["allowed"] = [.. problem.Allowed],
+            });
+        }
+
+        if (change == TodaysChange.NotFound || await service.GetAsync(classId, date, cancellationToken) is not { } latest)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return change == TodaysChange.Conflict ? TypedResults.Conflict(latest) : TypedResults.Accepted((string?)null, latest);
+    }
+
+    private static async Task<Results<Ok<TodaysMessageView>, Conflict<TodaysMessageView>, NotFound, ValidationProblem>> SetPictureAsync(
+        Guid classId,
+        DateOnly date,
+        SetTodaysPictureRequest request,
+        TodaysMessageService service,
+        CancellationToken cancellationToken)
+    {
+        if (request.ClientRequestId == Guid.Empty)
+        {
+            return Required();
+        }
+
+        var result = await service.SetPictureAsync(classId, date, request.ClientRequestId, request.Version, request.Index, cancellationToken);
         return await Reply(result, classId, date, service, cancellationToken);
     }
 

@@ -42,17 +42,44 @@ public sealed record TodaysPicture(string Kind, int A, int B, string Answer, boo
 /// <summary>One checked DIKSHA link, chosen by code (T-94); null until then.</summary>
 public sealed record TodaysVideo(string Url, bool Removed = false);
 
-/// <summary>Her own note, typed in Kannada (T-89); null until she adds one.</summary>
-public sealed record TodaysNote(string Text, bool Removed = false);
+/// <summary>Her own note (T-89): her Kannada word for word, and A9's version for each other language; null until she adds one.</summary>
+public sealed record TodaysNote(IReadOnlyDictionary<string, string> Text, bool Removed = false);
 
 /// <summary>Everything a today's message holds. Stored as JSON on the row; never holds a name or a child ID.</summary>
+/// <param name="Teacher">The Kannada is hers (she edited it, D-92): a new draft keeps it and A9 only writes the other languages.</param>
 public sealed record TodaysSections(
     TodaysConcept Concept,
     TodaysActivity Activity,
     TodaysPicture Picture,
     TodaysVideo? Video = null,
-    TodaysNote? Note = null)
+    TodaysNote? Note = null,
+    bool Teacher = false)
 {
+    /// <summary>Her Kannada as it stands: what an edit starts from and what A9 translates (D-92).</summary>
+    public TeacherKannada Kannada => new(
+        Concept.Text.GetValueOrDefault("kn") ?? "",
+        Activity.Steps.GetValueOrDefault("kn") ?? [],
+        Note?.Text.GetValueOrDefault("kn"));
+
+    /// <summary>Her edit applied to the Kannada of one section; null for a section she can't type into.</summary>
+    public TodaysSections? WithKannada(string kind, string? text, IReadOnlyList<string>? steps) => kind switch
+    {
+        TodaysSectionKind.Concept when text is not null =>
+            this with { Concept = Concept with { Text = With(Concept.Text, text) }, Teacher = true },
+        TodaysSectionKind.Activity when steps is not null =>
+            this with { Activity = Activity with { Steps = With(Activity.Steps, steps) }, Teacher = true },
+        TodaysSectionKind.Note when text is not null =>
+            this with { Note = new TodaysNote(With(Note?.Text ?? new Dictionary<string, string>(), text)), Teacher = true },
+        _ => null,
+    };
+
+    private static Dictionary<string, T> With<T>(IReadOnlyDictionary<string, T> values, T kannada)
+    {
+        var copy = values.ToDictionary(v => v.Key, v => v.Value);
+        copy["kn"] = kannada;
+        return copy;
+    }
+
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     /// <summary>Null for the "null" a generating row holds before its first draft.</summary>
@@ -110,5 +137,5 @@ public static class TodaysFamilyView
         sections.Activity.Removed ? null : sections.Activity.Steps.GetValueOrDefault(language),
         sections.Picture.Removed ? null : sections.Picture,
         sections.Video is { Removed: false } video ? video : null,
-        sections.Note is { Removed: false } note ? note.Text : null);
+        sections.Note is { Removed: false } note ? note.Text.GetValueOrDefault(language) : null);
 }

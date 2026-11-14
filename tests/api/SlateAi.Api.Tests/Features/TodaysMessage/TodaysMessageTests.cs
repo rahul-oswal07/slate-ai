@@ -146,6 +146,43 @@ public sealed class TodaysMessageTests
         Assert.Null(TodaysSections.Parse("null"));
     }
 
+    [Theory]
+    [InlineData("ok", null)]
+    [InlineData("name", "fallback:name")]
+    [InlineData("number", "fallback:numbers")]
+    [InlineData("long note", "fallback:too-long")]
+    [InlineData("english", "fallback:script")]
+    public void Her_kannada_goes_through_the_same_checks(string text, string? verdict)
+    {
+        var note = text switch
+        {
+            "ok" => "ನಾವು ಎಲೆಗಳ ಮೇಲೆ 48 ಮತ್ತು 33 ಬರೆದು ಹೋಲಿಸಿದೆವು.",
+            "name" => "Ravi ಎಲೆಗಳ ಮೇಲೆ ಬರೆದನು.",
+            "number" => "ನಾವು 73 ಬರೆದೆವು.",
+            "long note" => "ಒಂದು. ಎರಡು. ಮೂರು.",
+            "english" => "We wrote numbers on leaves and compared them.",
+            _ => throw new ArgumentOutOfRangeException(nameof(text)),
+        };
+        var her = new TodaysText("ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ.", ["ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮಾಡಿ."], note);
+
+        var result = TodaysMessageValidator.Check("kn", her, TodaysMessageValidator.AllowedNumbers([Compare], Pair), ["Ravi"]);
+
+        Assert.Equal(verdict, result?.Verdict);
+        Assert.DoesNotContain("Ravi", result?.Detail ?? "");
+    }
+
+    [Fact]
+    public void Her_edit_changes_only_the_kannada_of_that_section_and_marks_it_hers()
+    {
+        var edited = Sections().WithKannada(TodaysSectionKind.Activity, null, ["ಹೊಸ ಹೆಜ್ಜೆ."])!;
+
+        Assert.Equal(["ಹೊಸ ಹೆಜ್ಜೆ."], edited.Activity.Steps["kn"]);
+        Assert.Equal(["एक"], edited.Activity.Steps["hi"]);
+        Assert.True(edited.Teacher);
+        Assert.Null(Sections().WithKannada(TodaysSectionKind.Picture, "48", null)); // numbers only by code
+        Assert.Equal("ನನ್ನ ಟಿಪ್ಪಣಿ", Sections().WithKannada(TodaysSectionKind.Note, "ನನ್ನ ಟಿಪ್ಪಣಿ", null)!.Kannada.Note);
+    }
+
     internal static TodaysSections Sections() => new(
         new TodaysConcept(
             new Dictionary<string, string> { ["kn"] = "ಕನ್ನಡ", ["hi"] = "हिंदी" },
