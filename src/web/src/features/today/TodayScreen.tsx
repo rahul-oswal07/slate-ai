@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useOnline } from '../../components/useOnline'
+import { useTodaysMessage, useTodaysWaiting } from '../approve/useTodaysMessage'
 import { useMe } from '../auth/useMe'
 import { useEveningDay } from '../evening/useEvening'
 import { PickLessonSheet } from '../lessons/PickLessonSheet'
@@ -20,6 +21,7 @@ import { LessonAudioCard } from './LessonAudioCard'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
+import { TodaysMessageCard } from './TodaysMessageCard'
 import { TonightCard } from './TonightCard'
 import { RecapCard } from '../week/RecapCard'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
@@ -27,7 +29,7 @@ import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
 /**
  * T1 Today (docs/design/T1-today.md): register from the simulated SATS feed with corrections and manual
  * fallback; today's lesson picked from the list (FR-04) with Change; "Added to missed lessons"; offline outbox
- * and sync badge; tonight's evening-message card (T-44).
+ * and sync badge; today's message waiting or approved (T-108); tonight's evening-message card (T-44).
  */
 export function TodayScreen() {
   const { t, i18n } = useTranslation()
@@ -41,6 +43,7 @@ export function TodayScreen() {
   const [editing, setEditing] = useState(false)
   const [picking, setPicking] = useState(false)
   const announce = useAnnounce()
+  const navigate = useNavigate()
   const curriculum = useCurriculum()
   const lesson = useLessonDay(classId, date)
   const saveLesson = useSaveLesson(classId, date)
@@ -54,6 +57,10 @@ export function TodayScreen() {
       ? formatSchoolTime(day.data.receivedAt, i18n.language, date)
       : null
   const evening = useEveningDay(classId, date, done)
+  const todays = useTodaysMessage(classId, date, done).data
+  const todaysWaiting = useTodaysWaiting(classId, date)
+  // What goes tonight carries today's message only once she has approved it (guardrail 3).
+  const todaysApproved = todays != null && (todays.sent || todays.status === 'approved')
   // D-68: when the copy on screen was saved (snapshot) or last fetched.
   const savedAt = day.data ? (day.data.savedAt ?? day.dataUpdatedAt) : null
 
@@ -139,7 +146,10 @@ export function TodayScreen() {
       {!editing && done && (
         <div className="card-payoff flex flex-col gap-3">
           <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
-          {evening.data && day.data && <TonightCard day={evening.data} roster={day.data.children} />}
+          {todays && <TodaysMessageCard message={todays} />}
+          {evening.data && day.data && (
+            <TonightCard day={evening.data} roster={day.data.children} todaysApproved={todaysApproved} />
+          )}
           {evening.data && <LessonAudioCard classId={classId} date={date} evening={evening.data} />}
           <AnswersCard classId={classId} date={date} />
         </div>
@@ -154,7 +164,11 @@ export function TodayScreen() {
           onPick={(id) => {
             setPicking(false)
             announce(t('announce.lessonSaved'))
-            void saveLesson([id])
+            const saved = saveLesson([id])
+            if (online) {
+              // The same next step as on the confirm screen (T-108): to today's message when one is waiting for her.
+              void todaysWaiting(saved).then((waiting) => waiting && navigate('/approve'))
+            }
           }}
         />
       )}

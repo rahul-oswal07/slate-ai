@@ -4,7 +4,7 @@ import { initI18n } from '../../i18n'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
 import { istToday } from '../today/schoolTime'
 import type { Curriculum } from '../lessons/types'
-import type { TodaysMessage } from './todaysTypes'
+import { todaysMessage as message } from './fixtures'
 
 const i18n = initI18n()
 const base = `/api/classes/${teacher.classId}/todays-message/${istToday()}`
@@ -26,36 +26,6 @@ const curriculum: Curriculum = {
       ],
     },
   ],
-}
-
-function message(overrides: Partial<TodaysMessage> = {}): TodaysMessage {
-  return {
-    date: istToday(),
-    status: 'ready',
-    version: 1,
-    approvedVersion: null,
-    approvedAt: null,
-    sent: false,
-    verdict: 'valid',
-    competencyIds: ['M3.BRIDGE.COMPARE'],
-    picture: { kind: 'compare', a: 48, b: 33, answer: '>', removed: false },
-    video: null,
-    note: null,
-    removed: [],
-    languages: [
-      { language: 'kn', families: 1, concept: 'ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ.', conceptClipUrl: '/api/audio/c1', steps: ['75 ಮತ್ತು 57 ಕ್ಕೆ ಕಟ್ಟು ಮಾಡಿ.', 'ಯಾವುದು ಹೆಚ್ಚು?'] },
-      { language: 'hi', families: 1, concept: 'पहले दस की गड्डियाँ देखिए।', conceptClipUrl: '/api/audio/c2', steps: ['एक', 'दो'] },
-    ],
-    pairs: [
-      [48, 33],
-      [48, 84],
-      [75, 57],
-      [86, 86],
-    ],
-    pictureIndex: 0,
-    edited: false,
-    ...overrides,
-  }
 }
 
 function setup(todays: FakeRoute, extra: Record<string, FakeRoute> = {}) {
@@ -146,7 +116,7 @@ describe("Approve → Today's message (T-89)", () => {
     expect(screen.getByText('Also goes in Hindi to 1 family')).toBeInTheDocument()
   })
 
-  it('Approve needs the tick and sends the version she read', async () => {
+  it('Approve needs the tick, sends the version she read and takes her back to Today (T-108)', async () => {
     const user = userEvent.setup()
     let current = message()
     const calls = setup(() => ({ status: 200, body: current }), {
@@ -162,9 +132,35 @@ describe("Approve → Today's message (T-89)", () => {
     await user.click(screen.getByRole('checkbox', { name: "I've checked this" }))
     await user.click(approve)
 
-    expect((await screen.findAllByText('Approved. Goes with the evening message after 6 pm.')).length).toBeGreaterThan(0)
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.getByTestId('announcer')).toHaveTextContent('Approved. Goes with the evening message after 6 pm.'),
+    )
     expect(calls.find((c) => c.key === `POST ${base}/approve`)?.body).toMatchObject({ version: 1 })
+  })
+
+  it('a refused Approve (it changed meanwhile) keeps her on Approve with the latest', async () => {
+    const user = userEvent.setup()
+    setup(() => ({ status: 200, body: message() }), {
+      [`POST ${base}/approve`]: () => ({ status: 409, body: message({ version: 2 }) }),
+    })
+    renderApp('/approve')
+
+    await user.click(await screen.findByRole('checkbox', { name: "I've checked this" }))
+    await user.click(screen.getByRole('button', { name: 'Approve and send' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('This changed meanwhile')
+    expect(screen.getByRole('heading', { level: 1, name: 'Check and approve' })).toBeInTheDocument()
+    expect(screen.getByText(/Version 2/)).toBeInTheDocument()
+  })
+
+  it('approved: read only when she opens it again', async () => {
+    setup(() => ({ status: 200, body: message({ status: 'approved', approvedVersion: 1 }) }))
+    renderApp('/approve')
+
+    expect(await screen.findByText('Approved. Goes with the evening message after 6 pm.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Approve and send' })).not.toBeInTheDocument()
   })
 
   it('removing a section makes a new version, so her tick is gone', async () => {

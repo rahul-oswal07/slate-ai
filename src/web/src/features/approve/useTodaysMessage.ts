@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { api, ApiError } from '../../api/client'
 import type { TodaysEditProblem, TodaysMessage, TodaysSectionKind } from './todaysTypes'
 
@@ -6,18 +7,51 @@ export const todaysKey = (classId: string, date: string) => ['todays-message', c
 
 const url = (classId: string, date: string) => `/api/classes/${classId}/todays-message/${date}`
 
+const load = async (classId: string, date: string) => (await api<TodaysMessage | undefined>(url(classId, date))) ?? null
+
 /**
  * Today's message (T-89). null: none yet (204). A 404 is a real error (not her class), never "none yet". Checks again
  * every 2 s while a new version is being written.
  */
-export function useTodaysMessage(classId: string, date: string) {
+export function useTodaysMessage(classId: string, date: string, enabled = true) {
   return useQuery({
     queryKey: todaysKey(classId, date),
-    queryFn: async () => (await api<TodaysMessage | undefined>(url(classId, date))) ?? null,
-    enabled: classId !== '',
+    queryFn: () => load(classId, date),
+    enabled: enabled && classId !== '',
     retry: false,
     refetchInterval: (query) => (query.state.data?.status === 'generating' ? 2000 : false),
   })
+}
+
+/** How long a confirm waits for the answer before she goes on to Today, where the card shows it once it loads. */
+const WAIT_MS = 4000
+
+/**
+ * After she confirms a lesson (T-108): is today's message now waiting for her to check? The server decides whether one
+ * is made (D-93: the lesson has the book's exercises and a family is due tonight's message), so once the lesson is
+ * `saved` this asks it, and Approve opens with the answer already there. False when there is none, it is approved or
+ * sent, the network is down, or saving and asking take too long.
+ */
+export function useTodaysWaiting(classId: string, date: string) {
+  const queryClient = useQueryClient()
+  return useCallback(
+    async (saved: Promise<unknown>) => {
+      if (classId === '') {
+        return false
+      }
+      let timer = 0
+      const late = new Promise<null>((resolve) => {
+        timer = window.setTimeout(() => resolve(null), WAIT_MS)
+      })
+      const asked = saved
+        .then(() => queryClient.fetchQuery({ queryKey: todaysKey(classId, date), queryFn: () => load(classId, date), retry: false }))
+        .catch(() => null)
+      const message = await Promise.race([asked, late])
+      window.clearTimeout(timer)
+      return message !== null && !message.sent && message.status !== 'approved'
+    },
+    [classId, date, queryClient],
+  )
 }
 
 /** The 400 body of a refused edit, read as the problem she sees. */

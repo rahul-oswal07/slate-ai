@@ -2,6 +2,8 @@ import { screen, within } from '@testing-library/react'
 import { initI18n } from '../../i18n'
 import { db } from '../../offline/db'
 import { fakeApi, renderApp, teacher } from '../../test/renderApp'
+import { todaysMessage } from '../approve/fixtures'
+import type { TodaysMessage } from '../approve/todaysTypes'
 import type { EveningDay } from '../evening/types'
 import type { LessonDay } from '../lessons/types'
 import { istToday } from './schoolTime'
@@ -53,13 +55,14 @@ function evening(overrides: Partial<EveningDay> = {}): EveningDay {
   }
 }
 
-function today(eveningDay: EveningDay | null, opts: { absent?: string[]; confirmed?: boolean } = {}) {
+function today(eveningDay: EveningDay | null, opts: { absent?: string[]; confirmed?: boolean; todays?: TodaysMessage } = {}) {
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET ${base}/attendance/${date}`]: () => ({ status: 200, body: attendance(opts.absent ?? ['c1', 'c2', 'c3', 'c4']) }),
     'GET /api/curriculum': () => ({ status: 200, body: { chapters: [] } }),
     [`GET ${base}/lessons/${date}`]: () => ({ status: 200, body: lesson(opts.confirmed === false ? null : 'confirmed') }),
     [`GET ${base}/evening-messages/${date}`]: () => (eveningDay ? { status: 200, body: eveningDay } : { status: 500 }),
+    [`GET ${base}/todays-message/${date}`]: () => (opts.todays ? { status: 200, body: opts.todays } : { status: 204 }),
   })
 }
 
@@ -84,6 +87,24 @@ describe('TonightCard', () => {
     expect(within(card).getByText('Stopped by family')).toBeInTheDocument()
     expect(within(card).queryByText('Ravi')).not.toBeInTheDocument()
     expect(within(card).getByRole('link', { name: 'See the message' })).toHaveAttribute('href', '/setup/evening')
+  })
+
+  it("with today's message approved it says that goes with it, not only the message she approved once (T-108)", async () => {
+    today(evening(), { todays: todaysMessage({ status: 'approved', approvedVersion: 1 }) })
+    renderApp('/')
+
+    const card = await screen.findByRole('region', { name: 'After 6 pm tonight: message to 2 of 4 families' })
+    expect(await within(card).findByText('With today’s message, which you checked and approved today.')).toBeInTheDocument()
+    expect(within(card).queryByText(/approved once/)).not.toBeInTheDocument()
+  })
+
+  it("today's message not approved yet: tonight is still the message she approved once", async () => {
+    today(evening(), { todays: todaysMessage() })
+    renderApp('/')
+
+    const card = await screen.findByRole('region', { name: 'After 6 pm tonight: message to 2 of 4 families' })
+    await screen.findByRole('region', { name: 'Today’s message is waiting for you' })
+    expect(within(card).getByText('The message you approved once, with today’s lesson and page.')).toBeInTheDocument()
   })
 
   it('after the send it says how many went', async () => {

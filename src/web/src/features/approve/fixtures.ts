@@ -1,4 +1,6 @@
 import type { Curriculum } from '../lessons/types'
+import { istToday } from '../today/schoolTime'
+import type { TodaysMessage } from './todaysTypes'
 import type { CatchUpPackage, CatchUpWeek } from './types'
 
 export const curriculum: Curriculum = {
@@ -73,3 +75,34 @@ export function pkg(overrides: Partial<CatchUpPackage> = {}): CatchUpPackage {
 }
 
 export const week = (...packages: CatchUpPackage[]): CatchUpWeek => ({ weekOf: '2026-10-19', packages })
+
+/** Today's message, ready for her to check: Nalikali p 4 in Kannada and Hindi. */
+export function todaysMessage(overrides: Partial<TodaysMessage> = {}): TodaysMessage {
+  return {
+    date: istToday(),
+    status: 'ready',
+    version: 1,
+    approvedVersion: null,
+    approvedAt: null,
+    sent: false,
+    verdict: 'valid',
+    competencyIds: ['M3.BRIDGE.COMPARE'],
+    picture: { kind: 'compare', a: 48, b: 33, answer: '>', removed: false },
+    video: null,
+    note: null,
+    removed: [],
+    languages: [
+      { language: 'kn', families: 1, concept: 'ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ.', conceptClipUrl: '/api/audio/c1', steps: ['75 ಮತ್ತು 57 ಕ್ಕೆ ಕಟ್ಟು ಮಾಡಿ.', 'ಯಾವುದು ಹೆಚ್ಚು?'] },
+      { language: 'hi', families: 1, concept: 'पहले दस की गड्डियाँ देखिए।', conceptClipUrl: '/api/audio/c2', steps: ['एक', 'दो'] },
+    ],
+    pairs: [
+      [48, 33],
+      [48, 84],
+      [75, 57],
+      [86, 86],
+    ],
+    pictureIndex: 0,
+    edited: false,
+    ...overrides,
+  }
+}

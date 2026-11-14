@@ -1,6 +1,6 @@
 import { type ReactNode, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
@@ -24,6 +24,7 @@ const SECTIONS: TodaysSectionKind[] = ['concept', 'activity', 'picture', 'note']
  * Approve → Today's message (T-89, D-91, D-92): the day's message as sections, one open at a time. She reads and edits
  * the Kannada; every save is a new version that runs the checks again and clears her tick. The numbers come from code:
  * she can only choose another pair from the book. Nothing goes until she ticks and approves this version (guardrail 3).
+ * After Approve she is back on Today (T-108).
  */
 export function TodaysMessageTab({ classId }: { classId: string }) {
   const { t } = useTranslation()
@@ -84,6 +85,7 @@ export function TodaysMessageTab({ classId }: { classId: string }) {
 function Editor({ classId, date, message }: { classId: string; date: string; message: TodaysMessage }) {
   const { t, i18n } = useTranslation()
   const announce = useAnnounce()
+  const navigate = useNavigate()
   const chapters = useCurriculum().data?.chapters ?? []
   const approve = useApproveTodays(classId, date)
   const retry = useRetryTodays(classId, date)
@@ -197,7 +199,11 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
               disabled={!ticked || approve.isPending}
               onClick={() =>
                 approve.mutate(message.version, {
-                  onSuccess: (latest) => announce(t(latest.sent ? 'todays.sent' : 'todays.approved')),
+                  // Back to Today (T-108), which shows it approved, or in the demo sent with the answers.
+                  onSuccess: (latest) => {
+                    announce(t(latest.sent ? 'todays.sent' : 'todays.approved'))
+                    void navigate('/')
+                  },
                 })
               }
               className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-50"
