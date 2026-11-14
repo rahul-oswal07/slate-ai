@@ -141,9 +141,11 @@ public static partial class CodeChecks
         }
 
         var percent = (int)Math.Floor(share * 100);
+        // Written out, not ":P0": that gives "80%" or "80 %" depending on the machine's culture.
+        var needs = (int)Math.Round(options.MinScriptShare * 100);
         if (share < options.MinScriptShare)
         {
-            return Fail(ScriptBlock, $"only {percent}% in {blockName} letters, needs {options.MinScriptShare:P0}");
+            return Fail(ScriptBlock, $"only {percent}% in {blockName} letters, needs {needs}%");
         }
 
         // The family also reads these three on the page (T-101): English there is as wrong as in the script. A text
@@ -160,7 +162,7 @@ public static partial class CodeChecks
             {
                 return Fail(
                     ScriptBlock,
-                    $"{name}: only {(int)Math.Floor(shortShare * 100)}% in {blockName} letters, needs {options.MinScriptShare:P0}");
+                    $"{name}: only {(int)Math.Floor(shortShare * 100)}% in {blockName} letters, needs {needs}%");
             }
         }
 
