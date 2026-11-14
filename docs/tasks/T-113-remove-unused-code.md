@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Status | Done |
-| Issue | #221 |
+| Issue | #221 · PR #222 |
 | Owner | R |
 | Screens | none (no behaviour change) |
 | Source | Rahul, 15 Nov; small |
