@@ -112,7 +112,7 @@ describe('TonightCard', () => {
   it('hidden until the lesson is confirmed, and when it cannot load', async () => {
     today(evening(), { confirmed: false })
     const { unmount } = renderApp('/')
-    expect(await screen.findByRole('button', { name: 'Or pick the lesson from the list' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Pick from the list' })).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: /tonight/i })).not.toBeInTheDocument()
     unmount()
     vi.unstubAllGlobals()
