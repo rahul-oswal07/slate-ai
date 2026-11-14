@@ -4,11 +4,9 @@ import { useAnnounce } from '../../components/useAnnounce'
 import { PrimaryButton } from './ParentParts'
 import { Sticks } from './Sticks'
 import { sticksText } from './sticksText'
+import { checkQuestion } from './sumQuestion'
 import type { ParentCatchUp } from './types'
 import { useAnswer } from './useParentPage'
-
-/** "43 − 18" reads as a sum to work out; "347" or "4 in 347" are shown as they are. */
-const asQuestion = (question: string) => (/[+−-]/.test(question) ? `${question} = ?` : question)
 
 /**
  * P3 Answer: three stick pictures in the order code shuffled them; the numeral shows only on the one tapped (D-07,
@@ -44,7 +42,7 @@ export function AnswerStep({ token, page, onSent }: { token: string; page: Paren
       <p lang={check.prompt ? page.language : undefined} className="text-center text-title font-extrabold">
         {check.prompt ?? t('parent.answer.prompt', { child: page.childName })}
       </p>
-      <p className="text-center text-display font-extrabold">{asQuestion(check.question)}</p>
+      <p className="text-center text-display font-extrabold">{checkQuestion(check.question)}</p>
       <ul aria-label={t('parent.answer.options')} className="flex flex-col gap-3">
         {check.options.map((option) => {
           const picked = option.id === chosen

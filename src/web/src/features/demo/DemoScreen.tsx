@@ -150,7 +150,7 @@ export function DemoScreen() {
             aria-selected={panel === name}
             aria-controls={`panel-${name}`}
             onClick={() => setPanel(name)}
-            className={`min-h-target flex-1 rounded-button border-2 px-2 text-label font-bold ${
+            className={`min-h-target min-w-0 flex-1 rounded-button border-2 px-2 text-label font-bold [overflow-wrap:anywhere] ${
               panel === name ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-ink'
             }`}
           >

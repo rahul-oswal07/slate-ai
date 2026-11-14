@@ -6,14 +6,22 @@ namespace SlateAi.Api.Tests.Features.EveningMessages;
 public sealed class EveningSlotsTests
 {
     private static readonly LanguageWording English = new(
+        "We missed {child} today. In class we learned {lesson}. Homework: {page}. A classmate is keeping {child}’s seat.",
+        "{book} Part {part}, page {page}",
+        "{book} page {page}",
+        new Dictionary<string, string> { ["textbook"] = "textbook", [TextbookPage.Nalikali] = "Nalikali Maths" });
+
+    private static readonly LanguageWording Telugu = new(
+        "ఈ రోజు {child} మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: {page}.",
+        "{book} భాగం {part}, పేజీ {page}",
+        "{book} పేజీ {page}",
+        new Dictionary<string, string> { ["textbook"] = "పాఠ్యపుస్తకం", [TextbookPage.Nalikali] = "నలి-కలి గణితం" });
+
+    /// <summary>Wording v3, as rows approved before T-101 hold it: "textbook" in the text, no {book} in the page.</summary>
+    private static readonly LanguageWording EnglishV3 = new(
         "We missed {child} today. In class we learned {lesson}. Homework: textbook {page}. A classmate is keeping {child}’s seat.",
         "Part {part}, page {page}",
         "page {page}");
-
-    private static readonly LanguageWording Telugu = new(
-        "ఈ రోజు {child} మాకు గుర్తొచ్చాడు. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం {page}.",
-        "భాగం {part}, పేజీ {page}",
-        "పేజీ {page}");
 
     private static readonly CurriculumGraph Book = new(
         [
@@ -36,7 +44,7 @@ public sealed class EveningSlotsTests
         Assert.Equal(
             "We missed Ravi today. In class we learned subtraction with borrowing. Homework: textbook Part 2, page 15. A classmate is keeping Ravi’s seat.",
             filled!.Text);
-        Assert.Equal(new SlotValues("subtraction with borrowing", "Part 2, page 15"), filled.Slots);
+        Assert.Equal(new SlotValues("subtraction with borrowing", "textbook Part 2, page 15"), filled.Slots);
     }
 
     [Fact]
@@ -45,7 +53,7 @@ public sealed class EveningSlotsTests
         var filled = EveningSlots.Fill(Telugu, "te", "Ravi", ["M3.SUB.BORROW"], Book);
 
         Assert.Contains("పది తీసుకుని తీసివేత", filled!.Text);
-        Assert.Contains("భాగం 2, పేజీ 15", filled.Text);
+        Assert.Contains("ఇంటి పని: పాఠ్యపుస్తకం భాగం 2, పేజీ 15.", filled.Text);
     }
 
     [Fact]
@@ -54,16 +62,36 @@ public sealed class EveningSlotsTests
         var filled = EveningSlots.Fill(English, "en", "Ravi", ["M3.SUB.MAKE", "M3.SUB.BORROW"], Book);
 
         Assert.Equal("making subtraction sums, subtraction with borrowing", filled!.Slots.Lesson);
-        Assert.Equal("page 4", filled.Slots.Page);
+        Assert.Equal("textbook page 4", filled.Slots.Page);
     }
 
     [Fact]
-    public void A_nalikali_page_fills_the_page_with_the_approved_wording()
+    public void A_nalikali_page_names_nalikali_not_the_textbook()
     {
-        // T-87: the approved text already says "textbook"; naming the book would change it (D-49).
+        // T-101, D-99: code writes the book into the page slot, so a Nalikali page never reads "textbook" (J4).
         var filled = EveningSlots.Fill(English, "en", "Ravi", ["M3.BRIDGE.COMPARE"], Book);
 
+        Assert.Equal("Nalikali Maths Part 1, page 4", filled!.Slots.Page);
+        Assert.Contains("Homework: Nalikali Maths Part 1, page 4.", filled.Text);
+        Assert.DoesNotContain("textbook", filled.Text);
+    }
+
+    [Fact]
+    public void A_book_the_wording_has_no_name_for_gives_no_message()
+    {
+        var noNalikali = English with { Books = new Dictionary<string, string> { ["textbook"] = "textbook" } };
+
+        Assert.Null(EveningSlots.Fill(noNalikali, "en", "Ravi", ["M3.BRIDGE.COMPARE"], Book));
+        Assert.Null(EveningSlots.Fill(English with { Books = null }, "en", "Ravi", ["M3.SUB.BORROW"], Book));
+    }
+
+    [Fact]
+    public void Wording_approved_before_the_book_slot_still_fills()
+    {
+        var filled = EveningSlots.Fill(EnglishV3, "en", "Ravi", ["M3.BRIDGE.COMPARE"], Book);
+
         Assert.Equal("Part 1, page 4", filled!.Slots.Page);
+        Assert.Contains("Homework: textbook Part 1, page 4.", filled.Text);
     }
 
     [Theory]
@@ -115,11 +143,40 @@ public sealed class EveningSlotsTests
             Assert.DoesNotContain("{tomorrow}", text.Text); // D-48
             Assert.DoesNotContain("{buddy}", text.Text);    // D-29
 
+            // T-101, D-99: the book is named by code inside the page slot, never as a fixed word in the text.
+            Assert.Contains("{book}", text.Page);
+            Assert.Contains("{book}", text.PageNoPart);
+            Assert.False(string.IsNullOrWhiteSpace(text.Books?.GetValueOrDefault("textbook")));
+            Assert.False(string.IsNullOrWhiteSpace(text.Books?.GetValueOrDefault(TextbookPage.Nalikali)));
+            Assert.DoesNotContain(text.Books!["textbook"], text.Text);
+
             // Every lesson in the book can be named in every language (te/ta/hi are drafts for review, T-26).
             foreach (var lesson in book.All)
             {
                 Assert.NotNull(EveningSlots.Fill(text, language, "Ravi", [lesson.Id], book));
             }
         }
+    }
+
+    [Fact]
+    public void The_kannada_wording_never_glues_a_suffix_to_the_childs_name()
+    {
+        // T-101: names are stored in Latin letters, so "{child}ಯ" read "Manjunathಯ" on the family's phone.
+        var kannada = EveningWording.Load(Path.Combine(AppContext.BaseDirectory, "data/seed/evening-message.json")).Languages["kn"];
+
+        Assert.DoesNotMatch(@"\{child\}[\p{L}\p{M}]", kannada.Text);
+        Assert.Contains("Manjunath ಅವರ ಜಾಗ", EveningSlots.Render(kannada.Text, "Manjunath", new SlotValues("x", "y")).Text);
+    }
+
+    [Fact]
+    public void The_kannada_evening_text_for_the_demo_lesson_names_nalikali()
+    {
+        var kannada = EveningWording.Load(Path.Combine(AppContext.BaseDirectory, "data/seed/evening-message.json")).Languages["kn"];
+        var book = CurriculumLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "data/curriculum"));
+
+        var filled = EveningSlots.Fill(kannada, "kn", "Manjunath", ["M3.BRIDGE.COMPARE"], book);
+
+        Assert.Contains("ಮನೆಕೆಲಸ: ನಲಿ-ಕಲಿ ಗಣಿತ ಭಾಗ 1, ಪುಟ 4.", filled!.Text);
+        Assert.DoesNotContain("ಪಠ್ಯಪುಸ್ತಕ", filled.Text);
     }
 }

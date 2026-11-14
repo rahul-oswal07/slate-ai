@@ -26,7 +26,10 @@ public sealed class VerifierOptions
     /// <summary>Real audio size limit, all segments together (FR-09: ≤ 300 KB).</summary>
     public int MaxAudioKb { get; set; } = 300;
 
-    /// <summary>Share of the script's letters that must be in the family's script, Kannada key words aside.</summary>
+    /// <summary>
+    /// Share of the letters that must be in the family's script, Kannada key words aside: in the script and in each
+    /// short text on the family's page (activity instruction, other-objects line, picture question).
+    /// </summary>
     public double MinScriptShare { get; set; } = 0.8;
 }
 
@@ -138,9 +141,32 @@ public static partial class CodeChecks
         }
 
         var percent = (int)Math.Floor(share * 100);
-        return share >= options.MinScriptShare
-            ? Pass(ScriptBlock, $"{percent}% in {blockName} letters")
-            : Fail(ScriptBlock, $"only {percent}% in {blockName} letters, needs {options.MinScriptShare:P0}");
+        // Written out, not ":P0": that gives "80%" or "80 %" depending on the machine's culture.
+        var needs = (int)Math.Round(options.MinScriptShare * 100);
+        if (share < options.MinScriptShare)
+        {
+            return Fail(ScriptBlock, $"only {percent}% in {blockName} letters, needs {needs}%");
+        }
+
+        // The family also reads these three on the page (T-101): English there is as wrong as in the script. A text
+        // with no letters of its own (numbers, Kannada key words) has nothing to judge.
+        foreach (var (name, text) in new[]
+        {
+            ("the activity instruction", input.Content.ActivityInstruction),
+            ("the other-objects line", input.Content.ObjectOption),
+            ("the picture question", input.Content.CheckPrompt),
+        })
+        {
+            if (ScriptLetters(text, input.Language).Count > 0
+                && ScriptShare(text, input.Language) is var (shortShare, _) && shortShare < options.MinScriptShare)
+            {
+                return Fail(
+                    ScriptBlock,
+                    $"{name}: only {(int)Math.Floor(shortShare * 100)}% in {blockName} letters, needs {needs}%");
+            }
+        }
+
+        return Pass(ScriptBlock, $"{percent}% in {blockName} letters");
     }
 
     /// <summary>
@@ -154,13 +180,19 @@ public static partial class CodeChecks
             return null;
         }
 
+        var letters = ScriptLetters(text, language);
+        var share = letters.Count == 0 ? 0 : letters.Count(ch => ch >= block.From && ch <= block.To) / (double)letters.Count;
+        return (share, block.Name);
+    }
+
+    /// <summary>The letters <see cref="ScriptShare"/> counts: Kannada key words in another language's text are left out.</summary>
+    private static List<char> ScriptLetters(string text, string language)
+    {
         var kannada = Blocks["kn"];
-        var letters = text
+        return text
             .Where(ch => char.IsLetter(ch) || CharUnicodeInfo.GetUnicodeCategory(ch) is UnicodeCategory.NonSpacingMark or UnicodeCategory.SpacingCombiningMark)
             .Where(ch => language == "kn" || ch < kannada.From || ch > kannada.To)
             .ToList();
-        var share = letters.Count == 0 ? 0 : letters.Count(ch => ch >= block.From && ch <= block.To) / (double)letters.Count;
-        return (share, block.Name);
     }
 
     private static VerifierCheck SpokenLength(VerifyInput input, VerifierOptions options)

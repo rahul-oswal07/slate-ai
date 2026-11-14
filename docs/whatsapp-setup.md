@@ -32,7 +32,7 @@ Secrets go only in user-secrets (local) or App Service settings (staging), never
 | `WhatsApp__PhoneNumberId` | from API Setup |
 | `WhatsApp__AccessToken` | the system-user token (**secret**) |
 | `WhatsApp__Recipients__<childId>` | `+91…`, one per registered phone. Child IDs are in `data/seed/demo-class.json`. **On App Service, write the ID without hyphens** (`1e95443fd2d9…`): Azure rejects setting names with `-`, and both forms are read the same. The seeded `parentPhone` values are fictional and never dialled |
-| `WhatsApp__Evening__Name`, `WhatsApp__CatchUp__Name` | only if the approved names differ from `evening_absence_v1` / `catchup_ready_v1` |
+| `WhatsApp__Evening__Name`, `WhatsApp__CatchUp__Name` | only if the approved names differ from `evening_absence_v2` / `catchup_ready_v1` |
 | `WhatsApp__Evening__Languages__te` (etc.) | only to stop a language that isn't approved yet: remove it or point it elsewhere. A language missing from the map is skipped |
 
 Local run with one phone:
@@ -114,9 +114,9 @@ Not created: `catchup_chat_v1` (flagged as Marketing in every wording; the catch
 
 ### Earlier proposal (not submitted: Meta classes this wording as Marketing)
 
-The evening body **copies the wording the teacher approves word for word** (`data/seed/evening-message.json`, version **3**), with `{child}` → `{{1}}`, `{lesson}` → `{{2}}` and `{page}` → `{{3}}`. That keeps guardrail 3: WhatsApp shows only text she approved.
+The evening body **copies the wording the teacher approves word for word** (`data/seed/evening-message.json`; the table below copies version **3**, and the wording is at version **4** since T-101, D-99: "textbook" left the text and `{page}` now carries the book's name, so a v4 template needs new bodies), with `{child}` → `{{1}}`, `{lesson}` → `{{2}}` and `{page}` → `{{3}}`. That keeps guardrail 3: WhatsApp shows only text she approved.
 
-Code checks this. `WhatsApp:Evening:WordingVersion` (default `3`) must match the version she approved, or the evening send is skipped (`wording-version`). A test fails if the JSON's version moves without the setting.
+Code checks this. `WhatsApp:Evening:WordingVersion` (default `4`, with `Name` `evening_absence_v2`, which is not created at Meta yet) must match the version she approved, or the evening send is skipped (`wording-version`). A test fails if the JSON's version moves without the setting.
 
 **A wording change means:** new Meta templates (`evening_absence_v2`), then update `Name` and `WordingVersion`.
 

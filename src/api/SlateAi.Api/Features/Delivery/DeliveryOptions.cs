@@ -37,7 +37,11 @@ public sealed class WhatsAppOptions
     public string? AccessToken { get; set; }
 
     /// <summary>The approved template for each kind of message: name, and our language code to WhatsApp's.</summary>
-    public WhatsAppTemplate Evening { get; set; } = new() { Name = "evening_absence_v1", WordingVersion = "3" };
+    /// <remarks>
+    /// Wording v4 (T-101, D-99) has no Meta template yet: <c>evening_absence_v2</c> is the name one would take, so an
+    /// evening send can't reach a template with older text. T-104 decides what the plain evening message sends.
+    /// </remarks>
+    public WhatsAppTemplate Evening { get; set; } = new() { Name = "evening_absence_v2", WordingVersion = "4" };
 
     public WhatsAppTemplate CatchUp { get; set; } = new() { Name = "catchup_ready_v1" };
 

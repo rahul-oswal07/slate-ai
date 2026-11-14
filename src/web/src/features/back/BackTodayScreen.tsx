@@ -5,6 +5,7 @@ import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import { pageText } from '../lessons/lessonText'
+import { sumQuestion } from '../parent/sumQuestion'
 import { istToday } from '../today/schoolTime'
 import type { BuddyCard } from './types'
 import { useBuddyCards, useSaveTicks } from './useBuddyCards'
@@ -42,7 +43,7 @@ function itemText(t: ReturnType<typeof useTranslation>['t'], kind: string | null
       return t(`back.task.${kind}`, { question })
     default:
       // add, sub, expanded: a sum to work out.
-      return `${question} = ?`
+      return sumQuestion(question)
   }
 }
 

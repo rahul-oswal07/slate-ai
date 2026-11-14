@@ -111,10 +111,48 @@ public sealed class CodeChecksTests
         Assert.Contains("Telugu letters", check.Detail);
     }
 
+    [Theory]
+    [InlineData("instruction", "the activity instruction")]
+    [InlineData("objects", "the other-objects line")]
+    [InlineData("prompt", "the picture question")]
+    public void English_in_a_short_text_the_family_reads_fails_and_names_it(string field, string named)
+    {
+        // T-101: the script was checked, but the instruction, the objects line and the question were not, so English
+        // there could reach a Kannada or Telugu family's page.
+        var content = field switch
+        {
+            "instruction" => Good with { ActivityInstruction = "Use sticks to take 168 away from 523." },
+            "objects" => Good with { ObjectOption = "No sticks? Use stones." },
+            _ => Good with { CheckPrompt = "Tap the answer for 434 − 171." },
+        };
+
+        var check = Run(CodeChecks.ScriptBlock, Input(content));
+
+        Assert.False(check.Passed);
+        Assert.Equal($"{named}: only 0% in Telugu letters, needs 80%", check.Detail);
+    }
+
+    [Fact]
+    public void A_short_text_with_only_numbers_or_kannada_key_words_is_not_a_language_problem()
+    {
+        var content = Good with { CheckPrompt = "434 − 171?", ActivityInstruction = "523 − 168: ದಶಕ, ಬಿಡಿ." };
+
+        var check = Run(CodeChecks.ScriptBlock, Input(content));
+
+        Assert.True(check.Passed, check.Detail);
+        Assert.Equal("100% in Telugu letters", check.Detail);
+    }
+
     [Fact]
     public void A_hindi_script_passes_in_devanagari_with_its_kannada_key_words_aside()
     {
-        var hindi = Good with { Script = "आज हम 523 में से 168 ಕಳೆ करेंगे। ಕಳೆ का मतलब है घटाना। एक ದಶಕ लो, ದಶಕ खोलो। ಬಿಡಿ तीलियाँ 13। 13 − 8 = 5। ಬಿಡಿ गिनो। अपनी टीचर को दिखाइए।" };
+        var hindi = Good with
+        {
+            Script = "आज हम 523 में से 168 ಕಳೆ करेंगे। ಕಳೆ का मतलब है घटाना। एक ದಶಕ लो, ದಶಕ खोलो। ಬಿಡಿ तीलियाँ 13। 13 − 8 = 5। ಬಿಡಿ गिनो। अपनी टीचर को दिखाइए।",
+            ActivityInstruction = "523 में से 168 घटाओ।",
+            ObjectOption = "तीलियाँ न हों तो पत्थर लीजिए।",
+            CheckPrompt = "किस तस्वीर में 434 − 171 है?",
+        };
 
         var passed = Run(CodeChecks.ScriptBlock, Input(hindi, language: "hi"));
         var telugu = Run(CodeChecks.ScriptBlock, Input(Good, language: "hi"));
@@ -128,7 +166,13 @@ public sealed class CodeChecksTests
     [Fact]
     public void An_english_script_passes_in_latin_letters_with_its_kannada_key_words_aside()
     {
-        var english = Good with { Script = "Today we subtract 523 minus 168 with ಕಳೆ ಕಳೆ ದಶಕ ದಶಕ ಬಿಡಿ ಬಿಡಿ, then show your teacher." };
+        var english = Good with
+        {
+            Script = "Today we subtract 523 minus 168 with ಕಳೆ ಕಳೆ ದಶಕ ದಶಕ ಬಿಡಿ ಬಿಡಿ, then show your teacher.",
+            ActivityInstruction = "Take 168 away from 523 with sticks.",
+            ObjectOption = "No sticks? Use stones.",
+            CheckPrompt = "Which picture shows 434 − 171?",
+        };
         var telugu = Good;
 
         var passed = Run(CodeChecks.ScriptBlock, Input(english, language: "en"));

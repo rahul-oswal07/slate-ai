@@ -25,8 +25,16 @@ public sealed class EveningOptions
     public bool SchedulerEnabled { get; set; } = true;
 }
 
-/// <summary>One language's template: text with {child} {lesson} {page}, and how a page is written.</summary>
-public sealed record LanguageWording(string Text, string Page, string PageNoPart);
+/// <summary>
+/// One language's template: text with {child} {lesson} {page}, and how a page is written. Since wording v4 (T-101,
+/// D-99) the page formats start with {book}, which code fills from <paramref name="Books"/>.
+/// </summary>
+/// <param name="Books">
+/// The book's name by <c>TextbookPage.Book</c> ("textbook", "nalikali"). It lives in the wording file only, not on
+/// the class's <c>MessageTemplate</c> row: see <see cref="EveningWording.WithBooks"/>.
+/// </param>
+public sealed record LanguageWording(
+    string Text, string Page, string PageNoPart, IReadOnlyDictionary<string, string>? Books = null);
 
 /// <summary>The evening-message wording file (<c>data/seed/evening-message.json</c>), loaded once.</summary>
 public sealed record EveningWording(string Version, IReadOnlyDictionary<string, LanguageWording> Languages)
@@ -44,4 +52,8 @@ public sealed record EveningWording(string Version, IReadOnlyDictionary<string, 
 
         return file;
     }
+
+    /// <summary>A class's approved row has the text and page formats; the book names come from this file.</summary>
+    public LanguageWording WithBooks(LanguageWording row, string language) =>
+        row with { Books = Languages.GetValueOrDefault(language)?.Books };
 }

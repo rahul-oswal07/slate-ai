@@ -96,7 +96,9 @@ public sealed class EveningSender(
             var template = templates.GetValueOrDefault(child.HomeLanguage);
             var filled = template is null || !lessonConfirmed
                 ? null
-                : EveningSlots.Fill(template.Wording, child.HomeLanguage, child.FirstName, lesson!.CompetencyIds, curriculum);
+                : EveningSlots.Fill(
+                    wording.WithBooks(template.Wording, child.HomeLanguage), child.HomeLanguage, child.FirstName,
+                    lesson!.CompetencyIds, curriculum);
             // Before the lesson is confirmed only the template can be checked; the names are checked once it is.
             var hasWording = template is not null && (filled is not null || !lessonConfirmed);
             var outcome = EveningEligibility.Decide(child.Consent, child.Stopped, sent.Contains(child.Id), hasWording);

@@ -229,7 +229,7 @@ public static class EveningEndpoints
             .OrderBy(t => t.Language, StringComparer.Ordinal)
             .Select(t => new TemplateLanguageView(
                 t.Language,
-                (EveningSlots.Fill(t.Wording, t.Language, child?.FirstName ?? "", lessonIds, curriculum)
+                (EveningSlots.Fill(wording.WithBooks(t.Wording, t.Language), t.Language, child?.FirstName ?? "", lessonIds, curriculum)
                     ?? EveningSlots.Render(t.Text, child?.FirstName ?? "", new SlotValues("", ""))).Parts))
             .ToList();
         var approved = templates.Count > 0 && templates.All(t => t.Status == TemplateStatus.Approved);
