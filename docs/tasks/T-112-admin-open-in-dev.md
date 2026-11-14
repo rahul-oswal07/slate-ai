@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Status | Done |
-| Issue | #219 |
+| Issue | #219 · PR #220 |
 | Owner | R |
 | Screens | admin |
 | Source | Rahul, 15 Nov; D-102; small |
