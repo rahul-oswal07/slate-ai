@@ -124,8 +124,10 @@ describe('T2 Lesson confirm', () => {
     renderApp('/lesson')
 
     expect(await screen.findByText('Looks like one of these. Please choose.')).toBeInTheDocument()
+    // The names come with the curriculum, which can answer after the lesson day (slower on CI): wait for them.
+    const wordProblems = await screen.findByRole('radio', { name: /word problems/ })
     expect(screen.getAllByRole('radio')).toHaveLength(2)
-    await userEvent.click(screen.getByRole('radio', { name: /word problems/ }))
+    await userEvent.click(wordProblems)
 
     await waitFor(() => expect(saved).toMatchObject({ competencyIds: ['M3.SUB.WORD'], source: 'voice' }))
   })

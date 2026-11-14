@@ -7,7 +7,9 @@ import { useMe } from '../auth/useMe'
 import { findLesson, pageText } from '../lessons/lessonText'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
-import { formatSchoolTime } from '../today/schoolTime'
+import { LevelTag } from '../today/LevelTag'
+import { formatSchoolTime, istToday } from '../today/schoolTime'
+import { type Level, useTodaysAnswers } from '../today/useTodaysAnswers'
 import { dayName, latestStatus, lessonNames, missedText } from './ledgerText'
 import { ChannelTag, LearningTag } from './LedgerTags'
 import type { LearningStatus, Ledger, LedgerChild } from './types'
@@ -30,6 +32,9 @@ export function MissedScreen() {
   const view = params.get('view') === 'lesson' ? 'lesson' : 'child'
   const everyone = params.get('filter') === 'all'
   const data = ledger.data
+  // Today's picture question level per child (T-92), the same as on Today.
+  const answers = useTodaysAnswers(classId, istToday()).data
+  const levels = new Map<string, Level>((answers?.rows ?? []).map((r) => [r.childId, r.level]))
 
   const set = (key: 'view' | 'filter', value: string | null) =>
     setParams(
@@ -106,6 +111,7 @@ export function MissedScreen() {
           {view === 'child' ? (
             <ByChild
               data={data}
+              levels={levels}
               chapters={chapters}
               everyone={everyone}
               onFilter={(all) => set('filter', all ? 'all' : null)}
@@ -123,11 +129,13 @@ export function MissedScreen() {
 
 function ByChild({
   data,
+  levels,
   chapters,
   everyone,
   onFilter,
 }: {
   data: Ledger
+  levels: Map<string, Level>
   chapters: Chapter[]
   everyone: boolean
   onFilter: (all: boolean) => void
@@ -158,7 +166,14 @@ function ByChild({
       <ul className="overflow-hidden rounded-button border-2 border-border bg-surface">
         {rows.map((child) => (
           <li key={child.childId} className="border-b border-divider last:border-b-0">
-            <ChildRow child={child} weekOf={data.weekOf} chapters={chapters} language={i18n.language} t={t} />
+            <ChildRow
+              child={child}
+              weekOf={data.weekOf}
+              chapters={chapters}
+              language={i18n.language}
+              t={t}
+              level={levels.get(child.childId)}
+            />
           </li>
         ))}
       </ul>
@@ -172,9 +187,12 @@ function ChildRow({
   chapters,
   language,
   t,
+  level,
 }: {
   child: LedgerChild
   weekOf: string
+  /** Today's picture question level (T-92, D-95), for a child who got today's message. */
+  level?: Level
   chapters: Chapter[]
   language: string
   t: ReturnType<typeof useTranslation>['t']
@@ -197,8 +215,9 @@ function ChildRow({
           )}
         </span>
         <span className="text-caption text-ink-muted">{missedText(t, chapters, child, weekOf, language)}</span>
-        {(status || child.channel) && (
+        {(status || child.channel || level) && (
           <span className="flex flex-wrap gap-1">
+            {level && <LevelTag level={level} />}
             {status && <LearningTag status={status} />}
             {child.channel && <ChannelTag channel={child.channel} />}
           </span>

@@ -46,3 +46,13 @@ public sealed class ThrowingLlmClient : ILlmClient
     public Task<LlmResponse> CompleteJsonAsync(LlmRequest request, CancellationToken cancellationToken) =>
         throw new InvalidOperationException("This path must not call an LLM (FR-20, FR-21, guardrail 3).");
 }
+
+/// <summary>Never answers (until the host stops): a background draft stays "generating" for the whole test.</summary>
+public sealed class HangingLlmClient : ILlmClient
+{
+    public async Task<LlmResponse> CompleteJsonAsync(LlmRequest request, CancellationToken cancellationToken)
+    {
+        await Task.Delay(Timeout.Infinite, cancellationToken);
+        throw new OperationCanceledException(cancellationToken);
+    }
+}

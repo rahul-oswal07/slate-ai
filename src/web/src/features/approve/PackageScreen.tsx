@@ -30,7 +30,7 @@ export function PackageScreen() {
 
   return (
     <section aria-labelledby="pkg-title" className="flex flex-col gap-3 pb-4">
-      <Link to="/approve" className="flex min-h-target w-fit items-center text-label text-primary-strong">
+      <Link to="/approve?tab=catch-ups" className="flex min-h-target w-fit items-center text-label text-primary-strong">
         ‹ {t('common.back')}
       </Link>
       <h1 id="pkg-title" ref={headingRef} tabIndex={-1} className="text-title">

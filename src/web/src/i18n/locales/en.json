@@ -306,7 +306,7 @@
     "label": "AI-assisted"
   },
   "approve": {
-    "title": "This week’s catch-ups",
+    "title": "Check and approve",
     "intro": "One approval per catch-up, not per child. Nothing is sent until you approve.",
     "allDone": "All {{n}} approved. {{families}} families get them after 6 pm.",
     "allSent": "All approved and sent. Families reached: {{families}}.",
@@ -378,6 +378,11 @@
       "regenStarted": "Writing a new version",
       "regenReady": "New version ready. Check it again.",
       "sent": "Approved and sent to the family's phone."
+    },
+    "tabs": "Approve: what to check",
+    "tab": {
+      "today": "Today's message",
+      "catchUps": "Catch-ups"
     }
   },
   "parent": {
@@ -504,6 +509,33 @@
       "thanks": "Thank you",
       "private": "Only {{teacher}} teacher sees this.",
       "ok": "OK"
+    },
+    "todays": {
+      "title": {
+        "concept": "What {{child}} learned today",
+        "activity": "Try this at home",
+        "video": "Watch how it's taught",
+        "picture": "{{child}}'s turn",
+        "done": "Well done!"
+      },
+      "note": "A note from {{teacher}}",
+      "next": "Next",
+      "activityIntro": "A few minutes with sticks, leaves or stones.",
+      "videoIntro": "A short video from DIKSHA shows how this is taught in class.",
+      "watch": "Watch the video",
+      "videoData": "Uses mobile data. You can skip it.",
+      "skipVideo": "Next (skip the video)",
+      "pictureIntro": "Let {{child}} look at the bundles and loose sticks, then tap the sign that goes between the numbers.",
+      "lookAgain": "Look at the bundles of ten again, then the loose sticks, and try once more.",
+      "thanks": "Thank you. The teacher will see it.",
+      "signs": "Which sign goes between {{a}} and {{b}}?",
+      "sign": {
+        "more": "{{a}} is more than {{b}}",
+        "less": "{{a}} is less than {{b}}",
+        "equal": "{{a}} is equal to {{b}}"
+      },
+      "sendFailed": "Could not send. Check the network and tap again.",
+      "doneBody": "{{child}} has a star for today. {{teacher}} will see the answer. See you in class tomorrow!"
     }
   },
   "missed": {
@@ -819,5 +851,73 @@
       "needsApproval": "Needs your approval. No evening messages go until you approve it.",
       "review": "Review the message"
     }
+  },
+  "todays": {
+    "title": "Today's message",
+    "none": "Today's message is made when you confirm today's lesson and a child is away.",
+    "toToday": "Go to Today",
+    "writing": "Writing today's message…",
+    "rewriting": "Writing the new version from your Kannada…",
+    "failed": "Could not write today's message. Families will get the plain evening message unless you try again.",
+    "failedEdit": "Your Kannada is saved, but the other languages or the voice could not be made. Try again.",
+    "version": "Version {{n}}",
+    "edited": "your Kannada",
+    "listen": "Listen to the concept",
+    "pictureQuestion": "{{a}} ☐ {{b}}: the child taps >, < or =",
+    "pictureAnswer": "(answer {{answer}}, worked out by the app)",
+    "alsoIn_one": "Also goes in {{language}} to {{count}} family",
+    "alsoIn_other": "Also goes in {{language}} to {{count}} families",
+    "sent": "Sent to the families.",
+    "approved": "Approved. Goes with the evening message after 6 pm.",
+    "tick": "I've checked this",
+    "changed": "This changed meanwhile. Here is the latest; check it again.",
+    "approve": "Approve and send",
+    "section": {
+      "concept": "Concept",
+      "activity": "Activity at home",
+      "picture": "Picture question",
+      "video": "Video",
+      "note": "My note"
+    },
+    "removedTag": "Removed: not sent",
+    "noNote": "No note yet.",
+    "addNote": "Add my note",
+    "edit": "Edit",
+    "restore": "Put back",
+    "remove": "Remove",
+    "step": "Step {{n}}",
+    "noteLabel": "Your note to families (Kannada)",
+    "conceptLabel": "Concept (Kannada)",
+    "notePlaceholder": "e.g. We wrote numbers on leaves and compared them",
+    "addStep": "Add a step",
+    "problem": {
+      "name": "Remove the child's name: messages never name a child here.",
+      "numbers": "Use the book's numbers only.",
+      "too-long": "Too long: the concept is at most 3 sentences, each step one sentence, the note 2 sentences.",
+      "script": "Write it in Kannada.",
+      "placeholder": "Remove the brackets or the signs > < (write \"more\" or \"less\").",
+      "invalid-output": "Something is empty. Write every part.",
+      "other": "This could not be saved. Check it and try again."
+    },
+    "allowed": "You can use: {{numbers}}.",
+    "saveHint": "Saving makes a new version: the other languages are written again and you check it again.",
+    "save": "Save",
+    "otherPair": "Choose another pair",
+    "pairsFromBook": "Pairs from the book's page",
+    "pair": "{{a}} and {{b}}"
+  },
+  "level": {
+    "gotIt": "Got it",
+    "gettingThere": "Getting there",
+    "needsHelp": "Needs help",
+    "notAnswered": "Not answered yet"
+  },
+  "answers": {
+    "title": "Today's message: sent to {{sent}} · {{answered}} answered",
+    "caption": "Each child's answer to today's picture question and their level",
+    "child": "Child",
+    "answer": "Answer",
+    "level": "Level",
+    "none": "No answer yet"
   }
 }

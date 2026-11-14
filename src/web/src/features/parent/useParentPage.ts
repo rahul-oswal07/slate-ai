@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { api } from '../../api/client'
-import type { ParentCatchUp, ParentEvening, ReasonCategory } from './types'
+import type { ParentCatchUp, ParentEvening, ReasonCategory, Sign } from './types'
 
 export const parentKey = (token: string) => ['parent', token] as const
 
@@ -18,6 +18,34 @@ export function useParentPage(token: string) {
  * Sends the picture the child chose. One clientRequestId per visit, so Try again after a dropped connection can't
  * store a second answer (the server keeps the first anyway, D-62). The response never says right or wrong.
  */
+/** The child's tap on today's picture question (T-90); code scores it on the server and says whether to try once more. */
+export function usePicture(token: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (sign: Sign) =>
+      api<{ correct: boolean; attempt: number; done: boolean }>(`/api/p/${token}/picture`, {
+        method: 'POST',
+        body: { sign, clientRequestId: crypto.randomUUID() },
+      }),
+    onSuccess: (result, sign) =>
+      queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
+        page?.kind === 'evening' && page.todaysMessage?.picture
+          ? {
+              ...page,
+              todaysMessage: {
+                ...page.todaysMessage,
+                picture: {
+                  ...page.todaysMessage.picture,
+                  ...(result.attempt === 1 ? { firstAnswer: sign } : { secondAnswer: sign }),
+                  done: result.done,
+                },
+              },
+            }
+          : page,
+      ),
+  })
+}
+
 export function useAnswer(token: string) {
   const queryClient = useQueryClient()
   const requestId = useRef(crypto.randomUUID())

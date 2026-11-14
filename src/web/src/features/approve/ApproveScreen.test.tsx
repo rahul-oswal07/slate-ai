@@ -27,9 +27,9 @@ describe('ApproveScreen', () => {
 
   it('lists one card per catch-up with language, children, lessons, duration and status', async () => {
     setup(week(pkg(), pkg({ id: 'pkg-kn', language: 'kn', status: 'needsReview', children: pkg().children.slice(0, 1) })))
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'This week’s catch-ups' })).toHaveFocus()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Check and approve' })).toHaveFocus()
     const telugu = await screen.findByRole('link', { name: /^In Telugu · 2 children Ravi, Mahesh / })
     expect(telugu).toHaveAttribute('href', '/approve/pkg-te')
     expect(await within(telugu).findByText('3-digit subtraction with borrowing · 1:29')).toBeInTheDocument()
@@ -39,9 +39,9 @@ describe('ApproveScreen', () => {
 
   it('each card link is named by the text it shows, so voice control and screen readers agree (WCAG 2.5.3)', async () => {
     setup(week(pkg(), pkg({ id: 'pkg-ap', language: 'kn', status: 'approved', children: pkg().children.slice(0, 1) })))
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
-    await screen.findByRole('heading', { level: 1, name: 'This week’s catch-ups' })
+    await screen.findByRole('heading', { level: 1, name: 'Check and approve' })
     const cards = await screen.findAllByRole('link', { name: /^In (Telugu|Kannada)/ })
     expect(cards).toHaveLength(2)
     for (const card of cards) {
@@ -53,7 +53,7 @@ describe('ApproveScreen', () => {
 
   it('the Approve tab counts catch-ups waiting for her, not generating or failed ones', async () => {
     setup(week(pkg(), pkg({ id: 'b', status: 'needsReview' }), pkg({ id: 'c', status: 'generating' }), pkg({ id: 'd', status: 'failed' })))
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(await within(nav).findByRole('link', { name: 'Approve, 2 waiting' })).toBeInTheDocument()
@@ -67,7 +67,7 @@ describe('ApproveScreen', () => {
         return { status: 202, body: week(pkg({ status: 'generating' })) }
       },
     })
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Make this week’s catch-ups' }))
 
@@ -77,21 +77,21 @@ describe('ApproveScreen', () => {
 
   it('all approved: says how many families get them after 6 pm (counted by the API)', async () => {
     setup(week(pkg({ status: 'approved', familiesReachable: 3 }), pkg({ id: 'b', status: 'sent', familiesSent: 2 })))
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
     expect(await screen.findByText('All 2 approved. 5 families get them after 6 pm.')).toBeInTheDocument()
   })
 
   it('all sent (the demo sends on Approve): says they have them, not "after 6 pm"', async () => {
     setup(week(pkg({ status: 'sent', familiesSent: 1 })))
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
     expect(await screen.findByText('All approved and sent. Families reached: 1.')).toBeInTheDocument()
   })
 
   it('cannot load: says so and offers Try again', async () => {
     setup(() => ({ status: 500 }))
-    renderApp('/approve')
+    renderApp('/approve?tab=catch-ups')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not load.')
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()

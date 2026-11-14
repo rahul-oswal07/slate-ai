@@ -23,6 +23,12 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
     /// <summary>The approved lesson audio per language for a day (T-62); empty by default: the plain message.</summary>
     public Func<DateOnly, IReadOnlyDictionary<string, Guid>> ApprovedLessonAudio { get; set; } = _ => new Dictionary<string, Guid>();
 
+    /// <summary>The day's today's message when approved at its current version (T-88); null by default: the plain message.</summary>
+    public Func<DateOnly, (Guid Id, IReadOnlySet<string> Languages)?> ApprovedTodaysMessage { get; set; } = _ => null;
+
+    /// <summary>What the parent link shows as today's message for a message that carries one (T-88).</summary>
+    public ParentTodaysMessage? TodaysMessage { get; set; }
+
     /// <summary>What the parent link shows as lesson audio (T-62).</summary>
     public ParentLessonAudio? LessonAudio { get; set; }
 
@@ -126,9 +132,69 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
             var template = Templates.Single(t => t.Id == message.TemplateId);
             return Task.FromResult<ParentMessageRecord?>(new ParentMessageRecord(
                 date, message.Language, child.FirstName, TeacherName, Greeting, template.Text, message.Slots,
-                message.SentAt, message.ExpiresAt, child.Stopped, message.LessonAudioId is null ? null : LessonAudio));
+                message.SentAt, message.ExpiresAt, child.Stopped, message.LessonAudioId is null ? null : LessonAudio,
+                message.TodaysMessageId is null || TodaysMessage is null
+                    ? null
+                    : TodaysMessage with
+                    {
+                        Picture = TodaysMessage.Picture is { } p
+                            ? p with
+                            {
+                                FirstAnswer = PictureTaps.GetValueOrDefault(message.Token).First,
+                                SecondAnswer = PictureTaps.GetValueOrDefault(message.Token).Second,
+                                Done = SlateAi.Api.Features.TodaysMessage.TodaysLevel.Done(
+                                    PictureTaps.GetValueOrDefault(message.Token).First, PictureTaps.GetValueOrDefault(message.Token).Second, PictureAnswer),
+                            }
+                            : null,
+                    },
+                message.TodaysMessageId is null || TodaysMessage?.Picture is null ? null : PictureAnswer));
         }
     }
+
+    /// <summary>The picture answer for messages that carry today's message (T-90); taps recorded per token.</summary>
+    public string PictureAnswer { get; set; } = ">";
+
+    public Dictionary<string, (string? First, string? Second)> PictureTaps { get; } = [];
+
+    private readonly HashSet<Guid> _pictureRequests = [];
+
+    public Task<(string? First, string? Second)?> SavePictureAnswerAsync(
+        string token, Guid clientRequestId, string sign, string answer, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (!Messages.Any(m => m.Message.Token == token))
+            {
+                return Task.FromResult<(string?, string?)?>(null);
+            }
+
+            var taps = PictureTaps.GetValueOrDefault(token);
+            if (!_pictureRequests.Add(clientRequestId))
+            {
+                return Task.FromResult<(string?, string?)?>(taps);
+            }
+
+            if (taps.First is null)
+            {
+                taps = (sign, null);
+            }
+            else if (taps.First != answer && taps.Second is null)
+            {
+                taps = (taps.First, sign);
+            }
+            else
+            {
+                return Task.FromResult<(string?, string?)?>(null);
+            }
+
+            PictureTaps[token] = taps;
+            return Task.FromResult<(string?, string?)?>(taps);
+        }
+    }
+
+    public Task<(Guid Id, IReadOnlySet<string> Languages)?> GetApprovedTodaysMessageAsync(
+        Guid id, DateOnly date, CancellationToken cancellationToken) =>
+        Task.FromResult(ApprovedTodaysMessage(date));
 
     public Task<IReadOnlyDictionary<string, Guid>> GetApprovedLessonAudioAsync(
         Guid id, DateOnly date, CancellationToken cancellationToken) =>
