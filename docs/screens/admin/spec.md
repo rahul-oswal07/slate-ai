@@ -12,14 +12,14 @@ Read-only pages to play teachers' greetings and a day's lesson audio.
 
 ## Purpose and states
 
-Read-only, linked from nowhere, protected by the `Admin:Key` secret (sent as a header, never in a request URL); no key configured means no endpoints (D-83).
+Read-only, linked from nowhere, protected by the `Admin:Key` secret (sent as a header, never in a request URL); no key configured means no endpoints (D-83). When the API runs in Development (local) the pages open without a key; staging and prod still need it (D-102).
 
 ## Requirements
 
-No FR of its own. Rules in D-83; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`).
+No FR of its own. Rules in D-83 and D-102; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`).
 
 ## Decisions cited
 
-D-83.
+D-83, D-102.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

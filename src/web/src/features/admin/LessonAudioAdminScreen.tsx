@@ -30,7 +30,7 @@ export function LessonAudioAdminScreen() {
   return <AdminPage title={t('admin.lessonAudio.title')}>{(key) => <LessonAudioDay adminKey={key} />}</AdminPage>
 }
 
-function LessonAudioDay({ adminKey: key }: { adminKey: string }) {
+function LessonAudioDay({ adminKey: key }: { adminKey: string | null }) {
   const { t } = useTranslation()
   const dateId = useId()
   const [date, setDate] = useState(() => istToday())
@@ -72,7 +72,7 @@ function LessonAudioDay({ adminKey: key }: { adminKey: string }) {
   )
 }
 
-function AudioCard({ adminKey: key, audio }: { adminKey: string; audio: AdminLessonAudio }) {
+function AudioCard({ adminKey: key, audio }: { adminKey: string | null; audio: AdminLessonAudio }) {
   const { t, i18n } = useTranslation()
   const status = shown(audio)
   const language = t(`language.${audio.language}`)

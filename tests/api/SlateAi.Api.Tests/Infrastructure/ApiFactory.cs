@@ -10,17 +10,19 @@ namespace SlateAi.Api.Tests.Infrastructure;
 /// <param name="webRoot">Optional static-file root, so SPA tests don't depend on a real web build.</param>
 /// <param name="settings">Extra configuration, e.g. feature switches.</param>
 /// <param name="services">Service overrides, e.g. fake stores so a test needs no database.</param>
+/// <param name="environment">The host environment, e.g. Development for what only runs locally.</param>
 public sealed class ApiFactory(
     string connectionString,
     bool initialiseDatabase = true,
     string? webRoot = null,
     IReadOnlyDictionary<string, string?>? settings = null,
-    Action<IServiceCollection>? services = null)
+    Action<IServiceCollection>? services = null,
+    string environment = "Testing")
     : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Testing");
+        builder.UseEnvironment(environment);
         if (webRoot is not null)
         {
             builder.UseWebRoot(webRoot);

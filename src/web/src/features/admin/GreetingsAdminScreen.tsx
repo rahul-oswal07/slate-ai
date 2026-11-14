@@ -24,7 +24,7 @@ export function GreetingsAdminScreen() {
   return <AdminPage title={t('admin.greetings.title')}>{(key) => <Greetings adminKey={key} />}</AdminPage>
 }
 
-function Greetings({ adminKey: key }: { adminKey: string }) {
+function Greetings({ adminKey: key }: { adminKey: string | null }) {
   const { t, i18n } = useTranslation()
   const greetings = useAdminGreetings(key)
 
