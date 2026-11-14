@@ -21,7 +21,7 @@ public sealed class WhatsAppTests
         Recipients = { [Ravi.ToString().ToUpperInvariant()] = "+919812345678" },
     };
 
-    private static DeliveryMessage Evening(Guid child, string language = "te", string wordingVersion = "3") =>
+    private static DeliveryMessage Evening(Guid child, string language = "te", string wordingVersion = "4") =>
         new(Guid.NewGuid(), child, DeliveryKinds.Evening, language, ["Ravi", "పది తీసుకుని తీసివేత", "పేజీ 15"], "tok_123", wordingVersion);
 
     private static (WhatsAppChannel Channel, StubHttpHandler Http) Create(
@@ -59,7 +59,7 @@ public sealed class WhatsAppTests
         Assert.Equal("919812345678", root.GetProperty("to").GetString());
         Assert.Equal("template", root.GetProperty("type").GetString());
         var template = root.GetProperty("template");
-        Assert.Equal("evening_absence_v1", template.GetProperty("name").GetString());
+        Assert.Equal("evening_absence_v2", template.GetProperty("name").GetString());
         Assert.Equal("te", template.GetProperty("language").GetProperty("code").GetString());
         var components = template.GetProperty("components").EnumerateArray().ToList();
         Assert.Equal(
@@ -162,10 +162,10 @@ public sealed class WhatsAppTests
     [Fact]
     public async Task An_evening_approved_at_another_wording_version_is_skipped()
     {
-        // The Meta template copies the wording she approved at version 3; v4 text would not be what WhatsApp shows.
+        // The Meta template copies the wording at version 4; a message she approved at v3 is not what WhatsApp shows.
         var (channel, http) = Create();
 
-        Assert.Equal(ChannelResult.Skipped("wording-version"), await channel.SendAsync(Evening(Ravi, wordingVersion: "4"), Ct));
+        Assert.Equal(ChannelResult.Skipped("wording-version"), await channel.SendAsync(Evening(Ravi, wordingVersion: "3"), Ct));
         Assert.Empty(http.Requests);
     }
 

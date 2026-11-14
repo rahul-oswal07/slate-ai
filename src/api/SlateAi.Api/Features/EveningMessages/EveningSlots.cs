@@ -14,10 +14,13 @@ public sealed record FilledMessage(string Text, IReadOnlyList<TextPart> Parts, S
 /// <summary>
 /// Fills the approved evening template (FR-20, D-21). Pure code, no LLM: <c>{child}</c> is the first name (written
 /// text only, D-50), <c>{lesson}</c> the confirmed lessons' names in the family's language, <c>{page}</c> the first
-/// lesson's textbook page. Anything missing gives null: a message is never sent half-filled.
+/// lesson's page with its book's name ("Nalikali Maths Part 1, page 4"; T-101, D-99). Anything missing gives null: a
+/// message is never sent half-filled.
 /// </summary>
 public static class EveningSlots
 {
+    private const string BookSlot = "{book}";
+
     public static FilledMessage? Fill(
         LanguageWording wording,
         string language,
@@ -32,15 +35,26 @@ public static class EveningSlots
         }
 
         var names = lessons.Select(l => l!.Name(language)).ToList();
-        // The approved text says "textbook {page}": a workbook page would be wrong. A Nalikali page (D-90) is the child's
-        // textbook too; the book's name stays out of the text, which would change the approved wording (D-49, T-87).
+        // Homework is in the child's own book: the textbook or Nalikali (D-90), never a workbook page.
         if (names.Any(n => n is null) || lessons[0]!.TextbookPage is not { Book: "textbook" or TextbookPage.Nalikali } page)
         {
             return null;
         }
 
-        var pageText = (page.Part is { } part ? wording.Page.Replace("{part}", part.ToString()) : wording.PageNoPart)
-            .Replace("{page}", page.Page.ToString());
+        var format = page.Part is null ? wording.PageNoPart : wording.Page;
+        if (format.Contains(BookSlot, StringComparison.Ordinal))
+        {
+            // Wording v4 (T-101, D-99): code names the book, so a Nalikali page never reads "textbook". Wording
+            // approved before it has no {book} and keeps "textbook" in its text.
+            if (wording.Books?.GetValueOrDefault(page.Book) is not { Length: > 0 } bookName)
+            {
+                return null;
+            }
+
+            format = format.Replace(BookSlot, bookName);
+        }
+
+        var pageText = format.Replace("{part}", page.Part?.ToString()).Replace("{page}", page.Page.ToString());
         var slots = new SlotValues(string.Join(", ", names), pageText);
         return Render(wording.Text, childName, slots);
     }

@@ -8,6 +8,7 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import { formatSchoolTime } from '../today/schoolTime'
 import { useCurriculum } from '../lessons/useLessons'
+import { sumQuestion } from '../parent/sumQuestion'
 import { lessonNames } from './packageText'
 import { SegmentPlayer } from './SegmentPlayer'
 import { StatusTag } from './StatusTag'
@@ -174,7 +175,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       {pkg.status !== 'failed' && pkg.check.options.length > 0 && (
         <div className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <h2 className="text-label">{t('approve.pkg.check', { lesson: checkLesson })}</h2>
-          <p className="mt-1 text-title">{pkg.check.question} = ?</p>
+          <p className="mt-1 text-title">{sumQuestion(pkg.check.question)}</p>
           <ul className="mt-2 flex gap-2" aria-label={t('approve.pkg.options')}>
             {pkg.check.options.map((option, i) => (
               <li

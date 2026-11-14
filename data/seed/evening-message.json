@@ -1,31 +1,51 @@
 {
-  "_note": "Evening message on a day of absence (FR-20, D-21). The teacher approves this once; code fills {child} (written text only, D-50), {lesson} and {page} from her confirmed lesson. No {tomorrow} (D-48); the buddy is never named (D-29). Change the text → bump version (she approves again, D-49). en, te, kn from docs/design/T0-setup.md; ta and hi are drafts. All need native review (T-26). v2 (D-72): gender-neutral Telugu lines from Monika. v3 (D-78): Hindi added, gender-neutral; the new version asks for approval again.",
-  "version": "3",
+  "_note": "Evening message on a day of absence (FR-20, D-21). The teacher approves this once; code fills {child} (written text only, D-50), {lesson} and {page} from her confirmed lesson. No {tomorrow} (D-48); the buddy is never named (D-29). Change the text → bump version (she approves again, D-49). en, te, kn from docs/design/T0-setup.md; ta and hi are drafts. All need native review (T-26). v2 (D-72): gender-neutral Telugu lines from Monika. v3 (D-78): Hindi added, gender-neutral; the new version asks for approval again. v4 (T-101, D-99): the fixed word for \"textbook\" leaves the text and code names the book inside {page} from `books` (so a Nalikali page reads Nalikali, D-90); Kannada no longer glues a suffix to {child}, whose name is in Latin letters. The new version asks for approval again.",
+  "version": "4",
   "languages": {
     "en": {
-      "text": "We missed {child} today. In class we learned {lesson}. Homework: textbook {page}. A classmate is keeping {child}’s seat.",
-      "page": "Part {part}, page {page}",
-      "pageNoPart": "page {page}"
+      "text": "We missed {child} today. In class we learned {lesson}. Homework: {page}. A classmate is keeping {child}’s seat.",
+      "page": "{book} Part {part}, page {page}",
+      "pageNoPart": "{book} page {page}",
+      "books": {
+        "textbook": "textbook",
+        "nalikali": "Nalikali Maths"
+      }
     },
     "kn": {
-      "text": "ಇಂದು {child} ನಮಗೆ ನೆನಪಾದರು. ಇಂದು ತರಗತಿಯಲ್ಲಿ {lesson} ಕಲಿತೆವು. ಮನೆಕೆಲಸ: ಪಠ್ಯಪುಸ್ತಕ {page}. ಒಬ್ಬ ಸಹಪಾಠಿ {child}ಯ ಜಾಗ ಕಾಯುತ್ತಿದ್ದಾರೆ.",
-      "page": "ಭಾಗ {part}, ಪುಟ {page}",
-      "pageNoPart": "ಪುಟ {page}"
+      "text": "ಇಂದು {child} ನಮಗೆ ನೆನಪಾದರು. ಇಂದು ತರಗತಿಯಲ್ಲಿ {lesson} ಕಲಿತೆವು. ಮನೆಕೆಲಸ: {page}. ಒಬ್ಬ ಸಹಪಾಠಿ {child} ಅವರ ಜಾಗ ಕಾಯುತ್ತಿದ್ದಾರೆ.",
+      "page": "{book} ಭಾಗ {part}, ಪುಟ {page}",
+      "pageNoPart": "{book} ಪುಟ {page}",
+      "books": {
+        "textbook": "ಪಠ್ಯಪುಸ್ತಕ",
+        "nalikali": "ನಲಿ-ಕಲಿ ಗಣಿತ"
+      }
     },
     "te": {
-      "text": "ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: పాఠ్యపుస్తకం {page}. ఒక సహవిద్యార్థి {child} సీటును కాపాడుతున్నారు.",
-      "page": "భాగం {part}, పేజీ {page}",
-      "pageNoPart": "పేజీ {page}"
+      "text": "ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం. ఈ రోజు తరగతిలో {lesson} నేర్చుకున్నాం. ఇంటి పని: {page}. ఒక సహవిద్యార్థి {child} సీటును కాపాడుతున్నారు.",
+      "page": "{book} భాగం {part}, పేజీ {page}",
+      "pageNoPart": "{book} పేజీ {page}",
+      "books": {
+        "textbook": "పాఠ్యపుస్తకం",
+        "nalikali": "నలి-కలి గణితం"
+      }
     },
     "ta": {
-      "text": "இன்று {child} இல்லாதது எங்களுக்குக் குறையாக இருந்தது. இன்று வகுப்பில் {lesson} கற்றோம். வீட்டுப்பாடம்: பாடநூல் {page}. ஒரு வகுப்புத் தோழர் {child}இன் இருக்கையைக் காத்து வருகிறார்.",
-      "page": "பகுதி {part}, பக்கம் {page}",
-      "pageNoPart": "பக்கம் {page}"
+      "text": "இன்று {child} இல்லாதது எங்களுக்குக் குறையாக இருந்தது. இன்று வகுப்பில் {lesson} கற்றோம். வீட்டுப்பாடம்: {page}. ஒரு வகுப்புத் தோழர் {child}இன் இருக்கையைக் காத்து வருகிறார்.",
+      "page": "{book} பகுதி {part}, பக்கம் {page}",
+      "pageNoPart": "{book} பக்கம் {page}",
+      "books": {
+        "textbook": "பாடநூல்",
+        "nalikali": "நலி-கலி கணிதம்"
+      }
     },
     "hi": {
-      "text": "आज हमें {child} की कमी खली। आज कक्षा का विषय था: {lesson}। गृहकार्य: पाठ्यपुस्तक {page}। एक सहपाठी {child} की सीट का ध्यान रख रहे हैं।",
-      "page": "भाग {part}, पृष्ठ {page}",
-      "pageNoPart": "पृष्ठ {page}"
+      "text": "आज हमें {child} की कमी खली। आज कक्षा का विषय था: {lesson}। गृहकार्य: {page}। एक सहपाठी {child} की सीट का ध्यान रख रहे हैं।",
+      "page": "{book} भाग {part}, पृष्ठ {page}",
+      "pageNoPart": "{book} पृष्ठ {page}",
+      "books": {
+        "textbook": "पाठ्यपुस्तक",
+        "nalikali": "नलि-कलि गणित"
+      }
     }
   }
 }

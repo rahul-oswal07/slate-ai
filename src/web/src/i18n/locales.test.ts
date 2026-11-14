@@ -35,6 +35,14 @@ describe('locale files', () => {
     expect(mismatched).toEqual([])
   })
 
+  it('kn never glues a suffix to a name on the family pages', () => {
+    // T-101: names are stored in Latin letters, so "{{child}}ಗಾಗಿ" read "Manjunathಗಾಗಿ" on the family's phone.
+    const glued = Object.entries(flatten(locales.kn ?? {}))
+      .filter(([key, value]) => key.startsWith('parent.') && /\{\{(child|teacher)\}\}[\p{L}\p{M}]/u.test(value))
+      .map(([key]) => key)
+    expect(glued).toEqual([])
+  })
+
   // Language names and strings that are only placeholders and numbers read the same in every language.
   const sameAsEnglish = [
     'demo.ai.prompt',
