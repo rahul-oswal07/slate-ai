@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.LessonAudio;
+using SlateAi.Api.Features.TodaysMessage;
 
 namespace SlateAi.Api.Features.EveningMessages;
 
@@ -9,7 +10,9 @@ namespace SlateAi.Api.Features.EveningMessages;
 /// The 6 pm job (FR-20, and approved catch-ups, FR-08). Once a minute from <see cref="EveningOptions.SendAt"/> IST until midnight it sends each
 /// class's evening messages. Sending is idempotent per child and day, so a lesson confirmed at 7 pm still goes on
 /// the next tick and a restart never sends twice. A class whose ticked lesson clip awaits her approval waits while it is
-/// made and then <see cref="EveningOptions.LessonAudioWait"/> for her to check it (T-82, T-85).
+/// made and then <see cref="EveningOptions.LessonAudioWait"/> for her to check it (T-82, T-85). A class whose today's
+/// message is being written or awaits her approval waits the same way, for
+/// <see cref="EveningOptions.TodaysMessageWait"/> (T-111, D-100).
 /// </summary>
 public sealed class EveningSendWorker(
     IServiceScopeFactory scopes,
@@ -78,12 +81,22 @@ public sealed class EveningSendWorker(
                 {
                     var lessonAudio = await classScope.ServiceProvider.GetRequiredService<ILessonAudioStore>()
                         .GetDayAsync(classId, today, cancellationToken);
-                    if (LessonAudioWait.Holds(
-                            lessonAudio, clock.GetUtcNow(), SchoolClock.At(today, options.Value.SendAt), options.Value.LessonAudioWait))
+                    var todays = await classScope.ServiceProvider.GetRequiredService<ITodaysMessageStore>()
+                        .GetAsync(classId, today, cancellationToken);
+                    var now = clock.GetUtcNow();
+                    var sendAt = SchoolClock.At(today, options.Value.SendAt);
+                    if (LessonAudioWait.Holds(lessonAudio, now, sendAt, options.Value.LessonAudioWait))
                     {
                         // She ticked the lesson audio and hasn't approved a clip yet: sending now would lock her out (T-82).
                         logger.LogInformation(
                             "Evening messages for class {ClassId} on {Date}: waiting for lesson audio approval", classId, today);
+                    }
+                    else if (TodaysMessageWait.Holds(todays, now, sendAt, options.Value.TodaysMessageWait))
+                    {
+                        // Today's message is being written or she is reading it: the plain message now would leave her
+                        // Approve with nothing to attach to (T-111).
+                        logger.LogInformation(
+                            "Evening messages for class {ClassId} on {Date}: waiting for today's message approval", classId, today);
                     }
                     else
                     {

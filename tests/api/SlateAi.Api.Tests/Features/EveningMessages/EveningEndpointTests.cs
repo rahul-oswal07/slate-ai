@@ -14,7 +14,9 @@ using SlateAi.Api.Tests.Features.Attendance;
 using SlateAi.Api.Tests.Features.Delivery;
 using SlateAi.Api.Tests.Features.LessonAudio;
 using SlateAi.Api.Features.Parent;
+using SlateAi.Api.Features.TodaysMessage;
 using SlateAi.Api.Tests.Features.Parent;
+using SlateAi.Api.Tests.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.EveningMessages;
@@ -59,6 +61,7 @@ public sealed class EveningEndpointTests
     private readonly MovableClock _clock = new() { Now = Ist(18, 30) };
     private readonly FakeLessonAudioStore _lessonAudio = new();
     private readonly FakeDeliveryStore _delivery = new();
+    private readonly FakeTodaysMessageStore _todays = new();
 
     public EveningEndpointTests()
     {
@@ -399,6 +402,87 @@ public sealed class EveningEndpointTests
         Assert.Equal(2, _store.Messages.Count);
     }
 
+    [Fact]
+    public async Task Worker_waits_while_todays_message_is_written_and_awaits_approval_then_sends_it()
+    {
+        // T-111, seen 14 Nov after 6 pm: the plain message went 16 s after Confirm, 3 s before she tapped Approve.
+        ApproveTemplate();
+        ConfirmLesson();
+        var id = SetTodaysMessage(TodaysMessageStatus.Generating, Ist(18, 0));
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(18, 0).AddSeconds(16);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        // Ready at 18:01: she has until 18:06 to check it.
+        SetTodaysMessage(TodaysMessageStatus.Ready, Ist(18, 1), id);
+        _clock.Now = Ist(18, 5);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        SetTodaysMessage(TodaysMessageStatus.Approved, Ist(18, 5), id);
+        _store.ApprovedTodaysMessage = _ => (id, new HashSet<string> { "kn", "te" });
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.Equal(id, m.Message.TodaysMessageId));
+    }
+
+    [Fact]
+    public async Task Worker_waits_5_minutes_for_a_ready_todays_message_then_sends_the_plain_message()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        SetTodaysMessage(TodaysMessageStatus.Ready, Ist(19, 10));
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(19, 14);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        _clock.Now = Ist(19, 15);
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.Null(m.Message.TodaysMessageId));
+    }
+
+    [Fact]
+    public async Task Worker_waits_5_minutes_from_6_pm_for_a_todays_message_ready_earlier()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        SetTodaysMessage(TodaysMessageStatus.Ready, Ist(13, 0));
+        await using var factory = Create();
+        var worker = Worker(factory);
+
+        _clock.Now = Ist(18, 4);
+        await worker.RunOnceAsync(Ct);
+        Assert.Empty(_store.Messages);
+
+        _clock.Now = Ist(18, 5);
+        await worker.RunOnceAsync(Ct);
+        Assert.Equal(2, _store.Messages.Count);
+        Assert.All(_store.Messages, m => Assert.Null(m.Message.TodaysMessageId));
+    }
+
+    [Theory]
+    [InlineData(TodaysMessageStatus.Failed, 0)]
+    [InlineData(TodaysMessageStatus.Generating, 6)] // stuck: the app restarted while it was being written
+    public async Task Worker_does_not_wait_for_a_failed_or_stuck_todays_message(string status, int minutesAgo)
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        _clock.Now = Ist(18, 30);
+        SetTodaysMessage(status, _clock.Now.AddMinutes(-minutesAgo));
+        await using var factory = Create();
+
+        await Worker(factory).RunOnceAsync(Ct);
+
+        Assert.Equal(2, _store.Messages.Count);
+    }
+
     private static DateTimeOffset Ist(int hour, int minute) => SchoolClock.At(Today, new TimeOnly(hour, minute));
 
     private EveningSendWorker Worker(ApiFactory factory) =>
@@ -419,6 +503,19 @@ public sealed class EveningEndpointTests
         return row;
     }
 
+    /// <summary>Puts the day's today's message at <paramref name="status"/>, as lesson confirm and her edits would.</summary>
+    private Guid SetTodaysMessage(string status, DateTimeOffset updatedAt, Guid? id = null)
+    {
+        var row = new TodaysMessageRow(
+            id ?? Guid.NewGuid(), ClassId, Today, ["M3.SUB.BORROW"], status, Version: 1,
+            ApprovedVersion: status == TodaysMessageStatus.Approved ? 1 : null,
+            ApprovedAt: status == TodaysMessageStatus.Approved ? updatedAt : null,
+            Verdict: null, Sections: null, updatedAt, Sent: false);
+        _todays.Rows.RemoveAll(r => r.ClassId == ClassId && r.Date == Today);
+        _todays.Rows.Add(row);
+        return row.Id;
+    }
+
     private void ApproveTemplate()
     {
         _store.GetTemplatesAsync(ClassId, Wording, Ct).GetAwaiter().GetResult();
@@ -434,6 +531,7 @@ public sealed class EveningEndpointTests
             {
                 services.AddSingleton<IEveningStore>(_store);
                 services.AddSingleton<ILessonAudioStore>(_lessonAudio);
+                services.AddSingleton<ITodaysMessageStore>(_todays);
                 services.AddSingleton<IParentStore>(new FakeParentStore());
                 services.AddSingleton<IAttendanceStore>(_attendance);
                 services.AddSingleton<IAttendanceSource>(new NotYetSource());
