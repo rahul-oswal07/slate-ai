@@ -47,7 +47,8 @@ public sealed class A2CompressionEvals
                 Guid.NewGuid(),
                 c.Missed.Select((id, day) => new MissedCompetency(id, [monday.AddDays(day)])).ToList(),
                 nextWeek,
-                curriculum.CandidateSet(c.Missed, nextWeek));
+                curriculum.CandidateSet(c.Missed, nextWeek),
+                curriculum.WithPractice(c.Missed));
             var result = await compressor.CompressAsync(input, TestContext.Current.CancellationToken);
             var targets = result.Targets.Select(t => t.Id).ToList();
             var accepted = new[] { c.Best }.Concat(c.AlsoAcceptable ?? []).ToHashSet();

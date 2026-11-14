@@ -40,8 +40,9 @@ public static class CatchUpPlanner
         IReadOnlyDictionary<Guid, string> languages,
         CurriculumGraph curriculum)
     {
+        // No target: nothing code can make sums for, so no catch-up rather than one that can only fail (T-100).
         var assignments = results
-            .Where(r => languages.ContainsKey(r.ChildId))
+            .Where(r => languages.ContainsKey(r.ChildId) && r.Targets.Count > 0)
             .Select(r => new PlannedAssignment(
                 r.ChildId,
                 TargetKey(r.Targets.Select(t => t.Id)),

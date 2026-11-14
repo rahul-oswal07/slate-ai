@@ -1,3 +1,4 @@
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.Ledger;
 
@@ -58,6 +59,27 @@ public sealed class CompressionPlannerTests
         Assert.Equal([Monday.AddDays(3)], input.Missed[2].Dates);
         Assert.Equal(["M3.SUB.WORD"], input.NextWeek);
         Assert.Equal(["M3.SUB.BORROW", "M3.SUB.NOBORROW"], input.Candidates); // nearest first; CHECK isn't needed
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"], input.Practicable);
+    }
+
+    [Fact]
+    public void A_missed_lesson_without_a_practice_rule_is_not_practicable()
+    {
+        // The demo story (status.md 14 Nov, a): addition missed on Monday, the bridge lesson on Friday.
+        var graph = new CurriculumGraph(
+        [
+            CompressionBook.WithoutPractice("M3.BRIDGE.COMPARE", 0, 0),
+            CompressionBook.Item("M3.ADD.NOCARRY", 4, 10),
+            CompressionBook.Item("M3.ADD.CARRY", 4, 11, "M3.ADD.NOCARRY"),
+        ]);
+        var data = Data(
+            lessons: [(Monday, ["M3.ADD.NOCARRY"]), (Friday, ["M3.BRIDGE.COMPARE"])],
+            absent: [(Ravi, Monday), (Ravi, Friday)]);
+
+        var input = Assert.Single(CompressionPlanner.Plan(LedgerBuilder.Build(ClassId, data), data.Lessons, Friday, graph));
+
+        Assert.Equal(["M3.ADD.NOCARRY", "M3.BRIDGE.COMPARE"], input.Missed.Select(m => m.Id));
+        Assert.Equal(["M3.ADD.NOCARRY"], input.Practicable);
     }
 
     [Fact]

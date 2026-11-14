@@ -20,7 +20,11 @@ internal static class CompressionBook
         Item("M3.SUB.WORD", 5, 16, "M3.SUB.BORROW"),
     ]);
 
-    private static Competency Item(string id, int chapter, int sequence, params string[] prerequisites) =>
+    public static Competency Item(string id, int chapter, int sequence, params string[] prerequisites) =>
         new(id, $"ಕ {id}", $"Name of {id}", prerequisites, null, chapter, sequence, [], null,
             Practice: new PracticeRule("count", 3));
+
+    /// <summary>A lesson code can't make sums for yet (D-89), like the Nalikali bridge lesson (T-87).</summary>
+    public static Competency WithoutPractice(string id, int chapter, int sequence, params string[] prerequisites) =>
+        Item(id, chapter, sequence, prerequisites) with { Practice = null };
 }

@@ -12,11 +12,16 @@ public sealed record MissedCompetency(string Id, IReadOnlyList<DateOnly> Dates);
 /// <param name="Missed">This week's missed lessons, in the order they were taught.</param>
 /// <param name="NextWeek">The lessons coming next, in book order.</param>
 /// <param name="Candidates">missed ∩ ancestors(next week), nearest first (code, never the LLM).</param>
+/// <param name="Practicable">
+/// The missed lessons that have a practice rule, in teaching order: the only ones a catch-up can be made for (D-89).
+/// The rule falls back to the latest of these when there are no candidates. Code only; not sent to Claude.
+/// </param>
 public sealed record CompressionInput(
     Guid ChildId,
     IReadOnlyList<MissedCompetency> Missed,
     IReadOnlyList<string> NextWeek,
-    IReadOnlyList<string> Candidates);
+    IReadOnlyList<string> Candidates,
+    IReadOnlyList<string> Practicable);
 
 /// <summary>
 /// Builds A2's inputs from the ledger and the curriculum (FR-06). Pure and deterministic: the week window, the
@@ -70,8 +75,9 @@ public static class CompressionPlanner
                 continue;
             }
 
+            var ids = missed.Select(m => m.Id).ToList();
             inputs.Add(new CompressionInput(
-                child.ChildId, missed, nextWeek, curriculum.CandidateSet(missed.Select(m => m.Id), nextWeek)));
+                child.ChildId, missed, nextWeek, curriculum.CandidateSet(ids, nextWeek), curriculum.WithPractice(ids)));
         }
 
         return inputs;
