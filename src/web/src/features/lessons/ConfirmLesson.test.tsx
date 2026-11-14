@@ -157,7 +157,7 @@ describe('T2 Lesson confirm', () => {
     renderApp('/')
 
     // Wait until the day's lesson has loaded (the pick button is enabled only then).
-    const pick = await screen.findByRole('button', { name: 'Or pick the lesson from the list' })
+    const pick = await screen.findByRole('button', { name: 'Pick from the list' })
     await waitFor(() => expect(pick).toBeEnabled())
     expect(screen.getByRole('button', { name: 'Record' })).toBeInTheDocument()
     expect(screen.queryByText('Note saved')).not.toBeInTheDocument()

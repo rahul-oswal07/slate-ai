@@ -116,12 +116,18 @@
   .btn-secondary {
     @apply min-h-target w-full rounded-button border-2 border-primary bg-panel px-4 text-label font-bold text-primary-strong transition-transform duration-200;
   }
+  /* Two side-by-side choices under the mic (Record card): icon above a short label, outlined like .btn-secondary. */
+  .btn-tile {
+    @apply flex min-h-[64px] w-full flex-col items-center justify-center gap-1 rounded-button border-2 border-primary bg-panel px-2 py-2 text-center text-label font-bold text-primary-strong transition-transform duration-200;
+  }
   .btn-primary:active:not(:disabled),
-  .btn-secondary:active:not(:disabled) {
+  .btn-secondary:active:not(:disabled),
+  .btn-tile:active:not(:disabled) {
     transform: scale(0.98);
   }
   .btn-primary:disabled,
-  .btn-secondary:disabled {
+  .btn-secondary:disabled,
+  .btn-tile:disabled {
     @apply cursor-not-allowed border-2 border-dashed border-border bg-divider text-ink-muted;
   }
   /* The one amber hero (play, mic). In light mode amber alone is 1.3:1 on the canvas, so it carries a 3px ink outline. */

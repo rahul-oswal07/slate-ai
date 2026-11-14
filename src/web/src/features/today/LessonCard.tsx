@@ -15,8 +15,8 @@ const card = 'card p-[14px]'
 const textButton = 'btn-link mt-1'
 
 /**
- * Today's lesson (T1). Not recorded: the mic (FR-02, D-31), an optional photo of the page (T-64) and "Or pick
- * the lesson from the list". After she
+ * Today's lesson (T1). Not recorded: the mic (FR-02, D-31), then "Add a photo of the page" (T-64) and "Pick from the
+ * list" side by side, with the photo hint under both. After she
  * records: sending (3-second rule, D-34), queued offline, or "Note saved · Open" while T2 matches it. Once
  * confirmed: every lesson with its page and one "Change" (D-33); no second note (D-55).
  */
@@ -244,10 +244,16 @@ export function LessonCard({
       )}
       {!recording && (
         <>
-          <LessonPhoto date={date} onMatch={() => sendNote(null)} />
-          <button type="button" onClick={onPick} disabled={!canPick} className={textButton}>
-            {t('today.lesson.pickInstead')}
-          </button>
+          <LessonPhoto
+            date={date}
+            onMatch={() => sendNote(null)}
+            beside={
+              <button type="button" onClick={onPick} disabled={!canPick} className="btn-tile">
+                <Icon name="list" size={20} />
+                {t('confirm.pickFromList')}
+              </button>
+            }
+          />
           {sampleVoiceNote && (
             <button type="button" onClick={() => void sendSample()} className="btn-secondary mt-3 inline-flex items-center justify-center gap-2">
               <Icon name="mic" size={20} />

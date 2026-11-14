@@ -64,7 +64,7 @@ const confirmed = (...ids: string[]): LessonDay => ({
 })
 
 async function openPicker() {
-  const pick = await screen.findByRole('button', { name: 'Or pick the lesson from the list' })
+  const pick = await screen.findByRole('button', { name: 'Pick from the list' })
   await waitFor(() => expect(pick).toBeEnabled())
   await userEvent.click(pick)
   return pick
@@ -91,7 +91,7 @@ describe('picking today’s lesson', () => {
     })
     renderApp('/')
 
-    const pick = await screen.findByRole('button', { name: 'Or pick the lesson from the list' })
+    const pick = await screen.findByRole('button', { name: 'Pick from the list' })
     await waitFor(() => expect(pick).toBeEnabled())
     await userEvent.click(pick)
 

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { resizePhoto } from './resizePhoto'
 import { setPhoto, usePhoto } from './useLessons'
@@ -8,7 +9,18 @@ import { setPhoto, usePhoto } from './useLessons'
  * One photo of today's lesson (T-64): the textbook page or the board, never the children. It stays on the phone
  * and goes with her voice note, or alone through "Match from photo" when she can't speak.
  */
-export function LessonPhoto({ date, onMatch, disabled }: { date: string; onMatch: () => void; disabled?: boolean }) {
+export function LessonPhoto({
+  date,
+  onMatch,
+  disabled,
+  beside,
+}: {
+  date: string
+  onMatch: () => void
+  disabled?: boolean
+  /** Another choice next to "Add a photo of the page" (Today: "Pick from the list"); under the photo once one is added. */
+  beside?: ReactNode
+}) {
   const { t } = useTranslation()
   const announce = useAnnounce()
   const photo = usePhoto(date)
@@ -58,42 +70,49 @@ export function LessonPhoto({ date, onMatch, disabled }: { date: string; onMatch
 
   if (!src) {
     return (
-      <div className="mt-1 text-center">
+      <div className="mt-4 text-center">
         {picker}
-        <button type="button" onClick={() => input.current?.click()} disabled={busy} className="btn-link">
-          {t('today.lesson.photo.add')}
-        </button>
-        <p className="text-caption text-ink-muted">{t('today.lesson.photo.hint')}</p>
+        <div className={beside ? 'grid grid-cols-2 gap-3' : 'flex justify-center'}>
+          <button type="button" onClick={() => input.current?.click()} disabled={busy} className="btn-tile">
+            <Icon name="camera" size={20} />
+            {t('today.lesson.photo.add')}
+          </button>
+          {beside}
+        </div>
+        <p className="mt-2 text-caption text-ink-muted">{t('today.lesson.photo.hint')}</p>
       </div>
     )
   }
 
   return (
-    <div className="mt-3 rounded-card border-[1.5px] border-edge bg-surface p-3 text-left">
-      {picker}
-      <div className="flex items-start gap-3">
-        <img src={src} alt={t('today.lesson.photo.alt')} className="size-20 shrink-0 rounded-button object-cover" />
-        <div className="min-w-0">
-          <p className="text-body">{t('today.lesson.photo.withNote')}</p>
-          <p className="mt-1 text-caption text-ink-muted">{t('today.lesson.photo.hint')}</p>
+    <>
+      <div className="mt-3 rounded-card border-[1.5px] border-edge bg-surface p-3 text-left">
+        {picker}
+        <div className="flex items-start gap-3">
+          <img src={src} alt={t('today.lesson.photo.alt')} className="size-20 shrink-0 rounded-button object-cover" />
+          <div className="min-w-0">
+            <p className="text-body">{t('today.lesson.photo.withNote')}</p>
+            <p className="mt-1 text-caption text-ink-muted">{t('today.lesson.photo.hint')}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onMatch}
+          disabled={disabled || busy}
+          className="mt-3 min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
+        >
+          {t('today.lesson.photo.match')}
+        </button>
+        <div className="mt-1 flex justify-between gap-2">
+          <button type="button" onClick={() => input.current?.click()} disabled={busy} className="btn-link">
+            {t('today.lesson.photo.replace')}
+          </button>
+          <button type="button" onClick={() => void remove()} disabled={busy} className="btn-link">
+            {t('today.lesson.photo.remove')}
+          </button>
         </div>
       </div>
-      <button
-        type="button"
-        onClick={onMatch}
-        disabled={disabled || busy}
-        className="mt-3 min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
-      >
-        {t('today.lesson.photo.match')}
-      </button>
-      <div className="mt-1 flex justify-between gap-2">
-        <button type="button" onClick={() => input.current?.click()} disabled={busy} className="btn-link">
-          {t('today.lesson.photo.replace')}
-        </button>
-        <button type="button" onClick={() => void remove()} disabled={busy} className="btn-link">
-          {t('today.lesson.photo.remove')}
-        </button>
-      </div>
-    </div>
+      {beside && <div className="mt-3">{beside}</div>}
+    </>
   )
 }

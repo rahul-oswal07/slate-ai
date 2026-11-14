@@ -48,6 +48,22 @@ describe('LessonPhoto (T-64)', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
+  it('shows the other choice beside "Add a photo of the page", the hint under both, and keeps it once a photo is added', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn<typeof globalThis.fetch>())
+    render(<LessonPhoto date={date} onMatch={() => {}} beside={<button type="button">Pick from the list</button>} />)
+
+    const add = screen.getByRole('button', { name: 'Add a photo of the page' })
+    const pick = screen.getByRole('button', { name: 'Pick from the list' })
+    expect(add.parentElement).toBe(pick.parentElement)
+    const hint = screen.getByText('Photograph the textbook page or the board, not the children.')
+    expect(pick.compareDocumentPosition(hint) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    await user.upload(screen.getByTestId('photo-input'), page())
+    expect(await screen.findByRole('img', { name: 'Your photo of today’s lesson' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pick from the list' })).toBeInTheDocument()
+  })
+
   it('"Match from photo" on Today sends the photo alone as the photo part', async () => {
     const user = userEvent.setup()
     let sent: FormData | undefined
