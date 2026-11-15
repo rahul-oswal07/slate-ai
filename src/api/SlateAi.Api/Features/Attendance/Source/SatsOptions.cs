@@ -5,7 +5,7 @@ public sealed class SatsOptions
     public const string Section = "Attendance:Sats";
 
     /// <summary>When the register comes in each school day, IST (D-45 sync time).</summary>
-    public TimeOnly ArrivesAt { get; set; } = new(12, 0);
+    public TimeOnly ArrivesAt { get; set; } = new(9, 0);
 
     /// <summary>The one retry if it is late, IST (D-45); after it, Today says it is missing (D-67).</summary>
     public TimeOnly RetryAt { get; set; } = new(14, 0);

@@ -3,7 +3,7 @@
 > **MVP scope (D-70):** attendance is built (#81), no change. For the lesson part build: tap-to-start / tap-to-stop mic with 30 s auto-stop, "Or pick from the list", done card with Change, Added to missed lessons, tonight card. **"Since yesterday" is roadmap, not MVP (Monika, 25 Oct)**: its states, checklist row and copy rows below are kept for later. Mic-blocked and Sending states and the Settings gear are roadmap. See [mvp-build-flow.md](mvp-build-flow.md).
 
 Spec: FR-01, FR-02, FR-05, FR-20 (tonight card), NFR-01, NFR-02 · Tier: MVP · Task: T-12 (screen), T-06 (attendance API), T-07 (lesson upload), T-44 (tonight count) · Prototype: prototype/index.html (steps 2, 3; step 5 for "done") · PNG: screenshots/T1-today-from-sats-360-light.png
-Decisions: D-03, D-21, D-27, D-31, D-17, D-33 (lesson card lists every confirmed lesson), D-34 (mic blocked, sending), D-39 (tonight counts only families marked Yes), D-45 (attendance sync 12:00, retry 2:00 pm), D-46 (one school, one class, one teacher), D-51 (gear opens T10 Settings)
+Decisions: D-03, D-21, D-27, D-31, D-17, D-33 (lesson card lists every confirmed lesson), D-34 (mic blocked, sending), D-39 (tonight counts only families marked Yes), D-45 (attendance sync, retry 2:00 pm) + D-103 (sync time now 9:00), D-46 (one school, one class, one teacher), D-51 (gear opens T10 Settings)
 
 One screen that follows her day, top to bottom: attendance (from SATS) → today's lesson (mic, or the confirmed lesson with Change) → "Added to missed lessons" → tonight's message (→ "Since yesterday", roadmap). App bar carries the sync badge and a gear button (aria-label "Settings") that opens [T10 Settings](T10-settings.md) (D-51). This card also owns the bottom nav spec (§8).
 
@@ -16,7 +16,7 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 
 - Human: checks the absent list; corrects it only if wrong, or marks absentees if SATS hasn't arrived; taps the mic and speaks ≤ 30 s in Kannada; or picks the lesson from the list (the only way when the mic is blocked, D-34); taps Change if the confirmed lesson is wrong.
 - AI: none on this screen. The recorded note goes to T2, where Claude (A1) maps it. Mode: none here.
-- Code (no AI): server attendance-sync job at 12:00 with one retry at 2:00 pm, reading the simulated SATS source (D-45); if nothing arrives nobody is marked absent automatically; draft-then-save attendance corrections; offline outbox (Dexie) and sync badge count; mic state machine, 30 s auto-stop, < 1 s "too short" rule; upload after stop with the 3-second rule (still uploading after 3 s → kept in the outbox, D-34); "Added to missed lessons" count (absent children × confirmed lessons); tonight's count (absent ∩ consent Yes on T8 ∩ not stopped by the family, D-39); "Since yesterday" events from the ledger (roadmap); nav badge count.
+- Code (no AI): server attendance-sync job at 9:00 with one retry at 2:00 pm, reading the simulated SATS source (D-45, D-103); if nothing arrives nobody is marked absent automatically; draft-then-save attendance corrections; offline outbox (Dexie) and sync badge count; mic state machine, 30 s auto-stop, < 1 s "too short" rule; upload after stop with the 3-second rule (still uploading after 3 s → kept in the outbox, D-34); "Added to missed lessons" count (absent children × confirmed lessons); tonight's count (absent ∩ consent Yes on T8 ∩ not stopped by the family, D-39); "Since yesterday" events from the ledger (roadmap); nav badge count.
 
 ## 3. Always / never
 
@@ -26,17 +26,17 @@ One screen that follows her day, top to bottom: attendance (from SATS) → today
 - Never: write corrections back to SATS; never scrape SATS with her login (D-27).
 - Never: show seconds taken or anything that times her (A-28). Never say "sent" before anything has been sent (A-11).
 - Never: send child names or the teacher's name to Claude or Sarvam; the audio upload carries class and date IDs only (guardrail 1).
-- Uncertainty: no AI here. Recording < 1 s → not uploaded, inline "Too short" hint. SATS not in → manual marking is offered at any time; the job runs at 12:00 and retries at 2:00 pm; if nothing arrives, nobody is marked absent automatically (D-45).
+- Uncertainty: no AI here. Recording < 1 s → not uploaded, inline "Too short" hint. SATS not in → manual marking is offered at any time; the job runs at 9:00 and retries at 2:00 pm; if nothing arrives, nobody is marked absent automatically (D-45, D-103).
 - If it goes wrong: wrong attendance → wrong missed lessons and wrong evening messages. Limited by: visible source and list of names, one-tap "Wrong? Correct it", draft with Cancel, and Change on the lesson card until the 6 pm send.
 
 ## 4. States
 
 | State | What the user sees | Copy (en) |
 |---|---|---|
-| From SATS (`default`) | Attendance card: check icon, "Attendance · SATS (simulated), 12:00", "4 absent", names, "Wrong? Correct it". App bar: sync badge, then gear button (D-45, D-51). Lesson card with mic below. ![](screenshots/T1-today-from-sats-360-light.png) Kannada only: ![](screenshots/T1-today-kannada-only-360-light.png) | "Attendance · SATS (simulated), 12:00" |
-| SATS not in yet (`waiting`) | Clock icon card: not in yet, comes in at 12:00, retry at 2:00 pm, "Mark it here if you prefer" (D-45). ![](screenshots/T1-today-sats-not-in-360-light.png) | "SATS attendance has not come in yet" · "It comes in at 12:00. If it is late, we check again at 2:00 pm. You do not need to do anything." |
+| From SATS (`default`) | Attendance card: check icon, "Attendance · SATS (simulated), 9:00", "4 absent", names, "Wrong? Correct it". App bar: sync badge, then gear button (D-45, D-51). Lesson card with mic below. ![](screenshots/T1-today-from-sats-360-light.png) Kannada only: ![](screenshots/T1-today-kannada-only-360-light.png) | "Attendance · SATS (simulated), 9:00" |
+| SATS not in yet (`waiting`) | Clock icon card: not in yet, comes in at 9:00, retry at 2:00 pm, "Mark it here if you prefer" (D-45). ![](screenshots/T1-today-sats-not-in-360-light.png) | "SATS attendance has not come in yet" · "It comes in at 9:00. If it is late, we check again at 2:00 pm. You do not need to do anything." |
 | Correcting (`correct`) | Heading, hint, 4-column roll + first-name grid (D-03), absent tiles in error style with the word "absent"; sticky count "4 absent · 32 present", Cancel / Save. Same grid for manual marking with "Mark attendance here" and all present by default. ![](screenshots/T1-today-correcting-360-light.png) | "Correct attendance" / "Mark attendance here" |
-| Corrected by teacher (`corrected`) | Attendance card as From SATS, with " · corrected by you" after the source line and the corrected absent list. No PNG | "Attendance · SATS (simulated), 12:00 · corrected by you" |
+| Corrected by teacher (`corrected`) | Attendance card as From SATS, with " · corrected by you" after the source line and the corrected absent list. No PNG | "Attendance · SATS (simulated), 9:00 · corrected by you" |
 | Offline (`offline`) | Warning banner, Wi-Fi-off in status bar, badge "3 waiting to send"; mic still works. ![](screenshots/T1-today-offline-360-light.png) | "No network. You can still record your note; it stays on the phone." |
 | Lesson not yet recorded (`nolesson`) | Lesson card: title, prompt, 96 px mic, hint, "Or pick the lesson from the list". Same layout as From SATS; no separate PNG | "Tap and say what you taught today" |
 | Recording | Mic error-red with stop square and pulse, waveform, "0:12 / 0:30", "Tap again when you finish" | "Tap again when you finish" |
@@ -72,7 +72,7 @@ kn and en from the prototype. te "—" (teacher UI). Reviewed by: needs review (
 | `today.attendance.noneAbsent` | — | — | — | — | needs review |
 | `today.attendance.correctAction` | ತಪ್ಪಿದೆಯೇ? ಸರಿಪಡಿಸಿ | — | needs translation | Wrong? Correct it | needs review |
 | `today.attendance.waiting.title` | SATS ಹಾಜರಾತಿ ಇನ್ನೂ ಬಂದಿಲ್ಲ | — | needs translation | SATS attendance has not come in yet | needs review |
-| `today.attendance.waiting.body` | ಮಧ್ಯಾಹ್ನ {syncTime} ಕ್ಕೆ ಬರುತ್ತದೆ. ತಡವಾದರೆ {retryTime} ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ. | — | needs translation | It comes in at {syncTime}. If it is late, we check again at {retryTime}. You do not need to do anything. (12:00 / 2:00 pm, D-45) | needs review |
+| `today.attendance.waiting.body` | ಬೆಳಿಗ್ಗೆ {syncTime} ಕ್ಕೆ ಬರುತ್ತದೆ. ತಡವಾದರೆ {retryTime} ಕ್ಕೆ ಮತ್ತೆ ನೋಡುತ್ತೇವೆ. ನೀವು ಏನೂ ಮಾಡಬೇಕಿಲ್ಲ. | — | needs translation | It comes in at {syncTime}. If it is late, we check again at {retryTime}. You do not need to do anything. (9:00 / 2:00 pm, D-45, D-103) | needs review |
 | `today.attendance.waiting.markHere` | ಬೇಕಿದ್ದರೆ ಇಲ್ಲೇ ಗುರುತಿಸಿ | — | needs translation | Mark it here if you prefer | needs review |
 | `today.attendance.edit.titleCorrect` | ಹಾಜರಾತಿ ಸರಿಪಡಿಸಿ | — | needs translation | Correct attendance | needs review |
 | `today.attendance.edit.titleManual` | ಹಾಜರಾತಿ ಇಲ್ಲೇ ಗುರುತಿಸಿ | — | needs translation | Mark attendance here | needs review |
@@ -161,7 +161,7 @@ Lesson names and pages in the lesson and "Added" cards come from curriculum data
 - [ ] Every Indic text has a `lang` attribute; strings exist in kn, en, te, ta; `<html lang>` follows UI language (A-24)
 - [ ] axe: 0 serious/critical, in light and dark; body region focusable and labelled
 - [ ] App bar shows the sync badge and a 48 px gear button with aria-label "Settings" that opens T10 Settings; the Today tab stays active there (D-51)
-- [ ] Attendance sync runs as a server job at 12:00 and retries once at 2:00 pm; the card source reads "SATS (simulated), 12:00"; the waiting copy names both times (D-45)
+- [ ] Attendance sync runs as a server job at 9:00 and retries once at 2:00 pm; the card source reads "SATS (simulated), 9:00"; the waiting copy names both times (D-45, D-103)
 - [ ] If no attendance arrives after the 2:00 pm retry, no child is marked absent automatically; manual marking stays available at any time (D-45)
 - [ ] Attendance card shows source and time; MVP label reads "SATS (simulated)"; "corrected by you" appears after a correction; "marked by you" after fallback (FR-01, A-13, D-27)
 - [ ] API returns attendance with `source` (Sats/Manual), `receivedAt`, `correctedAt`; correction stored locally with provenance; no code path writes to SATS (D-27)

@@ -171,7 +171,7 @@ public sealed class DemoShellEndpointTests
     [Fact]
     public async Task Reset_writes_todays_register_with_only_manjunath_away()
     {
-        // T-93, R6: Today is ready at 10:00, before the feed's 12:00; the store stamps it 12:00 (RegisterArrivesAt).
+        // T-93, R6: the store stamps today's register at the feed's usual time (RegisterArrivesAt = 9:00), whatever the clock says.
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
 
@@ -180,7 +180,7 @@ public sealed class DemoShellEndpointTests
         var reset = Assert.Single(_store.Resets);
         Assert.Equal(new DateOnly(2026, 10, 23), reset.Today!.Date);
         Assert.Equal([Manjunath], reset.Today.AbsentChildIds);
-        Assert.Equal(new TimeOnly(12, 0), reset.RegisterArrivesAt);
+        Assert.Equal(new TimeOnly(9, 0), reset.RegisterArrivesAt);
         Assert.DoesNotContain(reset.Days, d => d.Date == reset.Today.Date);
     }
 

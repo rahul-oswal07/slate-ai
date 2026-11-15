@@ -83,11 +83,11 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.NotEmpty(earlier);
         Assert.Equal(0, earlier.Count % 36);
         Assert.All(earlier.Where(d => d != today), d => Assert.True(d < lessonDates.Min()));
-        // Today's register (T-93): full, only Manjunath away, as if SATS sent it at 12:00 IST; no lesson yet.
+        // Today's register (T-93): full, only Manjunath away, as if SATS sent it at 9:00 IST; no lesson yet.
         var todays = await api.QueryAsync(db => db.Attendance.Where(a => a.Date == today).ToListAsync(DemoClassApi.Ct));
         Assert.Equal(36, todays.Count);
         Assert.Equal([manjunath], todays.Where(a => !a.Present).Select(a => a.ChildId));
-        Assert.All(todays, a => Assert.Equal(SchoolClock.At(today, new TimeOnly(12, 0)), a.ReceivedAt));
+        Assert.All(todays, a => Assert.Equal(SchoolClock.At(today, new TimeOnly(9, 0)), a.ReceivedAt));
         Assert.DoesNotContain(today, lessonDates);
 
         // The old package and its own audio are gone; the shared clip and the AI log stay; Manjunath has the pre-made one.
