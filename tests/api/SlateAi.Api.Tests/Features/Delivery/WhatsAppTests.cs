@@ -116,15 +116,42 @@ public sealed class WhatsAppTests
         Assert.Empty(http.Requests);
     }
 
-    [Fact]
-    public async Task Catch_up_uses_its_own_template()
+    [Theory]
+    [InlineData(DeliveryKinds.Todays, "todays_lesson_link_v1", new[] { "Ravi", "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ", "4" })]
+    [InlineData(DeliveryKinds.CatchUp, "catchup_link_v1", new[] { "Ravi", "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ ಮತ್ತು ಸ್ಥಾನಬೆಲೆ", "ಪುಟ 4 ಮತ್ತು 6" })]
+    public async Task Todays_message_and_catch_up_send_monikas_templates_with_their_values_and_the_link(
+        string kind, string name, string[] parameters)
     {
+        // D-98: the templates submitted on 14 Nov. A today's message is sent at the wording version of its evening row,
+        // which its template doesn't check (its text is fixed; guardrail 3 rests on the approved today's message).
         var (channel, http) = Create();
 
-        await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.CatchUp, "kn", ["Ravi", "Shobha"], "tok_9"), Ct);
+        var result = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "kn", parameters, "tok_9", kind == DeliveryKinds.Todays ? "3" : null), Ct);
 
-        Assert.Contains("\"name\":\"catchup_ready_v1\"", Assert.Single(http.Requests).Body);
+        Assert.Equal(DeliveryStatus.Sent, result.Outcome);
+        using var json = JsonDocument.Parse(Assert.Single(http.Requests).Body);
+        var template = json.RootElement.GetProperty("template");
+        Assert.Equal(name, template.GetProperty("name").GetString());
+        Assert.Equal("kn", template.GetProperty("language").GetProperty("code").GetString());
+        var components = template.GetProperty("components").EnumerateArray().ToList();
+        Assert.Equal(parameters, components[0].GetProperty("parameters").EnumerateArray().Select(p => p.GetProperty("text").GetString()));
+        Assert.Equal("url", components[1].GetProperty("sub_type").GetString());
+        Assert.Equal("tok_9", components[1].GetProperty("parameters")[0].GetProperty("text").GetString());
+    }
+
+    [Theory]
+    [InlineData(DeliveryKinds.Todays)]
+    [InlineData(DeliveryKinds.CatchUp)]
+    public async Task A_message_code_could_not_fill_is_skipped_without_calling_whatsapp(string kind)
+    {
+        // e.g. a lesson whose page isn't in Nalikali: the template's fixed text says Nalikali, so nothing goes.
+        var (channel, http) = Create();
+
+        var result = await channel.SendAsync(new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "kn", [], "tok_9"), Ct);
+
+        Assert.Equal(ChannelResult.Skipped("no-values"), result);
+        Assert.Empty(http.Requests);
     }
 
     [Fact]

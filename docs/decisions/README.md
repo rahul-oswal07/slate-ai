@@ -23,7 +23,7 @@ A decision that still needs a call has `Status: Proposed` and names who decides 
 grep -l "^| Status | Proposed" docs/decisions/D-*.md      # open decisions from D-100 on
 ```
 
-In the frozen log only **D-98** is still Proposed.
+No decision in the frozen log is still Proposed (D-98 was accepted on 15 Nov).
 
 ## Template
 

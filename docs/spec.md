@@ -343,7 +343,7 @@ The decisions moved out of this file on 15 Nov 2026 (T-110), so that a new decis
 
 - **D-01 to D-99:** [`decisions/D-01-to-D-99.md`](decisions/D-01-to-D-99.md), the table that was here, as it was. Frozen: no new rows.
 - **D-100 onwards:** one file per decision in [`decisions/`](decisions/README.md).
-- **Open gates:** a decision with status **Proposed**. Today that is D-98 in the frozen log.
+- **Open gates:** a decision with status **Proposed**. None in the frozen log since D-98 was accepted (15 Nov).
 
 Status: **Proposed** → **Accepted** / **Changed**. *Gate* = must be resolved before the task it names is built.
 

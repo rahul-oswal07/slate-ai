@@ -32,7 +32,7 @@ Secrets go only in user-secrets (local) or App Service settings (staging), never
 | `WhatsApp__PhoneNumberId` | from API Setup |
 | `WhatsApp__AccessToken` | the system-user token (**secret**) |
 | `WhatsApp__Recipients__<childId>` | `+91…`, one per registered phone. Child IDs are in `data/seed/demo-class.json`. **On App Service, write the ID without hyphens** (`1e95443fd2d9…`): Azure rejects setting names with `-`, and both forms are read the same. The seeded `parentPhone` values are fictional and never dialled |
-| `WhatsApp__Evening__Name`, `WhatsApp__CatchUp__Name` | only if the approved names differ from `evening_absence_v2` / `catchup_ready_v1` |
+| `WhatsApp__Todays__Name`, `WhatsApp__CatchUp__Name`, `WhatsApp__Evening__Name` | only if the approved names differ from `todays_lesson_link_v1` / `catchup_link_v1` / `evening_absence_v2` |
 | `WhatsApp__Evening__Languages__te` (etc.) | only to stop a language that isn't approved yet: remove it or point it elsewhere. A language missing from the map is skipped |
 
 Local run with one phone:
@@ -107,6 +107,8 @@ Not created: `catchup_chat_v1` (flagged as Marketing in every wording; the catch
 | te | తరగతి సమాచారం – {{1}}. తప్పిన పాఠాలు: {{2}}, నలికలి గణితం {{3}}. పాఠం ఆడియో, ఇంట్లో చేసే కార్యకలాపం, బొమ్మ ప్రశ్న సిద్ధంగా ఉన్నాయి. తెరవడానికి కింది బటన్ నొక్కండి. | పాఠం తెరవండి |
 | ta | வகுப்புத் தகவல் – {{1}}. தவறிய பாடங்கள்: {{2}}, நலிகலி கணிதம் {{3}}. பாட ஒலி, வீட்டில் செய்யும் செயல்பாடு, படக் கேள்வி தயாராக உள்ளன. திறக்க கீழே உள்ள பொத்தானை அழுத்தவும். | பாடத்தைத் திறக்கவும் |
 | hi | कक्षा की जानकारी – {{1}}। छूटे पाठ: {{2}}, नलि-कलि गणित {{3}}। पाठ का ऑडियो, घर पर करने की गतिविधि और चित्र वाला प्रश्न तैयार हैं। खोलने के लिए नीचे का बटन दबाएँ। | पाठ खोलें |
+
+**Code fills these only for Nalikali pages (T-104):** the fixed text says "Nalikali Maths", so a today's message or catch-up whose lesson is on a textbook page is not sent over WhatsApp (`no-values`; the family keeps the demo chat). Today only the More-less-equal lesson (Part 1 p 4) is on Nalikali.
 
 `{{3}}` in the catch-up carries the word for page, so code writes it per language: en "page 4" / "pages 4 and 6", kn "ಪುಟ 4" / "ಪುಟ 4 ಮತ್ತು 6", te "పేజీ 4" / "పేజీలు 4, 6", ta "பக்கம் 4" / "பக்கங்கள் 4, 6", hi "पृष्ठ 4" / "पृष्ठ 4 और 6". Lesson names come from the curriculum in the family's language. Indic wording is a draft for native review (T-26).
 
