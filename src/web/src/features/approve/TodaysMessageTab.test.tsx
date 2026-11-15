@@ -271,4 +271,36 @@ describe("Approve → Today's message (T-89)", () => {
     expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument()
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   })
+
+  describe('video (T-94)', () => {
+    const video = { url: 'https://diksha.gov.in/play/content/do_1', removed: false }
+
+    it('shows the lesson’s link, which she can remove', async () => {
+      const user = userEvent.setup()
+      let current = message({ video })
+      const calls = setup(() => ({ status: 200, body: current }), {
+        [`PATCH ${base}/sections/video`]: () => {
+          current = message({ version: 2, video: { ...video, removed: true }, removed: ['video'] })
+          return { status: 200, body: current }
+        },
+      })
+      renderApp('/approve')
+
+      await user.click(await screen.findByRole('button', { name: 'Video' }))
+
+      expect(screen.getByRole('link', { name: 'Open the video' })).toHaveAttribute('href', video.url)
+      expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Remove' }))
+      expect(await screen.findByText('Removed: not sent')).toBeInTheDocument()
+      expect(calls.find((c) => c.key === `PATCH ${base}/sections/video`)?.body).toMatchObject({ removed: true })
+    })
+
+    it('no link for the lesson: no video section', async () => {
+      setup(() => ({ status: 200, body: message() }))
+      renderApp('/approve')
+
+      expect(await screen.findByRole('button', { name: 'Concept' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Video' })).not.toBeInTheDocument()
+    })
+  })
 })

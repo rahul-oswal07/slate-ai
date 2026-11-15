@@ -2,12 +2,10 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { ApiError } from '../../api/client'
+import { ADMIN_PAGES as PAGES } from './adminPages'
 import { adminKey } from './useAdmin'
 
-const PAGES = [
-  { path: '/admin/greetings', label: 'admin.nav.greetings' },
-  { path: '/admin/lesson-audio', label: 'admin.nav.lessonAudio' },
-] as const
+const NAV = [{ path: '/admin', label: 'admin.nav.home' }, ...PAGES] as const
 
 /**
  * The frame of every admin page (D-83): title, the links between them (each keeps `#key=…`) and the page. Without a
@@ -21,11 +19,12 @@ export function AdminPage({ title, children }: { title: string; children: (key: 
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 bg-canvas px-4 py-6 text-ink">
-      <nav aria-label={t('admin.nav.label')} className="flex gap-4">
-        {PAGES.map((page) => (
+      <nav aria-label={t('admin.nav.label')} className="flex flex-wrap gap-x-4">
+        {NAV.map((page) => (
           <NavLink
             key={page.path}
             to={{ pathname: page.path, hash }}
+            end
             className={({ isActive }) =>
               `inline-flex min-h-target items-center text-label ${isActive ? 'text-ink underline' : 'text-primary-strong'}`
             }

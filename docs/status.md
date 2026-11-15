@@ -14,7 +14,7 @@ Read this first in any new session. Then the map in [`README.md`](README.md), th
 
 - **Grand Finale, Wed 18 Nov** (Top 10, shortlisted 12 Nov; build stage submitted 31 Oct): 14 minutes (5 min slides, 3 min live demo, 6 min Q&A); presentation and demo links due **Mon 16 Nov**, so builds merge by **Sun 15 Nov**. Jury feedback, demo rules and guidelines: `hackathon-requirements.md` §5. Demo lesson: Nalikali Maths Part 1 p 4, more–less–equal (`design/curriculum.md`).
 - **Finale build on `main`:** the Must rows T-87 to T-92, T-105 and T-108; T-93 (closed 15 Nov without the voice note, `Demo__SendOnApprove` on staging or the timed runs: an Approve and send button will replace them). Of the Should rows: T-101 (#211), T-107 (#206), part of T-96 (#207) and part of T-100 (#212).
-- **Not on `main`:** T-94 (open, waits for Monika's link). Proposed and not approved: T-95, T-97 to T-99, T-102, T-103 and the rest of T-96 and T-100.
+- **Not on `main`:** Proposed and not approved: T-95, T-97 to T-99, T-102, T-103 and the rest of T-96 and T-100.
 - **Repo:** https://github.com/rahul-oswal07/slate-ai (public, MIT). Merges to `main` deploy to staging; `v*` tags deploy to prod.
 - **Staging** (https://slateai-staging.azurewebsites.net, the judges' guided demo at `/demo`): on `main`. Settings `Demo__TeacherPin`, `Demo__CoTeacherPin`, `Admin__Key`, and WhatsApp (T-40): `Delivery__Channel=whatsapp`, `WhatsApp__AccessToken`, `WhatsApp__PhoneNumberId`, one `WhatsApp__Recipients__*`.
 - **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.3`** (tagged 1 Nov at #178: T-85; `v1.2` was #173, T-81; `v1.1` was #174). Judges' story, real date, no `Admin__Key`. The old `EveningMessages__LessonAudioWaitUntil` setting is still there but unused since `v1.3`; delete it after judging.
@@ -25,7 +25,7 @@ Read this first in any new session. Then the map in [`README.md`](README.md), th
 ## Next
 
 1. **Approve the evening message once on staging** (sign in as Shobha → Settings → Evening message): the wording is v4 (D-99), Reset doesn't approve it, and until she does no evening or today's message goes. Prod asks the same at its next tag.
-2. **T-94**, DIKSHA link per lesson ([task](tasks/T-94-diksha-link-per-lesson.md)): waits for M-1 ([finale prep](tasks/M-1-to-M-6-finale-prep.md)).
+2. **Enter the DIKSHA link for Nalikali p 4** on staging's `/admin/lesson-links` (M-1, [finale prep](tasks/M-1-to-M-6-finale-prep.md)); built in T-94 ([task](tasks/T-94-diksha-link-per-lesson.md), D-106).
 3. **Should rows**, if time is left, in this order: T-95 → T-96 → T-100 → T-97 → T-98 → T-99 → T-102 → T-103.
 4. **T-104**, our own WhatsApp templates ([task](tasks/T-104-whatsapp-own-templates.md)); T-106 after the final. Where WhatsApp stands: [`areas/delivery/status.md`](areas/delivery/status.md).
 5. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.

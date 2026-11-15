@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Audio;
+using SlateAi.Api.Features.LessonLinks;
 
 namespace SlateAi.Api.Features.Admin;
 
@@ -28,8 +29,8 @@ public sealed record AdminLessonAudio(
 public sealed record AdminLessonAudioDay(DateOnly Date, int SentCount, IReadOnlyList<AdminLessonAudio> Audios);
 
 /// <summary>
-/// The admin pages (D-83): every teacher's greeting (T-66) and the lesson audio of a day (T-67). Read-only and linked
-/// from nowhere. Mapped only when <c>Admin:Key</c> is set; every request must carry that key as <c>X-Admin-Key</c>,
+/// The admin pages (D-83): every teacher's greeting (T-66), the lesson audio of a day (T-67) and the lesson links
+/// (T-94, the only one that writes). Linked from nowhere. Mapped only when <c>Admin:Key</c> is set; every request must carry that key as <c>X-Admin-Key</c>,
 /// and a missing or wrong key gets the same 404 as a route that doesn't exist. In Development the pages open without
 /// a key (D-102); staging and prod still need it.
 /// </summary>
@@ -78,6 +79,8 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .WithSummary("One lesson audio clip (Ogg Opus)")
             .WithDescription($"Needs the {KeyHeader} header (not in Development). 404 without it, or for a clip that isn't lesson audio. Admin only.");
+
+        app.MapLessonLinkEndpoints();
         return app;
     }
 
@@ -145,7 +148,7 @@ public static class AdminEndpoints
     }
 
     /// <summary>The admin pages may be read: in Development without a key (D-102), elsewhere only with it.</summary>
-    private static bool CanRead(HttpContext http, AdminOptions options) => options.OpenWithoutKey || HasKey(http, options);
+    internal static bool CanRead(HttpContext http, AdminOptions options) => options.OpenWithoutKey || HasKey(http, options);
 
     /// <summary>
     /// The request carries the admin key (constant-time compare). Also used by the WhatsApp test send (T-40), which

@@ -9,6 +9,7 @@ using SlateAi.Api.Features.TodaysMessage;
 using SlateAi.Api.Tests.Features.Audio;
 using SlateAi.Api.Tests.Features.CatchUps;
 using SlateAi.Api.Tests.Features.EveningMessages;
+using SlateAi.Api.Tests.Features.LessonLinks;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.TodaysMessage;
@@ -31,6 +32,7 @@ public sealed class TodaysMessageGeneratorTests
     private readonly CatchUpWriterTests.RecordingTts _tts = new();
     private readonly ScriptWriterTests.StubLlm _llm;
     private readonly FakeEveningStore _evening = new(ClassId, Guid.NewGuid());
+    private readonly FakeLessonLinkStore _links = new();
 
     public TodaysMessageGeneratorTests()
     {
@@ -54,6 +56,29 @@ public sealed class TodaysMessageGeneratorTests
         Assert.Equal(2, row.Sections.Concept.Clips.Count);
         Assert.All(row.Sections.Concept.Clips.Values, c => Assert.Contains(_audio.Clips, a => a.Info.Id == c && a.Info.Kind == AudioKind.Lesson));
         Assert.Equal("valid", Assert.Single(_aiCalls.Calls).Verdict);
+    }
+
+    [Fact]
+    public async Task The_lessons_link_from_the_admin_page_becomes_the_video_by_code()
+    {
+        // T-94, D-106: the AI never chooses it; a later change on the admin page reaches only the next draft.
+        _links.Links[TodaysMessageTests.Compare.Id] = "https://diksha.gov.in/play/content/do_1";
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Equal(new TodaysVideo("https://diksha.gov.in/play/content/do_1"), _store.Rows.Single().Sections!.Video);
+        Assert.DoesNotContain("diksha", _llm.Requests.Single().UserContent);
+    }
+
+    [Fact]
+    public async Task A_lesson_without_a_link_has_no_video()
+    {
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Null(_store.Rows.Single().Sections!.Video);
     }
 
     [Fact]
@@ -199,6 +224,7 @@ public sealed class TodaysMessageGeneratorTests
             new TodaysMessageWriter(_llm, _aiCalls, prompts),
             _tts,
             _audio,
+            _links,
             new DisclosureClips(_tts, _audio, Disclosure),
             curriculum,
             prompts,

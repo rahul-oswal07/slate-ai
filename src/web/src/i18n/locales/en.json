@@ -797,8 +797,10 @@
     "downloadFailed": "Couldn’t download this audio. Try again.",
     "nav": {
       "label": "Admin pages",
+      "home": "All pages",
       "greetings": "Greetings",
-      "lessonAudio": "Lesson audio"
+      "lessonAudio": "Lesson audio",
+      "lessonLinks": "Lesson links"
     },
     "greetings": {
       "title": "Teacher greetings",
@@ -831,6 +833,32 @@
       "families_one": "Sent to {{count}} family",
       "families_other": "Sent to {{count}} families",
       "family": "{{name}} (roll {{rollNo}})"
+    },
+    "lessonLinks": {
+      "title": "Lesson video links",
+      "intro": "One link per lesson, for every class. Check it on a phone first: a new today’s message for that lesson shows it to families as “Watch how it’s taught”, and the teacher can remove it.",
+      "chapter": "Chapter {{number}} · {{name}}",
+      "refused": "Use a full https link, for example https://diksha.gov.in/…",
+      "search": "Search lessons",
+      "onlyMissing": "Only lessons without a link",
+      "linkedCount": "{{linked}} of {{total}} linked",
+      "unsaved": "Unsaved",
+      "unsavedCount_one": "{{count}} unsaved change",
+      "unsavedCount_other": "{{count}} unsaved changes",
+      "saveAll": "Save all",
+      "discard": "Discard",
+      "savedCount_one": "Saved {{count}} link",
+      "savedCount_other": "Saved {{count}} links",
+      "notSavedCount_one": "Saved {{saved}} · {{count}} couldn’t be saved",
+      "notSavedCount_other": "Saved {{saved}} · {{count}} couldn’t be saved",
+      "noMatches": "No lessons match."
+    },
+    "index": {
+      "title": "Admin pages",
+      "intro": "Every admin page and its address. Open this page with its full link (#key=…) and every link below works.",
+      "greetings": "Listen to and download each teacher’s recorded greeting.",
+      "lessonAudio": "One day’s lesson audio: every class’s clip and the families it went to.",
+      "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families."
     }
   },
   "settings": {
@@ -912,7 +940,10 @@
     "save": "Save",
     "otherPair": "Choose another pair",
     "pairsFromBook": "Pairs from the book's page",
-    "pair": "{{a}} and {{b}}"
+    "pair": "{{a}} and {{b}}",
+    "video": {
+      "open": "Open the video"
+    }
   },
   "level": {
     "gotIt": "Got it",

@@ -18,7 +18,11 @@ import {
 } from './useTodaysMessage'
 
 type Editable = 'concept' | 'activity' | 'note'
-const SECTIONS: TodaysSectionKind[] = ['concept', 'activity', 'picture', 'note']
+const SECTIONS: TodaysSectionKind[] = ['concept', 'activity', 'video', 'picture', 'note']
+
+/** The sections this message has: the video only when its lesson has a link (T-94), the note only once she adds one. */
+const present = (message: TodaysMessage) =>
+  SECTIONS.filter((kind) => (kind !== 'video' || message.video !== null) && (kind !== 'note' || message.note !== null))
 
 /**
  * Approve → Today's message (T-89, D-91, D-92): the day's message as sections, one open at a time. She reads and edits
@@ -123,7 +127,7 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
       )}
 
       <ul className="flex flex-col gap-2">
-        {SECTIONS.map((kind) => (
+        {SECTIONS.filter((kind) => kind !== 'video' || message.video !== null).map((kind) => (
           <li key={kind}>
             <Section
               kind={kind}
@@ -154,6 +158,15 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
                 <p className="text-body">
                   {t('todays.pictureQuestion', { a: message.picture.a, b: message.picture.b })}{' '}
                   <span className="text-caption text-ink-muted">{t('todays.pictureAnswer', { answer: message.picture.answer })}</span>
+                </p>
+              )}
+              {kind === 'video' && message.video && (
+                // Chosen by code from the admin page's link for the lesson (T-94, D-106); she can remove it.
+                <p className="flex flex-col gap-1">
+                  <a href={message.video.url} target="_blank" rel="noopener noreferrer" className="btn-link w-fit">
+                    {t('todays.video.open')}
+                  </a>
+                  <span className="break-all text-caption text-ink-muted">{message.video.url}</span>
                 </p>
               )}
               {kind === 'note' && (message.note?.text.kn ? <p className="text-body">{message.note.text.kn}</p> : null)}
@@ -243,7 +256,9 @@ function Section({
   const [editing, setEditing] = useState(false)
   const removed = message.removed.includes(kind)
   const emptyNote = kind === 'note' && !message.note
-  const canRemove = !emptyNote && (removed || message.removed.length < 3)
+  // At least one section must still go: count what this message has, not a fixed number.
+  const showing = present(message).filter((k) => !message.removed.includes(k)).length
+  const canRemove = !emptyNote && (removed || showing > 1)
 
   return (
     <div className={`rounded-card border-[1.5px] border-edge bg-surface ${removed ? 'opacity-70' : ''}`}>
@@ -272,7 +287,7 @@ function Section({
               {!readOnly && kind === 'picture' && <PairPicker classId={classId} date={date} message={message} />}
               {!readOnly && (
                 <div className="flex flex-wrap gap-2">
-                  {kind !== 'picture' && !removed && (
+                  {kind !== 'picture' && kind !== 'video' && !removed && (
                     <button type="button" onClick={() => setEditing(true)} className="btn-secondary w-auto">
                       {emptyNote ? t('todays.addNote') : t('todays.edit')}
                     </button>
