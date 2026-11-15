@@ -81,6 +81,7 @@ public static class AdminEndpoints
             .WithDescription($"Needs the {KeyHeader} header (not in Development). 404 without it, or for a clip that isn't lesson audio. Admin only.");
 
         app.MapLessonLinkEndpoints();
+        app.MapAdminChildEndpoints();
         return app;
     }
 

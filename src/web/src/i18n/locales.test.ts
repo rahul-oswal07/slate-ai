@@ -49,6 +49,7 @@ describe('locale files', () => {
 
   // Language names and strings that are only placeholders and numbers read the same in every language.
   const sameAsEnglish = [
+    'admin.children.child', // roll number · name · language, all filled in by code (T-118)
     'demo.chat.pageTitle', // the page's own <title>, the same in every language (T-116)
     'demo.ai.prompt',
     'language.en',

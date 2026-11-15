@@ -178,6 +178,22 @@ public sealed class WhatsAppTests
         Assert.Empty(http.Requests);
     }
 
+    [Theory]
+    [InlineData(true)] // Ravi also has a server setting: the saved number still wins
+    [InlineData(false)] // nobody in the settings: the saved number alone is enough
+    public async Task A_number_saved_on_the_admin_page_is_dialled_first(bool alsoInSettings)
+    {
+        // T-118, D-110.
+        var (channel, http) = Create();
+        var message = Evening(alsoInSettings ? Ravi : Unregistered) with { Phone = "+447700900123" };
+
+        var result = await channel.SendAsync(message, Ct);
+
+        Assert.Equal(ChannelResult.Sent(ProviderMessageIds.Hash("wamid.ABC")), result);
+        using var json = JsonDocument.Parse(Assert.Single(http.Requests).Body);
+        Assert.Equal("447700900123", json.RootElement.GetProperty("to").GetString());
+    }
+
     [Fact]
     public void A_recipient_key_without_hyphens_is_read_the_same()
     {

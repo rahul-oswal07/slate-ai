@@ -3,8 +3,9 @@ using Microsoft.Extensions.Options;
 namespace SlateAi.Api.Features.Delivery;
 
 /// <summary>
-/// Sends over WhatsApp only to the registered test phones (<see cref="WhatsAppOptions.Recipients"/>, at most 5 on the
-/// Cloud API test number); every other family is skipped and keeps the demo chat. Step 1 of T-40: an approved template
+/// Sends over WhatsApp to the number saved on the admin page (T-118, D-110), else the registered test phone in
+/// <see cref="WhatsAppOptions.Recipients"/> (on the Cloud API test number Meta delivers only to registered phones, at most
+/// 5); a family with neither is skipped and keeps the demo chat. Step 1 of T-40: an approved template
 /// whose URL button opens the parent page, where the greeting, lesson audio and catch-up already play. Each kind goes as
 /// its approved template (T-104, D-98); a kind or language without one is skipped (<c>no-template</c>), as is the plain
 /// evening message until its factual template is approved (D-107).
@@ -16,7 +17,7 @@ public sealed class WhatsAppChannel(WhatsAppClient client, IOptions<WhatsAppOpti
     public Task<ChannelResult> SendAsync(DeliveryMessage message, CancellationToken cancellationToken)
     {
         var settings = options.Value;
-        if (settings.RecipientFor(message.ChildId) is not { } number)
+        if ((message.Phone ?? settings.RecipientFor(message.ChildId)) is not { } number)
         {
             return Task.FromResult(ChannelResult.Skipped("no-recipient"));
         }

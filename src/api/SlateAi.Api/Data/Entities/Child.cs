@@ -10,7 +10,15 @@ public sealed class Child
     /// <summary>Home language code: "kn", "te", "ta" or "hi" (English is a family language too, D-73).</summary>
     public required string HomeLanguage { get; set; }
 
+    /// <summary>
+    /// The family's number (E.164). Seeded values are fictional and never dialled; only a number saved on the admin page
+    /// (<see cref="ParentPhoneSetAt"/> set) gets WhatsApp (T-118, D-110).
+    /// </summary>
     public string? ParentPhone { get; set; }
+
+    /// <summary>When <see cref="ParentPhone"/> was saved on the admin page; null for a seeded or cleared number.</summary>
+    public DateTimeOffset? ParentPhoneSetAt { get; set; }
+
     public DateTimeOffset? ParentConsentAt { get; set; }
     public bool HasPhone { get; set; }
 

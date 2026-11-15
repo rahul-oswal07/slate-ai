@@ -52,6 +52,8 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
                     m.Language, m.SlotValues, m.Token, m.ExpiresAt, t.Version, m.TodaysMessageId,
+                    // Only a number saved on the admin page is dialled; seeded ones are fictional (T-118, D-110).
+                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -68,6 +70,7 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
                     p.Language, a.Token, a.ExpiresAt, p.TargetCompetencyIds,
+                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -90,16 +93,16 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                     var lessons = todaysLessons.GetValueOrDefault(todaysId) ?? [];
                     return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
                         e.Id, e.ChildId, DeliveryKinds.Todays, e.Language,
-                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculum) ?? [], e.Token, e.Version));
+                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculum) ?? [], e.Token, e.Version, e.Phone));
                 }
 
                 var slots = JsonSerializer.Deserialize<SlotValues>(e.SlotValues, Json)!;
                 return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
-                    e.Id, e.ChildId, DeliveryKinds.Evening, e.Language, [e.FirstName, slots.Lesson, slots.Page], e.Token, e.Version));
+                    e.Id, e.ChildId, DeliveryKinds.Evening, e.Language, [e.FirstName, slots.Lesson, slots.Page], e.Token, e.Version, e.Phone));
             }),
             .. catchUps.Select(c => new PendingDelivery(c.Id, c.Attempts, c.Consent, c.Stopped, c.ExpiresAt, new DeliveryMessage(
                 c.Id, c.ChildId, DeliveryKinds.CatchUp, c.Language,
-                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!))),
+                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!, Phone: c.Phone))),
         ];
     }
 
