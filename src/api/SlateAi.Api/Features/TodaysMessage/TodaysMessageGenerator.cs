@@ -35,6 +35,7 @@ public sealed class TodaysMessageGenerator(
     CurriculumGraph curriculum,
     PromptLibrary prompts,
     IOptions<VerifierOptions> options,
+    IOptions<TodaysMessageOptions> todaysOptions,
     TimeProvider clock,
     ILogger<TodaysMessageGenerator> logger)
 {
@@ -57,7 +58,7 @@ public sealed class TodaysMessageGenerator(
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.
         var teacher = row.Sections is { Teacher: true } edited ? edited : null;
-        if (lessons.Count != row.CompetencyIds.Count || (teacher?.Picture ?? TodaysPicturePicker.Pick(lessons)) is not { } picture)
+        if (lessons.Count != row.CompetencyIds.Count || (teacher?.Picture ?? TodaysPicturePicker.Pick(lessons, 0, todaysOptions.Value.ArithmeticExercises)) is not { } picture)
         {
             await Fail(row.Id, "fallback:no-exercises", cancellationToken);
             return;

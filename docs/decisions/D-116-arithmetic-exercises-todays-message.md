@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Proposed |
-| Owner | Monika, [DECIDE: Monika] |
+| Status | Accepted |
+| Owner | Rahul, 15 Nov 2026 (Monika will not make this one) |
 | Gate | T-128 PR B |
 | Screens | P5-todays-message, T3-approve, T1-today, T2-lesson-confirm, curriculum, ai-pipeline |
 
@@ -19,10 +19,18 @@ T-128 adds the book's own add and subtract pairs to six lessons (M3.ADD.NOCARRY,
 
 ## Recommendation
 
+Accepted as written below, with one change: sums get their own prompt file, `prompts/a9-todays-message-sums.md` v1, instead of an A9 v5, so the Nalikali lesson keeps v4 exactly as evaluated.
+
 - Option 1 for the picture question: choose from 3 code-made answers. The tap-to-choose step and the "Got it / Needs help" level (D-108) stay the same shape.
-- PR B builds it behind `TodaysMessage:ArithmeticExercises`, off by default. Until this decision is Accepted, the flag stays off on staging and prod.
-- A9 gets a v5 for the new kinds, with an eval run in its PR (guardrail 6). Every number and answer comes from code (guardrail 4).
+- PR B builds it behind `TodaysMessage:ArithmeticExercises`: on in `appsettings.Development.json`, off in `appsettings.json` (staging and prod) until the new prompt's eval run passes (guardrail 6).
+- Every number and answer comes from code (guardrail 4):
+  - the picture is the book's pair;
+  - the three choices are the answer plus the usual mistake (forgot the carried ten; smaller-from-bigger in each column), then ten either side (`ExerciseAnswers.Choices`);
+  - the answer's place is fixed by the numbers.
+- The child's submit is the chosen number. `EveningMessages.PictureFirst`/`PictureSecond` widen to varchar 3 (migration `TodaysPictureSumAnswers`).
+- The tag's words stay as drafted.
 
 ## Notes
 
 - 15 Nov 2026: Proposed by Rahul with T-128 PR A (data, checks and the tag; no message changes).
+- 15 Nov 2026: Accepted by Rahul, who takes this decision instead of Monika. Built in T-128 PR B behind the flag. The eval run for `a9-todays-message-sums` v1 is still to do; it needs an Anthropic key.

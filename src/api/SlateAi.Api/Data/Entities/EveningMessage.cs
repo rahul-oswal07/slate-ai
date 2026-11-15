@@ -22,7 +22,10 @@ public sealed class EveningMessage
     /// </summary>
     public Guid? TodaysMessageId { get; set; }
 
-    /// <summary>The child's first tap on today's picture question (T-90): "&gt;", "&lt;" or "=", or null. Scored by code.</summary>
+    /// <summary>
+    /// The child's first submit on today's picture question (T-90): "&gt;", "&lt;" or "=", or for a sum the number chosen
+    /// ("686", D-116); or null. Scored by code.
+    /// </summary>
     public string? PictureFirst { get; set; }
 
     /// <summary>The second tap, only after a first one that wasn't right; or null.</summary>

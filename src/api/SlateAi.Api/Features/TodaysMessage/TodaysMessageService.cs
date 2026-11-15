@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.Delivery;
@@ -61,8 +62,12 @@ public sealed class TodaysMessageService(
     CurriculumGraph curriculum,
     TodaysMessageQueue queue,
     SendNow sendNow,
+    IOptions<TodaysMessageOptions> options,
     TimeProvider clock)
 {
+    /// <summary>Sums too (D-116), behind <c>TodaysMessage:ArithmeticExercises</c>.</summary>
+    private bool Arithmetic => options.Value.ArithmeticExercises;
+
     /// <summary>
     /// Starts the draft for her confirmed lesson when it has the book's exercises (D-93) and someone is due tonight's
     /// message; a replay of the same lesson changes nothing. <paramref name="force"/>: "Try again". A lesson that gets no
@@ -72,7 +77,7 @@ public sealed class TodaysMessageService(
         Guid classId, DateOnly date, IReadOnlyList<string> competencyIds, bool force, CancellationToken cancellationToken)
     {
         var lessons = competencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        if (!TodaysPicturePicker.Supported(lessons) || await DueAsync(classId, date, cancellationToken) is not { Count: > 0 } due)
+        if (!TodaysPicturePicker.Supported(lessons, Arithmetic) || await DueAsync(classId, date, cancellationToken) is not { Count: > 0 } due)
         {
             if (await store.GetAsync(classId, date, cancellationToken) is { } stale && !stale.CompetencyIds.SequenceEqual(competencyIds))
             {
@@ -211,7 +216,7 @@ public sealed class TodaysMessageService(
         }
 
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        if (index < 0 || index >= Pairs(row.CompetencyIds).Count || TodaysPicturePicker.Pick(lessons, index) is not { } picture)
+        if (index < 0 || index >= Pairs(row.CompetencyIds).Count || TodaysPicturePicker.Pick(lessons, index, Arithmetic) is not { } picture)
         {
             return TodaysChange.Conflict;
         }
@@ -223,8 +228,7 @@ public sealed class TodaysMessageService(
     }
 
     private List<IReadOnlyList<int>> Pairs(IReadOnlyList<string> competencyIds) =>
-        competencyIds.Select(curriculum.Get).OfType<Competency>()
-            .Select(l => l.Exercises?.Compare).FirstOrDefault(c => c is { Count: > 0 })?.ToList() ?? [];
+        TodaysPicturePicker.Pairs(competencyIds.Select(curriculum.Get).OfType<Competency>().ToList(), Arithmetic).Pairs.ToList();
 
     /// <summary>The answers that came back, levels by code (T-92, D-108); null when there is no today's message.</summary>
     public async Task<TodaysAnswersView?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)

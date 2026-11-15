@@ -20,6 +20,32 @@ public static class ExerciseAnswers
     /// <summary>The difference of a "sub" pair: the first number minus the second.</summary>
     public static int Difference(int a, int b) => a - b;
 
+    /// <summary>The answer to an "add" or "sub" pair.</summary>
+    public static int Answer(string kind, int a, int b) => kind == "add" ? Sum(a, b) : Difference(a, b);
+
+    /// <summary>
+    /// The three numbers the child chooses from for a sum (D-116): the answer and two usual mistakes, made by code like
+    /// the catch-up's check (<c>ProblemGenerator</c>). Add: forgetting the carried ten first; sub: taking the smaller
+    /// digit from the bigger in each column first; then ten and a hundred either side. Every choice is 0 to 999 and at
+    /// least 10 from the answer. The answer's place is fixed by the numbers, so a redraft never reshuffles.
+    /// </summary>
+    public static IReadOnlyList<int> Choices(string kind, int a, int b)
+    {
+        var answer = Answer(kind, a, b);
+        int[] usual = kind == "add"
+            ? [a % 10 + b % 10 >= 10 || a / 10 % 10 + b / 10 % 10 >= 10 ? answer - 10 : answer + 10]
+            : [Math.Abs(a / 100 - b / 100) * 100 + Math.Abs(a / 10 % 10 - b / 10 % 10) * 10 + Math.Abs(a % 10 - b % 10)];
+        int[] steps = [10, 20, 30, 50, 100, 200];
+        var wrong = usual
+            .Concat(steps.SelectMany(step => new[] { answer + step, answer - step }))
+            .Where(n => n is >= 0 and <= Max && Math.Abs(n - answer) >= 10)
+            .Distinct()
+            .Take(2)
+            .ToList();
+        wrong.Insert((a + b) % 3, answer);
+        return wrong;
+    }
+
     /// <summary>Problems with an exercise list; empty when it is usable.</summary>
     public static IEnumerable<string> Check(ExerciseList exercises)
     {

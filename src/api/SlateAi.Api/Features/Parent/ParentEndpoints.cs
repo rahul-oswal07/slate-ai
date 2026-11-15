@@ -52,7 +52,7 @@ public static class ParentEndpoints
                 "approved. Replaying the same clientRequestId changes nothing. The response never says right or wrong.");
 
         group.MapPost("/picture", PictureAsync)
-            .WithSummary("The child's submit on today's picture question (T-90): >, < or =, scored by code")
+            .WithSummary("The child's submit on today's picture question (T-90): >, < or =, or for a sum one of its three numbers (D-116); scored by code")
             .WithDescription(
                 "Evening links that carry today's message with its picture question only; 404 otherwise. Two submits " +
                 "whatever they are; the latest is what the teacher sees (D-108). A third is 409, as are a stopped family " +
@@ -417,19 +417,27 @@ public static class ParentEndpoints
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        if (request.ClientRequestId == Guid.Empty || !TodaysMessage.TodaysLevel.Signs.Contains(request.Sign))
+        if (request.ClientRequestId == Guid.Empty)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                [request.ClientRequestId == Guid.Empty ? "clientRequestId" : "sign"] =
-                    [request.ClientRequestId == Guid.Empty ? "Required." : "Use >, < or =."],
-            });
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["clientRequestId"] = ["Required."] });
         }
 
         if (!LooksLikeToken(token)
-            || await evenings.FindByTokenAsync(token, cancellationToken) is not { TodaysMessage.Picture: not null, PictureAnswer: not null } message)
+            || await evenings.FindByTokenAsync(token, cancellationToken) is not { TodaysMessage.Picture: { } picture, PictureAnswer: not null } message)
         {
             return TypedResults.NotFound();
+        }
+
+        // Compare: one of the three signs. A sum (D-116): one of the three numbers it showed, as text ("686").
+        var choices = picture.Options is { Count: > 0 } options
+            ? options.Select(n => n.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToArray()
+            : TodaysMessage.TodaysLevel.Signs;
+        if (!choices.Contains(request.Sign))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["sign"] = [picture.Options is { Count: > 0 } ? $"Use one of {string.Join(", ", choices)}." : "Use >, < or =."],
+            });
         }
 
         var now = clock.GetUtcNow();

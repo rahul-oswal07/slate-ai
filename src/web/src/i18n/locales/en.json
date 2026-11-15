@@ -542,6 +542,7 @@
       "videoData": "Uses mobile data. You can skip it.",
       "skipVideo": "Next (skip the video)",
       "pictureIntro": "Let {{child}} look at the bundles and loose sticks, then tap the sign that goes between the numbers.",
+      "sumIntro": "Help {{child}} work out the sum with sticks or stones, then tap the picture with the answer.",
       "signs": "Which sign goes between {{a}} and {{b}}?",
       "sign": {
         "more": "{{a}} is more than {{b}}",
@@ -947,6 +948,7 @@
     "listen": "Listen to the concept",
     "listenActivity": "Listen to the activity",
     "pictureQuestion": "{{a}} ☐ {{b}}: the child taps >, < or =",
+    "pictureSum": "{{sum}}: the child picks {{choices}}",
     "pictureAnswer": "(answer {{answer}}, worked out by the app)",
     "alsoIn_one": "Also goes in {{language}} to {{count}} family",
     "alsoIn_other": "Also goes in {{language}} to {{count}} families",

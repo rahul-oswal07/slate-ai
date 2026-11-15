@@ -9,6 +9,7 @@ import { ParentHeader, PrimaryButton, SecondaryButton, StepDots, StopControl } f
 import { ReasonView } from './ReasonView'
 import { Sticks } from './Sticks'
 import { sticksText } from './sticksText'
+import { sumQuestion } from './sumQuestion'
 import type { ParentEvening, ParentTodaysMessage, Sign } from './types'
 import { usePicture } from './useParentPage'
 import { VoiceNote } from './VoiceNote'
@@ -154,7 +155,10 @@ export function TodaysPages({
           </>
         )}
 
-        {step === 'picture' && todays.picture && (
+        {step === 'picture' && todays.picture && (todays.picture.kind === 'add' || todays.picture.kind === 'sub') && todays.picture.options && (
+          <SumQuestion token={token} picture={todays.picture} childName={message.childName} onNext={next} />
+        )}
+        {step === 'picture' && todays.picture && !(todays.picture.kind === 'add' || todays.picture.kind === 'sub') && (
           <PictureQuestion token={token} picture={todays.picture} childName={message.childName} onNext={next} />
         )}
 
@@ -201,7 +205,8 @@ function PictureQuestion({
   const { t } = useTranslation()
   const announce = useAnnounce()
   const submit = usePicture(token)
-  const latest = picture.secondAnswer ?? picture.firstAnswer
+  // A compare question only ever stores a sign.
+  const latest = (picture.secondAnswer ?? picture.firstAnswer) as Sign | null
   const [retrying, setRetrying] = useState(false)
   const [chosen, setChosen] = useState<Sign | null>(null)
   const open = latest === null || (retrying && !picture.locked)
@@ -276,6 +281,123 @@ function PictureQuestion({
               {latest}
             </span>
           </p>
+          {!picture.locked && (
+            <SecondaryButton
+              onClick={() => {
+                setRetrying(true)
+                setChosen(null)
+              }}
+            >
+              {t('parent.answer.tryAgain')}
+            </SecondaryButton>
+          )}
+          <PrimaryButton onClick={onNext}>{t('parent.next')}</PrimaryButton>
+        </>
+      )}
+    </>
+  )
+}
+
+/**
+ * The sum picture question (D-116, T-128): "248 + 438 = ?" from the book's pair, then three stick pictures in the
+ * order code chose; the numeral shows only on the one tapped (D-07, as on the catch-up's check). Submit sends the
+ * number; the same two-submit rule as the sign question (D-108), and nothing says right or wrong.
+ */
+function SumQuestion({
+  token,
+  picture,
+  childName,
+  onNext,
+}: {
+  token: string
+  picture: NonNullable<ParentTodaysMessage['picture']>
+  childName: string
+  onNext: () => void
+}) {
+  const { t } = useTranslation()
+  const announce = useAnnounce()
+  const submit = usePicture(token)
+  const latestText = picture.secondAnswer ?? picture.firstAnswer
+  const latest = latestText === null ? null : Number(latestText)
+  const [retrying, setRetrying] = useState(false)
+  const [chosen, setChosen] = useState<number | null>(null)
+  const open = latest === null || (retrying && !picture.locked)
+  const question = sumQuestion(`${picture.a} ${picture.kind === 'add' ? '+' : '−'} ${picture.b}`)
+  const options = picture.options ?? []
+
+  const send = () => {
+    if (chosen === null) {
+      return
+    }
+    announce(t('parent.announce.sending'))
+    submit.mutate(`${chosen}`, {
+      onSuccess: () => {
+        announce(t('parent.announce.sent'))
+        setRetrying(false)
+        setChosen(null)
+      },
+    })
+  }
+
+  return (
+    <>
+      <p className="text-body">{t('parent.todays.sumIntro', { child: childName })}</p>
+      <p className="text-center text-display font-extrabold">{question}</p>
+      {open ? (
+        <>
+          <ul aria-label={t('parent.answer.options')} className="flex flex-col gap-3">
+            {options.map((n) => {
+              const picked = n === chosen
+              const name = sticksText(t, n)
+              return (
+                <li key={n}>
+                  <button
+                    type="button"
+                    aria-pressed={picked}
+                    aria-label={picked ? `${name}, ${n}` : name}
+                    disabled={submit.isPending}
+                    onClick={() => {
+                      submit.reset()
+                      setChosen(n)
+                    }}
+                    className={`flex min-h-target-picture w-full items-center gap-3 rounded-card p-3 focus-visible:outline-offset-[-4px] disabled:opacity-60 ${
+                      picked ? 'border-[3px] border-primary bg-panel' : 'border-2 border-border bg-surface'
+                    }`}
+                  >
+                    <span className="flex-1">
+                      <Sticks n={n} />
+                    </span>
+                    {picked && (
+                      <span aria-hidden="true" className="text-display font-extrabold text-ink">
+                        {n}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          {submit.isError && (
+            <p role="alert" className="text-caption text-error">
+              {t('parent.todays.sendFailed')}
+            </p>
+          )}
+          {chosen === null && <p className="text-center text-caption text-ink-muted">{t('parent.answer.hintTap')}</p>}
+          <PrimaryButton onClick={send} disabled={chosen === null || submit.isPending}>
+            {submit.isPending ? t('parent.answer.sending') : t('parent.todays.submit')}
+          </PrimaryButton>
+        </>
+      ) : (
+        <>
+          <div className="card flex items-center gap-3">
+            <span className="flex-1">
+              <span className="block text-caption text-ink-muted">{t('parent.answer.yours')}</span>
+              {latest !== null && <Sticks n={latest} />}
+            </span>
+            <span aria-label={latest !== null ? `${sticksText(t, latest)}, ${latest}` : undefined} className="text-display font-extrabold text-ink">
+              {latest}
+            </span>
+          </div>
           {!picture.locked && (
             <SecondaryButton
               onClick={() => {

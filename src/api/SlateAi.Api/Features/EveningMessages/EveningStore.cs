@@ -86,7 +86,16 @@ public sealed record ParentTodaysMessage(
 /// answer: code scores each tap on the server.
 /// </summary>
 /// <param name="Locked">Both submits used (D-108): the page shows their choice with Next only.</param>
-public sealed record ParentPicture(int A, int B, string? FirstAnswer = null, string? SecondAnswer = null, bool Locked = false);
+/// <param name="Kind">"compare" (tap &gt;, &lt; or =), or "add" / "sub" (pick one of <paramref name="Options"/>, D-116).</param>
+/// <param name="Options">For a sum, the three numbers drawn as sticks; their order is code's. Which one is right is never sent.</param>
+public sealed record ParentPicture(
+    int A,
+    int B,
+    string? FirstAnswer = null,
+    string? SecondAnswer = null,
+    bool Locked = false,
+    string Kind = Features.TodaysMessage.TodaysPicture.Compare,
+    IReadOnlyList<int>? Options = null);
 
 public enum ApproveResult
 {

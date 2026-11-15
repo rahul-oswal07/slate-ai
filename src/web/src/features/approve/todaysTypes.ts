@@ -14,12 +14,14 @@ export interface TodaysLanguage {
   activityClipUrl?: string | null
 }
 
+/** compare: >, < or = between a and b. add / sub (D-116): a + b or a − b, picked from `options`; `answer` is the number as text. */
 export interface TodaysPicture {
-  kind: 'compare'
+  kind: 'compare' | 'add' | 'sub'
   a: number
   b: number
-  answer: '>' | '<' | '='
+  answer: string
   removed: boolean
+  options?: number[] | null
 }
 
 export interface TodaysMessage {
@@ -40,7 +42,7 @@ export interface TodaysMessage {
   removed: TodaysSectionKind[]
   languages: TodaysLanguage[]
   /** The book's pairs for the picture question; `pictureIndex` is the one in use. */
-  pairs: number[][]
+  pairs: [number, number][]
   pictureIndex: number | null
   /** The Kannada is hers. */
   edited: boolean
