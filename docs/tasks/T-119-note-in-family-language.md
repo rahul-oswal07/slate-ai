@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
-| Issue | #242 |
+| Status | Done |
+| Issue | #242 · PR #243 |
 | Owner | R |
 | Screens | P5-todays-message |
 | Source | Rahul, 15 Nov (spotted while explaining the notes box on Approve); size XS |
