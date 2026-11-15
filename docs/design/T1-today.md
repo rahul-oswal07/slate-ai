@@ -220,7 +220,7 @@ Open items:
 - "Since yesterday" is roadmap. Its window is D-53 (since she last opened Today, at least since the start of the previous school day); define it in the API when it is built.
 - `update.needsPractice` en says "his return"; `update.homework` kn ತಂದಿದ್ದಾನೆ is masculine. Need gender-neutral strings or a per-child form (buddy card uses ತಂದಿದ್ದಾರೆ).
 - Two listen strings ("family listened to the catch-up" vs "family listened") for the same event; pick one.
-- Resolved (D-45): sync at 12:00, retry at 2:00 pm, manual marking at any time, nobody marked absent automatically. FR-01 still says 10:00; spec update pending.
+- Resolved (D-45): sync at 12:00 (moved to 9:00 by D-103, 15 Nov), retry at 2:00 pm, manual marking at any time, nobody marked absent automatically. FR-01 still says 10:00; spec update pending.
 - No state is designed for "still not in after 2:00 pm". Proposed: same card, body "It has not come in today. Mark it here if you want messages to go tonight."
 - Nav Kannada labels and tile names render at 14 px; tokens.md sets 16 px minimum for Indic captions. Decide.
 - Spec §3.1 lists "lesson already recorded today"; built as the `done` state. Recording a second note on the same day is not designed (Change uses the list only).
