@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAnnounce } from '../../components/useAnnounce'
-import { PrimaryButton } from './ParentParts'
+import { PrimaryButton, SecondaryButton } from './ParentParts'
 import { Sticks } from './Sticks'
 import { sticksText } from './sticksText'
 import { checkQuestion } from './sumQuestion'
@@ -11,16 +11,45 @@ import { useAnswer } from './useParentPage'
 /**
  * P3 Answer: three stick pictures in the order code shuffled them; the numeral shows only on the one tapped (D-07,
  * C-10). Tapping another changes the choice; "This one, send" posts it. The family never sees right or wrong (D-20).
- * Online only (D-70): a failed send keeps the choice and offers Try again.
+ * After the first send the page shows their choice with Try again and Next; after the second it is locked, with Next
+ * only (D-108); the latest counts. Online only (D-70): a failed send keeps the choice and offers Try again.
  */
-export function AnswerStep({ token, page, onSent }: { token: string; page: ParentCatchUp; onSent: () => void }) {
+export function AnswerStep({ token, page, onNext }: { token: string; page: ParentCatchUp; onNext: () => void }) {
   const { t } = useTranslation()
   const announce = useAnnounce()
   const answer = useAnswer(token)
   const [chosen, setChosen] = useState<number | null>(null)
+  const [retrying, setRetrying] = useState(false)
   const check = page.check
   if (!check) {
     return null
+  }
+
+  const mine = check.options.find((option) => option.id === page.choiceId)
+  if (page.answered && mine && (page.locked || !retrying)) {
+    return (
+      <div className="flex flex-col gap-4">
+        <p className="text-center text-display font-extrabold">{checkQuestion(check.question)}</p>
+        <div className="card flex items-center gap-3">
+          <span className="flex-1">
+            <span className="block text-caption text-ink-muted">{t('parent.answer.yours')}</span>
+            <Sticks n={mine.number} />
+          </span>
+          <span className="text-display font-extrabold text-ink">{mine.number}</span>
+        </div>
+        {!page.locked && (
+          <SecondaryButton
+            onClick={() => {
+              setRetrying(true)
+              setChosen(null)
+            }}
+          >
+            {t('parent.answer.tryAgain')}
+          </SecondaryButton>
+        )}
+        <PrimaryButton onClick={onNext}>{t('parent.next')}</PrimaryButton>
+      </div>
+    )
   }
 
   const sending = answer.isPending
@@ -32,7 +61,8 @@ export function AnswerStep({ token, page, onSent }: { token: string; page: Paren
     answer.mutate(chosen, {
       onSuccess: () => {
         announce(t('parent.announce.sent'))
-        onSent()
+        setRetrying(false)
+        setChosen(null)
       },
     })
   }

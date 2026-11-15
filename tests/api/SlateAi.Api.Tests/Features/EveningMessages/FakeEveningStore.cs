@@ -142,8 +142,8 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
                             {
                                 FirstAnswer = PictureTaps.GetValueOrDefault(message.Token).First,
                                 SecondAnswer = PictureTaps.GetValueOrDefault(message.Token).Second,
-                                Done = SlateAi.Api.Features.TodaysMessage.TodaysLevel.Done(
-                                    PictureTaps.GetValueOrDefault(message.Token).First, PictureTaps.GetValueOrDefault(message.Token).Second, PictureAnswer),
+                                Locked = SlateAi.Api.Features.TodaysMessage.TodaysLevel.Locked(
+                                    PictureTaps.GetValueOrDefault(message.Token).First, PictureTaps.GetValueOrDefault(message.Token).Second),
                             }
                             : null,
                     },
@@ -159,7 +159,7 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
     private readonly HashSet<Guid> _pictureRequests = [];
 
     public Task<(string? First, string? Second)?> SavePictureAnswerAsync(
-        string token, Guid clientRequestId, string sign, string answer, DateTimeOffset now, CancellationToken cancellationToken)
+        string token, Guid clientRequestId, string sign, DateTimeOffset now, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
@@ -178,7 +178,7 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
             {
                 taps = (sign, null);
             }
-            else if (taps.First != answer && taps.Second is null)
+            else if (taps.Second is null)
             {
                 taps = (taps.First, sign);
             }

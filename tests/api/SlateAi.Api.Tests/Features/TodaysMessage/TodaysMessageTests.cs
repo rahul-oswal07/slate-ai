@@ -185,14 +185,14 @@ public sealed class TodaysMessageTests
 
     [Theory]
     [InlineData(null, null, "notAnswered", false)]
-    [InlineData(">", null, "gotIt", true)]
-    [InlineData("<", null, "notAnswered", false)] // one more try to come
-    [InlineData("<", ">", "gettingThere", true)]
-    [InlineData("<", "=", "needsHelp", true)]
-    public void The_level_comes_from_the_taps_by_code(string? first, string? second, string level, bool done)
+    [InlineData(">", null, "gotIt", false)]
+    [InlineData("<", null, "needsHelp", false)]
+    [InlineData("<", ">", "gotIt", true)] // the latest counts (D-108)
+    [InlineData(">", "<", "needsHelp", true)]
+    public void The_level_comes_from_the_latest_submit_by_code(string? first, string? second, string level, bool locked)
     {
         Assert.Equal(level, TodaysLevel.For(first, second, ">"));
-        Assert.Equal(done, TodaysLevel.Done(first, second, ">"));
+        Assert.Equal(locked, TodaysLevel.Locked(first, second));
     }
 
     internal static TodaysSections Sections() => new(

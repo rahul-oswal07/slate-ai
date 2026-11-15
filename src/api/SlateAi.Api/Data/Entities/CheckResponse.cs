@@ -1,8 +1,9 @@
 namespace SlateAi.Api.Data.Entities;
 
 /// <summary>
-/// The family's picture tap on P3, scored by code (FR-11): one per assignment, and the first answer counts (D-62).
-/// The family never sees the outcome (D-20); the teacher's ledger does.
+/// The family's picture choice on P3, scored by code (FR-11): one row per assignment holding their latest submit; they
+/// may submit twice and the latest counts (D-108, changing D-62). The family never sees the outcome (D-20); the
+/// teacher's ledger does.
 /// </summary>
 public sealed class CheckResponse
 {
@@ -18,4 +19,7 @@ public sealed class CheckResponse
 
     public Guid ClientRequestId { get; set; }
     public DateTimeOffset AnsweredAt { get; set; }
+
+    /// <summary>How many submits: 1, or 2 when the answer is locked (D-108).</summary>
+    public int Attempts { get; set; } = 1;
 }

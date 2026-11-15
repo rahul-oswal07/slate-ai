@@ -54,18 +54,18 @@ public sealed class TodaysMessageDbTests(PostgresFixture postgres)
         var raw = await api.Client.GetStringAsync($"/api/p/{messages.Single(m => m.ChildId == manjunath).Token}", DemoClassApi.Ct);
         Assert.DoesNotContain("\"answer\"", raw); // scored on the server only (T-90)
 
-        // The child's taps (T-90): wrong first, then right; stored on the message; a third is refused.
+        // The child's submits (T-90, D-108): wrong first, then right; both stored, the latest counts; a third is refused.
         var picture = $"/api/p/{messages.Single(m => m.ChildId == manjunath).Token}/picture";
         var first = await (await api.Client.PostAsJsonAsync(picture, new SlateAi.Api.Features.Parent.PictureAnswerRequest(Guid.NewGuid(), "<"), DemoClassApi.Ct))
             .Content.ReadFromJsonAsync<SlateAi.Api.Features.Parent.PictureAnswerResponse>(DemoClassApi.Ct);
         var second = await (await api.Client.PostAsJsonAsync(picture, new SlateAi.Api.Features.Parent.PictureAnswerRequest(Guid.NewGuid(), ">"), DemoClassApi.Ct))
             .Content.ReadFromJsonAsync<SlateAi.Api.Features.Parent.PictureAnswerResponse>(DemoClassApi.Ct);
         var third = await api.Client.PostAsJsonAsync(picture, new SlateAi.Api.Features.Parent.PictureAnswerRequest(Guid.NewGuid(), "="), DemoClassApi.Ct);
-        Assert.Equal(new SlateAi.Api.Features.Parent.PictureAnswerResponse(false, 1, false), first);
-        Assert.Equal(new SlateAi.Api.Features.Parent.PictureAnswerResponse(true, 2, true), second);
+        Assert.Equal(new SlateAi.Api.Features.Parent.PictureAnswerResponse(1, false), first);
+        Assert.Equal(new SlateAi.Api.Features.Parent.PictureAnswerResponse(2, true), second);
         Assert.Equal(System.Net.HttpStatusCode.Conflict, third.StatusCode);
         var stored = await api.QueryAsync(db => db.EveningMessages.SingleAsync(m => m.ChildId == manjunath, DemoClassApi.Ct));
-        Assert.Equal(("<", ">", TodaysLevel.GettingThere), (stored.PictureFirst, stored.PictureSecond, TodaysLevel.For(stored.PictureFirst, stored.PictureSecond, ">")));
+        Assert.Equal(("<", ">", TodaysLevel.GotIt), (stored.PictureFirst, stored.PictureSecond, TodaysLevel.For(stored.PictureFirst, stored.PictureSecond, ">")));
 
         // "Is everything OK?" on today's family page (T-91, D-98): the reason endpoint takes the same link, and the reason
         // is stored for the day like on the plain evening page, so the teacher sees it as before.
@@ -79,8 +79,8 @@ public sealed class TodaysMessageDbTests(PostgresFixture postgres)
         // The teacher's Today (T-92): both families, Manjunath's last tap and level by code; Ravi hasn't answered.
         var answers = (await api.Client.GetFromJsonAsync<TodaysAnswersView>(
             $"/api/classes/{api.ClassId}/todays-message/{today:yyyy-MM-dd}/answers", DemoClassApi.Ct))!;
-        Assert.Equal((2, 1), (answers.Sent, answers.Answered));
-        Assert.Equal((">", TodaysLevel.GettingThere), (answers.Rows.Single(r => r.ChildId == manjunath).Answer, answers.Rows.Single(r => r.ChildId == manjunath).Level));
+        Assert.Equal((2, 1, 1), (answers.Sent, answers.Answered, answers.Locked));
+        Assert.Equal((">", TodaysLevel.GotIt), (answers.Rows.Single(r => r.ChildId == manjunath).Answer, answers.Rows.Single(r => r.ChildId == manjunath).Level));
         Assert.Equal(TodaysLevel.NotAnswered, answers.Rows.Single(r => r.ChildId == ravi).Level);
 
         // Sent: read only.

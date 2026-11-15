@@ -104,6 +104,9 @@ describe('DemoScreen (T-18)', () => {
     await user.click(await screen.findByRole('button', { name: /Evening message · 22 Oct/ }))
 
     expect(screen.getByTitle("Page sent to Manjunath's family")).toHaveAttribute('src', '/p/tok-evening')
+    // The browser bar reads the page's own title, the same in every language (T-116).
+    expect(screen.getByText('Tappida Paatha')).toBeInTheDocument()
+    expect(screen.queryByText('Is everything OK?')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '‹ Messages' }))
     expect(screen.getByRole('button', { name: /Evening message/ })).toBeInTheDocument()
   })

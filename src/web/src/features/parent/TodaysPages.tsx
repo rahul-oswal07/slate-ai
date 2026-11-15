@@ -42,8 +42,10 @@ function todaysSteps(m: ParentTodaysMessage, reasonGiven: boolean, current: stri
 
 /**
  * Today's message for the family (T-91, D-91): her voice and the concept, the activity at home, the video when there is
- * one, the child's picture question (T-90), then Done ⭐. One step per screen, in `?step=` so the phone's Back works.
- * The stop link is on every step. Nothing here is AI except the concept text and voice, which she approved.
+ * one, the child's picture question (T-90), then Done ⭐. One step per screen, in `?step=` so the phone's Back works;
+ * each step has Back (but the first) and its title in one row, then the teacher line (T-116). A reopened link starts at
+ * the first step again. The stop link is on every step. Nothing here is AI except the concept text and voice, which she
+ * approved.
  */
 export function TodaysPages({
   token,
@@ -60,8 +62,8 @@ export function TodaysPages({
   const requested = params.get('step') as Step | null
   const steps = todaysSteps(todays, message.reason !== null, requested)
   const first = steps[0] ?? 'done'
-  // A reopened link whose question is done opens on Done.
-  const step: Step = requested && steps.includes(requested) ? requested : todays.picture?.done ? 'done' : first
+  // A reopened link starts at the first step again (T-116); the answer page then shows open or locked.
+  const step: Step = requested && steps.includes(requested) ? requested : first
   const heading = useRef<HTMLHeadingElement>(null)
   const next = () => {
     const after = steps[steps.indexOf(step) + 1]
@@ -69,23 +71,29 @@ export function TodaysPages({
       setParams({ step: after })
     }
   }
+  // Back to the step before in this family's own list (removed sections stay skipped); none on the first.
+  const before = steps[steps.indexOf(step) - 1]
+  const back = before ? () => setParams({ step: before }) : undefined
+  const teacherLine = t('parent.evening.title', { teacher: message.teacherName })
 
   useEffect(() => heading.current?.focus(), [step])
 
   // "Is everything OK?" (FR-21, D-98): the evening page's own reason screen, as a step. Send or Skip moves on; Back goes
   // back to her voice. Optional: nothing here blocks the lesson.
   if (step === 'reason') {
-    return <ReasonView token={token} message={message} onDone={next} onBack={() => window.history.back()} />
+    return <ReasonView token={token} message={message} onDone={next} onBack={back} />
   }
 
   return (
     <>
-      <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />
+      <ParentHeader
+        title={t(`parent.todays.title.${step}`, { child: message.childName })}
+        onBack={back}
+        headingRef={heading}
+        subtitle={teacherLine}
+      />
       <div className="flex flex-col gap-4 px-4 py-4">
         <StepDots step={DOT[step]} />
-        <h2 ref={heading} tabIndex={-1} className="text-title font-extrabold">
-          {t(`parent.todays.title.${step}`, { child: message.childName })}
-        </h2>
 
         {step === 'voice' && (
           <>
@@ -142,7 +150,7 @@ export function TodaysPages({
         )}
 
         {step === 'picture' && todays.picture && (
-          <PictureQuestion token={token} picture={todays.picture} childName={message.childName} onDone={next} />
+          <PictureQuestion token={token} picture={todays.picture} childName={message.childName} onNext={next} />
         )}
 
         {step === 'done' && (
@@ -170,41 +178,44 @@ export function TodaysPages({
 
 /**
  * The child's picture question (T-90, D-93): two numbers from the book, each drawn as bundles of ten and loose sticks,
- * and three big signs. Code scores each tap on the server. A first tap that isn't right gets a gentle "look again" and one
- * more try (D-95: "getting there"); the second tap is final. The phone never learns the answer.
+ * and three big signs. Tapping a sign only chooses it; Submit sends it (D-108). Nothing says right or wrong: after the
+ * first submit the page shows their choice with Try again and Next; after the second it is locked, with Next only. Code
+ * scores the latest on the server; the phone never learns the answer.
  */
 function PictureQuestion({
   token,
   picture,
   childName,
-  onDone,
+  onNext,
 }: {
   token: string
   picture: NonNullable<ParentTodaysMessage['picture']>
   childName: string
-  onDone: () => void
+  onNext: () => void
 }) {
   const { t } = useTranslation()
   const announce = useAnnounce()
-  const tap = usePicture(token)
-  const [again, setAgain] = useState(picture.firstAnswer !== null && !picture.done)
+  const submit = usePicture(token)
+  const latest = picture.secondAnswer ?? picture.firstAnswer
+  const [retrying, setRetrying] = useState(false)
+  const [chosen, setChosen] = useState<Sign | null>(null)
+  const open = latest === null || (retrying && !picture.locked)
+  const label = (sign: Sign) =>
+    t(`parent.todays.sign.${sign === '>' ? 'more' : sign === '<' ? 'less' : 'equal'}`, { a: picture.a, b: picture.b })
 
-  if (picture.done) {
-    return <PrimaryButton onClick={onDone}>{t('parent.todays.next')}</PrimaryButton>
-  }
-
-  const choose = (sign: Sign) =>
-    tap.mutate(sign, {
-      onSuccess: (result) => {
-        if (result.done) {
-          announce(t('parent.todays.thanks'))
-          onDone()
-        } else {
-          setAgain(true)
-          announce(t('parent.todays.lookAgain'))
-        }
+  const send = () => {
+    if (chosen === null) {
+      return
+    }
+    announce(t('parent.announce.sending'))
+    submit.mutate(chosen, {
+      onSuccess: () => {
+        announce(t('parent.announce.sent'))
+        setRetrying(false)
+        setChosen(null)
       },
     })
+  }
 
   return (
     <>
@@ -220,30 +231,58 @@ function PictureQuestion({
           </figure>
         ))}
       </div>
-      {again && (
-        <output className="block rounded-card border-l-4 border-l-accent bg-panel p-3 text-body">
-          {t('parent.todays.lookAgain')}
-        </output>
-      )}
-      <fieldset className="grid grid-cols-3 gap-3">
-        <legend className="sr-only">{t('parent.todays.signs', { a: picture.a, b: picture.b })}</legend>
-        {SIGNS.map((sign) => (
-          <button
-            key={sign}
-            type="button"
-            disabled={tap.isPending}
-            aria-label={t(`parent.todays.sign.${sign === '>' ? 'more' : sign === '<' ? 'less' : 'equal'}`, { a: picture.a, b: picture.b })}
-            onClick={() => choose(sign)}
-            className="min-h-[88px] rounded-button border-[3px] border-ink bg-surface text-[40px] font-extrabold text-ink active:scale-95 disabled:opacity-60"
-          >
-            {sign}
-          </button>
-        ))}
-      </fieldset>
-      {tap.isError && (
-        <p role="alert" className="text-caption text-error">
-          {t('parent.todays.sendFailed')}
-        </p>
+      {open ? (
+        <>
+          <fieldset className="grid grid-cols-3 gap-3">
+            <legend className="sr-only">{t('parent.todays.signs', { a: picture.a, b: picture.b })}</legend>
+            {SIGNS.map((sign) => (
+              <button
+                key={sign}
+                type="button"
+                aria-pressed={sign === chosen}
+                disabled={submit.isPending}
+                aria-label={label(sign)}
+                onClick={() => {
+                  submit.reset()
+                  setChosen(sign)
+                }}
+                className={`min-h-[88px] rounded-button text-[40px] font-extrabold text-ink active:scale-95 disabled:opacity-60 ${
+                  sign === chosen ? 'border-[4px] border-primary bg-panel' : 'border-[3px] border-ink bg-surface'
+                }`}
+              >
+                {sign}
+              </button>
+            ))}
+          </fieldset>
+          {submit.isError && (
+            <p role="alert" className="text-caption text-error">
+              {t('parent.todays.sendFailed')}
+            </p>
+          )}
+          <PrimaryButton onClick={send} disabled={chosen === null || submit.isPending}>
+            {submit.isPending ? t('parent.answer.sending') : t('parent.todays.submit')}
+          </PrimaryButton>
+        </>
+      ) : (
+        <>
+          <p className="card flex items-center justify-between gap-3 text-body">
+            <span>{t('parent.answer.yours')}</span>
+            <span aria-label={latest ? label(latest) : undefined} className="text-[40px] font-extrabold text-ink">
+              {latest}
+            </span>
+          </p>
+          {!picture.locked && (
+            <SecondaryButton
+              onClick={() => {
+                setRetrying(true)
+                setChosen(null)
+              }}
+            >
+              {t('parent.answer.tryAgain')}
+            </SecondaryButton>
+          )}
+          <PrimaryButton onClick={onNext}>{t('parent.next')}</PrimaryButton>
+        </>
       )}
     </>
   )

@@ -165,7 +165,7 @@ public sealed class ParentEndpointTests
         var response = await client.PostAsJsonAsync($"/api/p/{Token}/answer", new AnswerRequest(choice, Guid.NewGuid()), Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("{\"answered\":true}", await response.Content.ReadAsStringAsync(Ct));
+        Assert.Equal("{\"attempt\":1,\"locked\":false}", await response.Content.ReadAsStringAsync(Ct));
         var stored = Assert.Single(_parents.Answers);
         Assert.Equal(correct, stored.Correct);
         Assert.Equal(correct ? CheckOutcome.CaughtUp : CheckOutcome.NeedsBuddy, stored.Outcome);
@@ -173,20 +173,29 @@ public sealed class ParentEndpointTests
     }
 
     [Fact]
-    public async Task First_answer_counts_and_replays_change_nothing()
+    public async Task Two_submits_the_latest_counts_a_third_is_refused_and_replays_change_nothing()
     {
+        // D-108 (changing D-62): the second submit replaces the first on the teacher's ledger.
         await using var factory = Create();
         using var client = factory.CreateHttpsClient();
         var request = new AnswerRequest(0, Guid.NewGuid());
 
-        var first = await client.PostAsJsonAsync($"/api/p/{Token}/answer", request, Ct);
-        var replay = await client.PostAsJsonAsync($"/api/p/{Token}/answer", request, Ct);
-        var second = await client.PostAsJsonAsync($"/api/p/{Token}/answer", new AnswerRequest(1, Guid.NewGuid()), Ct);
-        var page = (await client.GetFromJsonAsync<ParentCatchUpResponse>($"/api/p/{Token}", Ct))!;
+        var first = await (await client.PostAsJsonAsync($"/api/p/{Token}/answer", request, Ct)).Content.ReadFromJsonAsync<AnswerResponse>(Ct);
+        var replay = await (await client.PostAsJsonAsync($"/api/p/{Token}/answer", request, Ct)).Content.ReadFromJsonAsync<AnswerResponse>(Ct);
+        var open = (await client.GetFromJsonAsync<ParentCatchUpResponse>($"/api/p/{Token}", Ct))!;
+        var second = await (await client.PostAsJsonAsync($"/api/p/{Token}/answer", new AnswerRequest(1, Guid.NewGuid()), Ct))
+            .Content.ReadFromJsonAsync<AnswerResponse>(Ct);
+        var third = await client.PostAsJsonAsync($"/api/p/{Token}/answer", new AnswerRequest(2, Guid.NewGuid()), Ct);
+        var locked = (await client.GetFromJsonAsync<ParentCatchUpResponse>($"/api/p/{Token}", Ct))!;
 
-        Assert.All([first, replay, second], r => Assert.Equal(HttpStatusCode.OK, r.StatusCode));
-        Assert.Equal(CheckOutcome.NeedsBuddy, Assert.Single(_parents.Answers).Outcome);
-        Assert.True(page.Answered);
+        Assert.Equal(new AnswerResponse(1, false), first);
+        Assert.Equal(first, replay);
+        Assert.Equal((true, 0, false), (open.Answered, open.ChoiceId, open.Locked));
+        Assert.Equal(new AnswerResponse(2, true), second);
+        Assert.Equal(HttpStatusCode.Conflict, third.StatusCode);
+        var stored = Assert.Single(_parents.Answers);
+        Assert.Equal((1, CheckOutcome.CaughtUp, 2), (stored.ChoiceId, stored.Outcome, stored.Attempts));
+        Assert.Equal((true, 1, true), (locked.Answered, locked.ChoiceId, locked.Locked));
     }
 
     [Fact]
@@ -510,7 +519,7 @@ public sealed class ParentEndpointTests
             54, 150_000, "ఇది మీ బిడ్డ టీచర్ పంపిన పాఠం."),
         ExpiresAt: _clock.Now.AddDays(14),
         Stopped: false,
-        Answered: false);
+        Attempts: 0);
 
     private ApiFactory Create() =>
         FakeApi.Create(services =>

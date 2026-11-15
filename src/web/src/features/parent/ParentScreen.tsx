@@ -92,18 +92,15 @@ function CatchUpPages({ token, page }: { token: string; page: ParentCatchUp }) {
   const [params, setParams] = useSearchParams()
   const headingRef = useRef<HTMLHeadingElement>(null)
   const requested = Number(params.get('step'))
-  let step = [1, 2, 3, 4].includes(requested) ? requested : page.answered ? 4 : 1
-  // Reopened after answering: the first answer counts, so the question goes straight to Done (D-62).
-  if (page.answered && step === 3) {
-    step = 4
-  }
+  // A reopened link starts at Listen again (T-116); the answer page then shows open or locked (D-108).
+  const step = [1, 2, 3, 4].includes(requested) ? requested : 1
 
   useEffect(() => {
     headingRef.current?.focus()
   }, [step])
 
-  const go = (next: number, replace = false) => setParams({ step: String(next) }, { replace })
-  const back = step === 1 ? undefined : () => go(page.answered && step === 4 ? 2 : step - 1)
+  const go = (next: number) => setParams({ step: String(next) })
+  const back = step === 1 ? undefined : () => go(step - 1)
   const titles: Record<number, string> = {
     1: t('parent.title', { child: page.childName }),
     2: t('parent.activity.title'),
@@ -118,13 +115,14 @@ function CatchUpPages({ token, page }: { token: string; page: ParentCatchUp }) {
         accent={step === 1 ? page.childName : undefined}
         onBack={back}
         headingRef={headingRef}
+        subtitle={t('parent.evening.title', { teacher: page.teacherName })}
       />
       <div className="flex flex-col gap-4 px-4 py-4">
         <StepDots step={step} />
         {step < 4 && <AiLabel teacher={page.teacherName} />}
         {step === 1 && <ListenStep page={page} onNext={() => go(2)} />}
         {step === 2 && <ActivityStep page={page} onNext={() => go(3)} />}
-        {step === 3 && <AnswerStep token={token} page={page} onSent={() => go(4, true)} />}
+        {step === 3 && <AnswerStep token={token} page={page} onNext={() => go(4)} />}
         {step === 4 && <DoneStep page={page} />}
         <StopControl token={token} childName={page.childName} />
       </div>

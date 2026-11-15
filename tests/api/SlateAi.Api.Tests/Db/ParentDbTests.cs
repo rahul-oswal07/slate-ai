@@ -15,9 +15,10 @@ namespace SlateAi.Api.Tests.Db;
 public sealed class ParentDbTests(PostgresFixture postgres)
 {
     [Fact]
-    public async Task Family_opens_answers_once_and_a_stop_blocks_every_send()
+    public async Task Family_answers_at_most_twice_and_a_stop_blocks_every_send()
     {
-        // On a real database: the token lookup's joins, the first answer winning a race (advisory lock + primary key),
+        // On a real database: the token lookup's joins, three answers racing (advisory lock + primary key: two count, the
+        // third is refused, one row holds the latest, D-108),
         // the ledger reading the answer, FR-19 (after a stop the evening send refuses the child) and FR-21 (one reason
         // per child per day, the latest tap wins, a replay after it changes nothing).
         await using var api = await DemoClassApi.StartAsync(postgres);
@@ -47,9 +48,13 @@ public sealed class ParentDbTests(PostgresFixture postgres)
 
         var answers = await Task.WhenAll(Enumerable.Range(0, 3).Select(choice =>
             api.Client.PostAsJsonAsync($"{url}/answer", new AnswerRequest(choice, Guid.NewGuid()), DemoClassApi.Ct)));
-        Assert.All(answers, r => Assert.Equal(HttpStatusCode.OK, r.StatusCode));
+        Assert.Equal(
+            [HttpStatusCode.Conflict, HttpStatusCode.OK, HttpStatusCode.OK],
+            answers.Select(r => r.StatusCode).OrderBy(c => c == HttpStatusCode.OK));
         var stored = Assert.Single(await api.QueryAsync(db => db.CheckResponses.ToListAsync(DemoClassApi.Ct)));
-        Assert.True((await api.Client.GetFromJsonAsync<ParentCatchUpResponse>(url, DemoClassApi.Ct))!.Answered);
+        Assert.Equal(2, stored.Attempts);
+        var reopened = (await api.Client.GetFromJsonAsync<ParentCatchUpResponse>(url, DemoClassApi.Ct))!;
+        Assert.Equal((true, stored.ChoiceId, true), (reopened.Answered, reopened.ChoiceId, reopened.Locked));
 
         var ledger = (await api.Client.GetFromJsonAsync<LedgerResponse>($"/api/classes/{api.ClassId}/ledger", DemoClassApi.Ct))!;
         Assert.Equal(stored.Outcome, Assert.Single(ledger.Children.Single(c => c.ChildId == ravi).MissedLessons).Status);

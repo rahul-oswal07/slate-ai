@@ -21,6 +21,12 @@ public static class TodaysSectionKind
     public const string Note = "note";
 
     public static readonly string[] All = [Concept, Activity, Picture, Video, Note];
+
+    /// <summary>
+    /// What the approved WhatsApp text promises the family ("the lesson audio, a home activity and a picture question
+    /// are ready"), so these can't be removed (D-108); she can still edit the text and choose another picture pair.
+    /// </summary>
+    public static readonly string[] Promised = [Concept, Activity, Picture];
 }
 
 /// <summary>A short explanation of the lesson, per language, with its voiced clip (D-91: text and audio).</summary>

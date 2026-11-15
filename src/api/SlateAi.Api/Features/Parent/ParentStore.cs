@@ -26,7 +26,15 @@ public sealed record ParentCatchUpRecord(
     AudioSegments? Audio,
     DateTimeOffset ExpiresAt,
     bool Stopped,
-    bool Answered);
+    int Attempts = 0,
+    int? ChoiceId = null)
+{
+    /// <summary>At least one submit.</summary>
+    public bool Answered => Attempts > 0;
+
+    /// <summary>Both submits used (D-108): the page shows their choice with Next only.</summary>
+    public bool Locked => Attempts >= ParentRules.MaxAnswers;
+}
 
 /// <summary>An evening-message link: the child and day it is about, and the reason already given.</summary>
 public sealed record EveningLink(Guid ChildId, Guid ClassId, DateOnly Date, DateTimeOffset ExpiresAt, bool Stopped, string? Reason);
@@ -40,9 +48,11 @@ public interface IParentStore
     /// <summary>The child behind any parent link: a catch-up or an evening message, expired or not.</summary>
     Task<Guid?> FindChildAsync(string token, CancellationToken cancellationToken);
 
-    /// <summary>Stores the first answer for the assignment.</summary>
-    /// <returns>False when the assignment was already answered (the first answer counts, D-62).</returns>
-    Task<bool> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken);
+    /// <summary>
+    /// Stores a submit for the assignment: the first, or a second that replaces it (the latest counts, D-108). A replayed
+    /// clientRequestId changes nothing. Returns the number of submits after it, or null when both are already used.
+    /// </summary>
+    Task<int?> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken);
 
     /// <summary>The evening message behind a link token, or null when the token isn't an evening link.</summary>
     Task<EveningLink?> FindEveningAsync(string token, CancellationToken cancellationToken);
@@ -75,7 +85,8 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
                     a.Id, a.ChildId, c.FirstName, t.DisplayName, p.Language, p.Status, p.ScriptVersion,
                     p.ApprovedScriptVersion, p.TargetCompetencyIds, p.Script, p.KeyWordsKn, p.Activity, p.CheckItem,
                     p.AudioSegments, a.ExpiresAt, Stopped = c.ParentStoppedAt != null,
-                    Answered = db.CheckResponses.Any(r => r.AssignmentId == a.Id),
+                    Attempts = db.CheckResponses.Where(r => r.AssignmentId == a.Id).Select(r => r.Attempts).FirstOrDefault(),
+                    ChoiceId = db.CheckResponses.Where(r => r.AssignmentId == a.Id).Select(r => (int?)r.ChoiceId).FirstOrDefault(),
                 })
             .SingleOrDefaultAsync(cancellationToken);
         return row is null
@@ -89,7 +100,8 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
                 // A token is only set when sent, together with ExpiresAt; treat a missing one as already expired.
                 row.ExpiresAt ?? DateTimeOffset.MinValue,
                 row.Stopped,
-                row.Answered);
+                row.Attempts,
+                row.ChoiceId);
     }
 
     public async Task<Guid?> FindChildAsync(string token, CancellationToken cancellationToken) =>
@@ -98,21 +110,44 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
         ?? await db.EveningMessages.Where(m => m.Token == token).Select(m => (Guid?)m.ChildId)
             .SingleOrDefaultAsync(cancellationToken);
 
-    public async Task<bool> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken)
+    public async Task<int?> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken)
     {
-        // Two taps racing (a retry while the first is still in flight) must not both insert.
+        // Two submits racing (a retry while the first is still in flight) must not both count.
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var key = $"answer:{response.AssignmentId}";
         await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))", cancellationToken);
-        if (await db.CheckResponses.AnyAsync(r => r.AssignmentId == response.AssignmentId, cancellationToken))
+        var stored = await db.CheckResponses.SingleOrDefaultAsync(r => r.AssignmentId == response.AssignmentId, cancellationToken);
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == response.ClientRequestId, cancellationToken))
         {
-            return false;
+            return stored?.Attempts ?? 0;
         }
 
-        db.CheckResponses.Add(response);
+        if (stored is null)
+        {
+            response.Attempts = 1;
+            db.CheckResponses.Add(response);
+        }
+        else if (stored.Attempts < ParentRules.MaxAnswers)
+        {
+            stored.ChoiceId = response.ChoiceId;
+            stored.Correct = response.Correct;
+            stored.Outcome = response.Outcome;
+            stored.ClientRequestId = response.ClientRequestId;
+            stored.AnsweredAt = response.AnsweredAt;
+            stored.Attempts++;
+        }
+        else
+        {
+            return null;
+        }
+
+        db.ProcessedRequests.Add(new ProcessedRequest
+        {
+            ClientRequestId = response.ClientRequestId, Endpoint = "catchup-answer", CreatedAt = response.AnsweredAt,
+        });
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        return true;
+        return stored?.Attempts ?? 1;
     }
 
     public Task<EveningLink?> FindEveningAsync(string token, CancellationToken cancellationToken) =>

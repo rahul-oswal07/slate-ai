@@ -27,6 +27,9 @@ public static class AnswerScoring
 /// <summary>When a parent link may show its lesson (guardrail 3, FR-19). Pure.</summary>
 public static class ParentRules
 {
+    /// <summary>The family may submit the catch-up answer at most this many times; the latest counts (D-108).</summary>
+    public const int MaxAnswers = 2;
+
     /// <summary>
     /// Only a catch-up she approved, at the version she approved. Sending moves it to "sent", which keeps the approved
     /// version; anything else (back to ready, regenerating) shows nothing.

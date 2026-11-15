@@ -164,7 +164,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
         modelBuilder.Entity<CheckResponse>(e =>
         {
-            e.HasKey(r => r.AssignmentId); // one answer per assignment: the first counts (D-62)
+            e.HasKey(r => r.AssignmentId); // one row per assignment: the latest of at most two submits (D-108)
+            e.Property(r => r.Attempts).HasDefaultValue(1);
             e.Property(r => r.Outcome).HasMaxLength(20);
             e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<CheckResponse>(r => r.AssignmentId)
                 .OnDelete(DeleteBehavior.Cascade);

@@ -7,7 +7,7 @@ Spec: [`spec.md`](spec.md)
 ## Built
 
 - **Missed lessons:** by child or by lesson, child history, and deleting a child's data (T-13, T-19).
-- The by-child view shows the same level tag as Today's answers table (T-92).
+- The by-child view shows the same level tag as Today's answers table (T-92): Got it, Needs help or Not answered yet (D-108).
 
 ## Known gaps and drafts
 
