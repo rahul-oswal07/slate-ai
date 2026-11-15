@@ -22,6 +22,7 @@ const curriculum: Curriculum = {
           nameEn: 'More, less, equal',
           sequence: 0,
           textbookPage: { book: 'nalikali', part: 1, page: 4 },
+          hasExercises: true,
         },
       ],
     },

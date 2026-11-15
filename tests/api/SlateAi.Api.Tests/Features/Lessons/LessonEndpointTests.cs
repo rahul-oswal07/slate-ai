@@ -21,7 +21,7 @@ public sealed class LessonEndpointTests
 
     private static readonly CurriculumGraph Book = new(
         [
-            Item("M3.ADD.CARRY", chapter: 4, sequence: 1),
+            Item("M3.ADD.CARRY", chapter: 4, sequence: 1) with { Exercises = new ExerciseList(Add: [[248, 438]]) },
             Item("M3.SUB.NOBORROW", chapter: 5, sequence: 2),
             Item("M3.SUB.MAKE", chapter: 5, sequence: 3),
             Item("M3.SUB.BORROW", chapter: 5, sequence: 4),
@@ -122,6 +122,19 @@ public sealed class LessonEndpointTests
         var five = curriculum.Chapters[1];
         Assert.Equal("The fun of subtracting", five.NameEn);
         Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE", "M3.SUB.BORROW"], five.Competencies.Select(c => c.Id));
+    }
+
+    [Fact]
+    public async Task Curriculum_says_which_lessons_have_the_book_s_exercises()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var curriculum = await client.GetFromJsonAsync<CurriculumResponse>("/api/curriculum", Ct);
+
+        var lessons = curriculum!.Chapters.SelectMany(c => c.Competencies).ToDictionary(c => c.Id, c => c.HasExercises);
+        Assert.True(lessons["M3.ADD.CARRY"]);
+        Assert.False(lessons["M3.SUB.MAKE"]);
     }
 
     private ApiFactory Create() =>

@@ -144,6 +144,11 @@ public sealed class CurriculumLoaderTests
     [InlineData("""{ "extremes": [[5]] }""", "2 to 6 different numbers")]
     [InlineData("""{ "extremes": [[5, 5, 7]] }""", "2 to 6 different numbers")]
     [InlineData("""{ }""", "not empty")]
+    [InlineData("""{ "add": [] , "sub": [] }""", "not empty")]
+    [InlineData("""{ "add": [[248, 438, 1]] }""", "each item is a pair")]
+    [InlineData("""{ "add": [[600, 500]] }""", "sum must be 999 or less")]
+    [InlineData("""{ "sub": [[290]] }""", "each item is a pair")]
+    [InlineData("""{ "sub": [[178, 290]] }""", "the first number must not be smaller")]
     public void Rejects_bad_exercises(string exercises, string expected)
     {
         var json = File($$"""{ "id": "M3.PV.TENS", "nameKn": "kn", "nameEn": "en", "exercises": {{exercises}} }""");
@@ -151,6 +156,21 @@ public sealed class CurriculumLoaderTests
         var error = Assert.Throws<CurriculumException>(() => CurriculumLoader.Load([("f.json", json)]));
 
         Assert.Contains(expected, Assert.Single(error.Errors));
+    }
+
+    [Fact]
+    public void Loads_the_book_s_add_and_sub_exercises()
+    {
+        var json = File("""
+            { "id": "M3.ADD.CARRY", "nameKn": "kn", "nameEn": "en",
+              "exercises": { "add": [[248, 438]], "sub": [[872, 586]] } }
+            """);
+
+        var lesson = CurriculumLoader.Load([("f.json", json)]).Get("M3.ADD.CARRY")!;
+
+        Assert.Equal([[248, 438]], lesson.Exercises!.Add!);
+        Assert.Equal([[872, 586]], lesson.Exercises.Sub!);
+        Assert.True(lesson.Exercises.HasAny);
     }
 
     [Fact]

@@ -22,7 +22,7 @@ const curriculum: Curriculum = {
       nameKn: 'ಕಳೆಯುವ ಮೋಜು',
       nameEn: 'The fun of subtracting',
       competencies: [
-        { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: { book: 'textbook', part: 1, page: 117 } },
+        { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: { book: 'textbook', part: 1, page: 117 }, hasExercises: false },
       ],
     },
   ],

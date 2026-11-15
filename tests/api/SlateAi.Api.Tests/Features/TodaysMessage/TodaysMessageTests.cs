@@ -50,6 +50,25 @@ public sealed class TodaysMessageTests
     }
 
     [Fact]
+    public void A_lesson_with_only_add_or_sub_exercises_gets_no_message_yet()
+    {
+        // T-128: the picture question is a comparison; add and sub wait for D-116 (behind a flag, PR B).
+        var carry = NoExercises with { Exercises = new ExerciseList(Add: [[248, 438]], Sub: [[872, 586]]) };
+
+        Assert.False(TodaysPicturePicker.Supported([carry]));
+    }
+
+    [Fact]
+    public void A9_gets_no_add_or_sub_keys_for_a_compare_lesson()
+    {
+        // The A9 input for the demo lesson is unchanged by T-128, so prompt v4's evals still hold.
+        var content = TodaysMessageWriter.UserContent(["kn"], [Compare], Pair, []);
+
+        Assert.DoesNotContain("\"add\"", content);
+        Assert.DoesNotContain("\"sub\"", content);
+    }
+
+    [Fact]
     public void Valid_output_in_every_language_passes()
     {
         var result = Validate(Output(Kannada, Hindi), ["kn", "hi"]);

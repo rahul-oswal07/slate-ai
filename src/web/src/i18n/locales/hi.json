@@ -272,7 +272,8 @@
     "page": "पृष्ठ {{page}}",
     "workbookPage": "अभ्यास-पुस्तिका पृष्ठ {{page}}",
     "nalikaliPage": "नलि-कलि गणित · भाग {{part}} · पृष्ठ {{page}}",
-    "nalikaliPageNoPart": "नलि-कलि गणित · पृष्ठ {{page}}"
+    "nalikaliPageNoPart": "नलि-कलि गणित · पृष्ठ {{page}}",
+    "bookExercises": "किताब के अभ्यास"
   },
   "confirm": {
     "title": "आज का पाठ",

@@ -272,7 +272,8 @@
     "page": "పేజీ {{page}}",
     "workbookPage": "వర్క్‌బుక్ పేజీ {{page}}",
     "nalikaliPage": "నలి-కలి గణితం · భాగం {{part}} · పేజీ {{page}}",
-    "nalikaliPageNoPart": "నలి-కలి గణితం · పేజీ {{page}}"
+    "nalikaliPageNoPart": "నలి-కలి గణితం · పేజీ {{page}}",
+    "bookExercises": "పుస్తక అభ్యాసం"
   },
   "confirm": {
     "title": "ఈ రోజు పాఠం",

@@ -272,7 +272,8 @@
     "page": "ಪುಟ {{page}}",
     "workbookPage": "ಅಭ್ಯಾಸ ಪುಸ್ತಕ ಪುಟ {{page}}",
     "nalikaliPage": "ನಲಿ-ಕಲಿ ಗಣಿತ · ಭಾಗ {{part}} · ಪುಟ {{page}}",
-    "nalikaliPageNoPart": "ನಲಿ-ಕಲಿ ಗಣಿತ · ಪುಟ {{page}}"
+    "nalikaliPageNoPart": "ನಲಿ-ಕಲಿ ಗಣಿತ · ಪುಟ {{page}}",
+    "bookExercises": "ಪುಸ್ತಕದ ಅಭ್ಯಾಸ"
   },
   "confirm": {
     "title": "ಇಂದಿನ ಪಾಠ",

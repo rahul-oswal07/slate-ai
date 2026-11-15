@@ -272,7 +272,8 @@
     "page": "Page {{page}}",
     "workbookPage": "Workbook page {{page}}",
     "nalikaliPage": "Nalikali Maths · Part {{part}} · p {{page}}",
-    "nalikaliPageNoPart": "Nalikali Maths · p {{page}}"
+    "nalikaliPageNoPart": "Nalikali Maths · p {{page}}",
+    "bookExercises": "Book exercises"
   },
   "confirm": {
     "title": "Today’s lesson",

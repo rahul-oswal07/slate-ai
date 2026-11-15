@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ExercisesTag } from './ExercisesTag'
 import { chapterTitle, findLesson, lessonName, pageText } from './lessonText'
 import type { Chapter } from './types'
 
@@ -169,6 +170,7 @@ export function PickLessonSheet({
                     )}
                     <span className="block text-body">{lessonName(lesson, i18n.language)}</span>
                     <span className="block text-caption text-ink-muted">{pageText(t, lesson.textbookPage)}</span>
+                    <ExercisesTag lesson={lesson} />
                   </span>
                 </label>
                 )
