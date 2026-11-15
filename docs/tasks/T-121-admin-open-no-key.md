@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Issue | #245 |
 | Owner | R |
 | Screens | admin, delivery |
@@ -38,4 +38,8 @@ The admin pages and their API open directly on staging, prod and local, with no 
     - API: `AdminOptions` deleted, and the key checks removed from the admin, lesson-link, children and WhatsApp test routes.
     - Web: no `#key`, and no "needs its full link" message.
     - Tests updated.
-  - Left: after merge, delete `Admin__Key` from staging. Prod opens at its next `v*` tag.
+  - Merged as #246.
+  - Tagged `v1.4` on `main`. This shipped everything since `v1.3` to prod, including 6 migrations, after Rahul confirmed.
+  - Prod and staging both serve `sha-c657fc6`, and their `/api/admin/*` routes answer 200 with no key.
+  - `Admin__Key` is deleted from staging; prod never had it.
+  - Left: approve the evening message once on prod (see `docs/status.md`).

@@ -18,7 +18,7 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- Prod is on `v1.3`, so its admin pages open only from the next tag.
+- None beyond the draft strings above.
 
 ## Open tasks
 

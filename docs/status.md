@@ -17,14 +17,14 @@ Read this first in any new session. Then the map in [`README.md`](README.md), th
 - **Not on `main`:** Proposed and not approved: T-95, T-97 to T-99, T-102, T-103 and the rest of T-96 and T-100.
 - **Repo:** https://github.com/rahul-oswal07/slate-ai (public, MIT). Merges to `main` deploy to staging; `v*` tags deploy to prod.
 - **Staging** (https://slateai-staging.azurewebsites.net, the judges' guided demo at `/demo`): on `main`. Settings `Demo__TeacherPin`, `Demo__CoTeacherPin`, and WhatsApp (T-40): `Delivery__Channel=whatsapp`, `WhatsApp__AccessToken`, `WhatsApp__PhoneNumberId`, one `WhatsApp__Recipients__*`.
-- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.3`** (tagged 1 Nov at #178: T-85; `v1.2` was #173, T-81; `v1.1` was #174). Judges' story, real date. Its admin pages open, without a key (D-112), from the next tag. The old `EveningMessages__LessonAudioWaitUntil` setting is still there but unused since `v1.3`; delete it after judging.
+- **Prod** (https://slateai-prod.azurewebsites.net, the "real app"): on **`v1.4`** (tagged 15 Nov at #246: everything on `main` from T-81 to T-121; `v1.3` was #178, T-85; `v1.2` was #173, T-81). Judges' story, real date. Admin pages open without a key (D-112). The old `EveningMessages__LessonAudioWaitUntil` setting is still there but unused since `v1.3`; delete it after judging.
 - **Logins:** Shobha `9000000000` (class teacher), Savitha `9123456789` and Monika `9123456788` (co-teachers), same class, on both servers. All use one PIN, which is on slide 14 of the submitted deck and not in the README. It equals the co-teacher PIN in `appsettings.Development.json`, so change the server PINs after judging (clear the stored `PinHash`; the seeder never overwrites one).
 - **Hosting:** the app is one container on Azure App Service with Postgres and blob storage. Each server has one shared class.
 - **Tests:** `verify.sh`, the Db suite and the e2e specs run in CI on every PR; the counts are in the CI run, not here. 12 existing e2e specs, no new ones (22 Oct rule).
 
 ## Next
 
-1. **Approve the evening message once on staging** (sign in as Shobha → Settings → Evening message): the wording is v4 (D-99), Reset doesn't approve it, and until she does no evening or today's message goes. Prod asks the same at its next tag.
+1. **Approve the evening message once on staging** (sign in as Shobha → Settings → Evening message): the wording is v4 (D-99), Reset doesn't approve it, and until she does no evening or today's message goes. Prod asks the same since `v1.4`.
 2. **Enter the DIKSHA link for Nalikali p 4** on staging's `/admin/lesson-links` (M-1, [finale prep](tasks/M-1-to-M-6-finale-prep.md)); built in T-94 ([task](tasks/T-94-diksha-link-per-lesson.md), D-106).
 3. **Should rows**, if time is left, in this order: T-95 → T-96 → T-100 → T-97 → T-98 → T-99 → T-102 → T-103.
 4. **T-104**, WhatsApp templates switched on (15 Nov, [task](tasks/T-104-whatsapp-own-templates.md)): Monika fixes the buttons' URL, submits the Tamil catch-up and the factual plain evening template (D-107); one real test send on staging. T-106 after the final. Where WhatsApp stands: [`areas/delivery/status.md`](areas/delivery/status.md).
