@@ -57,8 +57,8 @@ public sealed class WhatsAppOptions
 
     /// <summary>
     /// Child ID → the family's number (E.164, e.g. +9198…) for the registered test phones, set as
-    /// <c>WhatsApp__Recipients__{childId}</c>. Only these children get WhatsApp; everyone else stays on the demo chat.
-    /// Seeded <c>ParentPhone</c> values are fictional and never dialled.
+    /// <c>WhatsApp__Recipients__{childId}</c>. Used when no number is saved on the admin page, which comes first (T-118,
+    /// D-110); a child with neither stays on the demo chat. Seeded <c>ParentPhone</c> values are fictional and never dialled.
     /// </summary>
     public Dictionary<string, string> Recipients { get; set; } = [];
 

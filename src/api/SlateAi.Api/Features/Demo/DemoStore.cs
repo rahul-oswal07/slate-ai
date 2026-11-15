@@ -90,6 +90,13 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
 
         // Children first: their rows cascade (attendance, evening messages, catch-up links and answers, reasons, buddy
         // cards). Packages cascade their own audio; shared clips (the disclosure) have no package and stay.
+        // Numbers saved on the admin page come back on the re-created children (T-118, D-110).
+        // Not tracked: the same children are added back below with the same IDs.
+        var saved = (await db.Children.AsNoTracking()
+                .Where(c => c.ClassId == classId && c.ParentPhoneSetAt != null && c.ParentPhone != null)
+                .Select(c => new { c.Id, Phone = c.ParentPhone!, SetAt = c.ParentPhoneSetAt!.Value })
+                .ToListAsync(cancellationToken))
+            .ToDictionary(c => c.Id, c => new SavedPhone(c.Phone, c.SetAt));
         await db.PacingDecisions.Where(d => d.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.Children.Where(c => c.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.CatchUpPackages.Where(p => p.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
@@ -98,7 +105,9 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
         await db.TodaysMessages.Where(t => t.ClassId == classId).ExecuteDeleteAsync(cancellationToken); // no draft yet (T-88)
         await db.Lessons.Where(l => l.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
 
-        db.Children.AddRange(reset.Seed.Children.Select(c => c.ToEntity(classId)));
+        var children = reset.Seed.Children.Select(c => c.ToEntity(classId)).ToList();
+        SavedPhones.Apply(children, saved);
+        db.Children.AddRange(children);
         foreach (var day in reset.Days)
         {
             db.Lessons.Add(new Lesson
