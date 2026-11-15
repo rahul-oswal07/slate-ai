@@ -51,6 +51,28 @@ public sealed class VoiceUploadEndpointTests
     }
 
     [Fact]
+    public async Task The_202_says_processing_even_when_the_worker_has_already_mapped_the_note()
+    {
+        // T-124: CI once saw "mapped" here. The reply must describe the upload it accepted, not wherever the background
+        // mapper has got to. Every read waits (up to a second) for the worker to finish, so a reply built after the job
+        // is queued always sees "mapped".
+        _store.BeforeGetDay = async () =>
+        {
+            for (var i = 0; i < 100 && _store.Day(Today)?.Status == LessonValues.Processing; i++)
+            {
+                await Task.Delay(10, Ct);
+            }
+        };
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var response = await UploadAsync(client, Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Equal("processing", (await response.Content.ReadFromJsonAsync<LessonDayResponse>(Ct))!.Lesson!.Status);
+    }
+
+    [Fact]
     public async Task A_replay_is_not_processed_twice()
     {
         await using var factory = Create();

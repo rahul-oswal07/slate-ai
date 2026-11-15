@@ -190,11 +190,16 @@ public static class LessonEndpoints
                     file?.FileName ?? "note",
                     contentType,
                     photo is null ? null : new LlmImage((await BytesAsync(photo, cancellationToken))!, photoType));
-                if (!queue.TryEnqueue(job))
+
+                // The reply describes the note just accepted ("processing"), so it is read before the job is queued:
+                // read afterwards, the background mapper may already have moved the lesson on (T-124).
+                var accepted = await DayAsync(classId, date, store, curriculum, clock, cancellationToken);
+                if (queue.TryEnqueue(job))
                 {
-                    await store.SaveMappingAsync(classId, date, startedAt, A1Validator.Unclear("error:queue-full"), cancellationToken);
+                    return TypedResults.Accepted((string?)null, accepted);
                 }
 
+                await store.SaveMappingAsync(classId, date, startedAt, A1Validator.Unclear("error:queue-full"), cancellationToken);
                 break;
         }
 

@@ -23,8 +23,18 @@ public sealed class FakeLessonStore : ILessonStore
         }
     }
 
-    public Task<LessonRecord?> GetDayAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-        Task.FromResult(Day(date));
+    /// <summary>Runs before each <see cref="GetDayAsync"/>: lets a test hold a read back until the worker has written.</summary>
+    public Func<Task>? BeforeGetDay { get; set; }
+
+    public async Task<LessonRecord?> GetDayAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    {
+        if (BeforeGetDay is { } wait)
+        {
+            await wait();
+        }
+
+        return Day(date);
+    }
 
     public Task<IReadOnlyList<string>> LastConfirmedBeforeAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
     {
