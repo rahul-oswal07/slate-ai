@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Merged (#250), on staging; prod at the next tag |
 | Issue | #248 |
 | Owner | R |
 | Screens | admin, demo |

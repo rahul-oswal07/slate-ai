@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Built, not merged (eval not run) |
-| Issue | none yet |
+| Status | Done |
+| Issue | none (merged as #244) |
 | Owner | R |
 | Screens | T3-approve, P5-todays-message, ai-pipeline |
 | Source | Jury J1 (13 Nov); options A1 and B1 in [`learning-recovery-research.md`](../learning-recovery-research.md); Rahul asked 15 Nov; size S + S |
@@ -28,5 +28,9 @@
 
 ## Notes
 
+- 15 Nov:
+  - Merged as #244 and shipped to prod in `v1.4` before its eval had run.
+  - The A9 **v4** eval then ran on `claude-opus-5-5`: 20 of 20 cases passed first time, against a target of 85%. The result is in `evals/results/2026-11-15-a9-todays-message.json`, replacing the v3 run from earlier that day, which had 17 cases.
+  - Left from the build note below: a 360 px screenshot of the activity step.
 - 15 Nov: merged `main` into the branch. Renumbered from T-118 (taken on `main` by the admin parent phones page) to T-120. `main`'s T-119 had already made A9 v3 (her note in any language), so this change is now **v4**, keeping both: `fromClass` and her note in any language. The v4 eval is still to run.
 - 15 Nov: built on `claude/jolly-lamport-c31v7x`. No schema change (the clip IDs are inside the sections JSON; old drafts have no activity clip and show text only). New strings `parent.todays.activityListen` and `todays.listenActivity` in all five locale files; te, ta and hi are drafts for native review (T-26). Left: run the A9 eval and attach the result; a 360 px screenshot of the activity step with the player; listen to one voiced activity in Kannada on a phone (the disclosure now plays before the concept and again before the steps; check that the repeat isn't tiresome). axe not run on the changed steps.
