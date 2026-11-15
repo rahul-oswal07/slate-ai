@@ -89,6 +89,53 @@ describe('ApproveScreen', () => {
     expect(await screen.findByText('All approved and sent. Families reached: 1.')).toBeInTheDocument()
   })
 
+  it('one family: "1 family gets them", not "1 families" (T-100)', async () => {
+    setup(week(pkg({ status: 'approved', familiesReachable: 1, children: pkg().children.slice(0, 1) })))
+    renderApp('/approve?tab=catch-ups')
+
+    expect(await screen.findByText('All 1 approved. 1 family gets them after 6 pm.')).toBeInTheDocument()
+  })
+
+  it('cards come by action needed: hers to check, then failed, then being written, approved and sent (T-100)', async () => {
+    setup(
+      week(
+        pkg({ id: 'sent', language: 'en', status: 'sent', familiesSent: 1 }),
+        pkg({ id: 'approved', language: 'hi', status: 'approved' }),
+        pkg({ id: 'generating', language: 'kn', status: 'generating' }),
+        pkg({ id: 'failed', language: 'ta', status: 'failed' }),
+        pkg({ id: 'ready', language: 'te', status: 'ready' }),
+      ),
+    )
+    renderApp('/approve?tab=catch-ups')
+
+    const cards = await screen.findAllByRole('link', { name: /^In / })
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual([
+      '/approve/ready',
+      '/approve/failed',
+      '/approve/generating',
+      '/approve/approved',
+      '/approve/sent',
+    ])
+  })
+
+  it('a failed card has Try again, which writes a new version; no other card has it (T-100)', async () => {
+    const regenerated = pkg({ id: 'failed', language: 'ta', status: 'generating' })
+    const calls = setup(week(pkg(), pkg({ id: 'failed', language: 'ta', status: 'failed' })), {
+      'POST /api/packages/failed/regenerate': () => ({ status: 202, body: regenerated }),
+    })
+    renderApp('/approve?tab=catch-ups')
+
+    const tryAgain = await screen.findByRole('button', { name: 'Try again' })
+    expect(tryAgain).toHaveAccessibleDescription(/^In Tamil · 2 children/)
+    expect(tryAgain).toHaveClass('btn-secondary')
+
+    await userEvent.click(tryAgain)
+
+    expect(await screen.findByRole('link', { name: /^In Tamil .*Generating…/ })).toBeInTheDocument()
+    expect(calls.find((c) => c.key === 'POST /api/packages/failed/regenerate')?.body).toMatchObject({ hint: null })
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument()
+  })
+
   it('cannot load: says so and offers Try again', async () => {
     setup(() => ({ status: 500 }))
     renderApp('/approve?tab=catch-ups')
