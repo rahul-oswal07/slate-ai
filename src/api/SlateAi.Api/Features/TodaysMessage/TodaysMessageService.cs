@@ -72,7 +72,7 @@ public sealed class TodaysMessageService(
         Guid classId, DateOnly date, IReadOnlyList<string> competencyIds, bool force, CancellationToken cancellationToken)
     {
         var lessons = competencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        if (!TodaysPicturePicker.Supported(lessons) || await LanguagesAsync(classId, date, cancellationToken) is not { Count: > 0 } families)
+        if (!TodaysPicturePicker.Supported(lessons) || await DueAsync(classId, date, cancellationToken) is not { Count: > 0 } due)
         {
             if (await store.GetAsync(classId, date, cancellationToken) is { } stale && !stale.CompetencyIds.SequenceEqual(competencyIds))
             {
@@ -94,8 +94,8 @@ public sealed class TodaysMessageService(
         }
 
         // Kannada first: it is hers to read and approve (D-92).
-        var languages = families.Keys.Append("kn").Distinct().OrderBy(l => l == "kn" ? 0 : 1).ThenBy(l => l).ToList();
-        queue.TryEnqueue(new TodaysJob(id, languages));
+        var languages = due.Select(c => c.HomeLanguage).Append("kn").Distinct().OrderBy(l => l == "kn" ? 0 : 1).ThenBy(l => l).ToList();
+        queue.TryEnqueue(new TodaysJob(id, languages, due.Select(c => c.Id).ToList()));
         return true;
     }
 
@@ -194,7 +194,8 @@ public sealed class TodaysMessageService(
         var change = await store.ReviseAsync(classId, date, clientRequestId, version, _ => edited, redraft: true, clock.GetUtcNow(), cancellationToken);
         if (change == TodaysChange.Applied)
         {
-            queue.TryEnqueue(new TodaysJob(row.Id, edited.Languages));
+            var due = await DueAsync(classId, date, cancellationToken) ?? [];
+            queue.TryEnqueue(new TodaysJob(row.Id, edited.Languages, due.Select(c => c.Id).ToList()));
         }
 
         return (change, null);
@@ -263,7 +264,11 @@ public sealed class TodaysMessageService(
         store.SetRemovedAsync(classId, date, clientRequestId, kind, removed, clock.GetUtcNow(), cancellationToken);
 
     /// <summary>How many families get tonight's message, by language; null when the class isn't there.</summary>
-    private async Task<Dictionary<string, int>?> LanguagesAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    private async Task<Dictionary<string, int>?> LanguagesAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
+        (await DueAsync(classId, date, cancellationToken))?.GroupBy(c => c.HomeLanguage).ToDictionary(g => g.Key, g => g.Count());
+
+    /// <summary>The children whose families get tonight's message; null when the class isn't there.</summary>
+    private async Task<IReadOnlyList<EveningChild>?> DueAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
     {
         if (await sender.PlanAsync(classId, date, cancellationToken) is not { } plan
             || await evening.GetClassAsync(classId, cancellationToken) is not { } group)
@@ -275,7 +280,7 @@ public sealed class TodaysMessageService(
             .Where(c => c.Outcome is EveningOutcome.WillSend or EveningOutcome.Sent)
             .Select(c => c.ChildId)
             .ToHashSet();
-        return group.Children.Where(c => due.Contains(c.Id)).GroupBy(c => c.HomeLanguage).ToDictionary(g => g.Key, g => g.Count());
+        return group.Children.Where(c => due.Contains(c.Id)).ToList();
     }
 
     private static bool IsRemoved(TodaysSections sections, string kind) => kind switch

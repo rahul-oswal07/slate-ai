@@ -248,6 +248,23 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
+    public async Task The_draft_is_written_as_about_the_absent_children_whose_families_get_it()
+    {
+        // T-127, D-115: Bhavana has no consent form and Ananya came, so neither family gets it and A9 is not about them.
+        var llm = new ScopeRecordingLlmClient();
+        await using var factory = Create(llm);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        (await client.PutAsJsonAsync(
+            $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.Compare.Id], LessonValues.Voice),
+            Ct)).EnsureSuccessStatusCode();
+
+        var about = await llm.About.Task.WaitAsync(TimeSpan.FromSeconds(10), Ct);
+        Assert.Equal(new[] { Manjunath.Id, Rohan.Id }.Order(), about!.Order());
+    }
+
+    [Fact]
     public async Task Confirming_a_lesson_without_exercises_starts_nothing()
     {
         await using var factory = Create();
@@ -548,6 +565,19 @@ public sealed class TodaysMessageEndpointTests
             {
                 ["Demo:Enabled"] = "true",
             });
+
+    /// <summary>Notes who the first call was about (<c>AiCallScope</c>), then never answers, so the draft stays generating.</summary>
+    private sealed class ScopeRecordingLlmClient : ILlmClient
+    {
+        public TaskCompletionSource<IReadOnlyList<Guid>?> About { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public async Task<LlmResponse> CompleteJsonAsync(LlmRequest request, CancellationToken cancellationToken)
+        {
+            About.TrySetResult(AiCallScope.Current);
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            throw new OperationCanceledException(cancellationToken);
+        }
+    }
 
     private sealed class NotYetSource : IAttendanceSource
     {

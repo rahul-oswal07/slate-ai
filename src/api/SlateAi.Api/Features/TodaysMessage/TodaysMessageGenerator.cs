@@ -14,7 +14,8 @@ using SlateAi.Api.Features.LessonLinks;
 namespace SlateAi.Api.Features.TodaysMessage;
 
 /// <summary>One message to draft, in Kannada and the absent families' languages.</summary>
-public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages);
+/// <param name="ChildIds">The children whose families get it: its AI calls are about them (T-127, D-115). IDs only.</param>
+public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages, IReadOnlyList<Guid>? ChildIds = null);
 
 /// <summary>
 /// Drafts one today's message (D-91): code picks the picture pair from the book (D-93), A9 writes the concept and the
@@ -49,6 +50,9 @@ public sealed class TodaysMessageGenerator(
         {
             return;
         }
+
+        // A9 and the voice are about the children whose families get it tonight: Under the hood says so (T-127, D-115).
+        using var about = AiCallScope.For(job.ChildIds ?? []);
 
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.

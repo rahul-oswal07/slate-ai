@@ -60,6 +60,21 @@ public sealed class TodaysMessageGeneratorTests
     }
 
     [Fact]
+    public async Task A9_and_the_voice_are_logged_as_about_the_children_whose_families_get_it()
+    {
+        // T-127, D-115: the demo's Under the hood "For" column; IDs only, the scope ends with the job.
+        var (manjunath, rohan) = (_evening.Children[0].Id, _evening.Children[1].Id);
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"], [manjunath, rohan]), Ct);
+
+        Assert.Equal([manjunath, rohan], Assert.Single(_aiCalls.Calls).ChildIds!);
+        Assert.NotEmpty(_tts.About);
+        Assert.All(_tts.About, about => Assert.Equal([manjunath, rohan], about!));
+        Assert.Null(AiCallScope.Current);
+    }
+
+    [Fact]
     public async Task The_lessons_link_from_the_admin_page_becomes_the_video_by_code()
     {
         // T-94, D-106: the AI never chooses it; a later change on the admin page reaches only the next draft.
