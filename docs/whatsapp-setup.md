@@ -2,9 +2,16 @@
 
 How to switch staging from the demo chat to real WhatsApp for the registered test phones. The code is in `src/api/SlateAi.Api/Features/Delivery/`. Decision D-97 and FR-16 are in `spec.md`, and the original proposal is in [`whatsapp-delivery-plan.md`](whatsapp-delivery-plan.md).
 
-> **For now (T-104, #182):** every WhatsApp delivery sends Meta's `hello_world` instead of our templates, hardcoded in `WhatsAppChannel`, until they are approved. It carries no names, no button and none of our text, so it only proves a message reaches the phone.
+> **15 Nov (T-104):** the templates are approved in a new WhatsApp Business account, **"Test Messaging Account" (ID 1136019059180254)**, which owns staging's new test number (phone number ID `1454804111048097`, ending 3873). Staging's `WhatsApp__PhoneNumberId` and `WhatsApp__AccessToken` point at it (system-user token, valid to 14 Jan 2027). `hello_world` is gone from deliveries; each kind goes as its template:
 >
-> **14 Nov (D-98):** Monika submitted `todays_lesson_link_v1`, `todays_lesson_chat_v1` and `catchup_link_v1` (§3), in review. **Approval alone changes nothing:** T-104 must first send them with the right values (today's message after T-88/T-91; the catch-up's lesson names and pages) and check they live in the same WhatsApp Business account as staging's phone number.
+> | Kind | Template | Approved in | Code |
+> |---|---|---|---|
+> | Today's message | `todays_lesson_link_v1` | en, kn, te, ta, hi | sent |
+> | Catch-up | `catchup_link_v1` | en, kn, te, hi (**no ta**) | sent; a Tamil catch-up stays on the demo chat |
+> | Plain evening message | none yet (D-107) | — | skipped (`no-template`): the family keeps the demo chat |
+> | Step 2 (T-106) | `todays_lesson_chat_v1` | en, kn, te, ta, hi | not used yet |
+>
+> **To fix in WhatsApp Manager (Monika):** every approved button's URL is stored as `https://slateai-staging.azurewebsites.net/p/%7B%7B1%7D%7D{{1}}`: a typed `{{1}}` plus Meta's own. Edit each template's button to the base URL `https://slateai-staging.azurewebsites.net/p/` with **Dynamic** (no `{{1}}` typed). Until then the family page reads past the stray `{{1}}` (`cleanToken`), so links already sent work. Also to submit: `catchup_link_v1` in **ta**, and the factual plain evening template (D-107). Only the admin test send (§2b) still uses `hello_world`.
 
 **How it works:**
 - When an evening message or catch-up is sent (guardrail 3 already passed), a `ParentDeliveries` row is queued in the same transaction.
@@ -68,7 +75,7 @@ curl -s -X POST https://slateai-staging.azurewebsites.net/api/admin/whatsapp/tes
 
 ### Submitted 14 Nov by Monika (in review, D-98)
 
-Three templates, each in en, kn, te, ta and hi, in **Monika's** WhatsApp Business account (templates belong to the account they were made in: see T-104 d). Same settings for all: category **Utility**, type Default, variables **Number**, no media, no header, no footer, message validity 12 h. Every URL button: **Visit website**, **Dynamic**, `https://slateai-staging.azurewebsites.net/p/{{1}}` (the code passes the token), sample `abc123`. Meta's language codes are `en`, `kn`, `te`, `ta`, `hi`, matching `WhatsAppTemplate.Languages`.
+Three templates, each in en, kn, te, ta and hi. They were first made in **Monika's** account; the approved ones (15 Nov) are in the "Test Messaging Account" that owns staging's number (see the box at the top). Same settings for all: category **Utility**, type Default, variables **Number**, no media, no header, no footer, message validity 12 h. Every URL button: **Visit website**, **Dynamic**, `https://slateai-staging.azurewebsites.net/p/{{1}}` (the code passes the token), sample `abc123`. Meta's language codes are `en`, `kn`, `te`, `ta`, `hi`, matching `WhatsAppTemplate.Languages`.
 
 | Template | Used for | Variables (filled by code) | Buttons |
 |---|---|---|---|

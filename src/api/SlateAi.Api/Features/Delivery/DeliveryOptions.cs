@@ -38,16 +38,22 @@ public sealed class WhatsAppOptions
 
     /// <summary>The approved template for each kind of message: name, and our language code to WhatsApp's.</summary>
     /// <remarks>
-    /// Wording v4 (T-101, D-99) has no Meta template yet: <c>evening_absence_v2</c> is the name one would take, so an
-    /// evening send can't reach a template with older text. T-104 decides what the plain evening message sends.
+    /// The plain evening message (D-21) has no approved template (D-107): Meta classed the warm wording as Marketing,
+    /// and its factual replacement isn't submitted yet. No name means it is skipped (<c>no-template</c>) and the family
+    /// keeps the demo chat. Once approved, set <c>WhatsApp:Evening:Name</c> and the wording version it copies.
     /// </remarks>
-    public WhatsAppTemplate Evening { get; set; } = new() { Name = "evening_absence_v2", WordingVersion = "4" };
+    public WhatsAppTemplate Evening { get; set; } = new() { Name = "", WordingVersion = "4" };
 
     /// <summary>Today's message (D-98): {{1}} child, {{2}} lesson, {{3}} page number; button opens /p/{token}.</summary>
     public WhatsAppTemplate Todays { get; set; } = new() { Name = "todays_lesson_link_v1" };
 
     /// <summary>The catch-up (D-98): {{1}} child, {{2}} lesson names, {{3}} pages with the word; button opens /p/{token}.</summary>
-    public WhatsAppTemplate CatchUp { get; set; } = new() { Name = "catchup_link_v1" };
+    /// <remarks>Approved in en, kn, te and hi (15 Nov); no Tamil yet, so a Tamil catch-up stays on the demo chat.</remarks>
+    public WhatsAppTemplate CatchUp { get; set; } = new()
+    {
+        Name = "catchup_link_v1",
+        Languages = new() { ["en"] = "en", ["kn"] = "kn", ["te"] = "te", ["hi"] = "hi" },
+    };
 
     /// <summary>
     /// Child ID → the family's number (E.164, e.g. +9198…) for the registered test phones, set as
