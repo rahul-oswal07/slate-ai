@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Issue | #251 |
 | Owner | R |
 | Screens | T2-lesson-confirm |
@@ -26,3 +26,4 @@
 ## Notes
 
 - 15 Nov 2026: found when #250's CI failed on this race. The failing test was written first, then the fix, in `LessonEndpoints.UploadAudioAsync`.
+- 15 Nov 2026: merged as #252, with CI green, and shipped to prod in `v1.5`.

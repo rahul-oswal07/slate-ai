@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Merged (#250), on staging; prod at the next tag |
+| Status | Done |
 | Issue | #249 |
 | Owner | R |
 | Screens | admin, delivery |
@@ -36,3 +36,4 @@ WhatsApp uses only the family's number saved on `/admin/children`. The `WhatsApp
   - Built: the API, web, tests and docs.
   - Left: after merge and the staging deploy, delete the two `WhatsApp__Recipients__*` settings from staging. Prod gets the change at its next tag.
   - Merged as #250 and deployed to staging (`sha-67ec349`). Both `WhatsApp__Recipients__*` settings are deleted from staging. Staging keeps saved numbers for Ananya, Ravi, Manjunath and Rohan.
+- 15 Nov 2026: shipped to prod in `v1.5` (#252 on `main`). Prod serves `sha-e1a9519`, and its `/api/admin/children` returns `languageChanged`.
