@@ -69,8 +69,10 @@ public sealed class TodaysMessageGenerator(
         {
             var names = (await evening.GetClassAsync(row.ClassId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
             var kannada = teacher?.Kannada;
-            // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any.
-            var toWrite = kannada is null ? job.Languages : job.Languages.Where(l => l != "kn").ToList();
+            // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any. A note she wrote
+            // in another language is written in Kannada too, so Kannada families read it in Kannada (T-119, D-111).
+            var noteInKannada = kannada?.Note is not { } typed || TodaysMessageValidator.InScript(typed, "kn");
+            var toWrite = kannada is null ? job.Languages : job.Languages.Where(l => l != "kn" || !noteInKannada).ToList();
             var texts = new Dictionary<string, TodaysText>();
             var verdict = "valid";
             if (toWrite.Count > 0)
@@ -95,7 +97,8 @@ public sealed class TodaysMessageGenerator(
 
             if (kannada is not null)
             {
-                texts["kn"] = new TodaysText(kannada.Concept, kannada.Steps, kannada.Note);
+                // Her concept and steps word for word; the note as she wrote it, or A9's Kannada of it.
+                texts["kn"] = new TodaysText(kannada.Concept, kannada.Steps, noteInKannada ? kannada.Note : texts["kn"].Note);
             }
 
             var clips = new Dictionary<string, Guid>();
@@ -114,7 +117,7 @@ public sealed class TodaysMessageGenerator(
             var activity = new TodaysActivity(texts.ToDictionary(t => t.Key, t => t.Value.Steps), teacher?.Activity.Removed ?? false);
             var note = kannada?.Note is null
                 ? null
-                : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed);
+                : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed, kannada.Note);
             // A fresh draft takes the lesson's link as it is now; a draft she edited keeps its video and her Remove.
             var sections = teacher is null
                 ? new TodaysSections(concept, activity, picture, await VideoAsync(row.CompetencyIds, cancellationToken))

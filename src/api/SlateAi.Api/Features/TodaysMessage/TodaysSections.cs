@@ -48,8 +48,13 @@ public sealed record TodaysPicture(string Kind, int A, int B, string Answer, boo
 /// <summary>One checked DIKSHA link, chosen by code (T-94); null until then.</summary>
 public sealed record TodaysVideo(string Url, bool Removed = false);
 
-/// <summary>Her own note (T-89): her Kannada word for word, and A9's version for each other language; null until she adds one.</summary>
-public sealed record TodaysNote(IReadOnlyDictionary<string, string> Text, bool Removed = false);
+/// <summary>
+/// Her own note (T-89), null until she adds one. She may write it in any language (T-119, D-111): <see cref="Text"/> is
+/// what each family reads, in its home language, A9's translation of <see cref="Original"/>; a note she wrote in Kannada
+/// goes to Kannada families word for word.
+/// </summary>
+/// <param name="Original">What she typed; null for a note saved before T-119, which was her Kannada (<c>Text["kn"]</c>).</param>
+public sealed record TodaysNote(IReadOnlyDictionary<string, string> Text, bool Removed = false, string? Original = null);
 
 /// <summary>Everything a today's message holds. Stored as JSON on the row; never holds a name or a child ID.</summary>
 /// <param name="Teacher">The Kannada is hers (she edited it, D-92): a new draft keeps it and A9 only writes the other languages.</param>
@@ -61,11 +66,14 @@ public sealed record TodaysSections(
     TodaysNote? Note = null,
     bool Teacher = false)
 {
-    /// <summary>Her Kannada as it stands: what an edit starts from and what A9 translates (D-92).</summary>
+    /// <summary>
+    /// Her Kannada as it stands: what an edit starts from and what A9 translates (D-92). The note is what she typed, in
+    /// whatever language she wrote it (T-119).
+    /// </summary>
     public TeacherKannada Kannada => new(
         Concept.Text.GetValueOrDefault("kn") ?? "",
         Activity.Steps.GetValueOrDefault("kn") ?? [],
-        Note?.Text.GetValueOrDefault("kn"));
+        Note?.Original ?? Note?.Text.GetValueOrDefault("kn"));
 
     /// <summary>Her edit applied to the Kannada of one section; null for a section she can't type into.</summary>
     public TodaysSections? WithKannada(string kind, string? text, IReadOnlyList<string>? steps) => kind switch
@@ -74,8 +82,9 @@ public sealed record TodaysSections(
             this with { Concept = Concept with { Text = With(Concept.Text, text) }, Teacher = true },
         TodaysSectionKind.Activity when steps is not null =>
             this with { Activity = Activity with { Steps = With(Activity.Steps, steps) }, Teacher = true },
+        // Kept as typed; the next draft writes it in every family's language, Kannada included unless she wrote Kannada.
         TodaysSectionKind.Note when text is not null =>
-            this with { Note = new TodaysNote(With(Note?.Text ?? new Dictionary<string, string>(), text)), Teacher = true },
+            this with { Note = new TodaysNote(With(Note?.Text ?? new Dictionary<string, string>(), text), Original: text), Teacher = true },
         _ => null,
     };
 
