@@ -318,7 +318,8 @@
   "approve": {
     "title": "Check and approve",
     "intro": "One approval per catch-up, not per child. Nothing is sent until you approve.",
-    "allDone": "All {{n}} approved. {{families}} families get them after 6 pm.",
+    "allDone_one": "All {{n}} approved. {{count}} family gets them after 6 pm.",
+    "allDone_other": "All {{n}} approved. {{count}} families get them after 6 pm.",
     "allSent": "All approved and sent. Families reached: {{families}}.",
     "empty": "No catch-ups yet this week.",
     "generate": "Make this week’s catch-ups",
@@ -355,7 +356,6 @@
     "pkg": {
       "title": "Review catch-up",
       "missing": "This catch-up is no longer here. Go back to the list.",
-      "children": "{{language}} · children",
       "summary": "Kannada summary",
       "keyWords": "Kannada words",
       "why": "Why this",
@@ -373,7 +373,8 @@
       "cannotApprove": "Can’t approve this version. Ask for a new one.",
       "regenerating": "Writing a new version… Check it again when it’s ready.",
       "approved": "Approved. Goes to the families after 6 pm.",
-      "sent": "Sent at {{time}} · {{n}} families",
+      "sent_one": "Sent at {{time}} · {{count}} family",
+      "sent_other": "Sent at {{time}} · {{count}} families",
       "failed": "Could not write this catch-up. Nothing was sent. Your other catch-ups are not affected.",
       "offline": "No network. Nothing was changed. Connect and try again.",
       "error": "Could not save. Nothing was sent. Try again."

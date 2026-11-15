@@ -36,6 +36,7 @@ describe('PackageScreen', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Review catch-up' })).toHaveFocus()
     expect(await screen.findByText('Ravi, Mahesh')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'In Telugu · 2 children' })).toBeInTheDocument()
     expect(screen.getByText('AI-assisted')).toBeInTheDocument()
     expect(screen.getByRole('list', { name: 'Parts of the catch-up' })).toHaveTextContent('Computer voice· Lesson · 1:24')
     expect(screen.getByText('ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ. ನಿಮ್ಮ ಟೀಚರ್‌ಗೆ ತೋರಿಸು')).toHaveAttribute('lang', 'kn')
@@ -175,11 +176,20 @@ describe('PackageScreen', () => {
   })
 
   it('sent: read only, with the time and how many families', async () => {
-    setup(() => pkg({ status: 'sent', sentAt: '2026-10-23T12:32:00Z', familiesSent: 1 }))
+    setup(() => pkg({ status: 'sent', sentAt: '2026-10-23T12:32:00Z', familiesSent: 2 }))
     renderApp('/approve/pkg-te')
 
-    expect(await screen.findByText(/^Sent at 6:02\s?PM · 1 families$/i)).toBeInTheDocument()
+    expect(await screen.findByText(/^Sent at 6:02\s?PM · 2 families$/i)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Approve|Simpler|Shorter/ })).not.toBeInTheDocument()
+  })
+
+  it('one child, one family: "In Hindi · 1 child" and "1 family", not "children" or "families" (T-100)', async () => {
+    const rohan = pkg().children.slice(0, 1)
+    setup(() => pkg({ language: 'hi', status: 'sent', sentAt: '2026-10-23T12:32:00Z', familiesSent: 1, children: rohan }))
+    renderApp('/approve/pkg-te')
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'In Hindi · 1 child' })).toBeInTheDocument()
+    expect(screen.getByText(/^Sent at 6:02\s?PM · 1 family$/i)).toBeInTheDocument()
   })
 
   it('the player plays the computer voice, then the lesson', async () => {

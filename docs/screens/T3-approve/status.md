@@ -18,6 +18,9 @@ Spec: [`spec.md`](spec.md)
 - **Video:** when the lesson has a link on the admin page, today's message shows a Video section with that link, which she can remove (no Edit); code puts it in, never the AI (T-94, D-106).
 - **Catch-ups** are the week's catch-ups, one per lesson group and language. Each has a segment player, a Kannada summary, **Why this**, the picture question, Simpler / Shorter, and a tick before Approve, bound to the version she read (T-14).
 - A child whose missed lessons have no practice rule gets no catch-up instead of a failed one (part of T-100, #212).
+- The Catch-ups tab lists cards by action needed: ready and needs review, then failed, being written, approved and sent (T-100).
+- A failed card has **Try again** under it, which writes a new version, as on the catch-up itself (T-100).
+- Counts take the singular: "In Hindi · 1 child", "Sent at … · 1 family", "1 family gets them after 6 pm" (T-100).
 
 ## Known gaps and drafts
 

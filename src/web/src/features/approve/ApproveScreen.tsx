@@ -6,11 +6,12 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useOnline } from '../../components/useOnline'
 import { useMe } from '../auth/useMe'
 import { useCurriculum } from '../lessons/useLessons'
+import { byActionNeeded } from './packageOrder'
 import { duration, lessonNames } from './packageText'
 import { StatusTag } from './StatusTag'
 import { TodaysMessageTab } from './TodaysMessageTab'
 import type { CatchUpPackage } from './types'
-import { useGenerate, usePackages } from './usePackages'
+import { useGenerate, usePackages, useRegenerate } from './usePackages'
 
 const TABS = ['today', 'catchUps'] as const
 type Tab = (typeof TABS)[number]
@@ -117,7 +118,7 @@ function CatchUpsTab({ classId }: { classId: string }) {
 
       {allDone && (
         <output className="rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-3 text-body">
-          {t(allSent ? 'approve.allSent' : 'approve.allDone', { n: packages.length, families })}
+          {t(allSent ? 'approve.allSent' : 'approve.allDone', { n: packages.length, families, count: families })}
         </output>
       )}
 
@@ -130,9 +131,10 @@ function CatchUpsTab({ classId }: { classId: string }) {
 
       {packages.length > 0 && (
         <ul className="flex flex-col gap-3">
-          {packages.map((p) => (
+          {/* By action needed (T-100): what she must check, then failed (Try again), then the rest. */}
+          {byActionNeeded(packages).map((p) => (
             <li key={p.id}>
-              <PackageCard pkg={p} lessons={lessonNames(chapters, p.targetCompetencyIds, i18n.language)} />
+              <PackageCard classId={classId} pkg={p} lessons={lessonNames(chapters, p.targetCompetencyIds, i18n.language)} />
             </li>
           ))}
         </ul>
@@ -170,21 +172,23 @@ function GenerateButton({ primary = false, pending, onClick }: { primary?: boole
   )
 }
 
-function PackageCard({ pkg, lessons }: { pkg: CatchUpPackage; lessons: string[] }) {
+function PackageCard({ classId, pkg, lessons }: { classId: string; pkg: CatchUpPackage; lessons: string[] }) {
   const { t } = useTranslation()
   const heading = t('approve.card.heading', { language: t(`approve.in.${pkg.language}`), count: pkg.children.length })
   const names = pkg.children.map((c) => c.firstName).join(', ')
   const meta = [lessons.join(' + '), pkg.audio && pkg.status !== 'failed' ? duration(pkg.audio.totalSeconds) : null]
     .filter(Boolean)
     .join(' · ')
-  return (
+  const link = (
     <Link
       to={`/approve/${pkg.id}`}
       className="flex items-center gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]"
     >
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         {/* No aria-label: the link is named by what it shows (WCAG 2.5.3). The spaces keep the pieces apart in that name. */}
-        <span className="text-label">{heading}</span>{' '}
+        <span id={`card-${pkg.id}`} className="text-label">
+          {heading}
+        </span>{' '}
         <span className="text-body">{names}</span>{' '}
         <span className="text-caption text-ink-muted">{meta}</span>{' '}
         <span className="mt-1 flex flex-wrap items-center gap-2">
@@ -194,5 +198,43 @@ function PackageCard({ pkg, lessons }: { pkg: CatchUpPackage; lessons: string[] 
       </span>
       <Icon name="chevronRight" size={20} className="shrink-0 text-ink-muted" />
     </Link>
+  )
+
+  return pkg.status === 'failed' ? (
+    <div className="flex flex-col gap-2">
+      {link}
+      <TryAgain classId={classId} id={pkg.id} />
+    </div>
+  ) : (
+    link
+  )
+}
+
+/**
+ * Try again on a failed card (T-100), as on the catch-up itself: a new version is written in the background and the card
+ * shows Generating…. Secondary: the screen's one primary stays where it is (T-96). Described by the card's heading, so
+ * several failed cards' buttons can be told apart.
+ */
+function TryAgain({ classId, id }: { classId: string; id: string }) {
+  const { t } = useTranslation()
+  const regenerate = useRegenerate(classId)
+  return (
+    <>
+      <button
+        type="button"
+        disabled={regenerate.isPending}
+        aria-describedby={`card-${id}`}
+        onClick={() => regenerate.mutate({ id, hint: null })}
+        className="btn-secondary disabled:opacity-70"
+      >
+        {t('common.tryAgain')}
+      </button>
+      {regenerate.isError && (
+        <p role="alert" className="flex items-start gap-2 text-caption text-error">
+          <Icon name="alert" size={18} className="mt-0.5 shrink-0" />
+          {regenerate.error instanceof NetworkError ? t('offline.noNetwork') : t('approve.pkg.error')}
+        </p>
+      )}
+    </>
   )
 }

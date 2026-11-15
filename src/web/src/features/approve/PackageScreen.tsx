@@ -102,7 +102,10 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
         {pkg.status !== 'failed' && <AiLabel />}
       </div>
       <div>
-        <h2 className="text-label">{t('approve.pkg.children', { language: t(`approve.in.${pkg.language}`) })}</h2>
+        <h2 className="text-label">
+          {/* "In Hindi · 1 child", as on the list card (T-100). */}
+          {t('approve.card.heading', { language: t(`approve.in.${pkg.language}`), count: pkg.children.length })}
+        </h2>
         <p className="text-body font-bold">{pkg.children.map((c) => c.firstName).join(', ')}</p>
         <p className="text-caption text-ink-muted">{lessons.join(' + ')}</p>
       </div>
@@ -152,7 +155,7 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       {pkg.status === 'sent' && pkg.sentAt && (
         <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-primary bg-surface p-[14px] text-body">
           <Icon name="send" size={20} className="mt-0.5 shrink-0 text-primary-strong" />
-          {t('approve.pkg.sent', { time: formatSchoolTime(pkg.sentAt, i18n.language), n: pkg.familiesSent })}
+          {t('approve.pkg.sent', { time: formatSchoolTime(pkg.sentAt, i18n.language), count: pkg.familiesSent })}
         </output>
       )}
 
