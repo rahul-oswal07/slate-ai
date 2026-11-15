@@ -1,11 +1,10 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
 using SlateAi.Api.Features.Admin;
 
 namespace SlateAi.Api.Features.Delivery;
 
-/// <param name="ChildId">A child listed in <c>WhatsApp:Recipients</c>: the message goes to that registered phone.</param>
+/// <param name="ChildId">A child with a number saved on <c>/admin/children</c>: the message goes to that number (D-114).</param>
 public sealed record WhatsAppTestRequest(Guid ClientRequestId, Guid ChildId);
 
 /// <summary>What WhatsApp said. Never echoes the phone number.</summary>
@@ -15,9 +14,9 @@ public sealed record WhatsAppTestRequest(Guid ClientRequestId, Guid ChildId);
 public sealed record WhatsAppTestResponse(string Outcome, string? Error, string? ProviderMessageId, bool Replay);
 
 /// <summary>
-/// The admin "send a test message" (T-40): Meta's pre-approved <c>hello_world</c> template to one registered test
-/// phone, so the token, phone number ID and recipient can be checked before our own templates are approved. Open to
-/// anyone with the address, like the admin pages (D-112); it only reaches phones in <c>WhatsApp:Recipients</c>.
+/// The admin "send a test message" (T-40): Meta's pre-approved <c>hello_world</c> template to one child's family, so the
+/// token, phone number ID and number can be checked before our own templates are approved. Open to anyone with the
+/// address, like the admin pages (D-112); it only reaches numbers saved on <c>/admin/children</c> (D-114).
 /// Carries no names or school data.
 /// </summary>
 public static class DeliveryEndpoints
@@ -32,9 +31,9 @@ public static class DeliveryEndpoints
     {
         app.MapPost("/api/admin/whatsapp/test", SendTestAsync)
             .WithTags("Admin")
-            .WithSummary("Send Meta's hello_world template to one registered WhatsApp test phone")
+            .WithSummary("Send Meta's hello_world template to the number saved for one child")
             .WithDescription(
-                "No key (D-112). childId must be in WhatsApp:Recipients " +
+                "No key (D-112). childId must have a number saved on /admin/children (D-114) " +
                 "(otherwise outcome skipped, error no-recipient). Works whatever Delivery:Channel is, so the Meta setup " +
                 "can be checked before switching it on. A repeated clientRequestId returns the first result without " +
                 "sending again. The response never contains the phone number, and the message ID is hashed. Admin only.");
@@ -45,7 +44,7 @@ public static class DeliveryEndpoints
         WhatsAppTestRequest request,
         HttpContext http,
         WhatsAppClient client,
-        IOptions<WhatsAppOptions> whatsApp,
+        IAdminChildStore children,
         CancellationToken cancellationToken)
     {
         AdminEndpoints.NoStore(http);
@@ -62,7 +61,7 @@ public static class DeliveryEndpoints
             return TypedResults.Ok(earlier with { Replay = true });
         }
 
-        var result = whatsApp.Value.RecipientFor(request.ChildId) is { } number
+        var result = await children.GetSavedPhoneAsync(request.ChildId, cancellationToken) is { } number
             ? await client.SendTemplateAsync(number, HelloWorld, HelloWorldLanguage, [], null, cancellationToken)
             : ChannelResult.Skipped("no-recipient");
         var response = new WhatsAppTestResponse(result.Outcome, result.Error, result.ProviderMessageId, Replay: false);

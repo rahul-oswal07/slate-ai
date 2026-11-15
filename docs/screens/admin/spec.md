@@ -20,6 +20,6 @@ No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (
 
 ## Decisions cited
 
-D-83, D-102 (superseded), D-106, D-110, D-112, D-113.
+D-83, D-102 (superseded), D-106, D-110, D-112, D-113, D-114.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

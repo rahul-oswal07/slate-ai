@@ -10,9 +10,9 @@ import type { AdminChild, AdminChildren } from './useAdmin'
 const i18n = initI18n()
 
 const children: AdminChild[] = [
-  { id: 'c1', rollNo: 1, firstName: 'Ananya', homeLanguage: 'kn', consent: 'no', stopped: false, phone: null, phoneFrom: null, languageChanged: false },
-  { id: 'c15', rollNo: 15, firstName: 'Manjunath', homeLanguage: 'kn', consent: 'yes', stopped: false, phone: '+919876543210', phoneFrom: 'saved', languageChanged: false },
-  { id: 'c24', rollNo: 24, firstName: 'Ravi', homeLanguage: 'te', consent: 'yes', stopped: true, phone: '+919812345678', phoneFrom: 'setting', languageChanged: true },
+  { id: 'c1', rollNo: 1, firstName: 'Ananya', homeLanguage: 'kn', consent: 'no', stopped: false, phone: null, languageChanged: false },
+  { id: 'c15', rollNo: 15, firstName: 'Manjunath', homeLanguage: 'kn', consent: 'yes', stopped: false, phone: '+919876543210', languageChanged: false },
+  { id: 'c24', rollNo: 24, firstName: 'Ravi', homeLanguage: 'te', consent: 'yes', stopped: true, phone: '+919812345678', languageChanged: true },
 ]
 
 /**
@@ -49,7 +49,7 @@ function stubApi({ languageFails = false }: { languageFails?: boolean } = {}) {
           return new Response(null, { status: 404 })
         }
         const updated: AdminChild =
-          digits === '' ? { ...current, phone: null, phoneFrom: null } : { ...current, phone: `+91${digits}`, phoneFrom: 'saved' }
+          digits === '' ? { ...current, phone: null } : { ...current, phone: `+91${digits}` }
         rows.set(id, updated)
         return Response.json(updated)
       }
@@ -79,7 +79,7 @@ describe('AdminChildrenScreen (T-118)', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('lists the class with each child, their number and where it comes from', async () => {
+  it('lists the class with each child and the number saved for them (T-123)', async () => {
     stubApi()
     renderAt()
 
@@ -89,12 +89,12 @@ describe('AdminChildrenScreen (T-118)', () => {
     expect(within(ananya).getByText('No consent: nothing is sent')).toBeInTheDocument()
     const manjunath = await row(/15 · Manjunath · Kannada/)
     expect(within(manjunath).getByText('+919876543210')).toBeInTheDocument()
-    expect(within(manjunath).getByText('Saved here')).toBeInTheDocument()
     expect(within(manjunath).getByRole('button', { name: "Clear Manjunath's saved number" })).toBeInTheDocument()
     const ravi = await row(/24 · Ravi · Telugu/)
-    expect(within(ravi).getByText('From the server setting')).toBeInTheDocument()
+    expect(within(ravi).getByText('+919812345678')).toBeInTheDocument()
     expect(within(ravi).getByText('Family stopped messages: nothing is sent')).toBeInTheDocument()
-    expect(within(ravi).queryByRole('button', { name: /Clear/ })).not.toBeInTheDocument()
+    expect(within(ravi).getByRole('button', { name: "Clear Ravi's saved number" })).toBeInTheDocument()
+    expect(within(ananya).queryByRole('button', { name: /Clear/ })).not.toBeInTheDocument()
   })
 
   it('Edit then Save sends the number and shows it saved', async () => {
@@ -108,7 +108,6 @@ describe('AdminChildrenScreen (T-118)', () => {
 
     const ananya = await row(/1 · Ananya/)
     expect(await within(ananya).findByText('+919845012345')).toBeInTheDocument()
-    expect(within(ananya).getByText('Saved here')).toBeInTheDocument()
     expect(within(ananya).getByText('Saved')).toBeInTheDocument()
     const put = calls.find((c) => c.method === 'PUT')
     expect(put?.url).toBe('/api/admin/children/c1/phone')
@@ -139,8 +138,18 @@ describe('AdminChildrenScreen (T-118)', () => {
 
     const manjunath = await row(/15 · Manjunath/)
     expect(await within(manjunath).findByText('No number: WhatsApp skips this family')).toBeInTheDocument()
-    expect(within(manjunath).getByText('Cleared: back to the server setting, if any')).toBeInTheDocument()
+    expect(within(manjunath).getByText('Cleared: WhatsApp now skips this family')).toBeInTheDocument()
     expect(calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ phone: '' })
+  })
+
+  it('Edit starts from the saved number', async () => {
+    const user = userEvent.setup()
+    stubApi()
+    renderAt()
+
+    await user.click(await screen.findByRole('button', { name: "Edit Ravi's number" }))
+
+    expect(screen.getByLabelText("Ravi's family's number")).toHaveValue('+919812345678')
   })
 
   it('choosing another home language saves it at once (T-122)', async () => {

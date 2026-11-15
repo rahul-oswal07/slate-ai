@@ -34,6 +34,9 @@ public interface IAdminChildStore
     /// </summary>
     Task<AdminChildRow?> SetLanguageAsync(
         Guid clientRequestId, Guid childId, string language, DateTimeOffset now, CancellationToken cancellationToken);
+
+    /// <summary>The number saved for the child on the admin page, or null (seeded numbers never count, D-114).</summary>
+    Task<string?> GetSavedPhoneAsync(Guid childId, CancellationToken cancellationToken);
 }
 
 public sealed class AdminChildStore(AppDbContext db) : IAdminChildStore
@@ -109,6 +112,12 @@ public sealed class AdminChildStore(AppDbContext db) : IAdminChildStore
         await transaction.CommitAsync(cancellationToken);
         return Row(child);
     }
+
+    public Task<string?> GetSavedPhoneAsync(Guid childId, CancellationToken cancellationToken) =>
+        db.Children.AsNoTracking()
+            .Where(c => c.Id == childId && c.ParentPhoneSetAt != null)
+            .Select(c => c.ParentPhone)
+            .SingleOrDefaultAsync(cancellationToken);
 
     private static AdminChildRow Row(Child child) => new(
         child.Id, child.RollNo, child.FirstName, child.HomeLanguage, child.Consent, child.ParentStoppedAt != null,

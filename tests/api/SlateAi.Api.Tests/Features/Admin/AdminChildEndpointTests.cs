@@ -29,9 +29,9 @@ public sealed class AdminChildEndpointTests
     }
 
     [Fact]
-    public async Task Lists_each_class_with_its_children_and_where_each_number_comes_from()
+    public async Task Lists_each_class_with_its_children_and_their_saved_numbers()
     {
-        await using var factory = Create(recipients: new() { [Ravi.ToString("N")] = "+919812345678" });
+        await using var factory = Create();
         using var client = factory.CreateHttpsClient();
 
         var response = await client.GetAsync(Url, Ct);
@@ -42,23 +42,11 @@ public sealed class AdminChildEndpointTests
         Assert.Equal("Shobha · Grade 3", cls.Label);
         Assert.Equal(
             [
-                new AdminChild(Ananya, 1, "Ananya", "kn", "no", false, null, null, false),
-                new AdminChild(Manjunath, 15, "Manjunath", "kn", "yes", false, "+919876543210", PhoneFrom.Saved, false),
-                new AdminChild(Ravi, 24, "Ravi", "ta", "yes", true, "+919812345678", PhoneFrom.Setting, LanguageChanged: true),
+                new AdminChild(Ananya, 1, "Ananya", "kn", "no", false, null, false),
+                new AdminChild(Manjunath, 15, "Manjunath", "kn", "yes", false, "+919876543210", false),
+                new AdminChild(Ravi, 24, "Ravi", "ta", "yes", true, null, LanguageChanged: true),
             ],
             cls.Children);
-    }
-
-    [Fact]
-    public async Task A_saved_number_comes_before_the_server_setting()
-    {
-        await using var factory = Create(recipients: new() { [Manjunath.ToString()] = "+919800000000" });
-        using var client = factory.CreateHttpsClient();
-
-        var cls = Assert.Single((await client.GetFromJsonAsync<AdminChildrenResponse>(Url, Ct))!.Classes);
-
-        var manjunath = cls.Children.Single(c => c.Id == Manjunath);
-        Assert.Equal(("+919876543210", PhoneFrom.Saved), (manjunath.Phone, manjunath.PhoneFrom));
     }
 
     [Fact]
@@ -71,20 +59,20 @@ public sealed class AdminChildEndpointTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var child = (await response.Content.ReadFromJsonAsync<AdminChild>(Ct))!;
-        Assert.Equal(("+919845012345", PhoneFrom.Saved), (child.Phone, child.PhoneFrom));
+        Assert.Equal("+919845012345", child.Phone);
         Assert.Equal("+919845012345", _store.Rows.Single(r => r.Id == Ananya).SavedPhone);
     }
 
     [Fact]
-    public async Task Clearing_falls_back_to_the_server_setting()
+    public async Task Clearing_leaves_no_number_so_WhatsApp_skips_the_family_D114()
     {
-        await using var factory = Create(recipients: new() { [Manjunath.ToString("N")] = "+919800000000" });
+        await using var factory = Create();
         using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync($"{Url}/{Manjunath}/phone", new SetParentPhoneRequest(Guid.NewGuid(), " "), Ct);
 
         var child = (await response.Content.ReadFromJsonAsync<AdminChild>(Ct))!;
-        Assert.Equal(("+919800000000", PhoneFrom.Setting), (child.Phone, child.PhoneFrom));
+        Assert.Null(child.Phone);
         Assert.Null(_store.Rows.Single(r => r.Id == Manjunath).SavedPhone);
     }
 
@@ -222,16 +210,8 @@ public sealed class AdminChildEndpointTests
         Assert.Equal(1, _store.LanguageWrites);
     }
 
-    private ApiFactory Create(Dictionary<string, string>? recipients = null, string environment = "Testing")
-    {
-        var settings = new Dictionary<string, string?>();
-        foreach (var (child, number) in recipients ?? [])
-        {
-            settings[$"WhatsApp:Recipients:{child}"] = number;
-        }
-
-        return FakeApi.Create(services => services.AddSingleton<IAdminChildStore>(_store), settings: settings, environment: environment);
-    }
+    private ApiFactory Create(string environment = "Testing") =>
+        FakeApi.Create(services => services.AddSingleton<IAdminChildStore>(_store), environment: environment);
 
     private sealed class FakeAdminChildStore : IAdminChildStore
     {
@@ -278,5 +258,8 @@ public sealed class AdminChildEndpointTests
         }
 
         public int LanguageWrites { get; private set; }
+
+        public Task<string?> GetSavedPhoneAsync(Guid childId, CancellationToken cancellationToken) =>
+            Task.FromResult(Rows.SingleOrDefault(r => r.Id == childId)?.SavedPhone);
     }
 }

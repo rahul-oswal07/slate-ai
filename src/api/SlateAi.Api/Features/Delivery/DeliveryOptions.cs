@@ -25,7 +25,7 @@ public sealed class DeliveryOptions
 
 /// <summary>
 /// WhatsApp Cloud API settings (<c>WhatsApp</c> section). <see cref="AccessToken"/> comes only from user-secrets or
-/// App Service settings, never from the repo; so do the real numbers in <see cref="Recipients"/>.
+/// App Service settings, never from the repo. Families' numbers are saved on the admin page, never in settings (D-114).
 /// </summary>
 public sealed class WhatsAppOptions
 {
@@ -54,19 +54,6 @@ public sealed class WhatsAppOptions
         Name = "catchup_link_v1",
         Languages = new() { ["en"] = "en", ["kn"] = "kn", ["te"] = "te", ["hi"] = "hi" },
     };
-
-    /// <summary>
-    /// Child ID → the family's number (E.164, e.g. +9198…) for the registered test phones, set as
-    /// <c>WhatsApp__Recipients__{childId}</c>. Used when no number is saved on the admin page, which comes first (T-118,
-    /// D-110); a child with neither stays on the demo chat. Seeded <c>ParentPhone</c> values are fictional and never dialled.
-    /// </summary>
-    public Dictionary<string, string> Recipients { get; set; } = [];
-
-    /// <summary>The registered number for a child, or null. Keys are compared as GUIDs, so case doesn't matter.</summary>
-    public string? RecipientFor(Guid childId) =>
-        Recipients.FirstOrDefault(r => Guid.TryParse(r.Key, out var id) && id == childId).Value is { Length: > 0 } number
-            ? number
-            : null;
 }
 
 public sealed class WhatsAppTemplate

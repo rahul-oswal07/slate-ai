@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Accepted |
+| Status | Superseded in part by [D-114](D-114-whatsapp-only-saved-number.md) (no fallback to the setting) |
 | Owner | Rahul, 15 Nov 2026 |
 | Gate | none |
 | Screens | admin, delivery, demo |

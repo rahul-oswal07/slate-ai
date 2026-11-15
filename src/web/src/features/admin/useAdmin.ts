@@ -130,7 +130,6 @@ export interface AdminChild {
   consent: 'yes' | 'no' | 'nophone'
   stopped: boolean
   phone: string | null
-  phoneFrom: 'saved' | 'setting' | null
   /** The home language was changed on this page (T-122, D-113): it stays after a demo Reset. */
   languageChanged: boolean
 }
