@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built in part |
+| Status | Done |
 | Issue | #190 · part merged in #196 |
 | Owner | R |
 | Screens | demo |
@@ -22,6 +22,7 @@ Demo endpoint tests; a timed manual run logged in this file's Notes
 
 ## Notes
 
+- 15 Nov: **closed by Rahul.** The remaining steps (record the sample voice note, set `Demo__SendOnApprove=true` on staging, the two timed runs) are dropped: another feature will add an Approve and send button. What was built stays on `main`: the one-child Reset (Manjunath, Kannada), today's register at 12:00, the labelled family phone, `Demo:SendOnApprove` (off on staging) and the sample voice note button (shown only if the clip exists).
 - 15 Nov: moved here from `tasks.md` (T-110).
 - 14 Nov: the D-94 loop runs end to end on a local server and everything it needs is on `main`, so on staging only the steps below are left.
 - 14 Nov, still to do: record the sample voice note (`docs/demo-script.md`) as `data/seed/demo-voice-note.webm`; set `Demo__SendOnApprove=true` on staging; do the timed 3-minute run on staging twice from Reset, on the T-108 flow, and log it here.

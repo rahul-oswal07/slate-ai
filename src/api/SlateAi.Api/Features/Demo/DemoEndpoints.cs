@@ -81,7 +81,7 @@ public static class DemoEndpoints
             .WithDescription(
                 "Deletes everything the class has done and re-adds the 36 seeded children, then writes the five school " +
                 "days before today (SATS registers and confirmed lessons; only Manjunath (Kannada) away, on the last two) " +
-                "and today's simulated register, stamped 12:00 IST, with Manjunath away and no lesson yet (T-93). " +
+                "and today's simulated register, stamped 9:00 IST, with Manjunath away and no lesson yet (T-93). " +
                 "When data/seed/demo-catchup.json exists in Manjunath's language, that catch-up is restored as Ready. " +
                 "The evening template and the teacher's sign-in stay as they are. " +
                 "A replayed clientRequestId changes nothing. 404 unless signed in as the demo teacher. Demo only.");
@@ -133,7 +133,7 @@ public static class DemoEndpoints
             .WithDescription(
                 "mode=waiting removes the date's register and holds SATS back (Today shows \"not in yet\"); " +
                 "mode=arrive releases it and stores the simulated register with receivedAt = now, or the feed's usual " +
-                "time (12:00 IST) when that is later, so a morning demo doesn't show 2:37 AM (T-93). Demo only.");
+                "time (9:00 IST) when that is later, so a morning demo doesn't show 2:37 AM (T-93). Demo only.");
 
         app.MapGet("/api/demo/voice-note", GetVoiceNoteAsync)
             .RequireAuthorization()

@@ -41,7 +41,7 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 
 Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English; **Reset demo** starts the story again. The same 6 steps are on screen:
 
-1. **Today** (teacher's phone): the simulated SATS register came in at 12:00 and shows Manjunath (roll 15, Kannada) absent. He was also away the two school days before today.
+1. **Today** (teacher's phone): the simulated SATS register came in at 9:00 and shows Manjunath (roll 15, Kannada) absent. He was also away the two school days before today.
 2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), tap **Use the sample voice note (demo)** where it is offered, or pick it from the list, and confirm it. The demo lesson is Nalikali Maths Part 1, p 4 (more, less, equal).
 3. **Tonight's message:** tap **Send messages now** (in a school it goes by itself at 6 pm). Tonight's message arrives on Manjunath's family's phone, in Kannada; open it and pick a reason.
 4. **Approve:** tap *Make this week's catch-ups*. You get one, in Kannada, for the two lessons Manjunath missed before today. Listen, read the Kannada summary and **Why this**, tick and approve. In the demo, Approve sends it to the family's phone at once.
@@ -52,7 +52,7 @@ Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English;
 
 1. Open https://slateai-prod.azurewebsites.net on your phone (or a desktop browser). Your browser can install it as an app (*Add to Home screen*).
 2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN on slide 14 of the submitted deck. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up. To see that welcome, use Savitha's login ([steps](#3-first-time-sign-in-use-savithas-login)).
-3. **Today:** the simulated SATS attendance arrives at 12:00 (retry at 2 pm). Before then, or if it's wrong, mark or correct it yourself.
+3. **Today:** the simulated SATS attendance arrives at 9:00 (retry at 2 pm). Before then, or if it's wrong, mark or correct it yourself.
 4. **Record the lesson** by voice or with a photo of the textbook page, and confirm the match.
 5. **Approve the evening message** once (Today → tonight's card → *Review and approve*). After 6 pm IST it goes to each absent child's family with today's lesson and page.
 6. **Approve:** *Make this week's catch-ups*, review one, try **Simpler** or **Shorter**, then approve. Approved catch-ups go out after 6 pm.

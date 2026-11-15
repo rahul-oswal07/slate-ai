@@ -21,29 +21,29 @@ public sealed class AttendanceDayEndpointTests
     public AttendanceDayEndpointTests() => _store = new FakeAttendanceStore(ClassId, Children, _clock);
 
     [Fact]
-    public async Task Before_noon_it_is_waiting_and_names_both_sync_times()
+    public async Task Before_the_sync_it_is_waiting_and_names_both_sync_times()
     {
-        _clock.Now = Ist(11, 0);
+        _clock.Now = Ist(8, 0);
 
         var day = await GetDayAsync();
 
         Assert.Equal("waiting", day.Status);
-        Assert.Equal(new TimeOnly(12, 0), day.SyncAt);
+        Assert.Equal(new TimeOnly(9, 0), day.SyncAt);
         Assert.Equal(new TimeOnly(14, 0), day.RetryAt);
         Assert.Equal(0, _source.Calls);
         Assert.Equal(36, day.Children.Count);
     }
 
     [Fact]
-    public async Task After_noon_the_sats_register_is_fetched_once_and_stored()
+    public async Task After_the_sync_the_sats_register_is_fetched_once_and_stored()
     {
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3], Children[9] }, Ist(12, 0));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3], Children[9] }, Ist(9, 0));
 
         var first = await GetDayAsync();
         var second = await GetDayAsync();
 
         Assert.Equal("sats", first.Status);
-        Assert.Equal(Ist(12, 0), first.ReceivedAt);
+        Assert.Equal(Ist(9, 0), first.ReceivedAt);
         Assert.Equivalent(new[] { Children[3], Children[9] }, first.AbsentChildIds);
         Assert.False(first.Corrected);
         Assert.Equal(first.AbsentChildIds, second.AbsentChildIds);
@@ -65,7 +65,7 @@ public sealed class AttendanceDayEndpointTests
     }
 
     [Fact]
-    public async Task Late_between_noon_and_2_pm_is_still_waiting()
+    public async Task Late_between_the_sync_and_2_pm_is_still_waiting()
     {
         _source.Result = new SourceResult.NotYet();
 
@@ -90,7 +90,7 @@ public sealed class AttendanceDayEndpointTests
     [InlineData("2026-10-21", false)] // Wednesday
     public async Task The_demo_class_is_told_when_the_school_is_usually_shut(string date, bool dayOff)
     {
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(12, 0));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(9, 0));
         await using var factory = Create(sats: o => o.EveryDayClassIds = [ClassId]);
         using var client = factory.CreateTeacherClient(ClassId);
 
@@ -113,7 +113,7 @@ public sealed class AttendanceDayEndpointTests
     [Fact]
     public async Task A_correction_shows_as_corrected()
     {
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(12, 0));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[3] }, Ist(9, 0));
         await GetDayAsync();
 
         await PostAsync([Children[4]]);
@@ -127,26 +127,26 @@ public sealed class AttendanceDayEndpointTests
     [Fact]
     public async Task Late_sats_after_manual_marking_keeps_hers_and_flags_the_difference()
     {
-        _clock.Now = Ist(11, 0);
+        _clock.Now = Ist(8, 0);
         await PostAsync([Children[0]]);
         _clock.Now = Ist(14, 0);
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[1] }, Ist(12, 0));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[1] }, Ist(9, 0));
 
         var day = await GetDayAsync();
 
         Assert.Equal("manual", day.Status);
         Assert.Equal([Children[0]], day.AbsentChildIds);
         Assert.True(day.SatsDiffers);
-        Assert.Equal(Ist(12, 0), day.ReceivedAt);
+        Assert.Equal(Ist(9, 0), day.ReceivedAt);
     }
 
     [Fact]
     public async Task Late_sats_that_agrees_with_her_is_not_flagged()
     {
-        _clock.Now = Ist(11, 0);
+        _clock.Now = Ist(8, 0);
         await PostAsync([Children[0]]);
         _clock.Now = Ist(14, 0);
-        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[0] }, Ist(12, 0));
+        _source.Result = new SourceResult.Arrived(new HashSet<Guid> { Children[0] }, Ist(9, 0));
 
         Assert.False((await GetDayAsync()).SatsDiffers);
     }

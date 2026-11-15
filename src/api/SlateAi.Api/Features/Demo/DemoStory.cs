@@ -14,7 +14,7 @@ public sealed record DemoRegisterDay(DateOnly Date, IReadOnlySet<Guid> AbsentChi
 /// whatever day a judge opens it. Pure; the Reset store writes what this returns. One child, one Kannada family (R3):
 /// Manjunath is away the two school days before today and today, so this week makes exactly one catch-up (Kannada) and
 /// today's lesson (Nalikali p 4) goes into today's message. Today itself comes from the simulated feed, whose scenario
-/// marks only Manjunath absent every day; the Reset writes today's register too, stamped at the feed's 12:00, so Today
+/// marks only Manjunath absent every day; the Reset writes today's register too, stamped at the feed's 9:00, so Today
 /// is ready at any hour (R6). The demo class has a register even on Sundays and holidays (T-69). No random absences.
 /// </summary>
 public static class DemoStory

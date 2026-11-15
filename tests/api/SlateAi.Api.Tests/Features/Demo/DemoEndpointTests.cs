@@ -50,16 +50,16 @@ public sealed class DemoEndpointTests
     }
 
     [Fact]
-    public async Task Arriving_before_noon_reads_12_00_not_the_time_of_the_tap()
+    public async Task Arriving_before_the_sync_reads_9_00_not_the_time_of_the_tap()
     {
-        // T-93: a 2:37 AM rehearsal (or a 10 am demo) still shows the feed's usual 12:00.
+        // T-93: a 2:37 AM rehearsal still shows the feed's usual 9:00.
         await using var factory = Create(now: SchoolClock.At(Today, new TimeOnly(2, 37)));
         using var client = factory.CreateTeacherClient(ClassId);
 
         var arrive = await client.PostAsJsonAsync("/api/demo/sats-feed", new SatsFeedRequest(ClassId, Today, "arrive"), Ct);
         var arrived = await arrive.Content.ReadFromJsonAsync<AttendanceDayResponse>(Ct);
 
-        Assert.Equal(SchoolClock.At(Today, new TimeOnly(12, 0)), arrived!.ReceivedAt);
+        Assert.Equal(SchoolClock.At(Today, new TimeOnly(9, 0)), arrived!.ReceivedAt);
     }
 
     [Fact]

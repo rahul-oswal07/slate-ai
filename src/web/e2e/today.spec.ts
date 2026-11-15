@@ -36,7 +36,7 @@ test('SATS register → correct one child → "corrected by you"', async ({ page
   const posts = await fakeToday(page, () => register)
 
   await page.goto('/')
-  await expect(page.getByRole('region', { name: /SATS \(simulated\), 12:00/ })).toContainText('3 absent')
+  await expect(page.getByRole('region', { name: /SATS \(simulated\), 9:00/ })).toContainText('3 absent')
   await expectNoBlockingViolations(page)
   await page.screenshot({ path: testInfo.outputPath('today-sats-360.png'), fullPage: true })
 
@@ -57,7 +57,7 @@ test('SATS register → correct one child → "corrected by you"', async ({ page
 
 test('SATS not in yet → mark it here', async ({ page }, testInfo) => {
   await fakeToday(page, () =>
-    attendanceDay({ status: 'waiting', receivedAt: null, syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [] }),
+    attendanceDay({ status: 'waiting', receivedAt: null, syncAt: '09:00:00', retryAt: '14:00:00', absentChildIds: [] }),
   )
 
   await page.goto('/')
