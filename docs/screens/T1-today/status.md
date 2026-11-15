@@ -8,6 +8,8 @@ Spec: [`spec.md`](spec.md)
 
 - **Attendance:** a simulated SATS register arrives at 9:00 (retry 2 pm). The teacher's marking wins over a late feed, and the register works offline through the Dexie outbox (T-12, D-69).
 - There is a day strip (T-49).
+- **One next step:** under the day strip, one primary button follows the day: Record today's lesson → Confirm today's lesson → Check today's message → See answers. Every other button on Today is secondary. Nothing shows when there is nothing to do now (T-96).
+- Once the lesson is confirmed, the mic is outlined rather than the amber hero, unless she came back with Re-record (T-96).
 - **Lesson:** recorded as a voice note, with an optional photo, or picked from the list; confirmed on [T2 Lesson confirm](../T2-lesson-confirm/status.md). "Add a photo of the page" and "Pick from the list" sit side by side as outlined tiles (part of T-96).
 - **Today's message card** above Tonight: "waiting for you" with the one button **Check and approve**, or "approved · goes after 6 pm" (T-108).
 - Once the lesson is confirmed, the record card stays until today's message is approved, or, on a day without one, until tonight's message has gone: the lesson shows as one line ("Today: … · p …") with Change above the mic, and a new note replaces the lesson (T-114, D-104). After that, only the confirmed lesson shows.
@@ -22,6 +24,8 @@ Spec: [`spec.md`](spec.md)
 - The kn, te, ta and hi words of the **Book exercises** tag are drafts for Monika (T-128).
 - The record card's one-line lesson strings in kn, te, ta and hi are drafts for Monika (T-114).
 - The design card is not updated for T-108, T-109 or T-114, or for T-109 (the gear left the title row; Settings is in the header's profile menu) (Monika's file).
+- The design card is not updated for T-96's next-step button or outlined mic (Monika's file).
+- The next-step labels in kn, te, ta and hi are drafts for Monika (T-96).
 
 ## Open tasks
 

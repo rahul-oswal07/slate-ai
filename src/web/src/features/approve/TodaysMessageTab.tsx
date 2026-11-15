@@ -393,6 +393,7 @@ function EditForm({
             <textarea
               value={step}
               rows={2}
+              placeholder={t('todays.stepPlaceholder')}
               aria-describedby={problem ? errorId : undefined}
               onChange={(e) => setSteps(steps.map((s, j) => (j === i ? e.target.value : s)))}
               className="rounded-button border-2 border-border bg-surface p-2 text-body text-ink"
@@ -405,7 +406,7 @@ function EditForm({
           <textarea
             value={text}
             rows={4}
-            placeholder={kind === 'note' ? t('todays.notePlaceholder') : undefined}
+            placeholder={t(kind === 'note' ? 'todays.notePlaceholder' : 'todays.conceptPlaceholder')}
             aria-describedby={problem ? errorId : undefined}
             onChange={(e) => setText(e.target.value)}
             className="rounded-button border-2 border-border bg-surface p-2 text-body text-ink"

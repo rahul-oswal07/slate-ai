@@ -119,6 +119,7 @@ function Editor({ data }: { data: AdminLessonLinks }) {
           <span className="text-label">{t('admin.lessonLinks.search')}</span>
           <input
             type="search"
+            placeholder={t('admin.lessonLinks.searchPlaceholder')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="min-h-target rounded-button border-2 border-border bg-surface px-3 text-body"

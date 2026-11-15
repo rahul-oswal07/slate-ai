@@ -4,7 +4,8 @@ import type { TodaysMessage } from '../approve/todaysTypes'
 
 /**
  * Today's message on Today (T-108): until she approves it, it is waiting for her, with the one button that takes her to
- * Approve (also while it is being written, or when writing it failed: Try again is there). Once approved it says so.
+ * Approve (also while it is being written, or when writing it failed: Try again is there). Secondary: the one primary is
+ * the next step at the top of Today (T-96). Once approved it says so.
  * After the send nothing shows here: the answers card takes over (T-92).
  */
 export function TodaysMessageCard({ message }: { message: TodaysMessage }) {
@@ -26,7 +27,7 @@ export function TodaysMessageCard({ message }: { message: TodaysMessage }) {
       ) : (
         <>
           <p className="mt-1 text-body text-ink">{t('today.todays.waitingHint')}</p>
-          <Link to="/approve" className="btn-primary mt-3 flex items-center justify-center">
+          <Link to="/approve" className="btn-secondary mt-3 flex items-center justify-center">
             {t('today.todays.check')}
           </Link>
         </>

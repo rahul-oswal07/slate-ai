@@ -7,6 +7,7 @@ Spec: [`spec.md`](spec.md)
 ## Built
 
 - **Sign-in:** phone + PIN, lockout after 5 wrong PINs, 30-day session (T-47).
+- The phone and PIN boxes have placeholders: "10-digit number" and "Your PIN" (T-96).
 - Several teachers can share one class (D-79).
 - The header on sign-in has the name, tagline and language only; Log out is in the profile menu on the other screens (T-109).
 

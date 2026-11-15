@@ -18,6 +18,7 @@ import { DayStrip } from './DayStrip'
 import { GreetingCard } from './GreetingCard'
 import { AnswersCard } from './AnswersCard'
 import { LessonCard } from './LessonCard'
+import { NextStepButton } from './NextStepButton'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
 import { TodaysMessageCard } from './TodaysMessageCard'
@@ -95,6 +96,11 @@ export function TodayScreen() {
         lessonDone={confirmed.length > 0}
         tonightDone={(evening.data?.sent ?? 0) > 0}
       />
+
+      {/* The one next step (T-96): the only primary button on Today. Waits for the lesson day, so Record never flashes. */}
+      {!editing && lesson.data && (
+        <NextStepButton classId={classId} date={date} lessonStatus={lesson.data.lesson?.status ?? null} todays={todays} />
+      )}
 
       <RecapCard classId={classId} date={date} chapters={chapters} />
 

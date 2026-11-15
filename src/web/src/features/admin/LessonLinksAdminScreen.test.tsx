@@ -93,6 +93,7 @@ describe('LessonLinksAdminScreen (T-94)', () => {
     stubApi()
     renderAt()
     const search = await screen.findByRole('searchbox', { name: 'Search lessons' })
+    expect(search).toHaveAttribute('placeholder', 'Lesson name or ID, e.g. compare')
 
     await userEvent.type(search, 'borrow')
 

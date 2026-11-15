@@ -206,7 +206,8 @@ export function LessonCard({
           type="button"
           onClick={onPick}
           disabled={!canPick}
-          className="mt-3 min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
+          data-next-step="record"
+          className="btn-secondary mt-3"
         >
           {t('confirm.pickFromList')}
         </button>
@@ -218,6 +219,9 @@ export function LessonCard({
   }
 
   const recording = recorder.status === 'recording'
+  // Once the lesson is confirmed, recording again is not the next step (T-96): the mic is outlined, not the amber hero,
+  // unless she came back with Re-record.
+  const quietMic = confirmedOpen && !reRecording
   const seconds = Math.min(Math.floor(recorder.elapsedMs / 1000), MAX_MS / 1000)
   return (
     <section aria-labelledby="lesson-title" className="card-hero text-center">
@@ -228,19 +232,23 @@ export function LessonCard({
       <p className="text-title">
         <AccentTitle title={t('today.lesson.prompt')} accent={t('nav.today').toLowerCase()} />
       </p>
-      {/* The one amber hero on this screen (D-77): a 112 px disc in a panel halo with a dashed chalk ring. */}
+      {/* The one amber hero on this screen (D-77): a 112 px disc in a panel halo with a dashed chalk ring; outlined once the
+          lesson is confirmed (T-96). */}
       <div className="relative mx-auto mt-3 flex size-[168px] items-center justify-center rounded-full bg-panel">
         <span aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-full border-[2.5px] border-dashed border-chalk" />
         <button
           ref={micRef}
           type="button"
+          data-next-step="record"
           aria-pressed={recording}
           aria-label={recording ? t('mic.stop') : t('mic.record')}
           {...recorder.buttonHandlers}
           className={`relative flex size-[112px] touch-none select-none items-center justify-center rounded-full ${
             recording
               ? 'breathing border-[3px] border-transparent bg-error text-on-error'
-              : 'btn-hero shadow-[0_8px_0_-2px_rgb(0_0_0/0.14)]'
+              : quietMic
+                ? 'border-[3px] border-primary bg-panel text-primary-strong'
+                : 'btn-hero shadow-[0_8px_0_-2px_rgb(0_0_0/0.14)]'
           }`}
         >
           {recording ? <span aria-hidden="true" className="size-8 rounded-sm bg-on-error" /> : <Icon name="mic" size={44} />}

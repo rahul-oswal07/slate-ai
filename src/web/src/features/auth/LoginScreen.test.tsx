@@ -19,6 +19,9 @@ describe('LoginScreen', () => {
       'POST /api/auth/pin': () => ({ status: 200, body: { ...teacher, setupComplete: false } }),
     })
     renderApp('/login')
+    // Placeholders say what goes in each box (T-96).
+    expect(await screen.findByLabelText('Mobile number')).toHaveAttribute('placeholder', '10-digit number')
+    expect(screen.getByLabelText('PIN')).toHaveAttribute('placeholder', 'Your PIN')
 
     await userEvent.type(await screen.findByLabelText('Mobile number'), '+91 90000 00000')
     await userEvent.type(screen.getByLabelText('PIN'), '2468')
