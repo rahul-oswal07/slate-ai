@@ -8,6 +8,8 @@ export type CurriculumLesson = {
   nameEn: string
   sequence: number
   textbookPage: TextbookPage | null
+  /** The lesson has the book's own exercise numbers (D-93, T-128): the "Book exercises" tag. */
+  hasExercises: boolean
 }
 
 export type Chapter = { number: number; nameKn: string; nameEn: string; competencies: CurriculumLesson[] }

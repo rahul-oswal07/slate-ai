@@ -5,6 +5,7 @@ import { AccentTitle } from '../../components/AccentWord'
 import { useMe } from '../auth/useMe'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
+import { ExercisesTag } from '../lessons/ExercisesTag'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
 import { LessonPhoto } from '../lessons/LessonPhoto'
 import type { Chapter, LessonDay } from '../lessons/types'
@@ -121,6 +122,7 @@ export function LessonCard({
                 <span>
                   <span className="block text-body">{found ? lessonName(found.lesson, i18n.language) : id}</span>
                   {found && <span className="block text-caption text-ink-muted">{pageText(t, found.lesson.textbookPage)}</span>}
+                  {found && <ExercisesTag lesson={found.lesson} />}
                 </span>
               </li>
             )

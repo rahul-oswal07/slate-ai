@@ -15,6 +15,7 @@ const todaysUrl = `/api/classes/${teacher.classId}/todays-message/${date}`
 
 const lesson = (id: string, nameEn: string, sequence: number, page: number) => ({
   id, nameKn: `ಕ ${id}`, nameEn, sequence, textbookPage: { book: 'textbook' as const, part: 2, page },
+  hasExercises: id === 'M3.SUB.BORROW',
 })
 const curriculum: Curriculum = {
   chapters: [{
@@ -70,6 +71,15 @@ describe('T2 Lesson confirm', () => {
     expect(screen.getByText('AI-assisted')).toBeInTheDocument()
     expect(screen.getByText('Subtraction, checked by adding')).toBeInTheDocument()
     expect(screen.queryByText(/0\.\d/)).not.toBeInTheDocument()
+  })
+
+  it('tags a matched lesson that has the book’s exercises (T-128)', async () => {
+    api(() => voice('mapped', ['M3.SUB.BORROW', 'M3.SUB.MAKE']))
+    renderApp('/lesson')
+
+    const group = await screen.findByRole('group', { name: 'Today’s lessons' })
+    expect(within(group).getByRole('checkbox', { name: /Subtraction with borrowing.*Book exercises/ })).toBeChecked()
+    expect(within(group).getByRole('checkbox', { name: /Making subtraction sums/ })).not.toHaveAccessibleName(/Book exercises/)
   })
 
   it('unticking updates the button; with none ticked it is disabled and says why', async () => {

@@ -20,7 +20,7 @@ const curriculum: Curriculum = {
       nameKn: 'ಕೂಡಿ ನಲಿಯೋಣ',
       nameEn: 'Let’s add and enjoy',
       competencies: [
-        { id: 'M3.ADD.CARRY', nameKn: 'ದಶಕ ಸಂಕಲನ', nameEn: '3-digit addition with carrying', sequence: 11, textbookPage: { book: 'textbook', part: 1, page: 85 } },
+        { id: 'M3.ADD.CARRY', nameKn: 'ದಶಕ ಸಂಕಲನ', nameEn: '3-digit addition with carrying', sequence: 11, textbookPage: { book: 'textbook', part: 1, page: 85 }, hasExercises: true },
       ],
     },
     {
@@ -28,9 +28,9 @@ const curriculum: Curriculum = {
       nameKn: 'ಕಳೆಯುವ ಮೋಜು',
       nameEn: 'The fun of subtracting',
       competencies: [
-        { id: 'M3.SUB.NOBORROW', nameKn: 'ಕಳೆಯುವಿಕೆ', nameEn: '3-digit subtraction without borrowing', sequence: 13, textbookPage: { book: 'textbook', part: 2, page: 6 } },
-        { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: { book: 'textbook', part: 1, page: 117 } },
-        { id: 'M3.SUB.BORROW', nameKn: 'ಎರವಲು', nameEn: '3-digit subtraction with borrowing', sequence: 15, textbookPage: { book: 'textbook', part: 2, page: 15 } },
+        { id: 'M3.SUB.NOBORROW', nameKn: 'ಕಳೆಯುವಿಕೆ', nameEn: '3-digit subtraction without borrowing', sequence: 13, textbookPage: { book: 'textbook', part: 2, page: 6 }, hasExercises: true },
+        { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: { book: 'textbook', part: 1, page: 117 }, hasExercises: false },
+        { id: 'M3.SUB.BORROW', nameKn: 'ಎರವಲು', nameEn: '3-digit subtraction with borrowing', sequence: 15, textbookPage: { book: 'textbook', part: 2, page: 15 }, hasExercises: true },
       ],
     },
   ],
@@ -101,6 +101,24 @@ describe('picking today’s lesson', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Check and approve' })).toBeInTheDocument()
     expect(await screen.findByText("Writing today's message…")).toBeInTheDocument()
+  })
+
+  it('tags each lesson that has the book’s exercises (T-128)', async () => {
+    today(noLesson)
+    renderApp('/')
+
+    await openPicker()
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).getByRole('radio', { name: /subtraction with borrowing.*Book exercises/ })).toBeInTheDocument()
+    expect(within(dialog).getByRole('radio', { name: /Making subtraction sums/ })).not.toHaveAccessibleName(/Book exercises/)
+  })
+
+  it('the confirmed lesson on Today keeps its tag (T-128)', async () => {
+    today(confirmed('M3.SUB.BORROW', 'M3.SUB.MAKE'))
+    renderApp('/')
+
+    expect(await screen.findByText('Done for today. Thank you.')).toBeInTheDocument()
+    expect(screen.getAllByText('Book exercises')).toHaveLength(1)
   })
 
   it('opens the chapter of "Next in the book", lists it first, and one tap confirms it', async () => {

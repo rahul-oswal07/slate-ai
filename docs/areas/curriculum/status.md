@@ -8,11 +8,15 @@ Spec: [`spec.md`](spec.md)
 
 - Only Grade 3 maths is loaded: the whole book, 60 competencies (T-81, on prod since `v1.2`).
 - The Nalikali demo lesson `M3.BRIDGE.COMPARE` (more, less, equal; Nalikali Part 1 p 4) is in chapter 0 with the book's exercises (T-87).
+- Exercises can also be `add` and `sub` pairs, checked at startup: a sum ≤ 999, a difference not below 0 (T-128).
+- M3.ADD.NOCARRY, M3.ADD.CARRY, M3.ADD.WORD, M3.SUB.NOBORROW, M3.SUB.BORROW and M3.SUB.WORD have `add`/`sub` exercises, and M3.NUM.COMPARE has `extremes`, all copied from their `examples` (T-128).
+- `GET /api/curriculum` says which lessons have exercises (`hasExercises`) (T-128).
 
 ## Known gaps and drafts
 
 - Only 13 have a practice rule, so the other 47 get no catch-up yet.
-- Only the demo lesson has the book's exercise list, so only it starts a today's message (D-93).
+- Only the demo lesson has `compare` exercises, so only it starts a today's message (D-93). Add and subtract lessons wait for D-116 (T-128 PR B).
+- The add/sub lessons have only the 2–3 pairs in their examples; the book pages' full lists are not extracted yet.
 - No DIKSHA link per lesson yet (T-94).
 
 ## Open tasks

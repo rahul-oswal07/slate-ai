@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SlateAi.Api.Curriculum;
 
 /// <summary>One node of the curriculum graph, e.g. "M3.ADD.CARRY". Loaded from <c>data/curriculum/*.json</c>.</summary>
@@ -57,9 +59,19 @@ public sealed record TextbookPage(string Book, int? Part, int Page)
 /// </summary>
 /// <param name="Compare">Pairs to compare with &gt;, &lt; or = (e.g. Nalikali p 4 Activity 2: 48 · 33).</param>
 /// <param name="Extremes">Sets to find the smallest and biggest in (p 4 Activity 1: 3, 38, 64, 24).</param>
+/// <param name="Add">Pairs to add (T-128, e.g. p 80: 248 + 438). Left out of JSON when null, so A9's input for a lesson
+/// without them is unchanged.</param>
+/// <param name="Sub">Pairs to subtract, the first minus the second (e.g. p 108: 872 − 586). As <paramref name="Add"/>.</param>
 public sealed record ExerciseList(
     IReadOnlyList<IReadOnlyList<int>>? Compare = null,
-    IReadOnlyList<IReadOnlyList<int>>? Extremes = null);
+    IReadOnlyList<IReadOnlyList<int>>? Extremes = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<IReadOnlyList<int>>? Add = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<IReadOnlyList<int>>? Sub = null)
+{
+    /// <summary>At least one exercise in any list: the lesson has the book's exercises (the front end's badge, T-128).</summary>
+    [JsonIgnore]
+    public bool HasAny => Compare is { Count: > 0 } || Extremes is { Count: > 0 } || Add is { Count: > 0 } || Sub is { Count: > 0 };
+}
 
 /// <summary>
 /// The kind of sum or question code generates for a lesson. Kinds: count, expanded, placeValue, biggest, smallest,

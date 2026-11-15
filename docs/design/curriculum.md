@@ -122,6 +122,23 @@ These match the book, so a child hears the same word at home and in class. Each 
 | ಭಾಜ್ಯ / ಭಾಜಕ / ಭಾಗಲಬ್ಧ / ಶೇಷ | dividend / divisor / quotient / remainder | Part 2 p 8 |
 | ಅಂದಾಜು | estimate | Rounding to the nearest ten (Ch 3–4) |
 
+## Lessons with the book's exercises (T-128)
+
+Numbers only, copied from each lesson's own `examples` (above); code computes every answer (`ExerciseAnswers`). Today's message uses only `compare` so far (D-93); add and subtract wait for D-116.
+
+| Lesson | Kind | Items |
+|---|---|---|
+| `M3.BRIDGE.COMPARE` | compare, extremes | see below |
+| `M3.NUM.COMPARE` | extremes | 157, 263, 475, 325 · 560, 524, 548, 599, 571 |
+| `M3.ADD.NOCARRY` | add | 348 + 231 · 253 + 323 · 422 + 576 |
+| `M3.ADD.CARRY` | add | 248 + 438 · 466 + 176 · 456 + 367 |
+| `M3.ADD.WORD` | add | 109 + 37 · 264 + 123 |
+| `M3.SUB.NOBORROW` | sub | 456 − 325 · 228 − 105 · 399 − 278 |
+| `M3.SUB.BORROW` | sub | 872 − 586 · 290 − 178 · 847 − 563 |
+| `M3.SUB.WORD` | sub | 468 − 365 · 274 − 158 |
+
+The full exercise lists on these pages are not extracted yet.
+
 ## Nalikali demo lesson (built in T-87, D-90, D-93)
 
 Source: **Nalikali Grade 3 Maths 2026-27, Part 1, printed page 4**, bridge course (ಸೇ.ಬಂ = ಸೇತುಬಂಧ). Read from Monika's PDFs on 13 Nov. The book's words and numbers are copied as facts; no page image goes in the repo.

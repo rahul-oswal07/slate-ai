@@ -26,7 +26,9 @@ public sealed record LessonView(
 /// <param name="NextInBook">Competency the picker lists first (T2 "Next in the book"); null at the end of the book.</param>
 public sealed record LessonDayResponse(DateOnly Date, LessonView? Lesson, string? NextInBook);
 
-public sealed record CompetencyView(string Id, string NameKn, string NameEn, int Sequence, TextbookPage? TextbookPage);
+/// <param name="HasExercises">The lesson has the book's exercise numbers (D-93, T-128): the badge in the picker, on the
+/// confirm screen and on Today's lesson card.</param>
+public sealed record CompetencyView(string Id, string NameKn, string NameEn, int Sequence, TextbookPage? TextbookPage, bool HasExercises);
 
 public sealed record ChapterView(int Number, string NameKn, string NameEn, IReadOnlyList<CompetencyView> Competencies);
 
@@ -65,7 +67,8 @@ public static class LessonEndpoints
         app.MapGet("/api/curriculum", GetCurriculum)
             .RequireAuthorization()
             .WithTags("Lessons")
-            .WithSummary("Chapters and their lessons, for the lesson picker");
+            .WithSummary("Chapters and their lessons, for the lesson picker")
+            .WithDescription("`hasExercises`: the lesson has the book's own exercise numbers (D-93, T-128).");
 
         app.MapGet("/api/classes/{classId:guid}/lessons/{date}", GetDayAsync)
             .RequireClassOwner()
@@ -103,7 +106,7 @@ public static class LessonEndpoints
                 g.Key,
                 titles.GetValueOrDefault(g.Key)?.NameKn ?? "",
                 titles.GetValueOrDefault(g.Key)?.NameEn ?? "",
-                g.Select(c => new CompetencyView(c.Id, c.NameKn, c.NameEn, c.Sequence, c.TextbookPage)).ToList()))
+                g.Select(c => new CompetencyView(c.Id, c.NameKn, c.NameEn, c.Sequence, c.TextbookPage, c.Exercises?.HasAny == true)).ToList()))
             .ToList();
         return TypedResults.Ok(new CurriculumResponse(chapters));
     }

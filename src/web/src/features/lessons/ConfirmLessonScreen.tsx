@@ -8,6 +8,7 @@ import { useOnline } from '../../components/useOnline'
 import { useTodaysWaiting } from '../approve/useTodaysMessage'
 import { useMe } from '../auth/useMe'
 import { istToday } from '../today/schoolTime'
+import { ExercisesTag } from './ExercisesTag'
 import { findLesson, lessonName, pageText } from './lessonText'
 import { PickLessonSheet } from './PickLessonSheet'
 import type { Chapter } from './types'
@@ -318,6 +319,7 @@ function LessonOption({
       <span>
         <span className="block text-body">{found ? lessonName(found.lesson, i18n.language) : id}</span>
         {found && <span className="block text-caption text-ink-muted">{pageText(t, found.lesson.textbookPage)}</span>}
+        {found && <ExercisesTag lesson={found.lesson} />}
       </span>
     </label>
   )
