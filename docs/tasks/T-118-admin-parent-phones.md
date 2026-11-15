@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
-| Issue | #240 |
+| Status | Done |
+| Issue | #240 · PR #241 |
 | Owner | R |
 | Screens | admin, delivery |
 | Source | Rahul, 15 Nov ("an admin screen with all the children in a class and their phone number, editable"); [D-110](../decisions/D-110-whatsapp-to-saved-number.md); size M |
