@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, NetworkError, api } from '../../api/client'
+import type { Language } from '../../i18n'
 import type { TextbookPage } from '../lessons/types'
 
 /** One teacher's recorded greeting, as `GET /api/admin/greetings` lists it. */
@@ -130,6 +131,8 @@ export interface AdminChild {
   stopped: boolean
   phone: string | null
   phoneFrom: 'saved' | 'setting' | null
+  /** The home language was changed on this page (T-122, D-113): it stays after a demo Reset. */
+  languageChanged: boolean
 }
 
 /** `GET /api/admin/children`: every class with its children by roll number. */
@@ -146,25 +149,44 @@ export function useAdminChildren() {
   })
 }
 
+/** Puts the child the API returned into the cached children list, in place. */
+function useReplaceChild() {
+  const queryClient = useQueryClient()
+  return (child: AdminChild) =>
+    queryClient.setQueryData<AdminChildren>(['admin', 'children'], (data) =>
+      data
+        ? {
+            classes: data.classes.map((c) => ({
+              ...c,
+              children: c.children.map((existing) => (existing.id === child.id ? child : existing)),
+            })),
+          }
+        : data,
+    )
+}
+
 /** Saves (a phone number) or clears (blank) a family's number; a refused number is an `ApiError` with status 400. */
 export function useSetParentPhone() {
-  const queryClient = useQueryClient()
+  const replaceChild = useReplaceChild()
   return useMutation({
     mutationFn: ({ id, phone }: { id: string; phone: string }) =>
       api<AdminChild>(`/api/admin/children/${encodeURIComponent(id)}/phone`, {
         method: 'PUT',
         body: { clientRequestId: crypto.randomUUID(), phone },
       }),
-    onSuccess: (child) =>
-      queryClient.setQueryData<AdminChildren>(['admin', 'children'], (data) =>
-        data
-          ? {
-              classes: data.classes.map((c) => ({
-                ...c,
-                children: c.children.map((existing) => (existing.id === child.id ? child : existing)),
-              })),
-            }
-          : data,
-      ),
+    onSuccess: replaceChild,
+  })
+}
+
+/** Changes a child's home language (T-122, D-113): one of `kn`, `en`, `te`, `ta`, `hi`. */
+export function useSetHomeLanguage() {
+  const replaceChild = useReplaceChild()
+  return useMutation({
+    mutationFn: ({ id, language }: { id: string; language: Language }) =>
+      api<AdminChild>(`/api/admin/children/${encodeURIComponent(id)}/language`, {
+        method: 'PUT',
+        body: { clientRequestId: crypto.randomUUID(), language },
+      }),
+    onSuccess: replaceChild,
   })
 }

@@ -1,6 +1,6 @@
 # Admin pages · spec
 
-Pages to play teachers' greetings and a day's lesson audio, set each lesson's video link, and set each family's WhatsApp number.
+Pages to play teachers' greetings and a day's lesson audio, set each lesson's video link, and set each family's WhatsApp number and each child's home language.
 
 | | |
 |---|---|
@@ -16,10 +16,10 @@ Linked from nowhere and open to anyone with the address, on every server and loc
 
 ## Requirements
 
-No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`), T-94 (lesson links, D-106) and T-118 (children and their WhatsApp numbers, D-110).
+No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`), T-94 (lesson links, D-106), T-118 (children and their WhatsApp numbers, D-110) and T-122 (home language, D-113).
 
 ## Decisions cited
 
-D-83, D-102 (superseded), D-106, D-110, D-112.
+D-83, D-102 (superseded), D-106, D-110, D-112, D-113.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

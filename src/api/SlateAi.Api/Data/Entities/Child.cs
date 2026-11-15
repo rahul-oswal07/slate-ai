@@ -7,8 +7,11 @@ public sealed class Child
     public int RollNo { get; set; }
     public required string FirstName { get; set; }
 
-    /// <summary>Home language code: "kn", "te", "ta" or "hi" (English is a family language too, D-73).</summary>
+    /// <summary>Home language code: "kn", "en", "te", "ta" or "hi" (D-73). Can be changed on the admin page (T-122, D-113).</summary>
     public required string HomeLanguage { get; set; }
+
+    /// <summary>When <see cref="HomeLanguage"/> was changed on the admin page; null while it is the seed's (T-122, D-113).</summary>
+    public DateTimeOffset? HomeLanguageSetAt { get; set; }
 
     /// <summary>
     /// The family's number (E.164). Seeded values are fictional and never dialled; only a number saved on the admin page

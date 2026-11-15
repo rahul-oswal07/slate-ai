@@ -97,6 +97,13 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
                 .Select(c => new { c.Id, Phone = c.ParentPhone!, SetAt = c.ParentPhoneSetAt!.Value })
                 .ToListAsync(cancellationToken))
             .ToDictionary(c => c.Id, c => new SavedPhone(c.Phone, c.SetAt));
+
+        // So do home languages changed there (T-122, D-113).
+        var languages = (await db.Children.AsNoTracking()
+                .Where(c => c.ClassId == classId && c.HomeLanguageSetAt != null)
+                .Select(c => new { c.Id, c.HomeLanguage, SetAt = c.HomeLanguageSetAt!.Value })
+                .ToListAsync(cancellationToken))
+            .ToDictionary(c => c.Id, c => new SavedLanguage(c.HomeLanguage, c.SetAt));
         await db.PacingDecisions.Where(d => d.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.Children.Where(c => c.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
         await db.CatchUpPackages.Where(p => p.ClassId == classId).ExecuteDeleteAsync(cancellationToken);
@@ -107,6 +114,7 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
 
         var children = reset.Seed.Children.Select(c => c.ToEntity(classId)).ToList();
         SavedPhones.Apply(children, saved);
+        SavedLanguages.Apply(children, languages);
         db.Children.AddRange(children);
         foreach (var day in reset.Days)
         {

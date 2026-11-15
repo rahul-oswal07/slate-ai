@@ -1,13 +1,22 @@
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../api/client'
+import { type Language, SUPPORTED_LANGUAGES } from '../../i18n'
 import { AdminPage, AdminQuery } from './AdminPage'
-import { type AdminChild, type AdminChildren, useAdminChildren, useSetParentPhone } from './useAdmin'
+import {
+  type AdminChild,
+  type AdminChildren,
+  useAdminChildren,
+  useSetHomeLanguage,
+  useSetParentPhone,
+} from './useAdmin'
 
 /**
  * /admin/children (T-118, D-110; open without a key, D-112): every class's children with the number their family's WhatsApp goes to. A
  * number saved here is dialled first; without one, the `WhatsApp__Recipients__{childId}` server setting is used; with
  * neither, WhatsApp skips the family. Seeded numbers are fictional and never shown. Saved numbers survive the demo Reset.
+ * Each child's home language can be changed here too (T-122, D-113): it is used for everything made after the change
+ * and also survives the Reset.
  */
 export function AdminChildrenScreen() {
   const { t } = useTranslation()
@@ -76,6 +85,8 @@ function ChildRow({ child }: { child: AdminChild }) {
           </span>
         )}
       </div>
+
+      <LanguagePicker child={child} />
 
       {editing ? (
         <form
@@ -174,5 +185,46 @@ function ChildRow({ child }: { child: AdminChild }) {
         </div>
       )}
     </li>
+  )
+}
+
+/** The child's home language (T-122, D-113): saved as soon as another one is chosen. */
+function LanguagePicker({ child }: { child: AdminChild }) {
+  const { t } = useTranslation()
+  const set = useSetHomeLanguage()
+  const selectId = useId()
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={selectId} className="text-caption text-ink-muted">
+        {t('admin.children.languageLabel', { name: child.firstName })}
+      </label>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <select
+          id={selectId}
+          value={child.homeLanguage}
+          disabled={set.isPending}
+          onChange={(event) => set.mutate({ id: child.id, language: event.target.value as Language })}
+          className="min-h-target min-w-0 flex-1 rounded-button border-2 border-border bg-canvas px-3 text-body"
+        >
+          {SUPPORTED_LANGUAGES.map((code) => (
+            <option key={code} value={code}>
+              {t(`missed.language.${code}`)}
+            </option>
+          ))}
+        </select>
+        {child.languageChanged && (
+          <span className="text-caption text-ink-muted">{t('admin.children.languageChanged')}</span>
+        )}
+      </div>
+      {set.isSuccess && (
+        <output className="text-caption text-primary-strong">{t('admin.children.languageSaved')}</output>
+      )}
+      {set.isError && (
+        <p role="alert" className="text-caption text-error">
+          {t('admin.children.languageFailed')}
+        </p>
+      )}
+    </div>
   )
 }
