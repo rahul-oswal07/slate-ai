@@ -9,6 +9,7 @@ Spec: [`spec.md`](spec.md)
 - **Families** (`/p/<token>`, no sign-in): the evening message with a reason in 5 pictures (T-44, T-45).
 - The evening wording is v4 (D-99): code names the book inside the page slot, and Kannada says "{child} ಅವರ ಜಾಗ" (T-101).
 - An approved lesson clip plays with the message, behind the spoken AI disclosure (T-62).
+- The plain message has the title row ("Today's message", no Back) and the teacher line; its reason page has Back to the message (T-116).
 
 ## Known gaps and drafts
 

@@ -81,8 +81,8 @@ public sealed record ParentTodaysMessage(
 /// The picture question as the family's phone sees it (T-90): the two numbers and the child's own taps so far. Never the
 /// answer: code scores each tap on the server.
 /// </summary>
-/// <param name="Done">Right, or two taps: the phone shows Done (no more taps are taken).</param>
-public sealed record ParentPicture(int A, int B, string? FirstAnswer = null, string? SecondAnswer = null, bool Done = false);
+/// <param name="Locked">Both submits used (D-108): the page shows their choice with Next only.</param>
+public sealed record ParentPicture(int A, int B, string? FirstAnswer = null, string? SecondAnswer = null, bool Locked = false);
 
 public enum ApproveResult
 {
@@ -132,12 +132,12 @@ public interface IEveningStore
     Task<ParentMessageRecord?> FindByTokenAsync(string token, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Records a tap on today's picture question (T-90): the first, or a second after a first that isn't
-    /// <paramref name="answer"/>. Returns the taps after it, or null when nothing more can be recorded (or no such
-    /// message). A replayed <paramref name="clientRequestId"/> changes nothing and returns the taps as they are.
+    /// Records a submit on today's picture question (T-90, D-108): the first, or a second whatever the first was. Returns
+    /// the submits after it, or null when both are used (or no such message). A replayed <paramref name="clientRequestId"/>
+    /// changes nothing and returns the submits as they are.
     /// </summary>
     Task<(string? First, string? Second)?> SavePictureAnswerAsync(
-        string token, Guid clientRequestId, string sign, string answer, DateTimeOffset now, CancellationToken cancellationToken);
+        string token, Guid clientRequestId, string sign, DateTimeOffset now, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Guid>> GetClassIdsAsync(CancellationToken cancellationToken);
 }
@@ -379,7 +379,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                     {
                         FirstAnswer = row.PictureFirst,
                         SecondAnswer = row.PictureSecond,
-                        Done = Features.TodaysMessage.TodaysLevel.Done(row.PictureFirst, row.PictureSecond, sections.Picture.Answer),
+                        Locked = Features.TodaysMessage.TodaysLevel.Locked(row.PictureFirst, row.PictureSecond),
                     },
                 };
                 pictureAnswer = sections.Picture.Answer;
@@ -399,7 +399,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
     }
 
     public async Task<(string? First, string? Second)?> SavePictureAnswerAsync(
-        string token, Guid clientRequestId, string sign, string answer, DateTimeOffset now, CancellationToken cancellationToken)
+        string token, Guid clientRequestId, string sign, DateTimeOffset now, CancellationToken cancellationToken)
     {
         await using var transaction = await LockAsync($"picture:{token}", cancellationToken);
         if (await db.EveningMessages.SingleOrDefaultAsync(m => m.Token == token, cancellationToken) is not { } message)
@@ -416,7 +416,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
         {
             message.PictureFirst = sign;
         }
-        else if (message.PictureFirst != answer && message.PictureSecond is null)
+        else if (message.PictureSecond is null)
         {
             message.PictureSecond = sign;
         }

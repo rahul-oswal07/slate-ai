@@ -12,7 +12,7 @@ function todays(overrides: Partial<ParentTodaysMessage> = {}): ParentTodaysMessa
   return {
     concept: 'Look at the bundles of ten first.',
     steps: ['Make 75 and 57 with sticks.', 'Ask which has more bundles.'],
-    picture: { a: 48, b: 33, firstAnswer: null, secondAnswer: null, done: false },
+    picture: { a: 48, b: 33, firstAnswer: null, secondAnswer: null, locked: false },
     video: null,
     note: null,
     ...overrides,
@@ -48,7 +48,7 @@ describe("Family page for today's message (T-91, T-90)", () => {
 
   it('goes voice → is everything OK? → concept → activity → picture → done, with the stop link on every step', async () => {
     const user = userEvent.setup()
-    setup(evening(), { [pictureUrl]: () => ({ status: 200, body: { correct: true, attempt: 1, done: true } }) })
+    setup(evening(), { [pictureUrl]: () => ({ status: 200, body: { attempt: 1, locked: false } }) })
     renderApp(`/p/${token}`)
 
     expect(await screen.findByRole('heading', { name: 'What Manjunath learned today' })).toBeInTheDocument()
@@ -71,9 +71,31 @@ describe("Family page for today's message (T-91, T-90)", () => {
 
     expect(screen.getByRole('heading', { name: "Manjunath's turn" })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '48 is more than 33' }))
+    await user.click(screen.getByRole('button', { name: 'Submit' }))
+    await user.click(await screen.findByRole('button', { name: 'Next' }))
 
     expect(await screen.findByRole('heading', { name: 'Well done!' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Is everything OK/ })).toBeInTheDocument()
+  })
+
+  it('every step has Back and its title in one row above the teacher line; none on the first step (T-116)', async () => {
+    const user = userEvent.setup()
+    setup(evening())
+    renderApp(`/p/${token}`)
+
+    const first = await screen.findByRole('heading', { level: 1, name: 'What Manjunath learned today' })
+    expect(first).toHaveFocus()
+    expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument()
+    expect(screen.getByText('Message from Shobha teacher')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'A quick question' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Skip' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'The idea, in a few words' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: 'The idea, in a few words' })).toHaveLength(1) // not repeated below
+
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'A quick question' })).toBeInTheDocument()
   })
 
   it('a reason chosen on the step is sent, thanked, and the lesson carries on', async () => {
@@ -120,24 +142,40 @@ describe("Family page for today's message (T-91, T-90)", () => {
     expect(screen.getByText(/4 bundles of ten, 8 loose sticks/)).toBeInTheDocument()
   })
 
-  it('a first tap that is not right: look again and one more try; the second tap is final', async () => {
+  it('choose, then submit; never right or wrong; Try again once, then locked (D-108)', async () => {
     const user = userEvent.setup()
     let attempt = 0
     const calls = setup(evening(), {
       [pictureUrl]: () => {
         attempt++
-        return { status: 200, body: attempt === 1 ? { correct: false, attempt: 1, done: false } : { correct: false, attempt: 2, done: true } }
+        return { status: 200, body: { attempt, locked: attempt === 2 } }
       },
     })
     renderApp(`/p/${token}?step=picture`)
 
+    // Tapping only chooses; nothing is sent until Submit.
     await user.click(await screen.findByRole('button', { name: '48 is less than 33' }))
-    expect(await screen.findByText(/try once more/)).toBeInTheDocument()
-    expect(screen.queryByText(/wrong/i)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '48 is less than 33' })).toHaveAttribute('aria-pressed', 'true')
     await user.click(screen.getByRole('button', { name: '48 is equal to 33' }))
+    expect(calls.some((c) => c.key === pictureUrl)).toBe(false)
+    await user.click(screen.getByRole('button', { name: 'Submit' }))
 
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.queryByText(/wrong|right|look again/i)).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    await user.click(screen.getByRole('button', { name: '48 is more than 33' }))
+    await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument() // locked
+    expect(calls.filter((c) => c.key === pictureUrl).map((c) => (c.body as { sign: string }).sign)).toEqual(['=', '>'])
+    const ids = calls.filter((c) => c.key === pictureUrl).map((c) => (c.body as { clientRequestId: string }).clientRequestId)
+    expect(new Set(ids).size).toBe(2) // each submit is its own request
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
     expect(await screen.findByRole('heading', { name: 'Well done!' })).toBeInTheDocument()
-    expect(calls.filter((c) => c.key === pictureUrl).map((c) => (c.body as { sign: string }).sign)).toEqual(['<', '='])
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(await screen.findByText('Your answer')).toBeInTheDocument() // Back from Done: the locked answer page
   })
 
   it('sections she removed are skipped, and the video step appears only with a video', async () => {
@@ -162,12 +200,17 @@ describe("Family page for today's message (T-91, T-90)", () => {
     expect(screen.getByText('ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದೆವು.')).toHaveAttribute('lang', 'kn')
   })
 
-  it('a reopened link whose question is done opens on Done, with no signs to tap', async () => {
-    setup(evening(todays({ picture: { a: 48, b: 33, firstAnswer: '>', secondAnswer: null, done: true } })))
-    renderApp(`/p/${token}`)
+  it('a reopened link starts at the first step; the answer page is locked once both tries are used (T-116)', async () => {
+    setup(evening(todays({ picture: { a: 48, b: 33, firstAnswer: '>', secondAnswer: '<', locked: true } })))
+    const { unmount } = renderApp(`/p/${token}`)
 
-    expect(await screen.findByRole('heading', { name: 'Well done!' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'What Manjunath learned today' })).toBeInTheDocument()
+    unmount()
+
+    renderApp(`/p/${token}?step=picture`)
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
     expect(screen.queryByRole('group')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument()
   })
 
   it('without today’s message the plain evening message is unchanged (D-21)', async () => {

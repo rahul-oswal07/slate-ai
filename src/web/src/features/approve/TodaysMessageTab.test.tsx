@@ -165,23 +165,41 @@ describe("Approve → Today's message (T-89)", () => {
 
   it('removing a section makes a new version, so her tick is gone', async () => {
     const user = userEvent.setup()
-    let current = message()
+    const video = { url: 'https://diksha.gov.in/play/content/do_1', removed: false }
+    let current = message({ video })
     const calls = setup(() => ({ status: 200, body: current }), {
-      [`PATCH ${base}/sections/concept`]: () => {
-        current = message({ version: 2, removed: ['concept'] })
+      [`PATCH ${base}/sections/video`]: () => {
+        current = message({ version: 2, video: { ...video, removed: true }, removed: ['video'] })
         return { status: 200, body: current }
       },
     })
     renderApp('/approve')
 
     await user.click(await screen.findByRole('checkbox', { name: "I've checked this" }))
+    await user.click(screen.getByRole('button', { name: 'Video' }))
     await user.click(screen.getByRole('button', { name: 'Remove' }))
 
     expect(await screen.findByText('Removed: not sent')).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: "I've checked this" })).not.toBeChecked()
     expect(screen.getByRole('button', { name: 'Approve and send' })).toBeDisabled()
-    expect(calls.find((c) => c.key === `PATCH ${base}/sections/concept`)?.body).toMatchObject({ removed: true })
+    expect(calls.find((c) => c.key === `PATCH ${base}/sections/video`)?.body).toMatchObject({ removed: true })
   })
+
+  it.each(['Concept', 'Activity at home', 'Picture question'])(
+    '%s has no Remove: the WhatsApp text promises it (D-108)',
+    async (name) => {
+      const user = userEvent.setup()
+      setup(() => ({ status: 200, body: message() }))
+      renderApp('/approve')
+      const header = await screen.findByRole('button', { name })
+      if (header.getAttribute('aria-expanded') !== 'true') {
+        await user.click(header)
+      }
+
+      const section = header.closest('div') as HTMLElement
+      expect(within(section).queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument()
+    },
+  )
 
   it('her edit is saved with the version she edited, then the new version is written', async () => {
     const user = userEvent.setup()

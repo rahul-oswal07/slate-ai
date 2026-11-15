@@ -440,7 +440,9 @@
       "hintChange": "To change, tap another picture",
       "sending": "Sending…",
       "failed": "Could not send. Your choice is still here. Check the network and tap Try again.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "tryAgain": "Try again",
+      "yours": "Your answer"
     },
     "done": {
       "title": "{{teacher}} teacher",
@@ -475,7 +477,8 @@
       "lesson": {
         "title": "Today’s lesson",
         "play": "Play today’s lesson"
-      }
+      },
+      "step": "Today's message"
     },
     "announce": {
       "playing": "Playing",
@@ -490,7 +493,6 @@
       "entry": "Is everything OK? Tell us",
       "given": "Thank you for telling us.",
       "change": "Change",
-      "title": "{{teacher}} teacher",
       "question": "We missed {{child}} today. Is everything OK?",
       "options": "Reason",
       "category": {
@@ -508,7 +510,8 @@
       "retry": "Try again",
       "thanks": "Thank you",
       "private": "Only {{teacher}} teacher sees this.",
-      "ok": "OK"
+      "ok": "OK",
+      "stepTitle": "A quick question"
     },
     "todays": {
       "title": {
@@ -527,8 +530,6 @@
       "videoData": "Uses mobile data. You can skip it.",
       "skipVideo": "Next (skip the video)",
       "pictureIntro": "Let {{child}} look at the bundles and loose sticks, then tap the sign that goes between the numbers.",
-      "lookAgain": "Look at the bundles of ten again, then the loose sticks, and try once more.",
-      "thanks": "Thank you. The teacher will see it.",
       "signs": "Which sign goes between {{a}} and {{b}}?",
       "sign": {
         "more": "{{a}} is more than {{b}}",
@@ -536,7 +537,8 @@
         "equal": "{{a}} is equal to {{b}}"
       },
       "sendFailed": "Could not send. Check the network and tap again.",
-      "doneBody": "{{child}} has a star for today. {{teacher}} will see the answer. See you in class tomorrow!"
+      "doneBody": "{{child}} has a star for today. {{teacher}} will see the answer. See you in class tomorrow!",
+      "submit": "Submit"
     }
   },
   "missed": {
@@ -748,8 +750,7 @@
     "backToMessages": "‹ Messages",
     "chat": {
       "messages": "Messages",
-      "pageLesson": "Lesson",
-      "pageEvening": "Is everything OK?"
+      "pageTitle": "Tappida Paatha"
     },
     "noMessages": "No messages yet. Send tonight's message from Today on the teacher's phone.",
     "familyFailed": "Could not load the messages. Retrying…",
@@ -947,7 +948,6 @@
   },
   "level": {
     "gotIt": "Got it",
-    "gettingThere": "Getting there",
     "needsHelp": "Needs help",
     "notAnswered": "Not answered yet"
   },

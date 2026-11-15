@@ -45,7 +45,10 @@ describe('Reason for absence (FR-21)', () => {
     expect(await screen.findByText(/We missed Ravi today\. In class/)).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Is everything OK? Tell us' }))
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Shobha teacher' })).toHaveFocus()
+    // T-116: the step's title in the Back row (Back to the message), then the teacher line.
+    expect(await screen.findByRole('heading', { level: 1, name: 'A quick question' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument()
+    expect(screen.getByText('Message from Shobha teacher')).toBeInTheDocument()
     expect(screen.getByText('We missed Ravi today. Is everything OK?')).toBeInTheDocument()
     const group = screen.getByRole('group', { name: 'We missed Ravi today. Is everything OK?' })
     const pictures = within(group).getAllByRole('button')

@@ -24,7 +24,14 @@ export function EveningView({ token, message }: { token: string; message: Parent
   if (params.get('view') === 'reason') {
     // Back to where she came from: Done for today's message, the message itself otherwise.
     const back: Record<string, string> = message.todaysMessage ? { step: 'done' } : {}
-    return <ReasonView token={token} message={message} onDone={() => setParams(back, { replace: true })} />
+    return (
+      <ReasonView
+        token={token}
+        message={message}
+        onDone={() => setParams(back, { replace: true })}
+        onBack={() => setParams(back)}
+      />
+    )
   }
 
   const openReason = () => setParams({ view: 'reason' })
@@ -35,7 +42,8 @@ export function EveningView({ token, message }: { token: string; message: Parent
 
   return (
     <>
-      <ParentHeader title={t('parent.evening.title', { teacher: message.teacherName })} />
+      {/* The page's one step (T-116): its title in the Back row (no Back on a first step), then the teacher line. */}
+      <ParentHeader title={t('parent.evening.step')} subtitle={t('parent.evening.title', { teacher: message.teacherName })} />
       <div className="flex flex-col gap-4 px-4 py-4">
         {message.greeting && (
           <VoiceNote

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done |
 | Issue | #232 |
 | Owner | M (flow and copy), R builds |
 | Screens | P0-evening-message, P1-P4-catch-up, P5-todays-message, T1-today, T4-missed-lessons |
@@ -10,7 +10,7 @@
 
 ## What
 
-From Monika's testing of the family pages on 15 Nov (screenshot: Done on today's message in the WhatsApp browser, top bar "Is everything OK?"). **Proposed: needs Rahul's approval before building.** Every point below is Monika's answer (15 Nov).
+From Monika's testing of the family pages on 15 Nov (screenshot: Done on today's message in the WhatsApp browser, top bar "Is everything OK?"). Approved and built by Rahul on 15 Nov (D-108). Every point below is Monika's answer (15 Nov).
 
 ### 1. Top bar says "Tappida Paatha"
 
@@ -53,7 +53,7 @@ When the family opens the link again (today's message, the catch-up), it starts 
 
 ### 6. The WhatsApp text promises audio that may not be there
 
-`todays_lesson_link_v1` says "The lesson audio, a home activity and a picture question are ready". If the teacher removes the concept section, the family page has no audio. **[CONFIRM: Rahul]** how to solve it (the template is approved wording, so the page and the template have to agree).
+`todays_lesson_link_v1` says "The lesson audio, a home activity and a picture question are ready". If the teacher removes the concept section, the family page has no audio. **Answered (Rahul, 15 Nov, D-108):** the sections the text promises (concept, activity, picture) can't be removed; the video and her note can. Was: how to solve it (the template is approved wording, so the page and the template have to agree).
 
 ### Copy
 
@@ -90,4 +90,5 @@ D-62 (reopen goes to Done, first answer counts, no second answer) and D-95 (Gett
 
 ## Notes
 
+- 15 Nov: **built.** API: two submits on both answer endpoints, the latest counts, a third is 409, responses never say right or wrong (`PictureAnswerResponse(Attempt, Locked)`, `AnswerResponse(Attempt, Locked)`); `TodaysLevel` without Getting there; the answers view adds `Locked`; `CheckResponses.Attempts` (migration `CheckResponseAttempts`); removing concept, activity or picture is 400. Web: Back + title row with the teacher line on every step of the three pages; choose → Submit → Try again → locked; reopen at the first step; Approve shows Remove only on video and note; Today polls until every answer is locked; the demo bar reads "Tappida Paatha" (point 1 was the demo's fake browser bar, not the page). New strings in kn/te/ta/hi are drafts. Not done: 360 px screenshots and axe.
 - 15 Nov: proposed by Monika from testing. Code check of "does the family page show today's message": the steps follow the approved sections (voice and text with her note → Is everything OK? → concept with its audio → activity → video when there is one → picture → Done), removed sections skipped. WhatsApp → page can't be seen yet: until the templates are approved, `WhatsAppChannel` still sends `hello_world` (T-104 notes), so a test phone gets no button to the page.

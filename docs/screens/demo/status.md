@@ -10,6 +10,7 @@ Spec: [`spec.md`](spec.md)
 - It has one story on the real date, told through one child: Manjunath (Kannada), away the two days before today and today (T-93, D-94).
 - The video story and the fixed 31 Oct date were removed on 14 Nov (T-105).
 - The demo class has a register every day (T-69).
+- The family phone's browser bar reads "Tappida Paatha" on every page, as the real page's title does (T-116).
 
 ## Known gaps and drafts
 

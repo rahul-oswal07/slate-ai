@@ -14,20 +14,24 @@ export function useParentPage(token: string) {
   })
 }
 
+/** What a submit returns (D-108): which try it was and whether both are used. Never right or wrong. */
+export type SubmitResult = { attempt: number; locked: boolean }
+
 /**
- * Sends the picture the child chose. One clientRequestId per visit, so Try again after a dropped connection can't
- * store a second answer (the server keeps the first anyway, D-62). The response never says right or wrong.
+ * Submits the child's choice on today's picture question (T-90, D-108). One clientRequestId per submit: kept across
+ * Try again after a dropped connection (so it can't count twice), new after a submit that went through.
  */
-/** The child's tap on today's picture question (T-90); code scores it on the server and says whether to try once more. */
 export function usePicture(token: string) {
   const queryClient = useQueryClient()
+  const requestId = useRef(crypto.randomUUID())
   return useMutation({
     mutationFn: (sign: Sign) =>
-      api<{ correct: boolean; attempt: number; done: boolean }>(`/api/p/${token}/picture`, {
+      api<SubmitResult>(`/api/p/${token}/picture`, {
         method: 'POST',
-        body: { sign, clientRequestId: crypto.randomUUID() },
+        body: { sign, clientRequestId: requestId.current },
       }),
-    onSuccess: (result, sign) =>
+    onSuccess: (result, sign) => {
+      requestId.current = crypto.randomUUID()
       queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
         page?.kind === 'evening' && page.todaysMessage?.picture
           ? {
@@ -37,28 +41,35 @@ export function usePicture(token: string) {
                 picture: {
                   ...page.todaysMessage.picture,
                   ...(result.attempt === 1 ? { firstAnswer: sign } : { secondAnswer: sign }),
-                  done: result.done,
+                  locked: result.locked,
                 },
               },
             }
           : page,
-      ),
+      )
+    },
   })
 }
 
+/**
+ * Submits the picture the child chose on the catch-up (P3, D-108), with the same request-ID rule as `usePicture`. The
+ * response never says right or wrong.
+ */
 export function useAnswer(token: string) {
   const queryClient = useQueryClient()
   const requestId = useRef(crypto.randomUUID())
   return useMutation({
     mutationFn: (choiceId: number) =>
-      api<{ answered: boolean }>(`/api/p/${token}/answer`, {
+      api<SubmitResult>(`/api/p/${token}/answer`, {
         method: 'POST',
         body: { choiceId, clientRequestId: requestId.current },
       }),
-    onSuccess: () =>
+    onSuccess: (result, choiceId) => {
+      requestId.current = crypto.randomUUID()
       queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
-        page?.kind === 'catchUp' ? { ...page, answered: true } : page,
-      ),
+        page?.kind === 'catchUp' ? { ...page, answered: true, choiceId, locked: result.locked } : page,
+      )
+    },
   })
 }
 

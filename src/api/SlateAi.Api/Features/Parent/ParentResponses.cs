@@ -23,7 +23,9 @@ public sealed record ParentCheck(string Question, string? Prompt, IReadOnlyList<
 /// The catch-up a family opens from its link (P1–P4). When <see cref="Stopped"/> is true, the lesson fields are
 /// null: the page shows "Messages stopped" with "Start them again" (P4).
 /// </summary>
-/// <param name="Answered">The picture check was already answered: the page opens on Done (D-62).</param>
+/// <param name="Answered">At least one submit on the picture check.</param>
+/// <param name="ChoiceId">Their latest submitted choice, or null.</param>
+/// <param name="Locked">Both submits used (D-108): the answer page shows their choice with Next only.</param>
 public sealed record ParentCatchUpResponse(
     string Language,
     string ChildName,
@@ -35,7 +37,9 @@ public sealed record ParentCatchUpResponse(
     ParentAudio? Audio,
     ParentTranscript? Transcript,
     ParentActivity? Activity,
-    ParentCheck? Check)
+    ParentCheck? Check,
+    int? ChoiceId = null,
+    bool Locked = false)
 {
     public string Kind => "catchUp";
 }
@@ -51,17 +55,20 @@ public sealed record ParentExpiredResponse(string Language, string ChildName, st
 
 public sealed record AnswerRequest(int ChoiceId, Guid ClientRequestId);
 
-/// <summary>Never says right or wrong: the family sees "Well done" whatever the answer (D-20).</summary>
-public sealed record AnswerResponse(bool Answered);
+/// <summary>
+/// Which submit it was and whether both are used (D-108). Never says right or wrong: the family sees "Well done"
+/// whatever the answer (D-20).
+/// </summary>
+public sealed record AnswerResponse(int Attempt, bool Locked);
 
 /// <summary>The child's tap on today's picture question (T-90): "&gt;", "&lt;" or "=".</summary>
 public sealed record PictureAnswerRequest(Guid ClientRequestId, string Sign);
 
 /// <summary>
-/// What the phone needs after a tap (T-90): whether this tap was right (the page offers one more try when it wasn't),
-/// which try it was, and whether the question is done. Never the answer itself.
+/// What the phone needs after a submit (T-90, D-108): which try it was and whether both are used. Never right or wrong,
+/// never the answer: the child may try again once whatever they chose.
 /// </summary>
-public sealed record PictureAnswerResponse(bool Correct, int Attempt, bool Done);
+public sealed record PictureAnswerResponse(int Attempt, bool Locked);
 
 /// <param name="Category">One of <see cref="ReasonCategory"/>.</param>
 public sealed record ReasonRequest(string Category, Guid ClientRequestId);

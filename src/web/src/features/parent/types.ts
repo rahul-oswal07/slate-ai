@@ -13,6 +13,10 @@ export type ParentCatchUp = {
   teacherName: string
   stopped: boolean
   answered: boolean
+  /** Their latest submitted picture (D-108), or null. */
+  choiceId: number | null
+  /** Both submits used: the answer page shows their choice with Next only. */
+  locked: boolean
   expiresAt: string
   homework: Homework | null
   audio: { segments: ParentAudioSegment[]; totalSeconds: number } | null
@@ -50,7 +54,8 @@ export type ParentTodaysMessage = {
   concept: string | null
   steps: string[] | null
   /** `done`: right, or two taps; the child can't tap again. */
-  picture: { a: number; b: number; firstAnswer: Sign | null; secondAnswer: Sign | null; done: boolean } | null
+  /** `locked`: both submits used (D-108); the page shows their latest choice with Next only. */
+  picture: { a: number; b: number; firstAnswer: Sign | null; secondAnswer: Sign | null; locked: boolean } | null
   video: { url: string } | null
   note: string | null
 }

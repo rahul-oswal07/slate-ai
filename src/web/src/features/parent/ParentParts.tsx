@@ -7,38 +7,44 @@ import type { Homework } from './types'
 import { useStop } from './useParentPage'
 
 /**
- * Screen header: Back (except on the first step) and the title, which takes focus when the step opens. On the
- * canvas, with no bar and no rule (D-77); `accent` picks one word of the title out in handwriting or an amber underline.
+ * Screen header (T-116): one row with Back (except on the first step) and the step's title, which takes focus when the
+ * step opens; under it the teacher line ("Message from Shobha teacher"). On the canvas, with no bar and no rule
+ * (D-77); `accent` picks one word of the title out in handwriting or an amber underline.
  */
 export function ParentHeader({
   title,
   accent,
   onBack,
   headingRef,
+  subtitle,
 }: {
   title: string
   accent?: string
   onBack?: () => void
   headingRef?: RefObject<HTMLHeadingElement | null>
+  subtitle?: string
 }) {
   const { t } = useTranslation()
   return (
-    <header className="flex items-center gap-2 px-2 py-2">
-      {onBack ? (
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={t('parent.back')}
-          className="flex min-h-target min-w-target items-center justify-center rounded-md text-ink"
-        >
-          <Icon name="arrowLeft" />
-        </button>
-      ) : (
-        <span className="w-2" />
-      )}
-      <h1 ref={headingRef} tabIndex={-1} className="text-title font-extrabold">
-        <AccentTitle title={title} accent={accent} />
-      </h1>
+    <header className="px-2 py-2">
+      <div className="flex items-center gap-2">
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label={t('parent.back')}
+            className="flex min-h-target min-w-target items-center justify-center rounded-md text-ink"
+          >
+            <Icon name="arrowLeft" />
+          </button>
+        ) : (
+          <span className="w-2" />
+        )}
+        <h1 ref={headingRef} tabIndex={-1} className="text-title font-extrabold">
+          <AccentTitle title={title} accent={accent} />
+        </h1>
+      </div>
+      {subtitle && <p className="px-2 text-body text-ink-muted">{subtitle}</p>}
     </header>
   )
 }

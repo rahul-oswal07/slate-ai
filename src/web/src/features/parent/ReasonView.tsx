@@ -72,9 +72,10 @@ export function ReasonView({
   return (
     <>
       <ParentHeader
-        title={t('parent.reason.title', { teacher: message.teacherName })}
+        title={t('parent.reason.stepTitle')}
         onBack={onBack}
         headingRef={headingRef}
+        subtitle={t('parent.evening.title', { teacher: message.teacherName })}
       />
       <div className="flex flex-col gap-4 px-4 pt-4">
         <p id="reason-question" className="text-display font-extrabold">

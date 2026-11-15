@@ -64,11 +64,11 @@ public static class TodaysMessageEndpoints
         app.MapPatch($"{Day}/sections/{{kind}}", SetSectionAsync)
             .RequireClassOwner()
             .WithTags("Today's message")
-            .WithSummary("Remove or restore one section (concept, activity, picture, video, note)")
+            .WithSummary("Remove or restore one section (video, note)")
             .WithDescription(
                 "A removed section is not sent. Each change is a new version and clears her approval, so she ticks again " +
-                "(D-92). 409 while generating, once sent, or when it would remove the last section. Replaying the same " +
-                "clientRequestId is a no-op.");
+                "(D-92). Concept, activity and picture can't be removed: the WhatsApp text promises them (400, D-108). " +
+                "409 while generating or once sent. Replaying the same clientRequestId is a no-op.");
 
         app.MapPut($"{Day}/sections/{{kind}}", EditSectionAsync)
             .RequireClassOwner()
@@ -140,6 +140,14 @@ public static class TodaysMessageEndpoints
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
                 ["kind"] = [$"Use one of: {string.Join(", ", TodaysSectionKind.All)}."],
+            });
+        }
+
+        if (request.Removed && TodaysSectionKind.Promised.Contains(kind))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["kind"] = ["The WhatsApp message promises this section, so it stays (D-108). Edit it instead."],
             });
         }
 
