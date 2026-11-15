@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Merged (#250), on staging; prod at the next tag |
+| Status | Done |
 | Issue | #248 |
 | Owner | R |
 | Screens | admin, demo |
@@ -37,3 +37,4 @@ Each child's row on `/admin/children` gets a home-language picker: Kannada, Engl
 ## Notes
 
 - 15 Nov 2026: built the API (endpoint, store, rules, Reset keeps it, migration), the web picker and the docs (D-113, `database.md`, admin spec and status). The kn, te, ta and hi strings are drafts for Monika.
+- 15 Nov 2026: shipped to prod in `v1.5` (#252 on `main`). Prod serves `sha-e1a9519`, and its `/api/admin/children` returns `languageChanged`.
