@@ -43,7 +43,11 @@ public sealed class WhatsAppOptions
     /// </remarks>
     public WhatsAppTemplate Evening { get; set; } = new() { Name = "evening_absence_v2", WordingVersion = "4" };
 
-    public WhatsAppTemplate CatchUp { get; set; } = new() { Name = "catchup_ready_v1" };
+    /// <summary>Today's message (D-98): {{1}} child, {{2}} lesson, {{3}} page number; button opens /p/{token}.</summary>
+    public WhatsAppTemplate Todays { get; set; } = new() { Name = "todays_lesson_link_v1" };
+
+    /// <summary>The catch-up (D-98): {{1}} child, {{2}} lesson names, {{3}} pages with the word; button opens /p/{token}.</summary>
+    public WhatsAppTemplate CatchUp { get; set; } = new() { Name = "catchup_link_v1" };
 
     /// <summary>
     /// Child ID → the family's number (E.164, e.g. +9198…) for the registered test phones, set as

@@ -2,7 +2,12 @@ namespace SlateAi.Api.Features.Delivery;
 
 public static class DeliveryKinds
 {
+    /// <summary>The plain evening message (D-21): no today's message with it.</summary>
     public const string Evening = "evening";
+
+    /// <summary>The evening message that carries an approved today's message (D-91, T-88).</summary>
+    public const string Todays = "todays";
+
     public const string CatchUp = "catchup";
 }
 
@@ -18,7 +23,10 @@ public static class DeliveryStatus
 /// One message to one family, as the channel needs it. Built by code from stored, teacher-approved records
 /// (guardrail 3); names are allowed here because this is the final send (guardrail 1).
 /// </summary>
-/// <param name="Parameters">The template's body parameters in order: evening {child, lesson, page}; catch-up {child, teacher}.</param>
+/// <param name="Parameters">
+/// The template's body parameters in order: evening {child, lesson, page}; today's {child, lesson names, page number};
+/// catch-up {child, lesson names, pages} (<see cref="TemplateValues"/>). Empty when code couldn't build them: not sent.
+/// </param>
 /// <param name="Token">The parent link token: the URL button opens /p/{token}.</param>
 /// <param name="WordingVersion">Evening only: the version of the wording the teacher approved (MessageTemplates.Version).</param>
 public sealed record DeliveryMessage(

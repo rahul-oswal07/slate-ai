@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.EveningMessages;
@@ -34,7 +35,7 @@ public interface IDeliveryStore
     Task MarkAsync(DeliveryUpdate update, CancellationToken cancellationToken);
 }
 
-public sealed class DeliveryStore(AppDbContext db) : IDeliveryStore
+public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) : IDeliveryStore
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -50,7 +51,7 @@ public sealed class DeliveryStore(AppDbContext db) : IDeliveryStore
                 select new
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
-                    m.Language, m.SlotValues, m.Token, m.ExpiresAt, t.Version,
+                    m.Language, m.SlotValues, m.Token, m.ExpiresAt, t.Version, m.TodaysMessageId,
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -61,28 +62,44 @@ public sealed class DeliveryStore(AppDbContext db) : IDeliveryStore
                 join a in db.CatchUpAssignments on d.CatchUpAssignmentId equals a.Id
                 join p in db.CatchUpPackages on a.PackageId equals p.Id
                 join c in db.Children on d.ChildId equals c.Id
-                join k in db.Classes on a.ClassId equals k.Id
-                join t in db.Teachers on k.TeacherId equals t.Id
                 where a.Token != null
                 orderby d.CreatedAt
                 select new
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
-                    p.Language, a.Token, a.ExpiresAt, Teacher = t.DisplayName,
+                    p.Language, a.Token, a.ExpiresAt, p.TargetCompetencyIds,
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
+
+        // The lessons of today's messages these evening rows carry: the template names them (T-104 a).
+        var todaysIds = evening.Where(e => e.TodaysMessageId != null).Select(e => e.TodaysMessageId!.Value).Distinct().ToList();
+        var todaysLessons = todaysIds.Count == 0
+            ? []
+            : await db.TodaysMessages.AsNoTracking()
+                .Where(t => todaysIds.Contains(t.Id))
+                .ToDictionaryAsync(t => t.Id, t => t.CompetencyIds, cancellationToken);
 
         return
         [
             .. evening.Select(e =>
             {
+                if (e.TodaysMessageId is { } todaysId)
+                {
+                    // Today's message (D-91): child, lesson and page built by code; empty if they can't be (not sent).
+                    var lessons = todaysLessons.GetValueOrDefault(todaysId) ?? [];
+                    return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
+                        e.Id, e.ChildId, DeliveryKinds.Todays, e.Language,
+                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculum) ?? [], e.Token, e.Version));
+                }
+
                 var slots = JsonSerializer.Deserialize<SlotValues>(e.SlotValues, Json)!;
                 return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
                     e.Id, e.ChildId, DeliveryKinds.Evening, e.Language, [e.FirstName, slots.Lesson, slots.Page], e.Token, e.Version));
             }),
             .. catchUps.Select(c => new PendingDelivery(c.Id, c.Attempts, c.Consent, c.Stopped, c.ExpiresAt, new DeliveryMessage(
-                c.Id, c.ChildId, DeliveryKinds.CatchUp, c.Language, [c.FirstName, c.Teacher], c.Token!))),
+                c.Id, c.ChildId, DeliveryKinds.CatchUp, c.Language,
+                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!))),
         ];
     }
 
