@@ -274,10 +274,37 @@ describe("Approve → Today's message (T-89)", () => {
     await user.click(await screen.findByRole('button', { name: 'My note' }))
     await user.click(screen.getByRole('button', { name: 'Add my note' }))
 
-    expect(screen.getByRole('textbox', { name: 'Your note to families (Kannada)' })).toHaveAttribute(
-      'placeholder',
-      'e.g. We wrote numbers on leaves and compared them',
-    )
+    expect(
+      screen.getByRole('textbox', { name: 'Your note to families (any language: each family reads it in their own)' }),
+    ).toHaveAttribute('placeholder', 'e.g. We wrote numbers on leaves and compared them')
+  })
+
+  it('her note in English: shows what she typed and what Kannada families read; Edit starts from what she typed (T-119)', async () => {
+    const user = userEvent.setup()
+    const english = 'We wrote numbers on leaves and compared them.'
+    const note = { text: { kn: 'ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.', hi: 'हमने पत्तों पर संख्याएँ लिखकर तुलना की।' }, removed: false, original: english }
+    setup(() => ({ status: 200, body: message({ note }) }))
+    renderApp('/approve')
+
+    await user.click(await screen.findByRole('button', { name: 'My note' }))
+
+    expect(screen.getByText(english)).toBeInTheDocument()
+    expect(screen.getByText('Kannada families read:')).toBeInTheDocument()
+    expect(screen.getByText('ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.')).toHaveAttribute('lang', 'kn')
+    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    expect(screen.getByRole('textbox', { name: /Your note to families/ })).toHaveValue(english)
+  })
+
+  it('her note in Kannada: shown once, no translation line', async () => {
+    const user = userEvent.setup()
+    const kannada = 'ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.'
+    setup(() => ({ status: 200, body: message({ note: { text: { kn: kannada }, removed: false, original: kannada } }) }))
+    renderApp('/approve')
+
+    await user.click(await screen.findByRole('button', { name: 'My note' }))
+
+    expect(screen.getByText(kannada)).toBeInTheDocument()
+    expect(screen.queryByText('Kannada families read:')).not.toBeInTheDocument()
   })
 
   it("the picture question: she picks another pair from the book's list, never types numbers", async () => {

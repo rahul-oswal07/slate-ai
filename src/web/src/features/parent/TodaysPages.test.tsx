@@ -192,12 +192,14 @@ describe("Family page for today's message (T-91, T-90)", () => {
     expect(screen.getByRole('heading', { name: "Manjunath's turn" })).toBeInTheDocument()
   })
 
-  it('her note shows with her name', async () => {
-    setup(evening(todays({ note: 'ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದೆವು.' })))
+  it('her note shows with her name, marked in the family language it arrives in (T-119)', async () => {
+    // The API sends her note in the family's language (A9 writes it from her Kannada), so a screen reader must read
+    // it as that language, not as Kannada.
+    setup({ ...evening(todays({ note: 'మేము ఆకులపై సంఖ్యలు రాసి పోల్చాము.' })), language: 'te' })
     renderApp(`/p/${token}`)
 
-    expect(await screen.findByText('A note from Shobha')).toBeInTheDocument()
-    expect(screen.getByText('ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದೆವು.')).toHaveAttribute('lang', 'kn')
+    expect(await screen.findByText(i18n.t('parent.todays.note', { teacher: 'Shobha', lng: 'te' }))).toBeInTheDocument()
+    expect(screen.getByText('మేము ఆకులపై సంఖ్యలు రాసి పోల్చాము.')).toHaveAttribute('lang', 'te')
   })
 
   it('a reopened link starts at the first step; the answer page is locked once both tries are used (T-116)', async () => {

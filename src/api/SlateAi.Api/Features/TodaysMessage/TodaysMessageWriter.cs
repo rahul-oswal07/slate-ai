@@ -119,7 +119,9 @@ public static partial class TodaysMessageValidator
     /// The checks every language's text goes through, A9's and hers alike (D-92): not empty, the length limits, no names,
     /// braces or signs, the language's own script, only the allowed numbers. Null when it passes.
     /// </summary>
-    public static TodaysWriteResult? Check(string language, TodaysText text, IReadOnlySet<string> allowed, IReadOnlyList<string> names)
+    /// <param name="noteAnyLanguage">Her own note, which she may write in any language (T-119): every check but the script.</param>
+    public static TodaysWriteResult? Check(
+        string language, TodaysText text, IReadOnlySet<string> allowed, IReadOnlyList<string> names, bool noteAnyLanguage = false)
     {
         var (concept, steps, note) = (text.Concept, text.Steps, text.Note);
         if (concept.Length == 0 || steps.Count == 0 || note is { Length: 0 })
@@ -143,10 +145,17 @@ public static partial class TodaysMessageValidator
             return Refused(problem, $"{language}: {(problem == "fallback:name" ? "a child's name" : "braces, angle brackets or markup")}");
         }
 
-        if (CodeChecks.ScriptShare(string.Join(' ', all), language) is not var (share, _)
+        var scripted = noteAnyLanguage ? steps.Prepend(concept).ToList() : all;
+        if (CodeChecks.ScriptShare(string.Join(' ', scripted), language) is not var (share, _)
             || share < LessonScriptValidator.MinScriptShare)
         {
             return Refused("fallback:script", $"{language}: too few letters in the language's own script");
+        }
+
+        // On its own too: a short note in another language would pass inside the whole text (T-119).
+        if (note is not null && !noteAnyLanguage && !InScript(note, language))
+        {
+            return Refused("fallback:script", $"{language}: the note is not in the language's own script");
         }
 
         var extra = all.SelectMany(t => Digits().Matches(t)).Select(m => m.Value).Where(n => !allowed.Contains(n)).Distinct().ToList();
@@ -156,6 +165,10 @@ public static partial class TodaysMessageValidator
     }
 
     public static TodaysWriteResult Refused(string verdict, string? detail = null) => new(null, verdict, detail);
+
+    /// <summary>The text is written in the language's own script (the same share as every other check).</summary>
+    public static bool InScript(string text, string language) =>
+        CodeChecks.ScriptShare(text, language) is var (share, _) && share >= LessonScriptValidator.MinScriptShare;
 
     /// <summary>
     /// The numbers A9 may write (guardrail 4): the lesson's examples and page, the book's exercise numbers with their tens
