@@ -209,7 +209,7 @@ Open items:
 - Tonight card copy: "Sent tonight to {families} of {absent} families"; tag "No message in their language yet".
 
 **Resolved 22 Oct:**
-- Second voice note on the same day: not in the MVP; use Change (D-55).
+- Second voice note on the same day: not in the MVP; use Change (D-55). **Changed 15 Nov (D-104):** a new note can replace the lesson until today's message is approved, or tonight's message has gone.
 - Attendance still missing after the 2:00 pm retry: warning card "Attendance didn’t come in today. Mark it here so tonight’s messages can go." with "Mark attendance"; state chip "Still missing after 2 pm" (D-67).
 - Loading, error, conflict states: follow D-68.
 

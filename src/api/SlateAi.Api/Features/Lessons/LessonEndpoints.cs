@@ -3,6 +3,7 @@ using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Lessons.Voice;
 using SlateAi.Api.Features.TodaysMessage;
 
@@ -131,6 +132,8 @@ public static class LessonEndpoints
             IFormFile? photo,
             [Microsoft.AspNetCore.Mvc.FromForm] Guid clientRequestId,
             ILessonStore store,
+            ITodaysMessageStore todays,
+            IEveningStore evening,
             LessonMappingQueue queue,
             CurriculumGraph curriculum,
             TimeProvider clock,
@@ -170,7 +173,11 @@ public static class LessonEndpoints
         }
 
         var startedAt = clock.GetUtcNow();
-        switch (await store.StartVoiceAsync(classId, clientRequestId, date, startedAt, cancellationToken))
+        // D-104: a note may still replace a confirmed lesson until today's message is approved or tonight's has gone.
+        var replaceConfirmed = LessonWindow.CanReplaceConfirmed(
+            await todays.GetAsync(classId, date, cancellationToken),
+            (await evening.GetSentChildIdsAsync(classId, date, cancellationToken)).Count > 0);
+        switch (await store.StartVoiceAsync(classId, clientRequestId, date, startedAt, replaceConfirmed, cancellationToken))
         {
             case VoiceStart.AlreadyConfirmed:
                 return TypedResults.Conflict();

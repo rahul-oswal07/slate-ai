@@ -5,7 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Lessons;
+using SlateAi.Api.Features.TodaysMessage;
+using SlateAi.Api.Tests.Features.EveningMessages;
+using SlateAi.Api.Tests.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.Lessons.Voice;
@@ -24,6 +28,8 @@ public sealed class VoiceUploadEndpointTests
 
     private readonly FakeLessonStore _store = new();
     private readonly FakeAiCallStore _aiCalls = new();
+    private readonly FakeTodaysMessageStore _todays = new();
+    private readonly FakeEveningStore _evening = new(ClassId, Guid.NewGuid());
     private readonly MovableClock _clock = new() { Now = SchoolClock.At(Today, new TimeOnly(11, 0)) };
 
     [Fact]
@@ -61,13 +67,94 @@ public sealed class VoiceUploadEndpointTests
     }
 
     [Fact]
-    public async Task No_second_note_once_the_lesson_is_confirmed()
+    public async Task A_new_note_before_confirming_replaces_the_first_and_its_match()
     {
-        await _store.SaveConfirmedAsync(ClassId, Guid.NewGuid(), Today, ["M3.SUB.NOBORROW"], "picked", Ct);
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+        await UploadAsync(client, Guid.NewGuid());
+        await WaitForMatchAsync(client);
+        _clock.Now = _clock.Now.AddMinutes(1);
+
+        var again = await UploadAsync(client, Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.Accepted, again.StatusCode);
+        Assert.Equal(2, _store.Starts);
+        Assert.Equal(_clock.Now, _store.Day(Today)!.MappingStartedAt);
+        Assert.Equal("mapped", (await WaitForMatchAsync(client)).Lesson!.Status);
+    }
+
+    [Fact]
+    public async Task After_confirming_a_new_note_replaces_the_lesson_while_todays_message_is_not_approved()
+    {
+        // D-104: the lesson is unconfirmed until she confirms the new match.
+        await ConfirmAsync();
+        AddTodays(TodaysMessageStatus.Ready, approvedVersion: null);
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var response = await UploadAsync(client, Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Equal("processing", (await response.Content.ReadFromJsonAsync<LessonDayResponse>(Ct))!.Lesson!.Status);
+    }
+
+    [Fact]
+    public async Task After_confirming_a_new_note_replaces_the_lesson_on_a_day_without_todays_message_before_the_send()
+    {
+        await ConfirmAsync();
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        Assert.Equal(HttpStatusCode.Accepted, (await UploadAsync(client, Guid.NewGuid())).StatusCode);
+        Assert.Equal(LessonValues.Processing, _store.Day(Today)!.Status);
+    }
+
+    [Fact]
+    public async Task No_new_note_once_todays_message_is_approved()
+    {
+        await ConfirmAsync();
+        AddTodays(TodaysMessageStatus.Approved, approvedVersion: 1);
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId);
 
         Assert.Equal(HttpStatusCode.Conflict, (await UploadAsync(client, Guid.NewGuid())).StatusCode);
+        Assert.Equal(LessonValues.Confirmed, _store.Day(Today)!.Status);
+    }
+
+    [Fact]
+    public async Task No_new_note_once_todays_message_has_gone()
+    {
+        await ConfirmAsync();
+        var row = AddTodays(TodaysMessageStatus.Approved, approvedVersion: 1);
+        _todays.IsSent = id => id == row.Id;
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        Assert.Equal(HttpStatusCode.Conflict, (await UploadAsync(client, Guid.NewGuid())).StatusCode);
+    }
+
+    [Fact]
+    public async Task No_new_note_once_tonights_message_has_gone_on_a_day_without_todays_message()
+    {
+        await ConfirmAsync();
+        _evening.Messages.Add((Today, new NewEveningMessage(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "kn", new SlotValues("x", "y"), "tok", _clock.Now, _clock.Now.AddDays(7))));
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        Assert.Equal(HttpStatusCode.Conflict, (await UploadAsync(client, Guid.NewGuid())).StatusCode);
+        Assert.Equal(LessonValues.Confirmed, _store.Day(Today)!.Status);
+    }
+
+    private Task ConfirmAsync() =>
+        _store.SaveConfirmedAsync(ClassId, Guid.NewGuid(), Today, ["M3.SUB.NOBORROW"], "picked", Ct);
+
+    private TodaysMessageRow AddTodays(string status, int? approvedVersion)
+    {
+        var row = new TodaysMessageRow(
+            Guid.NewGuid(), ClassId, Today, ["M3.SUB.NOBORROW"], status, 1, approvedVersion, null, "valid", null, _clock.Now, false);
+        _todays.Rows.Add(row);
+        return row;
     }
 
     [Fact]
@@ -89,7 +176,7 @@ public sealed class VoiceUploadEndpointTests
     [Fact]
     public async Task A_note_stuck_in_processing_reads_as_unclear()
     {
-        await _store.StartVoiceAsync(ClassId, Guid.NewGuid(), Today, _clock.Now.AddMinutes(-3), Ct);
+        await _store.StartVoiceAsync(ClassId, Guid.NewGuid(), Today, _clock.Now.AddMinutes(-3), false, Ct);
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId);
 
@@ -163,6 +250,8 @@ public sealed class VoiceUploadEndpointTests
         {
             services.AddSingleton<ILessonStore>(_store);
             services.AddSingleton<IAiCallStore>(_aiCalls);
+            services.AddSingleton<ITodaysMessageStore>(_todays);
+            services.AddSingleton<IEveningStore>(_evening);
             services.AddSingleton(Book);
             services.AddSingleton<TimeProvider>(_clock);
         });

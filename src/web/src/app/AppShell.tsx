@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
 import { AnnouncerProvider } from '../components/Announcer'
@@ -18,6 +18,8 @@ export function AppShell() {
     void queryClient.invalidateQueries({ queryKey: ['lesson'] })
   }, [queryClient])
   useOutboxSync(refresh)
+  const headerRef = useStickyHeaderPadding()
+  const tagline = t('app.tagline')
 
   return (
     <AnnouncerProvider>
@@ -28,16 +30,21 @@ export function AppShell() {
         >
           {t('a11y.skipToContent')}
         </a>
-        {/* One row (T-109, D-101): the name with the tagline under it, then language and the profile menu. */}
-        <header className="flex items-center justify-between gap-2 border-b border-edge px-4 py-3 print:hidden">
-          <div className="min-w-0">
-            <p className="font-heading text-title font-extrabold">{t('app.name')}</p>
-            <p className="text-caption text-ink-muted">{t('app.tagline')}</p>
-          </div>
+        {/*
+          One row (T-109, D-101): the name centred with language and the profile menu, the tagline under the name
+          (T-114). It stays at the top while she scrolls; family pages (/p/…) don't use this shell.
+        */}
+        <header
+          ref={headerRef}
+          className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 border-b border-edge bg-canvas px-4 py-3 print:static"
+        >
+          <p className="min-w-0 font-heading text-title font-extrabold">{t('app.name')}</p>
           <div className="flex shrink-0 items-center gap-2">
             <LanguageSwitcher compact={!signIn} />
             <ProfileMenu />
           </div>
+          {/* Kannada has none: the name already says "the missed lesson". */}
+          {tagline && <p className="text-caption text-ink-muted">{tagline}</p>}
         </header>
         <main id="main" className="px-4 py-6">
           <Outlet />
@@ -45,4 +52,30 @@ export function AppShell() {
       </div>
     </AnnouncerProvider>
   )
+}
+
+/**
+ * Keeps scrolled-to targets (the skip link's #main, a focused heading) clear of the sticky header by setting the
+ * page's scroll padding to its height, while the teacher shell is on screen.
+ */
+function useStickyHeaderPadding() {
+  const ref = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const header = ref.current
+    const root = document.documentElement
+    if (!header) {
+      return
+    }
+    const update = () => {
+      root.style.scrollPaddingTop = `${header.offsetHeight}px`
+    }
+    update()
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update)
+    observer?.observe(header)
+    return () => {
+      observer?.disconnect()
+      root.style.scrollPaddingTop = ''
+    }
+  }, [])
+  return ref
 }

@@ -11,7 +11,7 @@ import { istToday } from '../today/schoolTime'
 import { findLesson, lessonName, pageText } from './lessonText'
 import { PickLessonSheet } from './PickLessonSheet'
 import type { Chapter } from './types'
-import { useCurriculum, useLessonDay, useNote, usePhoto, useSaveLesson } from './useLessons'
+import { clearNoteAndPhoto, useCurriculum, useLessonDay, useNote, usePhoto, useSaveLesson } from './useLessons'
 
 const SLOW_MS = 20_000
 const primary = 'min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-60'
@@ -64,6 +64,12 @@ export function ConfirmLessonScreen() {
   }
 
   const chosen = ticked ?? lesson?.competencyIds ?? []
+
+  /** Back to Today's record card with the mic idle (T-114); the new note replaces this one and its match. */
+  async function reRecord() {
+    await clearNoteAndPhoto(date)
+    navigate('/', { state: { rerecord: true } satisfies RerecordState })
+  }
 
   /**
    * Confirms, then goes to today's message when the server started one for her to check (T-108), else to Today.
@@ -144,9 +150,9 @@ export function ConfirmLessonScreen() {
           <button type="button" onClick={() => setSheet('single')} className={`${primary} mt-3`}>
             {t('confirm.pickFromList')}
           </button>
-          <Link to="/" className={`${textButton} flex items-center justify-center`}>
-            {t('confirm.sayAgain')}
-          </Link>
+          <button type="button" onClick={() => void reRecord()} className={textButton}>
+            {t('confirm.reRecord')}
+          </button>
         </div>
       )}
 
@@ -219,7 +225,9 @@ export function ConfirmLessonScreen() {
         </section>
       )}
 
-      {(status === 'mapped' || status === 'low') && lesson && <NoteCard date={date} lesson={lesson} />}
+      {(status === 'mapped' || status === 'low') && lesson && (
+        <NoteCard date={date} lesson={lesson} onReRecord={() => void reRecord()} />
+      )}
 
       {sheet && (
         <PickLessonSheet
@@ -319,9 +327,11 @@ function LessonOption({
 function NoteCard({
   date,
   lesson,
+  onReRecord,
 }: {
   date: string
   lesson: { summaryKn: string | null; summaryEn: string | null; examplesUsed: string[] }
+  onReRecord: () => void
 }) {
   const { t, i18n } = useTranslation()
   const note = useNote(date)
@@ -363,6 +373,12 @@ function NoteCard({
           {t('confirm.note.examples')}: {lesson.examplesUsed.join(', ')}
         </p>
       )}
+      <button type="button" onClick={onReRecord} className={`${textButton} mt-2`}>
+        {t('confirm.reRecord')}
+      </button>
     </section>
   )
 }
+
+/** Route state for Today after Re-record: show the record card even though a match is waiting (T-114). */
+export type RerecordState = { rerecord: true }

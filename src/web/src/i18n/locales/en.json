@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Tappida Paatha",
-    "tagline": "The missed lesson, at home",
+    "tagline": "The missed lesson",
     "loadError": "Could not load. Check the network and try again."
   },
   "language": {
@@ -151,6 +151,8 @@
       "pickInstead": "Or pick the lesson from the list",
       "titlePlural": "Today’s lessons",
       "change": "Change",
+      "current": "Today: {{lessons}} · p {{page}}",
+      "currentNoPage": "Today: {{lessons}}",
       "hint": "Up to 30 seconds · in Kannada",
       "tooShort": "Too short. Tap, speak, then tap again.",
       "micBlocked": "The microphone is off for this app. Turn it on in Settings, or pick today’s lesson from the list.",
@@ -200,21 +202,6 @@
         "noConsent": "No consent",
         "stopped": "Stopped by family",
         "noWording": "No message in their language yet"
-      },
-      "audio": {
-        "label": "Also send today’s lesson as audio",
-        "hint": "Optional. You listen to each clip and approve it first. Without it, the usual message goes.",
-        "sent": "Tonight’s messages have gone. This can no longer be changed.",
-        "making": "Making the audio…",
-        "failed": "Could not make this clip. Nothing will be sent for this language.",
-        "approve": "Approve this clip",
-        "approved": "Approved. It goes with tonight’s message.",
-        "newOne": "Make a new clip",
-        "listenFirst": "Listen to the whole clip first, then approve.",
-        "readWords": "Read the words",
-        "families": "Families: {{count}}",
-        "offline": "No network. Nothing was changed. Connect and try again.",
-        "error": "Could not do that. Nothing was sent. Try again."
       }
     },
     "strip": {
@@ -296,7 +283,7 @@
     "pickFromList": "Pick from the list",
     "wait": "Wait; we’ll show it on Today when ready",
     "unclear": "Could not hear the note clearly. Your note is saved. Pick the lesson from the list.",
-    "sayAgain": "Say it again",
+    "reRecord": "Re-record",
     "lowConf": "Looks like one of these. Please choose.",
     "choices": "Today’s lesson",
     "anotherLesson": "Another lesson",

@@ -15,7 +15,7 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- Found, not fixed: after approving, changing the lesson to one without the book's exercises leaves the old approved message to go at 6 pm (not reachable in the demo, where Approve sends at once); needs its own issue.
+- Changing the lesson to one without the book's exercises (or with nobody due) removes the day's unsent today's message, so an approval for the old lesson can't go (T-114).
 - Catch-ups already made before the fix (staging's included) stay failed until the next week.
 - The design card is not updated for T-89 and T-108 (Monika's file).
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { AccentTitle } from '../../components/AccentWord'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
@@ -17,7 +17,6 @@ import { AttendanceGrid } from './AttendanceGrid'
 import { DayStrip } from './DayStrip'
 import { GreetingCard } from './GreetingCard'
 import { AnswersCard } from './AnswersCard'
-import { LessonAudioCard } from './LessonAudioCard'
 import { LessonCard } from './LessonCard'
 import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
@@ -35,7 +34,9 @@ export function TodayScreen() {
   const { t, i18n } = useTranslation()
   const me = useMe()
   const online = useOnline()
-  const headingRef = useFocusOnMount<HTMLHeadingElement>()
+  // After Re-record on Lesson confirm (T-114) focus goes to the mic, not the heading.
+  const rerecord = (useLocation().state as { rerecord?: boolean } | null)?.rerecord === true
+  const headingRef = useFocusOnMount<HTMLHeadingElement>(!rerecord)
   const date = istToday()
   const classId = me.data?.classId ?? ''
   const day = useAttendanceDay(classId, date)
@@ -57,10 +58,19 @@ export function TodayScreen() {
       ? formatSchoolTime(day.data.receivedAt, i18n.language, date)
       : null
   const evening = useEveningDay(classId, date, done)
-  const todays = useTodaysMessage(classId, date, done).data
+  const todaysQuery = useTodaysMessage(classId, date, done)
+  const todays = todaysQuery.data
   const todaysWaiting = useTodaysWaiting(classId, date)
   // What goes tonight carries today's message only once she has approved it (guardrail 3).
   const todaysApproved = todays != null && (todays.sent || todays.status === 'approved')
+  // D-104: once confirmed, a new note can still replace the lesson until today's message is approved, or, on a day
+  // without one, until tonight's message has gone; until then the record card stays (T-114). Nobody away: nothing
+  // goes tonight, so it stays all day. While that is still loading, the confirmed card shows, so nothing jumps.
+  const recordOpen =
+    confirmed.length > 0 &&
+    (!done ||
+      (todaysQuery.isSuccess &&
+        (todays ? !todaysApproved : evening.isSuccess && evening.data.sent === 0)))
   // D-68: when the copy on screen was saved (snapshot) or last fetched.
   const savedAt = day.data ? (day.data.savedAt ?? day.dataUpdatedAt) : null
 
@@ -131,7 +141,15 @@ export function TodayScreen() {
         ))}
 
       {!editing && (
-        <LessonCard classId={classId} date={date} day={lesson.data} chapters={chapters} onPick={() => setPicking(true)} />
+        <LessonCard
+          classId={classId}
+          date={date}
+          day={lesson.data}
+          chapters={chapters}
+          onPick={() => setPicking(true)}
+          recordOpen={recordOpen}
+          rerecord={rerecord}
+        />
       )}
 
       {/* "Added" and "Tonight" are one payoff card (T-49): what the lesson just did, and what goes out at 6 pm. */}
@@ -142,7 +160,6 @@ export function TodayScreen() {
           {evening.data && day.data && (
             <TonightCard day={evening.data} roster={day.data.children} todaysApproved={todaysApproved} />
           )}
-          {evening.data && <LessonAudioCard classId={classId} date={date} evening={evening.data} />}
           <AnswersCard classId={classId} date={date} />
         </div>
       )}

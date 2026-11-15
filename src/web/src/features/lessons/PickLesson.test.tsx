@@ -54,6 +54,9 @@ function today(lesson: LessonDay | (() => LessonDay), extra: Record<string, Fake
     [`GET /api/classes/${teacher.classId}/attendance/${date}`]: () => ({ status: 200, body: attendance(absent) }),
     'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
     [`GET ${lessonUrl}`]: () => ({ status: 200, body: typeof lesson === 'function' ? lesson() : lesson }),
+    // Approved, so Today shows the confirmed lesson card; the record card that stays before approval is in
+    // LessonCardWindow.test.tsx (T-114, D-104).
+    [`GET ${todaysUrl}`]: () => ({ status: 200, body: todaysMessage({ status: 'approved', approvedVersion: 1 }) }),
     ...extra,
   })
 }
@@ -147,7 +150,8 @@ describe('picking today’s lesson', () => {
     today(confirmed('M3.SUB.MAKE'), {}, [])
     renderApp('/')
 
-    expect(await screen.findByText('Making subtraction sums')).toBeInTheDocument()
+    // No today's message and nothing goes tonight: the record card stays, with the lesson as one line (D-104).
+    expect(await screen.findByText('Today: Making subtraction sums · p 117')).toBeInTheDocument()
     expect(screen.queryByText(/Added to missed lessons/)).not.toBeInTheDocument()
   })
 

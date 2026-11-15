@@ -240,6 +240,41 @@ public sealed class TodaysMessageEndpointTests
         Assert.Equal(0, _todays.Starts);
     }
 
+    [Fact]
+    public async Task Changing_to_a_lesson_without_exercises_removes_the_approved_message_for_the_old_lesson()
+    {
+        // Guardrail 3 (T-114): a message she approved for the lesson she replaced must not go at 6 pm.
+        var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _todays.Rows[0] = row with { CompetencyIds = [TodaysMessageTests.Compare.Id], Status = TodaysMessageStatus.Approved, ApprovedVersion = row.Version };
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        (await client.PutAsJsonAsync(
+            $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.NoExercises.Id]),
+            Ct)).EnsureSuccessStatusCode();
+
+        Assert.Empty(_todays.Rows);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.GetAsync(DayUrl, Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_message_families_already_have_stays_when_the_lesson_changes()
+    {
+        var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _todays.Rows[0] = row with { CompetencyIds = [TodaysMessageTests.Compare.Id], Status = TodaysMessageStatus.Approved, ApprovedVersion = row.Version };
+        _todays.IsSent = id => id == row.Id;
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        (await client.PutAsJsonAsync(
+            $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.NoExercises.Id]),
+            Ct)).EnsureSuccessStatusCode();
+
+        Assert.Single(_todays.Rows);
+    }
+
     [Theory]
     [InlineData("Manjunath ಕಡ್ಡಿ ಕಟ್ಟು ಮಾಡಲಿ.", "name")]
     [InlineData("ಮೊದಲು 73 ನೋಡಿ.", "numbers")]

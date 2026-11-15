@@ -88,6 +88,11 @@ export function useSaveLesson(classId: string, date: string) {
   )
 }
 
+/** Re-record (T-114): her note and photo for the day are dropped, so the new note goes alone and replaces the first. */
+export async function clearNoteAndPhoto(date: string) {
+  await Promise.all([db.notes.delete(date), db.photos.delete(date)])
+}
+
 /** A voice note for this day still waiting in the outbox (T1 "queued"). */
 export function useNoteQueued(classId: string, date: string) {
   const url = `${lessonUrl(classId, date)}/audio`

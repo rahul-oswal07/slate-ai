@@ -66,7 +66,7 @@ Each requirement, with its acceptance, moved on 15 Nov 2026 (T-110) to the spec 
 | FR-20 | M | Evening message on each day of absence | [`screens/P0-evening-message/spec.md`](screens/P0-evening-message/spec.md) |
 | FR-21 | M | Reason for absence | [`screens/P0-evening-message/spec.md`](screens/P0-evening-message/spec.md) |
 | FR-22 | M | Return-speed card | [`screens/T6-week/spec.md`](screens/T6-week/spec.md) |
-| FR-23 | S | Optional lesson audio on the evening message | [`screens/T1-today/spec.md`](screens/T1-today/spec.md) |
+| FR-23 | S | Optional lesson audio on the evening message (**retired 15 Nov, D-105**: today's message's concept clip is the lesson audio) | [`screens/T1-today/spec.md`](screens/T1-today/spec.md) |
 | FR-24 | S | Attendance stars | [`screens/T6-week/spec.md`](screens/T6-week/spec.md) |
 
 ### Non-functional requirements
@@ -217,7 +217,7 @@ POST /api/demo/sats-feed                    { classId, date, mode: waiting|arriv
 GET  /api/curriculum                        chapters (titles) with their lessons and textbook pages, for the lesson picker
 GET  /api/classes/{id}/lessons/{date}       { lesson: { competencyIds, source, status: processing|mapped|low|unclear|confirmed, summaryKn, summaryEn, examplesUsed } | null, nextInBook } (one lesson record per day, D-55; no confidence number)
 PUT  /api/classes/{id}/lessons/{date}       { clientRequestId, competencyIds[1..3], source?: voice|picked } → confirmed; "Change" overwrites (FR-03, FR-04)
-POST /api/classes/{id}/lessons/{date}/audio multipart { file ≤ 1 MB, clientRequestId } → 202 at once; STT → name scrubber → A1 in the background; 409 once confirmed (D-55); audio not stored
+POST /api/classes/{id}/lessons/{date}/audio multipart { file ≤ 1 MB, clientRequestId } → 202 at once; STT → name scrubber → A1 in the background; 409 once confirmed and no longer replaceable: after today's message is approved, or tonight's message has gone (D-104, changing D-55); a note that replaces a confirmed lesson leaves it unconfirmed until she confirms the new match; audio not stored
 GET  /api/classes/{id}/ledger                { weekOf, lessons (this week), children[{ …, missedLessons[{ status: missed|sent|caughtUp|needsBuddy }], homeLanguage, channel: stopped|noPhone|noConsent|null, daysAwayThisWeek, history[{ date, kind: away|reason|catchUpSent|answered|stopped, … }] }] } (T-13; this week = Monday to today, IST)
 DELETE /api/classes/{id}/children/{childId}?clientRequestId=  all of a child's data (FR-15, T-13): the child and, by cascade, attendance, evening messages, catch-up links + answers, reasons; a catch-up made only for that child is removed with its audio (T-19); 204 (replay too), 404 unknown/other class
 POST /api/classes/{id}/catchups/generate    { clientRequestId } → 202: A2 per absent child → one package per (targets, language) with code numbers → A3 in the background (generating → ready | failed); re-run keeps existing ones (T-09)

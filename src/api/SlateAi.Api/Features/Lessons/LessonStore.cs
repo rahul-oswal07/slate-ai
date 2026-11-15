@@ -40,7 +40,7 @@ public enum VoiceStart
     /// <summary>This clientRequestId was already applied (outbox replay): nothing to do.</summary>
     Replay,
 
-    /// <summary>The day's lesson is already confirmed (D-55: no second note; she uses Change).</summary>
+    /// <summary>The day's lesson is confirmed and can no longer be replaced by a note (D-104); she uses Change.</summary>
     AlreadyConfirmed,
 }
 
@@ -65,11 +65,13 @@ public interface ILessonStore
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// A voice note arrived: marks the day's lesson as processing (replacing an unconfirmed one) and records
-    /// <paramref name="startedAt"/>, which identifies this note's result later.
+    /// A voice note arrived: marks the day's lesson as processing (replacing an unconfirmed one, or a confirmed one when
+    /// <paramref name="replaceConfirmed"/>, D-104) and records <paramref name="startedAt"/>, which identifies this note's
+    /// result later. A replaced confirmed lesson is unconfirmed until she confirms the new match.
     /// </summary>
     Task<VoiceStart> StartVoiceAsync(
-        Guid classId, Guid clientRequestId, DateOnly date, DateTimeOffset startedAt, CancellationToken cancellationToken);
+        Guid classId, Guid clientRequestId, DateOnly date, DateTimeOffset startedAt, bool replaceConfirmed,
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Stores A1's result, but only if the lesson is still processing the note started at
@@ -128,7 +130,8 @@ public sealed class LessonStore(AppDbContext db, TimeProvider clock) : ILessonSt
     }
 
     public async Task<VoiceStart> StartVoiceAsync(
-        Guid classId, Guid clientRequestId, DateOnly date, DateTimeOffset startedAt, CancellationToken cancellationToken)
+        Guid classId, Guid clientRequestId, DateOnly date, DateTimeOffset startedAt, bool replaceConfirmed,
+        CancellationToken cancellationToken)
     {
         await using var transaction = await LockDayAsync(classId, date, cancellationToken);
         if (await IsProcessedAsync(clientRequestId, cancellationToken))
@@ -137,7 +140,7 @@ public sealed class LessonStore(AppDbContext db, TimeProvider clock) : ILessonSt
         }
 
         var lesson = await FindOrAddAsync(classId, date, LessonValues.Voice, cancellationToken);
-        if (lesson.Status == LessonValues.Confirmed)
+        if (lesson.Status == LessonValues.Confirmed && !replaceConfirmed)
         {
             return VoiceStart.AlreadyConfirmed;
         }

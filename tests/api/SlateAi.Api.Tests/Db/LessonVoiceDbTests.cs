@@ -22,7 +22,7 @@ public sealed class LessonVoiceDbTests(PostgresFixture postgres)
 
         await api.ScopedAsync<ILessonStore>(async store =>
         {
-            Assert.Equal(VoiceStart.Started, await store.StartVoiceAsync(api.ClassId, Guid.NewGuid(), Day, startedAt, DemoClassApi.Ct));
+            Assert.Equal(VoiceStart.Started, await store.StartVoiceAsync(api.ClassId, Guid.NewGuid(), Day, startedAt, false, DemoClassApi.Ct));
             await store.SaveMappingAsync(api.ClassId, Day, startedAt, result, DemoClassApi.Ct);
         });
 

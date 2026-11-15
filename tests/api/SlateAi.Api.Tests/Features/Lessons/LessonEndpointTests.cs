@@ -3,7 +3,11 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Lessons;
+using SlateAi.Api.Features.TodaysMessage;
+using SlateAi.Api.Tests.Features.EveningMessages;
+using SlateAi.Api.Tests.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Features.Lessons;
@@ -124,6 +128,8 @@ public sealed class LessonEndpointTests
         FakeApi.Create(services =>
         {
             services.AddSingleton<ILessonStore>(_store);
+            services.AddSingleton<ITodaysMessageStore>(new FakeTodaysMessageStore());
+            services.AddSingleton<IEveningStore>(new FakeEveningStore(ClassId, Guid.NewGuid()));
             services.AddSingleton(Book);
             services.AddSingleton<TimeProvider>(new FixedClock(SchoolClock.At(Today, new TimeOnly(15, 0))));
         });
