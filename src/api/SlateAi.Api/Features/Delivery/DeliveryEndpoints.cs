@@ -16,8 +16,8 @@ public sealed record WhatsAppTestResponse(string Outcome, string? Error, string?
 
 /// <summary>
 /// The admin "send a test message" (T-40): Meta's pre-approved <c>hello_world</c> template to one registered test
-/// phone, so the token, phone number ID and recipient can be checked before our own templates are approved. Mapped only
-/// when <c>Admin:Key</c> is set (staging, not prod); a missing or wrong key gets 404 like the other admin routes.
+/// phone, so the token, phone number ID and recipient can be checked before our own templates are approved. Open to
+/// anyone with the address, like the admin pages (D-112); it only reaches phones in <c>WhatsApp:Recipients</c>.
 /// Carries no names or school data.
 /// </summary>
 public static class DeliveryEndpoints
@@ -30,35 +30,24 @@ public static class DeliveryEndpoints
 
     public static IEndpointRouteBuilder MapDeliveryEndpoints(this IEndpointRouteBuilder app)
     {
-        if (!app.ServiceProvider.GetRequiredService<IOptions<AdminOptions>>().Value.Enabled)
-        {
-            return app;
-        }
-
         app.MapPost("/api/admin/whatsapp/test", SendTestAsync)
             .WithTags("Admin")
             .WithSummary("Send Meta's hello_world template to one registered WhatsApp test phone")
             .WithDescription(
-                $"Needs the {AdminEndpoints.KeyHeader} header; 404 without it. childId must be in WhatsApp:Recipients " +
+                "No key (D-112). childId must be in WhatsApp:Recipients " +
                 "(otherwise outcome skipped, error no-recipient). Works whatever Delivery:Channel is, so the Meta setup " +
                 "can be checked before switching it on. A repeated clientRequestId returns the first result without " +
                 "sending again. The response never contains the phone number, and the message ID is hashed. Admin only.");
         return app;
     }
 
-    private static async Task<Results<Ok<WhatsAppTestResponse>, NotFound, ValidationProblem>> SendTestAsync(
+    private static async Task<Results<Ok<WhatsAppTestResponse>, ValidationProblem>> SendTestAsync(
         WhatsAppTestRequest request,
         HttpContext http,
         WhatsAppClient client,
         IOptions<WhatsAppOptions> whatsApp,
-        IOptions<AdminOptions> admin,
         CancellationToken cancellationToken)
     {
-        if (!AdminEndpoints.HasKey(http, admin.Value))
-        {
-            return TypedResults.NotFound();
-        }
-
         AdminEndpoints.NoStore(http);
         if (request.ClientRequestId == Guid.Empty)
         {

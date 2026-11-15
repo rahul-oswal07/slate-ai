@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchAdminClip } from './useAdmin'
 
-/** Play → fetch the clip with the admin key → an `<audio>` player. The object URL is freed when it goes. */
+/** Play → fetch the clip → an `<audio>` player. The object URL is freed when it goes. */
 export function ClipPlayer({
-  adminKey: key,
   url,
   playLabel,
   playerLabel,
 }: {
-  adminKey: string | null
   url: string
   playLabel: string
   playerLabel: string
@@ -26,7 +24,7 @@ export function ClipPlayer({
   async function play() {
     setState('loading')
     try {
-      setSrc(URL.createObjectURL(await fetchAdminClip(key, url)))
+      setSrc(URL.createObjectURL(await fetchAdminClip(url)))
       setState('idle')
     } catch {
       setState('failed')

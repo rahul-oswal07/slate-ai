@@ -790,7 +790,6 @@
     }
   },
   "admin": {
-    "needsLink": "This page needs its full link.",
     "failed": "Couldn’t load this page.",
     "loading": "Loading…",
     "play": "Play",
@@ -859,7 +858,7 @@
     },
     "index": {
       "title": "Admin pages",
-      "intro": "Every admin page and its address. Open this page with its full link (#key=…) and every link below works.",
+      "intro": "Every admin page and its address.",
       "greetings": "Listen to and download each teacher’s recorded greeting.",
       "lessonAudio": "One day’s lesson audio: every class’s clip and the families it went to.",
       "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families.",

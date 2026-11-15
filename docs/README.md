@@ -35,7 +35,7 @@ Each folder has two files: **`spec.md`** (purpose, states, requirements, the dec
 | Screen | What it is | Route | Web | API | Docs |
 |---|---|---|---|---|---|
 | Demo shell | Teacher phone and family phone side by side, Reset, Under the hood | `/demo` | `features/demo/` | `Demo` | [spec](screens/demo/spec.md) · [status](screens/demo/status.md) |
-| Admin pages | Play teachers' greetings and a day's lesson audio, behind `Admin:Key` | `/admin/*` | `features/admin/` | `Admin` | [spec](screens/admin/spec.md) · [status](screens/admin/status.md) |
+| Admin pages | Play teachers' greetings and a day's lesson audio, set lesson links and families' WhatsApp numbers; no key (D-112) | `/admin/*` | `features/admin/` | `Admin` | [spec](screens/admin/spec.md) · [status](screens/admin/status.md) |
 
 ## Areas (not a screen)
 

@@ -9,16 +9,15 @@ namespace SlateAi.Api.Tests.Features.Admin;
 
 public sealed class AdminEndpointTests
 {
-    private const string Key = "a-test-admin-key-of-32-characters";
     private const string Day = "2026-10-29";
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
     private readonly FakeAdminStore _store = new();
 
     [Fact]
-    public async Task The_right_key_lists_every_greeting_and_plays_one()
+    public async Task Lists_every_greeting_and_plays_one()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var list = await client.GetAsync("/api/admin/greetings", Ct);
         var greetings = (await list.Content.ReadFromJsonAsync<List<AdminGreeting>>(Ct))!;
@@ -34,99 +33,34 @@ public sealed class AdminEndpointTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("a-test-admin-key-of-32-characterX")]
-    [InlineData("a-test-admin-key")]
-    public async Task A_missing_or_wrong_key_is_404_like_a_route_that_does_not_exist(string? sent)
-    {
-        await using var factory = Create(Key);
-        using var client = Client(factory, sent);
-
-        string[] urls =
-        [
-            "/api/admin/greetings",
-            $"/api/admin/greetings/{_store.Greeting.ClipId}/audio",
-            $"/api/admin/lesson-audio?date={Day}",
-            $"/api/admin/lesson-audio/{FakeAdminStore.LessonClipId}/audio",
-        ];
-        foreach (var url in urls)
-        {
-            Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(url, Ct)).StatusCode);
-        }
-
-        Assert.False(_store.Read);
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("too-short")]
-    public async Task Without_a_long_enough_key_configured_there_are_no_admin_endpoints(string? configured)
-    {
-        await using var factory = Create(configured);
-        using var client = Client(factory, configured);
-
-        var list = await client.GetAsync("/api/admin/greetings", Ct);
-        var day = await client.GetAsync($"/api/admin/lesson-audio?date={Day}", Ct);
-
-        Assert.Equal(HttpStatusCode.NotFound, list.StatusCode);
-        Assert.Equal(HttpStatusCode.NotFound, day.StatusCode);
-        Assert.False(_store.Read);
-    }
-
-    [Fact]
-    public async Task In_development_the_pages_open_without_a_key_D102()
-    {
-        await using var factory = Create(key: null, environment: "Development");
-        using var client = Client(factory, key: null);
-
-        string[] urls =
-        [
-            "/api/admin/greetings",
-            $"/api/admin/greetings/{_store.Greeting.ClipId}/audio",
-            $"/api/admin/lesson-audio?date={Day}",
-            $"/api/admin/lesson-audio/{FakeAdminStore.LessonClipId}/audio",
-        ];
-        foreach (var url in urls)
-        {
-            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(url, Ct)).StatusCode);
-        }
-    }
-
-    [Theory]
     [InlineData("Production")]
     [InlineData("Staging")]
-    public async Task Outside_development_a_key_is_still_needed_D102(string environment)
+    [InlineData("Development")]
+    public async Task Every_admin_route_opens_without_a_key_in_every_environment_D112(string environment)
     {
-        await using var factory = Create(Key, environment);
-        using var client = Client(factory, key: null);
+        await using var factory = Create(environment);
+        using var client = factory.CreateHttpsClient();
 
-        var list = await client.GetAsync("/api/admin/greetings", Ct);
-        var day = await client.GetAsync($"/api/admin/lesson-audio?date={Day}", Ct);
-
-        Assert.Equal(HttpStatusCode.NotFound, list.StatusCode);
-        Assert.Equal(HttpStatusCode.NotFound, day.StatusCode);
-        Assert.False(_store.Read);
-    }
-
-    [Fact]
-    public async Task No_setting_can_open_the_pages_without_a_key_D102()
-    {
-        await using var factory = FakeApi.Create(
-            services => services.AddSingleton<IAdminStore>(_store),
-            settings: new Dictionary<string, string?> { ["Admin:Key"] = null, ["Admin:OpenWithoutKey"] = "true" },
-            environment: "Production");
-        using var client = Client(factory, key: null);
-
-        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/admin/greetings", Ct)).StatusCode);
-        Assert.False(_store.Read);
+        string[] urls =
+        [
+            "/api/admin/greetings",
+            $"/api/admin/greetings/{_store.Greeting.ClipId}/audio",
+            $"/api/admin/lesson-audio?date={Day}",
+            $"/api/admin/lesson-audio/{FakeAdminStore.LessonClipId}/audio",
+        ];
+        foreach (var url in urls)
+        {
+            var response = await client.GetAsync(url, Ct);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("noindex", Assert.Single(response.Headers.GetValues("X-Robots-Tag")));
+        }
     }
 
     [Fact]
     public async Task Each_audio_route_serves_only_its_own_kind_of_clip()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var lessonAsGreeting = await client.GetAsync($"/api/admin/greetings/{FakeAdminStore.LessonClipId}/audio", Ct);
         var greetingAsLesson = await client.GetAsync($"/api/admin/lesson-audio/{_store.Greeting.ClipId}/audio", Ct);
@@ -142,8 +76,8 @@ public sealed class AdminEndpointTests
     [Fact]
     public async Task The_day_view_counts_sends_and_names_lessons_families_and_unsent_audio()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.GetAsync($"/api/admin/lesson-audio?date={Day}", Ct);
         var day = (await response.Content.ReadFromJsonAsync<AdminLessonAudioDay>(Ct))!;
@@ -174,8 +108,8 @@ public sealed class AdminEndpointTests
     [InlineData("2026-13-01")]
     public async Task A_missing_or_invalid_date_is_400(string date)
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var missing = await client.GetAsync("/api/admin/lesson-audio", Ct);
         var invalid = await client.GetAsync($"/api/admin/lesson-audio?date={date}", Ct);
@@ -185,20 +119,8 @@ public sealed class AdminEndpointTests
         Assert.Null(_store.AskedFor);
     }
 
-    private static HttpClient Client(ApiFactory factory, string? key)
-    {
-        var client = factory.CreateHttpsClient();
-        if (key is not null)
-        {
-            client.DefaultRequestHeaders.Add(AdminEndpoints.KeyHeader, key);
-        }
-
-        return client;
-    }
-
-    private ApiFactory Create(string? key, string environment = "Testing") => FakeApi.Create(
+    private ApiFactory Create(string environment = "Testing") => FakeApi.Create(
         services => services.AddSingleton<IAdminStore>(_store),
-        settings: new Dictionary<string, string?> { ["Admin:Key"] = key },
         environment: environment);
 
     /// <summary>One greeting, one lesson clip and one day with a sent and a failed lesson audio.</summary>
@@ -210,18 +132,15 @@ public sealed class AdminEndpointTests
         public AdminGreeting Greeting { get; } =
             new(Guid.NewGuid(), "Shobha", 8.2, new DateTimeOffset(2026, 10, 28, 9, 0, 0, TimeSpan.Zero));
 
-        public bool Read { get; private set; }
         public DateOnly? AskedFor { get; private set; }
 
         public Task<IReadOnlyList<AdminGreeting>> ListGreetingsAsync(CancellationToken cancellationToken)
         {
-            Read = true;
             return Task.FromResult<IReadOnlyList<AdminGreeting>>([Greeting]);
         }
 
         public Task<AdminClip?> GetClipAsync(Guid clipId, string kind, CancellationToken cancellationToken)
         {
-            Read = true;
             var found = (clipId == Greeting.ClipId && kind == AudioKind.Greeting)
                 || (clipId == LessonClipId && kind == AudioKind.Lesson);
             return Task.FromResult(found ? new AdminClip("OggS"u8.ToArray(), "audio/ogg") : null);
@@ -229,7 +148,6 @@ public sealed class AdminEndpointTests
 
         public Task<IReadOnlyList<AdminLessonAudioRow>> GetLessonAudioDayAsync(DateOnly date, CancellationToken cancellationToken)
         {
-            Read = true;
             AskedFor = date;
             return Task.FromResult<IReadOnlyList<AdminLessonAudioRow>>(
             [

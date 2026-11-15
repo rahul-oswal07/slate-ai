@@ -55,8 +55,6 @@ export interface AdminLessonLinks {
   chapters: { number: number; nameKn: string; nameEn: string; lessons: AdminLessonLink[] }[]
 }
 
-const KEY_HEADER = 'X-Admin-Key'
-
 /** "28 Oct 2026, 2:30 pm", in the UI language and school time. */
 export function adminTime(at: string, language: string) {
   return new Intl.DateTimeFormat(language === 'en' ? 'en-IN' : language, {
@@ -66,46 +64,31 @@ export function adminTime(at: string, language: string) {
   }).format(new Date(at))
 }
 
-/**
- * The key after `#key=` in the page's link. It stays in the fragment, so it never reaches a server log. Null without
- * one: the API then answers only when it runs locally in Development (D-102), else 404.
- */
-export function adminKey(hash: string): string | null {
-  return new URLSearchParams(hash.replace(/^#/, '')).get('key') || null
-}
-
-/** The key header, or none without a key. */
-function keyHeaders(key: string | null): Record<string, string> {
-  return key === null ? {} : { [KEY_HEADER]: key }
-}
-
-/** Every greeting; a missing or wrong key is a 404 (T-66), except locally (D-102). */
-export function useAdminGreetings(key: string | null) {
+/** Every greeting (T-66); no key needed (D-112). */
+export function useAdminGreetings() {
   return useQuery({
-    queryKey: ['admin', 'greetings', key],
-    queryFn: () => api<AdminGreeting[]>('/api/admin/greetings', { headers: keyHeaders(key) }),
+    queryKey: ['admin', 'greetings'],
+    queryFn: () => api<AdminGreeting[]>('/api/admin/greetings'),
     retry: false,
   })
 }
 
 /** The lesson audio of one day (T-67). */
-export function useAdminLessonAudio(key: string | null, date: string) {
+export function useAdminLessonAudio(date: string) {
   return useQuery({
-    queryKey: ['admin', 'lesson-audio', key, date],
+    queryKey: ['admin', 'lesson-audio', date],
     queryFn: () =>
-      api<AdminLessonAudioDay>(`/api/admin/lesson-audio?date=${encodeURIComponent(date)}`, {
-        headers: keyHeaders(key),
-      }),
+      api<AdminLessonAudioDay>(`/api/admin/lesson-audio?date=${encodeURIComponent(date)}`),
     enabled: date !== '',
     retry: false,
   })
 }
 
-/** A clip's audio as a blob: an `<audio src>` can't send the key header. */
-export async function fetchAdminClip(key: string | null, url: string): Promise<Blob> {
+/** A clip's audio as a blob, so a failed fetch shows an error instead of a broken player. */
+export async function fetchAdminClip(url: string): Promise<Blob> {
   let response: Response
   try {
-    response = await fetch(url, { headers: keyHeaders(key) })
+    response = await fetch(url)
   } catch {
     throw new NetworkError()
   }
@@ -116,25 +99,24 @@ export async function fetchAdminClip(key: string | null, url: string): Promise<B
 }
 
 /** Every chapter and lesson with its video link (T-94, D-106). */
-export function useAdminLessonLinks(key: string | null) {
+export function useAdminLessonLinks() {
   return useQuery({
-    queryKey: ['admin', 'lesson-links', key],
-    queryFn: () => api<AdminLessonLinks>('/api/admin/lesson-links', { headers: keyHeaders(key) }),
+    queryKey: ['admin', 'lesson-links'],
+    queryFn: () => api<AdminLessonLinks>('/api/admin/lesson-links'),
     retry: false,
   })
 }
 
 /** Sets (any https link) or removes (blank) one lesson's link; a refused link is an `ApiError` with status 400. */
-export function useSetLessonLink(key: string | null) {
+export function useSetLessonLink() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, url }: { id: string; url: string }) =>
       api<AdminLessonLink>(`/api/admin/lesson-links/${encodeURIComponent(id)}`, {
         method: 'PUT',
-        headers: keyHeaders(key),
         body: { clientRequestId: crypto.randomUUID(), url },
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'lesson-links', key] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'lesson-links'] }),
   })
 }
 
@@ -156,26 +138,25 @@ export interface AdminChildren {
 }
 
 /** Every class's children and their WhatsApp numbers (T-118, D-110). */
-export function useAdminChildren(key: string | null) {
+export function useAdminChildren() {
   return useQuery({
-    queryKey: ['admin', 'children', key],
-    queryFn: () => api<AdminChildren>('/api/admin/children', { headers: keyHeaders(key) }),
+    queryKey: ['admin', 'children'],
+    queryFn: () => api<AdminChildren>('/api/admin/children'),
     retry: false,
   })
 }
 
 /** Saves (a phone number) or clears (blank) a family's number; a refused number is an `ApiError` with status 400. */
-export function useSetParentPhone(key: string | null) {
+export function useSetParentPhone() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, phone }: { id: string; phone: string }) =>
       api<AdminChild>(`/api/admin/children/${encodeURIComponent(id)}/phone`, {
         method: 'PUT',
-        headers: keyHeaders(key),
         body: { clientRequestId: crypto.randomUUID(), phone },
       }),
     onSuccess: (child) =>
-      queryClient.setQueryData<AdminChildren>(['admin', 'children', key], (data) =>
+      queryClient.setQueryData<AdminChildren>(['admin', 'children'], (data) =>
         data
           ? {
               classes: data.classes.map((c) => ({

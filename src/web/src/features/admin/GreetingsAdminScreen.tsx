@@ -16,17 +16,17 @@ function greetingFileName({ clipId, teacherName, recordedAt }: AdminGreeting) {
 }
 
 /**
- * /admin/greetings#key=… (T-66, D-83): every teacher's recorded greeting, to listen to. Linked from nowhere, no
- * teacher sign-in; the key in the link is the only way in.
+ * /admin/greetings (T-66, D-83): every teacher's recorded greeting, to listen to. Linked from nowhere, no teacher
+ * sign-in and no key: open to anyone with the address (D-112).
  */
 export function GreetingsAdminScreen() {
   const { t } = useTranslation()
-  return <AdminPage title={t('admin.greetings.title')}>{(key) => <Greetings adminKey={key} />}</AdminPage>
+  return <AdminPage title={t('admin.greetings.title')}><Greetings /></AdminPage>
 }
 
-function Greetings({ adminKey: key }: { adminKey: string | null }) {
+function Greetings() {
   const { t, i18n } = useTranslation()
-  const greetings = useAdminGreetings(key)
+  const greetings = useAdminGreetings()
 
   return (
     <AdminQuery query={greetings}>
@@ -47,13 +47,11 @@ function Greetings({ adminKey: key }: { adminKey: string | null }) {
                     })}
                   </p>
                   <ClipPlayer
-                    adminKey={key}
                     url={`/api/admin/greetings/${greeting.clipId}/audio`}
                     playLabel={t('admin.greetings.play', { name: greeting.teacherName })}
                     playerLabel={t('admin.greetings.player', { name: greeting.teacherName })}
                   />
                   <DownloadClip
-                    adminKey={key}
                     url={`/api/admin/greetings/${greeting.clipId}/audio`}
                     fileName={greetingFileName(greeting)}
                     label={t('admin.greetings.download', { name: greeting.teacherName })}

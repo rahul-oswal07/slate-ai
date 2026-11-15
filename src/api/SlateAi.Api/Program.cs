@@ -32,7 +32,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.Section));
 builder.Services.Configure<BuildInfoOptions>(builder.Configuration.GetSection(BuildInfoOptions.Section));
 builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.Section));
-builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection(AdminOptions.Section));
 builder.Services.AddOptions<StarsOptions>().Bind(builder.Configuration.GetSection(StarsOptions.Section)).ValidateDataAnnotations().ValidateOnStart();
 
 // Resolve the connection string lazily so test hosts can override configuration.

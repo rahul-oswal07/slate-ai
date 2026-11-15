@@ -9,7 +9,6 @@ namespace SlateAi.Api.Tests.Features.Admin;
 /// <summary>The admin children page: who is in each class and the number their family's WhatsApp goes to (T-118, D-110).</summary>
 public sealed class AdminChildEndpointTests
 {
-    private const string Key = "a-test-admin-key-of-32-characters";
     private const string Url = "/api/admin/children";
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
     private static readonly Guid ClassId = Guid.NewGuid();
@@ -32,8 +31,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task Lists_each_class_with_its_children_and_where_each_number_comes_from()
     {
-        await using var factory = Create(Key, recipients: new() { [Ravi.ToString("N")] = "+919812345678" });
-        using var client = Client(factory, Key);
+        await using var factory = Create(recipients: new() { [Ravi.ToString("N")] = "+919812345678" });
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.GetAsync(Url, Ct);
 
@@ -53,8 +52,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task A_saved_number_comes_before_the_server_setting()
     {
-        await using var factory = Create(Key, recipients: new() { [Manjunath.ToString()] = "+919800000000" });
-        using var client = Client(factory, Key);
+        await using var factory = Create(recipients: new() { [Manjunath.ToString()] = "+919800000000" });
+        using var client = factory.CreateHttpsClient();
 
         var cls = Assert.Single((await client.GetFromJsonAsync<AdminChildrenResponse>(Url, Ct))!.Classes);
 
@@ -65,8 +64,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task Saving_stores_the_number_as_E164_and_returns_the_child()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync($"{Url}/{Ananya}/phone", new SetParentPhoneRequest(Guid.NewGuid(), "98450 12345"), Ct);
 
@@ -79,8 +78,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task Clearing_falls_back_to_the_server_setting()
     {
-        await using var factory = Create(Key, recipients: new() { [Manjunath.ToString("N")] = "+919800000000" });
-        using var client = Client(factory, Key);
+        await using var factory = Create(recipients: new() { [Manjunath.ToString("N")] = "+919800000000" });
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync($"{Url}/{Manjunath}/phone", new SetParentPhoneRequest(Guid.NewGuid(), " "), Ct);
 
@@ -92,8 +91,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task A_replayed_save_changes_nothing()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
         var requestId = Guid.NewGuid();
 
         await client.PutAsJsonAsync($"{Url}/{Ananya}/phone", new SetParentPhoneRequest(requestId, "9845012345"), Ct);
@@ -107,8 +106,8 @@ public sealed class AdminChildEndpointTests
     [InlineData("5876543210", "phone")]
     public async Task An_invalid_number_is_400_and_nothing_is_saved(string phone, string field)
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync($"{Url}/{Ananya}/phone", new SetParentPhoneRequest(Guid.NewGuid(), phone), Ct);
 
@@ -120,8 +119,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task A_missing_client_request_id_is_400()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync($"{Url}/{Ananya}/phone", new SetParentPhoneRequest(Guid.Empty, "9845012345"), Ct);
 
@@ -131,8 +130,8 @@ public sealed class AdminChildEndpointTests
     [Fact]
     public async Task An_unknown_child_is_404()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync($"{Url}/{Guid.NewGuid()}/phone", new SetParentPhoneRequest(Guid.NewGuid(), "9845012345"), Ct);
 
@@ -140,44 +139,23 @@ public sealed class AdminChildEndpointTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("a-test-admin-key-of-32-characterX")]
-    public async Task Without_the_right_key_both_are_404_and_nothing_is_saved(string? sent)
+    [InlineData("Production")]
+    [InlineData("Staging")]
+    public async Task The_page_opens_and_saves_without_a_key_D112(string environment)
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, sent);
+        await using var factory = Create(environment: environment);
+        using var client = factory.CreateHttpsClient();
 
         var list = await client.GetAsync(Url, Ct);
         var save = await client.PutAsJsonAsync($"{Url}/{Ananya}/phone", new SetParentPhoneRequest(Guid.NewGuid(), "9845012345"), Ct);
 
-        Assert.Equal((HttpStatusCode.NotFound, HttpStatusCode.NotFound), (list.StatusCode, save.StatusCode));
-        Assert.Null(_store.Rows.Single(r => r.Id == Ananya).SavedPhone);
+        Assert.Equal((HttpStatusCode.OK, HttpStatusCode.OK), (list.StatusCode, save.StatusCode));
+        Assert.Equal("+919845012345", _store.Rows.Single(r => r.Id == Ananya).SavedPhone);
     }
 
-    [Fact]
-    public async Task In_development_the_page_opens_without_the_key()
+    private ApiFactory Create(Dictionary<string, string>? recipients = null, string environment = "Testing")
     {
-        // D-102, like the other admin pages.
-        await using var factory = Create(Key, environment: "Development");
-        using var client = Client(factory, key: null);
-
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(Url, Ct)).StatusCode);
-    }
-
-    private static HttpClient Client(ApiFactory factory, string? key)
-    {
-        var client = factory.CreateHttpsClient();
-        if (key is not null)
-        {
-            client.DefaultRequestHeaders.Add(AdminEndpoints.KeyHeader, key);
-        }
-
-        return client;
-    }
-
-    private ApiFactory Create(string? key, Dictionary<string, string>? recipients = null, string environment = "Testing")
-    {
-        var settings = new Dictionary<string, string?> { ["Admin:Key"] = key };
+        var settings = new Dictionary<string, string?>();
         foreach (var (child, number) in recipients ?? [])
         {
             settings[$"WhatsApp:Recipients:{child}"] = number;

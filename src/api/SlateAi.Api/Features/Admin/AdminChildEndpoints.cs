@@ -31,25 +31,24 @@ public sealed record SetParentPhoneRequest(Guid ClientRequestId, string? Phone);
 
 /// <summary>
 /// The admin children page (T-118, D-110): every class's children with the number their family's WhatsApp goes to, which
-/// can be saved or cleared here. Same key rule as the other admin pages (D-102): open without the key only in
-/// Development. The numbers only ever go to WhatsApp's send (guardrail 1); they are never logged.
+/// can be saved or cleared here. Open to anyone with the address, like the other admin pages (D-112). The numbers only ever go to WhatsApp's send (guardrail 1); they are never logged.
 /// </summary>
 public static class AdminChildEndpoints
 {
     public static IServiceCollection AddAdminChildren(this IServiceCollection services) =>
         services.AddScoped<IAdminChildStore, AdminChildStore>();
 
-    /// <summary>Mapped by <see cref="AdminEndpoints.MapAdminEndpoints"/>, only when the admin pages are.</summary>
+    /// <summary>Mapped by <see cref="AdminEndpoints.MapAdminEndpoints"/>.</summary>
     public static IEndpointRouteBuilder MapAdminChildEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/admin/children", ListAsync)
             .WithTags("Admin")
             .WithSummary("Every class's children with the number their family's WhatsApp goes to (T-118)")
             .WithDescription(
-                $"Needs the {AdminEndpoints.KeyHeader} header (not in Development); 404 without it. phone is the number saved " +
+                "phone is the number saved " +
                 "on this page (phoneFrom saved), else the WhatsApp__Recipients setting (phoneFrom setting), else null: WhatsApp " +
                 "skips the family. Seeded numbers are fictional and never shown. Consent and stopped still decide whether " +
-                "anything is sent. Admin only.");
+                "anything is sent. Admin page; no key (D-112).");
 
         app.MapPut("/api/admin/children/{childId:guid}/phone", SetPhoneAsync)
             .WithTags("Admin")
@@ -57,20 +56,13 @@ public static class AdminChildEndpoints
             .WithDescription(
                 "Body { clientRequestId, phone }: a 10-digit Indian mobile (+91 is added) or a full number with its country " +
                 "code, stored as E.164; blank clears it, and WhatsApp falls back to the server setting. Idempotent per " +
-                $"clientRequestId. 400 for anything else, 404 for an unknown child or without the {AdminEndpoints.KeyHeader} " +
-                "header (not needed in Development). Admin only.");
+                "clientRequestId. 400 for anything else, 404 for an unknown child. Admin page; no key (D-112).");
         return app;
     }
 
-    private static async Task<Results<Ok<AdminChildrenResponse>, NotFound>> ListAsync(
-        HttpContext http, IAdminChildStore store, IOptions<AdminOptions> options, IOptions<WhatsAppOptions> whatsApp,
-        CancellationToken cancellationToken)
+    private static async Task<Ok<AdminChildrenResponse>> ListAsync(
+        HttpContext http, IAdminChildStore store, IOptions<WhatsAppOptions> whatsApp, CancellationToken cancellationToken)
     {
-        if (!AdminEndpoints.CanRead(http, options.Value))
-        {
-            return TypedResults.NotFound();
-        }
-
         var classes = await store.ListAsync(cancellationToken);
         AdminEndpoints.NoStore(http);
         return TypedResults.Ok(new AdminChildrenResponse(classes
@@ -84,16 +76,10 @@ public static class AdminChildEndpoints
         SetParentPhoneRequest request,
         HttpContext http,
         IAdminChildStore store,
-        IOptions<AdminOptions> options,
         IOptions<WhatsAppOptions> whatsApp,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        if (!AdminEndpoints.CanRead(http, options.Value))
-        {
-            return TypedResults.NotFound();
-        }
-
         var errors = new Dictionary<string, string[]>();
         if (request.ClientRequestId == Guid.Empty)
         {

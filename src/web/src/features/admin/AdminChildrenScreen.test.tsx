@@ -15,16 +15,13 @@ const children: AdminChild[] = [
   { id: 'c24', rollNo: 24, firstName: 'Ravi', homeLanguage: 'te', consent: 'yes', stopped: true, phone: '+919812345678', phoneFrom: 'setting' },
 ]
 
-/** The admin API with the key: GET lists the class; PUT saves (as E.164), clears (blank) or refuses a short number (400). */
-function stubApi(key = 'secret-key') {
+/** The admin API (no key, D-112): GET lists the class; PUT saves (as E.164), clears (blank) or refuses a short number (400). */
+function stubApi() {
   const rows = new Map(children.map((c) => [c.id, c]))
   const calls: { method: string; url: string; body: { phone?: string } | null }[] = []
   vi.stubGlobal(
     'fetch',
     vi.fn<typeof globalThis.fetch>(async (input, init) => {
-      if (new Headers(init?.headers).get('X-Admin-Key') !== key) {
-        return new Response(null, { status: 404 })
-      }
       const method = init?.method ?? 'GET'
       const body = init?.body ? (JSON.parse(String(init.body)) as { phone?: string }) : null
       calls.push({ method, url: String(input), body })
@@ -50,7 +47,7 @@ function stubApi(key = 'secret-key') {
   return { calls }
 }
 
-function renderAt(url = '/admin/children#key=secret-key') {
+function renderAt(url = '/admin/children') {
   render(
     <QueryClientProvider client={createQueryClient()}>
       <MemoryRouter initialEntries={[url]}>
@@ -131,12 +128,5 @@ describe('AdminChildrenScreen (T-118)', () => {
     expect(await within(manjunath).findByText('No number: WhatsApp skips this family')).toBeInTheDocument()
     expect(within(manjunath).getByText('Cleared: back to the server setting, if any')).toBeInTheDocument()
     expect(calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ phone: '' })
-  })
-
-  it('without the key it asks for the full link', async () => {
-    stubApi()
-    renderAt('/admin/children')
-
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
   })
 })
