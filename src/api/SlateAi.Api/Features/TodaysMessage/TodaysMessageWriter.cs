@@ -225,6 +225,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
     /// <param name="languages">The languages to write; with <paramref name="teacher"/>, the other languages only (not Kannada).</param>
     /// <param name="names">The class's child names, only to refuse output that contains one; never sent.</param>
     /// <param name="teacher">Her edited Kannada (D-92): A9 says the same in <paramref name="languages"/>. Checked for names before.</param>
+    /// <param name="fromClass">What she said in class (T-120), already filtered by code; ignored when <paramref name="teacher"/> is given.</param>
     public async Task<TodaysWriteResult> WriteAsync(
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
@@ -232,10 +233,12 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
         IReadOnlyList<string>? feedback,
         IEnumerable<string> names,
         CancellationToken cancellationToken,
-        TeacherKannada? teacher = null)
+        TeacherKannada? teacher = null,
+        TodaysFromClass? fromClass = null)
     {
         var request = new LlmRequest(
-            prompts.Get(PromptId), UserContent(languages, lessons, picture, feedback, teacher), TodaysMessageValidator.Schema(), MaxTokens: 8192);
+            prompts.Get(PromptId), UserContent(languages, lessons, picture, feedback, teacher, fromClass), TodaysMessageValidator.Schema(),
+            MaxTokens: 8192);
         LlmResponse response;
         try
         {
@@ -257,15 +260,17 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
     }
 
     /// <summary>
-    /// Curriculum data, code-chosen numbers and, when she edited it, her Kannada (already checked for names): no names, no
-    /// child or class IDs (guardrail 1).
+    /// Curriculum data, code-chosen numbers, what she said in class (filtered by <see cref="TodaysFromClassFilter"/>) and,
+    /// when she edited it, her Kannada (already checked for names): no names, no child or class IDs (guardrail 1). Her own
+    /// Kannada wins over the class summary: A9 then only says the same in other languages, so <c>fromClass</c> is left out.
     /// </summary>
     public static string UserContent(
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
         TodaysPicture picture,
         IReadOnlyList<string>? feedback,
-        TeacherKannada? teacher = null) =>
+        TeacherKannada? teacher = null,
+        TodaysFromClass? fromClass = null) =>
         JsonSerializer.Serialize(new
         {
             languages = languages.Select(l => new { code = l, name = ScriptWriter.LanguageNames.GetValueOrDefault(l, l) }),
@@ -281,6 +286,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
                 exercises = c.Exercises,
             }),
             pictureQuestion = new { picture.A, picture.B },
+            fromClass = teacher is null && fromClass is not null ? new { fromClass.SummaryKn, examples = fromClass.Examples } : null,
             teacherKannada = teacher is null ? null : new { teacher.Concept, activity = teacher.Steps, teacher.Note },
             previousAttemptProblems = feedback ?? [],
         }, Json);

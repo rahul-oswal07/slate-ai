@@ -5,10 +5,19 @@ import { clock } from './clock'
 import type { ParentEvening } from './types'
 
 /**
- * The evening message's optional lesson audio (T-62): one Play button plays the spoken AI disclosure and then the
- * lesson, each from this link's token. Carries the AI label (NFR-08) and the written words (FR-09).
+ * The evening message's optional lesson audio (T-62), or today's activity steps (T-120): one Play button plays the spoken
+ * AI disclosure and then the clip, each from this link's token. Carries the AI label (NFR-08) and the written words (FR-09).
+ * `title` names what plays; it defaults to the lesson.
  */
-export function LessonAudioPlayer({ audio, teacherName }: { audio: NonNullable<ParentEvening['lessonAudio']>; teacherName: string }) {
+export function LessonAudioPlayer({
+  audio,
+  teacherName,
+  title,
+}: {
+  audio: NonNullable<ParentEvening['lessonAudio']>
+  teacherName: string
+  title?: string
+}) {
   const { t } = useTranslation()
   const element = useRef<HTMLAudioElement | null>(null)
   const [index, setIndex] = useState(0)
@@ -68,7 +77,7 @@ export function LessonAudioPlayer({ audio, teacherName }: { audio: NonNullable<P
         </button>
         <div className="min-w-0">
           <h2 id="lesson-audio-title" className="text-body font-bold">
-            {t('parent.evening.lesson.title')} · {clock(audio.totalSeconds)}
+            {title ?? t('parent.evening.lesson.title')} · {clock(audio.totalSeconds)}
           </h2>
           <p className="text-caption text-ink-muted">{t('parent.aiLabel', { teacher: teacherName })}</p>
         </div>

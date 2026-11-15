@@ -134,18 +134,20 @@ public static class ParentEndpoints
                 ? new ParentGreetingView($"/api/p/{token}/greeting", Math.Round(greeting.Seconds, 1))
                 : null,
             message.SentAt, message.Stopped, reason,
-            message.Stopped ? null : await LessonAudioAsync(token, message, disclosure, cancellationToken),
-            message.Stopped ? null : message.TodaysMessage));
+            message.Stopped ? null : await LessonAudioAsync(token, message, message.LessonAudio, disclosure, cancellationToken),
+            message.Stopped ? null : message.TodaysMessage,
+            message.Stopped ? null : await LessonAudioAsync(token, message, message.ActivityAudio, disclosure, cancellationToken)));
     }
 
     /// <summary>
-    /// The approved lesson clip of this message, behind the AI disclosure (T-62). Null when she didn't send one, or the
-    /// disclosure for the family's language isn't made yet (it is made when the clip is).
+    /// One approved clip of this message (the lesson or today's concept, T-62; today's activity steps, T-120), behind the AI
+    /// disclosure. Null when there is none, or the disclosure for the family's language isn't made yet (it is made when the
+    /// clip is).
     /// </summary>
     private static async Task<ParentLessonAudioView?> LessonAudioAsync(
-        string token, ParentMessageRecord message, DisclosureClips disclosure, CancellationToken cancellationToken)
+        string token, ParentMessageRecord message, ParentLessonAudio? clip, DisclosureClips disclosure, CancellationToken cancellationToken)
     {
-        if (message.LessonAudio is not { } lesson
+        if (clip is not { } lesson
             || await disclosure.FindAsync(message.Language, cancellationToken) is not { } intro
             || disclosure.Text(message.Language) is not { } introText)
         {
@@ -218,7 +220,8 @@ public static class ParentEndpoints
         CancellationToken cancellationToken)
     {
         if (!LooksLikeToken(token)
-            || await evenings.FindByTokenAsync(token, cancellationToken) is not { LessonAudio: { } lesson } message
+            || await evenings.FindByTokenAsync(token, cancellationToken) is not { } message
+            || (message.LessonAudio is null && message.ActivityAudio is null)
             || message.Stopped
             || clock.GetUtcNow() >= message.ExpiresAt)
         {
@@ -226,7 +229,8 @@ public static class ParentEndpoints
         }
 
         var intro = await disclosure.FindAsync(message.Language, cancellationToken);
-        if ((clipId != lesson.ClipId && clipId != intro?.Id)
+        // Only this message's own clips (T-62, T-120) and the shared disclosure: never another family's audio.
+        if ((clipId != message.LessonAudio?.ClipId && clipId != message.ActivityAudio?.ClipId && clipId != intro?.Id)
             || await audio.GetBytesAsync(clipId, cancellationToken) is not { } bytes)
         {
             return TypedResults.NotFound();

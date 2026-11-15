@@ -15,7 +15,7 @@ Spec: [`spec.md`](spec.md)
 | `a3-script` v4 | 90-second home-language script | 14/14 first pass |
 | `a4-check` v3 | content check alongside 6 code checks, one retry | 8/8 (11/11 incl. Hindi) |
 | `a8-lesson-recap` v1 | evening lesson audio | 13/15 first pass |
-| `a9-todays-message` v3 | today's concept and activity; other languages from her Kannada; her note, in any language, written in every family language, Kannada included (T-119) | 17/17 first pass (15 Nov) |
+| `a9-todays-message` v4 | today's concept and activity, from the book and what she said in class (T-120); other languages from her Kannada; her note, in any language, written in every family language, Kannada included (T-119) | v3: 17/17 first pass (15 Nov); v4 not run yet (T-120) |
 
 Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24 kbps, ~55 s / ~150 KB per catch-up). Numbers, candidate sets, buddies, scores and pacing are all computed in code.
 

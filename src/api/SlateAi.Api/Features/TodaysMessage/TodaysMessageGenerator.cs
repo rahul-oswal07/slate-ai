@@ -18,7 +18,8 @@ public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages);
 
 /// <summary>
 /// Drafts one today's message (D-91): code picks the picture pair from the book (D-93), A9 writes the concept and the
-/// activity in every language, code checks them (one retry with the problems), and each concept is voiced. The video is
+/// activity in every language from the book and what she said in class (T-120), code checks them (one retry with the
+/// problems), and each concept and each language's activity steps are voiced. The video is
 /// the first of the day's lessons that has a link on the admin page (T-94, D-106), chosen by code. Nothing here sends
 /// anything: the draft waits for her approval (guardrail 3).
 /// </summary>
@@ -73,6 +74,15 @@ public sealed class TodaysMessageGenerator(
             // in another language is written in Kannada too, so Kannada families read it in Kannada (T-119, D-111).
             var noteInKannada = kannada?.Note is not { } typed || TodaysMessageValidator.InScript(typed, "kn");
             var toWrite = kannada is null ? job.Languages : job.Languages.Where(l => l != "kn" || !noteInKannada).ToList();
+            // A fresh draft starts from what she said in class (T-120); code keeps only safe phrases with allowed numbers.
+            var fromClass = kannada is null
+                ? TodaysFromClassFilter.From(
+                    await evening.LatestConfirmedLessonAsync(row.ClassId, row.Date, cancellationToken),
+                    row.Date,
+                    row.CompetencyIds,
+                    TodaysMessageValidator.AllowedNumbers(lessons, picture),
+                    names)
+                : null;
             var texts = new Dictionary<string, TodaysText>();
             var verdict = "valid";
             if (toWrite.Count > 0)
@@ -81,7 +91,7 @@ public sealed class TodaysMessageGenerator(
                 IReadOnlyList<string>? feedback = null;
                 for (var attempt = 1; attempt <= Attempts && result.Texts is null; attempt++)
                 {
-                    result = await writer.WriteAsync(toWrite, lessons, picture, feedback, names, cancellationToken, kannada);
+                    result = await writer.WriteAsync(toWrite, lessons, picture, feedback, names, cancellationToken, kannada, fromClass);
                     feedback = [$"output: {result.Verdict}" + (result.Detail is { } detail ? $" ({detail})" : "")];
                 }
 
@@ -102,19 +112,30 @@ public sealed class TodaysMessageGenerator(
             }
 
             var clips = new Dictionary<string, Guid>();
+            var stepClips = new Dictionary<string, Guid>();
             foreach (var (language, text) in texts)
             {
-                if (await VoiceAsync(language, text.Concept, cancellationToken) is not { } clipId)
+                if (await VoiceAsync(ConceptKind, language, text.Concept, cancellationToken) is not { } clipId)
                 {
                     await Fail(row.Id, "fallback:audio-too-long", cancellationToken);
                     return;
                 }
 
                 clips[language] = clipId;
+                // The steps are voiced too (T-120). Too long to voice is not a failure: the family still reads the steps.
+                if (await VoiceAsync(ActivityKind, language, string.Join(' ', text.Steps), cancellationToken) is { } stepsId)
+                {
+                    stepClips[language] = stepsId;
+                }
+                else
+                {
+                    logger.LogInformation("Today's message {Id}: activity in {Language} too long to voice; text only", row.Id, language);
+                }
             }
 
             var concept = new TodaysConcept(texts.ToDictionary(t => t.Key, t => t.Value.Concept), clips, teacher?.Concept.Removed ?? false);
-            var activity = new TodaysActivity(texts.ToDictionary(t => t.Key, t => t.Value.Steps), teacher?.Activity.Removed ?? false);
+            var activity = new TodaysActivity(
+                texts.ToDictionary(t => t.Key, t => t.Value.Steps), teacher?.Activity.Removed ?? false, stepClips);
             var note = kannada?.Note is null
                 ? null
                 : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed, kannada.Note);
@@ -137,10 +158,13 @@ public sealed class TodaysMessageGenerator(
         }
     }
 
-    /// <summary>The concept's clip, shared by every class that gets the same words; null when it is too long.</summary>
-    private async Task<Guid?> VoiceAsync(string language, string text, CancellationToken cancellationToken)
+    private const string ConceptKind = "todays";
+    private const string ActivityKind = "todays-activity";
+
+    /// <summary>A section's clip, shared by every class that gets the same words; null when it is too long.</summary>
+    private async Task<Guid?> VoiceAsync(string kind, string language, string text, CancellationToken cancellationToken)
     {
-        var hash = Hash(language, text);
+        var hash = Hash(kind, language, text);
         if (await audio.FindSharedAsync(AudioKind.Lesson, language, hash, cancellationToken) is { } existing)
         {
             return existing.Id;
@@ -161,10 +185,10 @@ public sealed class TodaysMessageGenerator(
     private Task Fail(Guid id, string verdict, CancellationToken cancellationToken) =>
         store.SetFailedAsync(id, verdict, clock.GetUtcNow(), cancellationToken);
 
-    /// <summary>One clip per prompt version, language and wording.</summary>
-    private string Hash(string language, string text) =>
+    /// <summary>One clip per section kind, prompt version, language and wording (the concept's key is unchanged since T-88).</summary>
+    private string Hash(string kind, string language, string text) =>
         Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(
-            $"todays|v{prompts.Get(TodaysMessageWriter.PromptId).Version}|{language}|{text}")));
+            $"{kind}|v{prompts.Get(TodaysMessageWriter.PromptId).Version}|{language}|{text}")));
 }
 
 /// <summary>Messages waiting for their draft. In memory: after a restart a row stays "generating" and reads as failed, so she can try again.</summary>

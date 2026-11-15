@@ -92,7 +92,7 @@ export function todaysMessage(overrides: Partial<TodaysMessage> = {}): TodaysMes
     note: null,
     removed: [],
     languages: [
-      { language: 'kn', families: 1, concept: 'ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ.', conceptClipUrl: '/api/audio/c1', steps: ['75 ಮತ್ತು 57 ಕ್ಕೆ ಕಟ್ಟು ಮಾಡಿ.', 'ಯಾವುದು ಹೆಚ್ಚು?'] },
+      { language: 'kn', families: 1, concept: 'ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ.', conceptClipUrl: '/api/audio/c1', steps: ['75 ಮತ್ತು 57 ಕ್ಕೆ ಕಟ್ಟು ಮಾಡಿ.', 'ಯಾವುದು ಹೆಚ್ಚು?'], activityClipUrl: '/api/audio/a1' },
       { language: 'hi', families: 1, concept: 'पहले दस की गड्डियाँ देखिए।', conceptClipUrl: '/api/audio/c2', steps: ['एक', 'दो'] },
     ],
     pairs: [

@@ -10,6 +10,8 @@ export interface TodaysLanguage {
   concept: string
   conceptClipUrl: string | null
   steps: string[]
+  /** The steps voiced (T-120); null when too long to voice or the draft is older. */
+  activityClipUrl?: string | null
 }
 
 export interface TodaysPicture {

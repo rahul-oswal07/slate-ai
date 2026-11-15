@@ -113,6 +113,8 @@ describe("Approve → Today's message (T-89)", () => {
     expect(activity).toHaveAttribute('aria-expanded', 'true')
     expect(concept).toHaveAttribute('aria-expanded', 'false')
     expect(screen.getByText('75 ಮತ್ತು 57 ಕ್ಕೆ ಕಟ್ಟು ಮಾಡಿ.')).toBeInTheDocument()
+    // T-120: she hears the steps as families will, before she approves.
+    expect(screen.getByLabelText('Listen to the activity')).toHaveAttribute('src', '/api/audio/a1')
     expect(screen.getByText('Also goes in Hindi to 1 family')).toBeInTheDocument()
   })
 

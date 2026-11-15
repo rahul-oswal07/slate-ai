@@ -54,7 +54,8 @@ public sealed class A9TodaysMessageEvals
             {
                 var written = await writer.WriteAsync(
                     c.Languages, lessons, picture, feedback, names, TestContext.Current.CancellationToken,
-                    c.Teacher is { } t ? new TeacherKannada(t.Concept, t.Activity, t.Note) : null);
+                    c.Teacher is { } t ? new TeacherKannada(t.Concept, t.Activity, t.Note) : null,
+                    c.FromClass is { } f ? new TodaysFromClass(f.SummaryKn, f.Examples) : null);
                 attempts.Add(new Attempt(written.Texts is not null, written.Verdict, written.Detail, written.Texts));
                 if (written.Texts is not null)
                 {
@@ -93,7 +94,12 @@ public sealed class A9TodaysMessageEvals
 
     private sealed record CaseFile(IReadOnlyList<EvalCase> Cases);
 
-    private sealed record EvalCase(string Id, IReadOnlyList<string> Languages, IReadOnlyList<string> Lessons, int Pair, TeacherCase? Teacher = null);
+    private sealed record EvalCase(
+        string Id, IReadOnlyList<string> Languages, IReadOnlyList<string> Lessons, int Pair, TeacherCase? Teacher = null,
+        FromClassCase? FromClass = null);
+
+    /// <summary>What she said in class (T-120, prompt v4), as code would pass it after <see cref="TodaysFromClassFilter"/>.</summary>
+    private sealed record FromClassCase(string? SummaryKn, IReadOnlyList<string> Examples);
 
     private sealed record TeacherCase(string Concept, IReadOnlyList<string> Activity, string? Note);
 

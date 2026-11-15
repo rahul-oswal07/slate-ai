@@ -10,6 +10,8 @@ Spec: [`spec.md`](spec.md)
 - **Today's message** has sections she can edit or add a note to; only the video and her note can be removed, because the WhatsApp text promises the concept, activity and picture (D-108); her Kannada is kept word for word and the other languages are written from it, and the tick is bound to the version (T-89).
 - **Her note** can be written in any language: Approve shows what she typed and, when it was translated, what Kannada families read; every family reads it in their home language, and Edit starts from what she typed (T-119, D-111).
 - **Draft of today's message** (finale, D-90–D-96): confirming a lesson with the book's exercises (today only Nalikali p 4) drafts a message for absent families: concept with voice, a parent-led activity and a `>,<,=` picture pair chosen by code (T-88).
+- A fresh draft of today's message starts from what she said in class: A1's summary and her examples, filtered by code; her own Kannada edit wins over it (T-120).
+- The Activity section has a player for the voiced steps, as families will hear them (T-120).
 - After the tick, two buttons on both tabs: **Approve and send now** (today's message: the evening send runs at once, with its usual rules; catch-up: sent at once) and **Approve, send after 6 pm** (T-117, D-109).
 - After a successful Approve on today's message she is back on Today (T-108).
 - **Video:** when the lesson has a link on the admin page, today's message shows a Video section with that link, which she can remove (no Edit); code puts it in, never the AI (T-94, D-106).

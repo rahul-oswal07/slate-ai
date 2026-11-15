@@ -192,6 +192,37 @@ describe("Family page for today's message (T-91, T-90)", () => {
     expect(screen.getByRole('heading', { name: "Manjunath's turn" })).toBeInTheDocument()
   })
 
+  it('the activity steps can be heard, after the AI notice, with the words still shown (T-120)', async () => {
+    const user = userEvent.setup()
+    const audio: NonNullable<ParentEvening['activityAudio']> = {
+      segments: [
+        { kind: 'disclosure', url: `/api/p/${token}/lesson-audio/d1`, seconds: 4 },
+        { kind: 'script', url: `/api/p/${token}/lesson-audio/s1`, seconds: 8 },
+      ],
+      totalSeconds: 12,
+      disclosureText: 'A computer voice reads this.',
+      transcript: 'Make 75 and 57 with sticks. Ask which has more bundles.',
+    }
+    setup({ ...evening(), reason: 'unwell', activityAudio: audio })
+    renderApp(`/p/${token}?step=activity`)
+
+    expect(await screen.findByRole('heading', { name: 'Try this at home' })).toBeInTheDocument()
+    expect(screen.getByText('Make 75 and 57 with sticks.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Listen to the steps · 0:12' })).toBeInTheDocument()
+    expect(screen.getByText('A computer voice reads this.')).toBeInTheDocument() // the AI notice's words (FR-09)
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.queryByRole('heading', { name: /Listen to the steps/ })).not.toBeInTheDocument()
+  })
+
+  it('without a clip the activity is text only', async () => {
+    setup({ ...evening(), reason: 'unwell' })
+    renderApp(`/p/${token}?step=activity`)
+
+    expect(await screen.findByRole('heading', { name: 'Try this at home' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /Listen to the steps/ })).not.toBeInTheDocument()
+  })
+
   it('her note shows with her name, marked in the family language it arrives in (T-119)', async () => {
     // The API sends her note in the family's language (A9 writes it from her Kannada), so a screen reader must read
     // it as that language, not as Kannada.
