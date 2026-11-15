@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router'
+import { AdminIndexScreen } from '../features/admin/AdminIndexScreen'
 import { GreetingsAdminScreen } from '../features/admin/GreetingsAdminScreen'
 import { LessonAudioAdminScreen } from '../features/admin/LessonAudioAdminScreen'
 import { LessonLinksAdminScreen } from '../features/admin/LessonLinksAdminScreen'
@@ -31,6 +32,7 @@ export function App() {
       {/* The judges' demo shell: both phones side by side, signs in as the demo teacher itself (FR-14). */}
       <Route path="demo" element={<DemoScreen />} />
       {/* Admin pages for Rahul: linked from nowhere, opened only with the key in their link (T-66, T-67). */}
+      <Route path="admin" element={<AdminIndexScreen />} />
       <Route path="admin/greetings" element={<GreetingsAdminScreen />} />
       <Route path="admin/lesson-audio" element={<LessonAudioAdminScreen />} />
       <Route path="admin/lesson-links" element={<LessonLinksAdminScreen />} />

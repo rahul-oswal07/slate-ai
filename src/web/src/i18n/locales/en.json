@@ -797,6 +797,7 @@
     "downloadFailed": "Couldn’t download this audio. Try again.",
     "nav": {
       "label": "Admin pages",
+      "home": "All pages",
       "greetings": "Greetings",
       "lessonAudio": "Lesson audio",
       "lessonLinks": "Lesson links"
@@ -845,6 +846,13 @@
       "removed": "Removed",
       "refused": "Use a full https link, for example https://diksha.gov.in/…",
       "failed": "Couldn’t save. Try again."
+    },
+    "index": {
+      "title": "Admin pages",
+      "intro": "Every admin page and its address. Open this page with its full link (#key=…) and every link below works.",
+      "greetings": "Listen to and download each teacher’s recorded greeting.",
+      "lessonAudio": "One day’s lesson audio: every class’s clip and the families it went to.",
+      "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families."
     }
   },
   "settings": {
