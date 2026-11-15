@@ -8,7 +8,7 @@ Spec: [`spec.md`](spec.md)
 
 - With today's message the link opens step by step: her voice and text → "Is everything OK?" (the reason, once) → concept → activity → `>,<,=` in sticks, scored by code → Done (T-90, T-91).
 - On the picture question a tap only chooses; Submit sends it. Two submits whatever they are, then locked; nothing says right or wrong, and the answer never reaches the phone; code scores the latest (T-90, D-108).
-- For an add or subtract lesson (behind `TodaysMessage:ArithmeticExercises`), the picture question is the sum, e.g. "248 + 438 = ?", with three stick pictures to choose from. The numeral shows only on the one tapped, the same two-submit rule applies, and code scores the number (D-116, T-128).
+- For an add or subtract lesson (`TodaysMessage:ArithmeticExercises`, on by default; `false` turns it off), the picture question is the sum, e.g. "248 + 438 = ?", with three stick pictures to choose from. The numeral shows only on the one tapped, the same two-submit rule applies, and code scores the number (D-116, T-128).
 - Every step has Back (but the first) and its title in one row, then the teacher line; a reopened link starts at the first step (T-116).
 - A stop link is on every step; removed sections are skipped (T-91).
 - Her note is shown in the family's home language, Kannada included, whatever language she wrote it in, and marked with that language so a screen reader reads it right (T-119, D-111).

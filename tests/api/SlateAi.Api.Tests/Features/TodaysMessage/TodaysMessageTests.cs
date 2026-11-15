@@ -66,12 +66,22 @@ public sealed class TodaysMessageTests
     [Fact]
     public void An_add_or_sub_lesson_gets_a_message_only_with_the_flag_on()
     {
-        // D-116: today's message for sums is behind TodaysMessage:ArithmeticExercises until its prompt's evals have run.
+        // D-116: today's message for sums is behind TodaysMessage:ArithmeticExercises (on by default since its eval run).
         Assert.False(TodaysPicturePicker.Supported([Carry]));
         Assert.False(TodaysPicturePicker.Supported([Borrow]));
         Assert.True(TodaysPicturePicker.Supported([Carry], arithmetic: true));
         Assert.True(TodaysPicturePicker.Supported([Borrow], arithmetic: true));
         Assert.False(TodaysPicturePicker.Supported([NoExercises], arithmetic: true));
+    }
+
+    [Fact]
+    public void Sums_are_on_by_default_and_in_the_shipped_settings()
+    {
+        // D-116: a9-todays-message-sums v1 passed its eval run on 15 Nov, so staging and prod get sums without a setting.
+        Assert.True(new TodaysMessageOptions().ArithmeticExercises);
+        var settings = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory, "appsettings.json")));
+        Assert.True(settings.RootElement.GetProperty("TodaysMessage").GetProperty("ArithmeticExercises").GetBoolean());
     }
 
     [Fact]

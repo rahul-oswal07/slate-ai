@@ -34,3 +34,4 @@ Accepted as written below, with one change: sums get their own prompt file, `pro
 
 - 15 Nov 2026: Proposed by Rahul with T-128 PR A (data, checks and the tag; no message changes).
 - 15 Nov 2026: Accepted by Rahul, who takes this decision instead of Monika. Built in T-128 PR B behind the flag. The eval run for `a9-todays-message-sums` v1 is still to do; it needs an Anthropic key.
+- 15 Nov 2026: Eval run passed (28/28 after at most one retry; the 8 sum cases 7 first try). Rahul asked for sums on by default: `TodaysMessage:ArithmeticExercises` now defaults to `true` in code and `appsettings.json`, and stays as an off switch.

@@ -50,6 +50,11 @@ What the picture question and activity look like for add and subtract: [D-116](.
 
 ## Notes
 
+- 15 Nov 2026: Eval run and sums on by default ([#269](https://github.com/rahul-oswal07/slate-ai/pull/269), which carries PR B to `main` after #264 merged with only PR A).
+  - **Eval:** `a9-todays-message-sums` v1 + v4 passed: 28/28 after at most one retry. The 8 sum cases had 7 right first time; `add-carry-kn-hi` was too long once.
+  - **Flag:** `TodaysMessage:ArithmeticExercises` defaults to `true` in code and `appsettings.json`, so staging and prod get sums with the release. Setting it to `false` turns them off.
+  - **Left:** release to prod (`v1.6`); native review of the new kn/te/ta/hi strings.
+
 - 15 Nov 2026: PR B built, on the same branch as PR A ([#264](https://github.com/rahul-oswal07/slate-ai/pull/264)).
   - **Server:** with the flag on, confirming M3.ADD.* or M3.SUB.* with a family due starts a draft, so she goes to Approve as for Nalikali.
     - The picture is the book's first add/sub pair, with three choices made by code (`ExerciseAnswers.Choices`).

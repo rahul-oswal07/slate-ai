@@ -7,7 +7,8 @@ public sealed class TodaysMessageOptions
 
     /// <summary>
     /// Today's message for add and subtract lessons (D-116, T-128): a sum picture question with three choices, written by
-    /// <c>prompts/a9-todays-message-sums.md</c>. Off until that prompt's evals have run; compare lessons never depend on it.
+    /// <c>prompts/a9-todays-message-sums.md</c>. On by default since its eval run passed (15 Nov); set it to <c>false</c> to turn sums
+    /// off without a release. Compare lessons never depend on it.
     /// </summary>
-    public bool ArithmeticExercises { get; set; }
+    public bool ArithmeticExercises { get; set; } = true;
 }
