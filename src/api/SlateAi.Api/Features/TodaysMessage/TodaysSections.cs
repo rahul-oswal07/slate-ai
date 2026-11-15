@@ -34,7 +34,10 @@ public sealed record TodaysConcept(
     IReadOnlyDictionary<string, string> Text, IReadOnlyDictionary<string, Guid> Clips, bool Removed = false);
 
 /// <summary>Up to 3 parent-led steps, per language.</summary>
-public sealed record TodaysActivity(IReadOnlyDictionary<string, IReadOnlyList<string>> Steps, bool Removed = false);
+/// <param name="Clips">The steps voiced, one clip per language (T-118), so a parent who doesn't read gets the activity too. A
+/// language whose steps were too long to voice has no clip and keeps the text. Null on drafts made before T-118.</param>
+public sealed record TodaysActivity(
+    IReadOnlyDictionary<string, IReadOnlyList<string>> Steps, bool Removed = false, IReadOnlyDictionary<string, Guid>? Clips = null);
 
 /// <summary>
 /// The picture question, numbers and answer by code from the book's list (D-93, guardrail 4). Kind "compare": the child

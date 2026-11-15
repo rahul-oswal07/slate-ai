@@ -1,3 +1,4 @@
+using SlateAi.Api.Speech;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Ai;
@@ -189,6 +190,97 @@ public sealed class TodaysMessageGeneratorTests
         Assert.Equal(new TodaysPicture("compare", 86, 86, "="), _store.Rows.Single().Sections!.Picture);
     }
 
+    [Fact]
+    public async Task A_fresh_draft_tells_A9_what_she_said_in_class()
+    {
+        // T-118: A1's summary and examples from her voice note shape the wording; numbers still come from the book.
+        _evening.Lessons.Add(new ConfirmedLesson(Guid.NewGuid(), Today, [TodaysMessageTests.Compare.Id], "ಬಳೆಗಳಿಂದ 48 ಮತ್ತು 33 ಹೋಲಿಸಿದೆವು.", ["bangles", "48 and 33"]));
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("\"fromClass\":{", request);
+        Assert.Contains("ಬಳೆಗಳಿಂದ 48 ಮತ್ತು 33 ಹೋಲಿಸಿದೆವು.", request);
+        Assert.Contains("bangles", request);
+        Assert.Contains("48 and 33", request);
+        Assert.Equal(TodaysMessageStatus.Ready, _store.Rows.Single().Status);
+    }
+
+    [Fact]
+    public async Task Her_class_words_with_a_name_placeholder_or_a_number_off_the_book_never_reach_A9()
+    {
+        _evening.Lessons.Add(new ConfirmedLesson(
+            Guid.NewGuid(), Today, [TodaysMessageTests.Compare.Id], "{child} ಚೆನ್ನಾಗಿ ಹೇಳಿದ.",
+            ["Manjunath counted", "27 + 15", "48 > 33", "bundles of sticks"]));
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("bundles of sticks", request);
+        Assert.DoesNotContain("Manjunath", request);
+        Assert.DoesNotContain("{child}", request);
+        Assert.DoesNotContain("27 + 15", request);
+        Assert.DoesNotContain("48 > 33", request);
+    }
+
+    [Fact]
+    public async Task Another_days_lesson_or_another_lesson_says_nothing_about_her_class()
+    {
+        _evening.Lessons.Add(new ConfirmedLesson(Guid.NewGuid(), Today.AddDays(-1), [TodaysMessageTests.Compare.Id], null, ["bangles"]));
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Contains("\"fromClass\":null", _llm.Requests.Single().UserContent);
+    }
+
+    [Fact]
+    public async Task Her_own_kannada_wins_over_the_class_summary()
+    {
+        // When she edited, A9 only says her words in other languages (D-92): nothing else may shape them.
+        _llm.Json = TodaysMessageTests.Output(TodaysMessageTests.Hindi);
+        _evening.Lessons.Add(new ConfirmedLesson(Guid.NewGuid(), Today, [TodaysMessageTests.Compare.Id], null, ["bangles"]));
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: null, languages: ["kn", "hi"]);
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("teacherKannada", request);
+        Assert.DoesNotContain("bangles", request);
+    }
+
+    [Fact]
+    public async Task Each_languages_activity_steps_are_voiced_too()
+    {
+        // T-118: for a parent who reads little. One clip per language: the steps read one after the other.
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var activity = _store.Rows.Single().Sections!.Activity;
+        Assert.Equal(["hi", "kn"], activity.Clips!.Keys.Order());
+        Assert.Contains(string.Join(' ', activity.Steps["hi"]), _tts.Texts);
+        Assert.All(activity.Clips.Values, c => Assert.Contains(_audio.Clips, a => a.Info.Id == c && a.Info.Kind == AudioKind.Lesson));
+        Assert.DoesNotContain(activity.Clips.Values, c => _store.Rows.Single().Sections!.Concept.Clips.Values.Contains(c));
+    }
+
+    [Fact]
+    public async Task Steps_too_long_to_voice_keep_their_text_and_the_draft_is_still_ready()
+    {
+        _llm.Json = TodaysMessageTests.Output(TodaysMessageTests.Kannada);
+        var id = await StartAsync();
+
+        await Generator(new LongStepsTts()).GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Ready, "valid"), (row.Status, row.Verdict));
+        Assert.Single(row.Sections!.Concept.Clips);
+        Assert.Empty(row.Sections.Activity.Clips!);
+        Assert.Equal(3, row.Sections.Activity.Steps["kn"].Count);
+    }
+
     /// <summary>A ready v1 draft whose Kannada she has just edited (as the service saves it), back to generating.</summary>
     private async Task<Guid> EditedAsync(string concept, string? note, IReadOnlyList<string> languages, TodaysPicture? picture = null)
     {
@@ -213,7 +305,18 @@ public sealed class TodaysMessageGeneratorTests
     private async Task<Guid> StartAsync() =>
         (await _store.StartAsync(ClassId, Today, [TodaysMessageTests.Compare.Id], DateTimeOffset.UnixEpoch, Ct))!.Value;
 
-    private TodaysMessageGenerator Generator()
+    /// <summary>The fake voice, but 500 s for the Kannada activity steps (they ask "ಮಗುವನ್ನು ಕೇಳಿ"), so only they are too long.</summary>
+    private sealed class LongStepsTts : ITextToSpeech
+    {
+        private readonly FakeTextToSpeech _fake = new();
+
+        public Task<SpokenAudio> SynthesizeAsync(string text, string languageCode, CancellationToken cancellationToken) =>
+            text.Contains("ಮಗುವನ್ನು ಕೇಳಿ")
+                ? Task.FromResult(FakeTextToSpeech.Silence(500))
+                : _fake.SynthesizeAsync(text, languageCode, cancellationToken);
+    }
+
+    private TodaysMessageGenerator Generator(ITextToSpeech? tts = null)
     {
         var curriculum = new CurriculumGraph([TodaysMessageTests.Compare, TodaysMessageTests.NoExercises], []);
         var prompts = PromptLibrary.Load(
@@ -222,7 +325,7 @@ public sealed class TodaysMessageGeneratorTests
             _store,
             _evening,
             new TodaysMessageWriter(_llm, _aiCalls, prompts),
-            _tts,
+            tts ?? _tts,
             _audio,
             _links,
             new DisclosureClips(_tts, _audio, Disclosure),

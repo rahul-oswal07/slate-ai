@@ -1,5 +1,5 @@
 {
-  "_note": "DRAFT cases written by Claude for T-88 (D-91), to be reviewed by Monika and native speakers (T-26). Each case is one day's today's message: the lesson (Nalikali Part 1 p 4, the only lesson with the book's exercise list so far, D-93), the languages (Kannada for the teacher plus the absent families' languages) and the picture pair code picks (index into the lesson's compare list). Pass (code checks, the same ones production runs): A9's output passes TodaysMessageValidator after at most one retry: valid JSON with exactly the requested languages; concept at most 3 sentences and 60 words; 1 to 3 activity steps of at most 30 words; no names, braces or > < signs; at least 80% of the letters in each language's script; only the book's numbers, the page, 10 and the tens and ones of the picture pair. The results file keeps every message for human review. Edit cases (T-89, prompt v2, D-92): `teacher` is her own Kannada (concept, activity, optional note); A9 writes only the other languages to say the same, and the same checks apply, plus a note in every language when she wrote one.",
+  "_note": "DRAFT cases written by Claude for T-88 (D-91), to be reviewed by Monika and native speakers (T-26). Each case is one day's today's message: the lesson (Nalikali Part 1 p 4, the only lesson with the book's exercise list so far, D-93), the languages (Kannada for the teacher plus the absent families' languages) and the picture pair code picks (index into the lesson's compare list). Pass (code checks, the same ones production runs): A9's output passes TodaysMessageValidator after at most one retry: valid JSON with exactly the requested languages; concept at most 3 sentences and 60 words; 1 to 3 activity steps of at most 30 words; no names, braces or > < signs; at least 80% of the letters in each language's script; only the book's numbers, the page, 10 and the tens and ones of the picture pair. The results file keeps every message for human review. Edit cases (T-89, prompt v2, D-92): `teacher` is her own Kannada (concept, activity, optional note); A9 writes only the other languages to say the same, and the same checks apply, plus a note in every language when she wrote one. From-class cases (T-118, prompt v3): `fromClass` is what A1 heard in her voice note (summary and examples), already filtered by code; the same checks apply, and a human reviewer checks that the message uses her objects and way of explaining.",
   "cases": [
     {
       "id": "p4-kn",
@@ -204,6 +204,57 @@
           "ಯಾವುದು ಹೆಚ್ಚು, ಯಾವುದು ಕಡಿಮೆ ಎಂದು ಮಗು ಹೇಳಲಿ."
         ],
         "note": "ಇಂದು ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು."
+      }
+    },
+    {
+      "id": "p4-kn-from-class-bangles",
+      "languages": [
+        "kn"
+      ],
+      "lessons": [
+        "M3.BRIDGE.COMPARE"
+      ],
+      "pair": 0,
+      "fromClass": {
+        "summaryKn": "ಬಳೆಗಳು ಮತ್ತು ಕಡ್ಡಿ ಕಟ್ಟುಗಳಿಂದ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿದೆವು.",
+        "examples": [
+          "bangles",
+          "bundles of sticks",
+          "48 and 33"
+        ]
+      }
+    },
+    {
+      "id": "p4-kn-te-from-class-tamarind",
+      "languages": [
+        "kn",
+        "te"
+      ],
+      "lessons": [
+        "M3.BRIDGE.COMPARE"
+      ],
+      "pair": 1,
+      "fromClass": {
+        "summaryKn": "ಹುಣಸೆ ಬೀಜಗಳನ್ನು ಹತ್ತರ ಗುಂಪು ಮಾಡಿ ಹೆಚ್ಚು ಕಡಿಮೆ ಕಲಿತೆವು.",
+        "examples": [
+          "tamarind seeds in groups of ten",
+          "which is more"
+        ]
+      }
+    },
+    {
+      "id": "p4-kn-hi-from-class-summary-only",
+      "languages": [
+        "kn",
+        "hi"
+      ],
+      "lessons": [
+        "M3.BRIDGE.COMPARE"
+      ],
+      "pair": 2,
+      "fromClass": {
+        "summaryKn": "ಮೊದಲು ಹತ್ತುಗಳನ್ನು, ನಂತರ ಬಿಡಿಗಳನ್ನು ನೋಡಿ ಹೋಲಿಸುವುದನ್ನು ಕಲಿತೆವು.",
+        "examples": []
       }
     }
   ]

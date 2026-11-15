@@ -31,7 +31,10 @@ public sealed record TemplateRecord(
     public LanguageWording Wording => new(Text, PageFormat, PageFormatNoPart);
 }
 
-public sealed record ConfirmedLesson(Guid Id, DateOnly Date, IReadOnlyList<string> CompetencyIds);
+/// <param name="SummaryKn">A1's one-sentence summary of what she taught (no names: A1 keeps the placeholders).</param>
+/// <param name="ExamplesUsed">The examples A1 heard in her note or read on her photo; empty for a lesson she picked.</param>
+public sealed record ConfirmedLesson(
+    Guid Id, DateOnly Date, IReadOnlyList<string> CompetencyIds, string? SummaryKn = null, IReadOnlyList<string>? ExamplesUsed = null);
 
 public sealed record NewEveningMessage(
     Guid ChildId,
@@ -68,7 +71,8 @@ public sealed record ParentMessageRecord(
     bool Stopped,
     ParentLessonAudio? LessonAudio = null,
     ParentTodaysMessage? TodaysMessage = null,
-    string? PictureAnswer = null);
+    string? PictureAnswer = null,
+    ParentLessonAudio? ActivityAudio = null);
 
 /// <summary>
 /// Today's message as sent with this evening message (D-91), in the family's language, without the sections she
@@ -250,7 +254,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
         db.Lessons
             .Where(l => l.ClassId == classId && l.Date <= date && l.Status == LessonValues.Confirmed)
             .OrderByDescending(l => l.Date)
-            .Select(l => new ConfirmedLesson(l.Id, l.Date, l.CompetencyIds))
+            .Select(l => new ConfirmedLesson(l.Id, l.Date, l.CompetencyIds, l.SummaryKn, l.ExamplesUsed))
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlySet<Guid>> GetSentChildIdsAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
@@ -368,6 +372,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
         var lessonAudio = row.LessonAudio;
         ParentTodaysMessage? todays = null;
         string? pictureAnswer = null;
+        ParentLessonAudio? activityAudio = null;
         if (row.Todays is not null && Features.TodaysMessage.TodaysSections.Parse(row.Todays) is { } sections)
         {
             todays = Features.TodaysMessage.TodaysFamilyView.For(sections, row.Language);
@@ -390,12 +395,17 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 ? await db.AudioClips.Where(a => a.Id == clipId).Select(a => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
                     .SingleOrDefaultAsync(cancellationToken)
                 : null;
+            // Its activity steps, voiced (T-118); removed activity means no audio.
+            activityAudio = !sections.Activity.Removed && sections.Activity.Clips?.TryGetValue(row.Language, out var stepsId) == true
+                ? await db.AudioClips.Where(a => a.Id == stepsId).Select(a => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
+                    .SingleOrDefaultAsync(cancellationToken)
+                : null;
         }
 
         return new ParentMessageRecord(
             row.Date, row.Language, row.FirstName, row.DisplayName, row.Greeting, row.Text,
             JsonSerializer.Deserialize<SlotValues>(row.SlotValues, Json)!, row.SentAt, row.ExpiresAt, row.Stopped, lessonAudio, todays,
-            pictureAnswer);
+            pictureAnswer, activityAudio);
     }
 
     public async Task<(string? First, string? Second)?> SavePictureAnswerAsync(

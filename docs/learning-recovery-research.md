@@ -99,7 +99,7 @@ Sizes: S ≤ half a day, M 1–2 days, L more. "Gate" is who has to say yes (CLA
 4. *Personalised:* "She edits every section in Kannada and adds her note. Next: the draft starts from the examples she used in class, and she can say the concept in her own voice" (A1, A2).
 5. *Dose:* cite the phone-tutoring trials: targeted practice over several evenings, plus a human call only when a child is stuck (D2, D3).
 
-**After the finale, in order:** A1 → B1 → D1 (first chapter) → B2 → C2 → D4 (T-103) → A2 → D2 → C3 → D3. A1 and B1 are small and make every message better; D1 is what makes the product work beyond one page.
+**After the finale, in order:** A1 → B1 (both built in [T-118](tasks/T-118-todays-message-from-class-and-voiced-steps.md), 15 Nov, eval pending) → D1 (first chapter) → B2 → C2 → D4 (T-103) → A2 → D2 → C3 → D3. A1 and B1 are small and make every message better; D1 is what makes the product work beyond one page.
 
 ## 5. Risks to keep in view
 

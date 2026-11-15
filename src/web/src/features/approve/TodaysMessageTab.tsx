@@ -161,11 +161,17 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
                 </>
               )}
               {kind === 'activity' && kn && (
-                <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
-                  {kn.steps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
+                <>
+                  <ol className="flex list-decimal flex-col gap-1 pl-5 text-body">
+                    {kn.steps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
+                  {kn.activityClipUrl && (
+                    // eslint-disable-next-line jsx-a11y/media-has-caption -- the steps are shown just above
+                    <audio controls preload="none" src={kn.activityClipUrl} className="mt-2 w-full" aria-label={t('todays.listenActivity')} />
+                  )}
+                </>
               )}
               {kind === 'picture' && message.picture && (
                 <p className="text-body">

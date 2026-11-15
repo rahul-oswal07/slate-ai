@@ -7,7 +7,9 @@ namespace SlateAi.Api.Features.TodaysMessage;
 
 /// <summary>One language of today's message as she (and later the family page) reads it.</summary>
 /// <param name="ConceptClipUrl">The voiced concept (<c>/api/audio/{id}</c>), or null.</param>
-public sealed record TodaysLanguageView(string Language, int Families, string Concept, string? ConceptClipUrl, IReadOnlyList<string> Steps);
+/// <param name="ActivityClipUrl">The steps voiced (T-118); null when they were too long to voice or the draft is older.</param>
+public sealed record TodaysLanguageView(
+    string Language, int Families, string Concept, string? ConceptClipUrl, IReadOnlyList<string> Steps, string? ActivityClipUrl = null);
 
 /// <summary>Today's message for the Approve tab (T-89). Numbers come from code; the text from A9, checked by code.</summary>
 /// <param name="Status">generating, ready, approved or failed; a draft stuck generating after a restart reads as failed.</param>
@@ -120,7 +122,8 @@ public sealed class TodaysMessageService(
                 families.GetValueOrDefault(l),
                 sections.Concept.Text[l],
                 sections.Concept.Clips.TryGetValue(l, out var clip) ? $"/api/audio/{clip}" : null,
-                sections.Activity.Steps.GetValueOrDefault(l) ?? [])).ToList();
+                sections.Activity.Steps.GetValueOrDefault(l) ?? [],
+                sections.Activity.Clips?.TryGetValue(l, out var steps) == true ? $"/api/audio/{steps}" : null)).ToList();
         var removed = sections is null
             ? []
             : TodaysSectionKind.All.Where(k => IsRemoved(sections, k)).ToList();

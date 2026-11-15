@@ -497,6 +497,39 @@ public sealed class ParentEndpointTests
         Assert.Null(stopped.LessonAudio);
     }
 
+    [Fact]
+    public async Task Todays_activity_steps_play_after_the_disclosure_through_the_token_and_only_this_messages_clips()
+    {
+        // T-118: the steps of an approved today's message are voiced, for a parent who reads little.
+        const string token = "ActivityAudioTokenTodayA";
+        var wording = DisclosureWording.Load(Path.Combine(AppContext.BaseDirectory, DisclosureWording.File));
+        var disclosure = await new DisclosureClips(new FakeTextToSpeech(), _audio, wording).GetOrMakeAsync("te", Ct);
+        var steps = await _audio.SaveSharedAsync(AudioKind.Lesson, "te", "steps-hash", FakeTextToSpeech.Silence(12), Ct, transcript: "75 మరియు 57.");
+        _evening.TodaysMessage = new ParentTodaysMessage("భావన", ["75 మరియు 57."], null, null, null);
+        _evening.ActivityAudio = new ParentLessonAudio(steps.Id, steps.Seconds, "75 మరియు 57.");
+        _evening.Messages.Add((Friday, new NewEveningMessage(
+            Ravi, TemplateId, Guid.NewGuid(), "te", new SlotValues("", ""), token, _clock.Now, _clock.Now.AddDays(14), null, Guid.NewGuid())));
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+
+        Assert.Null(page.LessonAudio); // no concept clip on this message: the activity still plays
+        var audio = page.ActivityAudio!;
+        Assert.Equal([AudioKind.Disclosure, AudioKind.Script], audio.Segments.Select(x => x.Kind));
+        Assert.Equal([$"/api/p/{token}/lesson-audio/{disclosure.Id}", $"/api/p/{token}/lesson-audio/{steps.Id}"], audio.Segments.Select(x => x.Url));
+        Assert.Equal("75 మరియు 57.", audio.Transcript);
+        foreach (var segment in audio.Segments)
+        {
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(segment.Url, Ct)).StatusCode);
+        }
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{_script}", Ct)).StatusCode);
+        _evening.Children[0] = _evening.Children[0] with { Stopped = true };
+        Assert.Null((await client.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!.ActivityAudio);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/p/{token}/lesson-audio/{steps.Id}", Ct)).StatusCode);
+    }
+
     private ParentCatchUpRecord Record() => new(
         _assignmentId,
         Ravi,
