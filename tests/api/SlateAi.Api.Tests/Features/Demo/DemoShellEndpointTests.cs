@@ -315,6 +315,43 @@ public sealed class DemoShellEndpointTests
         }
     }
 
+    [Fact]
+    public async Task Child_gives_a_demo_childs_name_and_saved_language()
+    {
+        _store.Children[(ClassId, Rohan)] = new DemoChildResponse(Rohan, "Rohan", "te");
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var child = await client.GetFromJsonAsync<DemoChildResponse>($"/api/demo/children/{Rohan}", Ct);
+
+        Assert.Equal(new DemoChildResponse(Rohan, "Rohan", "te"), child);
+    }
+
+    [Fact]
+    public async Task Child_is_404_for_a_child_outside_the_demo_class()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.GetAsync($"/api/demo/children/{Guid.NewGuid()}", Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Child_is_404_for_a_teacher_of_another_class()
+    {
+        var other = Guid.NewGuid();
+        _store.Children[(other, Rohan)] = new DemoChildResponse(Rohan, "Rohan", "te");
+        _store.Children[(ClassId, Rohan)] = new DemoChildResponse(Rohan, "Rohan", "te");
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(other);
+
+        var response = await client.GetAsync($"/api/demo/children/{Rohan}", Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private ApiFactory Create(
         bool enabled = true,
         string snapshotFile = "no-such-snapshot.json",
@@ -352,6 +389,11 @@ public sealed class DemoShellEndpointTests
 
         public Task<IReadOnlyList<FamilyMessage>?> GetFamilyAsync(Guid classId, Guid childId, CancellationToken cancellationToken) =>
             Task.FromResult(Families.GetValueOrDefault((classId, childId)));
+
+        public Dictionary<(Guid ClassId, Guid ChildId), DemoChildResponse> Children { get; } = [];
+
+        public Task<DemoChildResponse?> GetChildAsync(Guid classId, Guid childId, CancellationToken cancellationToken) =>
+            Task.FromResult(Children.GetValueOrDefault((classId, childId)));
 
         public Task<IReadOnlyList<AiCallRow>> GetAiCallsAsync(DateTimeOffset? since, int limit, CancellationToken cancellationToken)
         {

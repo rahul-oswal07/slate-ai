@@ -81,6 +81,17 @@ describe('DemoScreen (T-18)', () => {
     expect(await screen.findByText(/No messages yet/)).toBeInTheDocument()
   })
 
+  it('links to each panel on its own: the story family\'s phone and Under the hood (T-126)', async () => {
+    setup()
+    renderApp('/demo')
+
+    expect(await screen.findByRole('link', { name: "Manjunath's family's phone on its own" })).toHaveAttribute(
+      'href',
+      '/demo/family/manjunath-1',
+    )
+    expect(screen.getByRole('link', { name: 'Under the hood on its own' })).toHaveAttribute('href', '/demo/ai')
+  })
+
   it('says so when the demo sign-in fails', async () => {
     setup({ login: () => ({ status: 404 }) })
     renderApp('/demo')

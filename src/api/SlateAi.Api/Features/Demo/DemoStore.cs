@@ -64,6 +64,9 @@ public interface IDemoStore
     /// <summary>The links sent to a child's family, newest first; null when the child isn't in the class.</summary>
     Task<IReadOnlyList<FamilyMessage>?> GetFamilyAsync(Guid classId, Guid childId, CancellationToken cancellationToken);
 
+    /// <summary>A child of the class, for the family phone's header (T-126); null if not in the class.</summary>
+    Task<DemoChildResponse?> GetChildAsync(Guid classId, Guid childId, CancellationToken cancellationToken);
+
     /// <summary>When the demo was last reset (the Reset's own request record), or null if never.</summary>
     Task<DateTimeOffset?> GetLastResetAsync(CancellationToken cancellationToken);
 
@@ -194,6 +197,12 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
             .ToListAsync(cancellationToken);
         return evening.Concat(catchUps).OrderByDescending(m => m.SentAt).ToList();
     }
+
+    public Task<DemoChildResponse?> GetChildAsync(Guid classId, Guid childId, CancellationToken cancellationToken) =>
+        db.Children
+            .Where(c => c.Id == childId && c.ClassId == classId)
+            .Select(c => new DemoChildResponse(c.Id, c.FirstName, c.HomeLanguage))
+            .SingleOrDefaultAsync(cancellationToken);
 
     public Task<DateTimeOffset?> GetLastResetAsync(CancellationToken cancellationToken) =>
         db.ProcessedRequests

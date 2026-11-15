@@ -750,6 +750,12 @@
     "parentCaption": "संदेश WhatsApp की जगह यहाँ आते हैं।",
     "parentPage": "{{name}} के परिवार को भेजा गया पेज",
     "backToMessages": "‹ संदेश",
+    "backToDemo": "‹ डेमो पर वापस",
+    "childNotFound": "डेमो कक्षा में इस लिंक वाला कोई बच्चा नहीं है। लिंक जाँचें, या डेमो से परिवार का फ़ोन खोलें।",
+    "openAlone": {
+      "family": "{{name}} के परिवार का फ़ोन अलग से",
+      "ai": "परदे के पीछे अलग से"
+    },
     "chat": {
       "messages": "संदेश",
       "pageTitle": "Tappida Paatha"

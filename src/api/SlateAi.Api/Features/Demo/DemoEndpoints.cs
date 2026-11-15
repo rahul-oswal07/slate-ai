@@ -38,6 +38,11 @@ public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent
 public sealed record DemoInfoResponse(
     Guid ClassId, Guid ParentChildId, DateTimeOffset? LastResetAt, string ParentChildName, string ParentLanguage);
 
+/// <summary>One demo child, for a family phone opened on its own at /demo/family/{childId} (T-126).</summary>
+/// <param name="FirstName">Fictional: only the demo class is served.</param>
+/// <param name="Language">The family's home language code as saved now (the admin page can change it, T-122).</param>
+public sealed record DemoChildResponse(Guid Id, string FirstName, string Language);
+
 /// <summary>
 /// Demo-shell controls (FR-14, D-69). Mapped only when <c>Demo:Enabled</c> is true (the default, for judges);
 /// a real school deployment turns it off and the endpoints don't exist.
@@ -104,6 +109,14 @@ public static class DemoEndpoints
             .WithDescription(
                 "Evening and catch-up links sent to the child's family, newest first. The phone opens each one at " +
                 "/p/{token} like a real parent. 404 for a child outside the signed-in teacher's class. Demo only.");
+
+        app.MapGet("/api/demo/children/{childId:guid}", GetChildAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("A demo child's first name and home language, for a family phone on its own")
+            .WithDescription(
+                "Heads the page /demo/family/{childId} (T-126). 404 unless signed in as the demo teacher and the child " +
+                "is in the demo class. Demo only.");
 
         app.MapGet("/api/demo/ai-calls", GetAiCallsAsync)
             .RequireAuthorization()
@@ -309,6 +322,21 @@ public static class DemoEndpoints
         && await store.GetFamilyAsync(classId, childId, cancellationToken) is { } messages
             ? TypedResults.Ok(messages)
             : TypedResults.NotFound();
+
+    private static async Task<Results<Ok<DemoChildResponse>, NotFound>> GetChildAsync(
+        Guid childId,
+        HttpContext http,
+        IDemoStore store,
+        IOptions<DatabaseOptions> database,
+        CancellationToken cancellationToken)
+    {
+        // Demo class only: its names are fictional, so they can be shown on a page anyone with the link can open.
+        var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
+        return http.User.GetClassId() == seed.Class.Id
+            && await store.GetChildAsync(seed.Class.Id, childId, cancellationToken) is { } child
+                ? TypedResults.Ok(child)
+                : TypedResults.NotFound();
+    }
 
     private static async Task<Ok<IReadOnlyList<AiCallRow>>> GetAiCallsAsync(
         DateTimeOffset? since, IDemoStore store, IOptions<DatabaseOptions> database, CancellationToken cancellationToken)

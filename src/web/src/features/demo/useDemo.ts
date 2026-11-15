@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import type { Me } from '../auth/session'
 import { istToday } from '../today/schoolTime'
-import type { AiCall, DemoInfo, DemoReset, DemoSendNow, FamilyMessage } from './types'
+import type { AiCall, DemoChild, DemoInfo, DemoReset, DemoSendNow, FamilyMessage } from './types'
 
 /** The parent phone and "Under the hood" refresh this often while the demo is open. */
 export const DEMO_POLL_MS = 5000
@@ -35,6 +35,16 @@ export function useDemoInfo() {
       return api<DemoInfo>('/api/demo')
     },
     staleTime: Infinity,
+    retry: false,
+  })
+}
+
+/** The child a family phone opened on its own shows (T-126). Waits for the demo sign-in. */
+export function useDemoChild(childId: string, signedIn: boolean) {
+  return useQuery({
+    queryKey: ['demo', 'child', childId],
+    queryFn: () => api<DemoChild>(`/api/demo/children/${encodeURIComponent(childId)}`),
+    enabled: signedIn && childId !== '',
     retry: false,
   })
 }

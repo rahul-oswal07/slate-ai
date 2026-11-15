@@ -750,6 +750,12 @@
     "parentCaption": "Messages arrive here instead of WhatsApp.",
     "parentPage": "Page sent to {{name}}'s family",
     "backToMessages": "‹ Messages",
+    "backToDemo": "‹ Back to the demo",
+    "childNotFound": "No child with this link in the demo class. Check the link, or open the family phone from the demo.",
+    "openAlone": {
+      "family": "{{name}}'s family's phone on its own",
+      "ai": "Under the hood on its own"
+    },
     "chat": {
       "messages": "Messages",
       "pageTitle": "Tappida Paatha"
