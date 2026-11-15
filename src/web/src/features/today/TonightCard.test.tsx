@@ -18,7 +18,7 @@ const children = ['Ravi', 'Manju', 'Asha', 'Esha'].map((firstName, i) => ({ id: 
 const attendance = (absent: string[]): AttendanceDay => ({
   date,
   status: 'sats',
-  receivedAt: `${date}T12:00:00+05:30`,
+  receivedAt: `${date}T09:00:00+05:30`,
   corrected: false,
   satsDiffers: false,
   syncAt: null,

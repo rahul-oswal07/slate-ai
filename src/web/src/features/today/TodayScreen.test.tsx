@@ -21,7 +21,7 @@ function day(overrides: Partial<AttendanceDay> = {}): AttendanceDay {
   return {
     date,
     status: 'sats',
-    receivedAt: `${date}T12:00:00+05:30`,
+    receivedAt: `${date}T09:00:00+05:30`,
     corrected: false,
     satsDiffers: false,
     syncAt: null,
@@ -83,7 +83,7 @@ describe('TodayScreen', () => {
     today(day())
     renderApp('/')
 
-    const card = await screen.findByRole('region', { name: /Attendance · SATS \(simulated\), 12:00/i })
+    const card = await screen.findByRole('region', { name: /Attendance · SATS \(simulated\), 9:00/i })
     expect(within(card).getByText('2 absent')).toBeInTheDocument()
     expect(within(card).getByText('Chetan')).toBeInTheDocument()
     expect(within(card).getByText('Ravi')).toBeInTheDocument()
@@ -167,11 +167,11 @@ describe('TodayScreen', () => {
   })
 
   it('SATS not in yet: names the sync and retry times, and she can mark it here with everyone present', async () => {
-    today(day({ status: 'waiting', receivedAt: null, syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [] }))
+    today(day({ status: 'waiting', receivedAt: null, syncAt: '09:00:00', retryAt: '14:00:00', absentChildIds: [] }))
     renderApp('/')
 
     expect(await screen.findByText('SATS attendance has not come in yet')).toBeInTheDocument()
-    expect(screen.getByText(/It comes in at 12:00.*If it is late, we check again at 2:00/)).toBeInTheDocument()
+    expect(screen.getByText(/It comes in at 9:00.*If it is late, we check again at 2:00/)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Mark it here if you prefer' }))
 
@@ -184,7 +184,7 @@ describe('TodayScreen', () => {
     renderApp('/')
 
     expect(await screen.findByRole('region', { name: 'Attendance · marked by you' })).toBeInTheDocument()
-    expect(screen.getByText(/SATS attendance came in at 12:00.*We kept your marking\./)).toBeInTheDocument()
+    expect(screen.getByText(/SATS attendance came in at 9:00.*We kept your marking\./)).toBeInTheDocument()
   })
 
   it('says so when nobody is absent', async () => {

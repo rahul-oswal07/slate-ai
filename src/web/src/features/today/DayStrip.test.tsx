@@ -20,12 +20,12 @@ describe('DayStrip', () => {
     await i18n.changeLanguage('en')
     render(
       <I18nextProvider i18n={i18n}>
-        <DayStrip attendanceDone attendanceTime="12:00" lessonDone={false} tonightDone={false} />
+        <DayStrip attendanceDone attendanceTime="9:00" lessonDone={false} tonightDone={false} />
       </I18nextProvider>,
     )
     const steps = within(screen.getByRole('list', { name: 'Today’s steps' })).getAllByRole('listitem')
     expect(steps.map((s) => s.textContent)).toEqual([
-      'Attendance, done12:00',
+      'Attendance, done9:00',
       'Lesson, nowNext',
       'Tonight, later6 pm',
     ])

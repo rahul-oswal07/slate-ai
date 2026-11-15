@@ -28,7 +28,7 @@ Status: ✅ built · 🔨 in progress · ⬜ to build. "Card" links give the det
 | # | Screen | Status | MVP scope (only this) | Card | Scores on |
 |---|---|---|---|---|---|
 | 1 | **T9 Sign in** | ✅ #78 | No change | [T9](T9-sign-in.md) | Works for real |
-| 2 | **T1 Today: attendance** | ✅ #81 | No change (SATS 12:00 / 2:00 pm, missing card, nobody absent, corrections, offline) | [T1](T1-today.md) | N7, offline |
+| 2 | **T1 Today: attendance** | ✅ #81 | No change (SATS 9:00 / 2:00 pm, missing card, nobody absent, corrections, offline) | [T1](T1-today.md) | N7, offline |
 | 3 | **T1 Today: lesson** | ✅ #84, #86 | Mic: **tap to start, tap to stop**, auto-stop at 30 s. "Or pick from the list" always visible (it also covers a blocked mic). Done card with **Change**; "Added to missed lessons"; tonight's card (count of families marked Yes). "Since yesterday" is roadmap (25 Oct) | [T1](T1-today.md) | Voice-first, < 60 s |
 | 4 | **T2 Lesson confirm** | ✅ #86 | Processing → ticked checklist of 1–3 lessons (D-33); low confidence = choose one; "could not hear" and > 20 s → pick from list; note queued offline. `summaryEn` from the same A1 call (D-56) | [T2](T2-lesson-confirm.md) | AI + guardrails |
 | 5 | **T0 Setup** (rest) | ✅ welcome, template approve (#88) · ✅ greeting (T-61) | One **Kannada greeting** (record, play, record again) + consent tick, then **approve the evening template** (no "Tomorrow"). Nothing else | [T0](T0-setup.md) | Teacher's own voice (innovation) |

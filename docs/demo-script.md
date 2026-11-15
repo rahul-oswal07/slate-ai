@@ -6,7 +6,7 @@ The 3-minute live demo for the Grand Finale (Wed 18 Nov), told through one child
 
 1. Open `/demo` on staging and tap **Reset demo**. Reset gives the same state every time:
    - The five school days before today, with only Manjunath away on the last two.
-   - Today's register, stamped 12:00 IST whatever the clock says, with only Manjunath away.
+   - Today's register, stamped 9:00 IST whatever the clock says, with only Manjunath away.
    - No lesson for today yet.
 2. Staging needs `Demo__SendOnApprove=true`, so Approve sends at once. Prod doesn't have it and keeps the 6 pm send.
 
@@ -26,7 +26,7 @@ Save the clip as WebM/Opus (the teacher app's recorder makes one: record it on T
 
 | # | Screen | Say | Real or simulated (R7) |
 |---|---|---|---|
-| 1 | Teacher, Today | "12:00, the register comes in from SATS: Manjunath is away." | SATS is simulated |
+| 1 | Teacher, Today | "9:00, the register comes in from SATS: Manjunath is away." | SATS is simulated |
 | 2 | Today → sample voice note → confirm | "She says what she taught in Kannada. The AI maps it to Nalikali p 4." | STT and A1 are real |
 | 3 | Approve | "She checks and approves. Nothing reaches a family until she approves it." | Real |
 | 4 | Family phone | "In the demo, Approve sends at once; in a school it goes at 6 pm." | WhatsApp is simulated |

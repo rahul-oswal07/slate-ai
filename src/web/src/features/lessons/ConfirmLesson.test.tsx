@@ -39,7 +39,7 @@ function api(day: () => LessonDay, extra: Record<string, FakeRoute> = {}) {
     'GET /api/me': () => ({ status: 200, body: teacher }),
     'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
     [`GET ${dayUrl}`]: () => ({ status: 200, body: day() }),
-    [`GET /api/classes/${teacher.classId}/attendance/${date}`]: () => ({ status: 200, body: { date, status: 'waiting', receivedAt: null, corrected: false, satsDiffers: false, syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [], children: [] } }),
+    [`GET /api/classes/${teacher.classId}/attendance/${date}`]: () => ({ status: 200, body: { date, status: 'waiting', receivedAt: null, corrected: false, satsDiffers: false, syncAt: '09:00:00', retryAt: '14:00:00', absentChildIds: [], children: [] } }),
     ...extra,
   })
 }

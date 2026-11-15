@@ -26,7 +26,7 @@ When a child is absent, the app keeps the family connected every evening, gives 
 
 | When | What happens |
 |---|---|
-| **Every day, ~12:00** | Attendance arrives from the school system (SATS; simulated for now). The teacher doesn't mark it, only corrects mistakes. |
+| **Every day, ~9:00** | Attendance arrives from the school system (SATS; simulated for now). The teacher doesn't mark it, only corrects mistakes. |
 | **Every day, after class** | The teacher taps the mic and says in Kannada what she taught (30 seconds). The AI works out which textbook lesson it was; she confirms with one tap. The app now knows Ravi missed that lesson. |
 | **Every evening Ravi is absent (Tue, Wed, Thu), 6 pm** | His family gets a message with her voice greeting and a short text: *"We missed Ravi today. In class we learned… Homework: page 15. A classmate is keeping his seat."* No AI writes this. It's a fixed message she approved once, and the app fills in the lesson and page. The parent can tap **"Is everything OK?"** and pick a reason (unwell, travel, festival…). |
 | **Friday (once a week)** | The AI looks at everything Ravi missed, picks the 1–2 lessons that matter most for next week, and writes a short catch-up in Telugu, which is turned into audio. The teacher listens, reads a Kannada summary, and approves. **Nothing reaches a parent without her approval.** |

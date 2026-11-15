@@ -9,7 +9,7 @@ const note = 'Demo only: schools are usually shut today. The demo class has atte
 const day = (overrides: Partial<AttendanceDay>): AttendanceDay => ({
   date: '2026-11-01',
   status: 'sats',
-  receivedAt: '2026-11-01T12:00:00+05:30',
+  receivedAt: '2026-11-01T09:00:00+05:30',
   corrected: false,
   satsDiffers: false,
   syncAt: null,
@@ -34,7 +34,7 @@ describe('AttendanceCard demo day off (D-84)', () => {
   it('says it before the register is in too', () => {
     render(
       <AttendanceCard
-        day={day({ status: 'waiting', syncAt: '12:00:00', retryAt: '14:00:00', absentChildIds: [], demoDayOff: true })}
+        day={day({ status: 'waiting', syncAt: '09:00:00', retryAt: '14:00:00', absentChildIds: [], demoDayOff: true })}
         onEdit={() => {}}
       />,
     )
