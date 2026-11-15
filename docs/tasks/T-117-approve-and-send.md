@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
-| Issue | #238 |
+| Status | Done |
+| Issue | #238 · PR #239 |
 | Owner | R |
 | Screens | T3-approve, demo |
 | Source | Rahul, 15 Nov (testing: "the message is not sent immediately after approval"); [D-109](../decisions/D-109-approve-and-send-now.md); replaces `Demo:SendOnApprove` (T-93, D-94); size M |
