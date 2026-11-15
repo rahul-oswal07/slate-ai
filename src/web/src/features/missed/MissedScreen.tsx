@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
+import { BackToday } from '../back/BackTodayScreen'
+import { useBuddyCards } from '../back/useBuddyCards'
 import { useMe } from '../auth/useMe'
 import { findLesson, pageText } from '../lessons/lessonText'
 import type { Chapter } from '../lessons/types'
@@ -18,10 +20,13 @@ import { useLedger } from './useLedger'
 const STATUS_ORDER: LearningStatus[] = ['missed', 'sent', 'caughtUp', 'needsBuddy']
 
 /**
- * T4 Missed lessons (FR-05): who missed which lesson this week and where each child stands, by child or by lesson.
- * Everything is counted in code from attendance × her confirmed lessons; no AI. View and filter live in the URL so
- * Back from a child returns to the same list.
+ * Children (T4 Missed lessons, FR-05; the "Children" tab, D-96): who missed which lesson this week and where each child
+ * stands, by child or by lesson; By child also filters to Back today, the buddy cards (T5). Everything is counted in code
+ * from attendance × her confirmed lessons; no AI. View and filter live in the URL so Back from a child returns to the
+ * same list.
  */
+type Filter = 'week' | 'all' | 'back'
+
 export function MissedScreen() {
   const { t, i18n } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
@@ -30,7 +35,8 @@ export function MissedScreen() {
   const chapters = useCurriculum().data?.chapters ?? []
   const [params, setParams] = useSearchParams()
   const view = params.get('view') === 'lesson' ? 'lesson' : 'child'
-  const everyone = params.get('filter') === 'all'
+  const filter: Filter = params.get('filter') === 'all' ? 'all' : params.get('filter') === 'back' ? 'back' : 'week'
+  const backToday = useBuddyCards(classId, istToday()).data?.cards.length ?? 0
   const data = ledger.data
   // Today's picture question level per child (T-92), the same as on Today.
   const answers = useTodaysAnswers(classId, istToday()).data
@@ -54,7 +60,7 @@ export function MissedScreen() {
 
   return (
     <section aria-labelledby="missed-title" className="flex flex-col gap-4 px-4 py-4">
-      <h1 id="missed-title" ref={headingRef} tabIndex={-1} className="text-title">
+      <h1 id="missed-title" ref={headingRef} tabIndex={-1} className="text-title print:hidden">
         {t('missed.title')}
       </h1>
 
@@ -91,7 +97,7 @@ export function MissedScreen() {
         </div>
       ) : data ? (
         <>
-          <fieldset>
+          <fieldset className="print:hidden">
             <legend className="sr-only">{t('missed.view')}</legend>
             <div className="grid grid-cols-2 overflow-hidden rounded-button border-2 border-border">
               {(['child', 'lesson'] as const).map((v) => (
@@ -113,8 +119,9 @@ export function MissedScreen() {
               data={data}
               levels={levels}
               chapters={chapters}
-              everyone={everyone}
-              onFilter={(all) => set('filter', all ? 'all' : null)}
+              filter={filter}
+              backToday={backToday}
+              onFilter={(next) => set('filter', next === 'week' ? null : next)}
             />
           ) : (
             <ByLesson data={data} chapters={chapters} />
@@ -131,53 +138,77 @@ function ByChild({
   data,
   levels,
   chapters,
-  everyone,
+  filter,
+  backToday,
   onFilter,
 }: {
   data: Ledger
   levels: Map<string, Level>
   chapters: Chapter[]
-  everyone: boolean
-  onFilter: (all: boolean) => void
+  filter: Filter
+  backToday: number
+  onFilter: (filter: Filter) => void
 }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const absent = data.children.filter((c) => c.daysAwayThisWeek > 0)
-  const rows = everyone ? data.children : absent
+  const rows = filter === 'all' ? data.children : absent
+  const label: Record<Filter, string> = {
+    week: t('missed.filterWeek', { n: absent.length }),
+    all: t('missed.filterAll', { n: data.children.length }),
+    back: t('missed.filterBack', { n: backToday }),
+  }
   return (
     <>
-      <fieldset>
+      <fieldset className="print:hidden">
         <legend className="sr-only">{t('missed.filter')}</legend>
         <div className="flex flex-wrap gap-2">
-          {[false, true].map((all) => (
+          {(['week', 'all', 'back'] as const).map((option) => (
             <button
-              key={String(all)}
+              key={option}
               type="button"
-              aria-pressed={everyone === all}
-              onClick={() => onFilter(all)}
+              aria-pressed={filter === option}
+              onClick={() => onFilter(option)}
               className={`min-h-target rounded-sm border border-border px-3 text-label ${
-                everyone === all ? 'bg-primary text-on-primary' : 'bg-surface text-ink'
+                filter === option ? 'bg-primary text-on-primary' : 'bg-surface text-ink'
               }`}
             >
-              {all ? t('missed.filterAll', { n: data.children.length }) : t('missed.filterWeek', { n: absent.length })}
+              {label[option]}
             </button>
           ))}
         </div>
       </fieldset>
-      <ul className="overflow-hidden rounded-button border-2 border-border bg-surface">
-        {rows.map((child) => (
-          <li key={child.childId} className="border-b border-divider last:border-b-0">
-            <ChildRow
-              child={child}
-              weekOf={data.weekOf}
-              chapters={chapters}
-              language={i18n.language}
-              t={t}
-              level={levels.get(child.childId)}
-            />
-          </li>
-        ))}
-      </ul>
+      {filter === 'back' ? <BackToday /> : <ChildList rows={rows} data={data} chapters={chapters} levels={levels} />}
     </>
+  )
+}
+
+function ChildList({
+  rows,
+  data,
+  chapters,
+  levels,
+}: {
+  rows: LedgerChild[]
+  data: Ledger
+  chapters: Chapter[]
+  levels: Map<string, Level>
+}) {
+  const { t, i18n } = useTranslation()
+  return (
+    <ul className="overflow-hidden rounded-button border-2 border-border bg-surface">
+      {rows.map((child) => (
+        <li key={child.childId} className="border-b border-divider last:border-b-0">
+          <ChildRow
+            child={child}
+            weekOf={data.weekOf}
+            chapters={chapters}
+            language={i18n.language}
+            t={t}
+            level={levels.get(child.childId)}
+          />
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -191,7 +222,7 @@ function ChildRow({
 }: {
   child: LedgerChild
   weekOf: string
-  /** Today's picture question level (T-92, D-95), for a child who got today's message. */
+  /** Today's picture question level (T-92, D-108), for a child who got today's message. */
   level?: Level
   chapters: Chapter[]
   language: string

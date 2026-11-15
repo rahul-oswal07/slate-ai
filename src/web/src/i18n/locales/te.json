@@ -252,8 +252,7 @@
     "label": "ప్రధాన మెను",
     "today": "ఈ రోజు",
     "approve": "ఆమోదం",
-    "missed": "తప్పిన పాఠం",
-    "back": "తిరిగి వచ్చినవారు",
+    "children": "పిల్లలు",
     "week": "వారం",
     "approveWaiting": ", {{n}} వేచి ఉన్నాయి"
   },
@@ -541,13 +540,14 @@
     }
   },
   "missed": {
-    "title": "తప్పిన పాఠాలు",
+    "title": "పిల్లలు",
     "view": "చూపు",
     "viewChild": "బిడ్డ వారీగా",
     "viewLesson": "పాఠం వారీగా",
     "filter": "ఫిల్టర్",
     "filterWeek": "ఈ వారం గైర్హాజరు · {{n}}",
     "filterAll": "అందరూ · {{n}}",
+    "filterBack": "ఈ రోజు తిరిగి వచ్చినవారు · {{n}}",
     "daysAway_one": "· {{count}} రోజు రాలేదు",
     "daysAway_other": "· {{count}} రోజులు రాలేదు",
     "missed": "తప్పినవి: {{lessons}}",

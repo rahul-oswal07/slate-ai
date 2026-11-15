@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done |
 | Issue | none yet |
 | Owner | R |
 | Screens | app-shell |
@@ -22,6 +22,7 @@ Vitest; existing e2e specs pass; 360 px screenshots
 
 ## Notes
 
+- 15 Nov: **built** (the bottom nav part; the header was T-109). Four tabs: Today · Approve · Children · Week. Children is the missed-lessons screen with the title "Children"; By child gets a third filter "Back today · n" (`?filter=back`) that shows the buddy cards in place of the list (view toggle and filters are hidden when printing); `/back` redirects to it. kn/te/ta/hi for "Children" are drafts.
 - 15 Nov: the header part is built by T-109 (D-101): one row with a profile menu, instead of "Log out moves to Settings; the gear gets a Settings label". What is left here is the bottom nav: Today · Approve · Children · Week, with Back today as a filter in Children.
 - 15 Nov: moved here from `tasks.md` (T-110).
 - 14 Nov: the language switch is its own task and is built (T-107, #206). T-109 (#210, proposed) replaces the header part; the bottom nav part is unchanged.

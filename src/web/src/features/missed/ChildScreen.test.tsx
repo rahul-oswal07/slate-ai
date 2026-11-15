@@ -96,7 +96,7 @@ describe('ChildScreen (T4 child history + delete)', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Delete all of Ravi’s data' }))
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }))
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Missed lessons' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Children' })).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: 'Absent this week · 1' })).toBeInTheDocument()
     expect(screen.queryByText(/Ravi/)).toBeNull()
     await waitFor(() => expect(screen.getByTestId('announcer')).toHaveTextContent('Deleted: name, answers and audio'))

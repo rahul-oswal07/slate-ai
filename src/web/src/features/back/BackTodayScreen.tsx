@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
-import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import { pageText } from '../lessons/lessonText'
 import { sumQuestion } from '../parent/sumQuestion'
@@ -49,11 +48,11 @@ function itemText(t: ReturnType<typeof useTranslation>['t'], kind: string | null
 
 /**
  * T5 Back today (FR-12): a buddy card for every child who came back, one at a time with Prev / Next, printable.
- * Everything on the card is made by code (no AI). Never shows the family's channel or a score (B-20).
+ * Everything on the card is made by code (no AI). Never shows the family's channel or a score (B-20). Shown inside
+ * Children as its "Back today" filter (D-96, T-95); Children's heading takes focus.
  */
-export function BackTodayScreen() {
+export function BackToday() {
   const { t } = useTranslation()
-  const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const classId = useMe().data?.classId ?? ''
   const today = istToday()
   const query = useBuddyCards(classId, today)
@@ -63,10 +62,10 @@ export function BackTodayScreen() {
   const card = cards[current]
 
   return (
-    <section aria-labelledby="back-title" className="flex flex-col gap-4 px-4 py-4">
-      <h1 id="back-title" ref={headingRef} tabIndex={-1} className="text-title print:hidden">
+    <section aria-labelledby="back-title" className="flex flex-col gap-4">
+      <h2 id="back-title" className="text-title print:hidden">
         {t('back.title')}
-      </h1>
+      </h2>
 
       {query.data?.savedAt && (
         <output className="block border-l-4 border-l-warning bg-surface p-3 text-body text-ink print:hidden">

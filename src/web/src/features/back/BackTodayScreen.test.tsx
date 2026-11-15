@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { saveSnapshot } from '../../offline/db'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
+import { ledger } from '../missed/fixtures'
 import { istToday } from '../today/schoolTime'
 import type { BuddyCard, BuddyCards } from './types'
 
@@ -45,6 +46,8 @@ function setup(current: () => BuddyCards | 'offline', extra: Record<string, Fake
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET /api/classes/${teacher.classId}/packages`]: () => ({ status: 200, body: { weekOf: today, packages: [] } }),
+    // Back today is a filter in Children (D-96, T-95), which loads the week's missed lessons too.
+    [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
     [`GET ${cardsUrl}`]: () => {
       const value = current()
       return value === 'offline' ? 'offline' : { status: 200, body: value }
@@ -53,7 +56,7 @@ function setup(current: () => BuddyCards | 'offline', extra: Record<string, Fake
   })
 }
 
-describe('BackTodayScreen (T5)', () => {
+describe('Back today (T5), a filter in Children', () => {
   beforeEach(async () => {
     localStorage.clear()
     await i18n.changeLanguage('en')
@@ -68,7 +71,11 @@ describe('BackTodayScreen (T5)', () => {
     setup(() => ({ date: today, cards: [ravi, manju] }))
     renderApp('/back')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Back today' })).toHaveFocus()
+    // The old /back address lands on Children with Back today chosen (D-96, T-95).
+    expect(await screen.findByRole('heading', { level: 1, name: 'Children' })).toHaveFocus()
+    expect(await screen.findByRole('heading', { level: 2, name: 'Back today' })).toBeInTheDocument()
+    // The count fills in once today's cards have loaded.
+    expect(await screen.findByRole('button', { name: 'Back today · 2' })).toHaveAttribute('aria-pressed', 'true')
     expect(await screen.findByText('Card 1 of 2 · next: Manju')).toBeInTheDocument()
     const article = screen.getByRole('article', { name: 'Ravi' })
     expect(article).toHaveTextContent('Back after 2 days')

@@ -4,15 +4,15 @@ import { Icon, type IconName } from '../components/Icon'
 import { useMe } from '../features/auth/useMe'
 import { usePackages, waitingCount } from '../features/approve/usePackages'
 
-const tabs: { to: string; key: 'today' | 'approve' | 'missed' | 'back' | 'week'; icon: IconName }[] = [
+const tabs: { to: string; key: 'today' | 'approve' | 'children' | 'week'; icon: IconName }[] = [
   { to: '/', key: 'today', icon: 'house' },
   { to: '/approve', key: 'approve', icon: 'check' },
-  { to: '/missed', key: 'missed', icon: 'list' },
-  { to: '/back', key: 'back', icon: 'users' },
+  // Children: missed lessons by child or lesson, and Back today as one of its filters (D-96).
+  { to: '/missed', key: 'children', icon: 'users' },
   { to: '/week', key: 'week', icon: 'chartColumn' },
 ]
 
-/** Teacher bottom nav (T1 card §8): five equal tabs, active tab marked with aria-current. Hidden during setup. */
+/** Teacher bottom nav (T1 card §8, D-96): four equal tabs, active tab marked with aria-current. Hidden during setup. */
 export function BottomNav() {
   const { t } = useTranslation()
   // T2 Lesson confirm, Settings (T-71) and Profile (T-109, both opened from the header's profile menu) are
@@ -27,7 +27,7 @@ export function BottomNav() {
 
   return (
     <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-10 border-t border-edge bg-surface print:hidden">
-      <ul className="mx-auto grid max-w-md grid-cols-5">
+      <ul className="mx-auto grid max-w-md grid-cols-4">
         {tabs.map((tab) => (
           <li key={tab.key}>
             <Link

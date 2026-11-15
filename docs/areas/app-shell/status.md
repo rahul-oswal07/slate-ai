@@ -12,7 +12,7 @@ Spec: [`spec.md`](spec.md)
 - The header stays at the top while she scrolls, on teacher screens only (family pages don't use it); focused headings and the skip link land below it (T-114).
 - The tagline is "The missed lesson" (no "at home"); Kannada shows none, since the name already says it (T-114).
 - The header is one row: the name centred with language and a profile button, the tagline under the name. The profile menu is Profile · Settings · Log out. Sign-in has no profile button; before set-up the menu has Log out only (T-109, D-101).
-- Bottom nav: Today · Approve · Missed · Back today · Week.
+- Bottom nav: four tabs, Today · Approve · Children · Week (D-96, T-95). Children opens the missed-lessons screen; Back today is one of its filters, and the old `/back` link lands there.
 
 ## Known gaps and drafts
 

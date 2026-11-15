@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { saveSnapshot } from '../../offline/db'
 import { fakeApi, renderApp, teacher } from '../../test/renderApp'
+import { istToday } from '../today/schoolTime'
 import { curriculum, ledger } from './fixtures'
 import type { Ledger } from './types'
 
@@ -45,7 +46,7 @@ describe('MissedScreen (T4)', () => {
     setup(() => ledger())
     renderApp('/missed')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Missed lessons' })).toHaveFocus()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Children' })).toHaveFocus()
     expect(await screen.findByRole('button', { name: 'Absent this week · 2' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'Everyone · 4' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'By child' })).toHaveAttribute('aria-pressed', 'true')
@@ -124,5 +125,24 @@ describe('MissedScreen (T4)', () => {
 
     expect(await screen.findByText(/No network\. Showing the saved list \(today .+\)\./)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Absent this week · 2' })).toBeInTheDocument()
+  })
+
+  it('Back today is the third filter in Children; the Children tab stays current (D-96, T-95)', async () => {
+    const user = userEvent.setup()
+    fakeApi({
+      'GET /api/me': () => ({ status: 200, body: teacher }),
+      [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
+      [`GET /api/classes/${teacher.classId}/buddy-cards/${istToday()}`]: () => ({ status: 200, body: { date: istToday(), cards: [] } }),
+    })
+    renderApp('/missed')
+
+    const back = await screen.findByRole('button', { name: 'Back today · 0' })
+    expect(back).toHaveAttribute('aria-pressed', 'false')
+    await user.click(back)
+
+    expect(back).toHaveAttribute('aria-pressed', 'true')
+    expect(await screen.findByRole('heading', { level: 2, name: 'Back today' })).toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: 'Main' })
+    expect(within(nav).getByRole('link', { name: 'Children' })).toHaveAttribute('aria-current', 'page')
   })
 })
