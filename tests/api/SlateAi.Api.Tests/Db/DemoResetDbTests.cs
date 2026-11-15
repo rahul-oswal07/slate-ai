@@ -32,8 +32,10 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         // A class that has been used: today's register, a lesson, a deleted child, a stop, a changed consent, a package
         // with its own audio, a shared disclosure clip and an AI call.
         (await api.MarkAsync(Guid.NewGuid(), today, bhavana)).EnsureSuccessStatusCode();
+        // A lesson without the book's exercises, so confirming it starts no today's message and no background AI call
+        // (D-93, D-116): the AI log below then holds only the one call added here.
         (await api.Client.PutAsJsonAsync($"/api/classes/{api.ClassId}/lessons/{today:yyyy-MM-dd}",
-            new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
         (await api.Client.DeleteAsync(
             $"/api/classes/{api.ClassId}/children/{ananya}?clientRequestId={Guid.NewGuid()}", DemoClassApi.Ct)).EnsureSuccessStatusCode();
         var oldPackage = Guid.NewGuid();
