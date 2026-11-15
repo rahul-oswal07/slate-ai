@@ -252,8 +252,7 @@
     "label": "ಮುಖ್ಯ ಮೆನು",
     "today": "ಇಂದು",
     "approve": "ಒಪ್ಪಿಗೆ",
-    "missed": "ತಪ್ಪಿದ ಪಾಠ",
-    "back": "ಮರಳಿ ಬಂದವರು",
+    "children": "ಮಕ್ಕಳು",
     "week": "ವಾರ",
     "approveWaiting": ", {{n}} ಕಾಯುತ್ತಿವೆ"
   },
@@ -543,13 +542,14 @@
     }
   },
   "missed": {
-    "title": "ತಪ್ಪಿದ ಪಾಠಗಳು",
+    "title": "ಮಕ್ಕಳು",
     "view": "ನೋಟ",
     "viewChild": "ಮಗುವಿನಂತೆ",
     "viewLesson": "ಪಾಠದಂತೆ",
     "filter": "ಫಿಲ್ಟರ್",
     "filterWeek": "ಈ ವಾರ ಗೈರು · {{n}}",
     "filterAll": "ಎಲ್ಲರೂ · {{n}}",
+    "filterBack": "ಇಂದು ಮರಳಿದವರು · {{n}}",
     "daysAway_one": "· {{count}} ದಿನ ಗೈರು",
     "daysAway_other": "· {{count}} ದಿನ ಗೈರು",
     "missed": "ತಪ್ಪಿದ್ದು: {{lessons}}",

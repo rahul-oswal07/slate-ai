@@ -252,8 +252,7 @@
     "label": "मुख्य",
     "today": "आज",
     "approve": "मंज़ूरी",
-    "missed": "छूटे",
-    "back": "आज लौटे",
+    "children": "बच्चे",
     "week": "सप्ताह",
     "approveWaiting": ", {{n}} इंतज़ार में"
   },
@@ -543,13 +542,14 @@
     }
   },
   "missed": {
-    "title": "छूटे हुए पाठ",
+    "title": "बच्चे",
     "view": "दृश्य",
     "viewChild": "बच्चे के अनुसार",
     "viewLesson": "पाठ के अनुसार",
     "filter": "फ़िल्टर",
     "filterWeek": "इस सप्ताह अनुपस्थित · {{n}}",
     "filterAll": "सभी · {{n}}",
+    "filterBack": "आज लौटे · {{n}}",
     "daysAway_one": "· {{count}} दिन अनुपस्थित",
     "daysAway_other": "· {{count}} दिन अनुपस्थित",
     "missed": "छूटा: {{lessons}}",

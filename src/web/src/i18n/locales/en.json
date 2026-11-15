@@ -252,8 +252,7 @@
     "label": "Main",
     "today": "Today",
     "approve": "Approve",
-    "missed": "Missed",
-    "back": "Back today",
+    "children": "Children",
     "week": "Week",
     "approveWaiting": ", {{n}} waiting"
   },
@@ -543,13 +542,14 @@
     }
   },
   "missed": {
-    "title": "Missed lessons",
+    "title": "Children",
     "view": "View",
     "viewChild": "By child",
     "viewLesson": "By lesson",
     "filter": "Filter",
     "filterWeek": "Absent this week · {{n}}",
     "filterAll": "Everyone · {{n}}",
+    "filterBack": "Back today · {{n}}",
     "daysAway_one": "· {{count}} day away",
     "daysAway_other": "· {{count}} days away",
     "missed": "Missed: {{lessons}}",

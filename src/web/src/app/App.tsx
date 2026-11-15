@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import { AdminIndexScreen } from '../features/admin/AdminIndexScreen'
 import { GreetingsAdminScreen } from '../features/admin/GreetingsAdminScreen'
 import { LessonAudioAdminScreen } from '../features/admin/LessonAudioAdminScreen'
@@ -9,7 +9,6 @@ import { ApproveScreen } from '../features/approve/ApproveScreen'
 import { PackageScreen } from '../features/approve/PackageScreen'
 import { DemoScreen } from '../features/demo/DemoScreen'
 import { ConfirmLessonScreen } from '../features/lessons/ConfirmLessonScreen'
-import { BackTodayScreen } from '../features/back/BackTodayScreen'
 import { ChildScreen } from '../features/missed/ChildScreen'
 import { MissedScreen } from '../features/missed/MissedScreen'
 import { ParentScreen } from '../features/parent/ParentScreen'
@@ -56,7 +55,8 @@ export function App() {
             <Route path="approve/:id" element={<PackageScreen />} />
             <Route path="missed" element={<MissedScreen />} />
             <Route path="missed/:childId" element={<ChildScreen />} />
-            <Route path="back" element={<BackTodayScreen />} />
+            {/* Back today is a filter in Children now (D-96, T-95); old links still land there. */}
+            <Route path="back" element={<Navigate to="/missed?filter=back" replace />} />
             <Route path="week" element={<WeekScreen />} />
           </Route>
         </Route>
