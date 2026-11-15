@@ -65,6 +65,7 @@ Same two files per folder.
 | [`design/`](design/README.md) | Monika's design cards, tokens, journey, prototype, screenshots |
 | [`whatsapp-setup.md`](whatsapp-setup.md), [`whatsapp-delivery-plan.md`](whatsapp-delivery-plan.md) | Meta setup and template wording; the design of delivery step 1 |
 | [`hackathon-requirements.md`](hackathon-requirements.md), [`judging-narrative.md`](judging-narrative.md), [`demo-script.md`](demo-script.md), `mentor-*.md` | The hackathon: rules, jury feedback, the story for judges, mentor sessions |
+| [`learning-recovery-research.md`](learning-recovery-research.md) | Jury point J1: what is built, the evidence and options for a deeper home catch-up (15 Nov research note) |
 | [`lessons.md`](lessons.md) | Bugs and the test that now guards each |
 | `screenshots/` | PR screenshots, one folder per task |
 | [`archive/`](archive/) | History as it was written: the session log, tasks until 15 Nov, finished plans |
