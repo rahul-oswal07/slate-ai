@@ -50,6 +50,15 @@ public sealed class FakeTodaysMessageStore : ITodaysMessageStore
         }
     }
 
+    public Task<bool> RemoveUnsentAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            var row = Rows.SingleOrDefault(r => r.ClassId == classId && r.Date == date);
+            return Task.FromResult(row is not null && !IsSent(row.Id) && Rows.Remove(row));
+        }
+    }
+
     public Task SetReadyAsync(Guid id, TodaysSections sections, string verdict, DateTimeOffset now, CancellationToken cancellationToken)
     {
         lock (_gate)

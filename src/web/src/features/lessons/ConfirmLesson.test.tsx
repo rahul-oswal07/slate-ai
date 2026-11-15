@@ -196,14 +196,14 @@ describe('T2 Lesson confirm', () => {
     await waitFor(() => expect(saved).toMatchObject({ competencyIds: ['M3.SUB.WORD'], source: 'voice' }))
   })
 
-  it('could not hear: says so and offers the list and saying it again', async () => {
+  it('could not hear: says so and offers the list and Re-record', async () => {
     api(() => voice('unclear'))
     renderApp('/lesson')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not hear the note clearly.')
     await userEvent.click(screen.getByRole('button', { name: 'Pick from the list' }))
     expect(screen.getByRole('dialog', { name: 'Chapter 5 · The fun of subtracting' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Say it again' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('button', { name: 'Re-record' })).toBeInTheDocument()
   })
 
   it('Today shows the mic, and "Note saved · Open" while a note is matched', async () => {
@@ -215,7 +215,7 @@ describe('T2 Lesson confirm', () => {
     expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute('href', '/lesson')
   })
 
-  it('after a note could not be heard, Today offers the mic again ("Say it again")', async () => {
+  it('after a note could not be heard, Today offers the mic again', async () => {
     installFakeMedia()
     api(() => voice('unclear'))
     renderApp('/')
@@ -236,5 +236,56 @@ describe('T2 Lesson confirm', () => {
 
     expect(await screen.findByText(/The microphone is off for this app/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Pick from the list' })).toBeInTheDocument()
+  })
+
+  describe('Re-record (T-114)', () => {
+    const note = { date, data: new ArrayBuffer(8), type: 'audio/webm', savedAt: 1 }
+    const photo = { date, data: new ArrayBuffer(8), type: 'image/jpeg', savedAt: 1 }
+
+    beforeEach(async () => {
+      await db.photos.clear()
+      installFakeMedia()
+    })
+
+    it.each([
+      ['sure match', 'mapped' as const, 'What you said', true],
+      ['please choose', 'low' as const, 'What you said', true],
+      ['photo only', 'mapped' as const, 'Your photo', false],
+    ])('%s: under "%s"', async (_, status, section, withNote) => {
+      if (withNote) {
+        await db.notes.put(note)
+      }
+      await db.photos.put(photo)
+      api(() => voice(status, ['M3.SUB.BORROW', 'M3.SUB.WORD']))
+      renderApp('/lesson')
+
+      const card = (await screen.findByRole('heading', { name: section })).closest('section')
+      await userEvent.click(within(card as HTMLElement).getByRole('button', { name: 'Re-record' }))
+
+      const mic = await screen.findByRole('button', { name: 'Record' })
+      expect(mic).toHaveAttribute('aria-pressed', 'false')
+      await expectTodaysMicReady(mic)
+    })
+
+    it('too unclear: next to Pick from the list', async () => {
+      await db.notes.put(note)
+      api(() => voice('unclear'))
+      renderApp('/lesson')
+
+      const alert = await screen.findByRole('alert')
+      await userEvent.click(within(alert).getByRole('button', { name: 'Re-record' }))
+
+      const mic = await screen.findByRole('button', { name: 'Record' })
+      expect(mic).toHaveAttribute('aria-pressed', 'false')
+      await expectTodaysMicReady(mic)
+    })
+
+    /** Today's record card with the mic focused (not started), and the first note and photo gone. */
+    async function expectTodaysMicReady(mic: HTMLElement) {
+      await waitFor(() => expect(mic).toHaveFocus())
+      expect(screen.queryByText('Note saved')).not.toBeInTheDocument()
+      expect(await db.notes.get(date)).toBeUndefined()
+      expect(await db.photos.get(date)).toBeUndefined()
+    }
   })
 })

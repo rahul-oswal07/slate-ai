@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { AccentTitle } from '../../components/AccentWord'
@@ -18,7 +18,9 @@ const textButton = 'btn-link mt-1'
  * Today's lesson (T1). Not recorded: the mic (FR-02, D-31), then "Add a photo of the page" (T-64) and "Pick from the
  * list" side by side, with the photo hint under both. After she
  * records: sending (3-second rule, D-34), queued offline, or "Note saved · Open" while T2 matches it. Once
- * confirmed: every lesson with its page and one "Change" (D-33); no second note (D-55).
+ * confirmed: while she can still replace it (`recordOpen`: today's message not approved, or tonight's message not
+ * gone, D-104) the mic stays with the lesson as one line and "Change"; after that every lesson with its page and one
+ * "Change" (D-33). `rerecord` (Re-record on T2, T-114) brings the mic back while a match waits, with focus on it.
  */
 export function LessonCard({
   classId,
@@ -26,12 +28,16 @@ export function LessonCard({
   day,
   chapters,
   onPick,
+  recordOpen = false,
+  rerecord = false,
 }: {
   classId: string
   date: string
   day: LessonDay | undefined
   chapters: Chapter[]
   onPick: () => void
+  recordOpen?: boolean
+  rerecord?: boolean
 }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -41,9 +47,13 @@ export function LessonCard({
   const sampleVoiceNote = useMe().data?.demo?.sampleVoiceNote === true
   const [sending, setSending] = useState(false)
   const [sampleFailed, setSampleFailed] = useState(false)
+  // Re-record holds only until she sends the new note; then the card follows the server again.
+  const [sentSinceRerecord, setSentSinceRerecord] = useState(false)
+  const micRef = useRef<HTMLButtonElement>(null)
   // A recording, or null for her photo alone; either way the day's photo goes with it.
   const sendNote = (note: Blob | null) => {
     let slow = false
+    setSentSinceRerecord(true)
     setSending(true)
     announce(t('announce.sending'))
     void send(note, () => {
@@ -80,8 +90,16 @@ export function LessonCard({
   }, [recorder.status, announce, t])
   const lesson = day?.lesson
   const canPick = !!day && chapters.length > 0
+  const reRecording = rerecord && !sentSinceRerecord
+  const confirmedOpen = lesson?.status === 'confirmed' && recordOpen
 
-  if (lesson?.status === 'confirmed') {
+  useEffect(() => {
+    if (rerecord) {
+      micRef.current?.focus()
+    }
+  }, [rerecord])
+
+  if (lesson?.status === 'confirmed' && !recordOpen) {
     const ids = lesson.competencyIds
     return (
       <section aria-labelledby="lesson-title" className="card-hero">
@@ -152,8 +170,8 @@ export function LessonCard({
     )
   }
 
-  // A note that couldn't be heard falls through to the mic, so "Say it again" works (T2).
-  if (lesson && lesson.status !== 'unclear') {
+  // A note that couldn't be heard falls through to the mic, and so does Re-record on T2 (T-114).
+  if (lesson && lesson.status !== 'unclear' && lesson.status !== 'confirmed' && !reRecording) {
     return (
       <section aria-labelledby="lesson-title" className={card}>
         <h2 id="lesson-title" className="text-label">
@@ -204,6 +222,7 @@ export function LessonCard({
       <h2 id="lesson-title" className="sr-only">
         {t('today.lesson.title')}
       </h2>
+      {confirmedOpen && <CurrentLesson ids={lesson.competencyIds} chapters={chapters} onChange={onPick} />}
       <p className="text-title">
         <AccentTitle title={t('today.lesson.prompt')} accent={t('nav.today').toLowerCase()} />
       </p>
@@ -211,6 +230,7 @@ export function LessonCard({
       <div className="relative mx-auto mt-3 flex size-[168px] items-center justify-center rounded-full bg-panel">
         <span aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-full border-[2.5px] border-dashed border-chalk" />
         <button
+          ref={micRef}
           type="button"
           aria-pressed={recording}
           aria-label={recording ? t('mic.stop') : t('mic.record')}
@@ -268,5 +288,22 @@ export function LessonCard({
         </>
       )}
     </section>
+  )
+}
+
+/** "Today: <lesson> · p <page>" and Change above the mic, once confirmed but still replaceable (T-114). */
+function CurrentLesson({ ids, chapters, onChange }: { ids: string[]; chapters: Chapter[]; onChange: () => void }) {
+  const { t, i18n } = useTranslation()
+  const found = ids.map((id) => findLesson(chapters, id))
+  const lessons = ids.map((id, i) => (found[i] ? lessonName(found[i].lesson, i18n.language) : id)).join(', ')
+  const page = found[0]?.lesson.textbookPage?.page
+  return (
+    <p className="mb-3 flex flex-wrap items-center justify-center gap-x-2 border-b-2 border-dashed border-chalk pb-3 text-body">
+      <Icon name="checkCircle" className="shrink-0 text-primary-strong" />
+      <span>{page ? t('today.lesson.current', { lessons, page }) : t('today.lesson.currentNoPage', { lessons })}</span>
+      <button type="button" onClick={onChange} className="btn-link min-h-target">
+        {t('today.lesson.change')}
+      </button>
+    </p>
   )
 }

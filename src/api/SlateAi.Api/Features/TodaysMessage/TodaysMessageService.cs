@@ -60,7 +60,8 @@ public sealed class TodaysMessageService(
 {
     /// <summary>
     /// Starts the draft for her confirmed lesson when it has the book's exercises (D-93) and someone is due tonight's
-    /// message; a replay of the same lesson changes nothing. <paramref name="force"/>: "Try again".
+    /// message; a replay of the same lesson changes nothing. <paramref name="force"/>: "Try again". A lesson that gets no
+    /// today's message removes the day's unsent one, so a message about the lesson she replaced never goes (T-114).
     /// </summary>
     public async Task<bool> StartAsync(
         Guid classId, DateOnly date, IReadOnlyList<string> competencyIds, bool force, CancellationToken cancellationToken)
@@ -68,6 +69,11 @@ public sealed class TodaysMessageService(
         var lessons = competencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         if (!TodaysPicturePicker.Supported(lessons) || await LanguagesAsync(classId, date, cancellationToken) is not { Count: > 0 } families)
         {
+            if (await store.GetAsync(classId, date, cancellationToken) is { } stale && !stale.CompetencyIds.SequenceEqual(competencyIds))
+            {
+                await store.RemoveUnsentAsync(classId, date, cancellationToken);
+            }
+
             return false;
         }
 

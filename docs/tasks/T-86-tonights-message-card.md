@@ -22,4 +22,5 @@ Vitest component tests for each state (before 6 pm, making, ready and waiting, a
 
 ## Notes
 
+- 15 Nov: `LessonAudioCard` no longer exists: the lesson audio tick was retired in T-114 (D-105), so this card has no audio checklist to merge; the concept clip of today's message is the audio.
 - 15 Nov: moved here from `tasks.md` (T-110).

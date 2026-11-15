@@ -10,13 +10,16 @@ Spec: [`spec.md`](spec.md)
 - There is a day strip (T-49).
 - **Lesson:** recorded as a voice note, with an optional photo, or picked from the list; confirmed on [T2 Lesson confirm](../T2-lesson-confirm/status.md). "Add a photo of the page" and "Pick from the list" sit side by side as outlined tiles (part of T-96).
 - **Today's message card** above Tonight: "waiting for you" with the one button **Check and approve**, or "approved · goes after 6 pm" (T-108).
-- The tonight card has optional lesson audio, which the teacher approves clip by clip (T-62).
+- Once the lesson is confirmed, the record card stays until today's message is approved, or, on a day without one, until tonight's message has gone: the lesson shows as one line ("Today: … · p …") with Change above the mic, and a new note replaces the lesson (T-114, D-104). After that, only the confirmed lesson shows.
+- After Re-record on Lesson confirm, Today shows the mic, idle, with focus on it (T-114).
+- There is no lesson audio tick: today's message's concept clip is the lesson audio (T-114, D-105).
 - After the send, Today shows "sent to N · M answered" and a child · answer · level table (T-92).
 
 ## Known gaps and drafts
 
 - SATS is simulated.
-- The design card is not updated for T-108, or for T-109 (the gear left the title row; Settings is in the header's profile menu) (Monika's file).
+- The record card's one-line lesson strings in kn, te, ta and hi are drafts for Monika (T-114).
+- The design card is not updated for T-108, T-109 or T-114, or for T-109 (the gear left the title row; Settings is in the header's profile menu) (Monika's file).
 
 ## Open tasks
 

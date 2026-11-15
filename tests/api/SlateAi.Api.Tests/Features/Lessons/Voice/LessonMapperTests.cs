@@ -28,7 +28,7 @@ public sealed class LessonMapperTests
     public LessonMapperTests()
     {
         _llm = new StubLlm(_aiCalls);
-        _store.StartVoiceAsync(ClassId, Guid.NewGuid(), Day, Started, Ct).GetAwaiter().GetResult();
+        _store.StartVoiceAsync(ClassId, Guid.NewGuid(), Day, Started, false, Ct).GetAwaiter().GetResult();
     }
 
     private LessonMapper Mapper(CurriculumGraph? book = null) => new(

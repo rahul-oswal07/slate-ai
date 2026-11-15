@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done |
 | Issue | #224 |
 | Owner | M (flow and copy), R builds |
 | Screens | app-shell, T1-today, T2-lesson-confirm, T3-approve |
@@ -10,7 +10,7 @@
 
 ## What
 
-Five fixes from Monika's run-through of the teacher flow on 15 Nov. **Proposed: needs Rahul's approval before building.** Every answer below is Monika's (15 Nov); one question is left for Rahul.
+Five fixes from Monika's run-through of the teacher flow on 15 Nov. Approved and built by Rahul on 15 Nov. Every answer below is Monika's (15 Nov); Rahul answered the last question (item 4, D-105).
 
 ### 1. Fixed header
 
@@ -40,7 +40,7 @@ The tick and the clips (`LessonAudioCard`, T-62) leave Tonight's card on Today. 
 
 **On a day without today's message, lesson audio is not offered.**
 
-**[CONFIRM: Rahul]** Today's message already has a concept section with audio. Is this lesson audio a separate clip that goes with it, or does it duplicate the concept audio?
+**Answered (Rahul, 15 Nov, D-105):** it duplicates it. When today's message goes, its concept clip replaces the lesson clip, so an approved lesson clip was never sent. The tick is retired: it leaves Today and is not added to Approve.
 
 ### 5. Header text
 
@@ -73,4 +73,11 @@ te, ta and hi are the current taglines with "at home" removed.
 
 ## Notes
 
+- 15 Nov: **built in one PR** (Rahul approved; answers: retire the lesson audio tick, D-105; a note after confirming leaves the lesson unconfirmed until she confirms the new match, D-104).
+  - **Header:** sticky on teacher screens (`AppShell`), scroll padding set to its height so the skip link and focused headings aren't hidden; the name centred with language and profile, tagline under it; taglines without "at home", none in Kannada (the locale test allows that one empty string).
+  - **Record card:** stays while `recordOpen` (today's message not approved, or no message and nothing sent; nobody away = all day), with "Today: … · p …" and Change; while that is still loading the confirmed card shows, so nothing jumps.
+  - **Re-record** on Lesson confirm in all four states; clears the note and photo on the phone and goes to Today with the mic focused and idle.
+  - **API:** `LessonWindow.CanReplaceConfirmed` decides whether a note may replace a confirmed lesson (else 409). Fixed with it: changing to a lesson without exercises (or with nobody due) removes the unsent today's message, so an approval for the old lesson can't go (was a known gap in T3's status; the test failed before the fix).
+  - **Lesson audio tick** removed from Today (`LessonAudioCard`, its hook, types and strings); API untouched.
+  - Drafts for Monika: kn, te, ta, hi of "Re-record" and of the one-line lesson.
 - 15 Nov: proposed by Monika from testing (screenshots of the record card, Lesson confirm "What you said", and the audio tick on Today). Open points answered by Monika the same day: Re-record placement and states, first note replaced, recording after confirm replaces the lesson, the record card on days without today's message, audio placement, header scope, Kannada tagline, button label.

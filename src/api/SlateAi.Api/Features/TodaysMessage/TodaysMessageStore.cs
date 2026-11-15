@@ -50,6 +50,12 @@ public interface ITodaysMessageStore
     /// </summary>
     Task<Guid?> StartAsync(Guid classId, DateOnly date, IReadOnlyList<string> competencyIds, DateTimeOffset now, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Deletes the day's message unless families already have it: the confirmed lesson changed to one that gets no
+    /// today's message, so a draft or approval for the old lesson must not go (guardrail 3). True if one was removed.
+    /// </summary>
+    Task<bool> RemoveUnsentAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
+
     /// <summary>A new draft: ready at version + 1, approval cleared.</summary>
     Task SetReadyAsync(Guid id, TodaysSections sections, string verdict, DateTimeOffset now, CancellationToken cancellationToken);
 
@@ -134,6 +140,21 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return row.Id;
+    }
+
+    public async Task<bool> RemoveUnsentAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockAsync(classId, date, cancellationToken);
+        var row = await db.TodaysMessages.SingleOrDefaultAsync(t => t.ClassId == classId && t.Date == date, cancellationToken);
+        if (row is null || await SentAsync(row.Id, cancellationToken))
+        {
+            return false;
+        }
+
+        db.TodaysMessages.Remove(row);
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return true;
     }
 
     public async Task SetReadyAsync(Guid id, TodaysSections sections, string verdict, DateTimeOffset now, CancellationToken cancellationToken) =>

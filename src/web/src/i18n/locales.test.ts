@@ -21,8 +21,12 @@ describe('locale files', () => {
     expect(Object.keys(flatten(locales[code] ?? {})).sort()).toEqual(reference)
   })
 
+  // Empty on purpose: the Kannada name "ತಪ್ಪಿದ ಪಾಠ" already means "the missed lesson", so the header shows no tagline (T-114).
+  const emptyOnPurpose: Record<string, string[]> = { kn: ['app.tagline'] }
+
   it.each(Object.keys(locales))('%s has no empty strings', (code) => {
-    const empty = Object.entries(flatten(locales[code] ?? {})).filter(([, value]) => value.trim() === '')
+    const empty = Object.entries(flatten(locales[code] ?? {}))
+      .filter(([key, value]) => value.trim() === '' && !(emptyOnPurpose[code] ?? []).includes(key))
     expect(empty).toEqual([])
   })
 

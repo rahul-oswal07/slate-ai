@@ -51,7 +51,7 @@ public sealed class FakeLessonStore : ILessonStore
     }
 
     public Task<VoiceStart> StartVoiceAsync(
-        Guid classId, Guid clientRequestId, DateOnly date, DateTimeOffset startedAt, CancellationToken cancellationToken)
+        Guid classId, Guid clientRequestId, DateOnly date, DateTimeOffset startedAt, bool replaceConfirmed, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
@@ -60,7 +60,7 @@ public sealed class FakeLessonStore : ILessonStore
                 return Task.FromResult(VoiceStart.Replay);
             }
 
-            if (Lessons.GetValueOrDefault(date)?.Status == LessonValues.Confirmed)
+            if (Lessons.GetValueOrDefault(date)?.Status == LessonValues.Confirmed && !replaceConfirmed)
             {
                 return Task.FromResult(VoiceStart.AlreadyConfirmed);
             }

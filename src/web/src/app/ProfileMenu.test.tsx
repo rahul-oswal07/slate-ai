@@ -89,7 +89,7 @@ describe('ProfileMenu (T-109)', () => {
     renderApp('/')
     const { button } = await openMenu()
 
-    await userEvent.click(screen.getByText('The missed lesson, at home'))
+    await userEvent.click(screen.getByText('Tappida Paatha'))
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(button).toHaveFocus()
