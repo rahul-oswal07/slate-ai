@@ -107,7 +107,8 @@ export function TodaysPages({
               {message.text}
             </p>
             {todays.note && (
-              <p lang="kn" className="card text-body">
+              // In the family's language: A9 writes it from her Kannada (T-119).
+              <p lang={message.language} className="card text-body">
                 <span className="block text-caption text-ink-muted">{t('parent.todays.note', { teacher: message.teacherName })}</span>
                 {todays.note}
               </p>
