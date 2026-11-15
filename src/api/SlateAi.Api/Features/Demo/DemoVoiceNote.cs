@@ -5,9 +5,8 @@ using SlateAi.Api.Data.Seed;
 namespace SlateAi.Api.Features.Demo;
 
 /// <summary>What the teacher app does differently for the demo teacher (T-93). Null for everyone else.</summary>
-/// <param name="SendOnApprove">Approve sends at once (D-94), so the app says "sent", not "goes after 6 pm".</param>
 /// <param name="SampleVoiceNote">Today offers "Use the sample voice note" (<c>GET /api/demo/voice-note</c>).</param>
-public sealed record DemoFlags(bool SendOnApprove, bool SampleVoiceNote);
+public sealed record DemoFlags(bool SampleVoiceNote);
 
 public static class DemoVoiceNote
 {
@@ -20,7 +19,7 @@ public static class DemoVoiceNote
 
     /// <summary>The demo flags when <paramref name="classId"/> is the seeded demo class and the demo is on; else null.</summary>
     public static async Task<DemoFlags?> FlagsAsync(
-        Guid? classId, DemoOptions demo, DatabaseOptions database, DemoSendOnApprove sendOnApprove, CancellationToken cancellationToken)
+        Guid? classId, DemoOptions demo, DatabaseOptions database, CancellationToken cancellationToken)
     {
         if (!demo.Enabled || classId is null)
         {
@@ -28,6 +27,6 @@ public static class DemoVoiceNote
         }
 
         var seed = await DemoSeedFile.LoadAsync(database.SeedFile, cancellationToken);
-        return seed.Class.Id == classId ? new DemoFlags(sendOnApprove.Enabled, Path(demo) is not null) : null;
+        return seed.Class.Id == classId ? new DemoFlags(Path(demo) is not null) : null;
     }
 }

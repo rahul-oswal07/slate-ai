@@ -15,7 +15,7 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - There is no sample voice note clip, so Today doesn't offer "Use the sample voice note (demo)".
-- `Demo__SendOnApprove` is off on staging, so Approve there doesn't send at once; an Approve and send button is planned instead (T-93 closed).
+- **Approve and send now** sends at once on every server, so the demo needs no setting for it (T-117, D-109).
 - The 6 demo steps have not been run on prod (`v1.3`).
 
 ## Open tasks

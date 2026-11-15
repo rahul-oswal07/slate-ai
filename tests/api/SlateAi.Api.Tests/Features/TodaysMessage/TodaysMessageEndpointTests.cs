@@ -189,14 +189,29 @@ public sealed class TodaysMessageEndpointTests
     [Theory]
     [InlineData(true, 2)]
     [InlineData(false, 0)]
-    public async Task In_the_demo_approve_sends_at_once(bool sendOnApprove, int sent)
+    public async Task Approve_and_send_now_sends_at_once_and_approve_alone_waits_for_6_pm(bool send, int sent)
     {
+        // T-117: 15:00, before the 6 pm send; no demo setting needed.
         var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
 
-        await ApproveAsync(1, sendOnApprove);
+        var view = await ApproveAsync(1, send);
 
         Assert.Equal(sent, _evening.Messages.Count);
         Assert.All(_evening.Messages, m => Assert.Equal(row.Id, m.Message.TodaysMessageId));
+        Assert.Equal((TodaysMessageStatus.Approved, send), (view.Status, view.Sent));
+    }
+
+    [Fact]
+    public async Task Approve_and_send_now_without_attendance_sends_nothing_and_stays_approved()
+    {
+        // The evening send's own rules still hold; the 6 pm job sends it once attendance is in.
+        _attendance.SetDay(Today, []);
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+
+        var view = await ApproveAsync(1, send: true);
+
+        Assert.Empty(_evening.Messages);
+        Assert.Equal((TodaysMessageStatus.Approved, false), (view.Status, view.Sent));
     }
 
     [Fact]
@@ -204,7 +219,7 @@ public sealed class TodaysMessageEndpointTests
     {
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
         _evening.TodaysMessage = TodaysFamilyView.For(TodaysMessageTests.Sections().WithRemoved(TodaysSectionKind.Activity, true)!, "kn");
-        await ApproveAsync(1, sendOnApprove: true);
+        await ApproveAsync(1, send: true);
         var token = _evening.Messages.Single(m => m.Message.ChildId == Manjunath.Id).Message.Token;
         await using var factory = Create();
         using var anonymous = factory.CreateHttpsClient();
@@ -446,12 +461,12 @@ public sealed class TodaysMessageEndpointTests
         Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"{DayUrl}/answers", Ct)).StatusCode);
     }
 
-    /// <summary>Approved in the demo, so it is sent at once; returns Manjunath's family's link.</summary>
+    /// <summary>Approved and sent now; returns Manjunath's family's link.</summary>
     private async Task<string> SentTokenAsync()
     {
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
         _evening.TodaysMessage = TodaysFamilyView.For(TodaysMessageTests.Sections(), "kn");
-        await ApproveAsync(1, sendOnApprove: true);
+        await ApproveAsync(1, send: true);
         return _evening.Messages.Single(m => m.Message.ChildId == Manjunath.Id).Message.Token;
     }
 
@@ -468,12 +483,13 @@ public sealed class TodaysMessageEndpointTests
             (await anonymous.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct)).StatusCode);
     }
 
-    private async Task ApproveAsync(int version, bool sendOnApprove = false)
+    private async Task<TodaysMessageView> ApproveAsync(int version, bool send = false)
     {
-        await using var factory = Create(sendOnApprove);
+        await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
-        (await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), version), Ct))
-            .EnsureSuccessStatusCode();
+        var response = await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), version, send), Ct);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!;
     }
 
     private async Task SendEveningAsync()
@@ -484,7 +500,7 @@ public sealed class TodaysMessageEndpointTests
             .EnsureSuccessStatusCode();
     }
 
-    private ApiFactory Create(bool sendOnApprove = false, ILlmClient? llm = null) =>
+    private ApiFactory Create(ILlmClient? llm = null) =>
         FakeApi.Create(
             services =>
             {
@@ -502,7 +518,6 @@ public sealed class TodaysMessageEndpointTests
             settings: new Dictionary<string, string?>
             {
                 ["Demo:Enabled"] = "true",
-                ["Demo:SendOnApprove"] = sendOnApprove.ToString(),
             });
 
     private sealed class NotYetSource : IAttendanceSource

@@ -206,7 +206,6 @@ public static class AuthEndpoints
         IAuthStore store,
         IOptions<DemoOptions> demo,
         IOptions<DatabaseOptions> database,
-        DemoSendOnApprove sendOnApprove,
         CancellationToken cancellationToken)
     {
         var me = http.User.GetTeacherId() is { } teacherId
@@ -219,7 +218,7 @@ public static class AuthEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var flags = await DemoVoiceNote.FlagsAsync(me.ClassId, demo.Value, database.Value, sendOnApprove, cancellationToken);
+        var flags = await DemoVoiceNote.FlagsAsync(me.ClassId, demo.Value, database.Value, cancellationToken);
         return TypedResults.Ok(me with { Demo = flags });
     }
 

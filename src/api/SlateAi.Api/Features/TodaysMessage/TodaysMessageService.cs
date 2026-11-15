@@ -1,6 +1,6 @@
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps;
-using SlateAi.Api.Features.Demo;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Features.TodaysMessage;
@@ -58,7 +58,7 @@ public sealed class TodaysMessageService(
     EveningSender sender,
     CurriculumGraph curriculum,
     TodaysMessageQueue queue,
-    DemoSendOnApprove sendOnApprove,
+    SendNow sendNow,
     TimeProvider clock)
 {
     /// <summary>
@@ -236,15 +236,19 @@ public sealed class TodaysMessageService(
             rows.Count, rows.Count(r => r.First is not null), views, rows.Count(r => TodaysLevel.Locked(r.First, r.Second)));
     }
 
-    /// <summary>Approves the version she read; in the demo it then goes at once (D-94), elsewhere at 6 pm.</summary>
+    /// <summary>
+    /// Approves the version she read. With <paramref name="send"/> ("Approve and send now", T-117, D-109) the class's
+    /// evening send runs at once, carrying it; otherwise it goes with the 6 pm send. A replay sends nothing again.
+    /// </summary>
     public async Task<TodaysChange> ApproveAsync(
-        Guid classId, DateOnly date, Guid clientRequestId, int version, Guid teacherId, CancellationToken cancellationToken)
+        Guid classId, DateOnly date, Guid clientRequestId, int version, bool send, Guid teacherId, CancellationToken cancellationToken)
     {
         var result = await store.ApproveAsync(classId, date, clientRequestId, version, teacherId, clock.GetUtcNow(), cancellationToken);
-        if (result == TodaysChange.Applied)
+        if (result == TodaysChange.Applied && send)
         {
-            // The evening send attaches it only if it is still approved at this version (guardrail 3).
-            await sendOnApprove.RunAsync(ct => sender.SendAsync(classId, date, ct), cancellationToken);
+            // The evening send keeps its own rules (wording approved, attendance in, once per child) and attaches it
+            // only if it is still approved at this version (guardrail 3). Blocked: the 6 pm job sends it once fixed.
+            await sendNow.RunAsync(ct => sender.SendAsync(classId, date, ct), cancellationToken);
         }
 
         return result;

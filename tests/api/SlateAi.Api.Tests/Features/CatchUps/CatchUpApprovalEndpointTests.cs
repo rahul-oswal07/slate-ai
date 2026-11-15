@@ -166,10 +166,10 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     [Fact]
-    public async Task With_send_on_approve_approving_sends_at_once_to_consenting_families_only()
+    public async Task Approve_and_send_now_sends_at_once_to_consenting_families_only()
     {
-        // D-94, T-93: the demo's Approve sends now (15:00), not at 6 pm.
-        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2), sendOnApprove: true);
+        // T-117: her Approve and send now goes at 15:00, not at 6 pm.
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2, Send: true));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var view = (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!;
@@ -181,9 +181,9 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     [Fact]
-    public async Task Without_send_on_approve_an_approved_catch_up_waits_for_6_pm()
+    public async Task Approve_alone_leaves_the_catch_up_for_6_pm()
     {
-        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2), sendOnApprove: false);
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2, Send: false));
 
         var view = (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!;
         Assert.Equal(PackageStatus.Approved, view.Status);
@@ -194,11 +194,11 @@ public sealed class CatchUpApprovalEndpointTests
     [InlineData(1, PackageStatus.Ready)] // she ticked an older version
     [InlineData(2, PackageStatus.NeedsReview)]
     [InlineData(2, PackageStatus.Generating)]
-    public async Task Send_on_approve_never_sends_what_was_not_approved(int version, string status)
+    public async Task Approve_and_send_now_never_sends_what_was_not_approved(int version, string status)
     {
         _store.Packages.Single().Status = status;
 
-        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), version), sendOnApprove: true);
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), version, Send: true));
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal(status, _store.Packages.Single().Status);
@@ -206,11 +206,11 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     [Fact]
-    public async Task Send_on_approve_is_off_when_the_demo_is_off()
+    public async Task Approve_and_send_now_works_without_the_demo()
     {
-        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2), demo: false, sendOnApprove: true);
+        var response = await PostAsync("approve", new ApprovePackageRequest(Guid.NewGuid(), 2, Send: true), demo: false);
 
-        Assert.Equal(PackageStatus.Approved, (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!.Status);
+        Assert.Equal(PackageStatus.Sent, (await response.Content.ReadFromJsonAsync<PackageView>(Ct))!.Status);
     }
 
     [Fact]
@@ -241,14 +241,14 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     private async Task<HttpResponseMessage> PostAsync<T>(
-        string action, T body, CatchUpQueue? queue = null, bool demo = true, bool sendOnApprove = false)
+        string action, T body, CatchUpQueue? queue = null, bool demo = true)
     {
-        await using var factory = Create(queue ?? new CatchUpQueue(), demo, sendOnApprove);
+        await using var factory = Create(queue ?? new CatchUpQueue(), demo);
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
         return await client.PostAsJsonAsync($"/api/packages/{_packageId}/{action}", body, Ct);
     }
 
-    private ApiFactory Create(CatchUpQueue queue, bool demo, bool sendOnApprove = false) =>
+    private ApiFactory Create(CatchUpQueue queue, bool demo) =>
         FakeApi.Create(
             services =>
             {
@@ -259,6 +259,5 @@ public sealed class CatchUpApprovalEndpointTests
             settings: new Dictionary<string, string?>
             {
                 ["Demo:Enabled"] = demo.ToString(),
-                ["Demo:SendOnApprove"] = sendOnApprove.ToString(),
             });
 }

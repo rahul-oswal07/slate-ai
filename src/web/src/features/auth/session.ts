@@ -16,7 +16,7 @@ export type Me = {
 }
 
 /** What the teacher app does differently in the demo class (T-93). */
-export type DemoFlags = { sendOnApprove: boolean; sampleVoiceNote: boolean }
+export type DemoFlags = { sampleVoiceNote: boolean }
 
 /** Where to play her greeting (`/api/audio/{id}`) and how long it is. */
 export type Greeting = { url: string; seconds: number }

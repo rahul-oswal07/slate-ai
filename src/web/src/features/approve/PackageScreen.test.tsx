@@ -55,7 +55,7 @@ describe('PackageScreen', () => {
     expect(screen.getByText(/Making sums can wait\./)).toBeInTheDocument()
   })
 
-  it('Approve needs the tick and sends the version she read', async () => {
+  it('both Approve buttons need the tick; send after 6 pm sends the version she read', async () => {
     let current = pkg()
     const calls = setup(() => current, {
       'POST /api/packages/pkg-te/approve': () => {
@@ -65,20 +65,21 @@ describe('PackageScreen', () => {
     })
     renderApp('/approve/pkg-te')
 
-    const approve = await screen.findByRole('button', { name: 'Approve' })
-    expect(approve).toBeDisabled()
-    expect(screen.getByText('Tick the summary box to approve.')).toBeInTheDocument()
+    const later = await screen.findByRole('button', { name: 'Approve, send after 6 pm' })
+    expect(later).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve and send now' })).toBeDisabled()
+    expect(screen.getByText('Tick the summary box first.')).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'I’ve checked the Kannada summary' }))
-    await userEvent.click(approve)
+    await userEvent.click(later)
 
     expect(await screen.findByText('Approved. Goes to the families after 6 pm.')).toBeInTheDocument()
-    expect(calls.find((c) => c.key === 'POST /api/packages/pkg-te/approve')?.body).toMatchObject({ scriptVersion: 2 })
+    expect(calls.find((c) => c.key === 'POST /api/packages/pkg-te/approve')?.body).toMatchObject({ scriptVersion: 2, send: false })
   })
 
-  it('in the demo, Approve sends at once and says so (D-94, T-93)', async () => {
+  it('Approve and send now sends at once and says so (T-117)', async () => {
     let current = pkg()
-    setup(() => current, {
+    const calls = setup(() => current, {
       'POST /api/packages/pkg-te/approve': () => {
         current = pkg({ status: 'sent', sentAt: '2026-10-23T09:32:00Z', familiesSent: 1 })
         return { status: 200, body: current }
@@ -87,10 +88,11 @@ describe('PackageScreen', () => {
     renderApp('/approve/pkg-te')
 
     await userEvent.click(await screen.findByRole('checkbox', { name: 'I’ve checked the Kannada summary' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Approve and send now' }))
 
     expect(await screen.findByText("Approved and sent to the family's phone.")).toBeInTheDocument()
     expect(screen.queryByText('Approved. Goes to the families after 6 pm.')).not.toBeInTheDocument()
+    expect(calls.find((c) => c.key === 'POST /api/packages/pkg-te/approve')?.body).toMatchObject({ scriptVersion: 2, send: true })
   })
 
   it('Simpler clears the tick and shows that a new version is being written', async () => {
@@ -107,7 +109,7 @@ describe('PackageScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Simpler' }))
 
     expect(await screen.findByText('Writing a new version… Check it again when it’s ready.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Approve and send now' })).not.toBeInTheDocument()
     expect(calls.find((c) => c.key === 'POST /api/packages/pkg-te/regenerate')?.body).toMatchObject({ hint: 'simpler' })
   })
 
@@ -116,13 +118,13 @@ describe('PackageScreen', () => {
     setup(() => current)
     const { unmount } = renderApp('/approve/pkg-te')
     await userEvent.click(await screen.findByRole('checkbox', { name: 'I’ve checked the Kannada summary' }))
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Approve and send now' })).toBeEnabled()
     unmount()
 
     current = pkg({ scriptVersion: 3 })
     renderApp('/approve/pkg-te')
     expect(await screen.findByRole('checkbox', { name: 'I’ve checked the Kannada summary' })).not.toBeChecked()
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve and send now' })).toBeDisabled()
   })
 
   it('needs review: says why in numbers, offers Make it shorter, and cannot be approved', async () => {
@@ -136,7 +138,7 @@ describe('PackageScreen', () => {
 
     expect(await screen.findByText('audio is 104 seconds, limit is 95')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Make it shorter' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Approve and send now' })).not.toBeInTheDocument()
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   })
 
@@ -167,7 +169,7 @@ describe('PackageScreen', () => {
     renderApp('/approve/pkg-te')
 
     await userEvent.click(await screen.findByRole('checkbox', { name: 'I’ve checked the Kannada summary' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Approve and send now' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('This changed on another device. Showing the latest.')
   })

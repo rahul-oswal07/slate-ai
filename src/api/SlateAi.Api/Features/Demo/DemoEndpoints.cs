@@ -51,7 +51,7 @@ public static class DemoEndpoints
     public const int AiCallLimit = 50;
 
     public static IServiceCollection AddDemo(this IServiceCollection services) =>
-        services.AddScoped<IDemoStore, DemoStore>().AddScoped<DemoSendOnApprove>();
+        services.AddScoped<IDemoStore, DemoStore>();
 
     public static IEndpointRouteBuilder MapDemoEndpoints(this IEndpointRouteBuilder app)
     {

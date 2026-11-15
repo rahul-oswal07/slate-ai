@@ -8,7 +8,7 @@ The 3-minute live demo for the Grand Finale (Wed 18 Nov), told through one child
    - The five school days before today, with only Manjunath away on the last two.
    - Today's register, stamped 9:00 IST whatever the clock says, with only Manjunath away.
    - No lesson for today yet.
-2. Staging needs `Demo__SendOnApprove=true`, so Approve sends at once. Prod doesn't have it and keeps the 6 pm send.
+2. On Approve, tap **Approve and send now** so it reaches the family phone at once (T-117); no server setting is needed.
 
 ## The sample voice note
 

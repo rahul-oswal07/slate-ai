@@ -80,7 +80,7 @@ describe("Approve → Today's message (T-89)", () => {
     renderApp('/approve')
 
     expect(await screen.findByText("Writing today's message…")).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Approve and send' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Approve and send now' })).not.toBeInTheDocument()
   })
 
   it('failed: says the plain message goes, and Try again writes a new draft', async () => {
@@ -116,7 +116,7 @@ describe("Approve → Today's message (T-89)", () => {
     expect(screen.getByText('Also goes in Hindi to 1 family')).toBeInTheDocument()
   })
 
-  it('Approve needs the tick, sends the version she read and takes her back to Today (T-108)', async () => {
+  it('both Approve buttons need the tick; send after 6 pm sends the version she read and takes her back to Today (T-108)', async () => {
     const user = userEvent.setup()
     let current = message()
     const calls = setup(() => ({ status: 200, body: current }), {
@@ -127,16 +127,39 @@ describe("Approve → Today's message (T-89)", () => {
     })
     renderApp('/approve')
 
-    const approve = await screen.findByRole('button', { name: 'Approve and send' })
-    expect(approve).toBeDisabled()
+    const later = await screen.findByRole('button', { name: 'Approve, send after 6 pm' })
+    expect(later).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve and send now' })).toBeDisabled()
     await user.click(screen.getByRole('checkbox', { name: "I've checked this" }))
-    await user.click(approve)
+    await user.click(later)
 
     expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
     await waitFor(() =>
       expect(screen.getByTestId('announcer')).toHaveTextContent('Approved. Goes with the evening message after 6 pm.'),
     )
-    expect(calls.find((c) => c.key === `POST ${base}/approve`)?.body).toMatchObject({ version: 1 })
+    expect(calls.find((c) => c.key === `POST ${base}/approve`)?.body).toMatchObject({ version: 1, send: false })
+  })
+
+  it.each([
+    [true, 'Sent to the families.'],
+    [false, "Approved, but it couldn't go now. Today shows what's missing; it goes after 6 pm once that's done."],
+  ])('Approve and send now asks for the send at once (T-117); sent %s', async (sent, announced) => {
+    const user = userEvent.setup()
+    let current = message()
+    const calls = setup(() => ({ status: 200, body: current }), {
+      [`POST ${base}/approve`]: () => {
+        current = message({ status: 'approved', approvedVersion: 1, sent })
+        return { status: 200, body: current }
+      },
+    })
+    renderApp('/approve')
+
+    await user.click(await screen.findByRole('checkbox', { name: "I've checked this" }))
+    await user.click(screen.getByRole('button', { name: 'Approve and send now' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByTestId('announcer')).toHaveTextContent(announced))
+    expect(calls.find((c) => c.key === `POST ${base}/approve`)?.body).toMatchObject({ version: 1, send: true })
   })
 
   it('a refused Approve (it changed meanwhile) keeps her on Approve with the latest', async () => {
@@ -147,7 +170,7 @@ describe("Approve → Today's message (T-89)", () => {
     renderApp('/approve')
 
     await user.click(await screen.findByRole('checkbox', { name: "I've checked this" }))
-    await user.click(screen.getByRole('button', { name: 'Approve and send' }))
+    await user.click(screen.getByRole('button', { name: 'Approve and send now' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('This changed meanwhile')
     expect(screen.getByRole('heading', { level: 1, name: 'Check and approve' })).toBeInTheDocument()
@@ -160,7 +183,7 @@ describe("Approve → Today's message (T-89)", () => {
 
     expect(await screen.findByText('Approved. Goes with the evening message after 6 pm.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Approve and send' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Approve and send now' })).not.toBeInTheDocument()
   })
 
   it('removing a section makes a new version, so her tick is gone', async () => {
@@ -181,7 +204,7 @@ describe("Approve → Today's message (T-89)", () => {
 
     expect(await screen.findByText('Removed: not sent')).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: "I've checked this" })).not.toBeChecked()
-    expect(screen.getByRole('button', { name: 'Approve and send' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve and send now' })).toBeDisabled()
     expect(calls.find((c) => c.key === `PATCH ${base}/sections/video`)?.body).toMatchObject({ removed: true })
   })
 

@@ -105,8 +105,12 @@ public sealed class VoiceUploadEndpointTests
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId);
 
-        Assert.Equal(HttpStatusCode.Accepted, (await UploadAsync(client, Guid.NewGuid())).StatusCode);
-        Assert.Equal(LessonValues.Processing, _store.Day(Today)!.Status);
+        var response = await UploadAsync(client, Guid.NewGuid());
+
+        // The 202's body, not the store: the background mapper may already have moved the store on to "mapped".
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Equal(LessonValues.Processing, (await response.Content.ReadFromJsonAsync<LessonDayResponse>(Ct))!.Lesson!.Status);
+        Assert.Equal("mapped", (await WaitForMatchAsync(client)).Lesson!.Status);
     }
 
     [Fact]
