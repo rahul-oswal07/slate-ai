@@ -8,6 +8,8 @@ import { LoginScreen } from '../features/auth/LoginScreen'
 import { TeacherGate } from '../features/auth/TeacherGate'
 import { ApproveScreen } from '../features/approve/ApproveScreen'
 import { PackageScreen } from '../features/approve/PackageScreen'
+import { DemoAiScreen } from '../features/demo/DemoAiScreen'
+import { DemoFamilyScreen } from '../features/demo/DemoFamilyScreen'
 import { DemoScreen } from '../features/demo/DemoScreen'
 import { ConfirmLessonScreen } from '../features/lessons/ConfirmLessonScreen'
 import { ChildScreen } from '../features/missed/ChildScreen'
@@ -31,6 +33,9 @@ export function App() {
       <Route path="p/:token" element={<ParentScreen />} />
       {/* The judges' demo shell: both phones side by side, signs in as the demo teacher itself (FR-14). */}
       <Route path="demo" element={<DemoScreen />} />
+      {/* Each demo panel on its own, for a second screen or a real phone (T-126). */}
+      <Route path="demo/ai" element={<DemoAiScreen />} />
+      <Route path="demo/family/:childId" element={<DemoFamilyScreen />} />
       {/* Admin pages for Rahul: linked from nowhere, opened only with the key in their link (T-66, T-67). */}
       <Route path="admin" element={<AdminIndexScreen />} />
       <Route path="admin/greetings" element={<GreetingsAdminScreen />} />

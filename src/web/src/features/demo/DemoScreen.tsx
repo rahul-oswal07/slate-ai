@@ -1,34 +1,16 @@
-import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Icon } from '../../components/Icon'
-import { LanguageSwitcher } from '../../components/LanguageSwitcher'
-import { clock } from '../parent/clock'
-import { VoiceNote } from '../parent/VoiceNote'
-import { formatSchoolTime } from '../today/schoolTime'
-import type { AiCall, FamilyMessage } from './types'
-import { storedResetAt, useAiCalls, useBringAttendance, useDemoInfo, useFamily, useResetDemo, useSendNow } from './useDemo'
+import { Link } from 'react-router'
+import { Page, Phone } from './DemoParts'
+import { later } from './demoText'
+import { ParentPhone } from './FamilyPhone'
+import { UnderTheHood } from './UnderTheHood'
+import { storedResetAt, useBringAttendance, useDemoInfo, useResetDemo, useSendNow } from './useDemo'
 
 const PANELS = ['teacher', 'parent', 'ai'] as const
 type Panel = (typeof PANELS)[number]
 
 const STEPS = ['today', 'lesson', 'evening', 'approve', 'parent', 'after'] as const
-
-/** The later of two ISO instants: this browser's own reset or anyone's, so "Under the hood" starts at the last one. */
-function later(a: string | null, b: string | null) {
-  if (!a || !b) {
-    return a ?? b
-  }
-  return new Date(a) >= new Date(b) ? a : b
-}
-
-/** "22 Oct", in the UI language. */
-function shortDate(date: string, language: string) {
-  return new Intl.DateTimeFormat(language === 'en' ? 'en-IN' : language, {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T00:00:00Z`))
-}
 
 /**
  * /demo (FR-14, T-18, T-93): the teacher's phone and Manjunath's family's phone (Kannada) side by side, a step guide, Reset and the
@@ -88,6 +70,19 @@ export function DemoScreen() {
           ))}
         </ol>
         <p className="text-caption text-ink-muted">{t('demo.guide.calendar')}</p>
+        {/* Each panel on its own, for a second screen or a real phone (T-126). */}
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-body">
+          <li>
+            <Link to={`/demo/family/${parentChildId}`} className="font-bold text-primary-strong underline">
+              {t('demo.openAlone.family', { name: parentChildName })}
+            </Link>
+          </li>
+          <li>
+            <Link to="/demo/ai" className="font-bold text-primary-strong underline">
+              {t('demo.openAlone.ai')}
+            </Link>
+          </li>
+        </ul>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -194,27 +189,6 @@ export function DemoScreen() {
   )
 }
 
-function Page({ children }: { children: ReactNode }) {
-  const { t } = useTranslation()
-  return (
-    <div className="min-h-dvh font-sans text-ink">
-      {/* Labelled: the teacher app in its frame has its own header and main. */}
-      <header aria-label={t('demo.title')} className="border-b border-edge px-4 py-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-title font-extrabold">{t('demo.title')}</h1>
-            <p className="text-caption text-ink-muted">{t('demo.subtitle')}</p>
-          </div>
-          <LanguageSwitcher />
-        </div>
-      </header>
-      <main id="main" aria-label={t('demo.panels')} className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4">
-        {children}
-      </main>
-    </div>
-  )
-}
-
 /** On a phone one panel shows at a time (tabs); from `lg` all three sit side by side. */
 function PanelBox({ name, active, children }: { name: Panel; active: Panel; children: ReactNode }) {
   return (
@@ -226,198 +200,6 @@ function PanelBox({ name, active, children }: { name: Panel; active: Panel; chil
     >
       {children}
     </div>
-  )
-}
-
-function Phone({ title, caption, children }: { title: string; caption: string; children: ReactNode }) {
-  return (
-    <section aria-label={title} className="flex flex-col gap-2">
-      <h2 className="text-label font-extrabold">{title}</h2>
-      <p className="text-caption text-ink-muted">{caption}</p>
-      <div className="h-[740px] w-full max-w-[360px] overflow-hidden rounded-sheet border-[3px] border-ink bg-surface">
-        {children}
-      </div>
-    </section>
-  )
-}
-
-/**
- * The story family's phone as a chat (D-77, surface B): a stand-in for a messaging app, so judges see the real
- * hand-off. No logo and no brand name. Each link a family was sent is a bubble; opening one slides the family's page
- * up under a thin bar, as an in-app browser does.
- */
-function ParentPhone({ childId, name, language }: { childId: string; name: string; language: string }) {
-  const { t, i18n } = useTranslation()
-  const family = useFamily(childId)
-  const [open, setOpen] = useState<FamilyMessage | null>(null)
-  // Oldest first, as a chat reads; the API sends newest first.
-  const messages = [...(family.data ?? [])].reverse()
-
-  return (
-    <Phone title={t('demo.parentPhone', { name, language: t(`missed.language.${language}`) })} caption={t('demo.parentCaption')}>
-      <div className="relative flex size-full flex-col overflow-hidden">
-        {/* Underneath the opened page the chat is inert, but keeps its scroll position. */}
-        <div inert={open !== null} className="flex min-h-0 flex-1 flex-col">
-          <div className="flex h-14 shrink-0 items-center gap-3 bg-chat-bar px-3 text-chat-bar-ink">
-            <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full border-2 border-chat-bar-ink bg-accent text-label font-extrabold text-on-accent">
-              S
-            </span>
-            <p className="text-label font-extrabold">{t('demo.chat.messages')}</p>
-          </div>
-          <ul className="chat-wallpaper flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-chat-wall p-3">
-            {family.isError && (
-              <li role="alert" className="chat-bubble self-start text-body">
-                {t('demo.familyFailed')}
-              </li>
-            )}
-            {messages.length === 0 && !family.isError && (
-              <li className="chat-bubble self-start text-body">{t('demo.noMessages')}</li>
-            )}
-            {messages.map((message, i) => (
-              <Fragment key={message.token}>
-                {message.date !== messages[i - 1]?.date && (
-                  <li className="self-center rounded-pill border border-chat-edge bg-chat-pill px-3 text-caption font-semibold text-chat-meta">
-                    {shortDate(message.date, i18n.language)}
-                  </li>
-                )}
-                <li className="flex max-w-[86%] flex-col gap-1 self-start">
-                  {message.greetingSeconds != null && (
-                    <VoiceNote
-                      url={`/api/p/${message.token}/greeting`}
-                      label={t('demo.message.voice', { duration: clock(message.greetingSeconds) })}
-                    />
-                  )}
-                  <button type="button" onClick={() => setOpen(message)} className="chat-bubble block w-full text-left">
-                    <span className="block text-body font-bold">
-                      {t(message.kind === 'evening' ? 'demo.message.evening' : 'demo.message.catchUp', {
-                        date: shortDate(message.date, i18n.language),
-                      })}
-                    </span>
-                    <span className="mt-1 flex min-h-target items-center justify-between border-t border-chat-edge text-body font-bold text-chat-link underline">
-                      {t('demo.message.open')}
-                      <Icon name="chevronRight" size={20} />
-                    </span>
-                    <span className="block text-right text-caption text-chat-meta">
-                      {formatSchoolTime(message.sentAt, i18n.language)}
-                    </span>
-                  </button>
-                </li>
-              </Fragment>
-            ))}
-          </ul>
-        </div>
-        {open && (
-          <div className="slide-up absolute inset-0 z-10 flex flex-col bg-canvas">
-            <div className="flex h-12 shrink-0 items-center border-b border-edge bg-surface">
-              <button
-                type="button"
-                onClick={() => setOpen(null)}
-                aria-label={t('demo.backToMessages')}
-                className="flex size-12 shrink-0 items-center justify-center text-ink"
-              >
-                <Icon name="x" size={22} />
-              </button>
-              <div className="min-w-0 flex-1 text-center">
-                <p className="truncate text-label font-extrabold leading-tight">
-                  {/* What the page's own <title> says, in every language (T-116). */}
-                  {t('demo.chat.pageTitle')}
-                </p>
-                <p className="truncate text-caption leading-tight text-ink-muted">{window.location.host}</p>
-              </div>
-              <span className="w-12 shrink-0" />
-            </div>
-            <iframe title={t('demo.parentPage', { name })} src={`/p/${open.token}`} className="w-full flex-1" />
-          </div>
-        )}
-      </div>
-    </Phone>
-  )
-}
-
-/** Each Claude and Sarvam call since the reset: what for, which model and prompt version, and the verdict. */
-function UnderTheHood({ since }: { since: string | null }) {
-  const { t, i18n } = useTranslation()
-  const calls = useAiCalls(since)
-  const rows = calls.data ?? []
-
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 id="ai-title" className="text-label font-extrabold">
-        {t('demo.ai.title')}
-      </h2>
-      <p className="text-caption text-ink-muted">{t('demo.ai.caption')}</p>
-      {calls.isError && <p role="alert" className="text-body">{t('demo.ai.failed')}</p>}
-      {rows.length === 0 && !calls.isError ? (
-        <p className="card text-body">{t('demo.ai.empty')}</p>
-      ) : (
-        // As tall as the phones and scrolls inside, so keyboard users must be able to reach it: axe's
-        // scrollable-region-focusable needs tabIndex, which the lint rule below doesn't know about.
-        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        <section tabIndex={0} aria-labelledby="ai-title" className="card max-h-[740px] overflow-auto p-0">
-          <table className="w-full text-left text-caption">
-            <caption className="sr-only">{t('demo.ai.title')}</caption>
-            <thead className="sticky top-0 bg-surface">
-              <tr className="border-b-2 border-border">
-                <th scope="col" className="p-2">{t('demo.ai.time')}</th>
-                <th scope="col" className="p-2">{t('demo.ai.step')}</th>
-                <th scope="col" className="p-2">{t('demo.ai.for')}</th>
-                <th scope="col" className="p-2">{t('demo.ai.model')}</th>
-                <th scope="col" className="p-2">{t('demo.ai.tokens')}</th>
-                <th scope="col" className="p-2">{t('demo.ai.latency')}</th>
-                <th scope="col" className="p-2">{t('demo.ai.verdict')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((call) => (
-                <CallRow key={call.id} call={call} language={i18n.language} />
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-    </section>
-  )
-}
-
-function CallRow({ call, language }: { call: AiCall; language: string }) {
-  const { t } = useTranslation()
-  return (
-    <tr className="border-b border-divider align-top">
-      <td className="p-2 whitespace-nowrap">{formatSchoolTime(call.createdAt, language)}</td>
-      <td className="p-2">
-        {t(`demo.purpose.${call.purpose}`, { defaultValue: call.purpose })}
-        {call.promptVersion !== null && (
-          <span className="block text-ink-muted">{t('demo.ai.prompt', { id: call.purpose, version: call.promptVersion })}</span>
-        )}
-      </td>
-      <td className="p-2">
-        {call.children.length > 0 || call.otherChildren > 0
-          ? [...call.children, ...(call.otherChildren > 0 ? [t('demo.ai.otherClass', { count: call.otherChildren })] : [])].join(', ')
-          : '–'}
-      </td>
-      <td className="p-2 whitespace-nowrap">{call.model}</td>
-      <td className="p-2 whitespace-nowrap">
-        {call.inputTokens > 0 || call.outputTokens > 0
-          ? t('demo.ai.tokenCount', { input: call.inputTokens, output: call.outputTokens })
-          : '–'}
-      </td>
-      <td className="p-2 whitespace-nowrap">{t('demo.ai.seconds', { s: (call.latencyMs / 1000).toFixed(1) })}</td>
-      <td className="p-2">
-        {call.error ? (
-          <span className="chip bg-error-bg text-error">
-            <Icon name="alert" size={16} />
-            {t('demo.ai.error', { error: call.error })}
-          </span>
-        ) : call.verdict ? (
-          <span className="chip bg-status-caught-up-bg text-status-caught-up">
-            <Icon name="check" size={16} />
-            {call.verdict}
-          </span>
-        ) : (
-          '–'
-        )}
-      </td>
-    </tr>
   )
 }
 

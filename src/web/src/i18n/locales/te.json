@@ -750,6 +750,12 @@
     "parentCaption": "WhatsApp బదులు సందేశాలు ఇక్కడ వస్తాయి.",
     "parentPage": "{{name}} కుటుంబానికి పంపిన పేజీ",
     "backToMessages": "‹ సందేశాలు",
+    "backToDemo": "‹ డెమోకు తిరిగి",
+    "childNotFound": "ఈ లింక్‌తో డెమో తరగతిలో ఏ పిల్లలూ లేరు. లింక్ చూడండి, లేదా డెమో నుండి కుటుంబ ఫోన్ తెరవండి.",
+    "openAlone": {
+      "family": "{{name}} కుటుంబ ఫోన్ విడిగా",
+      "ai": "తెర వెనుక విడిగా"
+    },
     "chat": {
       "messages": "సందేశాలు",
       "pageTitle": "Tappida Paatha"

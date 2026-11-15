@@ -50,3 +50,12 @@ export interface DemoSendNow {
   eveningSent: number
   catchUpsSent: number
 }
+
+/** GET /api/demo/children/{id}: who a family phone opened on its own belongs to (T-126). */
+export interface DemoChild {
+  id: string
+  /** Fictional: only demo-class children are served. */
+  firstName: string
+  /** The family's home language code as saved now, e.g. "kn". */
+  language: string
+}
