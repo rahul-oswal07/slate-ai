@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Features.Delivery;
@@ -19,25 +20,22 @@ public sealed class WhatsAppTests
         PhoneNumberId = "1234567890",
         AccessToken = "test-token",
         Recipients = { [Ravi.ToString().ToUpperInvariant()] = "+919812345678" },
+        // The shipped default has no plain evening template (D-107); these tests give it one to test the send itself.
+        Evening = new WhatsAppTemplate { Name = "evening_absence_v2", WordingVersion = "4" },
     };
 
     private static DeliveryMessage Evening(Guid child, string language = "te", string wordingVersion = "4") =>
         new(Guid.NewGuid(), child, DeliveryKinds.Evening, language, ["Ravi", "పది తీసుకుని తీసివేత", "పేజీ 15"], "tok_123", wordingVersion);
 
     private static (WhatsAppChannel Channel, StubHttpHandler Http) Create(
-        WhatsAppOptions? settings = null, params Func<HttpResponseMessage>[] responses) =>
-        Create(settings, helloWorld: false, responses);
-
-    /// <param name="helloWorld">The T-104 stand-in; off here so the approved-template path stays tested.</param>
-    private static (WhatsAppChannel Channel, StubHttpHandler Http) Create(
-        WhatsAppOptions? settings, bool helloWorld, params Func<HttpResponseMessage>[] responses)
+        WhatsAppOptions? settings = null, params Func<HttpResponseMessage>[] responses)
     {
         var http = new StubHttpHandler(responses.Length > 0
             ? responses
             : [() => StubHttpHandler.Json("""{"messaging_product":"whatsapp","messages":[{"id":"wamid.ABC"}]}""")]);
         var options = Options.Create(settings ?? Settings());
         var client = new WhatsAppClient(new HttpClient(http), options, NullLogger<WhatsAppClient>.Instance);
-        return (new WhatsAppChannel(client, options, helloWorld), http);
+        return (new WhatsAppChannel(client, options), http);
     }
 
     [Fact]
@@ -86,34 +84,49 @@ public sealed class WhatsAppTests
         Assert.DoesNotContain("wamid", result.ProviderMessageId);
     }
 
-    [Theory]
-    [InlineData(DeliveryKinds.Evening, "4")]
-    [InlineData(DeliveryKinds.CatchUp, null)]
-    public async Task Until_T104_every_delivery_sends_hello_world_without_names_or_button(string kind, string? wordingVersion)
+    [Fact]
+    public async Task The_plain_evening_message_is_not_sent_until_its_template_is_approved()
     {
-        // Language and wording version don't matter, since no text of ours goes.
-        var (channel, http) = Create(null, helloWorld: true);
+        // D-107: no approved template yet, so the family keeps the demo chat; nothing of ours goes as hello_world.
+        var settings = Settings();
+        settings.Evening = new WhatsAppOptions().Evening;
+        var (channel, http) = Create(settings);
+
+        Assert.Equal(ChannelResult.Skipped("no-template"), await channel.SendAsync(Evening(Ravi), Ct));
+        Assert.Empty(http.Requests);
+    }
+
+    [Theory]
+    [InlineData("ta", false)]
+    [InlineData("kn", true)]
+    [InlineData("hi", true)]
+    public async Task A_catch_up_goes_only_in_a_language_its_template_is_approved_in(string language, bool sent)
+    {
+        // catchup_link_v1 is approved in en, kn, te and hi (15 Nov); a Tamil catch-up stays on the demo chat.
+        var (channel, http) = Create();
 
         var result = await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "xx", ["Ravi", "Shobha"], "tok_123", wordingVersion), Ct);
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.CatchUp, language, ["Ravi", "x", "y"], "tok_9"), Ct);
 
-        Assert.Equal(DeliveryStatus.Sent, result.Outcome);
-        using var body = JsonDocument.Parse(Assert.Single(http.Requests).Body);
-        var template = body.RootElement.GetProperty("template");
-        Assert.Equal("hello_world", template.GetProperty("name").GetString());
-        Assert.Equal("en_US", template.GetProperty("language").GetProperty("code").GetString());
-        Assert.False(template.TryGetProperty("components", out _));
-        Assert.DoesNotContain("Ravi", body.RootElement.GetRawText());
-        Assert.DoesNotContain("tok_123", body.RootElement.GetRawText());
+        Assert.Equal(sent ? DeliveryStatus.Sent : DeliveryStatus.Skipped, result.Outcome);
+        Assert.Equal(sent ? 1 : 0, http.Requests.Count);
     }
 
     [Fact]
-    public async Task Until_T104_an_unregistered_child_is_still_skipped()
+    public void The_shipped_settings_bind_as_approved_at_Meta()
     {
-        var (channel, http) = Create(null, helloWorld: true);
+        // appsettings.json merges into the defaults: no evening template, today's message in all five, catch-up not in ta.
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
+            .Build();
+        var settings = new WhatsAppOptions();
+        configuration.GetSection(WhatsAppOptions.Section).Bind(settings);
 
-        Assert.Equal(ChannelResult.Skipped("no-recipient"), await channel.SendAsync(Evening(Unregistered), Ct));
-        Assert.Empty(http.Requests);
+        Assert.Equal("", settings.Evening.Name);
+        Assert.Equal("todays_lesson_link_v1", settings.Todays.Name);
+        Assert.Equal(["en", "hi", "kn", "ta", "te"], settings.Todays.Languages.Keys.Order());
+        Assert.Equal("catchup_link_v1", settings.CatchUp.Name);
+        Assert.Equal(["en", "hi", "kn", "te"], settings.CatchUp.Languages.Keys.Order());
     }
 
     [Theory]

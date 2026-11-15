@@ -97,6 +97,15 @@ describe('ParentScreen', () => {
     expect(i18n.language).toBe('en')
   })
 
+  it('a link from the approved templates, with a stray {{1}} before the token, opens the page (T-104)', async () => {
+    const calls = setup(() => page({ language: 'te' }))
+    renderApp(`/p/%7B%7B1%7D%7D${token}`)
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Ravi కోసం పాఠం' })).toBeInTheDocument()
+    expect(calls.map((c) => c.key)).toContain(pageUrl)
+    expect(calls.every((c) => !c.key.includes('{{') && !c.key.includes('%7B'))).toBe(true)
+  })
+
   it('P1: Listen shows feedback at once, the parts are labelled, and Next works without playing', async () => {
     setup(() => page())
     renderApp(`/p/${token}`)

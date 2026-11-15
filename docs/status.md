@@ -27,7 +27,7 @@ Read this first in any new session. Then the map in [`README.md`](README.md), th
 1. **Approve the evening message once on staging** (sign in as Shobha → Settings → Evening message): the wording is v4 (D-99), Reset doesn't approve it, and until she does no evening or today's message goes. Prod asks the same at its next tag.
 2. **Enter the DIKSHA link for Nalikali p 4** on staging's `/admin/lesson-links` (M-1, [finale prep](tasks/M-1-to-M-6-finale-prep.md)); built in T-94 ([task](tasks/T-94-diksha-link-per-lesson.md), D-106).
 3. **Should rows**, if time is left, in this order: T-95 → T-96 → T-100 → T-97 → T-98 → T-99 → T-102 → T-103.
-4. **T-104**, our own WhatsApp templates ([task](tasks/T-104-whatsapp-own-templates.md)); T-106 after the final. Where WhatsApp stands: [`areas/delivery/status.md`](areas/delivery/status.md).
+4. **T-104**, WhatsApp templates switched on (15 Nov, [task](tasks/T-104-whatsapp-own-templates.md)): Monika fixes the buttons' URL, submits the Tamil catch-up and the factual plain evening template (D-107); one real test send on staging. T-106 after the final. Where WhatsApp stands: [`areas/delivery/status.md`](areas/delivery/status.md).
 5. Run the 6 demo steps once on prod (`v1.3` is deployed; the run hasn't been done yet), including the lesson audio: tick, approve within 5 minutes, and check the clip goes with the message.
 6. **After judging:** change the server PINs; delete the unused `EveningMessages__LessonAudioWaitUntil` setting on prod; one Tonight's message card on Today (T-86, [task](tasks/T-86-tonights-message-card.md)).
 

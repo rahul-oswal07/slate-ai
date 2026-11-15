@@ -5,15 +5,11 @@ namespace SlateAi.Api.Features.Delivery;
 /// <summary>
 /// Sends over WhatsApp only to the registered test phones (<see cref="WhatsAppOptions.Recipients"/>, at most 5 on the
 /// Cloud API test number); every other family is skipped and keeps the demo chat. Step 1 of T-40: an approved template
-/// whose URL button opens the parent page, where the greeting, lesson audio and catch-up already play.
+/// whose URL button opens the parent page, where the greeting, lesson audio and catch-up already play. Each kind goes as
+/// its approved template (T-104, D-98); a kind or language without one is skipped (<c>no-template</c>), as is the plain
+/// evening message until its factual template is approved (D-107).
 /// </summary>
-/// <param name="helloWorld">
-/// Temporary, until <c>todays_lesson_link_v1</c> and <c>catchup_link_v1</c> are approved (T-104, #182): every delivery
-/// sends Meta's pre-approved <c>hello_world</c> instead (no parameters, no button, none of our text), which only proves a
-/// message reaches the registered phone. T-104 removes this once the plain evening message (T-104 c) is settled.
-/// </param>
-public sealed class WhatsAppChannel(WhatsAppClient client, IOptions<WhatsAppOptions> options, bool helloWorld = true)
-    : IParentChannel
+public sealed class WhatsAppChannel(WhatsAppClient client, IOptions<WhatsAppOptions> options) : IParentChannel
 {
     public string Name => DeliveryChannels.WhatsApp;
 
@@ -23,12 +19,6 @@ public sealed class WhatsAppChannel(WhatsAppClient client, IOptions<WhatsAppOpti
         if (settings.RecipientFor(message.ChildId) is not { } number)
         {
             return Task.FromResult(ChannelResult.Skipped("no-recipient"));
-        }
-
-        if (helloWorld)
-        {
-            return client.SendTemplateAsync(
-                number, DeliveryEndpoints.HelloWorld, DeliveryEndpoints.HelloWorldLanguage, [], null, cancellationToken);
         }
 
         var template = message.Kind switch

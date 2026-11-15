@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { I18nextProvider, useTranslation } from 'react-i18next'
-import { useParams, useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { ApiError } from '../../api/client'
 import { AnnouncerProvider } from '../../components/Announcer'
 import { Icon } from '../../components/Icon'
@@ -11,6 +11,7 @@ import { EveningView } from './EveningView'
 import { ListenStep } from './ListenStep'
 import { AiLabel, HomeworkCard, ParentHeader, PrimaryButton, StepDots, StopControl, StoppedView } from './ParentParts'
 import type { ParentCatchUp, ParentExpired } from './types'
+import { cleanToken } from './parentToken'
 import { useParentPage } from './useParentPage'
 
 /**
@@ -43,7 +44,16 @@ function ParentFrame({ language, children }: { language: string; children: React
 
 /** P1–P4 at /p/:token (FR-10). No sign-in: the token is the key. */
 export function ParentScreen() {
-  const { token = '' } = useParams()
+  const { token: raw = '' } = useParams()
+  // Links from the approved templates carry a stray "{{1}}" before the token (T-104): read past it, and clean the address.
+  const token = cleanToken(raw)
+  const navigate = useNavigate()
+  const { search } = useLocation()
+  useEffect(() => {
+    if (token !== raw && token !== '') {
+      void navigate({ pathname: `/p/${token}`, search }, { replace: true })
+    }
+  }, [token, raw, search, navigate])
   const { i18n } = useTranslation()
   const page = useParentPage(token)
   const error = page.error instanceof ApiError ? page.error : null

@@ -82,17 +82,21 @@ public sealed class WhatsAppTestEndpointTests
     }
 
     [Fact]
-    public async Task The_app_sends_deliveries_as_hello_world_until_T104()
+    public async Task The_app_sends_todays_message_as_its_approved_template_and_skips_the_plain_evening()
     {
+        // T-104, with the shipped settings: hello_world is gone; the plain evening has no template yet (D-107).
         await using var factory = Create(Key, channel: DeliveryChannels.WhatsApp);
         using var scope = factory.Services.CreateScope();
         var channel = scope.ServiceProvider.GetRequiredService<IParentChannel>();
 
-        var result = await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Evening, "te", ["Ravi", "lesson", "page 15"], "tok_1", "3"), Ct);
+        var todays = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Todays, "te", ["Ravi", "lesson", "4"], "tok_1", "4"), Ct);
+        var plain = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Evening, "te", ["Ravi", "lesson", "page 15"], "tok_2", "4"), Ct);
 
-        Assert.Equal(DeliveryStatus.Sent, result.Outcome);
-        Assert.Contains("\"name\":\"hello_world\"", Assert.Single(_http.Requests).Body);
+        Assert.Equal(DeliveryStatus.Sent, todays.Outcome);
+        Assert.Contains("\"name\":\"todays_lesson_link_v1\"", Assert.Single(_http.Requests).Body);
+        Assert.Equal(ChannelResult.Skipped("no-template"), plain);
     }
 
     [Theory]
