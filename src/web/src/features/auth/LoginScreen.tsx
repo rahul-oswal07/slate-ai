@@ -124,6 +124,7 @@ export function LoginScreen() {
               type="tel"
               inputMode="tel"
               autoComplete="tel-national"
+              placeholder={t('auth.phonePlaceholder')}
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               aria-invalid={error?.field === 'phone'}
@@ -145,6 +146,7 @@ export function LoginScreen() {
             pattern="[0-9]*"
             maxLength={6}
             autoComplete="current-password"
+            placeholder={t('auth.pinPlaceholder')}
             value={pin}
             onChange={(event) => setPin(event.target.value.replace(/\D/g, ''))}
             aria-describedby="pin-hint"

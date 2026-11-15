@@ -239,6 +239,7 @@ describe("Approve → Today's message (T-89)", () => {
 
     await user.click(await screen.findByRole('button', { name: 'Edit' }))
     const box = screen.getByRole('textbox', { name: 'Concept (Kannada)' })
+    expect(box).toHaveAttribute('placeholder', 'The idea in 2 or 3 short sentences, in Kannada')
     await user.clear(box)
     await user.type(box, 'ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.')
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -266,6 +267,17 @@ describe("Approve → Today's message (T-89)", () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent("Use the book's numbers only. You can use: 33, 48, 75.")
     expect(screen.getByRole('textbox', { name: 'Concept (Kannada)' })).toHaveAccessibleDescription(/book's numbers/)
+  })
+
+  it('editing the activity: each step box says what goes in it (T-96)', async () => {
+    const user = userEvent.setup()
+    setup(() => ({ status: 200, body: message() }))
+    renderApp('/approve')
+
+    await user.click(await screen.findByRole('button', { name: 'Activity at home' }))
+    await user.click(screen.getByRole('button', { name: 'Edit' }))
+
+    expect(screen.getByRole('textbox', { name: 'Step 1' })).toHaveAttribute('placeholder', 'One thing the family does, in Kannada')
   })
 
   it('her note: Add my note shows the placeholder', async () => {
