@@ -16,13 +16,13 @@ How to switch staging from the demo chat to real WhatsApp for the registered tes
 **How it works:**
 - When an evening message or catch-up is sent (guardrail 3 already passed), a `ParentDeliveries` row is queued in the same transaction.
 - Every minute, the 6 pm job sends queued rows over `Delivery:Channel`. "Send messages now" on `/demo` does the same straight away.
-- With `whatsapp`, only children listed in `WhatsApp:Recipients` get a message: the approved template, with a button that opens `/p/{token}`. Everyone else stays on the demo chat.
+- With `whatsapp`, only children with a number saved on `/admin/children` get a message: the approved template, with a button that opens `/p/{token}`. Everyone else stays on the demo chat. There is no server setting for numbers (D-114).
 
 ## 1. Meta (one time, about 2 hours)
 
 1. **Business portfolio:** create one at business.facebook.com, if there isn't one yet.
 2. **App:** developers.facebook.com → Create app → type *Business* → add the **WhatsApp** product. Meta gives the app a free **test number**. On *WhatsApp → API Setup*, copy the **Phone number ID**.
-3. **Recipients:** on the same page, add up to **5** numbers (the test parents, with their consent). Each one confirms with a code sent to their WhatsApp.
+3. **Recipients:** on the same page, add up to **5** numbers (the test parents, with their consent). Each one confirms with a code sent to their WhatsApp. Then save each number for its child on `/admin/children` (D-114).
 4. **Permanent token:**
    1. Business settings → Users → System users → Add (admin).
    2. Assign the app with full control.
@@ -38,18 +38,16 @@ Secrets go only in user-secrets (local) or App Service settings (staging), never
 | `Delivery__Channel` | `whatsapp` (default `demo`: nothing leaves the server) |
 | `WhatsApp__PhoneNumberId` | from API Setup |
 | `WhatsApp__AccessToken` | the system-user token (**secret**) |
-| `WhatsApp__Recipients__<childId>` | `+91…`, one per registered phone. Child IDs are in `data/seed/demo-class.json`. **On App Service, write the ID without hyphens** (`1e95443fd2d9…`): Azure rejects setting names with `-`, and both forms are read the same. The seeded `parentPhone` values are fictional and never dialled |
 | `WhatsApp__Todays__Name`, `WhatsApp__CatchUp__Name`, `WhatsApp__Evening__Name` | only if the approved names differ from `todays_lesson_link_v1` / `catchup_link_v1` / `evening_absence_v2` |
 | `WhatsApp__Evening__Languages__te` (etc.) | only to stop a language that isn't approved yet: remove it or point it elsewhere. A language missing from the map is skipped |
 
-Local run with one phone:
+Local run with one phone (then save its number for a child on `/admin/children`):
 
 ```bash
 cd src/api/SlateAi.Api
 dotnet user-secrets set "Delivery:Channel" "whatsapp"
 dotnet user-secrets set "WhatsApp:PhoneNumberId" "<id>"
 dotnet user-secrets set "WhatsApp:AccessToken" "<token>"
-dotnet user-secrets set "WhatsApp:Recipients:<childId>" "+91<number>"
 ```
 
 The button URL is fixed when the template is created, so a local run's button opens staging's `/p/{token}`, and that token isn't on staging. For a full local check, run step 3 below on staging.
@@ -59,14 +57,14 @@ The button URL is fixed when the template is created, so a local run's button op
 Meta's `hello_world` template is approved on every test number. The admin test send uses it to check the token, the Phone number ID and one recipient straight away.
 
 How the endpoint works:
-- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches phones in `WhatsApp__Recipients__*`.
+- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches a number saved on `/admin/children` (D-114).
 - A repeated `clientRequestId` returns the first result without sending again.
 - The response never contains the number. The message ID is a SHA-256 hash, because WhatsApp's raw `wamid` encodes the number.
 
 ```bash
 curl -s -X POST https://slateai-staging.azurewebsites.net/api/admin/whatsapp/test \
   -H "Content-Type: application/json" \
-  -d "{\"clientRequestId\":\"$(uuidgen)\",\"childId\":\"<childId in WhatsApp__Recipients>\"}"
+  -d "{\"clientRequestId\":\"$(uuidgen)\",\"childId\":\"<childId with a number saved on /admin/children>\"}"
 ```
 
 `{"outcome":"sent","providerMessageId":"sha256:…"}` means the phone gets "Hello World" within seconds. The error codes are in the table in §4: `graph-190` is the token, `graph-131030` is the number not being on the recipient list.
@@ -171,7 +169,7 @@ What a skipped or failed delivery means (`ParentDeliveries.LastError`):
 | Code | Meaning |
 |---|---|
 | `demo` | `Delivery:Channel` is `demo` |
-| `no-recipient` | the child isn't in `WhatsApp:Recipients` |
+| `no-recipient` | no number is saved for the child on `/admin/children` |
 | `no-template` | the family's language isn't in the template's `Languages` |
 | `wording-version` | she approved another wording version than the Meta template copies |
 | `stopped`, `no-consent`, `expired` | the send rules said no at send time |

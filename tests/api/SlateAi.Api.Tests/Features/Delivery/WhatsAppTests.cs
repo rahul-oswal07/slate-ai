@@ -15,17 +15,20 @@ public sealed class WhatsAppTests
     private static readonly Guid Ravi = Guid.NewGuid();
     private static readonly Guid Unregistered = Guid.NewGuid();
 
+    /// <summary>Ravi's number as saved on the admin page; the delivery store passes it on each message (D-114).</summary>
+    private const string RaviPhone = "+919812345678";
+
     private static WhatsAppOptions Settings() => new()
     {
         PhoneNumberId = "1234567890",
         AccessToken = "test-token",
-        Recipients = { [Ravi.ToString().ToUpperInvariant()] = "+919812345678" },
         // The shipped default has no plain evening template (D-107); these tests give it one to test the send itself.
         Evening = new WhatsAppTemplate { Name = "evening_absence_v2", WordingVersion = "4" },
     };
 
     private static DeliveryMessage Evening(Guid child, string language = "te", string wordingVersion = "4") =>
-        new(Guid.NewGuid(), child, DeliveryKinds.Evening, language, ["Ravi", "పది తీసుకుని తీసివేత", "పేజీ 15"], "tok_123", wordingVersion);
+        new(Guid.NewGuid(), child, DeliveryKinds.Evening, language, ["Ravi", "పది తీసుకుని తీసివేత", "పేజీ 15"], "tok_123", wordingVersion,
+            child == Ravi ? RaviPhone : null);
 
     private static (WhatsAppChannel Channel, StubHttpHandler Http) Create(
         WhatsAppOptions? settings = null, params Func<HttpResponseMessage>[] responses)
@@ -106,7 +109,7 @@ public sealed class WhatsAppTests
         var (channel, http) = Create();
 
         var result = await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.CatchUp, language, ["Ravi", "x", "y"], "tok_9"), Ct);
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.CatchUp, language, ["Ravi", "x", "y"], "tok_9", Phone: RaviPhone), Ct);
 
         Assert.Equal(sent ? DeliveryStatus.Sent : DeliveryStatus.Skipped, result.Outcome);
         Assert.Equal(sent ? 1 : 0, http.Requests.Count);
@@ -140,7 +143,7 @@ public sealed class WhatsAppTests
         var (channel, http) = Create();
 
         var result = await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "kn", parameters, "tok_9", kind == DeliveryKinds.Todays ? "3" : null), Ct);
+            new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "kn", parameters, "tok_9", kind == DeliveryKinds.Todays ? "3" : null, RaviPhone), Ct);
 
         Assert.Equal(DeliveryStatus.Sent, result.Outcome);
         using var json = JsonDocument.Parse(Assert.Single(http.Requests).Body);
@@ -161,7 +164,7 @@ public sealed class WhatsAppTests
         // e.g. a lesson whose page isn't in Nalikali: the template's fixed text says Nalikali, so nothing goes.
         var (channel, http) = Create();
 
-        var result = await channel.SendAsync(new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "kn", [], "tok_9"), Ct);
+        var result = await channel.SendAsync(new DeliveryMessage(Guid.NewGuid(), Ravi, kind, "kn", [], "tok_9", Phone: RaviPhone), Ct);
 
         Assert.Equal(ChannelResult.Skipped("no-values"), result);
         Assert.Empty(http.Requests);
@@ -178,14 +181,12 @@ public sealed class WhatsAppTests
         Assert.Empty(http.Requests);
     }
 
-    [Theory]
-    [InlineData(true)] // Ravi also has a server setting: the saved number still wins
-    [InlineData(false)] // nobody in the settings: the saved number alone is enough
-    public async Task A_number_saved_on_the_admin_page_is_dialled_first(bool alsoInSettings)
+    [Fact]
+    public async Task It_dials_the_number_saved_on_the_admin_page()
     {
-        // T-118, D-110.
+        // T-118; the only number WhatsApp uses since D-114.
         var (channel, http) = Create();
-        var message = Evening(alsoInSettings ? Ravi : Unregistered) with { Phone = "+447700900123" };
+        var message = Evening(Unregistered) with { Phone = "+447700900123" };
 
         var result = await channel.SendAsync(message, Ct);
 
@@ -195,13 +196,14 @@ public sealed class WhatsAppTests
     }
 
     [Fact]
-    public void A_recipient_key_without_hyphens_is_read_the_same()
+    public async Task Without_a_saved_number_nothing_is_sent_D114()
     {
-        // App Service rejects setting names with "-", so staging writes WhatsApp__Recipients__<32 hex digits>.
-        var settings = new WhatsAppOptions { Recipients = { [Ravi.ToString("N")] = "+919812345678" } };
+        var (channel, http) = Create();
 
-        Assert.Equal("+919812345678", settings.RecipientFor(Ravi));
-        Assert.Null(settings.RecipientFor(Unregistered));
+        var result = await channel.SendAsync(Evening(Unregistered), Ct);
+
+        Assert.Equal(ChannelResult.Skipped("no-recipient"), result);
+        Assert.Empty(http.Requests);
     }
 
     [Fact]

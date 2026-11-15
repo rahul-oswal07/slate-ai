@@ -486,6 +486,9 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
 
+                    b.Property<DateTimeOffset?>("HomeLanguageSetAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset?>("ParentConsentAt")
                         .HasColumnType("timestamp with time zone");
 

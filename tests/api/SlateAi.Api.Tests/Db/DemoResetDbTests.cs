@@ -46,9 +46,10 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
                     .SetProperty(c => c.Consent, "no")
                     .SetProperty(c => c.ConsentChangedAt, DateTimeOffset.UtcNow),
                 DemoClassApi.Ct);
-            // A number saved on the admin page (T-118, D-110): Reset keeps it.
+            // A number and a home language saved on the admin page (T-118, D-110; T-122, D-113): Reset keeps both.
             await db.Children.Where(c => c.Id == manjunath).ExecuteUpdateAsync(
-                s => s.SetProperty(c => c.ParentPhone, "+447700900123").SetProperty(c => c.ParentPhoneSetAt, savedAt),
+                s => s.SetProperty(c => c.ParentPhone, "+447700900123").SetProperty(c => c.ParentPhoneSetAt, savedAt)
+                    .SetProperty(c => c.HomeLanguage, "ta").SetProperty(c => c.HomeLanguageSetAt, savedAt),
                 DemoClassApi.Ct);
             db.CatchUpPackages.Add(new CatchUpPackage
             {
@@ -77,6 +78,8 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.True(await api.QueryAsync(db => db.Children.AnyAsync(c => c.Id == ananya, DemoClassApi.Ct)));
         var kept = await api.QueryAsync(db => db.Children.SingleAsync(c => c.Id == manjunath, DemoClassApi.Ct));
         Assert.Equal(("+447700900123", (DateTimeOffset?)savedAt), (kept.ParentPhone, kept.ParentPhoneSetAt));
+        Assert.Equal(("ta", (DateTimeOffset?)savedAt), (kept.HomeLanguage, kept.HomeLanguageSetAt));
+        Assert.Null(restored.HomeLanguageSetAt);
 
         // Five school days before today, each a full SATS register and a confirmed lesson.
         var days = await api.QueryAsync(db => db.Lessons.OrderBy(l => l.Date).ToListAsync(DemoClassApi.Ct));

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Features.Admin;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -18,7 +19,7 @@ public sealed class WhatsAppTestEndpointTests
         () => StubHttpHandler.Json("""{"messaging_product":"whatsapp","messages":[{"id":"wamid.HELLO"}]}"""));
 
     [Fact]
-    public async Task Sends_hello_world_to_the_registered_phone_without_echoing_the_number()
+    public async Task Sends_hello_world_to_the_saved_number_without_echoing_it()
     {
         await using var factory = Create();
         using var client = factory.CreateClient();
@@ -55,7 +56,7 @@ public sealed class WhatsAppTestEndpointTests
     }
 
     [Fact]
-    public async Task A_child_without_a_registered_number_is_skipped()
+    public async Task A_child_without_a_saved_number_is_skipped_D114()
     {
         await using var factory = Create();
         using var client = factory.CreateClient();
@@ -88,9 +89,9 @@ public sealed class WhatsAppTestEndpointTests
         var channel = scope.ServiceProvider.GetRequiredService<IParentChannel>();
 
         var todays = await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Todays, "te", ["Ravi", "lesson", "4"], "tok_1", "4"), Ct);
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Todays, "te", ["Ravi", "lesson", "4"], "tok_1", "4", Number), Ct);
         var plain = await channel.SendAsync(
-            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Evening, "te", ["Ravi", "lesson", "page 15"], "tok_2", "4"), Ct);
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Evening, "te", ["Ravi", "lesson", "page 15"], "tok_2", "4", Number), Ct);
 
         Assert.Equal(DeliveryStatus.Sent, todays.Outcome);
         Assert.Contains("\"name\":\"todays_lesson_link_v1\"", Assert.Single(_http.Requests).Body);
@@ -112,13 +113,34 @@ public sealed class WhatsAppTestEndpointTests
     }
 
     private ApiFactory Create(string channel = DeliveryChannels.Demo, string environment = "Testing") => FakeApi.Create(
-        services => services.AddHttpClient<WhatsAppClient>().ConfigurePrimaryHttpMessageHandler(() => _http),
+        services =>
+        {
+            services.AddHttpClient<WhatsAppClient>().ConfigurePrimaryHttpMessageHandler(() => _http);
+            services.AddSingleton<IAdminChildStore>(new SavedNumbers(new() { [Ravi] = Number }));
+        },
         settings: new Dictionary<string, string?>
         {
             ["WhatsApp:PhoneNumberId"] = "1234567890",
             ["WhatsApp:AccessToken"] = "test-token",
-            [$"WhatsApp:Recipients:{Ravi}"] = Number,
             ["Delivery:Channel"] = channel,
         },
         environment: environment);
+
+    /// <summary>Only the saved numbers matter to the test send (D-114); the page's other calls aren't used here.</summary>
+    private sealed class SavedNumbers(Dictionary<Guid, string> numbers) : IAdminChildStore
+    {
+        public Task<string?> GetSavedPhoneAsync(Guid childId, CancellationToken cancellationToken) =>
+            Task.FromResult(numbers.GetValueOrDefault(childId));
+
+        public Task<IReadOnlyList<AdminChildClass>> ListAsync(CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        public Task<AdminChildRow?> SetPhoneAsync(
+            Guid clientRequestId, Guid childId, string? phone, DateTimeOffset now, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        public Task<AdminChildRow?> SetLanguageAsync(
+            Guid clientRequestId, Guid childId, string language, DateTimeOffset now, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+    }
 }
