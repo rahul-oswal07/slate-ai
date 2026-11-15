@@ -39,7 +39,9 @@
     "title": "Sign in",
     "lead": "Use your mobile number and the PIN from your school.",
     "phone": "Mobile number",
+    "phonePlaceholder": "10-digit number",
     "pin": "PIN",
+    "pinPlaceholder": "Your PIN",
     "pinHint": "4 to 6 digits",
     "submit": "Sign in",
     "submitting": "Signing in…",
@@ -187,6 +189,12 @@
       "check": "Check and approve",
       "approved": "Today’s message: approved · goes after 6 pm",
       "see": "See today’s message"
+    },
+    "next": {
+      "record": "Record today’s lesson",
+      "confirm": "Confirm today’s lesson",
+      "check": "Check today’s message",
+      "answers": "See answers"
     },
     "tonight": {
       "title": "After 6 pm tonight: message to {{families}} of {{absent}} families",
@@ -849,6 +857,7 @@
       "chapter": "Chapter {{number}} · {{name}}",
       "refused": "Use a full https link, for example https://diksha.gov.in/…",
       "search": "Search lessons",
+      "searchPlaceholder": "Lesson name or ID, e.g. compare",
       "onlyMissing": "Only lessons without a link",
       "linkedCount": "{{linked}} of {{total}} linked",
       "unsaved": "Unsaved",
@@ -960,9 +969,11 @@
     "restore": "Put back",
     "remove": "Remove",
     "step": "Step {{n}}",
+    "stepPlaceholder": "One thing the family does, in Kannada",
     "noteLabel": "Your note to families (any language: each family reads it in their own)",
     "noteKannada": "Kannada families read:",
     "conceptLabel": "Concept (Kannada)",
+    "conceptPlaceholder": "The idea in 2 or 3 short sentences, in Kannada",
     "notePlaceholder": "e.g. We wrote numbers on leaves and compared them",
     "addStep": "Add a step",
     "problem": {

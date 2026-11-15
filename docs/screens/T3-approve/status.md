@@ -8,6 +8,7 @@ Spec: [`spec.md`](spec.md)
 
 - **Check and approve:** two tabs.
 - **Today's message** has sections she can edit or add a note to; only the video and her note can be removed, because the WhatsApp text promises the concept, activity and picture (D-108); her Kannada is kept word for word and the other languages are written from it, and the tick is bound to the version (T-89).
+- When she edits today's message, the concept box and each activity-step box have a placeholder saying what goes in it, in Kannada (T-96).
 - **Her note** can be written in any language: Approve shows what she typed and, when it was translated, what Kannada families read; every family reads it in their home language, and Edit starts from what she typed (T-119, D-111).
 - **Draft of today's message** (finale, D-90–D-96): confirming a lesson with the book's exercises (today only Nalikali p 4) drafts a message for absent families: concept with voice, a parent-led activity and a `>,<,=` picture pair chosen by code (T-88).
 - A fresh draft of today's message starts from what she said in class: A1's summary and her examples, filtered by code; her own Kannada edit wins over it (T-120).

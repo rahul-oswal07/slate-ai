@@ -15,7 +15,7 @@ export function AnswersCard({ classId, date }: { classId: string; date: string }
 
   return (
     <section aria-labelledby="answers-title" className="card flex flex-col gap-2 p-[14px]">
-      <h2 id="answers-title" className="text-label">
+      <h2 id="answers-title" tabIndex={-1} className="text-label">
         {t('answers.title', { sent: answers.sent, answered: answers.answered })}
       </h2>
       <table className="w-full table-fixed text-left text-body">

@@ -9,6 +9,7 @@ Spec: [`spec.md`](spec.md)
 - Admin pages for greetings and lesson audio (T-66–T-68).
 - **`/admin`** lists every admin page with its address and what it is for, and every page's nav links back to it (T-94). It asks the API nothing.
 - **Lesson links** (`/admin/lesson-links`): every chapter and lesson with one video link each (any https link), saved per lesson for every class (T-94, D-106).
+- The lesson-links search has a placeholder: "Lesson name or ID, e.g. compare" (T-96).
 - The lesson links page starts with every chapter folded and "N of M linked" on each; a search (English or Kannada name, or ID) and "Only lessons without a link" narrow it; links typed in any rows are saved together from a bar at the bottom, a refused link stays as typed with how to fix it, and leaving with unsaved links asks first (T-94).
 - The kn, te, ta and hi strings of the lesson links page are drafts for Monika (T-94).
 - **Children** (`/admin/children`): every class's children by roll number with the number saved for their family, the only one WhatsApp uses (T-123, D-114), and a note when consent or "stop" means nothing is sent; Edit / Save / Cancel and Clear per child (T-118, D-110).
