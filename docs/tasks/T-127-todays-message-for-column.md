@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Issue | #257 |
 | Owner | R |
 | Screens | demo |
@@ -30,3 +30,5 @@ Today's message's A9 and voice calls are now tagged with the children whose fami
 ## Notes
 
 - 15 Nov 2026: built on `feat/T-127-todays-message-for-column`. `TodaysJob` carries `ChildIds`. `TodaysMessageService.DueAsync` gives both the languages and the children, and `TodaysMessageGenerator` opens an `AiCallScope` for the run. Not changed: A1, A8, speech-to-text and the shared lesson clip stay class-level. The shared AI disclosure clip, made once per language, is tagged only by the run that first makes it.
+- 15 Nov 2026: merged as #258, which closed #257. On staging after deploy; not in a prod tag yet.
+- 15 Nov 2026: follow-up asked for by Rahul. The `/demo` subtitle (`demo.subtitle`, all five locales) now says the parent phone is simulated but its messages are the real ones a family is sent.

@@ -700,7 +700,7 @@
   },
   "demo": {
     "title": "Tappida Paatha — demo",
-    "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed and the parent phone is simulated; the AI calls are real.",
+    "subtitle": "A fictional Grade 3 class. Attendance comes from a simulated SATS feed. The parent phone is simulated, but the messages on it are the real ones a family is sent. The AI calls are real.",
     "signingIn": "Signing in as the demo teacher…",
     "loginFailed": "Could not sign in to the demo. The demo class may not be set up on this server.",
     "guide": {
