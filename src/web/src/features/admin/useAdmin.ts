@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, NetworkError, api } from '../../api/client'
+import type { TextbookPage } from '../lessons/types'
 
 /** One teacher's recorded greeting, as `GET /api/admin/greetings` lists it. */
 export interface AdminGreeting {
@@ -38,6 +39,20 @@ export interface AdminLessonAudioDay {
   date: string
   sentCount: number
   audios: AdminLessonAudio[]
+}
+
+/** One lesson on the lesson links page (T-94), with its video link or null. */
+export interface AdminLessonLink {
+  id: string
+  nameKn: string
+  nameEn: string
+  textbookPage: TextbookPage | null
+  url: string | null
+}
+
+/** `GET /api/admin/lesson-links`: every chapter and lesson in book order. */
+export interface AdminLessonLinks {
+  chapters: { number: number; nameKn: string; nameEn: string; lessons: AdminLessonLink[] }[]
 }
 
 const KEY_HEADER = 'X-Admin-Key'
@@ -98,4 +113,27 @@ export async function fetchAdminClip(key: string | null, url: string): Promise<B
     throw new ApiError(response.status, null)
   }
   return response.blob()
+}
+
+/** Every chapter and lesson with its video link (T-94, D-106). */
+export function useAdminLessonLinks(key: string | null) {
+  return useQuery({
+    queryKey: ['admin', 'lesson-links', key],
+    queryFn: () => api<AdminLessonLinks>('/api/admin/lesson-links', { headers: keyHeaders(key) }),
+    retry: false,
+  })
+}
+
+/** Sets (any https link) or removes (blank) one lesson's link; a refused link is an `ApiError` with status 400. */
+export function useSetLessonLink(key: string | null) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, url }: { id: string; url: string }) =>
+      api<AdminLessonLink>(`/api/admin/lesson-links/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: keyHeaders(key),
+        body: { clientRequestId: crypto.randomUUID(), url },
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'lesson-links', key] }),
+  })
 }

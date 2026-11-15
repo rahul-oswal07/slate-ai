@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Status | Open · waiting for Monika's checked link (M-1) |
+| Status | Done |
 | Issue | #191 |
 | Owner | M finds, R builds |
-| Screens | T3-approve, P5-todays-message, curriculum |
+| Screens | admin, T3-approve, P5-todays-message, curriculum |
 | Source | see What |
 
 ## What
@@ -22,4 +22,5 @@ Unit test; Vitest
 
 ## Notes
 
+- 15 Nov: **built** (Rahul's answers, D-106: links are set on a new admin page, `/admin/lesson-links`, by whoever checked them; any https link; one per lesson for every class; full scope). New table `LessonLinks` (migration `LessonLinks`); `GET`/`PUT /api/admin/lesson-links` with the D-102 key rule; a fresh today's message gets the first of its lessons' links as its video, by code; Approve → Today's message shows a Video section with Remove (no Edit), and the "remove" rule now counts the sections a message has; the family page already showed the video step. Left: Monika enters the checked Nalikali p 4 link on staging (M-1); kn, te, ta, hi strings of the admin page are drafts.
 - 15 Nov: moved here from `tasks.md` (T-110).

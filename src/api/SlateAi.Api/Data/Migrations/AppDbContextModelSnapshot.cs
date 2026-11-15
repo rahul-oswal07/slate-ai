@@ -726,6 +726,25 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("LessonAudios");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonLink", b =>
+                {
+                    b.Property<string>("CompetencyId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("CompetencyId");
+
+                    b.ToTable("LessonLinks");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.MessageTemplate", b =>
                 {
                     b.Property<Guid>("Id")

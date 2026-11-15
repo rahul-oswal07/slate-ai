@@ -26,6 +26,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<BuddyCard> BuddyCards => Set<BuddyCard>();
     public DbSet<PacingDecision> PacingDecisions => Set<PacingDecision>();
     public DbSet<ParentDelivery> ParentDeliveries => Set<ParentDelivery>();
+    public DbSet<LessonLink> LessonLinks => Set<LessonLink>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -77,6 +78,13 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(l => l.Status).HasMaxLength(20);
             e.HasOne<Class>().WithMany().HasForeignKey(l => l.ClassId);
             e.HasIndex(l => new { l.ClassId, l.Date }).IsUnique(); // one lesson record per day (D-55)
+        });
+
+        modelBuilder.Entity<LessonLink>(e =>
+        {
+            e.HasKey(l => l.CompetencyId); // one link per lesson, for every class (D-106)
+            e.Property(l => l.CompetencyId).HasMaxLength(100);
+            e.Property(l => l.Url).HasMaxLength(Features.LessonLinks.LessonLinkRules.MaxLength);
         });
 
         modelBuilder.Entity<ProcessedRequest>(e =>

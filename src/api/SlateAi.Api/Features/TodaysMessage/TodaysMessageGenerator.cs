@@ -9,6 +9,7 @@ using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.LessonAudio;
 using SlateAi.Api.Speech;
+using SlateAi.Api.Features.LessonLinks;
 
 namespace SlateAi.Api.Features.TodaysMessage;
 
@@ -17,8 +18,9 @@ public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages);
 
 /// <summary>
 /// Drafts one today's message (D-91): code picks the picture pair from the book (D-93), A9 writes the concept and the
-/// activity in every language, code checks them (one retry with the problems), and each concept is voiced. Nothing here
-/// sends anything: the draft waits for her approval (guardrail 3).
+/// activity in every language, code checks them (one retry with the problems), and each concept is voiced. The video is
+/// the first of the day's lessons that has a link on the admin page (T-94, D-106), chosen by code. Nothing here sends
+/// anything: the draft waits for her approval (guardrail 3).
 /// </summary>
 public sealed class TodaysMessageGenerator(
     ITodaysMessageStore store,
@@ -26,6 +28,7 @@ public sealed class TodaysMessageGenerator(
     TodaysMessageWriter writer,
     ITextToSpeech tts,
     IAudioStore audio,
+    ILessonLinkStore links,
     DisclosureClips disclosure,
     CurriculumGraph curriculum,
     PromptLibrary prompts,
@@ -34,6 +37,10 @@ public sealed class TodaysMessageGenerator(
     ILogger<TodaysMessageGenerator> logger)
 {
     private const int Attempts = 2;
+
+    /// <summary>The first lesson's link, in the order she confirmed them, or null: no video (T-94).</summary>
+    private async Task<TodaysVideo?> VideoAsync(IReadOnlyList<string> competencyIds, CancellationToken cancellationToken) =>
+        (await links.GetForAsync(competencyIds, cancellationToken)) is [var (_, url), ..] ? new TodaysVideo(url) : null;
 
     public async Task GenerateAsync(TodaysJob job, CancellationToken cancellationToken)
     {
@@ -108,8 +115,9 @@ public sealed class TodaysMessageGenerator(
             var note = kannada?.Note is null
                 ? null
                 : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed);
+            // A fresh draft takes the lesson's link as it is now; a draft she edited keeps its video and her Remove.
             var sections = teacher is null
-                ? new TodaysSections(concept, activity, picture)
+                ? new TodaysSections(concept, activity, picture, await VideoAsync(row.CompetencyIds, cancellationToken))
                 : teacher with { Concept = concept, Activity = activity, Note = note };
             // A newer confirm may have restarted it meanwhile; that run writes its own draft.
             if (await store.GetByIdAsync(row.Id, cancellationToken) is { Status: TodaysMessageStatus.Generating } current

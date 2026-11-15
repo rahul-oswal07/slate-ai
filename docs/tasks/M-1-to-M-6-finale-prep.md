@@ -22,4 +22,5 @@
 ## Notes
 
 - 15 Nov: moved here from `tasks.md` (T-110).
+- 15 Nov: T-94 is built: Monika (or Rahul) enters the checked link on `/admin/lesson-links` (staging needs the admin link with its key), no code change needed (D-106).
 - 14 Nov: M-1 not in yet: no checked DIKSHA link in the repo or on issue #191, so T-94 waits.

@@ -7,6 +7,7 @@ import { adminKey } from './useAdmin'
 const PAGES = [
   { path: '/admin/greetings', label: 'admin.nav.greetings' },
   { path: '/admin/lesson-audio', label: 'admin.nav.lessonAudio' },
+  { path: '/admin/lesson-links', label: 'admin.nav.lessonLinks' },
 ] as const
 
 /**

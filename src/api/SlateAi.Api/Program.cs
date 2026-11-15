@@ -25,6 +25,7 @@ using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Features.Spa;
 using SlateAi.Api.Features.Stars;
 using SlateAi.Api.Features.Week;
+using SlateAi.Api.Features.LessonLinks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,7 @@ builder.Services.AddBuddyCards();
 builder.Services.AddWeek();
 builder.Services.AddDemo();
 builder.Services.AddAdmin();
+builder.Services.AddLessonLinks();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 

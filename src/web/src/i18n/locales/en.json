@@ -798,7 +798,8 @@
     "nav": {
       "label": "Admin pages",
       "greetings": "Greetings",
-      "lessonAudio": "Lesson audio"
+      "lessonAudio": "Lesson audio",
+      "lessonLinks": "Lesson links"
     },
     "greetings": {
       "title": "Teacher greetings",
@@ -831,6 +832,19 @@
       "families_one": "Sent to {{count}} family",
       "families_other": "Sent to {{count}} families",
       "family": "{{name}} (roll {{rollNo}})"
+    },
+    "lessonLinks": {
+      "title": "Lesson video links",
+      "intro": "One link per lesson, for every class. Check it on a phone first: a new today’s message for that lesson shows it to families as “Watch how it’s taught”, and the teacher can remove it.",
+      "chapter": "Chapter {{number}} · {{name}}",
+      "save": "Save",
+      "saveFor": "Save the link for {{name}}",
+      "remove": "Remove",
+      "removeFor": "Remove the link for {{name}}",
+      "saved": "Saved",
+      "removed": "Removed",
+      "refused": "Use a full https link, for example https://diksha.gov.in/…",
+      "failed": "Couldn’t save. Try again."
     }
   },
   "settings": {
@@ -912,7 +926,10 @@
     "save": "Save",
     "otherPair": "Choose another pair",
     "pairsFromBook": "Pairs from the book's page",
-    "pair": "{{a}} and {{b}}"
+    "pair": "{{a}} and {{b}}",
+    "video": {
+      "open": "Open the video"
+    }
   },
   "level": {
     "gotIt": "Got it",

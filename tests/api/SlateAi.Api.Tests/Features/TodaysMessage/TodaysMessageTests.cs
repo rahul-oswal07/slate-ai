@@ -133,7 +133,7 @@ public sealed class TodaysMessageTests
         var two = Sections().WithRemoved(TodaysSectionKind.Concept, true)!.WithRemoved(TodaysSectionKind.Activity, true)!;
 
         Assert.False(two.WithRemoved(TodaysSectionKind.Picture, true)!.HasAnySection);
-        Assert.Null(two.WithRemoved(TodaysSectionKind.Video, true)); // no video until T-94
+        Assert.Null(two.WithRemoved(TodaysSectionKind.Video, true)); // no video: this lesson has no link (T-94)
         Assert.Null(two.WithRemoved("greeting", true));
     }
 

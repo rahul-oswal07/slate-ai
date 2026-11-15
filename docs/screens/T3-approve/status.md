@@ -10,6 +10,7 @@ Spec: [`spec.md`](spec.md)
 - **Today's message** has sections she can edit, remove or add a note to; her Kannada is kept word for word and the other languages are written from it, and the tick is bound to the version (T-89).
 - **Draft of today's message** (finale, D-90–D-96): confirming a lesson with the book's exercises (today only Nalikali p 4) drafts a message for absent families: concept with voice, a parent-led activity and a `>,<,=` picture pair chosen by code (T-88).
 - After a successful Approve she is back on Today (T-108).
+- **Video:** when the lesson has a link on the admin page, today's message shows a Video section with that link, which she can remove (no Edit); code puts it in, never the AI (T-94, D-106).
 - **Catch-ups** are the week's catch-ups, one per lesson group and language. Each has a segment player, a Kannada summary, **Why this**, the picture question, Simpler / Shorter, and a tick before Approve, bound to the version she read (T-14).
 - A child whose missed lessons have no practice rule gets no catch-up instead of a failed one (part of T-100, #212).
 
