@@ -175,7 +175,12 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
               )}
               {kind === 'picture' && message.picture && (
                 <p className="text-body">
-                  {t('todays.pictureQuestion', { a: message.picture.a, b: message.picture.b })}{' '}
+                  {message.picture.kind === 'compare'
+                    ? t('todays.pictureQuestion', { a: message.picture.a, b: message.picture.b })
+                    : t('todays.pictureSum', {
+                        sum: sumText(message.picture.kind, message.picture.a, message.picture.b),
+                        choices: (message.picture.options ?? []).join(' · '),
+                      })}{' '}
                   <span className="text-caption text-ink-muted">{t('todays.pictureAnswer', { answer: message.picture.answer })}</span>
                 </p>
               )}
@@ -473,10 +478,15 @@ function PairPicker({ classId, date, message }: { classId: string; date: string;
               index === message.pictureIndex ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-ink'
             }`}
           >
-            {t('todays.pair', { a, b })}
+            {message.picture && message.picture.kind !== 'compare' ? sumText(message.picture.kind, a, b) : t('todays.pair', { a, b })}
           </button>
         ))}
       </div>
     </fieldset>
   )
+}
+
+/** A sum as the book writes it (D-116): "248 + 438" or "872 − 586". Numbers and signs only, so no translation. */
+function sumText(kind: 'add' | 'sub', a: number, b: number) {
+  return `${a} ${kind === 'add' ? '+' : '−'} ${b}`
 }

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { api } from '../../api/client'
-import type { ParentCatchUp, ParentEvening, ReasonCategory, Sign } from './types'
+import type { ParentCatchUp, ParentEvening, PictureAnswer, ReasonCategory } from './types'
 
 export const parentKey = (token: string) => ['parent', token] as const
 
@@ -25,7 +25,7 @@ export function usePicture(token: string) {
   const queryClient = useQueryClient()
   const requestId = useRef(crypto.randomUUID())
   return useMutation({
-    mutationFn: (sign: Sign) =>
+    mutationFn: (sign: PictureAnswer) =>
       api<SubmitResult>(`/api/p/${token}/picture`, {
         method: 'POST',
         body: { sign, clientRequestId: requestId.current },

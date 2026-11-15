@@ -174,8 +174,33 @@ public static partial class TodaysMessageValidator
     /// The numbers A9 may write (guardrail 4): the lesson's examples and page, the book's exercise numbers with their tens
     /// and ones (so "7 bundles and 5 loose sticks" for 75 is fine), and 10 for a bundle. Nothing else.
     /// </summary>
+    /// <remarks>
+    /// For a sum (D-116) also each add/sub number's hundreds, tens and ones digits, its count of tens and 100 for a bundle
+    /// of a hundred, so "2 bundles of a hundred, 4 bundles of ten and 8 loose sticks" is fine. Never the sum's answer or
+    /// the other choices, unless the lesson's own examples print them.
+    /// </remarks>
     public static HashSet<string> AllowedNumbers(IReadOnlyList<Competency> lessons, TodaysPicture picture)
     {
+        if (picture.IsSum)
+        {
+            var sums = LessonScriptValidator.AllowedNumbers(lessons);
+            foreach (var n in lessons
+                .SelectMany(l => (l.Exercises?.Add ?? []).Concat(l.Exercises?.Sub ?? []))
+                .SelectMany(x => x)
+                .Append(picture.A)
+                .Append(picture.B))
+            {
+                foreach (var part in new[] { n, n / 100, n / 10 % 10, n % 10, n / 10 })
+                {
+                    sums.Add(part.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                }
+            }
+
+            sums.Add("10");
+            sums.Add("100");
+            return sums;
+        }
+
         var numbers = LessonScriptValidator.AllowedNumbers(lessons);
         var book = lessons
             .SelectMany(l => (l.Exercises?.Compare ?? []).Concat(l.Exercises?.Extremes ?? []))
@@ -217,6 +242,11 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
 {
     public const string PromptId = "a9-todays-message";
 
+    /// <summary>Sums (D-116) have their own prompt, so compare lessons keep v4 of <see cref="PromptId"/> as evaluated.</summary>
+    public const string SumsPromptId = "a9-todays-message-sums";
+
+    public static string PromptFor(TodaysPicture picture) => picture.IsSum ? SumsPromptId : PromptId;
+
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -237,7 +267,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
         TodaysFromClass? fromClass = null)
     {
         var request = new LlmRequest(
-            prompts.Get(PromptId), UserContent(languages, lessons, picture, feedback, teacher, fromClass), TodaysMessageValidator.Schema(),
+            prompts.Get(PromptFor(picture)), UserContent(languages, lessons, picture, feedback, teacher, fromClass), TodaysMessageValidator.Schema(),
             MaxTokens: 8192);
         LlmResponse response;
         try
@@ -285,7 +315,8 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
                 textbookPage = c.TextbookPage,
                 exercises = c.Exercises,
             }),
-            pictureQuestion = new { picture.A, picture.B },
+            // The kind only for a sum, so a compare lesson's input is exactly what v4 was evaluated on. Never the answer.
+            pictureQuestion = picture.IsSum ? (object)new { kind = picture.Kind, picture.A, picture.B } : new { picture.A, picture.B },
             fromClass = teacher is null && fromClass is not null ? new { fromClass.SummaryKn, examples = fromClass.Examples } : null,
             teacherKannada = teacher is null ? null : new { teacher.Concept, activity = teacher.Steps, teacher.Note },
             previousAttemptProblems = feedback ?? [],

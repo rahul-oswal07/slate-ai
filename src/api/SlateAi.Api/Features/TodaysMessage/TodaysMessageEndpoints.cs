@@ -25,6 +25,7 @@ public static class TodaysMessageEndpoints
 
     public static IServiceCollection AddTodaysMessage(this IServiceCollection services)
     {
+        services.AddOptions<TodaysMessageOptions>().BindConfiguration(TodaysMessageOptions.Section);
         services.AddScoped<ITodaysMessageStore, TodaysMessageStore>();
         services.AddScoped<TodaysMessageWriter>();
         services.AddScoped<TodaysMessageGenerator>();

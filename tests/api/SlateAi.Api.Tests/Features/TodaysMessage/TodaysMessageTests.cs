@@ -22,6 +22,20 @@ public sealed class TodaysMessageTests
         "M3.ADD.CARRY", "ದಶಕ ಸಹಿತ ಸಂಕಲನ", "Addition with carrying", [], null, 4, 3, ["456 + 278"], new TextbookPage("textbook", 1, 80),
         Practice: new PracticeRule("add", 3, Carry: "ones"));
 
+    /// <summary>Addition with carrying, with the book's add pairs (T-128); no examples, so the allowed numbers are the book's only.</summary>
+    internal static readonly Competency Carry = new(
+        "M3.ADD.CARRY", "ದಶಕ ಸಹಿತ ಸಂಕಲನ", "Addition with carrying", [], null, 3, 12, [], new TextbookPage("textbook", 1, 80),
+        KeyWordsKn: ["ಕೂಡು", "ದಶಕ", "ಬಿಡಿ"],
+        Practice: new PracticeRule("add", 3, Carry: "any"),
+        Exercises: new ExerciseList(Add: [[248, 438], [466, 176], [456, 367]]));
+
+    /// <summary>Subtraction with borrowing, with the book's sub pairs (T-128).</summary>
+    internal static readonly Competency Borrow = new(
+        "M3.SUB.BORROW", "ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ", "Subtraction with borrowing", [], null, 4, 24, [], new TextbookPage("textbook", 1, 108),
+        KeyWordsKn: ["ಕಳೆ", "ದಶಕ", "ಬಿಡಿ"],
+        Practice: new PracticeRule("sub", 3, Borrow: "tens"),
+        Exercises: new ExerciseList(Sub: [[872, 586], [290, 178], [847, 563]]));
+
     internal const string Kannada =
         """{"language":"kn","concept":"ಹೋಲಿಸುವಾಗ ಮೊದಲು ಹತ್ತರ ಕಟ್ಟುಗಳನ್ನು ನೋಡಿ. ಕಟ್ಟುಗಳು ಸಮವಾಗಿದ್ದರೆ ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ನೋಡಿ. ಹೆಚ್ಚು ಕಟ್ಟು ಇರುವ ಸಂಖ್ಯೆ ಹೆಚ್ಚು.","activity":["75 ಮತ್ತು 57 ಕ್ಕೆ ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮಾಡಿ.","ಯಾವುದರಲ್ಲಿ ಹೆಚ್ಚು ಕಟ್ಟು ಇದೆ ಎಂದು ಮಗುವನ್ನು ಕೇಳಿ.","ಯಾವುದು ಹೆಚ್ಚು, ಯಾವುದು ಕಡಿಮೆ ಎಂದು ಮಗು ಹೇಳಲಿ."]}""";
 
@@ -50,12 +64,121 @@ public sealed class TodaysMessageTests
     }
 
     [Fact]
-    public void A_lesson_with_only_add_or_sub_exercises_gets_no_message_yet()
+    public void An_add_or_sub_lesson_gets_a_message_only_with_the_flag_on()
     {
-        // T-128: the picture question is a comparison; add and sub wait for D-116 (behind a flag, PR B).
-        var carry = NoExercises with { Exercises = new ExerciseList(Add: [[248, 438]], Sub: [[872, 586]]) };
+        // D-116: today's message for sums is behind TodaysMessage:ArithmeticExercises (on by default since its eval run).
+        Assert.False(TodaysPicturePicker.Supported([Carry]));
+        Assert.False(TodaysPicturePicker.Supported([Borrow]));
+        Assert.True(TodaysPicturePicker.Supported([Carry], arithmetic: true));
+        Assert.True(TodaysPicturePicker.Supported([Borrow], arithmetic: true));
+        Assert.False(TodaysPicturePicker.Supported([NoExercises], arithmetic: true));
+    }
 
-        Assert.False(TodaysPicturePicker.Supported([carry]));
+    [Fact]
+    public void Sums_are_on_by_default_and_in_the_shipped_settings()
+    {
+        // D-116: a9-todays-message-sums v1 passed its eval run on 15 Nov, so staging and prod get sums without a setting.
+        Assert.True(new TodaysMessageOptions().ArithmeticExercises);
+        var settings = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory, "appsettings.json")));
+        Assert.True(settings.RootElement.GetProperty("TodaysMessage").GetProperty("ArithmeticExercises").GetBoolean());
+    }
+
+    [Fact]
+    public void A_sum_picture_is_the_books_pair_with_the_answer_and_two_usual_mistakes_by_code()
+    {
+        // 248 + 438 = 686; forgetting the carried ten gives 676. 872 − 586 = 286; smaller-from-bigger in each column, 314.
+        Assert.Equal(("add", 248, 438, "686", "676 696 686"), Flat(TodaysPicturePicker.Pick([Carry], 0, arithmetic: true)));
+        Assert.Equal(("sub", 872, 586, "286", "286 314 296"), Flat(TodaysPicturePicker.Pick([Borrow], 0, arithmetic: true)));
+        Assert.Equal(("add", 466, 176, "642", "642 632 652"), Flat(TodaysPicturePicker.Pick([Carry], 1, arithmetic: true)));
+        Assert.Equal(Flat(TodaysPicturePicker.Pick([Carry], 0, arithmetic: true)), Flat(TodaysPicturePicker.Pick([Carry], 3, arithmetic: true))); // wraps round
+    }
+
+    [Theory]
+    [InlineData("add", 248, 438)]
+    [InlineData("add", 466, 176)]
+    [InlineData("add", 109, 37)]
+    [InlineData("add", 348, 231)]
+    [InlineData("sub", 872, 586)]
+    [InlineData("sub", 290, 178)]
+    [InlineData("sub", 456, 325)]
+    [InlineData("sub", 468, 365)]
+    public void The_three_choices_hold_the_answer_once_and_are_all_different_and_in_range(string kind, int a, int b)
+    {
+        var answer = kind == "add" ? a + b : a - b;
+
+        var choices = ExerciseAnswers.Choices(kind, a, b);
+
+        Assert.Equal(3, choices.Count);
+        Assert.Single(choices, c => c == answer);
+        Assert.All(choices, c => Assert.InRange(c, 0, ExerciseAnswers.Max));
+        Assert.All(choices.Where(c => c != answer), c => Assert.True(Math.Abs(c - answer) >= 10));
+        Assert.Equal(choices, ExerciseAnswers.Choices(kind, a, b)); // the same every time: a redraft doesn't reshuffle
+    }
+
+    [Fact]
+    public void A_compare_lesson_keeps_its_compare_picture_with_the_flag_on()
+    {
+        Assert.Equal(Pair, TodaysPicturePicker.Pick([Compare], 0, arithmetic: true));
+        Assert.Equal(Pair, TodaysPicturePicker.Pick([Carry, Compare], 0, arithmetic: true));
+    }
+
+    [Fact]
+    public void Sums_are_written_with_their_own_prompt_and_compare_keeps_v4s()
+    {
+        var sum = TodaysPicturePicker.Pick([Carry], 0, arithmetic: true)!;
+
+        Assert.Equal("a9-todays-message-sums", TodaysMessageWriter.PromptFor(sum));
+        Assert.Equal("a9-todays-message", TodaysMessageWriter.PromptFor(Pair));
+    }
+
+    [Fact]
+    public void A9_hears_the_kind_of_a_sum_but_never_its_answer_or_choices()
+    {
+        var sum = TodaysPicturePicker.Pick([Carry], 0, arithmetic: true)!;
+
+        using var json = JsonDocument.Parse(TodaysMessageWriter.UserContent(["kn"], [Carry], sum, []));
+
+        var question = json.RootElement.GetProperty("pictureQuestion");
+        Assert.Equal(("add", 248, 438), (question.GetProperty("kind").GetString(), question.GetProperty("a").GetInt32(), question.GetProperty("b").GetInt32()));
+        Assert.False(question.TryGetProperty("answer", out _));
+        Assert.False(question.TryGetProperty("options", out _));
+    }
+
+    [Fact]
+    public void For_a_sum_the_books_numbers_their_digits_and_a_hundred_are_allowed_but_not_the_answer()
+    {
+        var sum = TodaysPicturePicker.Pick([Carry], 0, arithmetic: true)!;
+
+        var allowed = TodaysMessageValidator.AllowedNumbers([Carry], sum);
+
+        Assert.Superset(new HashSet<string> { "248", "438", "466", "176", "2", "4", "8", "3", "24", "43", "10", "100" }, allowed);
+        Assert.DoesNotContain("686", allowed);
+        Assert.DoesNotContain("676", allowed);
+    }
+
+    [Fact]
+    public void A_family_gets_the_sum_and_its_choices_never_the_answer()
+    {
+        var sections = Sections() with { Picture = TodaysPicturePicker.Pick([Carry], 0, arithmetic: true)! };
+
+        var view = TodaysFamilyView.For(sections, "kn");
+
+        Assert.Equal(
+            new SlateAi.Api.Features.EveningMessages.ParentPicture(248, 438, Kind: "add", Options: [676, 696, 686]),
+            view.Picture,
+            new ParentPictureComparer());
+    }
+
+    private static (string, int, int, string, string) Flat(TodaysPicture? p) =>
+        (p!.Kind, p.A, p.B, p.Answer, string.Join(' ', p.Options ?? []));
+
+    private sealed class ParentPictureComparer : IEqualityComparer<SlateAi.Api.Features.EveningMessages.ParentPicture?>
+    {
+        public bool Equals(SlateAi.Api.Features.EveningMessages.ParentPicture? x, SlateAi.Api.Features.EveningMessages.ParentPicture? y) =>
+            x is not null && y is not null && x.A == y.A && x.B == y.B && x.Kind == y.Kind && (x.Options ?? []).SequenceEqual(y.Options ?? []);
+
+        public int GetHashCode(SlateAi.Api.Features.EveningMessages.ParentPicture? obj) => 0;
     }
 
     [Fact]
