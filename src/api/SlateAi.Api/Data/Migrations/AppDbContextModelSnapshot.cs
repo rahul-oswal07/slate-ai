@@ -430,6 +430,11 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<DateTimeOffset>("AnsweredAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("Attempts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<int>("ChoiceId")
                         .HasColumnType("integer");
 

@@ -19,6 +19,7 @@ import {
 
 type Editable = 'concept' | 'activity' | 'note'
 const SECTIONS: TodaysSectionKind[] = ['concept', 'activity', 'video', 'picture', 'note']
+const PROMISED: TodaysSectionKind[] = ['concept', 'activity', 'picture']
 
 /** The sections this message has: the video only when its lesson has a link (T-94), the note only once she adds one. */
 const present = (message: TodaysMessage) =>
@@ -256,9 +257,10 @@ function Section({
   const [editing, setEditing] = useState(false)
   const removed = message.removed.includes(kind)
   const emptyNote = kind === 'note' && !message.note
-  // At least one section must still go: count what this message has, not a fixed number.
+  // The WhatsApp text promises the concept (with its audio), the activity and the picture question, so those stay
+  // (D-108); she can still edit them. At least one section must still go: count what this message has.
   const showing = present(message).filter((k) => !message.removed.includes(k)).length
-  const canRemove = !emptyNote && (removed || showing > 1)
+  const canRemove = !PROMISED.includes(kind) && !emptyNote && (removed || showing > 1)
 
   return (
     <div className={`rounded-card border-[1.5px] border-edge bg-surface ${removed ? 'opacity-70' : ''}`}>

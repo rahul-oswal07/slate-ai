@@ -18,6 +18,8 @@ function page(overrides: Partial<ParentCatchUp> = {}): ParentCatchUp {
     teacherName: 'Shobha',
     stopped: false,
     answered: false,
+    choiceId: null,
+    locked: false,
     expiresAt: '2026-11-06T13:30:00Z',
     homework: { book: 'textbook', part: 2, page: 15 },
     audio: {
@@ -137,12 +139,12 @@ describe('ParentScreen', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Question' })).toBeInTheDocument()
   })
 
-  it('P3: no numeral before the tap; the chosen one is sent and the family sees Well done', async () => {
+  it('P3: no numeral before the tap; the chosen one is sent, shown back with Try again and Next, then Well done', async () => {
     let current = page()
     const calls = setup(() => current, {
       [`POST /api/p/${token}/answer`]: () => {
-        current = { ...current, answered: true }
-        return { status: 200, body: { answered: true } }
+        current = { ...current, answered: true, choiceId: 1 }
+        return { status: 200, body: { attempt: 1, locked: false } }
       },
     })
     renderApp(`/p/${token}?step=3`)
@@ -163,6 +165,13 @@ describe('ParentScreen', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'This one, send' }))
 
+    // D-108: their choice comes back with one more try; nothing says right or wrong.
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.getByText('25')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
+    expect(screen.queryByText(/correct|wrong|right answer/i)).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+
     expect(await screen.findByText('Well done, Ravi')).toBeInTheDocument()
     expect(screen.getByText('Shobha teacher will see this.')).toBeInTheDocument()
     expect(screen.getByText('Bring page 15 to school.')).toBeInTheDocument()
@@ -177,7 +186,7 @@ describe('ParentScreen', () => {
   it('P3: a failed send keeps the choice and Try again reuses the same request ID', async () => {
     let online = false
     const calls = setup(() => page(), {
-      [`POST /api/p/${token}/answer`]: () => (online ? { status: 200, body: { answered: true } } : 'offline'),
+      [`POST /api/p/${token}/answer`]: () => (online ? { status: 200, body: { attempt: 1, locked: false } } : 'offline'),
     })
     renderApp(`/p/${token}?step=3`)
 
@@ -189,19 +198,36 @@ describe('ParentScreen', () => {
     online = true
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
 
-    expect(await screen.findByText('Well done, Ravi')).toBeInTheDocument()
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
     const sends = calls.filter((c) => c.key === `POST /api/p/${token}/answer`)
     const ids = sends.map((send) => (send.body as { clientRequestId: string }).clientRequestId)
     expect(ids).toHaveLength(2)
     expect(new Set(ids).size).toBe(1)
   })
 
-  it('reopened after answering: the question goes straight to Done (D-62)', async () => {
-    setup(() => page({ answered: true }))
-    renderApp(`/p/${token}?step=3`)
+  it('reopened: starts at Listen; the answer page shows their choice, with Try again until both tries are used (T-116)', async () => {
+    setup(() => page({ answered: true, choiceId: 1 }))
+    const { unmount } = renderApp(`/p/${token}`)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Ravi’s lesson' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull()
+    expect(screen.getByText('Message from Shobha teacher')).toBeInTheDocument()
+    unmount()
 
-    expect(await screen.findByText('Well done, Ravi')).toBeInTheDocument()
+    renderApp(`/p/${token}?step=3`)
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
     expect(screen.queryByRole('list', { name: 'Answers' })).toBeNull()
+  })
+
+  it('Back from Done opens the answer page, locked once both tries are used (T-116)', async () => {
+    setup(() => page({ answered: true, choiceId: 1, locked: true }))
+    renderApp(`/p/${token}?step=4`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Back' }))
+
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument()
   })
 
   it('stop: one confirmation, then Messages stopped; Start them again brings the lesson back', async () => {

@@ -45,19 +45,19 @@ public static class ParentEndpoints
                 "only that message's two clips. 404 otherwise. Supports range requests.");
 
         group.MapPost("/answer", AnswerAsync)
-            .WithSummary("The picture the child tapped (P3), scored by code (FR-11)")
+            .WithSummary("The picture the child chose and submitted (P3), scored by code (FR-11)")
             .WithDescription(
-                "correct → caught up, wrong → needs buddy, on the teacher's ledger. The first answer counts (D-62): " +
-                "later answers and replays return 200 and change nothing. The response never says right or wrong. " +
-                "409 when the family stopped messages, the link expired or the catch-up isn't approved.");
+                "correct → caught up, wrong → needs buddy, on the teacher's ledger. Two submits; the second replaces the " +
+                "first (D-108). A third is 409, as are a stopped family, an expired link or a catch-up that isn't " +
+                "approved. Replaying the same clientRequestId changes nothing. The response never says right or wrong.");
 
         group.MapPost("/picture", PictureAsync)
-            .WithSummary("The child's tap on today's picture question (T-90): >, < or =, scored by code")
+            .WithSummary("The child's submit on today's picture question (T-90): >, < or =, scored by code")
             .WithDescription(
-                "Evening links that carry today's message with its picture question only; 404 otherwise. The first tap " +
-                "counts; when it isn't right the child gets one more try, and the second tap is final either way. A " +
-                "third tap is 409, as are a stopped family and an expired link. 400 for anything but >, < or =. " +
-                "Replaying the same clientRequestId changes nothing. The answer is never sent to the phone (guardrail 4).");
+                "Evening links that carry today's message with its picture question only; 404 otherwise. Two submits " +
+                "whatever they are; the latest is what the teacher sees (D-108). A third is 409, as are a stopped family " +
+                "and an expired link. 400 for anything but >, < or =. Replaying the same clientRequestId changes nothing. " +
+                "The response never says right or wrong, and the answer is never sent to the phone (guardrail 4).");
 
         group.MapPost("/reason", ReasonAsync)
             .WithSummary("Why the child was away, from the evening message (FR-21, D-23)")
@@ -112,7 +112,7 @@ public static class ParentEndpoints
             return TypedResults.Ok(record.Stopped
                 ? new ParentCatchUpResponse(
                     record.Language, record.ChildName, record.TeacherName, true, record.Answered, record.ExpiresAt,
-                    homework, null, null, null, null)
+                    homework, null, null, null, null, record.ChoiceId, record.Locked)
                 : CatchUp(token, record, homework));
         }
 
@@ -263,11 +263,6 @@ public static class ParentEndpoints
             return TypedResults.Conflict();
         }
 
-        if (record.Answered)
-        {
-            return TypedResults.Ok(new AnswerResponse(true));
-        }
-
         if (AnswerScoring.Score(record.Check, request.ChoiceId) is not { } score)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
@@ -276,7 +271,7 @@ public static class ParentEndpoints
             });
         }
 
-        var saved = await parents.SaveAnswerAsync(
+        var attempts = await parents.SaveAnswerAsync(
             new CheckResponse
             {
                 AssignmentId = record.AssignmentId,
@@ -287,13 +282,14 @@ public static class ParentEndpoints
                 AnsweredAt = clock.GetUtcNow(),
             },
             cancellationToken);
-        if (saved)
+        if (attempts is not { } count)
         {
-            loggers.CreateLogger(typeof(ParentEndpoints)).LogInformation(
-                "Check answered for assignment {AssignmentId}: {Outcome}", record.AssignmentId, score.Outcome);
+            return TypedResults.Conflict();
         }
 
-        return TypedResults.Ok(new AnswerResponse(true));
+        loggers.CreateLogger(typeof(ParentEndpoints)).LogInformation(
+            "Check answered for assignment {AssignmentId} (submit {Attempt}): {Outcome}", record.AssignmentId, count, score.Outcome);
+        return TypedResults.Ok(new AnswerResponse(count, count >= ParentRules.MaxAnswers));
     }
 
     private static async Task<Results<Ok<ReasonResponse>, Conflict, NotFound, ValidationProblem>> ReasonAsync(
@@ -390,7 +386,9 @@ public static class ParentEndpoints
             audio,
             new ParentTranscript(record.Audio?.DisclosureText ?? "", record.Script ?? "", record.KeyWordsKn),
             new ParentActivity(activity.Question, activity.Numbers.FirstOrDefault(), activity.Instruction, activity.ObjectOption),
-            new ParentCheck(check.Question, check.Prompt, check.Options.Select((n, i) => new ParentOption(i, n)).ToList()));
+            new ParentCheck(check.Question, check.Prompt, check.Options.Select((n, i) => new ParentOption(i, n)).ToList()),
+            record.ChoiceId,
+            record.Locked);
     }
 
     /// <summary>The link may show its lesson and take an answer: approved, not expired, not stopped.</summary>
@@ -425,22 +423,20 @@ public static class ParentEndpoints
         }
 
         if (!LooksLikeToken(token)
-            || await evenings.FindByTokenAsync(token, cancellationToken) is not { TodaysMessage.Picture: not null, PictureAnswer: { } answer } message)
+            || await evenings.FindByTokenAsync(token, cancellationToken) is not { TodaysMessage.Picture: not null, PictureAnswer: not null } message)
         {
             return TypedResults.NotFound();
         }
 
         var now = clock.GetUtcNow();
         if (message.Stopped || now >= message.ExpiresAt
-            || await evenings.SavePictureAnswerAsync(token, request.ClientRequestId, request.Sign, answer, now, cancellationToken)
+            || await evenings.SavePictureAnswerAsync(token, request.ClientRequestId, request.Sign, now, cancellationToken)
                 is not var (first, second))
         {
             return TypedResults.Conflict();
         }
 
-        var attempt = second is null ? 1 : 2;
-        var last = second ?? first;
-        return TypedResults.Ok(new PictureAnswerResponse(last == answer, attempt, TodaysMessage.TodaysLevel.Done(first, second, answer)));
+        return TypedResults.Ok(new PictureAnswerResponse(second is null ? 1 : 2, TodaysMessage.TodaysLevel.Locked(first, second)));
     }
 
     private static bool LooksLikeToken(string token) => token.Length is >= 16 and <= 30;

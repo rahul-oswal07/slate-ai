@@ -13,7 +13,7 @@ Spec: [`spec.md`](spec.md)
 - Once the lesson is confirmed, the record card stays until today's message is approved, or, on a day without one, until tonight's message has gone: the lesson shows as one line ("Today: … · p …") with Change above the mic, and a new note replaces the lesson (T-114, D-104). After that, only the confirmed lesson shows.
 - After Re-record on Lesson confirm, Today shows the mic, idle, with focus on it (T-114).
 - There is no lesson audio tick: today's message's concept clip is the lesson audio (T-114, D-105).
-- After the send, Today shows "sent to N · M answered" and a child · answer · level table (T-92).
+- After the send, Today shows "sent to N · M answered" and a child · answer · level table (T-92). The level comes from the latest of up to two submits: Got it, Needs help or Not answered yet; Today checks again until every answer is locked (D-108).
 
 ## Known gaps and drafts
 

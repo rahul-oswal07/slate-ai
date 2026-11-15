@@ -35,11 +35,14 @@ public sealed record TodaysMessageView(
     int? PictureIndex,
     bool Edited);
 
-/// <summary>One child's answer on Today (T-92): the last sign they tapped and the level code worked out (D-95).</summary>
+/// <summary>One child's answer on Today (T-92): their latest submit and the level code worked out from it (D-108).</summary>
 public sealed record TodaysAnswerView(Guid ChildId, string FirstName, int RollNo, string? Answer, string Level);
 
-/// <summary>"Sent to N · M answered" and the table under it (T-92). <c>Answered</c> counts finished questions.</summary>
-public sealed record TodaysAnswersView(int Sent, int Answered, IReadOnlyList<TodaysAnswerView> Rows);
+/// <summary>
+/// "Sent to N · M answered" and the table under it (T-92). <c>Answered</c>: at least one submit; <c>Locked</c>: both
+/// submits used, so nothing can change any more (Today polls until every answer is locked).
+/// </summary>
+public sealed record TodaysAnswersView(int Sent, int Answered, IReadOnlyList<TodaysAnswerView> Rows, int Locked = 0);
 
 /// <summary>Why her edit was not saved (D-92): the check's code, what exactly was wrong, and the numbers she may use.</summary>
 public sealed record TodaysEditProblem(string Problem, string? Detail, IReadOnlyList<string> Allowed);
@@ -218,7 +221,7 @@ public sealed class TodaysMessageService(
         competencyIds.Select(curriculum.Get).OfType<Competency>()
             .Select(l => l.Exercises?.Compare).FirstOrDefault(c => c is { Count: > 0 })?.ToList() ?? [];
 
-    /// <summary>The answers that came back, levels by code (T-92, D-95); null when there is no today's message.</summary>
+    /// <summary>The answers that came back, levels by code (T-92, D-108); null when there is no today's message.</summary>
     public async Task<TodaysAnswersView?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
     {
         if (await store.GetAnswersAsync(classId, date, cancellationToken) is not var (answer, rows))
@@ -229,7 +232,8 @@ public sealed class TodaysMessageService(
         var views = rows
             .Select(r => new TodaysAnswerView(r.ChildId, r.FirstName, r.RollNo, r.Second ?? r.First, TodaysLevel.For(r.First, r.Second, answer)))
             .ToList();
-        return new TodaysAnswersView(rows.Count, rows.Count(r => TodaysLevel.Done(r.First, r.Second, answer)), views);
+        return new TodaysAnswersView(
+            rows.Count, rows.Count(r => r.First is not null), views, rows.Count(r => TodaysLevel.Locked(r.First, r.Second)));
     }
 
     /// <summary>Approves the version she read; in the demo it then goes at once (D-94), elsewhere at 6 pm.</summary>

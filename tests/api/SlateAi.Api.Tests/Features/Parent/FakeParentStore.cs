@@ -9,7 +9,7 @@ public sealed class FakeParentStore : IParentStore
     private readonly Lock _gate = new();
     private readonly HashSet<Guid> _processed = [];
 
-    /// <summary>Catch-up links by token. <c>Stopped</c> and <c>Answered</c> are taken from this store's state.</summary>
+    /// <summary>Catch-up links by token. <c>Stopped</c>, <c>Attempts</c> and <c>ChoiceId</c> come from this store's state.</summary>
     public Dictionary<string, ParentCatchUpRecord> CatchUps { get; } = [];
 
     /// <summary>Evening-message links by token. <c>Stopped</c> and <c>Reason</c> are taken from this store's state.</summary>
@@ -29,7 +29,8 @@ public sealed class FakeParentStore : IParentStore
                 ? record with
                 {
                     Stopped = Stopped.ContainsKey(record.ChildId),
-                    Answered = Answers.Any(a => a.AssignmentId == record.AssignmentId),
+                    Attempts = Answers.SingleOrDefault(a => a.AssignmentId == record.AssignmentId)?.Attempts ?? 0,
+                    ChoiceId = Answers.SingleOrDefault(a => a.AssignmentId == record.AssignmentId)?.ChoiceId,
                 }
                 : null);
         }
@@ -45,17 +46,32 @@ public sealed class FakeParentStore : IParentStore
         }
     }
 
-    public Task<bool> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken)
+    public Task<int?> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
-            if (Answers.Any(a => a.AssignmentId == response.AssignmentId))
+            var stored = Answers.SingleOrDefault(a => a.AssignmentId == response.AssignmentId);
+            if (!_processed.Add(response.ClientRequestId))
             {
-                return Task.FromResult(false);
+                return Task.FromResult<int?>(stored?.Attempts ?? 0);
             }
 
-            Answers.Add(response);
-            return Task.FromResult(true);
+            if (stored is null)
+            {
+                response.Attempts = 1;
+                Answers.Add(response);
+                return Task.FromResult<int?>(1);
+            }
+
+            if (stored.Attempts >= ParentRules.MaxAnswers)
+            {
+                _processed.Remove(response.ClientRequestId);
+                return Task.FromResult<int?>(null);
+            }
+
+            response.Attempts = stored.Attempts + 1;
+            Answers[Answers.IndexOf(stored)] = response;
+            return Task.FromResult<int?>(response.Attempts);
         }
     }
 

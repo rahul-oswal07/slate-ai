@@ -319,7 +319,8 @@ function ParentPhone({ childId, name, language }: { childId: string; name: strin
               </button>
               <div className="min-w-0 flex-1 text-center">
                 <p className="truncate text-label font-extrabold leading-tight">
-                  {t(open.kind === 'evening' ? 'demo.chat.pageEvening' : 'demo.chat.pageLesson')}
+                  {/* What the page's own <title> says, in every language (T-116). */}
+                  {t('demo.chat.pageTitle')}
                 </p>
                 <p className="truncate text-caption leading-tight text-ink-muted">{window.location.host}</p>
               </div>

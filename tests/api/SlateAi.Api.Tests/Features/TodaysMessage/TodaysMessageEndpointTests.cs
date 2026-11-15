@@ -106,23 +106,29 @@ public sealed class TodaysMessageEndpointTests
     [Fact]
     public async Task Removing_a_section_makes_a_new_version_and_she_must_approve_again()
     {
-        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _todays.AddReady(ClassId, Today, WithVideo());
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
         await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct);
 
-        var removed = await client.PatchAsJsonAsync($"{DayUrl}/sections/activity", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
+        var removed = await client.PatchAsJsonAsync($"{DayUrl}/sections/video", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
         var oldTick = await client.PostAsJsonAsync($"{DayUrl}/approve", new ApproveTodaysMessageRequest(Guid.NewGuid(), 1), Ct);
 
         var view = (await removed.Content.ReadFromJsonAsync<TodaysMessageView>(Ct))!;
         Assert.Equal((TodaysMessageStatus.Ready, 2, (int?)null), (view.Status, view.Version, view.ApprovedVersion));
-        Assert.Equal(["activity"], view.Removed);
+        Assert.Equal(["video"], view.Removed);
         Assert.Equal(HttpStatusCode.Conflict, oldTick.StatusCode);
     }
 
+    private static TodaysSections WithVideo() =>
+        TodaysMessageTests.Sections() with { Video = new TodaysVideo("https://diksha.gov.in/play/content/do_1") };
+
     [Theory]
+    [InlineData("concept", HttpStatusCode.BadRequest)] // the WhatsApp text promises these (D-108)
+    [InlineData("activity", HttpStatusCode.BadRequest)]
+    [InlineData("picture", HttpStatusCode.BadRequest)]
     [InlineData("greeting", HttpStatusCode.BadRequest)]
-    [InlineData("video", HttpStatusCode.Conflict)] // no video until T-94
+    [InlineData("video", HttpStatusCode.Conflict)] // this lesson has no link
     public async Task Unknown_or_missing_sections_are_refused(string kind, HttpStatusCode expected)
     {
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
@@ -165,14 +171,14 @@ public sealed class TodaysMessageEndpointTests
     [Fact]
     public async Task Once_sent_it_is_read_only()
     {
-        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        _todays.AddReady(ClassId, Today, WithVideo());
         await ApproveAsync(1);
         _clock.Now = SchoolClock.At(Today, new TimeOnly(18, 30));
         await SendEveningAsync();
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
 
-        var remove = await client.PatchAsJsonAsync($"{DayUrl}/sections/concept", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
+        var remove = await client.PatchAsJsonAsync($"{DayUrl}/sections/video", new SetTodaysSectionRequest(Guid.NewGuid(), true), Ct);
         var retry = await client.PostAsJsonAsync($"{DayUrl}/generate", new RetryTodaysMessageRequest(Guid.NewGuid()), Ct);
 
         Assert.Equal(HttpStatusCode.Conflict, remove.StatusCode);
@@ -334,7 +340,7 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
-    public async Task The_childs_taps_are_scored_by_code_with_one_more_try_and_the_answer_never_reaches_the_phone()
+    public async Task Two_submits_whatever_they_are_and_neither_the_answer_nor_right_or_wrong_reaches_the_phone()
     {
         var token = await SentTokenAsync();
         await using var factory = Create();
@@ -349,16 +355,17 @@ public sealed class TodaysMessageEndpointTests
         var third = await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), ">"), Ct);
         var after = (await phone.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
 
+        // D-108: the response has no "correct"; the latest submit is what the teacher sees.
         Assert.DoesNotContain("\"answer\"", page);
-        Assert.Equal(new PictureAnswerResponse(false, 1, false), first);
-        Assert.Equal(new PictureAnswerResponse(false, 2, true), second);
+        Assert.Equal(new PictureAnswerResponse(1, false), first);
+        Assert.Equal(new PictureAnswerResponse(2, true), second);
         Assert.Equal(second, replay);
         Assert.Equal(HttpStatusCode.Conflict, third.StatusCode);
-        Assert.Equal(("<", "=", true), (after.TodaysMessage!.Picture!.FirstAnswer, after.TodaysMessage.Picture.SecondAnswer, after.TodaysMessage.Picture.Done));
+        Assert.Equal(("<", "=", true), (after.TodaysMessage!.Picture!.FirstAnswer, after.TodaysMessage.Picture.SecondAnswer, after.TodaysMessage.Picture.Locked));
     }
 
     [Fact]
-    public async Task Right_first_time_is_done()
+    public async Task Right_first_time_can_still_be_tried_again_once()
     {
         var token = await SentTokenAsync();
         await using var factory = Create();
@@ -368,8 +375,10 @@ public sealed class TodaysMessageEndpointTests
             .Content.ReadFromJsonAsync<PictureAnswerResponse>(Ct);
         var again = await phone.PostAsJsonAsync($"/api/p/{token}/picture", new PictureAnswerRequest(Guid.NewGuid(), "<"), Ct);
 
-        Assert.Equal(new PictureAnswerResponse(true, 1, true), first);
-        Assert.Equal(HttpStatusCode.Conflict, again.StatusCode);
+        // Nothing tells the child the first was right, so a second try is theirs to take (D-108).
+        Assert.Equal(new PictureAnswerResponse(1, false), first);
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
+        Assert.Equal(new PictureAnswerResponse(2, true), await again.Content.ReadFromJsonAsync<PictureAnswerResponse>(Ct));
     }
 
     [Theory]
@@ -400,12 +409,13 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Theory]
-    [InlineData(new string[0], null, "notAnswered", 0)]
-    [InlineData(new[] { ">" }, ">", "gotIt", 1)]
-    [InlineData(new[] { "<" }, "<", "notAnswered", 0)] // one more try to come
-    [InlineData(new[] { "<", ">" }, ">", "gettingThere", 1)]
-    [InlineData(new[] { "<", "=" }, "=", "needsHelp", 1)]
-    public async Task Today_shows_each_childs_answer_and_level_worked_out_by_code(string[] taps, string? answer, string level, int answered)
+    [InlineData(new string[0], null, "notAnswered", 0, 0)]
+    [InlineData(new[] { ">" }, ">", "gotIt", 1, 0)]
+    [InlineData(new[] { "<" }, "<", "needsHelp", 1, 0)]
+    [InlineData(new[] { "<", ">" }, ">", "gotIt", 1, 1)] // the latest counts
+    [InlineData(new[] { ">", "<" }, "<", "needsHelp", 1, 1)]
+    public async Task Today_shows_each_childs_latest_answer_and_level_worked_out_by_code(
+        string[] taps, string? answer, string level, int answered, int locked)
     {
         var token = await SentTokenAsync();
         await using var factory = Create();
@@ -418,7 +428,7 @@ public sealed class TodaysMessageEndpointTests
 
         var view = (await teacher.GetFromJsonAsync<TodaysAnswersView>($"{DayUrl}/answers", Ct))!;
 
-        Assert.Equal((2, answered), (view.Sent, view.Answered)); // Manjunath (kn) and Rohan (hi)
+        Assert.Equal((2, answered, locked), (view.Sent, view.Answered, view.Locked)); // Manjunath (kn) and Rohan (hi)
         var row = view.Rows.Single(r => r.ChildId == Manjunath.Id);
         Assert.Equal(("Manjunath", answer, level), (row.FirstName, row.Answer, row.Level));
         Assert.Equal(TodaysLevel.NotAnswered, view.Rows.Single(r => r.ChildId == Rohan.Id).Level);

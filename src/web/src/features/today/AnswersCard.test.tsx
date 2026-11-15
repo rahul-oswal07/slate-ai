@@ -16,9 +16,10 @@ const url = `GET /api/classes/${teacher.classId}/todays-message/${date}/answers`
 const answers = (overrides: Partial<TodaysAnswers> = {}): TodaysAnswers => ({
   sent: 4,
   answered: 3,
+  locked: 1,
   rows: [
     { childId: 'asha', firstName: 'Asha', rollNo: 1, answer: '>', level: 'gotIt' },
-    { childId: 'ravi', firstName: 'Ravi', rollNo: 4, answer: '>', level: 'gettingThere' },
+    { childId: 'ravi', firstName: 'Ravi', rollNo: 4, answer: '<', level: 'needsHelp' },
     { childId: 'chetan', firstName: 'Chetan', rollNo: 3, answer: '=', level: 'needsHelp' },
     { childId: 'manju', firstName: 'Manjunath', rollNo: 15, answer: null, level: 'notAnswered' },
   ],
@@ -53,7 +54,8 @@ describe('Answers back on Today (T-92)', () => {
     const table = screen.getByRole('table', { name: /Each child's answer/ })
     const row = (name: string) => within(table).getByRole('row', { name: new RegExp(`^${name}`) })
     expect(row('Asha')).toHaveTextContent('Got it')
-    expect(row('Ravi')).toHaveTextContent('Getting there')
+    expect(row('Ravi')).toHaveTextContent('Needs help') // the latest submit counts (D-108)
+    expect(screen.queryByText('Getting there')).toBeNull()
     expect(row('Chetan')).toHaveTextContent('=')
     expect(row('Chetan')).toHaveTextContent('Needs help')
     expect(row('Manjunath')).toHaveTextContent('Not answered yet')
@@ -69,16 +71,22 @@ describe('Answers back on Today (T-92)', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('checks again by itself until everyone has answered, then stops', async () => {
+  it('checks again by itself while an answer can still come or change, then stops', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
-    let current = answers({ sent: 1, answered: 0, rows: [{ childId: 'manju', firstName: 'Manjunath', rollNo: 15, answer: null, level: 'notAnswered' }] })
+    const manju = (answer: '>' | '<' | null, level: 'gotIt' | 'needsHelp' | 'notAnswered') =>
+      [{ childId: 'manju', firstName: 'Manjunath', rollNo: 15, answer, level }]
+    let current = answers({ sent: 1, answered: 0, locked: 0, rows: manju(null, 'notAnswered') })
     const calls = fakeApi({ [url]: () => ({ status: 200, body: current }) })
     renderCard()
     expect(await screen.findByText('Not answered yet')).toBeInTheDocument()
 
-    current = answers({ sent: 1, answered: 1, rows: [{ childId: 'manju', firstName: 'Manjunath', rollNo: 15, answer: '>', level: 'gotIt' }] })
+    // One submit: a try is left, so it keeps checking (D-108).
+    current = answers({ sent: 1, answered: 1, locked: 0, rows: manju('<', 'needsHelp') })
     await vi.advanceTimersByTimeAsync(5100)
+    expect(await screen.findByText('Needs help')).toBeInTheDocument()
 
+    current = answers({ sent: 1, answered: 1, locked: 1, rows: manju('>', 'gotIt') })
+    await vi.advanceTimersByTimeAsync(5100)
     expect(await screen.findByText('Got it')).toBeInTheDocument()
     const after = calls.length
     await vi.advanceTimersByTimeAsync(15000)
@@ -96,6 +104,6 @@ describe('Answers back on Today (T-92)', () => {
     renderApp('/missed')
 
     const ravi = await screen.findByRole('link', { name: /Ravi/ })
-    await waitFor(() => expect(ravi).toHaveTextContent('Getting there'))
+    await waitFor(() => expect(ravi).toHaveTextContent('Needs help'))
   })
 })
