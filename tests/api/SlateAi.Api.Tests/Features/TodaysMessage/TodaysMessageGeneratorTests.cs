@@ -181,6 +181,60 @@ public sealed class TodaysMessageGeneratorTests
     }
 
     [Fact]
+    public async Task A_note_she_wrote_in_English_is_written_in_every_family_language_Kannada_included()
+    {
+        // T-119, D-111: Kannada families read it in Kannada; her Kannada concept and steps stay word for word.
+        const string english = "Today we wrote numbers on leaves and compared them.";
+        _llm.Json = TodaysMessageTests.Output(
+            TodaysMessageTests.Kannada.Replace("\"]}", "\"],\"note\":\"ಇಂದು ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.\"}"),
+            TodaysMessageTests.Hindi.Replace("\"]}", "\"],\"note\":\"हमने पत्तों पर संख्याएँ लिखकर तुलना की।\"}"));
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: english, languages: ["kn", "hi"]);
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal(TodaysMessageStatus.Ready, row.Status);
+        Assert.Equal("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", row.Sections!.Concept.Text["kn"]); // hers, not A9's Kannada concept
+        Assert.Equal("ಇಂದು ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.", row.Sections.Note!.Text["kn"]);
+        Assert.StartsWith("हमने", row.Sections.Note.Text["hi"]);
+        Assert.Equal(english, row.Sections.Note.Original);
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("\"code\":\"kn\"", request);
+        Assert.Contains("\"code\":\"hi\"", request);
+        Assert.Contains(english, request);
+    }
+
+    [Fact]
+    public async Task A_note_in_English_with_only_Kannada_families_still_asks_A9_for_its_Kannada()
+    {
+        _llm.Json = TodaysMessageTests.Output(
+            TodaysMessageTests.Kannada.Replace("\"]}", "\"],\"note\":\"ಇಂದು ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.\"}"));
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: "We compared numbers on leaves.", languages: ["kn"]);
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal(TodaysMessageStatus.Ready, row.Status);
+        Assert.Equal("ಇಂದು ನಾವು ಎಲೆಗಳ ಮೇಲೆ ಸಂಖ್ಯೆ ಬರೆದು ಹೋಲಿಸಿದೆವು.", row.Sections!.Note!.Text["kn"]);
+        Assert.Single(_llm.Requests);
+    }
+
+    [Fact]
+    public async Task A9_leaving_her_English_note_in_English_for_a_family_is_refused()
+    {
+        // The note is checked on its own: inside the whole Kannada text, a short English note would pass.
+        _llm.Json = TodaysMessageTests.Output(
+            TodaysMessageTests.Kannada.Replace("\"]}", "\"],\"note\":\"We compared numbers on leaves.\"}"));
+        var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: "We compared numbers on leaves.", languages: ["kn"]);
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Failed, "fallback:script"), (row.Status, row.Verdict));
+        Assert.Equal(2, _llm.Requests.Count); // one retry with the problem, then it fails
+    }
+
+    [Fact]
     public async Task A_new_draft_after_her_edit_keeps_her_picture_pair()
     {
         var id = await EditedAsync("ಮೊದಲು ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.", note: null, languages: ["kn"], picture: new TodaysPicture("compare", 86, 86, "="));
@@ -193,7 +247,7 @@ public sealed class TodaysMessageGeneratorTests
     [Fact]
     public async Task A_fresh_draft_tells_A9_what_she_said_in_class()
     {
-        // T-118: A1's summary and examples from her voice note shape the wording; numbers still come from the book.
+        // T-120: A1's summary and examples from her voice note shape the wording; numbers still come from the book.
         _evening.Lessons.Add(new ConfirmedLesson(Guid.NewGuid(), Today, [TodaysMessageTests.Compare.Id], "ಬಳೆಗಳಿಂದ 48 ಮತ್ತು 33 ಹೋಲಿಸಿದೆವು.", ["bangles", "48 and 33"]));
         var id = await StartAsync();
 
@@ -254,7 +308,7 @@ public sealed class TodaysMessageGeneratorTests
     [Fact]
     public async Task Each_languages_activity_steps_are_voiced_too()
     {
-        // T-118: for a parent who reads little. One clip per language: the steps read one after the other.
+        // T-120: for a parent who reads little. One clip per language: the steps read one after the other.
         var id = await StartAsync();
 
         await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);

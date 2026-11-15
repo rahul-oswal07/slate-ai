@@ -140,7 +140,7 @@ public static class ParentEndpoints
     }
 
     /// <summary>
-    /// One approved clip of this message (the lesson or today's concept, T-62; today's activity steps, T-118), behind the AI
+    /// One approved clip of this message (the lesson or today's concept, T-62; today's activity steps, T-120), behind the AI
     /// disclosure. Null when there is none, or the disclosure for the family's language isn't made yet (it is made when the
     /// clip is).
     /// </summary>
@@ -229,7 +229,7 @@ public static class ParentEndpoints
         }
 
         var intro = await disclosure.FindAsync(message.Language, cancellationToken);
-        // Only this message's own clips (T-62, T-118) and the shared disclosure: never another family's audio.
+        // Only this message's own clips (T-62, T-120) and the shared disclosure: never another family's audio.
         if ((clipId != message.LessonAudio?.ClipId && clipId != message.ActivityAudio?.ClipId && clipId != intro?.Id)
             || await audio.GetBytesAsync(clipId, cancellationToken) is not { } bytes)
         {

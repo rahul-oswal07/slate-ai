@@ -395,7 +395,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                 ? await db.AudioClips.Where(a => a.Id == clipId).Select(a => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
                     .SingleOrDefaultAsync(cancellationToken)
                 : null;
-            // Its activity steps, voiced (T-118); removed activity means no audio.
+            // Its activity steps, voiced (T-120); removed activity means no audio.
             activityAudio = !sections.Activity.Removed && sections.Activity.Clips?.TryGetValue(row.Language, out var stepsId) == true
                 ? await db.AudioClips.Where(a => a.Id == stepsId).Select(a => new ParentLessonAudio(a.Id, a.Seconds, a.Transcript))
                     .SingleOrDefaultAsync(cancellationToken)

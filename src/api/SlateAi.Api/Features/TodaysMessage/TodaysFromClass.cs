@@ -4,11 +4,11 @@ using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Features.TodaysMessage;
 
-/// <summary>What she said in class, as A9 may see it (T-118): A1's summary and the examples she used.</summary>
+/// <summary>What she said in class, as A9 may see it (T-120): A1's summary and the examples she used.</summary>
 public sealed record TodaysFromClass(string? SummaryKn, IReadOnlyList<string> Examples);
 
 /// <summary>
-/// Picks what of the day's confirmed lesson may reach A9 (T-118). Pure. Only that day's lesson for these lessons; a phrase
+/// Picks what of the day's confirmed lesson may reach A9 (T-120). Pure. Only that day's lesson for these lessons; a phrase
 /// with a placeholder, brace, sign or child's name is dropped (guardrail 1), and so is one with a number A9 may not write
 /// (guardrail 4: numbers still come only from the book), so her examples shape the wording, never the numbers.
 /// </summary>

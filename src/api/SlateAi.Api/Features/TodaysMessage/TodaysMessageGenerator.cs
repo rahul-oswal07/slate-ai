@@ -18,7 +18,7 @@ public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages);
 
 /// <summary>
 /// Drafts one today's message (D-91): code picks the picture pair from the book (D-93), A9 writes the concept and the
-/// activity in every language from the book and what she said in class (T-118), code checks them (one retry with the
+/// activity in every language from the book and what she said in class (T-120), code checks them (one retry with the
 /// problems), and each concept and each language's activity steps are voiced. The video is
 /// the first of the day's lessons that has a link on the admin page (T-94, D-106), chosen by code. Nothing here sends
 /// anything: the draft waits for her approval (guardrail 3).
@@ -70,9 +70,11 @@ public sealed class TodaysMessageGenerator(
         {
             var names = (await evening.GetClassAsync(row.ClassId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
             var kannada = teacher?.Kannada;
-            // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any.
-            var toWrite = kannada is null ? job.Languages : job.Languages.Where(l => l != "kn").ToList();
-            // A fresh draft starts from what she said in class (T-118); code keeps only safe phrases with allowed numbers.
+            // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any. A note she wrote
+            // in another language is written in Kannada too, so Kannada families read it in Kannada (T-119, D-111).
+            var noteInKannada = kannada?.Note is not { } typed || TodaysMessageValidator.InScript(typed, "kn");
+            var toWrite = kannada is null ? job.Languages : job.Languages.Where(l => l != "kn" || !noteInKannada).ToList();
+            // A fresh draft starts from what she said in class (T-120); code keeps only safe phrases with allowed numbers.
             var fromClass = kannada is null
                 ? TodaysFromClassFilter.From(
                     await evening.LatestConfirmedLessonAsync(row.ClassId, row.Date, cancellationToken),
@@ -105,7 +107,8 @@ public sealed class TodaysMessageGenerator(
 
             if (kannada is not null)
             {
-                texts["kn"] = new TodaysText(kannada.Concept, kannada.Steps, kannada.Note);
+                // Her concept and steps word for word; the note as she wrote it, or A9's Kannada of it.
+                texts["kn"] = new TodaysText(kannada.Concept, kannada.Steps, noteInKannada ? kannada.Note : texts["kn"].Note);
             }
 
             var clips = new Dictionary<string, Guid>();
@@ -119,7 +122,7 @@ public sealed class TodaysMessageGenerator(
                 }
 
                 clips[language] = clipId;
-                // The steps are voiced too (T-118). Too long to voice is not a failure: the family still reads the steps.
+                // The steps are voiced too (T-120). Too long to voice is not a failure: the family still reads the steps.
                 if (await VoiceAsync(ActivityKind, language, string.Join(' ', text.Steps), cancellationToken) is { } stepsId)
                 {
                     stepClips[language] = stepsId;
@@ -135,7 +138,7 @@ public sealed class TodaysMessageGenerator(
                 texts.ToDictionary(t => t.Key, t => t.Value.Steps), teacher?.Activity.Removed ?? false, stepClips);
             var note = kannada?.Note is null
                 ? null
-                : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed);
+                : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed, kannada.Note);
             // A fresh draft takes the lesson's link as it is now; a draft she edited keeps its video and her Remove.
             var sections = teacher is null
                 ? new TodaysSections(concept, activity, picture, await VideoAsync(row.CompetencyIds, cancellationToken))

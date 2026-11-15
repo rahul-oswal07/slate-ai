@@ -803,7 +803,8 @@
       "home": "All pages",
       "greetings": "Greetings",
       "lessonAudio": "Lesson audio",
-      "lessonLinks": "Lesson links"
+      "lessonLinks": "Lesson links",
+      "children": "Children"
     },
     "greetings": {
       "title": "Teacher greetings",
@@ -861,7 +862,31 @@
       "intro": "Every admin page and its address. Open this page with its full link (#key=…) and every link below works.",
       "greetings": "Listen to and download each teacher’s recorded greeting.",
       "lessonAudio": "One day’s lesson audio: every class’s clip and the families it went to.",
-      "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families."
+      "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families.",
+      "children": "Every class's children and the number their family's WhatsApp goes to; edit or clear a number."
+    },
+    "children": {
+      "title": "Children and phone numbers",
+      "intro": "WhatsApp goes to the number saved here first, else to the server setting. Without either, the family gets nothing on WhatsApp. Saved numbers stay after a demo Reset.",
+      "class_one": "{{label}} · {{count}} child",
+      "class_other": "{{label}} · {{count}} children",
+      "child": "{{rollNo}} · {{name}} · {{language}}",
+      "noConsent": "No consent: nothing is sent",
+      "stopped": "Family stopped messages: nothing is sent",
+      "fromSaved": "Saved here",
+      "fromSetting": "From the server setting",
+      "noNumber": "No number: WhatsApp skips this family",
+      "phoneLabel": "{{name}}'s family's number",
+      "refused": "Use a 10-digit Indian mobile number (e.g. 98765 43210) or a full number with its country code (e.g. +44 7700 900123).",
+      "failed": "Could not save. Nothing was changed. Try again.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "editFor": "Edit {{name}}'s number",
+      "clear": "Clear",
+      "clearFor": "Clear {{name}}'s saved number",
+      "saved": "Saved",
+      "cleared": "Cleared: back to the server setting, if any"
     }
   },
   "settings": {
@@ -928,7 +953,8 @@
     "restore": "Put back",
     "remove": "Remove",
     "step": "Step {{n}}",
-    "noteLabel": "Your note to families (Kannada)",
+    "noteLabel": "Your note to families (any language: each family reads it in their own)",
+    "noteKannada": "Kannada families read:",
     "conceptLabel": "Concept (Kannada)",
     "notePlaceholder": "e.g. We wrote numbers on leaves and compared them",
     "addStep": "Add a step",

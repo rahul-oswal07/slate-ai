@@ -338,6 +338,35 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
+    public async Task Her_note_may_be_in_any_language_and_is_kept_as_she_typed_it()
+    {
+        // T-119, D-111: the next draft writes it in every family's language, Kannada included.
+        const string english = "Today we wrote numbers on leaves on the blackboard and compared which one was bigger.";
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.PutAsJsonAsync($"{DayUrl}/sections/note", new EditTodaysSectionRequest(Guid.NewGuid(), 1, english), Ct);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Equal(english, _todays.Rows.Single().Sections!.Note!.Original);
+    }
+
+    [Fact]
+    public async Task Her_concept_must_still_be_in_Kannada()
+    {
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var response = await client.PutAsJsonAsync(
+            $"{DayUrl}/sections/concept", new EditTodaysSectionRequest(Guid.NewGuid(), 1, "Look at the bundles of ten first."), Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("\"script\"", await response.Content.ReadAsStringAsync(Ct));
+    }
+
+    [Fact]
     public async Task Another_pair_from_the_book_gets_its_answer_from_code_and_a_new_version()
     {
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());

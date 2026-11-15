@@ -63,6 +63,7 @@ builder.Services.AddWeek();
 builder.Services.AddDemo();
 builder.Services.AddAdmin();
 builder.Services.AddLessonLinks();
+builder.Services.AddAdminChildren();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddApiDocs(builder.Configuration);
 

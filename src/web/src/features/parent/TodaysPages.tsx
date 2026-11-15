@@ -45,7 +45,7 @@ function todaysSteps(m: ParentTodaysMessage, reasonGiven: boolean, current: stri
  * one, the child's picture question (T-90), then Done ⭐. One step per screen, in `?step=` so the phone's Back works;
  * each step has Back (but the first) and its title in one row, then the teacher line (T-116). A reopened link starts at
  * the first step again. The stop link is on every step. Nothing here is AI except the concept and activity text and their
- * voices (the steps are voiced since T-118), which she approved.
+ * voices (the steps are voiced since T-120), which she approved.
  */
 export function TodaysPages({
   token,
@@ -107,7 +107,8 @@ export function TodaysPages({
               {message.text}
             </p>
             {todays.note && (
-              <p lang="kn" className="card text-body">
+              // In the family's language: A9 writes it from her Kannada (T-119).
+              <p lang={message.language} className="card text-body">
                 <span className="block text-caption text-ink-muted">{t('parent.todays.note', { teacher: message.teacherName })}</span>
                 {todays.note}
               </p>
@@ -134,7 +135,7 @@ export function TodaysPages({
                 <li key={s}>{s}</li>
               ))}
             </ol>
-            {/* The steps read aloud (T-118), for a parent who reads little; the words stay above. */}
+            {/* The steps read aloud (T-120), for a parent who reads little; the words stay above. */}
             {message.activityAudio && (
               <LessonAudioPlayer audio={message.activityAudio} teacherName={message.teacherName} title={t('parent.todays.activityListen')} />
             )}

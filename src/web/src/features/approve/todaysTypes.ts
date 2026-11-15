@@ -10,7 +10,7 @@ export interface TodaysLanguage {
   concept: string
   conceptClipUrl: string | null
   steps: string[]
-  /** The steps voiced (T-118); null when too long to voice or the draft is older. */
+  /** The steps voiced (T-120); null when too long to voice or the draft is older. */
   activityClipUrl?: string | null
 }
 
@@ -35,7 +35,8 @@ export interface TodaysMessage {
   competencyIds: string[]
   picture: TodaysPicture | null
   video: { url: string; removed: boolean } | null
-  note: { text: Record<string, string>; removed: boolean } | null
+  /** `original`: what she typed, in any language (T-119); `text`: what each family reads. Older notes have no original. */
+  note: { text: Record<string, string>; removed: boolean; original?: string | null } | null
   removed: TodaysSectionKind[]
   languages: TodaysLanguage[]
   /** The book's pairs for the picture question; `pictureIndex` is the one in use. */

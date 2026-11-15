@@ -493,6 +493,9 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<DateTimeOffset?>("ParentPhoneSetAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset?>("ParentStoppedAt")
                         .HasColumnType("timestamp with time zone");
 

@@ -137,3 +137,53 @@ export function useSetLessonLink(key: string | null) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'lesson-links', key] }),
   })
 }
+
+/** One child on the admin children page (T-118): the number their family's WhatsApp goes to, and where it comes from. */
+export interface AdminChild {
+  id: string
+  rollNo: number
+  firstName: string
+  homeLanguage: string
+  consent: 'yes' | 'no' | 'nophone'
+  stopped: boolean
+  phone: string | null
+  phoneFrom: 'saved' | 'setting' | null
+}
+
+/** `GET /api/admin/children`: every class with its children by roll number. */
+export interface AdminChildren {
+  classes: { id: string; label: string; children: AdminChild[] }[]
+}
+
+/** Every class's children and their WhatsApp numbers (T-118, D-110). */
+export function useAdminChildren(key: string | null) {
+  return useQuery({
+    queryKey: ['admin', 'children', key],
+    queryFn: () => api<AdminChildren>('/api/admin/children', { headers: keyHeaders(key) }),
+    retry: false,
+  })
+}
+
+/** Saves (a phone number) or clears (blank) a family's number; a refused number is an `ApiError` with status 400. */
+export function useSetParentPhone(key: string | null) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, phone }: { id: string; phone: string }) =>
+      api<AdminChild>(`/api/admin/children/${encodeURIComponent(id)}/phone`, {
+        method: 'PUT',
+        headers: keyHeaders(key),
+        body: { clientRequestId: crypto.randomUUID(), phone },
+      }),
+    onSuccess: (child) =>
+      queryClient.setQueryData<AdminChildren>(['admin', 'children', key], (data) =>
+        data
+          ? {
+              classes: data.classes.map((c) => ({
+                ...c,
+                children: c.children.map((existing) => (existing.id === child.id ? child : existing)),
+              })),
+            }
+          : data,
+      ),
+  })
+}

@@ -32,7 +32,7 @@ public sealed record ParentGreetingView(string Url, double Seconds);
 /// What the family sees (demo chat, later WhatsApp): her greeting, then the written message. <c>Reason</c> is the
 /// category they already gave for that day (FR-21), so a reopened link shows it. <c>TodaysMessage</c>: the approved
 /// today's message (D-91) in their language, without removed sections; its voiced concept is <c>LessonAudio</c> and its
-/// voiced activity steps <c>ActivityAudio</c> (T-118), each behind the AI disclosure.
+/// voiced activity steps <c>ActivityAudio</c> (T-120), each behind the AI disclosure.
 /// </summary>
 public sealed record ParentEveningResponse(
     DateOnly Date,

@@ -188,7 +188,7 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
                   <span className="break-all text-caption text-ink-muted">{message.video.url}</span>
                 </p>
               )}
-              {kind === 'note' && (message.note?.text.kn ? <p className="text-body">{message.note.text.kn}</p> : null)}
+              {kind === 'note' && message.note && <NoteText note={message.note} />}
             </Section>
           </li>
         ))}
@@ -241,6 +241,26 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
         )
       )}
     </section>
+  )
+}
+
+/**
+ * Her note as she typed it (any language, T-119), and what Kannada families read when that is a translation. Every other
+ * family reads it in their own language.
+ */
+function NoteText({ note }: { note: NonNullable<TodaysMessage['note']> }) {
+  const { t } = useTranslation()
+  const typed = note.original ?? note.text.kn
+  const kannada = note.text.kn
+  return (
+    <>
+      {typed && <p className="text-body">{typed}</p>}
+      {kannada && kannada !== typed && (
+        <p className="text-caption text-ink-muted">
+          {t('todays.noteKannada')} <span lang="kn">{kannada}</span>
+        </p>
+      )}
+    </>
   )
 }
 
@@ -344,7 +364,8 @@ function EditForm({
   const { t } = useTranslation()
   const edit = useEditSection(classId, date)
   const kn = message.languages.find((l) => l.language === 'kn')
-  const [text, setText] = useState(kind === 'concept' ? (kn?.concept ?? '') : (message.note?.text.kn ?? ''))
+  // Her note starts from what she typed, in whatever language (T-119).
+  const [text, setText] = useState(kind === 'concept' ? (kn?.concept ?? '') : (message.note?.original ?? message.note?.text.kn ?? ''))
   const [steps, setSteps] = useState<string[]>(kn?.steps.length ? kn.steps : [''])
   const problem = editProblem(edit.error)
   const errorId = useId()

@@ -7,7 +7,7 @@ namespace SlateAi.Api.Features.TodaysMessage;
 
 /// <summary>One language of today's message as she (and later the family page) reads it.</summary>
 /// <param name="ConceptClipUrl">The voiced concept (<c>/api/audio/{id}</c>), or null.</param>
-/// <param name="ActivityClipUrl">The steps voiced (T-118); null when they were too long to voice or the draft is older.</param>
+/// <param name="ActivityClipUrl">The steps voiced (T-120); null when they were too long to voice or the draft is older.</param>
 public sealed record TodaysLanguageView(
     string Language, int Families, string Concept, string? ConceptClipUrl, IReadOnlyList<string> Steps, string? ActivityClipUrl = null);
 
@@ -183,7 +183,8 @@ public sealed class TodaysMessageService(
         var allowed = TodaysMessageValidator.AllowedNumbers(lessons, edited.Picture);
         var names = (await evening.GetClassAsync(classId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
         var kannada = edited.Kannada;
-        if (TodaysMessageValidator.Check("kn", new TodaysText(kannada.Concept, kannada.Steps, kannada.Note), allowed, names) is { } refused)
+        // Her note may be in any language (T-119): it gets every check but the script; her concept and steps stay Kannada.
+        if (TodaysMessageValidator.Check("kn", new TodaysText(kannada.Concept, kannada.Steps, kannada.Note), allowed, names, noteAnyLanguage: true) is { } refused)
         {
             // Never echo a name back: the detail only says what kind of problem it was.
             return (TodaysChange.Conflict, new TodaysEditProblem(

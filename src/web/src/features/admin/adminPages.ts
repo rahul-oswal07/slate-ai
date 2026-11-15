@@ -3,4 +3,5 @@ export const ADMIN_PAGES = [
   { path: '/admin/greetings', label: 'admin.nav.greetings', description: 'admin.index.greetings' },
   { path: '/admin/lesson-audio', label: 'admin.nav.lessonAudio', description: 'admin.index.lessonAudio' },
   { path: '/admin/lesson-links', label: 'admin.nav.lessonLinks', description: 'admin.index.lessonLinks' },
+  { path: '/admin/children', label: 'admin.nav.children', description: 'admin.index.children' },
 ] as const

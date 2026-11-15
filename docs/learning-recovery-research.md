@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Research note, 15 Nov 2026. Nothing here is decided; each option becomes a task (`T-118` on) and, where it changes behaviour, a decision (`D-110` on) |
+| Status | Research note, 15 Nov 2026. Nothing here is decided; each option becomes a task (`T-120` on) and, where it changes behaviour, a decision (`D-110` on) |
 | For | Rahul (code, prompts), Monika (UX, copy, content) |
 | Answers | J1 in [`hackathon-requirements.md`](hackathon-requirements.md) §5 |
 | Cites | D-90 to D-96, D-106, D-108 in [`decisions/`](decisions/README.md) |
@@ -57,7 +57,7 @@ Sizes: S ≤ half a day, M 1–2 days, L more. "Gate" is who has to say yes (CLA
 
 | # | Option | Why | Size · gate |
 |---|---|---|---|
-| A1 | **Give A9 what she said in class:** the lesson's `ExamplesUsed` (already extracted by A1 and used by A3) and `SummaryKn`, so the concept and activity reuse her examples and the objects she used ("like we did with the bangles today"). Numbers still come only from the book's exercises (guardrail 4); an example number that isn't on the list stays out. A1's output is already free of names (guardrail 1) | The cheapest real answer to "based on what was taught in class": no new screen, and the teacher recognises her own lesson | S · prompt change: A9 v3 and an eval run (guardrail 6), Rahul |
+| A1 | **Give A9 what she said in class:** the lesson's `ExamplesUsed` (already extracted by A1 and used by A3) and `SummaryKn`, so the concept and activity reuse her examples and the objects she used ("like we did with the bangles today"). Numbers still come only from the book's exercises (guardrail 4); an example number that isn't on the list stays out. A1's output is already free of names (guardrail 1) | The cheapest real answer to "based on what was taught in class": no new screen, and the teacher recognises her own lesson | S · prompt change: a new A9 version and an eval run (guardrail 6), Rahul |
 | A2 | **Her voice for the concept:** on Approve → Today's message, "Say it yourself" records ≤ 30 s; that clip replaces the computer voice for Kannada families (STT transcript checked for names, like the greeting). Other languages keep the computer voice of her words | The family already hears her greeting in her voice; this carries it into the lesson. D-92 already plans a spoken note | M · consent rule (her greeting's voice consent covers it?), Monika |
 | A3 | **"Add from class" chips:** after a lesson is confirmed, the examples A1 heard appear as chips she can tap into the activity (no typing) | Keeps the ≤ 60 s rule while making the content hers | S after A1 · UX, Monika |
 | A4 | **Her photo of the board for the family** (F-05: a teacher asked to add a photo of what she taught; built for matching only, D-82, "never sent to families") | Parents see exactly what the class did | S · changes D-82 (privacy: children's faces), Monika |
@@ -99,7 +99,7 @@ Sizes: S ≤ half a day, M 1–2 days, L more. "Gate" is who has to say yes (CLA
 4. *Personalised:* "She edits every section in Kannada and adds her note. Next: the draft starts from the examples she used in class, and she can say the concept in her own voice" (A1, A2).
 5. *Dose:* cite the phone-tutoring trials: targeted practice over several evenings, plus a human call only when a child is stuck (D2, D3).
 
-**After the finale, in order:** A1 → B1 (both built in [T-118](tasks/T-118-todays-message-from-class-and-voiced-steps.md), 15 Nov, eval pending) → D1 (first chapter) → B2 → C2 → D4 (T-103) → A2 → D2 → C3 → D3. A1 and B1 are small and make every message better; D1 is what makes the product work beyond one page.
+**After the finale, in order:** A1 → B1 (both built in [T-120](tasks/T-120-todays-message-from-class-and-voiced-steps.md), 15 Nov, eval pending) → D1 (first chapter) → B2 → C2 → D4 (T-103) → A2 → D2 → C3 → D3. A1 and B1 are small and make every message better; D1 is what makes the product work beyond one page.
 
 ## 5. Risks to keep in view
 

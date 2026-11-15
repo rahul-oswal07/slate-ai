@@ -44,7 +44,7 @@ export type ParentEvening = {
   reason: ReasonCategory | null
   /** Today's message she approved (D-91, T-91), in this family's language; null or missing: the plain message. */
   todaysMessage?: ParentTodaysMessage | null
-  /** Today's activity steps, voiced (T-118): disclosure, then the steps; null when there is no clip or the activity was removed. */
+  /** Today's activity steps, voiced (T-120): disclosure, then the steps; null when there is no clip or the activity was removed. */
   activityAudio?: ParentEvening['lessonAudio']
 }
 

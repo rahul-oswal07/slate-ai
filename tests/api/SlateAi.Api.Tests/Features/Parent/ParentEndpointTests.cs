@@ -500,7 +500,7 @@ public sealed class ParentEndpointTests
     [Fact]
     public async Task Todays_activity_steps_play_after_the_disclosure_through_the_token_and_only_this_messages_clips()
     {
-        // T-118: the steps of an approved today's message are voiced, for a parent who reads little.
+        // T-120: the steps of an approved today's message are voiced, for a parent who reads little.
         const string token = "ActivityAudioTokenTodayA";
         var wording = DisclosureWording.Load(Path.Combine(AppContext.BaseDirectory, DisclosureWording.File));
         var disclosure = await new DisclosureClips(new FakeTextToSpeech(), _audio, wording).GetOrMakeAsync("te", Ct);

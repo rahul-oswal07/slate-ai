@@ -32,7 +32,7 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
     /// <summary>What the parent link shows as lesson audio (T-62).</summary>
     public ParentLessonAudio? LessonAudio { get; set; }
 
-    /// <summary>What the parent link shows as today's voiced activity steps (T-118), for a message that carries today's message.</summary>
+    /// <summary>What the parent link shows as today's voiced activity steps (T-120), for a message that carries today's message.</summary>
     public ParentLessonAudio? ActivityAudio { get; set; }
 
     public int Approvals { get; private set; }

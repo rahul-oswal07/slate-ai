@@ -98,7 +98,7 @@ public sealed class A9TodaysMessageEvals
         string Id, IReadOnlyList<string> Languages, IReadOnlyList<string> Lessons, int Pair, TeacherCase? Teacher = null,
         FromClassCase? FromClass = null);
 
-    /// <summary>What she said in class (T-118, prompt v3), as code would pass it after <see cref="TodaysFromClassFilter"/>.</summary>
+    /// <summary>What she said in class (T-120, prompt v4), as code would pass it after <see cref="TodaysFromClassFilter"/>.</summary>
     private sealed record FromClassCase(string? SummaryKn, IReadOnlyList<string> Examples);
 
     private sealed record TeacherCase(string Concept, IReadOnlyList<string> Activity, string? Note);

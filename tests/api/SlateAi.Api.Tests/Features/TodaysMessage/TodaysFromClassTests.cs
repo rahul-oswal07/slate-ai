@@ -3,7 +3,7 @@ using SlateAi.Api.Features.TodaysMessage;
 
 namespace SlateAi.Api.Tests.Features.TodaysMessage;
 
-/// <summary>What of her lesson may reach A9 (T-118): pure code, guardrails 1 and 4.</summary>
+/// <summary>What of her lesson may reach A9 (T-120): pure code, guardrails 1 and 4.</summary>
 public sealed class TodaysFromClassTests
 {
     private static readonly DateOnly Today = new(2026, 11, 16);

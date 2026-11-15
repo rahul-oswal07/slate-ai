@@ -5,7 +5,7 @@ import { clock } from './clock'
 import type { ParentEvening } from './types'
 
 /**
- * The evening message's optional lesson audio (T-62), or today's activity steps (T-118): one Play button plays the spoken
+ * The evening message's optional lesson audio (T-62), or today's activity steps (T-120): one Play button plays the spoken
  * AI disclosure and then the clip, each from this link's token. Carries the AI label (NFR-08) and the written words (FR-09).
  * `title` names what plays; it defaults to the lesson.
  */

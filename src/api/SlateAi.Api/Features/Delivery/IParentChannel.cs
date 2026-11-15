@@ -36,7 +36,8 @@ public sealed record DeliveryMessage(
     string Language,
     IReadOnlyList<string> Parameters,
     string Token,
-    string? WordingVersion = null);
+    string? WordingVersion = null,
+    string? Phone = null);
 
 /// <param name="Outcome">A <see cref="DeliveryStatus"/> value, or <see cref="ChannelOutcome.Retry"/>.</param>
 /// <param name="Error">A short code, never message text or a number.</param>
