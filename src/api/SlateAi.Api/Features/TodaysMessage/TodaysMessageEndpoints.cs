@@ -3,7 +3,8 @@ using SlateAi.Api.Features.Auth;
 
 namespace SlateAi.Api.Features.TodaysMessage;
 
-public sealed record ApproveTodaysMessageRequest(Guid ClientRequestId, int Version);
+/// <param name="Send">"Approve and send now" (T-117): the evening send runs at once. False: it goes after 6 pm.</param>
+public sealed record ApproveTodaysMessageRequest(Guid ClientRequestId, int Version, bool Send = false);
 
 public sealed record SetTodaysSectionRequest(Guid ClientRequestId, bool Removed);
 
@@ -92,11 +93,13 @@ public static class TodaysMessageEndpoints
         app.MapPost($"{Day}/approve", ApproveAsync)
             .RequireClassOwner()
             .WithTags("Today's message")
-            .WithSummary("Approve the version she checked (guardrail 3)")
+            .WithSummary("Approve the version she checked (guardrail 3), and send it now or after 6 pm")
             .WithDescription(
-                "Only a ready draft at its current version; 409 with the latest otherwise. It goes with tonight's evening " +
-                "message after 6 pm; with Demo:SendOnApprove (staging's demo, D-94) the evening send runs at once. Without " +
-                "an approval families get the plain evening message. Replaying the same clientRequestId is a no-op.");
+                "Only a ready draft at its current version; 409 with the latest otherwise. send: true (\"Approve and send " +
+                "now\", T-117) runs the class's evening send at once, so due families get the evening message with it now " +
+                "(sent: true); it still needs the evening wording approved and attendance in, and if those block it, it " +
+                "stays approved and goes with the 6 pm send once fixed. send: false: it goes with the evening message after " +
+                "6 pm. Without an approval families get the plain evening message. Replaying the same clientRequestId is a no-op.");
         return app;
     }
 
@@ -223,7 +226,7 @@ public static class TodaysMessageEndpoints
         }
 
         var result = await service.ApproveAsync(
-            classId, date, request.ClientRequestId, request.Version, http.User.GetTeacherId()!.Value, cancellationToken);
+            classId, date, request.ClientRequestId, request.Version, request.Send, http.User.GetTeacherId()!.Value, cancellationToken);
         return await Reply(result, classId, date, service, cancellationToken);
     }
 

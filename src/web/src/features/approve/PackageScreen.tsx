@@ -87,6 +87,14 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
     regenerate.mutate({ id: pkg.id, hint })
   }
 
+  // T-117: "Approve and send now" sends it to the families at once (it comes back sent); the second button leaves it for 6 pm.
+  function approveThis(send: boolean) {
+    approve.mutate(
+      { id: pkg.id, scriptVersion: pkg.scriptVersion, send },
+      { onSuccess: (updated) => announce(t(updated.status === 'sent' ? 'approve.announce.sent' : 'approve.announce.approved')) },
+    )
+  }
+
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
@@ -214,19 +222,13 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
           <button
             type="button"
             disabled={!ticked || busy}
-            onClick={() =>
-              approve.mutate(
-                { id: pkg.id, scriptVersion: pkg.scriptVersion },
-                {
-                  // In the demo (D-94) Approve sends at once, so the package comes back sent.
-                  onSuccess: (updated) =>
-                    announce(t(updated.status === 'sent' ? 'approve.announce.sent' : 'approve.announce.approved')),
-                },
-              )
-            }
+            onClick={() => approveThis(true)}
             className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-50"
           >
             {t('approve.pkg.approve')}
+          </button>
+          <button type="button" disabled={!ticked || busy} onClick={() => approveThis(false)} className="btn-secondary">
+            {t('approve.pkg.approveLater')}
           </button>
           <RegenerateButtons busy={busy} onRegenerate={startRegenerate} />
         </div>

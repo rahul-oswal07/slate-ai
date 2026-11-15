@@ -23,6 +23,7 @@ public static class DeliverySetup
                 : sp.GetRequiredService<DemoChannel>());
         services.AddScoped<IDeliveryStore, DeliveryStore>();
         services.AddScoped<DeliveryDispatcher>();
+        services.AddScoped<SendNow>();
         return services;
     }
 }

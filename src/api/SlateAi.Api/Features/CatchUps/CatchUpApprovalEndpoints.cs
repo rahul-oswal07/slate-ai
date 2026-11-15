@@ -3,12 +3,13 @@ using Microsoft.Extensions.Options;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
-using SlateAi.Api.Features.Demo;
+using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Features.CatchUps;
 
-public sealed record ApprovePackageRequest(Guid ClientRequestId, int ScriptVersion);
+/// <param name="Send">"Approve and send now" (T-117): sent to the families at once. False: the 6 pm job sends it.</param>
+public sealed record ApprovePackageRequest(Guid ClientRequestId, int ScriptVersion, bool Send = false);
 
 /// <param name="Hint">"simpler", "shorter", or null for "Try again".</param>
 public sealed record RegeneratePackageRequest(Guid ClientRequestId, string? Hint);
@@ -33,12 +34,12 @@ public static class CatchUpApprovalEndpoints
         app.MapPost("/api/packages/{id:guid}/approve", ApproveAsync)
             .RequireAuthorization()
             .WithTags("Catch-ups")
-            .WithSummary("Approve one catch-up at the version she checked (guardrail 3)")
+            .WithSummary("Approve one catch-up at the version she checked (guardrail 3), and send it now or after 6 pm")
             .WithDescription(
                 "Only a ready catch-up whose scriptVersion is current. 409 with the latest otherwise (needs review, " +
                 "generating, a newer version after Simpler/Shorter, already approved or sent). Replaying the same " +
-                "clientRequestId is a no-op. With Demo:SendOnApprove (staging's demo, D-94) the approved catch-up is sent " +
-                "at once and comes back as sent; elsewhere the 6 pm job sends it.");
+                "clientRequestId is a no-op. send: true (\"Approve and send now\", T-117) sends it at once, whatever the " +
+                "time, and it comes back as sent; send: false leaves it approved for the 6 pm job.");
 
         app.MapPost("/api/packages/{id:guid}/regenerate", RegenerateAsync)
             .RequireAuthorization()
@@ -68,7 +69,7 @@ public static class CatchUpApprovalEndpoints
         HttpContext http,
         ICatchUpStore store,
         CatchUpSender sender,
-        DemoSendOnApprove sendOnApprove,
+        SendNow sendNow,
         CancellationToken cancellationToken)
     {
         if (request.ClientRequestId == Guid.Empty)
@@ -83,10 +84,10 @@ public static class CatchUpApprovalEndpoints
 
         var result = await store.ApproveAsync(
             id, request.ClientRequestId, request.ScriptVersion, http.User.GetTeacherId()!.Value, cancellationToken);
-        if (result == PackageChange.Applied)
+        if (result == PackageChange.Applied && request.Send)
         {
-            // Demo only (D-94): the send keeps its own check that this exact version is approved (guardrail 3).
-            await sendOnApprove.RunAsync(ct => sender.SendAsync(id, ct), cancellationToken);
+            // Her choice skips the 6 pm wait; the send keeps its own check that this exact version is approved (guardrail 3).
+            await sendNow.RunAsync(ct => sender.SendAsync(id, ct), cancellationToken);
         }
 
         var latest = (await store.GetViewAsync(id, cancellationToken))!;

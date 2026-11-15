@@ -84,8 +84,11 @@ function useChange<TVars>(classId: string, date: string, request: (vars: TVars) 
 
 const body = (extra: object) => ({ method: 'POST' as const, body: { clientRequestId: crypto.randomUUID(), ...extra } })
 
+/** `send`: "Approve and send now" (T-117), the evening send runs at once; false: it goes after 6 pm. */
 export const useApproveTodays = (classId: string, date: string) =>
-  useChange(classId, date, (version: number) => api<TodaysMessage>(`${url(classId, date)}/approve`, body({ version })))
+  useChange(classId, date, ({ version, send }: { version: number; send: boolean }) =>
+    api<TodaysMessage>(`${url(classId, date)}/approve`, body({ version, send })),
+  )
 
 export const useRetryTodays = (classId: string, date: string) =>
   useChange(classId, date, () => api<TodaysMessage>(`${url(classId, date)}/generate`, body({})))

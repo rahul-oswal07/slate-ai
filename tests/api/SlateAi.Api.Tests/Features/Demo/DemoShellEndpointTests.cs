@@ -40,23 +40,21 @@ public sealed class DemoShellEndpointTests
         Assert.Equal(ClassId, me.ClassId);
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(false, false)]
-    public async Task Me_tells_the_demo_teacher_whether_approve_sends_at_once(bool sendOnApprove, bool expected)
+    [Fact]
+    public async Task Me_gives_the_demo_teacher_the_demo_flags()
     {
-        await using var factory = Create(sendOnApprove: sendOnApprove);
+        await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
 
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
 
-        Assert.Equal(new DemoFlags(expected, SampleVoiceNote: false), me!.Demo);
+        Assert.Equal(new DemoFlags(SampleVoiceNote: false), me!.Demo);
     }
 
     [Fact]
     public async Task Me_has_no_demo_flags_when_the_demo_is_off()
     {
-        await using var factory = Create(enabled: false, sendOnApprove: true);
+        await using var factory = Create(enabled: false);
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
 
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
@@ -320,7 +318,6 @@ public sealed class DemoShellEndpointTests
     private ApiFactory Create(
         bool enabled = true,
         string snapshotFile = "no-such-snapshot.json",
-        bool sendOnApprove = false,
         string voiceNoteFile = "no-such-voice-note.webm") =>
         FakeApi.Create(
             services =>
@@ -333,7 +330,6 @@ public sealed class DemoShellEndpointTests
             {
                 ["Demo:Enabled"] = enabled.ToString(),
                 ["Demo:SnapshotFile"] = snapshotFile,
-                ["Demo:SendOnApprove"] = sendOnApprove.ToString(),
                 ["Demo:VoiceNoteFile"] = voiceNoteFile,
             });
 

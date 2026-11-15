@@ -26,8 +26,10 @@ Moved as they are from `spec.md` §2 (15 Nov 2026). This file is now where they 
 |---|---|---|---|
 | FR-08 | M | Teacher approval: weekly list of draft packages; play audio, read Kannada gloss, Approve or Regenerate ("simpler", "shorter"); bulk approve only for packages she has opened and ticked; Withdraw until the 6 pm send job starts, labelled "Withdraw (until 6 pm)"; after that the status is Sent (D-28, D-37) | No package reaches a parent without approval (enforced in API) |
 
+Since [D-109](../../decisions/D-109-approve-and-send-now.md) (T-117), Approve on both tabs is two buttons after the tick: **Approve and send now** (sent at once; today's message goes with the class's evening send and its rules) and **Approve, send after 6 pm**.
+
 ## Decisions cited
 
-D-09, D-18, D-28, D-35, D-37, D-38, D-50, D-52, D-57, D-58, D-68, D-70, D-90, D-96.
+D-09, D-18, D-28, D-35, D-37, D-38, D-50, D-52, D-57, D-58, D-68, D-70, D-90, D-96, D-109.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

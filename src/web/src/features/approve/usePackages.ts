@@ -42,10 +42,11 @@ function replace(queryClient: ReturnType<typeof useQueryClient>, classId: string
 export function useApprove(classId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, scriptVersion }: { id: string; scriptVersion: number }) =>
+    // send: "Approve and send now" (T-117), it goes to the families at once; false: the 6 pm job sends it.
+    mutationFn: ({ id, scriptVersion, send }: { id: string; scriptVersion: number; send: boolean }) =>
       api<CatchUpPackage>(`/api/packages/${id}/approve`, {
         method: 'POST',
-        body: { clientRequestId: crypto.randomUUID(), scriptVersion },
+        body: { clientRequestId: crypto.randomUUID(), scriptVersion, send },
       }),
     onSuccess: (updated) => replace(queryClient, classId, updated),
     onError: () => void queryClient.invalidateQueries({ queryKey: packagesKey(classId) }),

@@ -100,6 +100,18 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
   const ticked = tickedVersion === message.version
   const readOnly = message.sent || message.status === 'approved'
   const kn = message.languages.find((l) => l.language === 'kn')
+  // T-117: "Approve and send now" runs the evening send at once; the second button leaves it for 6 pm. Either way she is
+  // back on Today (T-108). If send now couldn't go (attendance or the evening wording missing), Today says what's missing.
+  const approveThis = (send: boolean) =>
+    approve.mutate(
+      { version: message.version, send },
+      {
+        onSuccess: (latest) => {
+          announce(t(latest.sent ? 'todays.sent' : send ? 'todays.notSentYet' : 'todays.approved'))
+          void navigate('/')
+        },
+      },
+    )
   const others = message.languages.filter((l) => l.language !== 'kn' && l.families > 0)
   const lessons = message.competencyIds
     .map((id) => findLesson(chapters, id))
@@ -211,18 +223,13 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
             <button
               type="button"
               disabled={!ticked || approve.isPending}
-              onClick={() =>
-                approve.mutate(message.version, {
-                  // Back to Today (T-108), which shows it approved, or in the demo sent with the answers.
-                  onSuccess: (latest) => {
-                    announce(t(latest.sent ? 'todays.sent' : 'todays.approved'))
-                    void navigate('/')
-                  },
-                })
-              }
+              onClick={() => approveThis(true)}
               className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary disabled:opacity-50"
             >
               {t('todays.approve')}
+            </button>
+            <button type="button" disabled={!ticked || approve.isPending} onClick={() => approveThis(false)} className="btn-secondary">
+              {t('todays.approveLater')}
             </button>
           </div>
         )
