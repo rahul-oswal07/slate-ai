@@ -345,6 +345,28 @@ describe("Approve → Today's message (T-89)", () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
   })
 
+  it('a sum (D-116): she sees "248 + 438", the three choices and the answer by code; other pairs read as sums', async () => {
+    const user = userEvent.setup()
+    setup(() => ({
+      status: 200,
+      body: message({
+        competencyIds: ['M3.ADD.CARRY'],
+        picture: { kind: 'add', a: 248, b: 438, answer: '686', removed: false, options: [676, 696, 686] },
+        pairs: [[248, 438], [466, 176], [456, 367]],
+        pictureIndex: 0,
+      }),
+    }))
+    renderApp('/approve')
+
+    await user.click(await screen.findByRole('button', { name: 'Picture question' }))
+    expect(screen.getByText(/248 \+ 438: the child picks 676 · 696 · 686/)).toBeInTheDocument()
+    expect(screen.getByText('(answer 686, worked out by the app)')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Choose another pair' }))
+    const pairs = screen.getByRole('group', { name: "Pairs from the book's page" })
+    expect(within(pairs).getByRole('button', { name: '248 + 438' })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(pairs).getByRole('button', { name: '466 + 176' })).toBeInTheDocument()
+  })
+
   it('sent: read only', async () => {
     setup(() => ({ status: 200, body: message({ status: 'approved', approvedVersion: 1, sent: true }) }))
     renderApp('/approve')

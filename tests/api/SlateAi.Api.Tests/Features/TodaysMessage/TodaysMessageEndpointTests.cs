@@ -32,7 +32,8 @@ public sealed class TodaysMessageEndpointTests
         ["hi"] = new("आज {child} … {lesson} … {page}", "भाग {part}, पृष्ठ {page}", "पृष्ठ {page}"),
     });
 
-    private static readonly CurriculumGraph Book = new([TodaysMessageTests.Compare, TodaysMessageTests.NoExercises], []);
+    private static readonly CurriculumGraph Book = new(
+        [TodaysMessageTests.Compare, TodaysMessageTests.NoExercises with { Id = "M3.GEO.2D" }, TodaysMessageTests.Carry, TodaysMessageTests.Borrow], []);
 
     private static readonly EveningChild Manjunath = new(Guid.NewGuid(), 15, "Manjunath", "kn", "yes", false);
     private static readonly EveningChild Rohan = new(Guid.NewGuid(), 24, "Rohan", "hi", "yes", false);
@@ -264,6 +265,48 @@ public sealed class TodaysMessageEndpointTests
         Assert.Equal(new[] { Manjunath.Id, Rohan.Id }.Order(), about!.Order());
     }
 
+    [Theory]
+    [InlineData(true, 1)]
+    [InlineData(false, 0)]
+    public async Task Confirming_an_add_lesson_starts_a_draft_only_with_the_flag_on(bool arithmetic, int starts)
+    {
+        // D-116, T-128: this draft is what takes her to Approve after confirming, as for the Nalikali lesson.
+        await using var factory = Create(new HangingLlmClient(), arithmetic);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        (await client.PutAsJsonAsync(
+            $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.Carry.Id], LessonValues.Voice),
+            Ct)).EnsureSuccessStatusCode();
+
+        Assert.Equal(starts, _todays.Starts);
+    }
+
+    [Fact]
+    public async Task A_sum_is_answered_with_one_of_its_three_numbers_and_scored_by_code()
+    {
+        var picture = TodaysPicturePicker.Pick([TodaysMessageTests.Carry], 0, arithmetic: true)!;
+        var token = await SentTokenAsync(TodaysMessageTests.Sections() with { Picture = picture }, picture.Answer);
+        await using var factory = Create(arithmetic: true);
+        using var phone = factory.CreateHttpsClient();
+        using var teacher = factory.CreateTeacherClient(ClassId, TeacherId);
+        var url = $"/api/p/{token}/picture";
+
+        var page = (await phone.GetFromJsonAsync<ParentEveningResponse>($"/api/p/{token}", Ct))!;
+        var sign = await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), ">"), Ct);
+        var outside = await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), "687"), Ct);
+        var wrong = await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), "676"), Ct);
+        var right = await phone.PostAsJsonAsync(url, new PictureAnswerRequest(Guid.NewGuid(), "686"), Ct);
+        var view = (await teacher.GetFromJsonAsync<TodaysAnswersView>($"{DayUrl}/answers", Ct))!;
+
+        Assert.Equal(("add", 248, 438), (page.TodaysMessage!.Picture!.Kind, page.TodaysMessage.Picture.A, page.TodaysMessage.Picture.B));
+        Assert.Equal([676, 696, 686], page.TodaysMessage.Picture.Options!);
+        Assert.Equal((HttpStatusCode.BadRequest, HttpStatusCode.BadRequest), (sign.StatusCode, outside.StatusCode));
+        Assert.Equal((HttpStatusCode.OK, HttpStatusCode.OK), (wrong.StatusCode, right.StatusCode));
+        var row = view.Rows.Single(r => r.ChildId == Manjunath.Id);
+        Assert.Equal(("686", TodaysLevel.GotIt), (row.Answer, row.Level)); // the latest counts (D-108)
+    }
+
     [Fact]
     public async Task Confirming_a_lesson_without_exercises_starts_nothing()
     {
@@ -272,7 +315,7 @@ public sealed class TodaysMessageEndpointTests
 
         (await client.PutAsJsonAsync(
             $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
-            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.NoExercises.Id]),
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.GEO.2D"]),
             Ct)).EnsureSuccessStatusCode();
 
         Assert.Equal(0, _todays.Starts);
@@ -289,7 +332,7 @@ public sealed class TodaysMessageEndpointTests
 
         (await client.PutAsJsonAsync(
             $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
-            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.NoExercises.Id]),
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.GEO.2D"]),
             Ct)).EnsureSuccessStatusCode();
 
         Assert.Empty(_todays.Rows);
@@ -307,7 +350,7 @@ public sealed class TodaysMessageEndpointTests
 
         (await client.PutAsJsonAsync(
             $"/api/classes/{ClassId}/lessons/{Today:yyyy-MM-dd}",
-            new SaveLessonRequest(Guid.NewGuid(), [TodaysMessageTests.NoExercises.Id]),
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.GEO.2D"]),
             Ct)).EnsureSuccessStatusCode();
 
         Assert.Single(_todays.Rows);
@@ -508,10 +551,12 @@ public sealed class TodaysMessageEndpointTests
     }
 
     /// <summary>Approved and sent now; returns Manjunath's family's link.</summary>
-    private async Task<string> SentTokenAsync()
+    private async Task<string> SentTokenAsync(TodaysSections? sections = null, string? answer = null)
     {
-        _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
-        _evening.TodaysMessage = TodaysFamilyView.For(TodaysMessageTests.Sections(), "kn");
+        sections ??= TodaysMessageTests.Sections();
+        _todays.AddReady(ClassId, Today, sections);
+        _evening.TodaysMessage = TodaysFamilyView.For(sections, "kn");
+        _evening.PictureAnswer = answer ?? sections.Picture.Answer;
         await ApproveAsync(1, send: true);
         return _evening.Messages.Single(m => m.Message.ChildId == Manjunath.Id).Message.Token;
     }
@@ -546,7 +591,7 @@ public sealed class TodaysMessageEndpointTests
             .EnsureSuccessStatusCode();
     }
 
-    private ApiFactory Create(ILlmClient? llm = null) =>
+    private ApiFactory Create(ILlmClient? llm = null, bool arithmetic = false) =>
         FakeApi.Create(
             services =>
             {
@@ -564,6 +609,7 @@ public sealed class TodaysMessageEndpointTests
             settings: new Dictionary<string, string?>
             {
                 ["Demo:Enabled"] = "true",
+                ["TodaysMessage:ArithmeticExercises"] = arithmetic ? "true" : "false",
             });
 
     /// <summary>Notes who the first call was about (<c>AiCallScope</c>), then never answers, so the draft stays generating.</summary>

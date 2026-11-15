@@ -178,6 +178,41 @@ describe("Family page for today's message (T-91, T-90)", () => {
     expect(await screen.findByText('Your answer')).toBeInTheDocument() // Back from Done: the locked answer page
   })
 
+  it('a sum shows "248 + 438 = ?" and three stick pictures; the numeral only on the one tapped; submit sends the number (D-116)', async () => {
+    const user = userEvent.setup()
+    let attempt = 0
+    const sum = todays({ picture: { a: 248, b: 438, kind: 'add', options: [676, 696, 686], firstAnswer: null, secondAnswer: null, locked: false } })
+    const calls = setup(evening(sum), {
+      [pictureUrl]: () => {
+        attempt++
+        return { status: 200, body: { attempt, locked: attempt === 2 } }
+      },
+    })
+    renderApp(`/p/${token}?step=picture`)
+
+    expect(await screen.findByText('248 + 438 = ?')).toBeInTheDocument()
+    expect(screen.getByText(/Help Manjunath work out the sum/)).toBeInTheDocument()
+    const options = screen.getByRole('list', { name: 'Answers' })
+    expect(options.querySelectorAll('button')).toHaveLength(3)
+    expect(screen.queryByText('686')).not.toBeInTheDocument() // no numerals until a tap
+    expect(screen.queryByRole('button', { name: '>' })).not.toBeInTheDocument() // no signs for a sum
+
+    await user.click(screen.getByRole('button', { name: '6 bundles of a hundred, 7 bundles of ten, 6 loose sticks' }))
+    expect(screen.getByRole('button', { name: /676$/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(calls.some((c) => c.key === pictureUrl)).toBe(false)
+    await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.queryByText(/wrong|right|look again/i)).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    await user.click(screen.getByRole('button', { name: '6 bundles of a hundred, 8 bundles of ten, 6 loose sticks' }))
+    await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+    expect(await screen.findByText('Your answer')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument() // locked after two (D-108)
+    expect(calls.filter((c) => c.key === pictureUrl).map((c) => (c.body as { sign: string }).sign)).toEqual(['676', '686'])
+  })
+
   it('sections she removed are skipped, and the video step appears only with a video', async () => {
     const user = userEvent.setup()
     setup(evening(todays({ steps: null, video: { url: 'https://diksha.gov.in/play/content/do_1' } })))

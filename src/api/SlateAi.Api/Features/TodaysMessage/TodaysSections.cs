@@ -42,10 +42,17 @@ public sealed record TodaysActivity(
 /// <summary>
 /// The picture question, numbers and answer by code from the book's list (D-93, guardrail 4). Kind "compare": the child
 /// picks &gt;, &lt; or = between <see cref="A"/> and <see cref="B"/> (T-90 draws them as bundles and loose sticks).
+/// Kind "add" or "sub" (D-116): the child works out A + B or A − B and picks one of <see cref="Options"/>, drawn as
+/// sticks; <see cref="Answer"/> is then the number as text ("686").
 /// </summary>
-public sealed record TodaysPicture(string Kind, int A, int B, string Answer, bool Removed = false)
+/// <param name="Options">The three numbers to choose from for a sum, in the order shown; null for compare.</param>
+public sealed record TodaysPicture(string Kind, int A, int B, string Answer, bool Removed = false, IReadOnlyList<int>? Options = null)
 {
     public const string Compare = "compare";
+    public const string Add = "add";
+    public const string Sub = "sub";
+
+    public bool IsSum => Kind is Add or Sub;
 }
 
 /// <summary>One checked DIKSHA link, chosen by code (T-94); null until then.</summary>
@@ -131,20 +138,55 @@ public static class TodaysPicturePicker
     /// The <paramref name="index"/>th "compare" pair of the first lesson that has one (wrapping round), with its answer by
     /// <see cref="ExerciseAnswers.CompareSign"/>; null when no lesson has a compare list.
     /// </summary>
-    public static TodaysPicture? Pick(IReadOnlyList<Competency> lessons, int index = 0)
+    /// <param name="arithmetic">
+    /// <c>TodaysMessage:ArithmeticExercises</c> (D-116): with it, a lesson set with no compare pairs uses the first lesson's
+    /// add pairs, else its sub pairs. Compare always comes first, so the Nalikali lesson is unchanged.
+    /// </param>
+    public static TodaysPicture? Pick(IReadOnlyList<Competency> lessons, int index = 0, bool arithmetic = false)
     {
-        var pairs = lessons.Select(l => l.Exercises?.Compare).FirstOrDefault(c => c is { Count: > 0 });
-        if (pairs is null)
+        var (kind, pairs) = Pairs(lessons, arithmetic);
+        if (pairs.Count == 0)
         {
             return null;
         }
 
         var pair = pairs[((index % pairs.Count) + pairs.Count) % pairs.Count];
-        return new TodaysPicture(TodaysPicture.Compare, pair[0], pair[1], ExerciseAnswers.CompareSign(pair[0], pair[1]));
+        return kind == TodaysPicture.Compare
+            ? new TodaysPicture(TodaysPicture.Compare, pair[0], pair[1], ExerciseAnswers.CompareSign(pair[0], pair[1]))
+            : new TodaysPicture(
+                kind, pair[0], pair[1], ExerciseAnswers.Answer(kind, pair[0], pair[1]).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                Options: ExerciseAnswers.Choices(kind, pair[0], pair[1]));
     }
 
-    /// <summary>Whether a lesson set can have today's message: one of them has the book's exercise list (D-93).</summary>
-    public static bool Supported(IReadOnlyList<Competency> lessons) => Pick(lessons) is not null;
+    /// <summary>The book's pairs the picture question can use, with their kind; empty when there are none.</summary>
+    public static (string Kind, IReadOnlyList<IReadOnlyList<int>> Pairs) Pairs(IReadOnlyList<Competency> lessons, bool arithmetic = false)
+    {
+        if (lessons.Select(l => l.Exercises?.Compare).FirstOrDefault(c => c is { Count: > 0 }) is { } compare)
+        {
+            return (TodaysPicture.Compare, compare);
+        }
+
+        if (arithmetic)
+        {
+            foreach (var lesson in lessons)
+            {
+                if (lesson.Exercises?.Add is { Count: > 0 } add)
+                {
+                    return (TodaysPicture.Add, add);
+                }
+
+                if (lesson.Exercises?.Sub is { Count: > 0 } sub)
+                {
+                    return (TodaysPicture.Sub, sub);
+                }
+            }
+        }
+
+        return (TodaysPicture.Compare, []);
+    }
+
+    /// <summary>Whether a lesson set can have today's message: one of them has the book's exercise list (D-93, D-116).</summary>
+    public static bool Supported(IReadOnlyList<Competency> lessons, bool arithmetic = false) => Pick(lessons, 0, arithmetic) is not null;
 }
 
 /// <summary>What a family is sent (D-91): their language only, and nothing she removed. Pure.</summary>
@@ -153,7 +195,9 @@ public static class TodaysFamilyView
     public static EveningMessages.ParentTodaysMessage For(TodaysSections sections, string language) => new(
         sections.Concept.Removed ? null : sections.Concept.Text.GetValueOrDefault(language),
         sections.Activity.Removed ? null : sections.Activity.Steps.GetValueOrDefault(language),
-        sections.Picture.Removed ? null : new EveningMessages.ParentPicture(sections.Picture.A, sections.Picture.B),
+        sections.Picture.Removed
+            ? null
+            : new EveningMessages.ParentPicture(sections.Picture.A, sections.Picture.B, Kind: sections.Picture.Kind, Options: sections.Picture.Options),
         sections.Video is { Removed: false } video ? video : null,
         sections.Note is { Removed: false } note ? note.Text.GetValueOrDefault(language) : null);
 }

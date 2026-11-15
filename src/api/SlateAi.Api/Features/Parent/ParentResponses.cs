@@ -61,7 +61,10 @@ public sealed record AnswerRequest(int ChoiceId, Guid ClientRequestId);
 /// </summary>
 public sealed record AnswerResponse(int Attempt, bool Locked);
 
-/// <summary>The child's tap on today's picture question (T-90): "&gt;", "&lt;" or "=".</summary>
+/// <summary>
+/// The child's submit on today's picture question: "&gt;", "&lt;" or "=" (T-90), or for a sum one of the three numbers it
+/// showed, as text, e.g. "686" (D-116).
+/// </summary>
 public sealed record PictureAnswerRequest(Guid ClientRequestId, string Sign);
 
 /// <summary>

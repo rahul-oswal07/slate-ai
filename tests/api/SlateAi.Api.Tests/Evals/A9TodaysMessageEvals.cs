@@ -47,7 +47,8 @@ public sealed class A9TodaysMessageEvals
             await using var scope = services.CreateAsyncScope();
             var writer = scope.ServiceProvider.GetRequiredService<TodaysMessageWriter>();
             var lessons = c.Lessons.Select(curriculum.Get).OfType<Competency>().ToList();
-            var picture = TodaysPicturePicker.Pick(lessons, c.Pair)!;
+            // Sums too (D-116): their cases are written by a9-todays-message-sums; compare cases still by v4.
+            var picture = TodaysPicturePicker.Pick(lessons, c.Pair, arithmetic: true)!;
             var attempts = new List<Attempt>();
             IReadOnlyList<string>? feedback = null;
             for (var i = 0; i < 2; i++)
@@ -71,8 +72,9 @@ public sealed class A9TodaysMessageEvals
         var firstPass = results.Count(r => r.FirstPass) / (double)results.Length;
         var passed = results.Count(r => r.Passed) / (double)results.Length;
         var prompt = prompts.Get(TodaysMessageWriter.PromptId);
+        var sums = prompts.Get(TodaysMessageWriter.SumsPromptId);
         var report = new Report(
-            DateTimeOffset.UtcNow, $"{prompt.Id} v{prompt.Version}", aiOptions.ModelFor(prompt.ModelKey),
+            DateTimeOffset.UtcNow, $"{prompt.Id} v{prompt.Version} + {sums.Id} v{sums.Version}", aiOptions.ModelFor(prompt.ModelKey),
             results.Length, firstPass, passed, Target, results);
         var output = Path.Combine(root, "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-a9-todays-message.json");
         await File.WriteAllTextAsync(output, JsonSerializer.Serialize(report, Json) + "\n", TestContext.Current.CancellationToken);

@@ -60,6 +60,36 @@ public sealed class TodaysMessageGeneratorTests
     }
 
     [Fact]
+    public async Task A_sum_lesson_is_drafted_with_the_sums_prompt_and_the_books_pair_by_code()
+    {
+        // D-116, T-128: with the flag on, M3.ADD.CARRY gets the picture "248 + 438" and three choices by code.
+        _llm.Json = TodaysMessageTests.Output(
+            """{"language":"kn","concept":"ಕೂಡುವಾಗ ಮೊದಲು ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಕೂಡಿ. ಹತ್ತು ಬಿಡಿ ಆದರೆ ಒಂದು ದಶಕದ ಕಟ್ಟು ಮಾಡಿ.","activity":["466 ಮತ್ತು 176 ಕ್ಕೆ ಕಡ್ಡಿಗಳ ಕಟ್ಟು ಮಾಡಿ.","ಮೊದಲು ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಒಟ್ಟು ಸೇರಿಸಿ.","ಎಷ್ಟು ಆಯಿತು ಎಂದು ಮಗು ಹೇಳಲಿ."]}""",
+            """{"language":"hi","concept":"जोड़ते समय पहले खुली तीलियाँ जोड़िए। दस खुली तीलियाँ हों तो एक गड्डी बनाइए।","activity":["466 और 176 के लिए तीलियों की गड्डियाँ बनाइए।","पहले खुली तीलियाँ एक साथ रखिए।","बच्चा बताए कुल कितनी हुईं।"]}""");
+        var id = (await _store.StartAsync(ClassId, Today, [TodaysMessageTests.Carry.Id], DateTimeOffset.UnixEpoch, Ct))!.Value;
+
+        await Generator(arithmetic: true).GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Ready, "valid"), (row.Status, row.Verdict));
+        var picture = row.Sections!.Picture;
+        Assert.Equal(("add", 248, 438, "686"), (picture.Kind, picture.A, picture.B, picture.Answer));
+        Assert.Equal([676, 696, 686], picture.Options!);
+        Assert.Equal("a9-todays-message-sums", _llm.Requests.Single().Prompt.Id);
+    }
+
+    [Fact]
+    public async Task A_sum_lesson_without_the_flag_fails_and_nothing_is_written()
+    {
+        var id = (await _store.StartAsync(ClassId, Today, [TodaysMessageTests.Carry.Id], DateTimeOffset.UnixEpoch, Ct))!.Value;
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Equal(TodaysMessageStatus.Failed, _store.Rows.Single().Status);
+        Assert.Empty(_llm.Requests);
+    }
+
+    [Fact]
     public async Task A9_and_the_voice_are_logged_as_about_the_children_whose_families_get_it()
     {
         // T-127, D-115: the demo's Under the hood "For" column; IDs only, the scope ends with the job.
@@ -385,11 +415,16 @@ public sealed class TodaysMessageGeneratorTests
                 : _fake.SynthesizeAsync(text, languageCode, cancellationToken);
     }
 
-    private TodaysMessageGenerator Generator(ITextToSpeech? tts = null)
+    private TodaysMessageGenerator Generator(ITextToSpeech? tts = null, bool arithmetic = false)
     {
-        var curriculum = new CurriculumGraph([TodaysMessageTests.Compare, TodaysMessageTests.NoExercises], []);
+        var curriculum = new CurriculumGraph(
+            [TodaysMessageTests.Compare, TodaysMessageTests.NoExercises with { Id = "M3.GEO.2D" }, TodaysMessageTests.Carry], []);
         var prompts = PromptLibrary.Load(
-            [("a9-todays-message.md", "---\nid: a9-todays-message\nversion: 1\nmodel_key: Script\n---\nPrompt.")], ["Script"]);
+            [
+                ("a9-todays-message.md", "---\nid: a9-todays-message\nversion: 1\nmodel_key: Script\n---\nPrompt."),
+                ("a9-todays-message-sums.md", "---\nid: a9-todays-message-sums\nversion: 1\nmodel_key: Script\n---\nSums."),
+            ],
+            ["Script"]);
         return new TodaysMessageGenerator(
             _store,
             _evening,
@@ -401,6 +436,7 @@ public sealed class TodaysMessageGeneratorTests
             curriculum,
             prompts,
             Options.Create(new VerifierOptions()),
+            Options.Create(new TodaysMessageOptions { ArithmeticExercises = arithmetic }),
             new FixedClock(DateTimeOffset.UnixEpoch),
             NullLogger<TodaysMessageGenerator>.Instance);
     }

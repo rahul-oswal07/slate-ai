@@ -51,13 +51,28 @@ export type ParentEvening = {
 /** A sign the child taps on the picture question (T-90). */
 export type Sign = '>' | '<' | '='
 
+/** What the child submits: a sign, or for a sum the number they chose, as text ("686", D-116). */
+export type PictureAnswer = Sign | `${number}`
+
 /** Today's message as the family gets it: removed sections are null. The picture never carries its answer. */
 export type ParentTodaysMessage = {
   concept: string | null
   steps: string[] | null
   /** `done`: right, or two taps; the child can't tap again. */
   /** `locked`: both submits used (D-108); the page shows their latest choice with Next only. */
-  picture: { a: number; b: number; firstAnswer: Sign | null; secondAnswer: Sign | null; locked: boolean } | null
+  /**
+   * `kind` compare: the child taps >, < or = between a and b. add / sub (D-116): the child works out a + b or a − b and
+   * picks one of `options`, drawn as sticks. Older links have no kind: compare.
+   */
+  picture: {
+    a: number
+    b: number
+    kind?: 'compare' | 'add' | 'sub'
+    options?: number[] | null
+    firstAnswer: PictureAnswer | null
+    secondAnswer: PictureAnswer | null
+    locked: boolean
+  } | null
   video: { url: string } | null
   note: string | null
 }

@@ -15,7 +15,7 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - Only 13 have a practice rule, so the other 47 get no catch-up yet.
-- Only the demo lesson has `compare` exercises, so only it starts a today's message (D-93). Add and subtract lessons wait for D-116 (T-128 PR B).
+- Only the demo lesson has `compare` exercises. Add and subtract lessons start a today's message only with `TodaysMessage:ArithmeticExercises` on, which is the case in Development but not yet in staging or prod (D-116, T-128).
 - The add/sub lessons have only the 2–3 pairs in their examples; the book pages' full lists are not extracted yet.
 - No DIKSHA link per lesson yet (T-94).
 

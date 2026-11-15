@@ -11,6 +11,7 @@ Spec: [`spec.md`](spec.md)
 - When she edits today's message, the concept box and each activity-step box have a placeholder saying what goes in it, in Kannada (T-96).
 - **Her note** can be written in any language: Approve shows what she typed and, when it was translated, what Kannada families read; every family reads it in their home language, and Edit starts from what she typed (T-119, D-111).
 - **Draft of today's message** (finale, D-90–D-96): confirming a lesson with the book's exercises (today only Nalikali p 4) drafts a message for absent families: concept with voice, a parent-led activity and a `>,<,=` picture pair chosen by code (T-88).
+- With `TodaysMessage:ArithmeticExercises` on (Development only so far), add and subtract lessons with the book's pairs get today's message too. The picture section shows "248 + 438 = ?", the three choices and the answer by code, and "Choose another pair" lists the other sums (D-116, T-128).
 - A fresh draft of today's message starts from what she said in class: A1's summary and her examples, filtered by code; her own Kannada edit wins over it (T-120).
 - The Activity section has a player for the voiced steps, as families will hear them (T-120).
 - After the tick, two buttons on both tabs: **Approve and send now** (today's message: the evening send runs at once, with its usual rules; catch-up: sent at once) and **Approve, send after 6 pm** (T-117, D-109).
