@@ -13,7 +13,8 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- T-93 is not finished: the sample voice note, `Demo__SendOnApprove` on staging and the timed run ([task](../../tasks/T-93-demo-loop-and-reset.md)).
+- There is no sample voice note clip, so Today doesn't offer "Use the sample voice note (demo)".
+- `Demo__SendOnApprove` is off on staging, so Approve there doesn't send at once; an Approve and send button is planned instead (T-93 closed).
 - The 6 demo steps have not been run on prod (`v1.3`).
 
 ## Open tasks
