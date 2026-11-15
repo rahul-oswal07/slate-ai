@@ -5,21 +5,21 @@ import { AdminPage, AdminQuery } from './AdminPage'
 import { type AdminChild, type AdminChildren, useAdminChildren, useSetParentPhone } from './useAdmin'
 
 /**
- * /admin/children#key=… (T-118, D-110): every class's children with the number their family's WhatsApp goes to. A
+ * /admin/children (T-118, D-110; open without a key, D-112): every class's children with the number their family's WhatsApp goes to. A
  * number saved here is dialled first; without one, the `WhatsApp__Recipients__{childId}` server setting is used; with
  * neither, WhatsApp skips the family. Seeded numbers are fictional and never shown. Saved numbers survive the demo Reset.
  */
 export function AdminChildrenScreen() {
   const { t } = useTranslation()
-  return <AdminPage title={t('admin.children.title')}>{(key) => <Children adminKey={key} />}</AdminPage>
+  return <AdminPage title={t('admin.children.title')}><Children /></AdminPage>
 }
 
-function Children({ adminKey: key }: { adminKey: string | null }) {
-  const children = useAdminChildren(key)
-  return <AdminQuery query={children}>{(data) => <Classes adminKey={key} data={data} />}</AdminQuery>
+function Children() {
+  const children = useAdminChildren()
+  return <AdminQuery query={children}>{(data) => <Classes data={data} />}</AdminQuery>
 }
 
-function Classes({ adminKey: key, data }: { adminKey: string | null; data: AdminChildren }) {
+function Classes({ data }: { data: AdminChildren }) {
   const { t } = useTranslation()
   return (
     <>
@@ -31,7 +31,7 @@ function Classes({ adminKey: key, data }: { adminKey: string | null; data: Admin
           </h2>
           <ul className="flex flex-col divide-y divide-divider rounded-card border-[1.5px] border-edge bg-surface">
             {cls.children.map((child) => (
-              <ChildRow key={child.id} adminKey={key} child={child} />
+              <ChildRow key={child.id} child={child} />
             ))}
           </ul>
         </section>
@@ -40,9 +40,9 @@ function Classes({ adminKey: key, data }: { adminKey: string | null; data: Admin
   )
 }
 
-function ChildRow({ adminKey: key, child }: { adminKey: string | null; child: AdminChild }) {
+function ChildRow({ child }: { child: AdminChild }) {
   const { t } = useTranslation()
-  const set = useSetParentPhone(key)
+  const set = useSetParentPhone()
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState('')
   const [saved, setSaved] = useState<'saved' | 'cleared' | null>(null)

@@ -20,13 +20,9 @@ function renderAt(url: string) {
   )
 }
 
-/** The admin API: the list and one clip, each only with the right key (`null`: no key, as locally, D-102). */
-function stubApi(greetings: unknown[], key: string | null = 'secret-key') {
-  const fetch = vi.fn<typeof globalThis.fetch>(async (input, init) => {
-    const sent = new Headers(init?.headers).get('X-Admin-Key')
-    if (sent !== key) {
-      return new Response(null, { status: 404 })
-    }
+/** The admin API: the list and one clip, no key needed (D-112). */
+function stubApi(greetings: unknown[]) {
+  const fetch = vi.fn<typeof globalThis.fetch>(async (input) => {
     return String(input).endsWith('/audio')
       ? // Raw bytes, not a jsdom Blob: Node 22's Response can't read one (CI).
         new Response(new Uint8Array([1, 2]), { status: 200, headers: { 'Content-Type': 'audio/ogg' } })
@@ -48,41 +44,40 @@ describe('GreetingsAdminScreen (T-66)', () => {
     vi.restoreAllMocks()
   })
 
-  it('lists every greeting with the key from the link and plays one', async () => {
+  it('lists every greeting and plays one', async () => {
     const user = userEvent.setup()
     const fetch = stubApi([shobha])
-    renderAt('/admin/greetings#key=secret-key')
+    renderAt('/admin/greetings')
 
     expect(await screen.findByText('Shobha')).toBeInTheDocument()
     expect(screen.getByText('1 greeting')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Play Shobha’s greeting' }))
 
     expect(await screen.findByLabelText('Shobha’s greeting')).toHaveAttribute('src', 'blob:greeting')
-    expect(fetch).toHaveBeenCalledWith(`/api/admin/greetings/${clipId}/audio`, expect.anything())
-    expect(fetch.mock.calls.every(([url]) => !String(url).includes('secret-key'))).toBe(true)
+    expect(fetch).toHaveBeenCalledWith(`/api/admin/greetings/${clipId}/audio`)
+    expect(screen.getByRole('link', { name: 'Lesson audio' })).toHaveAttribute('href', '/admin/lesson-audio')
   })
 
-  it('downloads a greeting as a named file, with the key only in the header (T-68)', async () => {
+  it('downloads a greeting as a named file (T-68)', async () => {
     const user = userEvent.setup()
     const fetch = stubApi([shobha])
     const saved: { href: string; download: string }[] = []
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       saved.push({ href: this.href, download: this.download })
     })
-    renderAt('/admin/greetings#key=secret-key')
+    renderAt('/admin/greetings')
 
     await user.click(await screen.findByRole('button', { name: 'Download Shobha’s greeting' }))
 
     await waitFor(() => expect(saved).toEqual([{ href: 'blob:greeting', download: 'greeting-shobha-2026-10-28.ogg' }]))
-    expect(fetch).toHaveBeenCalledWith(`/api/admin/greetings/${clipId}/audio`, expect.anything())
-    expect(fetch.mock.calls.every(([url]) => !String(url).includes('secret-key'))).toBe(true)
+    expect(fetch).toHaveBeenCalledWith(`/api/admin/greetings/${clipId}/audio`)
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:greeting')
   })
 
   it('says so when a download fails', async () => {
     const user = userEvent.setup()
     const fetch = stubApi([shobha])
-    renderAt('/admin/greetings#key=secret-key')
+    renderAt('/admin/greetings')
     const button = await screen.findByRole('button', { name: 'Download Shobha’s greeting' })
     fetch.mockResolvedValueOnce(new Response(null, { status: 500 }))
 
@@ -91,38 +86,18 @@ describe('GreetingsAdminScreen (T-66)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Couldn’t download this audio. Try again.')
   })
 
-  it('opens without a key when the API allows it (local dev, D-102) and plays a greeting', async () => {
-    const user = userEvent.setup()
-    const fetch = stubApi([shobha], null)
+  it('says so when the page fails to load', async () => {
+    const fetch = stubApi([shobha])
+    fetch.mockResolvedValueOnce(new Response(null, { status: 404 }))
     renderAt('/admin/greetings')
 
-    expect(await screen.findByText('Shobha')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Lesson audio' })).toHaveAttribute('href', '/admin/lesson-audio')
-    await user.click(screen.getByRole('button', { name: 'Play Shobha’s greeting' }))
-
-    expect(await screen.findByLabelText('Shobha’s greeting')).toHaveAttribute('src', 'blob:greeting')
-    expect(fetch.mock.calls.every(([, init]) => !new Headers(init?.headers).has('X-Admin-Key'))).toBe(true)
-  })
-
-  it('asks for the full link without a key where the API needs one', async () => {
-    stubApi([shobha])
-    renderAt('/admin/greetings')
-
-    expect(await screen.findByText('This page needs its full link.')).toBeInTheDocument()
-    expect(screen.queryByText('Shobha')).not.toBeInTheDocument()
-  })
-
-  it('a wrong key gets the same message as no key', async () => {
-    stubApi([shobha])
-    renderAt('/admin/greetings#key=wrong')
-
-    expect(await screen.findByText('This page needs its full link.')).toBeInTheDocument()
+    expect(await screen.findByRole('alert')).toHaveTextContent('Couldn’t load this page.')
     expect(screen.queryByText('Shobha')).not.toBeInTheDocument()
   })
 
   it('says so when nobody has recorded a greeting', async () => {
     stubApi([])
-    renderAt('/admin/greetings#key=secret-key')
+    renderAt('/admin/greetings')
 
     expect(await screen.findByText('No greetings recorded yet.')).toBeInTheDocument()
   })

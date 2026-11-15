@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Curriculum;
-using SlateAi.Api.Features.Admin;
 using SlateAi.Api.Features.LessonLinks;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -11,7 +10,6 @@ namespace SlateAi.Api.Tests.Features.LessonLinks;
 /// <summary>The lesson links admin page (T-94, D-106).</summary>
 public sealed class LessonLinkEndpointTests
 {
-    private const string Key = "a-test-admin-key-of-32-characters";
     private const string Url = "/api/admin/lesson-links";
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
 
@@ -29,8 +27,8 @@ public sealed class LessonLinkEndpointTests
     public async Task Lists_every_chapter_and_lesson_in_book_order_with_its_link()
     {
         _store.Links["M3.SUB.BORROW"] = "https://diksha.gov.in/play/content/do_9";
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.GetAsync(Url, Ct);
         var body = (await response.Content.ReadFromJsonAsync<AdminLessonLinksResponse>(Ct))!;
@@ -48,8 +46,8 @@ public sealed class LessonLinkEndpointTests
     [Fact]
     public async Task Sets_replaces_and_removes_a_link_and_a_replay_changes_nothing()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
         var first = Guid.NewGuid();
 
         var set = await PutAsync(client, first, "  https://diksha.gov.in/play/content/do_1 ");
@@ -74,8 +72,8 @@ public sealed class LessonLinkEndpointTests
     [InlineData("javascript:alert(1)")]
     public async Task Anything_but_an_https_link_is_refused(string url)
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await PutAsync(client, Guid.NewGuid(), url);
 
@@ -87,8 +85,8 @@ public sealed class LessonLinkEndpointTests
     [Fact]
     public async Task A_lesson_not_in_the_curriculum_is_not_found()
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
 
         var response = await client.PutAsJsonAsync(
             $"{Url}/M3.NOPE", new SetLessonLinkRequest(Guid.NewGuid(), "https://diksha.gov.in/x"), Ct);
@@ -98,48 +96,26 @@ public sealed class LessonLinkEndpointTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("a-test-admin-key-of-32-characterX")]
-    public async Task Without_the_key_it_is_not_found_and_nothing_is_written(string? key)
+    [InlineData("Production")]
+    [InlineData("Staging")]
+    public async Task It_opens_and_saves_without_a_key_D112(string environment)
     {
-        await using var factory = Create(Key);
-        using var client = Client(factory, key);
-
-        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(Url, Ct)).StatusCode);
-        Assert.Equal(HttpStatusCode.NotFound, (await PutAsync(client, Guid.NewGuid(), "https://diksha.gov.in/x")).StatusCode);
-        Assert.Equal(0, _store.Writes);
-    }
-
-    [Fact]
-    public async Task In_development_it_opens_without_a_key_D102()
-    {
-        await using var factory = Create(key: null, environment: "Development");
-        using var client = Client(factory, key: null);
+        await using var factory = Create(environment);
+        using var client = factory.CreateHttpsClient();
 
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(Url, Ct)).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await PutAsync(client, Guid.NewGuid(), "https://diksha.gov.in/x")).StatusCode);
+        Assert.Equal(1, _store.Writes);
     }
 
     private static Task<HttpResponseMessage> PutAsync(HttpClient client, Guid requestId, string? url) =>
         client.PutAsJsonAsync($"{Url}/M3.BRIDGE.COMPARE", new SetLessonLinkRequest(requestId, url), Ct);
 
-    private static HttpClient Client(ApiFactory factory, string? key)
-    {
-        var client = factory.CreateHttpsClient();
-        if (key is not null)
-        {
-            client.DefaultRequestHeaders.Add(AdminEndpoints.KeyHeader, key);
-        }
-
-        return client;
-    }
-
-    private ApiFactory Create(string? key, string environment = "Testing") => FakeApi.Create(
+    private ApiFactory Create(string environment = "Testing") => FakeApi.Create(
         services =>
         {
             services.AddSingleton<ILessonLinkStore>(_store);
             services.AddSingleton(Book);
         },
-        settings: new Dictionary<string, string?> { ["Admin:Key"] = key },
         environment: environment);
 }

@@ -59,13 +59,13 @@ The button URL is fixed when the template is created, so a local run's button op
 Meta's `hello_world` template is approved on every test number. The admin test send uses it to check the token, the Phone number ID and one recipient straight away.
 
 How the endpoint works:
-- It runs only where `Admin__Key` is set (staging, not prod), and works whatever `Delivery:Channel` is set to.
+- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches phones in `WhatsApp__Recipients__*`.
 - A repeated `clientRequestId` returns the first result without sending again.
 - The response never contains the number. The message ID is a SHA-256 hash, because WhatsApp's raw `wamid` encodes the number.
 
 ```bash
 curl -s -X POST https://slateai-staging.azurewebsites.net/api/admin/whatsapp/test \
-  -H "X-Admin-Key: $ADMIN_KEY" -H "Content-Type: application/json" \
+  -H "Content-Type: application/json" \
   -d "{\"clientRequestId\":\"$(uuidgen)\",\"childId\":\"<childId in WhatsApp__Recipients>\"}"
 ```
 

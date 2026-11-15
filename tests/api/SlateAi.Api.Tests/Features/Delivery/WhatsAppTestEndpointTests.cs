@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
-using SlateAi.Api.Features.Admin;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -10,7 +9,6 @@ namespace SlateAi.Api.Tests.Features.Delivery;
 
 public sealed class WhatsAppTestEndpointTests
 {
-    private const string Key = "a-test-admin-key-of-32-characters";
     private const string Url = "/api/admin/whatsapp/test";
     private const string Number = "+919812345678";
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
@@ -22,8 +20,8 @@ public sealed class WhatsAppTestEndpointTests
     [Fact]
     public async Task Sends_hello_world_to_the_registered_phone_without_echoing_the_number()
     {
-        await using var factory = Create(Key);
-        using var client = AdminClient(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateClient();
 
         var response = await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.NewGuid(), Ravi), Ct);
 
@@ -44,8 +42,8 @@ public sealed class WhatsAppTestEndpointTests
     [Fact]
     public async Task A_repeated_client_request_id_does_not_send_again()
     {
-        await using var factory = Create(Key);
-        using var client = AdminClient(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateClient();
         var request = new WhatsAppTestRequest(Guid.NewGuid(), Ravi);
 
         await client.PostAsJsonAsync(Url, request, Ct);
@@ -59,8 +57,8 @@ public sealed class WhatsAppTestEndpointTests
     [Fact]
     public async Task A_child_without_a_registered_number_is_skipped()
     {
-        await using var factory = Create(Key);
-        using var client = AdminClient(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateClient();
 
         var result = await (await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.NewGuid(), Guid.NewGuid()), Ct))
             .Content.ReadFromJsonAsync<WhatsAppTestResponse>(Ct);
@@ -72,8 +70,8 @@ public sealed class WhatsAppTestEndpointTests
     [Fact]
     public async Task Needs_a_client_request_id()
     {
-        await using var factory = Create(Key);
-        using var client = AdminClient(factory, Key);
+        await using var factory = Create();
+        using var client = factory.CreateClient();
 
         var response = await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.Empty, Ravi), Ct);
 
@@ -85,7 +83,7 @@ public sealed class WhatsAppTestEndpointTests
     public async Task The_app_sends_todays_message_as_its_approved_template_and_skips_the_plain_evening()
     {
         // T-104, with the shipped settings: hello_world is gone; the plain evening has no template yet (D-107).
-        await using var factory = Create(Key, channel: DeliveryChannels.WhatsApp);
+        await using var factory = Create(channel: DeliveryChannels.WhatsApp);
         using var scope = factory.Services.CreateScope();
         var channel = scope.ServiceProvider.GetRequiredService<IParentChannel>();
 
@@ -100,52 +98,27 @@ public sealed class WhatsAppTestEndpointTests
     }
 
     [Theory]
-    [InlineData(Key, "wrong-key-wrong-key-wrong-key-xx")]
-    [InlineData(Key, null)]
-    [InlineData(null, Key)]
-    public async Task Without_the_admin_key_it_is_not_there(string? serverKey, string? sentKey)
+    [InlineData("Production")]
+    [InlineData("Development")]
+    public async Task It_sends_without_a_key_D112(string environment)
     {
-        await using var factory = Create(serverKey);
-        using var client = AdminClient(factory, sentKey);
+        await using var factory = Create(environment: environment);
+        using var client = factory.CreateClient();
 
         var response = await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.NewGuid(), Ravi), Ct);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Empty(_http.Requests);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Single(_http.Requests);
     }
 
-    [Fact]
-    public async Task In_development_it_still_needs_the_admin_key_D102()
-    {
-        await using var factory = Create(key: null, environment: "Development");
-        using var client = AdminClient(factory, key: null);
-
-        var response = await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.NewGuid(), Ravi), Ct);
-
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Empty(_http.Requests);
-    }
-
-    private ApiFactory Create(string? key, string channel = DeliveryChannels.Demo, string environment = "Testing") => FakeApi.Create(
+    private ApiFactory Create(string channel = DeliveryChannels.Demo, string environment = "Testing") => FakeApi.Create(
         services => services.AddHttpClient<WhatsAppClient>().ConfigurePrimaryHttpMessageHandler(() => _http),
         settings: new Dictionary<string, string?>
         {
-            ["Admin:Key"] = key,
             ["WhatsApp:PhoneNumberId"] = "1234567890",
             ["WhatsApp:AccessToken"] = "test-token",
             [$"WhatsApp:Recipients:{Ravi}"] = Number,
             ["Delivery:Channel"] = channel,
         },
         environment: environment);
-
-    private static HttpClient AdminClient(ApiFactory factory, string? key)
-    {
-        var client = factory.CreateClient();
-        if (key is not null)
-        {
-            client.DefaultRequestHeaders.Add(AdminEndpoints.KeyHeader, key);
-        }
-
-        return client;
-    }
 }

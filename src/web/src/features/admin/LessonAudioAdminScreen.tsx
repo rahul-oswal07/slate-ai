@@ -21,20 +21,20 @@ function shown(audio: AdminLessonAudio): Shown {
 }
 
 /**
- * /admin/lesson-audio#key=… (T-67, D-83): one day's optional lesson audio (T-62): how many families got it, and for
+ * /admin/lesson-audio (T-67, D-83, open without a key since D-112): one day's optional lesson audio (T-62): how many families got it, and for
  * each class and language the lesson, who approved it, the clip and its words, and the families it went to. Audio
  * that never went out is listed too, with where it stopped.
  */
 export function LessonAudioAdminScreen() {
   const { t } = useTranslation()
-  return <AdminPage title={t('admin.lessonAudio.title')}>{(key) => <LessonAudioDay adminKey={key} />}</AdminPage>
+  return <AdminPage title={t('admin.lessonAudio.title')}><LessonAudioDay /></AdminPage>
 }
 
-function LessonAudioDay({ adminKey: key }: { adminKey: string | null }) {
+function LessonAudioDay() {
   const { t } = useTranslation()
   const dateId = useId()
   const [date, setDate] = useState(() => istToday())
-  const day = useAdminLessonAudio(key, date)
+  const day = useAdminLessonAudio(date)
 
   return (
     <>
@@ -60,7 +60,7 @@ function LessonAudioDay({ adminKey: key }: { adminKey: string | null }) {
               ) : (
                 <ul className="flex flex-col gap-3">
                   {data.audios.map((audio) => (
-                    <AudioCard key={audio.id} adminKey={key} audio={audio} />
+                    <AudioCard key={audio.id} audio={audio} />
                   ))}
                 </ul>
               )}
@@ -72,7 +72,7 @@ function LessonAudioDay({ adminKey: key }: { adminKey: string | null }) {
   )
 }
 
-function AudioCard({ adminKey: key, audio }: { adminKey: string | null; audio: AdminLessonAudio }) {
+function AudioCard({ audio }: { audio: AdminLessonAudio }) {
   const { t, i18n } = useTranslation()
   const status = shown(audio)
   const language = t(`language.${audio.language}`)
@@ -97,7 +97,6 @@ function AudioCard({ adminKey: key, audio }: { adminKey: string | null; audio: A
       {audio.clipId && (
         <>
           <ClipPlayer
-            adminKey={key}
             url={`/api/admin/lesson-audio/${audio.clipId}/audio`}
             playLabel={t('admin.lessonAudio.play', { language, seconds: audio.seconds })}
             playerLabel={t('admin.lessonAudio.player', { language })}

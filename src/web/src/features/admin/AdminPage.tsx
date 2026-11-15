@@ -1,21 +1,16 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, useLocation } from 'react-router'
-import { ApiError } from '../../api/client'
+import { NavLink } from 'react-router'
 import { ADMIN_PAGES as PAGES } from './adminPages'
-import { adminKey } from './useAdmin'
 
 const NAV = [{ path: '/admin', label: 'admin.nav.home' }, ...PAGES] as const
 
 /**
- * The frame of every admin page (D-83): title, the links between them (each keeps `#key=…`) and the page. Without a
- * key the page still asks the API, which answers locally in Development (D-102) and 404s elsewhere, shown by
- * `AdminQuery` as "needs its full link". Linked from nowhere in the app.
+ * The frame of every admin page (D-83): title, the links between them and the page. Linked from nowhere in the app;
+ * no key, so anyone with the address can open it (D-112).
  */
-export function AdminPage({ title, children }: { title: string; children: (key: string | null) => ReactNode }) {
+export function AdminPage({ title, children }: { title: string; children: ReactNode }) {
   const { t } = useTranslation()
-  const { hash } = useLocation()
-  const key = adminKey(hash)
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 bg-canvas px-4 py-6 text-ink">
@@ -23,7 +18,7 @@ export function AdminPage({ title, children }: { title: string; children: (key: 
         {NAV.map((page) => (
           <NavLink
             key={page.path}
-            to={{ pathname: page.path, hash }}
+            to={page.path}
             end
             className={({ isActive }) =>
               `inline-flex min-h-target items-center text-label ${isActive ? 'text-ink underline' : 'text-primary-strong'}`
@@ -34,23 +29,20 @@ export function AdminPage({ title, children }: { title: string; children: (key: 
         ))}
       </nav>
       <h1 className="text-title">{title}</h1>
-      {children(key)}
+      {children}
     </main>
   )
 }
 
-/** Loading, a wrong key (404, shown like no key) and other failures of an admin query; else its content. */
+/** Loading and failures of an admin query; else its content. */
 export function AdminQuery<T>({
   query,
   children,
 }: {
-  query: { data: T | undefined; error: unknown; isError: boolean; refetch: () => unknown }
+  query: { data: T | undefined; isError: boolean; refetch: () => unknown }
   children: (data: T) => ReactNode
 }) {
   const { t } = useTranslation()
-  if (query.error instanceof ApiError && query.error.status === 404) {
-    return <NeedsLink />
-  }
   if (query.isError) {
     return (
       <div role="alert" className="flex flex-col gap-3 border-l-4 border-l-error bg-error-bg p-3 text-body">
@@ -65,13 +57,4 @@ export function AdminQuery<T>({
     return <output className="block text-body text-ink-muted">{t('admin.loading')}</output>
   }
   return <>{children(query.data)}</>
-}
-
-function NeedsLink() {
-  const { t } = useTranslation()
-  return (
-    <p role="alert" className="border-l-4 border-l-warning bg-surface p-3 text-body">
-      {t('admin.needsLink')}
-    </p>
-  )
 }

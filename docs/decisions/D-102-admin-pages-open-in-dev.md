@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Accepted |
+| Status | Superseded by [D-112](D-112-admin-pages-open-everywhere.md) |
 | Owner | Rahul, 15 Nov |
 | Gate | T-112 |
 | Screens | admin |

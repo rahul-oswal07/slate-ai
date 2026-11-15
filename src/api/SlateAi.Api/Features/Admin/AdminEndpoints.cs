@@ -1,8 +1,5 @@
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.LessonLinks;
@@ -30,86 +27,62 @@ public sealed record AdminLessonAudioDay(DateOnly Date, int SentCount, IReadOnly
 
 /// <summary>
 /// The admin pages (D-83): every teacher's greeting (T-66), the lesson audio of a day (T-67) and the lesson links
-/// (T-94, the only one that writes). Linked from nowhere. Mapped only when <c>Admin:Key</c> is set; every request must carry that key as <c>X-Admin-Key</c>,
-/// and a missing or wrong key gets the same 404 as a route that doesn't exist. In Development the pages open without
-/// a key (D-102); staging and prod still need it.
+/// (T-94), and the children's WhatsApp numbers (T-118). Linked from nowhere and open to anyone with the address, in
+/// every environment: no key (D-112, which replaced the key of D-83 and D-102).
 /// </summary>
 public static class AdminEndpoints
 {
-    public const string KeyHeader = "X-Admin-Key";
-
-    public static IServiceCollection AddAdmin(this IServiceCollection services)
-    {
+    public static IServiceCollection AddAdmin(this IServiceCollection services) =>
         services.AddScoped<IAdminStore, AdminStore>();
-        services.AddOptions<AdminOptions>()
-            .PostConfigure<IHostEnvironment>((options, environment) => options.OpenWithoutKey = environment.IsDevelopment());
-        return services;
-    }
 
     public static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        if (!app.ServiceProvider.GetRequiredService<IOptions<AdminOptions>>().Value.PagesEnabled)
-        {
-            return app;
-        }
-
         app.MapGet("/api/admin/greetings", ListGreetingsAsync)
             .WithTags("Admin")
             .WithSummary("Every teacher's recorded greeting, newest first")
-            .WithDescription($"Needs the {KeyHeader} header (not in Development); 404 without it. Admin only.");
+            .WithDescription("Admin page; no key (D-112).");
 
         app.MapGet("/api/admin/greetings/{clipId:guid}/audio", (Guid clipId, HttpContext http, IAdminStore store,
-                IOptions<AdminOptions> options, CancellationToken cancellationToken) =>
-                GetClipAsync(clipId, AudioKind.Greeting, http, store, options, cancellationToken))
+                CancellationToken cancellationToken) =>
+                GetClipAsync(clipId, AudioKind.Greeting, http, store, cancellationToken))
             .WithTags("Admin")
             .WithSummary("One greeting's audio (Ogg Opus)")
-            .WithDescription($"Needs the {KeyHeader} header (not in Development). 404 without it, or for a clip that isn't a greeting. Admin only.");
+            .WithDescription("404 for a clip that isn't a greeting. Admin page; no key (D-112).");
 
         app.MapGet("/api/admin/lesson-audio", GetLessonAudioDayAsync)
             .WithTags("Admin")
             .WithSummary("Lesson audio of one day: how many families got it, and every class's clip, sent or not")
             .WithDescription(
-                $"date=YYYY-MM-DD (400 if missing or invalid). Needs the {KeyHeader} header (not in Development); 404 without it. sentCount " +
+                "date=YYYY-MM-DD (400 if missing or invalid). sentCount " +
                 "counts that day's evening messages that carried a lesson audio; each audio lists the families it went " +
-                "to, or none with its status and verdict when it wasn't sent. Admin only.");
+                "to, or none with its status and verdict when it wasn't sent. Admin page; no key (D-112).");
 
         app.MapGet("/api/admin/lesson-audio/{clipId:guid}/audio", (Guid clipId, HttpContext http, IAdminStore store,
-                IOptions<AdminOptions> options, CancellationToken cancellationToken) =>
-                GetClipAsync(clipId, AudioKind.Lesson, http, store, options, cancellationToken))
+                CancellationToken cancellationToken) =>
+                GetClipAsync(clipId, AudioKind.Lesson, http, store, cancellationToken))
             .WithTags("Admin")
             .WithSummary("One lesson audio clip (Ogg Opus)")
-            .WithDescription($"Needs the {KeyHeader} header (not in Development). 404 without it, or for a clip that isn't lesson audio. Admin only.");
+            .WithDescription("404 for a clip that isn't lesson audio. Admin page; no key (D-112).");
 
         app.MapLessonLinkEndpoints();
         app.MapAdminChildEndpoints();
         return app;
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<AdminGreeting>>, NotFound>> ListGreetingsAsync(
-        HttpContext http, IAdminStore store, IOptions<AdminOptions> options, CancellationToken cancellationToken)
+    private static async Task<Ok<IReadOnlyList<AdminGreeting>>> ListGreetingsAsync(
+        HttpContext http, IAdminStore store, CancellationToken cancellationToken)
     {
-        if (!CanRead(http, options.Value))
-        {
-            return TypedResults.NotFound();
-        }
-
         NoStore(http);
         return TypedResults.Ok(await store.ListGreetingsAsync(cancellationToken));
     }
 
-    private static async Task<Results<Ok<AdminLessonAudioDay>, NotFound, ValidationProblem>> GetLessonAudioDayAsync(
+    private static async Task<Results<Ok<AdminLessonAudioDay>, ValidationProblem>> GetLessonAudioDayAsync(
         string? date,
         HttpContext http,
         IAdminStore store,
         CurriculumGraph curriculum,
-        IOptions<AdminOptions> options,
         CancellationToken cancellationToken)
     {
-        if (!CanRead(http, options.Value))
-        {
-            return TypedResults.NotFound();
-        }
-
         if (!DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day))
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["date"] = ["Use YYYY-MM-DD."] });
@@ -137,9 +110,9 @@ public static class AdminEndpoints
     }
 
     private static async Task<Results<FileContentHttpResult, NotFound>> GetClipAsync(
-        Guid clipId, string kind, HttpContext http, IAdminStore store, IOptions<AdminOptions> options, CancellationToken cancellationToken)
+        Guid clipId, string kind, HttpContext http, IAdminStore store, CancellationToken cancellationToken)
     {
-        if (!CanRead(http, options.Value) || await store.GetClipAsync(clipId, kind, cancellationToken) is not { } clip)
+        if (await store.GetClipAsync(clipId, kind, cancellationToken) is not { } clip)
         {
             return TypedResults.NotFound();
         }
@@ -148,19 +121,7 @@ public static class AdminEndpoints
         return TypedResults.File(clip.Bytes, clip.ContentType, enableRangeProcessing: true);
     }
 
-    /// <summary>The admin pages may be read: in Development without a key (D-102), elsewhere only with it.</summary>
-    internal static bool CanRead(HttpContext http, AdminOptions options) => options.OpenWithoutKey || HasKey(http, options);
-
-    /// <summary>
-    /// The request carries the admin key (constant-time compare). Also used by the WhatsApp test send (T-40), which
-    /// needs the key even in Development because it sends a real message.
-    /// </summary>
-    internal static bool HasKey(HttpContext http, AdminOptions options) =>
-        options.Enabled
-        && CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(http.Request.Headers[KeyHeader].ToString()),
-            Encoding.UTF8.GetBytes(options.Key!));
-
+    /// <summary>Admin responses are never cached and never indexed.</summary>
     internal static void NoStore(HttpContext http)
     {
         http.Response.Headers.CacheControl = "no-store";

@@ -10,28 +10,28 @@ import { type AdminLessonLink, type AdminLessonLinks, useAdminLessonLinks, useSe
 type Chapter = AdminLessonLinks['chapters'][number]
 
 /**
- * /admin/lesson-links#key=… (T-94, D-106): every chapter and lesson of the curriculum with its video link. Whoever sets
+ * /admin/lesson-links (T-94, D-106; open without a key, D-112): every chapter and lesson of the curriculum with its video link. Whoever sets
  * a link here has checked it on a phone; code copies it into a new today's message for that lesson, never the AI.
  * Chapters start folded with "N of M linked"; search and "Only lessons without a link" narrow the list; she types in
  * as many rows as she likes and saves them together from the bar at the bottom.
  */
 export function LessonLinksAdminScreen() {
   const { t } = useTranslation()
-  return <AdminPage title={t('admin.lessonLinks.title')}>{(key) => <LessonLinks adminKey={key} />}</AdminPage>
+  return <AdminPage title={t('admin.lessonLinks.title')}><LessonLinks /></AdminPage>
 }
 
-function LessonLinks({ adminKey: key }: { adminKey: string | null }) {
-  const links = useAdminLessonLinks(key)
-  return <AdminQuery query={links}>{(data) => <Editor adminKey={key} data={data} />}</AdminQuery>
+function LessonLinks() {
+  const links = useAdminLessonLinks()
+  return <AdminQuery query={links}>{(data) => <Editor data={data} />}</AdminQuery>
 }
 
 /** A lesson matches the search by its English or Kannada name or its ID. */
 const matches = (lesson: AdminLessonLink, search: string) =>
   search === '' || [lesson.nameEn, lesson.nameKn, lesson.id].some((text) => text.toLowerCase().includes(search))
 
-function Editor({ adminKey: key, data }: { adminKey: string | null; data: AdminLessonLinks }) {
+function Editor({ data }: { data: AdminLessonLinks }) {
   const { t, i18n } = useTranslation()
-  const set = useSetLessonLink(key)
+  const set = useSetLessonLink()
   const [search, setSearch] = useState('')
   const [onlyMissing, setOnlyMissing] = useState(false)
   const [open, setOpen] = useState<Set<number>>(() => new Set())

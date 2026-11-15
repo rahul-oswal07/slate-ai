@@ -20,14 +20,14 @@ function renderAt(url: string) {
 describe('/admin: every admin page', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('en')
-    // The index asks the API nothing; anything that does gets a 404, as without a key.
+    // The index asks the API nothing; anything that does gets a 404.
     vi.stubGlobal('fetch', vi.fn<typeof globalThis.fetch>(async () => new Response(null, { status: 404 })))
   })
 
   afterEach(() => vi.unstubAllGlobals())
 
   it('lists each page with its address and what it is for', async () => {
-    renderAt('/admin#key=secret-key')
+    renderAt('/admin')
 
     expect(await screen.findByRole('heading', { name: 'Admin pages' })).toBeInTheDocument()
     const list = screen.getByRole('list')
@@ -37,30 +37,23 @@ describe('/admin: every admin page', () => {
     expect(within(list).getByText(/Set the video link for each lesson/)).toBeInTheDocument()
   })
 
-  it('its links keep the key in the fragment, never in the path', async () => {
-    renderAt('/admin#key=secret-key')
+  it('links to each page by its plain address, with no key (D-112)', async () => {
+    renderAt('/admin')
 
     const links = within(await screen.findByRole('list')).getAllByRole('link')
 
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
-      '/admin/greetings#key=secret-key',
-      '/admin/lesson-audio#key=secret-key',
-      '/admin/lesson-links#key=secret-key',
-      '/admin/children#key=secret-key',
+      '/admin/greetings',
+      '/admin/lesson-audio',
+      '/admin/lesson-links',
+      '/admin/children',
     ])
   })
 
-  it('shows without a key', async () => {
-    renderAt('/admin')
-
-    const list = await screen.findByRole('list')
-    expect(within(list).getByRole('link', { name: 'Lesson links' })).toHaveAttribute('href', '/admin/lesson-links')
-  })
-
   it('every admin page links back to it', async () => {
-    renderAt('/admin/lesson-links#key=secret-key')
+    renderAt('/admin/lesson-links')
 
     const nav = await screen.findByRole('navigation', { name: 'Admin pages' })
-    expect(within(nav).getByRole('link', { name: 'All pages' })).toHaveAttribute('href', '/admin#key=secret-key')
+    expect(within(nav).getByRole('link', { name: 'All pages' })).toHaveAttribute('href', '/admin')
   })
 })

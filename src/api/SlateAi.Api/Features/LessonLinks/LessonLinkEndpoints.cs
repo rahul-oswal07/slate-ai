@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Admin;
 
@@ -17,41 +16,35 @@ public sealed record SetLessonLinkRequest(Guid ClientRequestId, string? Url);
 
 /// <summary>
 /// The admin page for lesson links (T-94, D-106): every chapter and lesson of the curriculum with its video link. Whoever
-/// sets a link here has checked it; code then copies it into a new today's message for that lesson. Same key rule as the
-/// other admin pages (D-102): open without the key only in Development.
+/// sets a link here has checked it; code then copies it into a new today's message for that lesson. Open to anyone with
+/// the address, like the other admin pages (D-112).
 /// </summary>
 public static class LessonLinkEndpoints
 {
     public static IServiceCollection AddLessonLinks(this IServiceCollection services) =>
         services.AddScoped<ILessonLinkStore, LessonLinkStore>();
 
-    /// <summary>Mapped by <see cref="AdminEndpoints.MapAdminEndpoints"/>, only when the admin pages are.</summary>
+    /// <summary>Mapped by <see cref="AdminEndpoints.MapAdminEndpoints"/>.</summary>
     public static IEndpointRouteBuilder MapLessonLinkEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/admin/lesson-links", GetAsync)
             .WithTags("Admin")
             .WithSummary("Every chapter and lesson with its video link (T-94)")
-            .WithDescription($"Needs the {AdminEndpoints.KeyHeader} header (not in Development); 404 without it. Admin only.");
+            .WithDescription("Admin page; no key (D-112).");
 
         app.MapPut("/api/admin/lesson-links/{competencyId}", SetAsync)
             .WithTags("Admin")
             .WithSummary("Set or remove one lesson's video link (T-94)")
             .WithDescription(
                 $"Body {{ clientRequestId, url }}: any absolute https URL, or blank to remove it; idempotent per clientRequestId. " +
-                $"400 for another kind of URL, 404 for a lesson not in the curriculum or without the {AdminEndpoints.KeyHeader} " +
-                "header (not needed in Development). A new today's message for the lesson copies the link. Admin only.");
+                "400 for another kind of URL, 404 for a lesson not in the curriculum. A new today's message for the lesson " +
+                "copies the link. Admin page; no key (D-112).");
         return app;
     }
 
-    private static async Task<Results<Ok<AdminLessonLinksResponse>, NotFound>> GetAsync(
-        HttpContext http, ILessonLinkStore store, CurriculumGraph curriculum, IOptions<AdminOptions> options,
-        CancellationToken cancellationToken)
+    private static async Task<Ok<AdminLessonLinksResponse>> GetAsync(
+        HttpContext http, ILessonLinkStore store, CurriculumGraph curriculum, CancellationToken cancellationToken)
     {
-        if (!AdminEndpoints.CanRead(http, options.Value))
-        {
-            return TypedResults.NotFound();
-        }
-
         var links = await store.GetAllAsync(cancellationToken);
         var titles = curriculum.Chapters.ToDictionary(c => c.Number);
         var chapters = curriculum.All
@@ -73,11 +66,10 @@ public static class LessonLinkEndpoints
         HttpContext http,
         ILessonLinkStore store,
         CurriculumGraph curriculum,
-        IOptions<AdminOptions> options,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        if (!AdminEndpoints.CanRead(http, options.Value) || curriculum.Get(competencyId) is not { } lesson)
+        if (curriculum.Get(competencyId) is not { } lesson)
         {
             return TypedResults.NotFound();
         }

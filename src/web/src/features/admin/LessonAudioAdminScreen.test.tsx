@@ -60,12 +60,9 @@ function renderAt(url: string) {
   )
 }
 
-/** The admin API for the day view: any date answers with `body`, only with the right key. */
-function stubApi(body: AdminLessonAudioDay, key: string | null = 'secret-key') {
-  const fetch = vi.fn<typeof globalThis.fetch>(async (input, init) => {
-    if (new Headers(init?.headers).get('X-Admin-Key') !== key) {
-      return new Response(null, { status: 404 })
-    }
+/** The admin API for the day view: any date answers with `body`, no key needed (D-112). */
+function stubApi(body: AdminLessonAudioDay) {
+  const fetch = vi.fn<typeof globalThis.fetch>(async (input) => {
     return String(input).endsWith('/audio')
       ? // Raw bytes, not a jsdom Blob: Node 22's Response can't read one (CI).
         new Response(new Uint8Array([1, 2]), { status: 200, headers: { 'Content-Type': 'audio/ogg' } })
@@ -84,9 +81,9 @@ describe('LessonAudioAdminScreen (T-67)', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('shows today by default, then the chosen day, always with the key header', async () => {
+  it('shows today by default, then the chosen day', async () => {
     const fetch = stubApi(day)
-    renderAt('/admin/lesson-audio#key=secret-key')
+    renderAt('/admin/lesson-audio')
 
     expect(await screen.findByText('2 lesson audios sent to families')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith(`/api/admin/lesson-audio?date=${istToday()}`, expect.anything())
@@ -94,21 +91,12 @@ describe('LessonAudioAdminScreen (T-67)', () => {
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: '2026-10-29' } })
 
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/lesson-audio?date=2026-10-29', expect.anything()))
-    expect(fetch.mock.calls.every(([url]) => !String(url).includes('secret-key'))).toBe(true)
-  })
-
-  it('opens without a key when the API allows it (local dev, D-102)', async () => {
-    const fetch = stubApi(day, null)
-    renderAt('/admin/lesson-audio')
-
-    expect(await screen.findByText('2 lesson audios sent to families')).toBeInTheDocument()
-    expect(new Headers(fetch.mock.calls[0]?.[1]?.headers).has('X-Admin-Key')).toBe(false)
   })
 
   it('details a sent audio: lesson, approval, words, families, and plays it', async () => {
     const user = userEvent.setup()
     const fetch = stubApi(day)
-    renderAt('/admin/lesson-audio#key=secret-key')
+    renderAt('/admin/lesson-audio')
 
     const card = (await screen.findByText('Shobha · Grade 3 · తెలుగు')).closest('li') as HTMLElement
     expect(within(card).getByText('Sent')).toBeInTheDocument()
@@ -123,12 +111,12 @@ describe('LessonAudioAdminScreen (T-67)', () => {
     await user.click(within(card).getByRole('button', { name: 'Play the తెలుగు lesson audio (42.5 s)' }))
 
     expect(await within(card).findByLabelText('తెలుగు lesson audio')).toHaveAttribute('src', 'blob:lesson')
-    expect(fetch).toHaveBeenCalledWith(`/api/admin/lesson-audio/${clipId}/audio`, expect.anything())
+    expect(fetch).toHaveBeenCalledWith(`/api/admin/lesson-audio/${clipId}/audio`)
   })
 
   it('lists audio that never went out with where it stopped', async () => {
     stubApi(day)
-    renderAt('/admin/lesson-audio#key=secret-key')
+    renderAt('/admin/lesson-audio')
 
     const card = (await screen.findByText('Shobha · Grade 3 · हिन्दी')).closest('li') as HTMLElement
     expect(within(card).getByText('Failed')).toBeInTheDocument()
@@ -139,18 +127,17 @@ describe('LessonAudioAdminScreen (T-67)', () => {
 
   it('says so when the day has no lesson audio', async () => {
     stubApi({ date: '2026-10-29', sentCount: 0, audios: [] })
-    renderAt('/admin/lesson-audio#key=secret-key')
+    renderAt('/admin/lesson-audio')
 
     expect(await screen.findByText('0 lesson audios sent to families')).toBeInTheDocument()
     expect(screen.getByText('No lesson audio on this day.')).toBeInTheDocument()
   })
 
-  it('needs the full link, and the nav keeps the key', async () => {
+  it('links to the other admin pages by their plain addresses', async () => {
     stubApi(day)
-    renderAt('/admin/lesson-audio#key=wrong')
+    renderAt('/admin/lesson-audio')
 
-    expect(await screen.findByText('This page needs its full link.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Greetings' })).toHaveAttribute('href', '/admin/greetings#key=wrong')
-    expect(screen.getByRole('link', { name: 'Lesson audio' })).toHaveAttribute('href', '/admin/lesson-audio#key=wrong')
+    expect(await screen.findByRole('link', { name: 'Greetings' })).toHaveAttribute('href', '/admin/greetings')
+    expect(screen.getByRole('link', { name: 'Lesson audio' })).toHaveAttribute('href', '/admin/lesson-audio')
   })
 })

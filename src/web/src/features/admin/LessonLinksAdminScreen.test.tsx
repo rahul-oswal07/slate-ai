@@ -16,8 +16,8 @@ const lessons: AdminLessonLink[] = [
   { id: 'M3.SUB.BORROW', nameKn: 'ಎರವಲು', nameEn: 'Subtraction with borrowing', textbookPage: { book: 'textbook', part: 2, page: 15 }, url: null },
 ]
 
-/** The admin API with the key: GET lists the stored links; PUT stores one (blank removes it) or refuses non-https (400). */
-function stubApi(initial: Record<string, string> = {}, key = 'secret-key') {
+/** The admin API (no key, D-112): GET lists the stored links; PUT stores one (blank removes it) or refuses non-https (400). */
+function stubApi(initial: Record<string, string> = {}) {
   const stored = new Map(Object.entries(initial))
   const calls: { method: string; url: string; body: { url?: string } | null }[] = []
   const list = (): AdminLessonLinks => {
@@ -32,9 +32,6 @@ function stubApi(initial: Record<string, string> = {}, key = 'secret-key') {
   vi.stubGlobal(
     'fetch',
     vi.fn<typeof globalThis.fetch>(async (input, init) => {
-      if (new Headers(init?.headers).get('X-Admin-Key') !== key) {
-        return new Response(null, { status: 404 })
-      }
       const method = init?.method ?? 'GET'
       const body = init?.body ? (JSON.parse(String(init.body)) as { url?: string }) : null
       calls.push({ method, url: String(input), body })
@@ -57,7 +54,7 @@ function stubApi(initial: Record<string, string> = {}, key = 'secret-key') {
   return { calls, stored }
 }
 
-function renderAt(url = '/admin/lesson-links#key=secret-key') {
+function renderAt(url = '/admin/lesson-links') {
   render(
     <QueryClientProvider client={createQueryClient()}>
       <MemoryRouter initialEntries={[url]}>
@@ -123,7 +120,7 @@ describe('LessonLinksAdminScreen (T-94)', () => {
     expect(screen.getByRole('textbox', { name: /Subtraction with borrowing/ })).toBeInTheDocument()
   })
 
-  it('links typed in several rows are saved together, with the key in a header and never in the URL', async () => {
+  it('links typed in several rows are saved together', async () => {
     const { calls, stored } = stubApi()
     renderAt()
     await userEvent.click(await chapter(/Bridge course/))
@@ -141,7 +138,6 @@ describe('LessonLinksAdminScreen (T-94)', () => {
       '/api/admin/lesson-links/M3.BRIDGE.COMPARE',
       '/api/admin/lesson-links/M3.SUB.BORROW',
     ])
-    expect(calls.every((c) => !c.url.includes('secret-key'))).toBe(true)
     expect(stored.get('M3.BRIDGE.COMPARE')).toBe(diksha)
     await waitFor(() => expect(screen.getByRole('button', { name: /Bridge course/ })).toHaveTextContent('1 of 2 linked'))
   })
@@ -188,12 +184,5 @@ describe('LessonLinksAdminScreen (T-94)', () => {
     expect(input).toHaveValue(diksha)
     expect(screen.queryByRole('button', { name: 'Save all' })).not.toBeInTheDocument()
     expect(calls.some((c) => c.method === 'PUT')).toBe(false)
-  })
-
-  it('without the key it asks for the full link', async () => {
-    stubApi()
-    renderAt('/admin/lesson-links')
-
-    expect(await screen.findByText('This page needs its full link.')).toBeInTheDocument()
   })
 })

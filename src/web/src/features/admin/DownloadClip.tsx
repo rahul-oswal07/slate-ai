@@ -3,16 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { fetchAdminClip } from './useAdmin'
 
 /**
- * Download → fetch the clip with the admin key → save it as `fileName` (T-68). A plain `<a href download>` can't
- * send the key header, so the bytes go through an object URL that is freed straight after.
+ * Download → fetch the clip → save it as `fileName` (T-68). The bytes go through an object URL that is freed straight
+ * after, so a failed fetch shows an error instead of a broken download.
  */
 export function DownloadClip({
-  adminKey: key,
   url,
   fileName,
   label,
 }: {
-  adminKey: string | null
   url: string
   fileName: string
   label: string
@@ -23,7 +21,7 @@ export function DownloadClip({
   async function download() {
     setState('loading')
     try {
-      const href = URL.createObjectURL(await fetchAdminClip(key, url))
+      const href = URL.createObjectURL(await fetchAdminClip(url))
       const link = document.createElement('a')
       link.href = href
       link.download = fileName
