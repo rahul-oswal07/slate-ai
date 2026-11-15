@@ -46,17 +46,19 @@ kn, te, ta and hi are drafts for native review (T-26).
 
 ### 6. WhatsApp template `weekly_star_v1` (Monika submits)
 
+**Status (15 Nov): English submitted, in review at Meta, as Utility. kn, te, ta, hi not submitted yet (Monika submits them later).** Until a language is approved, nothing goes over WhatsApp in it.
+
 Test Messaging Account · Utility · Default · variable type Number · no header, footer or media · validity 12 h · `en`, `kn`, `te`, `ta`, `hi`. Each variable appears once. `{{1}}` = child, sample `Manjunath` in every language (the code sends the name in Latin letters). Button: **Visit website**, **Dynamic**, URL `https://slateai-staging.azurewebsites.net/p/` (44 characters, no typed `{{1}}`), sample URL `https://slateai-staging.azurewebsites.net/p/abc123`.
 
 | Lang | Body | Button text |
 |---|---|---|
-| en | Class update – {{1}} came to school every day this week. Tap the button below to see the star badge. | See the star badge |
-| kn | ತರಗತಿಯ ಮಾಹಿತಿ – {{1}} ಈ ವಾರ ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಬಂದಿದ್ದಾರೆ. ನಕ್ಷತ್ರ ಬ್ಯಾಡ್ಜ್ ನೋಡಲು ಕೆಳಗಿನ ಬಟನ್ ಒತ್ತಿ. | ನಕ್ಷತ್ರ ಬ್ಯಾಡ್ಜ್ ನೋಡಿ |
-| te | తరగతి సమాచారం – {{1}} ఈ వారం ప్రతి రోజు బడికి వచ్చారు. స్టార్ బ్యాడ్జ్ చూడటానికి కింది బటన్ నొక్కండి. | స్టార్ బ్యాడ్జ్ చూడండి |
-| ta | வகுப்புத் தகவல் – {{1}} இந்த வாரம் ஒவ்வொரு நாளும் பள்ளிக்கு வந்தார். நட்சத்திர பேட்ஜைப் பார்க்க கீழே உள்ள பொத்தானை அழுத்தவும். | நட்சத்திர பேட்ஜ் பார்க்கவும் |
-| hi | कक्षा की जानकारी – इस हफ़्ते {{1}} की हर दिन स्कूल में उपस्थिति रही। स्टार बैज देखने के लिए नीचे का बटन दबाएँ। | स्टार बैज देखें |
+| en | Class update – {{1}}. Weekly attendance: present every school day this week. Tap the button below to open the update. | Open the update |
+| kn | ತರಗತಿಯ ಮಾಹಿತಿ – {{1}}. ವಾರದ ಹಾಜರಾತಿ: ಈ ವಾರ ಎಲ್ಲಾ ಶಾಲಾ ದಿನಗಳಲ್ಲೂ ಹಾಜರು. ಮಾಹಿತಿ ತೆರೆಯಲು ಕೆಳಗಿನ ಬಟನ್ ಒತ್ತಿ. | ಮಾಹಿತಿ ತೆರೆಯಿರಿ |
+| te | తరగతి సమాచారం – {{1}}. వారపు హాజరు: ఈ వారం అన్ని బడి రోజులలో హాజరు. సమాచారం తెరవడానికి కింది బటన్ నొక్కండి. | సమాచారం తెరవండి |
+| ta | வகுப்புத் தகவல் – {{1}}. வார வருகை: இந்த வாரம் எல்லா பள்ளி நாட்களிலும் வருகை. தகவலைத் திறக்க கீழே உள்ள பொத்தானை அழுத்தவும். | தகவலைத் திறக்கவும் |
+| hi | कक्षा की जानकारी – {{1}}। साप्ताहिक उपस्थिति: इस हफ़्ते स्कूल के हर दिन उपस्थित। जानकारी देखने के लिए नीचे का बटन दबाएँ। | जानकारी खोलें |
 
-Meta may class a star message as Marketing; the body keeps the "Class update – {{1}}" shape that passed as Utility.
+**15 Nov:** the first wording ("…came to school every day this week. Tap the button below to see the star badge.") was flagged by Meta as Marketing ("This message template will be rejected" as Utility). Monika chose to keep Utility: the WhatsApp text is a factual weekly attendance update, and the star badge appears only on the page. The rewritten English passed Meta's category check and was submitted under the same name, `weekly_star_v1`.
 
 ### 7. Questions for Rahul
 
@@ -81,4 +83,5 @@ Meta may class a star message as Marketing; the body keeps the "Class update –
 
 ## Notes
 
+- 15 Nov: `weekly_star_v1` English submitted (in review), as a weekly attendance update after Meta flagged the star wording as Marketing; other languages later.
 - 15 Nov: proposed by Monika. Today: the weekly star is at most 1 day away (D-81) and teacher-only on Week; families see only the catch-up star on Done, with still confetti (D-77); no family link or message for the weekly star exists.
