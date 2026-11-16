@@ -38,3 +38,4 @@ The README described the 31 Oct build-stage submission.
 - 17 Nov 2026: §4's first-time sign-in is now a step list for Savitha (Welcome → greeting with consent → evening message → weekly star → Today), with Clear consent on `/admin/teachers` to see it again.
 - The demo's on-screen step guide (`demo.guide.*`) still says "Tap Use the sample voice note", which staging doesn't offer, and it doesn't mention today's message. It is worth updating to match JUDGES.md.
 - 17 Nov 2026: §5 lists the three teachers with their numbers and what each is for; the PIN now goes to judges by email, not on slide 14 (README and JUDGES.md).
+- 17 Nov 2026: JUDGES.md gets *Go back to a past day* (switch on `/admin/demo`, the arrows at the date, per browser, Reset demo removes those days).

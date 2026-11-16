@@ -72,7 +72,7 @@ In Karnataka's government primary schools, a Grade 3 child who is absent for a d
 
 **Family pages** (`/p/<token>`, from the WhatsApp link): the teacher's greeting → *"Is everything OK?"* (the reason, once) → the explanation (voiced) → *Try this at home* → *Watch how it's taught* → *the child's turn* (the picture question) → *Well done!* "Stop these messages" is always there.
 
-**Admin pages** (`/admin`): family phone numbers (two per family) and home languages, lesson video links, **lesson descriptions from the textbook**, teacher voice consent, greetings, lesson audio, and the demo's past-day switch.
+**Admin pages** (`/admin`): family phone numbers (two per family) and home languages, lesson video links, **lesson descriptions from the textbook**, teacher voice consent, greetings, lesson audio, and the demo's past-day switch (`/admin/demo`: turn it on to use the demo class as an earlier school day).
 
 **Demo shell** (`/demo`): the teacher's phone and a family's phone side by side, **Reset demo**, **Bring in today's attendance**, **Send messages now**, and **Under the hood**.
 

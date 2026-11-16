@@ -87,6 +87,7 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 | **The textbook behind the voice note** | `/admin/lesson-links` → open a chapter → **About this lesson** | The description and worked examples, read from the textbook, that today's message is built on |
 | **The weekly star** | **Settings → Weekly star → approve**, then **Send messages now** on `/demo` | Families of children who came every school day of the week get a star message |
 | **The return day** | **Back today** | A buddy card for each returning child: who sits with them, 3 sums and the textbook words |
+| **Go back to a past day** | Switch it on in the admin pages, `/admin/demo`, see [below](#go-back-to-a-past-day) | Use the app as if it were an earlier school day, to see a week build up |
 | **Run Today again** | **Settings → Reset today** (demo class only), see [below](#start-today-again-reset-today) | Clears today's lesson, message and answers, puts the register back as SATS sent it, and keeps earlier days |
 | **Offline** | Turn on airplane mode, mark attendance or record a note, turn it off | It saves on the phone and sends when the network is back |
 | **The link on a real WhatsApp** | `/admin/children` on staging: save your number against a child, see [below](#get-the-link-on-your-own-whatsapp) | The same message arrives on WhatsApp, as a family would get it |
@@ -121,6 +122,23 @@ Once tonight's message has gone to families, the day's lesson is locked: Today s
 - **Reset today vs Reset demo:** Reset today clears just today, in the teacher app on either server. **Reset demo** on `/demo` puts the whole demo week back as it started.
 - If your number is saved on `/admin/children`, sending again after a reset sends the WhatsApp message again.
 - What it looks like: [`settings-reset-today-360-light.png`](docs/design/screenshots/settings-reset-today-360-light.png).
+
+### Go back to a past day
+
+The teacher app normally runs on today's real date. To use it as if it were an earlier school day (e.g. to record lessons for several days and watch Missed and Week fill up), switch this on in the admin pages:
+
+1. Open **`/admin/demo`** on the server you are using (e.g. https://slateai-staging.azurewebsites.net/admin/demo), or **`/admin` → Demo**.
+2. Turn on **Go back to a past day**. It saves straight away (*"On: the demo teacher sees the arrows beside the date"*).
+3. Back in the teacher app, arrows appear beside the date:
+   - on **Today**, **Previous day** / **Next day**, or tap the date to **Choose a day**;
+   - on **Missed**, **Back today** and **Week**, **Previous week** / **Next week**.
+4. Every screen then acts as if that day is today: the register, the lesson, today's message, approve and send, catch-ups, the week and the weekly star. `/demo` shows the day too. **Back to today** returns to the real date.
+
+- Only the demo class, up to 120 days back, never a future day.
+- The chosen day is kept **in your browser only**: other judges on the same server stay on the real date.
+- The switch is per server and off until someone turns it on. With it off, there are no arrows and every screen is on the real day.
+- WhatsApp sends as on a real day, so a family with a saved number gets that day's message.
+- **Reset demo** rebuilds the story on the real date and removes the days made this way.
 
 ---
 
