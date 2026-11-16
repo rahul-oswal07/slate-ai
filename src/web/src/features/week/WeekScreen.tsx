@@ -6,11 +6,13 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
-import { formatSchoolTime, istToday } from '../today/schoolTime'
+import { useSchoolToday } from '../today/schoolDate'
+import { formatSchoolTime } from '../today/schoolTime'
 import type { ReturnSpeed, Week, WeekReasons } from './types'
 import { StarsCard } from './StarsCard'
 import { nudgeText } from './weekText'
 import { useDecide, useWeek } from './useWeek'
+import { BackToToday, SchoolDateNav } from '../../app/SchoolDateNav'
 
 /** "19–24 October", in the UI language (English in the Indian style, day before month). */
 function weekRange(from: string, to: string, language: string) {
@@ -30,7 +32,7 @@ export function WeekScreen() {
   const { t, i18n } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const classId = useMe().data?.classId ?? ''
-  const today = istToday()
+  const today = useSchoolToday()
   const query = useWeek(classId, today)
   const chapters = useCurriculum().data?.chapters ?? []
   const week = query.data
@@ -41,7 +43,13 @@ export function WeekScreen() {
         <h1 id="week-title" ref={headingRef} tabIndex={-1} className="text-title">
           {t('week.title')}
         </h1>
-        {week && <p className="text-caption text-ink-muted">{weekRange(week.from, week.to, i18n.language)}</p>}
+        {week && (
+          <p className="text-caption text-ink-muted">
+            {/* The demo can step a week back or pick a day here (T-134); otherwise just the range. */}
+            <SchoolDateNav mode="week">{weekRange(week.from, week.to, i18n.language)}</SchoolDateNav>
+          </p>
+        )}
+        <BackToToday />
       </div>
 
       {week?.savedAt && (

@@ -5,7 +5,7 @@ import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
 import { useCurriculum } from '../lessons/useLessons'
-import { istToday } from '../today/schoolTime'
+import { useSchoolToday } from '../today/schoolDate'
 import type { TodaysMessage, TodaysSectionKind } from './todaysTypes'
 import {
   editProblem,
@@ -33,7 +33,7 @@ const present = (message: TodaysMessage) =>
  */
 export function TodaysMessageTab({ classId }: { classId: string }) {
   const { t } = useTranslation()
-  const date = istToday()
+  const date = useSchoolToday()
   const query = useTodaysMessage(classId, date)
   const retry = useRetryTodays(classId, date)
 

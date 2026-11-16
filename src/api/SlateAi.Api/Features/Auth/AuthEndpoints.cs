@@ -26,6 +26,7 @@ public sealed record GreetingInfo(string Url, double Seconds);
 /// <param name="PhoneLast4">The last 4 digits of her phone, for her Profile screen (T-109). The full number never leaves the server.</param>
 /// <param name="Grade">Her class's grade (T-109); null without a class.</param>
 /// <param name="Medium">Her class's medium of instruction as a language code, e.g. "kn" (T-109); null without a class.</param>
+/// <param name="ClassTeacherName">Her class's main teacher, for "Shobha's class" in the header (T-135); null without a class.</param>
 public sealed record MeResponse(
     Guid TeacherId,
     string DisplayName,
@@ -35,7 +36,8 @@ public sealed record MeResponse(
     DemoFlags? Demo = null,
     string? PhoneLast4 = null,
     int? Grade = null,
-    string? Medium = null);
+    string? Medium = null,
+    string? ClassTeacherName = null);
 
 public sealed record PinLockedResponse(DateTimeOffset LockedUntil);
 
@@ -206,6 +208,8 @@ public static class AuthEndpoints
         IAuthStore store,
         IOptions<DemoOptions> demo,
         IOptions<DatabaseOptions> database,
+        SchoolDateSwitch schoolDate,
+        ISchoolDateSwitchStore schoolDateStore,
         CancellationToken cancellationToken)
     {
         var me = http.User.GetTeacherId() is { } teacherId
@@ -218,7 +222,8 @@ public static class AuthEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var flags = await DemoVoiceNote.FlagsAsync(me.ClassId, demo.Value, database.Value, cancellationToken);
+        var flags = await DemoVoiceNote.FlagsAsync(
+            me.ClassId, demo.Value, database.Value, ct => schoolDate.IsOnAsync(schoolDateStore, ct), cancellationToken);
         return TypedResults.Ok(me with { Demo = flags });
     }
 

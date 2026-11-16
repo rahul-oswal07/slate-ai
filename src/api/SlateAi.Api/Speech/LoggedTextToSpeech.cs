@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Features.Attendance;
 
 namespace SlateAi.Api.Speech;
 
@@ -14,7 +15,8 @@ public sealed class LoggedTextToSpeech(
         var call = new AiCall
         {
             Id = Guid.NewGuid(),
-            CreatedAt = clock.GetUtcNow(),
+            // Real time even on a chosen demo day (T-134): Under the hood lists calls since the last reset.
+            CreatedAt = SchoolClock.RealNow(clock),
             Purpose = "tts",
             ChildIds = AiCallScope.Current?.ToArray(),
             Model = ai.Value.UseFakes ? "fake" : $"{sarvam.Value.TtsModel}/{sarvam.Value.TtsSpeaker}",

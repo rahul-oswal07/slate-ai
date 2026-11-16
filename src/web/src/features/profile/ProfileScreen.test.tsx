@@ -55,6 +55,8 @@ describe('ProfileScreen (T-109)', () => {
     fakeApi({ 'GET /api/me': () => ({ status: 200, body: profile }) })
     renderApp('/profile')
 
-    expect(await screen.findByText('3ನೇ ತರಗತಿ · ಕನ್ನಡ ಮಾಧ್ಯಮ')).toBeInTheDocument()
+    // The header shows the class too (T-135): look in the Profile details.
+    const details = within(await screen.findByRole('main'))
+    expect(await details.findByText('3ನೇ ತರಗತಿ · ಕನ್ನಡ ಮಾಧ್ಯಮ')).toBeInTheDocument()
   })
 })

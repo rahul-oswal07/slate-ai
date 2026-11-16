@@ -85,7 +85,7 @@ describe('ChildScreen (T4 child history + delete)', () => {
     const routed = routedFetch()
     fetch.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
       if (init?.method === 'DELETE' && String(input).startsWith(`/api/classes/${teacher.classId}/children/ravi?clientRequestId=`)) {
-        calls.push({ key: `DELETE ${String(input)}`, body: undefined })
+        calls.push({ key: `DELETE ${String(input)}`, body: undefined, headers: {} })
         current = { ...current, children: current.children.filter((c) => c.childId !== 'ravi') }
         return new Response(null, { status: 204 })
       }

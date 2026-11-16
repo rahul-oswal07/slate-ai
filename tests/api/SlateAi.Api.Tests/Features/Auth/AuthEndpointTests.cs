@@ -30,7 +30,7 @@ public sealed class AuthEndpointTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var me = await response.Content.ReadFromJsonAsync<MeResponse>(Ct);
         Assert.Equal(
-            new MeResponse(_store.TeacherId, "Shobha", _store.ClassId, SetupComplete: false, PhoneLast4: "0000", Grade: 3, Medium: "kn"),
+            new MeResponse(_store.TeacherId, "Shobha", _store.ClassId, SetupComplete: false, PhoneLast4: "0000", Grade: 3, Medium: "kn", ClassTeacherName: "Shobha"),
             me);
         var cookie = Assert.Single(response.Headers.GetValues("Set-Cookie"));
         Assert.Contains("slate.session=", cookie);
@@ -66,6 +66,8 @@ public sealed class AuthEndpointTests
         Assert.Equal(3, me.Grade);
         Assert.Equal("kn", me.Medium);
         Assert.DoesNotContain(Phone, body);
+        // T-135: the header says whose class it is: the main teacher, even for a co-teacher.
+        Assert.Contains("\"classTeacherName\":\"Shobha\"", body);
     }
 
     [Fact]
@@ -259,7 +261,8 @@ public sealed class AuthEndpointTests
         public Task<MeResponse?> GetMeAsync(Guid teacherId, CancellationToken cancellationToken) =>
             Task.FromResult(teacherId == TeacherId
                 ? new MeResponse(
-                    TeacherId, "Shobha", ClassId, ConsentAt is not null, PhoneLast4: PhoneMask.Last4(_phone), Grade: 3, Medium: "kn")
+                    TeacherId, "Shobha", ClassId, ConsentAt is not null, PhoneLast4: PhoneMask.Last4(_phone), Grade: 3, Medium: "kn",
+                    ClassTeacherName: "Shobha")
                 : null);
 
         public Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

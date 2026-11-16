@@ -1,6 +1,7 @@
 using System.Buffers.Text;
 using System.Security.Cryptography;
 using SlateAi.Api.Features.CatchUps.Compression;
+using SlateAi.Api.Features.Attendance;
 
 namespace SlateAi.Api.Features.CatchUps;
 
@@ -27,7 +28,8 @@ public sealed class CatchUpSender(ICatchUpStore store, TimeProvider clock, ILogg
     public async Task<PackageChange> SendAsync(Guid packageId, CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
-        var result = await store.SendAsync(packageId, NewToken, now, now + LinkLife, cancellationToken);
+        // The link lasts from the real time, even when sent on a chosen demo day (T-134).
+        var result = await store.SendAsync(packageId, NewToken, now, SchoolClock.RealNow(clock) + LinkLife, cancellationToken);
         if (result == PackageChange.Applied)
         {
             logger.LogInformation("Catch-up {PackageId} sent", packageId);

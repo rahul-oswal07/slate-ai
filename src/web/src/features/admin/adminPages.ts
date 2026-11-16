@@ -5,4 +5,5 @@ export const ADMIN_PAGES = [
   { path: '/admin/lesson-links', label: 'admin.nav.lessonLinks', description: 'admin.index.lessonLinks' },
   { path: '/admin/children', label: 'admin.nav.children', description: 'admin.index.children' },
   { path: '/admin/teachers', label: 'admin.nav.teachers', description: 'admin.index.teachers' },
+  { path: '/admin/demo', label: 'admin.nav.demo', description: 'admin.index.demo' },
 ] as const

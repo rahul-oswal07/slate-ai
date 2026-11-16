@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { isLanguage } from '../../i18n'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
+import { classLine as lineOf } from '../auth/classLine'
 import { useMe } from '../auth/useMe'
 
 /**
@@ -16,10 +16,7 @@ export function ProfileScreen() {
 
   // A mask and digits, the same in every language: not a string to translate.
   const phone = me?.phoneLast4 ? `•••• ${me.phoneLast4}` : null
-  const classLine =
-    me?.grade != null && me.medium
-      ? t('profile.classValue', { grade: me.grade, medium: isLanguage(me.medium) ? t(`language.${me.medium}`) : me.medium })
-      : null
+  const classLine = lineOf(me, t)
   const rows: [label: string, value: string | null | undefined][] = [
     [t('profile.name'), me?.displayName],
     [t('profile.phone'), phone],

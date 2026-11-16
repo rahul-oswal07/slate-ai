@@ -19,12 +19,14 @@ import { GreetingCard } from './GreetingCard'
 import { AnswersCard } from './AnswersCard'
 import { LessonCard } from './LessonCard'
 import { NextStepButton } from './NextStepButton'
-import { formatSchoolDate, formatSchoolTime, istToday } from './schoolTime'
+import { useSchoolToday } from './schoolDate'
+import { formatSchoolDate, formatSchoolTime } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
 import { TodaysMessageCard } from './TodaysMessageCard'
 import { TonightCard } from './TonightCard'
 import { RecapCard } from '../week/RecapCard'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
+import { BackToToday, SchoolDateNav } from '../../app/SchoolDateNav'
 
 /**
  * T1 Today (docs/design/T1-today.md): register from the simulated SATS feed with corrections and manual
@@ -38,7 +40,8 @@ export function TodayScreen() {
   // After Re-record on Lesson confirm (T-114) focus goes to the mic, not the heading.
   const rerecord = (useLocation().state as { rerecord?: boolean } | null)?.rerecord === true
   const headingRef = useFocusOnMount<HTMLHeadingElement>(!rerecord)
-  const date = istToday()
+  // The demo teacher may act as a past day (T-134, D-120); otherwise today in IST.
+  const date = useSchoolToday()
   const classId = me.data?.classId ?? ''
   const day = useAttendanceDay(classId, date)
   const save = useSaveAttendance(classId, date)
@@ -84,11 +87,15 @@ export function TodayScreen() {
     <section aria-labelledby="today-title" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 id="today-title" ref={headingRef} tabIndex={-1} className="text-title">
-          <AccentTitle title={t('today.title', { date: formatSchoolDate(date, i18n.language) })} accent={t('nav.today')} />
+          {/* The demo can step back a day or pick one from the calendar here (T-134); otherwise just the title. */}
+          <SchoolDateNav mode="day">
+            <AccentTitle title={t('today.title', { date: formatSchoolDate(date, i18n.language) })} accent={t('nav.today')} />
+          </SchoolDateNav>
         </h1>
         {/* Settings moved to the header's profile menu (T-109); the sync badge stays beside the title. */}
         <SyncBadge />
       </div>
+      <BackToToday />
 
       <DayStrip
         attendanceDone={attendanceDone}

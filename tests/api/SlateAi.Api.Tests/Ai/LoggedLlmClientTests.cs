@@ -83,7 +83,7 @@ public sealed class LoggedLlmClientTests
         Assert.Equal("OperationCanceledException", Assert.Single(store.Calls).Error);
     }
 
-    private sealed class StubLlm(Func<LlmRequest, LlmResponse> respond) : ILlmClient
+    internal sealed class StubLlm(Func<LlmRequest, LlmResponse> respond) : ILlmClient
     {
         public Task<LlmResponse> CompleteJsonAsync(LlmRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(respond(request));

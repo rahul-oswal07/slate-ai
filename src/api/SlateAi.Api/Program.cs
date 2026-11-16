@@ -40,7 +40,11 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
         sp.GetRequiredService<IConfiguration>().GetConnectionString("Db")
         ?? throw new InvalidOperationException("ConnectionStrings:Db is not configured.")));
 
-builder.Services.AddSingleton(TimeProvider.System);
+// The real clock, except in a demo request acting as a chosen past day (T-134, D-120).
+builder.Services.AddSingleton<TimeProvider>(new SchoolDateClock(TimeProvider.System));
+builder.Services.AddSingleton<DemoClass>();
+builder.Services.AddSingleton<SchoolDateSwitch>();
+builder.Services.AddScoped<ISchoolDateSwitchStore, SchoolDateSwitchStore>();
 builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddCurriculum(builder.Configuration);
 builder.Services.AddAi(builder.Configuration);
@@ -76,6 +80,7 @@ app.CheckAiSetup();
 await app.InitialiseDatabaseAsync(app.Lifetime.ApplicationStopping);
 
 app.UseAuthentication();
+app.UseSchoolDate();
 app.UseAuthorization();
 
 app.MapHealthEndpoints();

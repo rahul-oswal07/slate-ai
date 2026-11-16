@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { initI18n } from '../i18n'
 import { fakeApi, renderApp, teacher } from '../test/renderApp'
 
@@ -47,5 +47,34 @@ describe('AppShell header (T-114)', () => {
 
     expect(header?.querySelectorAll('p')).toHaveLength(1)
     expect(header).not.toHaveTextContent('ಮನೆಯಲ್ಲೇ')
+  })
+
+  it("says which class it is under the name on every screen: grade, medium and the main teacher's class (T-135)", async () => {
+    await i18n.changeLanguage('en')
+    fakeApi({
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, grade: 3, medium: 'kn', classTeacherName: 'Shobha' } }),
+    })
+    renderApp('/missed')
+
+    const header = (await screen.findByText('Tappida Paatha')).closest('header') as HTMLElement
+    expect(await within(header).findByText("Grade 3 · ಕನ್ನಡ medium · Shobha's class")).toBeInTheDocument()
+  })
+
+  it('leaves out whose class it is when an older me does not say (T-135)', async () => {
+    await i18n.changeLanguage('en')
+    fakeApi({ 'GET /api/me': () => ({ status: 200, body: { ...teacher, grade: 3, medium: 'kn' } }) })
+    renderApp('/')
+
+    const header = (await screen.findByText('Tappida Paatha')).closest('header') as HTMLElement
+    expect(await within(header).findByText('Grade 3 · ಕನ್ನಡ medium')).toBeInTheDocument()
+  })
+
+  it('shows no class on the sign-in screen (T-135)', async () => {
+    await i18n.changeLanguage('en')
+    fakeApi({ 'GET /api/me': () => ({ status: 401 }) })
+    renderApp('/login')
+
+    const header = (await screen.findByText('Tappida Paatha')).closest('header') as HTMLElement
+    expect(within(header).queryByText(/Grade/)).not.toBeInTheDocument()
   })
 })

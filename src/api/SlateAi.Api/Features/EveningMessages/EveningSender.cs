@@ -108,7 +108,7 @@ public sealed class EveningSender(
                 var withTodays = todays is { } t && t.Languages.Contains(child.HomeLanguage) ? t.Id : (Guid?)null;
                 pending.Add(new NewEveningMessage(
                     child.Id, template!.Id, lesson!.Id, child.HomeLanguage, filled.Slots, NewToken(), now,
-                    now.AddDays(options.Value.LinkDays),
+                    SchoolClock.RealNow(clock).AddDays(options.Value.LinkDays), // real, even on a chosen demo day (T-134)
                     withTodays is null && lessonAudio.TryGetValue(child.HomeLanguage, out var audioId) ? audioId : null,
                     withTodays));
             }

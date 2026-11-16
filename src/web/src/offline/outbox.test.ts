@@ -1,5 +1,8 @@
-import { fakeApi } from '../test/renderApp'
+import { fakeApi, teacher } from '../test/renderApp'
 import { db } from './db'
+import { saveCachedMe } from '../features/auth/session'
+import { setSchoolDate, SCHOOL_DATE_HEADER } from '../features/today/schoolDate'
+import { istToday } from '../features/today/schoolTime'
 import { enqueue, flush } from './outbox'
 
 async function queue(...ids: string[]) {
@@ -105,5 +108,21 @@ describe('outbox voice notes', () => {
     expect(sent?.get('clientRequestId')).toBe('photo-1')
     expect(sent?.get('photo')).toBeInstanceOf(Blob)
     expect(sent?.get('file')).toBeNull()
+  })
+
+  it('sends a write on the school day it was made, even after going back to today (T-134)', async () => {
+    saveCachedMe({ ...teacher, demo: { sampleVoiceNote: false, schoolDate: true } })
+    const calls = fakeApi({ 'POST /api/a': () => ({ status: 200, body: {} }), 'POST /api/b': () => ({ status: 200, body: {} }) })
+    const day = new Date(`${istToday()}T12:00:00+05:30`)
+    day.setUTCDate(day.getUTCDate() - 4)
+    const past = istToday(day)
+    setSchoolDate(past)
+    await queue('a')
+    setSchoolDate(null)
+    await queue('b')
+
+    await flush()
+
+    expect(calls.map((c) => c.headers[SCHOOL_DATE_HEADER])).toEqual([past, undefined])
   })
 })

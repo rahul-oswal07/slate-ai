@@ -14,6 +14,8 @@ Spec: [`spec.md`](spec.md)
 - The header is one row: the name centred with language and a profile button, the tagline under the name. The profile menu is Profile · Settings · Log out. Sign-in has no profile button; before set-up the menu has Log out only (T-109, D-101).
 - Bottom nav: five tabs, Today · Approve · Missed · Back today · Week (D-117, T-129). Today stays current on Lesson confirm, Settings and Profile.
 - Approve and Back today show a neutral count badge (waiting catch-ups; today's buddy cards, from the saved cards when offline); screen readers hear it in the tab name (T-129).
+- `TeacherLayout` follows the demo's school-day switch and resets cached data when the day changes. The day controls (`SchoolDateNav`, `SchoolWeekNav`, `BackToToday`) sit at the date on Today, Missed, Back today and Week. `api()` sends the chosen day as `X-School-Date`, and the outbox keeps it per write (T-134, D-120).
+- The header says which class the app is for, under the name on every teacher screen: "Grade 3 · Kannada medium · Shobha's class". It names the class's main teacher, so co-teachers see it too. It isn't shown on sign-in (T-135).
 
 ## Known gaps and drafts
 

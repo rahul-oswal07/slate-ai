@@ -4,7 +4,7 @@ import { Icon, type IconName } from '../components/Icon'
 import { useMe } from '../features/auth/useMe'
 import { usePackages, waitingCount } from '../features/approve/usePackages'
 import { useBuddyCards } from '../features/back/useBuddyCards'
-import { istToday } from '../features/today/schoolTime'
+import { useSchoolToday } from '../features/today/schoolDate'
 
 const tabs: { to: string; key: 'today' | 'approve' | 'missed' | 'back' | 'week'; icon: IconName }[] = [
   { to: '/', key: 'today', icon: 'house' },
@@ -31,7 +31,7 @@ export function BottomNav() {
   const classId = useMe().data?.classId ?? ''
   const waiting = waitingCount(usePackages(classId).data)
   // Children back today: the number of today's buddy cards, counted in code (D-117, guardrail 4); offline, the saved cards.
-  const backToday = useBuddyCards(classId, istToday()).data?.cards.length ?? 0
+  const backToday = useBuddyCards(classId, useSchoolToday()).data?.cards.length ?? 0
   const badge: Partial<Record<(typeof tabs)[number]['key'], { n: number; label: string }>> = {
     approve: { n: waiting, label: t('nav.approveWaiting', { n: waiting }) },
     back: { n: backToday, label: t('nav.backToday', { count: backToday }) },

@@ -6,9 +6,10 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import { pageText } from '../lessons/lessonText'
 import { sumQuestion } from '../parent/sumQuestion'
-import { istToday } from '../today/schoolTime'
+import { useSchoolToday } from '../today/schoolDate'
 import type { BuddyCard } from './types'
 import { useBuddyCards, useSaveTicks } from './useBuddyCards'
+import { SchoolWeekNav } from '../../app/SchoolDateNav'
 
 /** "was present both days" fits only 2 days (T5 §5): pick the wording from the numbers. */
 function buddyLabel(t: ReturnType<typeof useTranslation>['t'], present: number, missed: number) {
@@ -55,7 +56,7 @@ export function BackTodayScreen() {
   const { t } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const classId = useMe().data?.classId ?? ''
-  const today = istToday()
+  const today = useSchoolToday()
   const query = useBuddyCards(classId, today)
   const [index, setIndex] = useState(0)
   const cards = query.data?.cards ?? []
@@ -67,6 +68,9 @@ export function BackTodayScreen() {
       <h1 id="back-title" ref={headingRef} tabIndex={-1} className="text-title print:hidden">
         {t('back.title')}
       </h1>
+      <div className="print:hidden">
+        <SchoolWeekNav />
+      </div>
 
       {query.data?.savedAt && (
         <output className="block border-l-4 border-l-warning bg-surface p-3 text-body text-ink print:hidden">

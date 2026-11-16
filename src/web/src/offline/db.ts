@@ -12,6 +12,8 @@ export type OutboxItem = {
   audio?: { data: ArrayBuffer; type: string; fileName: string }
   /** A photo of the lesson (T-64), sent as the multipart `photo` part, with or without `audio`. */
   photo?: { data: ArrayBuffer; type: string; fileName: string }
+  /** The past day the demo teacher acted as when she made it (T-134), or null: it goes as made, whenever it is sent. */
+  schoolDate?: string | null
 }
 
 /** Her recording, kept on the phone only for playback on T2; deleted once the lesson is confirmed. */

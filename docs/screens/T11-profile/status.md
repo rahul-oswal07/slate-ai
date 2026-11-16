@@ -9,6 +9,7 @@ Spec: [`spec.md`](spec.md)
 - Read-only Profile at `/profile`: name, phone with the last 4 digits only, class as grade and medium (T-109).
 - Reached from the profile menu in the header on every teacher screen; links back to Today, and Today stays the active tab (T-109).
 - The data comes with `GET /api/me` (`phoneLast4`, `grade`, `medium`), so the screen also shows offline (T-109).
+- The class row reads like the header's class line (`classLine`): grade, medium and, when the server sends it, the main teacher's class (T-135).
 
 ## Known gaps and drafts
 
