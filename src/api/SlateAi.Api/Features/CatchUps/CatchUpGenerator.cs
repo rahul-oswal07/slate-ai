@@ -131,7 +131,7 @@ public sealed class CatchUpWriter(
 
 /// <summary>
 /// Catch-ups waiting for their words. In memory: after a restart a package stays "generating" and reads as failed
-/// after <see cref="CatchUpEndpoints.StaleGenerating"/>, so she can try again (T3).
+/// after <see cref="StaleGenerating.After"/>, so she can try again (T3, T-136).
 /// </summary>
 public sealed class CatchUpQueue
 {

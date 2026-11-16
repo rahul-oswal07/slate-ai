@@ -21,8 +21,8 @@ public sealed class TodaysMessageWaitTests
         var row = Row(TodaysMessageStatus.Generating, Ist(18, 0));
 
         Assert.True(TodaysMessageWait.Holds(row, Ist(18, 0).AddSeconds(16), SendAt, Wait));
-        Assert.True(TodaysMessageWait.Holds(row, Ist(18, 0) + CatchUpEndpoints.StaleGenerating, SendAt, Wait));
-        Assert.False(TodaysMessageWait.Holds(row, Ist(18, 0) + CatchUpEndpoints.StaleGenerating + TimeSpan.FromSeconds(1), SendAt, Wait));
+        Assert.True(TodaysMessageWait.Holds(row, Ist(18, 0) + StaleGenerating.After, SendAt, Wait));
+        Assert.False(TodaysMessageWait.Holds(row, Ist(18, 0) + StaleGenerating.After + TimeSpan.FromSeconds(1), SendAt, Wait));
     }
 
     [Fact]

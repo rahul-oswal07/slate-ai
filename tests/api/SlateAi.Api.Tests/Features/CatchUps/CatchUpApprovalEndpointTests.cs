@@ -113,6 +113,40 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     [Fact]
+    public async Task A_catch_up_cut_off_while_being_written_shows_as_failed_and_try_again_takes_it()
+    {
+        // T-136: a restart empties the in-memory queue, so the row stays "generating". After 5 minutes the list and the
+        // catch-up itself show it as failed, and Try again must start a new version instead of answering 409.
+        var package = _store.Packages.Single();
+        package.Status = PackageStatus.Generating;
+        package.UpdatedAt = _clock.Now.AddMinutes(-6);
+        var queue = new CatchUpQueue();
+        await using var factory = Create(queue, demo: true);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var shown = await client.GetFromJsonAsync<PackageView>($"/api/packages/{_packageId}", Ct);
+        var retry = await client.PostAsJsonAsync(
+            $"/api/packages/{_packageId}/regenerate", new RegeneratePackageRequest(Guid.NewGuid(), null), Ct);
+
+        Assert.Equal((PackageStatus.Failed, "error:stale"), (shown!.Status, shown.Verdict));
+        Assert.Equal(HttpStatusCode.Accepted, retry.StatusCode);
+        Assert.Equal(PackageStatus.Generating, package.Status);
+        Assert.Equal(_clock.Now, package.UpdatedAt);
+    }
+
+    [Fact]
+    public async Task A_catch_up_still_being_written_cannot_be_started_again()
+    {
+        var package = _store.Packages.Single();
+        package.Status = PackageStatus.Generating;
+        package.UpdatedAt = _clock.Now.AddMinutes(-1);
+
+        var retry = await PostAsync("regenerate", new RegeneratePackageRequest(Guid.NewGuid(), null));
+
+        Assert.Equal(HttpStatusCode.Conflict, retry.StatusCode);
+    }
+
+    [Fact]
     public async Task Sending_an_unapproved_catch_up_is_409_and_nothing_goes_out()
     {
         var response = await PostAsync("send", new SendPackageRequest(Guid.NewGuid()), demo: true);

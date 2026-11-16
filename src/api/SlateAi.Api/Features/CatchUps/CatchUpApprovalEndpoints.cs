@@ -60,8 +60,10 @@ public static class CatchUpApprovalEndpoints
     }
 
     private static async Task<Results<Ok<PackageView>, NotFound>> GetAsync(
-        Guid id, HttpContext http, ICatchUpStore store, CancellationToken cancellationToken) =>
-        await OwnedAsync(id, http, store, cancellationToken) is { } view ? TypedResults.Ok(view) : TypedResults.NotFound();
+        Guid id, HttpContext http, ICatchUpStore store, TimeProvider clock, CancellationToken cancellationToken) =>
+        await OwnedAsync(id, http, store, cancellationToken) is { } view
+            ? TypedResults.Ok(StaleGenerating.Shown(view, clock.GetUtcNow())) // a cut-off one shows as failed (T-136)
+            : TypedResults.NotFound();
 
     private static async Task<Results<Ok<PackageView>, Conflict<PackageView>, NotFound, ValidationProblem>> ApproveAsync(
         Guid id,
