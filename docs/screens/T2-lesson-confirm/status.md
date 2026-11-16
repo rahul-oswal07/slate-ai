@@ -15,7 +15,6 @@ Spec: [`spec.md`](spec.md)
 
 - **Re-record** shows under "What you said" or "Your photo" (sure match, please choose, photo only) and next to Pick from the list when the note was unclear. It clears the note and photo on the phone and goes back to Today's mic; the new note replaces the first and its match (T-114).
 - The kn, te, ta and hi "Re-record" strings are drafts for Monika (T-114).
-- The kn, te, ta and hi words of the **Book exercises** tag are drafts for Monika (T-128, D-116).
 - The design card is not updated for T-108 or T-114 (Monika's file).
 
 ## Open tasks

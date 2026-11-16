@@ -21,7 +21,6 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - SATS is simulated.
-- The kn, te, ta and hi words of the **Book exercises** tag are drafts for Monika (T-128).
 - The record card's one-line lesson strings in kn, te, ta and hi are drafts for Monika (T-114).
 - The design card is not updated for T-108, T-109 or T-114, or for T-109 (the gear left the title row; Settings is in the header's profile menu) (Monika's file).
 - The design card is not updated for T-96's next-step button or outlined mic (Monika's file).
