@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Data.Entities;
+using SlateAi.Api.Features.Attendance;
 
 namespace SlateAi.Api.Ai;
 
@@ -12,7 +13,8 @@ public sealed class LoggedLlmClient(ILlmClient inner, IAiCallStore store, IOptio
         var call = new AiCall
         {
             Id = Guid.NewGuid(),
-            CreatedAt = clock.GetUtcNow(),
+            // Real time even on a chosen demo day (T-134): Under the hood lists calls since the last reset.
+            CreatedAt = SchoolClock.RealNow(clock),
             Purpose = request.Prompt.Id,
             ChildIds = AiCallScope.Current?.ToArray(),
             PromptVersion = request.Prompt.Version,

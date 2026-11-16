@@ -52,6 +52,18 @@ public sealed class DemoShellEndpointTests
     }
 
     [Fact]
+    public async Task Me_says_whether_the_admin_switch_lets_her_act_as_a_past_day()
+    {
+        // T-134: the web shows the school-day bar only when this is on.
+        await using var factory = Create(schoolDate: true);
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+        Assert.Equal(new DemoFlags(SampleVoiceNote: false, SchoolDate: true), me!.Demo);
+    }
+
+    [Fact]
     public async Task Me_has_no_demo_flags_when_the_demo_is_off()
     {
         await using var factory = Create(enabled: false);
@@ -355,10 +367,12 @@ public sealed class DemoShellEndpointTests
     private ApiFactory Create(
         bool enabled = true,
         string snapshotFile = "no-such-snapshot.json",
-        string voiceNoteFile = "no-such-voice-note.webm") =>
+        string voiceNoteFile = "no-such-voice-note.webm",
+        bool schoolDate = false) =>
         FakeApi.Create(
             services =>
             {
+                services.AddSingleton<ISchoolDateSwitchStore>(new FakeSchoolDateSwitchStore(schoolDate));
                 services.AddSingleton<IDemoStore>(_store);
                 services.AddSingleton<IAuthStore>(_auth);
                 services.AddSingleton<TimeProvider>(new FixedClock(Now));

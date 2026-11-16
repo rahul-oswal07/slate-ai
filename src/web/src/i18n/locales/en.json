@@ -2,7 +2,8 @@
   "app": {
     "name": "Tappida Paatha",
     "tagline": "The missed lesson",
-    "loadError": "Could not load. Check the network and try again."
+    "loadError": "Could not load. Check the network and try again.",
+    "classOf": "{{name}}'s class"
   },
   "language": {
     "label": "Language",
@@ -749,7 +750,8 @@
       "resetting": "Resetting…",
       "failed": "The reset didn't finish. Nothing was changed. Try again.",
       "done": "Demo reset. Catch-ups will be written live when you generate them.",
-      "donePreMade": "Demo reset. A pre-made catch-up is ready to approve."
+      "donePreMade": "Demo reset. A pre-made catch-up is ready to approve.",
+      "pastDays": "Days made by going back to an earlier day are removed too: the story is rebuilt on the real date."
     },
     "bringAttendance": "Bring in today's attendance",
     "attendanceIn": "Today's attendance is in.",
@@ -824,7 +826,8 @@
       "a2-compression": "A2 Compression",
       "a3-script": "A3 Script writer",
       "a4-check": "A4 Verifier"
-    }
+    },
+    "schoolDate": "This browser acts as {{date}} (chosen on Today). Messages sent now are for that day."
   },
   "admin": {
     "failed": "Couldn’t load this page.",
@@ -841,7 +844,8 @@
       "lessonAudio": "Lesson audio",
       "lessonLinks": "Lesson links",
       "children": "Children",
-      "teachers": "Teachers"
+      "teachers": "Teachers",
+      "demo": "Demo"
     },
     "greetings": {
       "title": "Teacher greetings",
@@ -902,7 +906,8 @@
       "lessonAudio": "One day’s lesson audio: every class’s clip and the families it went to.",
       "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families.",
       "children": "Every class's children and the number their family's WhatsApp goes to; edit or clear a number.",
-      "teachers": "Each teacher's voice consent and greeting; clear her consent so she records her greeting again."
+      "teachers": "Each teacher's voice consent and greeting; clear her consent so she records her greeting again.",
+      "demo": "Switch on going back to a past day in the demo class, to make test data."
     },
     "children": {
       "title": "Children and phone numbers",
@@ -946,6 +951,18 @@
       "cancel": "Cancel",
       "cleared": "Cleared",
       "failed": "Could not clear it. Try again."
+    },
+    "demo": {
+      "title": "Demo",
+      "schoolDate": "Go back to a past day",
+      "about": "The demo teacher can act as a past school day, with arrows beside the date on Today and the week on Missed, Back today and Week, to make test data. Only the demo class; each browser keeps its own day.",
+      "on": "On: the demo teacher sees the arrows beside the date.",
+      "off": "Off: no arrows; every screen is on the real day.",
+      "demoOff": "The demo is off on this server, so there is nothing to switch.",
+      "updatedAt": "Last changed {{date}}",
+      "never": "Never switched on this server.",
+      "saved": "Saved",
+      "failed": "Could not save it. Try again."
     }
   },
   "settings": {
@@ -1057,5 +1074,14 @@
     "answer": "Answer",
     "level": "Level",
     "none": "No answer yet"
+  },
+  "schoolDate": {
+    "weekOf": "Week of {{date}}",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "backToday": "Back to today",
+    "choose": "Choose a day"
   }
 }

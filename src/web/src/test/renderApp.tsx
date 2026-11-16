@@ -8,14 +8,14 @@ export type FakeRoute = (request: { method: string; body: unknown }) => { status
 
 /** Replaces fetch with routes keyed by "METHOD /path". Unknown routes are 404. Returns the calls made. */
 export function fakeApi(routes: Record<string, FakeRoute>) {
-  const calls: { key: string; body: unknown }[] = []
+  const calls: { key: string; body: unknown; headers: Record<string, string> }[] = []
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const method = init?.method ?? 'GET'
       const key = `${method} ${String(input)}`
       const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined
-      calls.push({ key, body })
+      calls.push({ key, body, headers: { ...(init?.headers as Record<string, string> | undefined) } })
       const result = routes[key]?.({ method, body }) ?? { status: 404 }
       if (result === 'offline') {
         throw new TypeError('Failed to fetch')

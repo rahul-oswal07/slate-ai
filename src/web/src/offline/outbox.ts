@@ -1,10 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect } from 'react'
 import { api, ApiError, NetworkError } from '../api/client'
+import { chosenSchoolDate } from '../features/today/schoolDate'
 import { db, type OutboxItem } from './db'
 
-export async function enqueue(item: Omit<OutboxItem, 'createdAt'>) {
-  await db.outbox.put({ ...item, createdAt: Date.now() })
+export async function enqueue(item: Omit<OutboxItem, 'createdAt' | 'schoolDate'>) {
+  await db.outbox.put({ ...item, schoolDate: chosenSchoolDate(), createdAt: Date.now() })
 }
 
 let running: Promise<number> | null = null
@@ -20,7 +21,13 @@ export function flush(): Promise<number> {
     try {
       for (const item of await db.outbox.orderBy('createdAt').toArray()) {
         try {
-          await api(item.url, item.audio || item.photo ? { method: 'POST', form: toForm(item) } : { method: item.method ?? 'POST', body: item.body })
+          const schoolDate = item.schoolDate ?? null
+          await api(
+            item.url,
+            item.audio || item.photo
+              ? { method: 'POST', form: toForm(item), schoolDate }
+              : { method: item.method ?? 'POST', body: item.body, schoolDate },
+          )
           await db.outbox.delete(item.id)
           sent++
         } catch (error) {

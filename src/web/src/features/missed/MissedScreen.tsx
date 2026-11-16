@@ -8,12 +8,14 @@ import { findLesson, pageText } from '../lessons/lessonText'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
 import { LevelTag } from '../today/LevelTag'
-import { formatSchoolTime, istToday } from '../today/schoolTime'
+import { useSchoolToday } from '../today/schoolDate'
+import { formatSchoolTime } from '../today/schoolTime'
 import { type Level, useTodaysAnswers } from '../today/useTodaysAnswers'
 import { dayName, latestStatus, lessonNames, missedText } from './ledgerText'
 import { ChannelTag, LearningTag } from './LedgerTags'
 import type { LearningStatus, Ledger, LedgerChild } from './types'
 import { useLedger } from './useLedger'
+import { SchoolWeekNav } from '../../app/SchoolDateNav'
 
 const STATUS_ORDER: LearningStatus[] = ['missed', 'sent', 'caughtUp', 'needsBuddy']
 
@@ -33,7 +35,7 @@ export function MissedScreen() {
   const everyone = params.get('filter') === 'all'
   const data = ledger.data
   // Today's picture question level per child (T-92), the same as on Today.
-  const answers = useTodaysAnswers(classId, istToday()).data
+  const answers = useTodaysAnswers(classId, useSchoolToday()).data
   const levels = new Map<string, Level>((answers?.rows ?? []).map((r) => [r.childId, r.level]))
 
   const set = (key: 'view' | 'filter', value: string | null) =>
@@ -57,6 +59,7 @@ export function MissedScreen() {
       <h1 id="missed-title" ref={headingRef} tabIndex={-1} className="text-title">
         {t('missed.title')}
       </h1>
+      <SchoolWeekNav />
 
       {data?.savedAt && (
         <output className="block border-l-4 border-l-warning bg-surface p-3 text-body text-ink">

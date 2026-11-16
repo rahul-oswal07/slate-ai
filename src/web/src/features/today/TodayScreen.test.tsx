@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { db } from '../../offline/db'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
+import { setSchoolDate } from './schoolDate'
 import { istToday } from './schoolTime'
 import type { AttendanceDay } from './types'
 
@@ -48,6 +49,40 @@ describe('TodayScreen', () => {
   })
 
   afterEach(() => vi.unstubAllGlobals())
+
+  it('in the demo class, works on the day she chose to act as (T-134)', async () => {
+    const wednesday = new Date(`${date}T12:00:00+05:30`)
+    wednesday.setUTCDate(wednesday.getUTCDate() - 4)
+    const past = istToday(wednesday)
+    setSchoolDate(past)
+    const calls = today(day(), {
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, demo: { sampleVoiceNote: false, schoolDate: true } } }),
+      [`GET /api/classes/${teacher.classId}/attendance/${past}`]: () => ({ status: 200, body: day({ date: past }) }),
+    })
+    renderApp('/')
+
+    expect(await screen.findByRole('button', { name: 'Previous day' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toContainElement(screen.getByRole('button', { name: 'Previous day' }))
+    await waitFor(() => expect(calls.map((c) => c.key)).toContain(`GET /api/classes/${teacher.classId}/attendance/${past}`))
+    expect(calls.map((c) => c.key)).not.toContain(dayUrl)
+    expect(calls.find((c) => c.key.includes(`/attendance/${past}`))?.headers['X-School-Date']).toBe(past)
+    setSchoolDate(null)
+  })
+
+  it('forgets a chosen day once the admin switch is off, and works on the real day (T-134)', async () => {
+    const earlier = new Date(`${date}T12:00:00+05:30`)
+    earlier.setUTCDate(earlier.getUTCDate() - 4)
+    setSchoolDate(istToday(earlier))
+    const calls = today(day(), {
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, demo: { sampleVoiceNote: false, schoolDate: false } } }),
+    })
+    renderApp('/')
+
+    await waitFor(() => expect(calls.map((c) => c.key)).toContain(dayUrl))
+    expect(calls.some((c) => c.key.includes(`/attendance/${istToday(earlier)}`))).toBe(false)
+    expect(screen.queryByRole('button', { name: 'Previous day' })).not.toBeInTheDocument()
+    await waitFor(() => expect(localStorage.getItem('slate.schoolDate')).toBeNull())
+  })
 
   it('offers "Record your greeting" until she has one, linking to the greeting step', async () => {
     today(day())

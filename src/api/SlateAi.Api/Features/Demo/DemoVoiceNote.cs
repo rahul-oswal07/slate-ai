@@ -6,7 +6,8 @@ namespace SlateAi.Api.Features.Demo;
 
 /// <summary>What the teacher app does differently for the demo teacher (T-93). Null for everyone else.</summary>
 /// <param name="SampleVoiceNote">Today offers "Use the sample voice note" (<c>GET /api/demo/voice-note</c>).</param>
-public sealed record DemoFlags(bool SampleVoiceNote);
+/// <param name="SchoolDate">The admin switch lets her act as a past school day (T-134, D-120): the web shows its bar.</param>
+public sealed record DemoFlags(bool SampleVoiceNote, bool SchoolDate = false);
 
 public static class DemoVoiceNote
 {
@@ -19,7 +20,11 @@ public static class DemoVoiceNote
 
     /// <summary>The demo flags when <paramref name="classId"/> is the seeded demo class and the demo is on; else null.</summary>
     public static async Task<DemoFlags?> FlagsAsync(
-        Guid? classId, DemoOptions demo, DatabaseOptions database, CancellationToken cancellationToken)
+        Guid? classId,
+        DemoOptions demo,
+        DatabaseOptions database,
+        Func<CancellationToken, Task<bool>> schoolDateOn,
+        CancellationToken cancellationToken)
     {
         if (!demo.Enabled || classId is null)
         {
@@ -27,6 +32,8 @@ public static class DemoVoiceNote
         }
 
         var seed = await DemoSeedFile.LoadAsync(database.SeedFile, cancellationToken);
-        return seed.Class.Id == classId ? new DemoFlags(Path(demo) is not null) : null;
+        return seed.Class.Id == classId
+            ? new DemoFlags(Path(demo) is not null, await schoolDateOn(cancellationToken))
+            : null;
     }
 }

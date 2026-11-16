@@ -5,6 +5,7 @@ using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Ledger;
 using SlateAi.Api.Features.Stars;
+using SlateAi.Api.Features.Attendance;
 
 namespace SlateAi.Api.Features.WeeklyStar;
 
@@ -106,7 +107,7 @@ public sealed class WeeklyStarSender(
             {
                 pending.Add(new NewWeeklyStar(
                     child.ChildId, family.HomeLanguage, wording.Version, text!.Message, text.Badge, NewToken(), now,
-                    now.AddDays(options.Value.LinkDays)));
+                    SchoolClock.RealNow(clock).AddDays(options.Value.LinkDays))); // real, even on a chosen demo day (T-134)
             }
         }
 

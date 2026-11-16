@@ -19,6 +19,7 @@ Spec: [`spec.md`](spec.md)
 - The kn, te, ta and hi strings of the children page are drafts for Monika (T-118, T-122, T-130).
 - **Teachers** (`/admin/teachers`): each teacher's class, voice consent and greeting length. Clear consent asks first, then clears `Teacher.ConsentAt` and deletes her greeting (D-44): at her next visit she sees the Welcome and records it again (T-133).
 - The kn, te, ta and hi strings of the teachers page are drafts for Monika (T-133).
+- **Demo** (`/admin/demo`): one switch per server, off until switched on, that lets the demo teacher act as a past school day (T-134, D-120). It saves on change, shows when it last changed, and is disabled when the demo is off on this server. Its kn, te, ta and hi strings are drafts for Monika.
 - Every admin page and the WhatsApp test send open without a key, on staging, prod and locally: anyone with the address can read and change what they show (T-121, D-112).
 
 ## Known gaps and drafts

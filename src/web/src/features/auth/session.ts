@@ -13,10 +13,15 @@ export type Me = {
   grade?: number | null
   /** Medium of instruction as a language code, e.g. "kn". */
   medium?: string | null
+  /** Her class's main teacher (T-135), for "Shobha's class" in the header; also for a co-teacher. */
+  classTeacherName?: string | null
 }
 
-/** What the teacher app does differently in the demo class (T-93). */
-export type DemoFlags = { sampleVoiceNote: boolean }
+/**
+ * What the teacher app does differently in the demo class (T-93). `schoolDate`: the admin switch lets her act as a past
+ * school day (T-134, D-120); missing in a `me` cached before it existed, which reads as off.
+ */
+export type DemoFlags = { sampleVoiceNote: boolean; schoolDate?: boolean }
 
 /** Where to play her greeting (`/api/audio/{id}`) and how long it is. */
 export type Greeting = { url: string; seconds: number }

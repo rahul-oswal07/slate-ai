@@ -17,6 +17,7 @@ Spec: [`spec.md`](spec.md)
 - After Re-record on Lesson confirm, Today shows the mic, idle, with focus on it (T-114).
 - There is no lesson audio tick: today's message's concept clip is the lesson audio (T-114, D-105).
 - After the send, Today shows "sent to N · M answered" and a child · answer · level table (T-92). The level comes from the latest of up to two submits: Got it, Needs help or Not answered yet; Today checks again until every answer is locked (D-108).
+- In the demo class, arrows beside Today's date step a day back or forward, tapping the date opens the calendar, and Back to today sits below it. Today then loads and writes that day (T-134, D-120).
 
 ## Known gaps and drafts
 

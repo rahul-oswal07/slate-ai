@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
 import { AnnouncerProvider } from '../components/Announcer'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { classLine } from '../features/auth/classLine'
+import { useMe } from '../features/auth/useMe'
 import { useOutboxSync } from '../offline/outbox'
 import { ProfileMenu } from './ProfileMenu'
 
@@ -20,6 +22,9 @@ export function AppShell() {
   useOutboxSync(refresh)
   const headerRef = useStickyHeaderPadding()
   const tagline = t('app.tagline')
+  // Which class the app is for (T-135), on every screen once she is signed in.
+  const me = useMe().data
+  const forClass = signIn ? null : classLine(me, t)
 
   return (
     <AnnouncerProvider>
@@ -45,6 +50,7 @@ export function AppShell() {
           </div>
           {/* Kannada has none: the name already says "the missed lesson". */}
           {tagline && <p className="text-caption text-ink-muted">{tagline}</p>}
+          {forClass && <p className="col-span-2 text-caption text-ink-muted">{forClass}</p>}
         </header>
         <main id="main" className="px-4 py-6">
           <Outlet />

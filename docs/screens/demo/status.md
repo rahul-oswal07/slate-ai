@@ -19,6 +19,7 @@ Spec: [`spec.md`](spec.md)
 - `/demo` links to both from its step guide (T-126).
 - **Send messages now** also sends the weekly star for the latest finished week, once she has approved the star wording (Settings → Weekly star); it shows on the family phone as "Weekly star · week of …" (T-125, D-118).
 - The family phone's browser bar reads "Tappida Paatha" on every page, as the real page's title does (T-116).
+- The demo teacher can act as a past school day with arrows at the date on Today, Missed, Back today and Week, once the switch on `/admin/demo` is on (off by default). The day is kept per browser, and `/demo` shows it; Reset still rebuilds the story on the real date and removes days made this way (T-134, D-120).
 
 ## Known gaps and drafts
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import type { Me } from '../auth/session'
-import { istToday } from '../today/schoolTime'
+import { schoolToday } from '../today/schoolDate'
 import type { AiCall, DemoChild, DemoInfo, DemoReset, DemoSendNow, FamilyMessage } from './types'
 
 /** The parent phone and "Under the hood" refresh this often while the demo is open. */
@@ -82,7 +82,7 @@ export function useResetDemo() {
 export function useBringAttendance(classId: string) {
   return useMutation({
     mutationFn: () =>
-      api<unknown>('/api/demo/sats-feed', { method: 'POST', body: { classId, date: istToday(), mode: 'arrive' } }),
+      api<unknown>('/api/demo/sats-feed', { method: 'POST', body: { classId, date: schoolToday(), mode: 'arrive' } }),
   })
 }
 

@@ -1,6 +1,8 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useSchoolDate } from '../today/schoolDate'
+import { formatSchoolDate } from '../today/schoolTime'
 import { Page, Phone } from './DemoParts'
 import { later } from './demoText'
 import { ParentPhone } from './FamilyPhone'
@@ -18,7 +20,8 @@ const STEPS = ['today', 'lesson', 'evening', 'approve', 'parent', 'after'] as co
  * one tap. Both phones are the real app in frames; nothing here is a mock-up.
  */
 export function DemoScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const schoolDate = useSchoolDate()
   const info = useDemoInfo()
   const reset = useResetDemo()
   const bring = useBringAttendance(info.data?.classId ?? '')
@@ -83,6 +86,11 @@ export function DemoScreen() {
             </Link>
           </li>
         </ul>
+        {schoolDate && (
+          <p className="rounded-card border-l-4 border-l-warning bg-panel p-3 text-body">
+            {t('demo.schoolDate', { date: formatSchoolDate(schoolDate, i18n.language) })}
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -259,6 +267,8 @@ function ResetDialog({
         {t('demo.reset.title')}
       </h2>
       <p className="mt-3 text-body">{t('demo.reset.body')}</p>
+      {/* T-134: Reset always rebuilds the story on the real date, so days made by going back go too. */}
+      <p className="mt-2 text-body">{t('demo.reset.pastDays')}</p>
       {failed && (
         <p role="alert" className="mt-3 rounded-md border-l-4 border-l-error bg-error-bg p-3 text-body text-ink">
           {t('demo.reset.failed')}

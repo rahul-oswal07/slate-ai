@@ -130,6 +130,25 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("AiCalls");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.AppSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("AppSettings");
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Attendance", b =>
                 {
                     b.Property<Guid>("ClassId")

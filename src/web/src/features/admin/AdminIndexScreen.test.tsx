@@ -32,7 +32,7 @@ describe('/admin: every admin page', () => {
     expect(await screen.findByRole('heading', { name: 'Admin pages' })).toBeInTheDocument()
     const list = screen.getByRole('list')
     const items = within(list).getAllByRole('listitem')
-    expect(items.map((item) => within(item).getByRole('link').textContent)).toEqual(['Greetings', 'Lesson audio', 'Lesson links', 'Children', 'Teachers'])
+    expect(items.map((item) => within(item).getByRole('link').textContent)).toEqual(['Greetings', 'Lesson audio', 'Lesson links', 'Children', 'Teachers', 'Demo'])
     expect(within(list).getByText('/admin/lesson-links')).toBeInTheDocument()
     expect(within(list).getByText(/Set the video link for each lesson/)).toBeInTheDocument()
   })
@@ -48,6 +48,7 @@ describe('/admin: every admin page', () => {
       '/admin/lesson-links',
       '/admin/children',
       '/admin/teachers',
+      '/admin/demo',
     ])
   })
 

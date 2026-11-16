@@ -62,12 +62,15 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
             .Where(c => c.TeacherId == teacherId && c.Kind == "greeting")
             .Select(c => new GreetingInfo("/api/audio/" + c.Id, Math.Round(c.Seconds, 1)))
             .FirstOrDefaultAsync(cancellationToken);
-        // Profile (T-109): the class as she knows it, and only the last 4 digits of her phone.
+        // Profile (T-109): the class as she knows it, and only the last 4 digits of her phone. The header (T-135) says
+        // whose class it is: its main teacher, also for a co-teacher.
         var group = classId is null
             ? null
-            : await db.Classes
-                .Where(c => c.Id == classId)
-                .Select(c => new { c.Grade, c.Medium })
+            : await (
+                    from c in db.Classes
+                    join main in db.Teachers on c.TeacherId equals main.Id
+                    where c.Id == classId
+                    select new { c.Grade, c.Medium, MainTeacher = main.DisplayName })
                 .SingleOrDefaultAsync(cancellationToken);
         return new MeResponse(
             teacher.Id,
@@ -77,7 +80,8 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
             greeting,
             PhoneLast4: PhoneMask.Last4(teacher.Phone),
             Grade: group?.Grade,
-            Medium: group?.Medium);
+            Medium: group?.Medium,
+            ClassTeacherName: group?.MainTeacher);
     }
 
     public async Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

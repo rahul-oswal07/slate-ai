@@ -13,4 +13,11 @@ public static class SchoolClock
 
     /// <summary>The instant <paramref name="time"/> IST on <paramref name="date"/>.</summary>
     public static DateTimeOffset At(DateOnly date, TimeOnly time) => new(date.ToDateTime(time), Ist);
+
+    /// <summary>
+    /// The real time, even inside a request acting as a chosen demo day (T-134, D-120): for what must not move with it,
+    /// like the AI log and how long a family's link lasts.
+    /// </summary>
+    public static DateTimeOffset RealNow(TimeProvider clock) =>
+        clock is Demo.SchoolDateClock school ? school.Real.GetUtcNow() : clock.GetUtcNow();
 }

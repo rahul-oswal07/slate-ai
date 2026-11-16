@@ -6,6 +6,7 @@ using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Data.Seed;
+using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Db;
@@ -40,6 +41,31 @@ public sealed class StartupDbTests(PostgresFixture postgres)
             {
                 await factory.DisposeAsync();
             }
+        }
+    }
+
+    [Fact]
+    public async Task The_school_date_switch_starts_off_and_keeps_what_the_admin_page_saves()
+    {
+        // T-134: a new table (AppSettings); a missing row is off, and a replayed request changes nothing.
+        var ct = TestContext.Current.CancellationToken;
+        await using var factory = new ApiFactory(await postgres.CreateEmptyDatabaseAsync(ct));
+        var at = new DateTimeOffset(2026, 11, 16, 5, 0, 0, TimeSpan.Zero);
+        var request = Guid.NewGuid();
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var store = scope.ServiceProvider.GetRequiredService<ISchoolDateSwitchStore>();
+            Assert.Equal(new SchoolDateSetting(false, null), await store.GetAsync(ct));
+            Assert.True((await store.SetAsync(request, true, at, ct)).On);
+            Assert.True((await store.SetAsync(request, false, at.AddMinutes(1), ct)).On);
+        }
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var store = scope.ServiceProvider.GetRequiredService<ISchoolDateSwitchStore>();
+            Assert.Equal(new SchoolDateSetting(true, at), await store.GetAsync(ct));
+            Assert.Equal(new SchoolDateSetting(false, at.AddMinutes(2)), await store.SetAsync(Guid.NewGuid(), false, at.AddMinutes(2), ct));
         }
     }
 
@@ -82,7 +108,10 @@ public sealed class StartupDbTests(PostgresFixture postgres)
         Assert.All(coTeachers, t => Assert.NotNull(t.PinHash));
         foreach (var teacher in coTeachers.Append(await db.Teachers.SingleAsync(t => t.Id == shobha, ct)))
         {
-            Assert.Equal(classId, (await auth.GetMeAsync(teacher.Id, ct))!.ClassId);
+            var me = (await auth.GetMeAsync(teacher.Id, ct))!;
+            Assert.Equal(classId, me.ClassId);
+            // T-135: co-teachers too see that it is Shobha's class.
+            Assert.Equal("Shobha", me.ClassTeacherName);
         }
 
         // A database seeded before the rename (T-72) still says "Lakshmi"; the next start brings the seed's name.

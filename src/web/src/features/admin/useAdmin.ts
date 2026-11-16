@@ -228,3 +228,35 @@ export function useClearConsent() {
       ),
   })
 }
+
+/** `GET /api/admin/demo` (T-134): whether the demo teacher can act as a past school day on this server. */
+export interface AdminDemo {
+  /** The demo is on on this server; without it there is nothing to switch. */
+  demoEnabled: boolean
+  /** Off until switched on (D-120). */
+  schoolDate: boolean
+  /** When it was last switched, or null: never. */
+  updatedAt: string | null
+}
+
+/** The demo switches (T-134). */
+export function useAdminDemo() {
+  return useQuery({
+    queryKey: ['admin', 'demo'],
+    queryFn: () => api<AdminDemo>('/api/admin/demo'),
+    retry: false,
+  })
+}
+
+/** Switches acting as a past school day on or off (T-134, D-120); the page shows what the server saved. */
+export function useSetSchoolDateSwitch() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (on: boolean) =>
+      api<AdminDemo>('/api/admin/demo/school-date', {
+        method: 'PUT',
+        body: { clientRequestId: crypto.randomUUID(), on },
+      }),
+    onSuccess: (demo) => queryClient.setQueryData(['admin', 'demo'], demo),
+  })
+}
