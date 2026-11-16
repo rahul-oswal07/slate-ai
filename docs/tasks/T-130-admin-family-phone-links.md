@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
+| Status | Done (#279) |
 | Issue | #274 |
 | Owner | R |
 | Screens | admin, demo |
