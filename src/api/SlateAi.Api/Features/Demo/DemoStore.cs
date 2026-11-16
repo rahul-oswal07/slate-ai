@@ -17,6 +17,9 @@ public sealed record FamilyMessage(string Kind, DateOnly Date, DateTimeOffset Se
 {
     public const string Evening = "evening";
     public const string CatchUp = "catchUp";
+
+    /// <summary>The weekly star (T-125, D-118); <c>Date</c> is the week's Monday.</summary>
+    public const string WeeklyStar = "weeklyStar";
 }
 
 /// <summary>One row of the "Under the hood" panel. <see cref="AiCall"/> holds no prompt text or names.</summary>
@@ -195,7 +198,11 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
             .Where(a => a.ChildId == childId && a.Token != null && a.SentAt != null)
             .Select(a => new FamilyMessage(FamilyMessage.CatchUp, a.WeekOf, a.SentAt!.Value, a.Token!))
             .ToListAsync(cancellationToken);
-        return evening.Concat(catchUps).OrderByDescending(m => m.SentAt).ToList();
+        var stars = await db.WeeklyStarMessages
+            .Where(m => m.ChildId == childId)
+            .Select(m => new FamilyMessage(FamilyMessage.WeeklyStar, m.WeekOf, m.SentAt, m.Token, null))
+            .ToListAsync(cancellationToken);
+        return evening.Concat(catchUps).Concat(stars).OrderByDescending(m => m.SentAt).ToList();
     }
 
     public Task<DemoChildResponse?> GetChildAsync(Guid classId, Guid childId, CancellationToken cancellationToken) =>

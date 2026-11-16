@@ -1,7 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { api } from '../../api/client'
-import type { ParentCatchUp, ParentEvening, PictureAnswer, ReasonCategory } from './types'
+import type { ParentCatchUp, ParentEvening, ParentWeeklyStar, PictureAnswer, ReasonCategory } from './types'
+
+/** Every kind of page a family's link opens. */
+export type ParentPage = ParentCatchUp | ParentEvening | ParentWeeklyStar
 
 export const parentKey = (token: string) => ['parent', token] as const
 
@@ -9,7 +12,7 @@ export const parentKey = (token: string) => ['parent', token] as const
 export function useParentPage(token: string) {
   return useQuery({
     queryKey: parentKey(token),
-    queryFn: () => api<ParentCatchUp | ParentEvening>(`/api/p/${token}`),
+    queryFn: () => api<ParentPage>(`/api/p/${token}`),
     retry: false,
   })
 }
@@ -32,7 +35,7 @@ export function usePicture(token: string) {
       }),
     onSuccess: (result, sign) => {
       requestId.current = crypto.randomUUID()
-      queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
+      queryClient.setQueryData<ParentPage>(parentKey(token), (page) =>
         page?.kind === 'evening' && page.todaysMessage?.picture
           ? {
               ...page,
@@ -66,7 +69,7 @@ export function useAnswer(token: string) {
       }),
     onSuccess: (result, choiceId) => {
       requestId.current = crypto.randomUUID()
-      queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
+      queryClient.setQueryData<ParentPage>(parentKey(token), (page) =>
         page?.kind === 'catchUp' ? { ...page, answered: true, choiceId, locked: result.locked } : page,
       )
     },
@@ -102,7 +105,7 @@ export function useReason(token: string) {
     onSuccess: ({ category }) => {
       // The next change of mind is a new request.
       requestId.current = crypto.randomUUID()
-      queryClient.setQueryData<ParentCatchUp | ParentEvening>(parentKey(token), (page) =>
+      queryClient.setQueryData<ParentPage>(parentKey(token), (page) =>
         page?.kind === 'evening' ? { ...page, reason: category } : page,
       )
     },

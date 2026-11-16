@@ -9,6 +9,9 @@ public static class DeliveryKinds
     public const string Todays = "todays";
 
     public const string CatchUp = "catchup";
+
+    /// <summary>The weekly star for a child present every school day (T-125, D-118).</summary>
+    public const string WeeklyStar = "weeklystar";
 }
 
 public static class DeliveryStatus

@@ -106,6 +106,10 @@ public sealed class EveningSendWorker(
                     // Approved catch-ups go out at the same time (T3: "Goes after 6 pm"); unapproved ones never (guardrail 3).
                     await classScope.ServiceProvider.GetRequiredService<SlateAi.Api.Features.CatchUps.CatchUpSender>()
                         .SendApprovedAsync(classId, today, cancellationToken);
+
+                    // The weekly star (T-125, D-118): Saturday once the register is in, or Sunday; only with her approval.
+                    await classScope.ServiceProvider.GetRequiredService<SlateAi.Api.Features.WeeklyStar.WeeklyStarSender>()
+                        .SendDueAsync(classId, today, cancellationToken);
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {

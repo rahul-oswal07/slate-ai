@@ -30,16 +30,11 @@ export type PacingNudge = {
   nextCompetencyId: string | null
 }
 
-/** FR-24, D-81: who earned this finished week's star, or is on track in the current one. Never the others. */
+/** FR-24, D-118: present every school day of this finished week, or every day so far in the current one. No counts. */
 export type StarChild = {
   childId: string
   rollNo: number
   firstName: string
-  /** Weekly stars this term, finished weeks only. */
-  attendance: number
-  /** Catch-ups answered at home. */
-  catchUps: number
-  total: number
 }
 
 export type WeekStars = {

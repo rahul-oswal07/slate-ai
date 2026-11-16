@@ -75,6 +75,21 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
             .Take(limit)
             .ToListAsync(cancellationToken);
 
+        var stars = await (
+                from d in db.ParentDeliveries.AsNoTracking()
+                where d.Status == DeliveryStatus.Pending && d.WeeklyStarMessageId != null
+                join m in db.WeeklyStarMessages on d.WeeklyStarMessageId equals m.Id
+                join c in db.Children on d.ChildId equals c.Id
+                orderby d.CreatedAt
+                select new
+                {
+                    d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
+                    m.Language, m.Token, m.ExpiresAt, m.Version,
+                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
+                })
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
         // The lessons of today's messages these evening rows carry: the template names them (T-104 a).
         var todaysIds = evening.Where(e => e.TodaysMessageId != null).Select(e => e.TodaysMessageId!.Value).Distinct().ToList();
         var todaysLessons = todaysIds.Count == 0
@@ -103,6 +118,9 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
             .. catchUps.Select(c => new PendingDelivery(c.Id, c.Attempts, c.Consent, c.Stopped, c.ExpiresAt, new DeliveryMessage(
                 c.Id, c.ChildId, DeliveryKinds.CatchUp, c.Language,
                 TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!, Phone: c.Phone))),
+            // weekly_star_v1 (T-125): {{1}} is the child's name, nothing else.
+            .. stars.Select(s => new PendingDelivery(s.Id, s.Attempts, s.Consent, s.Stopped, s.ExpiresAt, new DeliveryMessage(
+                s.Id, s.ChildId, DeliveryKinds.WeeklyStar, s.Language, [s.FirstName], s.Token, s.Version, s.Phone))),
         ];
     }
 
@@ -122,7 +140,9 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 .SetProperty(d => d.SentAt, update.SentAt), cancellationToken);
 
     /// <summary>A pending delivery row for a message just stored; added by the senders' stores in their transaction.</summary>
-    public static ParentDelivery Queue(Guid classId, Guid childId, DateTimeOffset now, Guid? eveningMessageId = null, Guid? assignmentId = null) =>
+    public static ParentDelivery Queue(
+        Guid classId, Guid childId, DateTimeOffset now, Guid? eveningMessageId = null, Guid? assignmentId = null,
+        Guid? weeklyStarMessageId = null) =>
         new()
         {
             Id = Guid.NewGuid(),
@@ -130,6 +150,7 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
             ChildId = childId,
             EveningMessageId = eveningMessageId,
             CatchUpAssignmentId = assignmentId,
+            WeeklyStarMessageId = weeklyStarMessageId,
             Status = DeliveryStatus.Pending,
             CreatedAt = now.ToUniversalTime(),
         };

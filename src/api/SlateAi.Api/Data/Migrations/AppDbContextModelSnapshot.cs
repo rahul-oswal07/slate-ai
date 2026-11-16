@@ -891,6 +891,9 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<Guid?>("WeeklyStarMessageId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CatchUpAssignmentId")
@@ -905,9 +908,12 @@ namespace SlateAi.Api.Data.Migrations
 
                     b.HasIndex("Status");
 
+                    b.HasIndex("WeeklyStarMessageId")
+                        .IsUnique();
+
                     b.ToTable("ParentDeliveries", t =>
                         {
-                            t.HasCheckConstraint("CK_ParentDeliveries_OneSource", "(\"EveningMessageId\" IS NULL) <> (\"CatchUpAssignmentId\" IS NULL)");
+                            t.HasCheckConstraint("CK_ParentDeliveries_OneSource", "(CASE WHEN \"EveningMessageId\" IS NULL THEN 0 ELSE 1 END + CASE WHEN \"CatchUpAssignmentId\" IS NULL THEN 0 ELSE 1 END + CASE WHEN \"WeeklyStarMessageId\" IS NULL THEN 0 ELSE 1 END) = 1");
                         });
                 });
 
@@ -1025,6 +1031,88 @@ namespace SlateAi.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("TodaysMessages");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.WeeklyStarApproval", b =>
+                {
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ApprovedByTeacherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("ClassId");
+
+                    b.HasIndex("ApprovedByTeacherId");
+
+                    b.ToTable("WeeklyStarApprovals");
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.WeeklyStarMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BadgeText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateOnly>("WeekOf")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("ChildId", "WeekOf")
+                        .IsUnique();
+
+                    b.HasIndex("ClassId", "WeekOf");
+
+                    b.ToTable("WeeklyStarMessages");
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.AbsenceReason", b =>
@@ -1277,6 +1365,11 @@ namespace SlateAi.Api.Data.Migrations
                         .WithOne()
                         .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "EveningMessageId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SlateAi.Api.Data.Entities.WeeklyStarMessage", null)
+                        .WithOne()
+                        .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "WeeklyStarMessageId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.TodaysMessage", b =>
@@ -1284,6 +1377,36 @@ namespace SlateAi.Api.Data.Migrations
                     b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
                         .WithMany()
                         .HasForeignKey("ApprovedByTeacherId");
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.WeeklyStarApproval", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedByTeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithOne()
+                        .HasForeignKey("SlateAi.Api.Data.Entities.WeeklyStarApproval", "ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.WeeklyStarMessage", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Child", null)
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SlateAi.Api.Data.Entities.Class", null)
                         .WithMany()

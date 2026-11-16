@@ -100,11 +100,10 @@ public sealed class WeekEndpointTests
 
         var week = (await client.GetFromJsonAsync<WeekResponse>(Url(Mon), Ct))!;
 
-        // Friday of the week: not finished; everyone was away at most once and present at least once.
+        // Friday of the week: not finished; only the 4 present on both school days so far are on track (D-118).
         Assert.False(week.Stars!.Finished);
         Assert.Equal(2, week.Stars.SchoolDays);
-        Assert.Equal(10, week.Stars.Children.Count);
-        Assert.Equal(Enumerable.Range(1, 10), week.Stars.Children.Select(c => c.RollNo));
+        Assert.Equal(Enumerable.Range(7, 4), week.Stars.Children.Select(c => c.RollNo));
     }
 
     [Fact]
@@ -119,7 +118,7 @@ public sealed class WeekEndpointTests
             .Content.ReadFromJsonAsync<WeekResponse>(Ct);
 
         Assert.Null(empty.Stars);
-        Assert.Equal(10, planned!.Stars!.Children.Count);
+        Assert.Equal(4, planned!.Stars!.Children.Count);
     }
 
     private ApiFactory Create() =>

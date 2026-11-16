@@ -57,7 +57,7 @@ describe('EveningTemplateScreen', () => {
     renderApp('/setup/evening')
 
     expect(await screen.findByRole('heading', { level: 1, name: 'The evening message on a day of absence' })).toHaveFocus()
-    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument()
+    expect(screen.getByText('Step 2 of 3')).toBeInTheDocument()
     expect(screen.getByText(/No AI writes this message/)).toBeInTheDocument()
     expect(await screen.findByText('subtraction with borrowing')).toHaveClass('underline')
     expect(screen.queryByText(/\{child\}/)).not.toBeInTheDocument()
@@ -66,7 +66,7 @@ describe('EveningTemplateScreen', () => {
     expect(within(telugu as HTMLElement).getByText('పది తీసుకుని తీసివేత')).toBeInTheDocument()
   })
 
-  it('Approve sends the version once and opens Today', async () => {
+  it('Approve sends the version once and goes on to the weekly star (step 3, T-125)', async () => {
     const calls = setup({
       [`GET ${templateUrl}`]: () => ({ status: 200, body: template() }),
       [`POST ${templateUrl}/approve`]: () => ({ status: 200, body: template('approved') }),
@@ -79,17 +79,17 @@ describe('EveningTemplateScreen', () => {
     const approve = calls.filter((c) => c.key === `POST ${templateUrl}/approve`)
     expect(approve).toHaveLength(1)
     expect(approve[0]?.body).toMatchObject({ version: '1' })
-    await userEvent.click(screen.getByRole('button', { name: 'Go to Today' }))
-    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Next: the weekly star' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'The weekly star for families' })).toBeInTheDocument()
   })
 
-  it('Not now approves nothing and opens Today', async () => {
+  it('Not now approves nothing and goes on to the weekly star', async () => {
     const calls = setup({ [`GET ${templateUrl}`]: () => ({ status: 200, body: template() }) })
     renderApp('/setup/evening')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Not now · you can change it in Settings' }))
 
-    expect(await screen.findByRole('heading', { level: 1, name: /^Today, / })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'The weekly star for families' })).toBeInTheDocument()
     expect(calls.some((c) => c.key.startsWith('POST'))).toBe(false)
   })
 
@@ -102,7 +102,7 @@ describe('EveningTemplateScreen', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Approve this message' }))
 
-    expect(screen.queryByText('Step 2 of 2')).not.toBeInTheDocument()
+    expect(screen.queryByText('Step 2 of 3')).not.toBeInTheDocument()
     await userEvent.click(await screen.findByRole('button', { name: 'Back to Settings' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument()
   })

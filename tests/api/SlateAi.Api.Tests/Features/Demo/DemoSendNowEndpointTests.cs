@@ -12,6 +12,7 @@ using SlateAi.Api.Features.CatchUps.Practice;
 using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Parent;
+using SlateAi.Api.Features.WeeklyStar;
 using SlateAi.Api.Tests.Features.Attendance;
 using SlateAi.Api.Tests.Features.CatchUps;
 using SlateAi.Api.Tests.Features.EveningMessages;
@@ -80,7 +81,7 @@ public sealed class DemoSendNowEndpointTests
     {
         var result = await SendNowAsync();
 
-        Assert.Equal(new DemoSendNowResponse(null, 1, 1), result);
+        Assert.Equal(new DemoSendNowResponse(null, 1, 1, WeeklyStarBlock.NotApproved), result);
         Assert.Equal(Rohan.Id, Assert.Single(_evening.Messages).Message.ChildId);
         Assert.Equal(PackageStatus.Sent, _catchUps.Packages.Single().Status);
     }
@@ -92,7 +93,7 @@ public sealed class DemoSendNowEndpointTests
 
         var again = await SendNowAsync();
 
-        Assert.Equal(new DemoSendNowResponse(null, 0, 0), again);
+        Assert.Equal(new DemoSendNowResponse(null, 0, 0, WeeklyStarBlock.NotApproved), again);
         Assert.Single(_evening.Messages);
     }
 
@@ -115,7 +116,7 @@ public sealed class DemoSendNowEndpointTests
 
         var result = await SendNowAsync();
 
-        Assert.Equal(new DemoSendNowResponse(EveningBlock.LessonNotConfirmed, 0, 1), result);
+        Assert.Equal(new DemoSendNowResponse(EveningBlock.LessonNotConfirmed, 0, 1, WeeklyStarBlock.NotApproved), result);
         Assert.Empty(_evening.Messages);
     }
 

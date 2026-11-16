@@ -3,6 +3,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.EveningMessages;
+using SlateAi.Api.Features.WeeklyStar;
 
 namespace SlateAi.Api.Features.Parent;
 
@@ -21,11 +22,12 @@ public static class ParentEndpoints
         var group = app.MapGroup("/api/p/{token}").AllowAnonymous().WithTags("Parent");
 
         group.MapGet("", GetAsync)
-            .WithSummary("What a family's link opens: the catch-up (P1–P4) or the evening message")
+            .WithSummary("What a family's link opens: the catch-up (P1–P4), the evening message or the weekly star")
             .WithDescription(
                 "kind \"catchUp\": the lesson only for an approved catch-up at the approved version (404 otherwise); " +
                 "no lesson fields when the family stopped messages; the check's options without the correct answer. " +
-                "kind \"evening\": the evening message. 404 if unknown; 410 once expired (14 days), with the " +
+                "kind \"evening\": the evening message. kind \"weeklyStar\" (T-125): the star page's message and badge " +
+                "text, none when the family stopped messages. 404 if unknown; 410 once expired (14 days), with the " +
                 "teacher's name and homework page for a catch-up.");
 
         group.MapGet("/audio/{clipId:guid}", GetAudioAsync)
@@ -70,7 +72,7 @@ public static class ParentEndpoints
         group.MapPost("/stop", StopAsync)
             .WithSummary("Stop these messages (FR-19, D-19)")
             .WithDescription(
-                "Works with a catch-up or an evening-message link, also after it expired. Every send path then " +
+                "Works with a catch-up, evening-message or weekly star link, also after it expired. Every send path then " +
                 "refuses this child. Repeating it changes nothing.");
 
         group.MapPost("/restart", RestartAsync)
@@ -79,11 +81,12 @@ public static class ParentEndpoints
         return app;
     }
 
-    private static async Task<Results<Ok<ParentCatchUpResponse>, Ok<ParentEveningResponse>, JsonHttpResult<ParentExpiredResponse>, NotFound, StatusCodeHttpResult>>
+    private static async Task<Results<Ok<ParentCatchUpResponse>, Ok<ParentEveningResponse>, Ok<ParentWeeklyStarResponse>, JsonHttpResult<ParentExpiredResponse>, NotFound, StatusCodeHttpResult>>
         GetAsync(
             string token,
             IParentStore parents,
             IEveningStore evenings,
+            IWeeklyStarStore stars,
             DisclosureClips disclosure,
             CurriculumGraph curriculum,
             TimeProvider clock,
@@ -118,7 +121,9 @@ public static class ParentEndpoints
 
         if (await evenings.FindByTokenAsync(token, cancellationToken) is not { } message)
         {
-            return TypedResults.NotFound();
+            return await stars.FindByTokenAsync(token, cancellationToken) is { } star
+                ? WeeklyStar(star, clock)
+                : TypedResults.NotFound();
         }
 
         if (clock.GetUtcNow() >= message.ExpiresAt)
@@ -137,6 +142,23 @@ public static class ParentEndpoints
             message.Stopped ? null : await LessonAudioAsync(token, message, message.LessonAudio, disclosure, cancellationToken),
             message.Stopped ? null : message.TodaysMessage,
             message.Stopped ? null : await LessonAudioAsync(token, message, message.ActivityAudio, disclosure, cancellationToken)));
+    }
+
+    /// <summary>
+    /// The weekly star page (T-125, D-118): the texts she approved, with the child's name filled in by code. Nothing else.
+    /// </summary>
+    private static Results<Ok<ParentCatchUpResponse>, Ok<ParentEveningResponse>, Ok<ParentWeeklyStarResponse>, JsonHttpResult<ParentExpiredResponse>, NotFound, StatusCodeHttpResult>
+        WeeklyStar(WeeklyStarPageRecord star, TimeProvider clock)
+    {
+        if (clock.GetUtcNow() >= star.ExpiresAt)
+        {
+            return TypedResults.StatusCode(StatusCodes.Status410Gone);
+        }
+
+        return TypedResults.Ok(new ParentWeeklyStarResponse(
+            star.Language, star.FirstName, star.TeacherName, star.WeekOf, star.Stopped,
+            star.Stopped ? null : WeeklyStarWording.Fill(star.MessageText, star.FirstName),
+            star.Stopped ? null : WeeklyStarWording.Fill(star.BadgeText, star.FirstName)));
     }
 
     /// <summary>

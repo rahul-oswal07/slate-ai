@@ -70,10 +70,10 @@
       "start": "Start"
     },
     "step1": {
-      "progress": "Step 1 of 2"
+      "progress": "Step 1 of 3"
     },
     "step2": {
-      "progress": "Step 2 of 2"
+      "progress": "Step 2 of 3"
     },
     "template": {
       "heading": "The evening message on a day of absence",
@@ -109,6 +109,20 @@
     "error": {
       "noGreeting": "Record your greeting first.",
       "noConsent": "Tick the box to agree."
+    },
+    "step3": {
+      "progress": "Step 3 of 3"
+    },
+    "star": {
+      "heading": "The weekly star for families",
+      "lead": "On Saturday evening, families of children who came to school every day this week get this. Approve it once. Only the child’s name changes, filled from your register. No AI writes it.",
+      "whatsApp": "WhatsApp message",
+      "page": "The page the link opens",
+      "thenBadge": "Then the star badge:",
+      "kannadaVersion": "Kannada version",
+      "approve": "Approve the weekly star",
+      "approved": "You approved this. It goes on Saturday evening to families of children who came every day.",
+      "next": "Next: the weekly star"
     }
   },
   "today": {
@@ -555,6 +569,11 @@
       "sendFailed": "Could not send. Check the network and tap again.",
       "doneBody": "{{child}} has a star for today. {{teacher}} will see the answer. See you in class tomorrow!",
       "submit": "Submit"
+    },
+    "star": {
+      "title": "A star this week",
+      "badgeTitle": "Star badge",
+      "open": "Open to see your star badge"
     }
   },
   "missed": {
@@ -699,16 +718,12 @@
     "stars": {
       "title": "Stars",
       "titleThisWeek": "Stars this week",
-      "earned_one": "{{count}} child earned a star this week.",
-      "earned_other": "{{count}} children earned a star this week.",
-      "soFar_one": "So far {{count}} child is on track for a star.",
-      "soFar_other": "So far {{count}} children are on track for a star.",
       "none": "No stars this week. Every week is a new start.",
-      "total_one": "{{count}} star this term",
-      "total_other": "{{count}} stars this term",
-      "childLabel": "{{name}}, roll {{roll}}, {{total}}: {{attendance}} for coming to school, {{catchUps}} for a catch-up",
+      "childLabel": "{{name}}, roll {{roll}}",
       "hint": "Say well done in class.",
-      "rule": "A star for each week with at most one day away, and for each catch-up done at home."
+      "rule": "A star for coming to school every day of the week. Each week starts fresh.",
+      "earned": "Came to school every day this week:",
+      "soFar": "Every day so far this week:"
     }
   },
   "demo": {
@@ -749,7 +764,9 @@
         "templateNotApproved": "Tonight's message wasn't sent: approve the evening message on Today first.",
         "lessonNotConfirmed": "Tonight's message wasn't sent: confirm today's lesson first.",
         "noAttendance": "Tonight's message wasn't sent: bring in today's attendance first."
-      }
+      },
+      "stars": "Weekly stars: {{n}}.",
+      "starsNotApproved": "Weekly star: approve it in Settings first."
     },
     "panels": "Demo panels",
     "tab": {
@@ -779,7 +796,8 @@
       "evening": "Evening message · {{date}}",
       "catchUp": "Catch-up lesson · week of {{date}}",
       "open": "Open",
-      "voice": "Voice message · {{duration}}"
+      "voice": "Voice message · {{duration}}",
+      "weeklyStar": "Weekly star · week of {{date}}"
     },
     "ai": {
       "title": "Under the hood",
@@ -927,6 +945,12 @@
       "approved": "Approved · {{date}}",
       "needsApproval": "Needs your approval. No evening messages go until you approve it.",
       "review": "Review the message"
+    },
+    "star": {
+      "title": "Weekly star",
+      "approved": "Approved. Goes on Saturday evening.",
+      "needsApproval": "Needs your approval. No star messages go until you approve it.",
+      "review": "Review the weekly star"
     }
   },
   "profile": {

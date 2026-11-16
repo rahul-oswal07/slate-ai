@@ -68,6 +68,20 @@
     transform: scale(1);
   }
 }
+/* The weekly star badge (T-125): each piece flies out from the medal once and rests. */
+@keyframes confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), var(--from-y, 0)) scale(0.3);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
 @keyframes skeleton {
   from {
     opacity: 0.55;
@@ -90,6 +104,10 @@
   .draw-on {
     stroke-dasharray: 100;
     animation: draw-on 300ms ease-out both;
+  }
+  /* About 2 s in all, then still (T-125). Off with reduced motion, like every animation (tokens.css). */
+  .confetti-burst {
+    animation: confetti-burst 1.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
   .breathing {
     animation: breathe 2.4s ease-in-out infinite alternate;

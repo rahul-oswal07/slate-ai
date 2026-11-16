@@ -130,6 +130,48 @@ public sealed class WhatsAppTests
         Assert.Equal(["en", "hi", "kn", "ta", "te"], settings.Todays.Languages.Keys.Order());
         Assert.Equal("catchup_link_v1", settings.CatchUp.Name);
         Assert.Equal(["en", "hi", "kn", "te"], settings.CatchUp.Languages.Keys.Order());
+        // weekly_star_v1 is in review at Meta (T-125): no language until it is approved.
+        Assert.Equal(("weekly_star_v1", "1"), (settings.WeeklyStar.Name, settings.WeeklyStar.WordingVersion));
+        Assert.Empty(settings.WeeklyStar.Languages);
+    }
+
+    [Theory]
+    [InlineData("en", "1", "sent")]
+    [InlineData("kn", "1", "no-template")] // not approved at Meta in Kannada: stays on the demo chat
+    [InlineData("en", "0", "wording-version")] // she approved other wording than the Meta template copies
+    public async Task The_weekly_star_goes_as_weekly_star_v1_with_only_the_childs_name(string language, string version, string outcome)
+    {
+        var settings = Settings();
+        settings.WeeklyStar.Languages["en"] = "en";
+        var (channel, http) = Create(settings);
+
+        var result = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.WeeklyStar, language, ["Ravi"], "tok_star", version, RaviPhone), Ct);
+
+        if (outcome == "sent")
+        {
+            Assert.Equal(DeliveryStatus.Sent, result.Outcome);
+            var (_, body) = Assert.Single(http.Requests);
+            Assert.Contains("weekly_star_v1", body);
+            Assert.Contains("tok_star", body);
+        }
+        else
+        {
+            Assert.Equal(ChannelResult.Skipped(outcome), result);
+            Assert.Empty(http.Requests);
+        }
+    }
+
+    [Fact]
+    public async Task By_default_no_weekly_star_goes_over_WhatsApp()
+    {
+        var (channel, http) = Create();
+
+        var result = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.WeeklyStar, "en", ["Ravi"], "tok_star", "1", RaviPhone), Ct);
+
+        Assert.Equal(ChannelResult.Skipped("no-template"), result);
+        Assert.Empty(http.Requests);
     }
 
     [Theory]

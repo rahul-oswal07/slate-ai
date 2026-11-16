@@ -6,7 +6,8 @@ Spec: [`spec.md`](spec.md)
 
 ## Built
 
-- **Week:** return speed this week and last, reasons for absence, the pacing nudge, attendance stars (T-46, T-63).
+- **Week:** return speed this week and last, reasons for absence, the pacing nudge, the weekly star (T-46, T-63).
+- The stars card lists, in roll order, the children present on every school day of the week shown (the current week: every day so far), with no numbers or totals (D-118, T-125).
 
 ## Known gaps and drafts
 

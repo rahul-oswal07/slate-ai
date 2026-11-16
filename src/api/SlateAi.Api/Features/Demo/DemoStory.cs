@@ -55,15 +55,15 @@ public static class DemoStory
         }).ToList();
     }
 
-    /// <summary>Away one day in the first star week: still earns that week's star (the rule is kind).</summary>
+    /// <summary>Away one day in the first star week: no star that week (D-118: every day present), the others still list them.</summary>
     public const int OneDayAwayRollNo = 7;
 
-    /// <summary>Away three days in the second star week: no star that week, the others still count.</summary>
+    /// <summary>Away three days in the second star week: no star that week.</summary>
     public const int ThreeDaysAwayRollNo = 10;
 
     /// <summary>
     /// Registers for the three weeks that end before last week (4, 3 and 2 weeks before this one), so T6's star card
-    /// has finished weeks to count. Register only, no lessons, and none in last week or this one, so Missed lessons and
+    /// has finished weeks to show. Register only, no lessons, and none in last week or this one, so Missed lessons and
     /// the return-speed numbers are what <see cref="Build"/> alone gives. Everyone is present except the two children
     /// above.
     /// </summary>

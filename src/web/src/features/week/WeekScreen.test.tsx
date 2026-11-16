@@ -60,7 +60,7 @@ function setup(current: () => Week | 'offline', extra: Record<string, FakeRoute>
 }
 
 describe('WeekScreen (T6)', () => {
-  const stars = { finished: false, schoolDays: 3, children: [{ childId: 'c1', rollNo: 3, firstName: 'Asha', attendance: 2, catchUps: 0, total: 2 }] }
+  const stars = { finished: false, schoolDays: 3, children: [{ childId: 'c1', rollNo: 3, firstName: 'Asha' }] }
 
   beforeEach(async () => {
     localStorage.clear()

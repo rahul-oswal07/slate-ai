@@ -11,6 +11,7 @@ using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
+using SlateAi.Api.Features.WeeklyStar;
 
 namespace SlateAi.Api.Features.Demo;
 
@@ -28,7 +29,10 @@ public sealed record DemoSendNowRequest(Guid ClientRequestId);
 /// <param name="EveningBlocked">Why tonight's message didn't go (an <see cref="EveningBlock"/> code), or null.</param>
 /// <param name="EveningSent">Families sent tonight's message by this tap.</param>
 /// <param name="CatchUpsSent">Approved catch-ups sent by this tap.</param>
-public sealed record DemoSendNowResponse(string? EveningBlocked, int EveningSent, int CatchUpsSent);
+/// <param name="StarsBlocked">Why no weekly star went for the latest finished week (a <c>WeeklyStarBlock</c>), or null (T-125).</param>
+/// <param name="StarsSent">Weekly star messages sent now.</param>
+public sealed record DemoSendNowResponse(
+    string? EveningBlocked, int EveningSent, int CatchUpsSent, string? StarsBlocked = null, int StarsSent = 0);
 
 /// <summary>Who the demo shell is about.</summary>
 /// <param name="ParentChildId">The child whose family the demo parent phone shows: Manjunath, whose family reads Kannada (T-93, D-94).</param>
@@ -286,6 +290,7 @@ public static class DemoEndpoints
         HttpContext http,
         EveningSender evening,
         CatchUpSender catchUps,
+        WeeklyStarSender stars,
         DeliveryDispatcher delivery,
         IOptions<DatabaseOptions> database,
         TimeProvider clock,
@@ -311,9 +316,11 @@ public static class DemoEndpoints
         var before = (await evening.PlanAsync(classId, today, cancellationToken))?.Sent ?? 0;
         var day = await evening.SendAsync(classId, today, cancellationToken);
         var sent = await catchUps.SendApprovedAsync(classId, today, cancellationToken);
+        // The weekly star for the latest finished week (D-118): the judges see it without waiting for Saturday.
+        var star = await stars.SendLatestAsync(classId, today, cancellationToken);
         // Registered test phones get WhatsApp now rather than on the next minute's tick (T-40); demo channel: nothing.
         await delivery.RunOnceAsync(cancellationToken);
-        return TypedResults.Ok(new DemoSendNowResponse(day?.Blocked, (day?.Sent ?? 0) - before, sent));
+        return TypedResults.Ok(new DemoSendNowResponse(day?.Blocked, (day?.Sent ?? 0) - before, sent, star?.Blocked, star?.Sent ?? 0));
     }
 
     private static async Task<Results<Ok<IReadOnlyList<FamilyMessage>>, NotFound>> GetFamilyAsync(

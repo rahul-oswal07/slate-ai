@@ -22,6 +22,7 @@ import { ProfileScreen } from '../features/profile/ProfileScreen'
 import { SettingsScreen } from '../features/settings/SettingsScreen'
 import { WelcomeScreen } from '../features/setup/WelcomeScreen'
 import { TodayScreen } from '../features/today/TodayScreen'
+import { WeeklyStarScreen } from '../features/star/WeeklyStarScreen'
 import { WeekScreen } from '../features/week/WeekScreen'
 import { AppShell } from './AppShell'
 import { NotFound } from './NotFound'
@@ -54,6 +55,8 @@ export function App() {
           <Route path="setup/greeting" element={<GreetingScreen mode="later" />} />
           <Route path="settings/greeting" element={<GreetingScreen mode="settings" />} />
           <Route path="settings/evening" element={<EveningTemplateScreen mode="settings" />} />
+          <Route path="setup/star" element={<WeeklyStarScreen />} />
+          <Route path="settings/star" element={<WeeklyStarScreen mode="settings" />} />
           <Route element={<TeacherLayout />}>
             <Route index element={<TodayScreen />} />
             <Route path="settings" element={<SettingsScreen />} />

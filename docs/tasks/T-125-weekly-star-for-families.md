@@ -2,15 +2,15 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done |
 | Issue | #254 |
 | Owner | M (flow, copy, WhatsApp template), R builds |
-| Screens | a new family page (no folder yet), T0-setup, T6-week, P1-P4-catch-up, P5-todays-message, delivery, demo |
+| Screens | P6-weekly-star, T0-setup, T6-week, P1-P4-catch-up, P5-todays-message, delivery, demo |
 | Source | Monika, 15 Nov · Finale, before Wed 18 Nov · replaces most of D-81 (star rule, catch-up star, term totals, no family messages) |
 
 ## What
 
-**Proposed: needs Rahul's approval before building.** Every point below is Monika's answer (15 Nov).
+Approved by Rahul and built on 16 Nov ([D-118](../decisions/D-118-weekly-star-every-day.md)). Every point below is Monika's answer (15 Nov).
 
 Today (D-81) the weekly star is "at most 1 day away", only the teacher sees it on Week, and stars add up over the term with a catch-up star counted for each catch-up answered. Families get nothing for coming to school. That means a child away one day can collect more stars than a child who came every day, and today's message tells the family "{child} has a star for today" while nothing counts it.
 
@@ -72,9 +72,9 @@ Test Messaging Account · Utility · Default · variable type Number · no heade
 
 ### 7. Questions for Rahul
 
-- **[CONFIRM: Rahul]** The link: a new kind of `/p/{token}` link so the template keeps the same base URL as the others?
-- **[CONFIRM: Rahul]** The demo: the final is on Wed 18 Nov, so the demo Reset needs a finished week with a child present every day, and the send triggered at once (as Send messages now). How should that work?
-- A new decision file replacing D-81 (1) the rule (at most 1 day away → every day), (2) the catch-up star, (3) stars adding up over the term, (4) the class view's totals and families seeing only the catch-up star, and (6) messages to present families being roadmap. D-81 (5) stays: code only, no AI, nothing stored.
+- The link (was `[CONFIRM: Rahul]`): **yes**, a new kind of `/p/{token}` link (`kind: "weeklyStar"`), so the template keeps the same base URL as the others (D-118).
+- The demo (was `[CONFIRM: Rahul]`): Reset already seeds finished weeks with children present every day; **Send messages now** also sends the stars for the latest finished week, once she has approved the wording (D-118).
+- Done: [D-118](../decisions/D-118-weekly-star-every-day.md), replacing D-81 (1) the rule (at most 1 day away → every day), (2) the catch-up star, (3) stars adding up over the term, (4) the class view's totals and families seeing only the catch-up star, and (6) messages to present families being roadmap. D-81 (5) stays: code only, no AI, nothing stored.
 
 ## Acceptance criteria
 
@@ -96,6 +96,16 @@ Test Messaging Account · Utility · Default · variable type Number · no heade
 - Existing e2e specs pass (no new spec). `verify.sh`. 360 px screenshots of both screens in kn and en; axe.
 
 ## Notes
+
+- 16 Nov 2026: **built** (D-118 accepted by Rahul, with the link and demo answers in §7).
+  - **Rule:** `StarRules` lists children present on every school day (a register day without their row loses it); no `Attendance`/`CatchUps`/`Total`, no `Stars:MaxDaysAwayPerWeek`. Week's card shows names in roll order with no counts.
+  - **Approval:** `data/seed/weekly-star.json` v1 (WhatsApp text, message, badge; Monika's copy) approved once per class (`WeeklyStarApprovals`) at `/setup/star` (setup step 3, after the evening message) or `/settings/star`. A new version asks again.
+  - **Send:** `WeeklyStarSender` from the 6 pm job on Saturday once the register is in, and on Sunday (a second Saturday has no school). Consent Yes, not stopped, once per child per week (`WeeklyStarMessages`, unique `(ChildId, WeekOf)`, outbox row in the same transaction). Migration `WeeklyStarMessages` (third source on `ParentDeliveries`).
+  - **WhatsApp:** `weekly_star_v1` with `{{1}}` = the name, but **no language is switched on** until Meta approves it (English in review). Then `WhatsApp__WeeklyStar__Languages__en=en`.
+  - **Page (P6):** message + "Open to see your star badge" → badge card (`?step=badge`) with a ~1.7 s confetti burst that rests; reduced motion off via the global rule. Stopped → stopped page; 14 days → 410.
+  - **Demo:** Send messages now also sends the latest finished week's stars; the family phone lists "Weekly star · week of …".
+  - **Tests:** `StarRulesTests` rewritten; `WeeklyStarTests` (sender: who, when, approval, once, Sunday, demo; endpoints; the page); `WhatsAppTests`; Vitest for the Week card, the approval screen, the page and the setup chain. `verify.sh`, the Db suite and e2e run (see the PR).
+  - **Left:** switch on `weekly_star_v1` per language once Meta approves it; native review of the kn/te/ta/hi page and setup copy (T-26); a design card for P6 and the setup step (Monika). `CLAUDE.md` guardrail 3 now names the weekly star.
 
 - 15 Nov: star concept rethought by Monika: every day present only, a fresh list each week, nothing counted or carried forward (no term totals, no catch-up star count); the Done-page stars stay as pictures with their words; Week shows that week's list, on track mid-week, its own list for an earlier week.
 - 15 Nov: `weekly_star_v1` English submitted (in review), as a weekly attendance update after Meta flagged the star wording as Marketing; other languages later.

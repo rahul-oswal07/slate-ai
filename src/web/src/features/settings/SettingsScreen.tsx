@@ -5,6 +5,7 @@ import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import { useMessageTemplate } from '../evening/useEvening'
+import { useWeeklyStarWording } from '../star/useWeeklyStar'
 
 /**
  * T10 Settings, MVP part (T-71, D-86): opened from the gear on Today. Her greeting (play it, record it again) and the
@@ -24,6 +25,7 @@ export function SettingsScreen() {
       </h1>
       <GreetingRow />
       <EveningRow />
+      <StarRow />
     </section>
   )
 }
@@ -118,6 +120,38 @@ function EveningRow() {
       </div>
       <Link to="/settings/evening" className="btn-secondary flex items-center justify-center">
         {t('settings.evening.review')}
+      </Link>
+    </section>
+  )
+}
+
+/** The weekly star families get (T-125, D-118): approved or not, and the way to review it. */
+function StarRow() {
+  const { t } = useTranslation()
+  const wording = useWeeklyStarWording(useMe().data?.classId ?? '')
+  const approved = wording.data?.approved === true
+
+  return (
+    <section aria-labelledby="settings-star" className="card flex flex-col gap-3 p-[14px]">
+      <div className="flex items-start gap-3">
+        {/* Not approved: no star message goes (guardrail 3), so the icon warns; the words say why. */}
+        <Icon
+          name={wording.data && !approved ? 'alert' : 'star'}
+          className={`mt-0.5 shrink-0 ${wording.data && !approved ? 'text-warning' : 'text-primary-strong'}`}
+        />
+        <div className="min-w-0 flex-1">
+          <h2 id="settings-star" className="text-label">
+            {t('settings.star.title')}
+          </h2>
+          {wording.data && (
+            <p className={`text-caption ${approved ? 'text-ink-muted' : 'text-ink'}`}>
+              {t(approved ? 'settings.star.approved' : 'settings.star.needsApproval')}
+            </p>
+          )}
+        </div>
+      </div>
+      <Link to="/settings/star" className="btn-secondary flex items-center justify-center">
+        {t('settings.star.review')}
       </Link>
     </section>
   )
