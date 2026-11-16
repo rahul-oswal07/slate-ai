@@ -136,7 +136,20 @@ Once tonight's message has gone to families, the day's lesson is locked: Today s
 4. If **Today** asks you to approve the evening message first, do it once: it is the short message every absent child's family gets.
 5. To see what the families received, open **https://slateai-prod.azurewebsites.net/demo**. It is the same class, with the family's phone beside the teacher's.
 
-**First-time sign-in:** to see the welcome a new teacher gets, sign in as **Savitha** (`9123456789`). It shows *"Namaskara, Savitha ma'am"*, three promises, and a 10-second voice greeting with a consent tick. Once someone completes it, her login goes straight to Today, like the others.
+### First-time sign-in: what a new teacher sees
+
+Sign in as **Savitha** to see the set-up a teacher goes through the first time. She is a co-teacher of the same class and hasn't set up yet.
+
+1. Open **/login** on either server (e.g. https://slateai-prod.azurewebsites.net/login). Enter Savitha's mobile number **`9123456789`** (without `+91`) and the PIN from slide 14 of the deck.
+2. **Welcome:** *"Namaskara, Savitha ma'am"* and three promises: attendance comes from SATS and it's one voice note a day; nothing reaches a parent until she approves it; only she can see these records. Tap **Start**.
+3. **Step 1 of 3, her greeting:** tap the mic and record about 10 seconds in Kannada (a suggested sentence is on screen), play it back, tick the voice consent (*"I agree my voice is used only in messages to parents…"*) and tap **Save and continue**. No microphone? **Continue without a greeting**.
+4. **Step 2 of 3, the evening message:** the short message families get on a day of absence. Only the highlighted words change each evening, filled from her records, and no AI writes it. **Approve this message**, or **Not now** (it can be changed in Settings).
+5. **Step 3 of 3, the weekly star:** the message and the two family screens for a child who came every day, shown with a child from her class. Approve it once; nothing goes until she does.
+6. She lands on **Today**, ready for the day.
+
+- The Welcome shows only once. After someone completes it, Savitha's login goes straight to Today, like the others.
+- **Already done by someone else?** Open `/admin/teachers` on the same server and tap **Clear consent** next to Savitha, then **Yes, clear it**. It deletes her greeting, and her next sign-in starts at the Welcome again.
+- Families hear the class teacher's (Shobha's) greeting, so recording one as Savitha doesn't change what the demo families hear.
 
 ---
 
@@ -145,7 +158,7 @@ Once tonight's message has gone to families, the day's lesson is locked: Today s
 | Server | Role | Name | Mobile number | PIN |
 |---|---|---|---|---|
 | Both | Class teacher | Shobha | `9000000000` | slide 14 of the deck |
-| Both | Co-teacher | Savitha | `9123456789` | slide 14 of the deck |
+| Both | Co-teacher (first-time sign-in, [see above](#first-time-sign-in-what-a-new-teacher-sees)) | Savitha | `9123456789` | slide 14 of the deck |
 | Both | Co-teacher | Monika | `9123456788` | slide 14 of the deck |
 | Both | Family | — | — | none: each family link carries its own key |
 
