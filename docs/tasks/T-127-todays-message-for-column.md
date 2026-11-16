@@ -23,7 +23,8 @@ Today's message's A9 and voice calls are now tagged with the children whose fami
 
 ## How it's tested
 
-- `TodaysMessageGeneratorTests.A9_and_the_voice_are_logged_as_about_the_children_whose_families_get_it`
+- `TodaysMessageGeneratorTests.A9_is_about_every_family_who_gets_it_and_each_voice_only_about_its_languages_families`
+- `TodaysMessageGeneratorTests.A_voice_in_a_language_no_family_gets_tonight_is_class_level`
 - `TodaysMessageEndpointTests.The_draft_is_written_as_about_the_absent_children_whose_families_get_it`: confirming a lesson over HTTP; only the absent children with consent.
 - Both were written first, and both failed on the old code.
 
@@ -32,3 +33,4 @@ Today's message's A9 and voice calls are now tagged with the children whose fami
 - 15 Nov 2026: built on `feat/T-127-todays-message-for-column`. `TodaysJob` carries `ChildIds`. `TodaysMessageService.DueAsync` gives both the languages and the children, and `TodaysMessageGenerator` opens an `AiCallScope` for the run. Not changed: A1, A8, speech-to-text and the shared lesson clip stay class-level. The shared AI disclosure clip, made once per language, is tagged only by the run that first makes it.
 - 15 Nov 2026: merged as #258, which closed #257. On staging after deploy; not in a prod tag yet.
 - 15 Nov 2026: follow-up asked for by Rahul. The `/demo` subtitle (`demo.subtitle`, all five locales) now says the parent phone is simulated but its messages are the real ones a family is sent.
+- 16 Nov 2026: follow-up asked for by Rahul. Under the hood showed the same children on every voice row (e.g. Kannada and Hindi voice both "Rohan, Manjunath"). `TodaysJob` now carries `TodaysFamily(ChildId, Language)`; A9 stays about all of them, and each language's voice (and its disclosure clip, if made in that run) is about only that language's children. Tests updated first and failed on the old code.

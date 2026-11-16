@@ -219,6 +219,9 @@ public sealed class CatchUpWriterTests
         /// <summary>Who each synthesis was about (<c>AiCallScope</c>), as the logged voice would record it.</summary>
         public List<IReadOnlyList<Guid>?> About { get; } = [];
 
+        /// <summary>The language code of each synthesis, in the same order as <see cref="About"/>.</summary>
+        public List<string> LanguageCodes { get; } = [];
+
         public bool Fail { get; set; }
         public double? Seconds { get; set; }
 
@@ -226,6 +229,7 @@ public sealed class CatchUpWriterTests
         {
             Texts.Add(text);
             About.Add(AiCallScope.Current);
+            LanguageCodes.Add(languageCode);
             if (Fail)
             {
                 throw new SpeechException(SpeechFailure.Unavailable, "down");
