@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Done (not merged yet) |
+| Status | Done (#300, not merged yet) |
 | Issue | #299 |
 | Owner | R |
 | Screens | P5-todays-message, T3-approve, admin |
