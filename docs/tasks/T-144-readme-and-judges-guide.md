@@ -33,4 +33,5 @@ The README described the 31 Oct build-stage submission.
 ## Notes
 
 - 17 Nov 2026: written.
+- 17 Nov 2026: checked against the code. JUDGES.md gets *Get the link on your own WhatsApp* (save a number on `/admin/children`; only Navya's and Navneet's phones are on Meta's test-number list), and the README links to it. On-screen wording fixed: *Writing today's message…*, *Try again*.
 - The demo's on-screen step guide (`demo.guide.*`) still says "Tap Use the sample voice note", which staging doesn't offer, and it doesn't mention today's message. It is worth updating to match JUDGES.md.

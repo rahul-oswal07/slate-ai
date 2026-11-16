@@ -61,11 +61,11 @@ Open **https://slateai-staging.azurewebsites.net/demo**. It signs you in by itse
 |---|---|---|---|
 | 1 | Teacher · **Today** | Look at the attendance card | The register came in from SATS at 9:00: Manjunath (roll 15) is absent |
 | 2 | Teacher · **Today** | Tap the mic and read the Kannada sentence for **Nalikali p 4** from [Sample inputs](#6-sample-inputs) (allow the microphone). If you don't read Kannada, tap **Pick from the list** and choose *More, less, equal* (Bridge course) | After ~15 s: *Nalikali Maths · Part 1 · p 4*, with what you said. Tap **Confirm** |
-| 3 | Teacher · **Approve** | Confirming opens **Approve → Today's message** by itself. Wait about a minute | *Being written…*, then the draft. (If you land on Today instead, tap **Check today's message**) |
+| 3 | Teacher · **Approve** | Confirming opens **Approve → Today's message** by itself. Wait about a minute | *Writing today's message…*, then the draft. (If you land on Today instead, tap **Check today's message**) |
 | 4 | Teacher · **Approve → Today's message** | Play the voice note (about a minute), read the Kannada, play the voiced activity steps, look at the video and the picture question. Optional: **Edit** a sentence, add a note to families, or **Choose another pair** | Each section in Kannada, the teacher's language; families get the same in their own language |
 | 5 | Teacher · **Approve** | Tick, then **Approve and send now** | It goes to the family at once and you are back on Today. (**Approve, send after 6 pm** is the school-day choice) |
 | 6 | Family phone | Open the new message | Shobha's greeting, then *"Is everything OK?"* (pick a reason), the explanation (tap to listen), the home activity, *Watch how it's taught*, then **Manjunath's turn** |
-| 7 | Family phone | Answer the picture question (**>**, **<** or **=**, drawn as bundles of sticks) | Right or *"try once more"*. Code scores the answer; the AI never sees it |
+| 7 | Family phone | Answer the picture question (**>**, **<** or **=**, drawn as bundles of sticks) | *Well done!*, or **Try again**. Code scores the answer; the AI never sees it |
 | 8 | Teacher · **Today** | Tap **See answers** | *Sent to 1 · 1 answered*: Manjunath's answer and his level |
 | 9 | Teacher · **Missed**, **Week** | Look around | Manjunath's missed lessons and how he did; how fast children came back, the reasons families gave, and attendance stars |
 | 10 | **Under the hood** (tab on `/demo`, or `/demo/ai`) | Read the list | Every AI call you just caused: what it was for, which child it was about, the model, prompt version, tokens and the check's result |
@@ -89,6 +89,21 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 | **The return day** | **Back today** | A buddy card for each returning child: who sits with them, 3 sums and the textbook words |
 | **Run Today again** | **Settings → Reset today** (demo class only) | Clears today's lesson, message and answers, puts the register back as SATS sent it, and keeps earlier days |
 | **Offline** | Turn on airplane mode, mark attendance or record a note, turn it off | It saves on the phone and sends when the network is back |
+| **The link on a real WhatsApp** | `/admin/children` on staging: save your number against a child, see [below](#get-the-link-on-your-own-whatsapp) | The same message arrives on WhatsApp, as a family would get it |
+
+### Get the link on your own WhatsApp
+
+Staging sends real WhatsApp messages from Meta's test number. Meta only delivers a test number's messages to phones registered with it, and for the finale **only Navya's and Navneet's numbers are registered**. If you are one of them:
+
+1. Open **https://slateai-staging.azurewebsites.net/admin/children** (no key needed).
+2. Pick any child, e.g. **Manjunath** (roll 15). Tap **Edit** under **Number 1**, type your 10-digit mobile number (`+91` is added for you), and tap **Save**. **Number 2** is optional: every message goes to each saved number.
+3. Make sure that child is absent today (on **Today**, edit the register if needed), then follow the [5-minute path](#2-guided-demo-the-5-minute-path) and tap **Approve and send now**.
+4. The message arrives on your WhatsApp in the child's home language, with a button that opens the family pages. The same message also shows on the demo's family phone.
+
+- WhatsApp only goes to numbers saved on this page; the seeded numbers are never dialled. A saved number survives **Reset demo**.
+- Any other number is accepted by the page, but Meta won't deliver to it: that family still gets the message on the demo's family phone.
+- The admin page is open to anyone with the address, so please tap **Clear** on your number when you are done.
+- Production doesn't send WhatsApp: there, messages appear only on the demo's family phone.
 
 ---
 
@@ -149,7 +164,7 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 | **Class teacher** (Shobha) | Teacher app: **Today · Approve · Missed · Back today · Week**, **Settings** | Register, lesson, approves every message, sees answers and levels, buddy cards, the weekly view |
 | **Co-teacher** (Savitha, Monika) | The same app, the same class | Shares the class; families hear the class teacher's greeting |
 | **Family and child** | A link on WhatsApp (`/p/<token>`): no app, no sign-in | Listen in their language, give a reason for the absence, do the activity, the child answers; "Stop these messages" at any time |
-| **Administrator** | `/admin` | Family phone numbers and home languages, lesson video links and lesson descriptions, teacher consent, greetings |
+| **Administrator** | `/admin` | Family phone numbers (where WhatsApp goes) and home languages, lesson video links and lesson descriptions, teacher consent, greetings |
 | **Judge / reviewer** | `/demo`, `/demo/ai` | Both phones side by side, and every AI call |
 
 ---
@@ -159,7 +174,7 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 | Real | Simulated or fixed |
 |---|---|
 | **Every AI call**: Claude (lesson matching from voice or photo, choosing what to teach, writing messages and catch-ups, checking them) and Sarvam (speech-to-text, text-to-speech) | **SATS attendance**: a simulated feed, arriving at 9:00; **Bring in today's attendance** on `/demo` |
-| **The teacher app, approvals, the family pages, answers and levels**, stored in PostgreSQL on Azure | **WhatsApp delivery**: on production, messages appear on the demo's family phone. Staging sends real WhatsApp templates from Meta's test number, but only to registered test phones |
+| **The teacher app, approvals, the family pages, answers and levels**, stored in PostgreSQL on Azure | **WhatsApp delivery**: on production, messages appear on the demo's family phone. Staging sends real WhatsApp templates from Meta's test number, but only to phones registered with Meta (Navya's and Navneet's): see [Get the link on your own WhatsApp](#get-the-link-on-your-own-whatsapp) |
 | **The textbook**: Karnataka Grade 3 Maths (Kannada medium), all 61 lessons, with page numbers and descriptions read from the book | **The class**: 36 fictional children with first names only; families speak Kannada, Telugu, Tamil, Hindi or English |
 | **The 6 pm evening send**, the weekly star on Saturday, offline sync | In the demo, **Approve and send now** and **Send messages now** send at once instead of waiting for 6 pm |
 
@@ -186,7 +201,7 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 ## 10. If something looks off
 
 - **Someone else is testing at the same time.** Each server has one shared class. On the guided demo, tap **Reset demo** to start again; or use **Settings → Reset today** to clear just today.
-- **"Today's message is being written…"** It takes about a minute: the AI writes every language, then each is voiced. The screen updates by itself.
+- **"Writing today's message…"** It takes about a minute: the AI writes every language, then each is voiced. The screen updates by itself.
 - **The lesson can't be changed.** Once tonight's message has gone to families, the lesson is fixed, because they already have it. Use **Settings → Reset today** to try again.
 - **Tonight's message wasn't sent.** `/demo` says why: the register isn't in, the lesson isn't confirmed, or the evening message isn't approved yet (Today → tonight's card).
 - **The microphone doesn't work.** Allow it in the browser, or use **Pick from the list** or a photo.
