@@ -161,7 +161,7 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
             }
 
             var p = Packages.Single(x => x.Id == packageId);
-            if (p.Status is not (PackageStatus.Ready or PackageStatus.NeedsReview or PackageStatus.Failed))
+            if (!StaleGenerating.CanRegenerate(p.Status, p.UpdatedAt, Now()))
             {
                 return Task.FromResult(PackageChange.Conflict);
             }

@@ -21,7 +21,7 @@ public sealed record CatchUpWeekResponse(DateOnly WeekOf, IReadOnlyList<PackageV
 public static class CatchUpEndpoints
 {
     /// <summary>A package still "generating" after this (app restarted mid-way) reads as failed.</summary>
-    public static readonly TimeSpan StaleGenerating = TimeSpan.FromMinutes(5);
+
 
     public static IServiceCollection AddCatchUps(this IServiceCollection services, IConfiguration configuration)
     {
@@ -90,8 +90,6 @@ public static class CatchUpEndpoints
 
     private static CatchUpWeekResponse Week(DateOnly date, IReadOnlyList<PackageView> packages, DateTimeOffset now) =>
         new(CompressionPlanner.Week(date).From, packages
-            .Select(p => p.Status == PackageStatus.Generating && now - p.UpdatedAt > StaleGenerating
-                ? p with { Status = PackageStatus.Failed, Verdict = p.Verdict ?? "error:stale" }
-                : p)
+            .Select(p => StaleGenerating.Shown(p, now))
             .ToList());
 }

@@ -21,6 +21,7 @@ Spec: [`spec.md`](spec.md)
 - A child whose missed lessons have no practice rule gets no catch-up instead of a failed one (part of T-100, #212).
 - The Catch-ups tab lists cards by action needed: ready and needs review, then failed, being written, approved and sent (T-100).
 - A failed card has **Try again** under it, which writes a new version, as on the catch-up itself (T-100).
+- A catch-up cut off while being written (a restart or deploy) shows as failed after 5 minutes, in the list and on its own screen, and Try again takes it (T-136).
 - Counts take the singular: "In Hindi · 1 child", "Sent at … · 1 family", "1 family gets them after 6 pm" (T-100).
 
 ## Known gaps and drafts

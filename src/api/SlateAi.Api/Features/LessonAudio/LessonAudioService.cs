@@ -46,7 +46,7 @@ public sealed class LessonAudioService(
     TimeProvider clock)
 {
     /// <summary>A row still "generating" after this (app restarted mid-way) reads as failed.</summary>
-    public static readonly TimeSpan StaleGenerating = CatchUpEndpoints.StaleGenerating;
+    public static readonly TimeSpan StaleGenerating = CatchUps.StaleGenerating.After;
 
     public async Task<LessonAudioDayResponse?> GetAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
     {

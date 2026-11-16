@@ -118,7 +118,7 @@ public sealed class TodaysMessageService(
         }
 
         var families = await LanguagesAsync(classId, date, cancellationToken) ?? new Dictionary<string, int>();
-        var stale = row.Status == TodaysMessageStatus.Generating && clock.GetUtcNow() - row.UpdatedAt > CatchUpEndpoints.StaleGenerating;
+        var stale = row.Status == TodaysMessageStatus.Generating && clock.GetUtcNow() - row.UpdatedAt > StaleGenerating.After;
         var sections = row.Sections;
         var languages = sections is null
             ? []

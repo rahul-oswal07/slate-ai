@@ -16,7 +16,7 @@ public static class TodaysMessageWait
         && row.Status switch
         {
             // Same reading as the service: a draft generating for longer than this (app restarted mid-way) has failed.
-            TodaysMessageStatus.Generating => now - row.UpdatedAt <= CatchUpEndpoints.StaleGenerating,
+            TodaysMessageStatus.Generating => now - row.UpdatedAt <= StaleGenerating.After,
             TodaysMessageStatus.Ready => now < Later(sendAt, row.UpdatedAt) + wait,
             _ => false,
         };

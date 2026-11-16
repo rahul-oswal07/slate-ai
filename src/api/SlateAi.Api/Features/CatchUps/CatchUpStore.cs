@@ -317,12 +317,13 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
             return PackageChange.NotFound;
         }
 
-        if (package.Status is not (PackageStatus.Ready or PackageStatus.NeedsReview or PackageStatus.Failed))
+        // A package cut off mid-writing (a restart) is stale after 5 minutes and can be tried again (T-136).
+        var now = clock.GetUtcNow();
+        if (!StaleGenerating.CanRegenerate(package.Status, package.UpdatedAt, now))
         {
             return PackageChange.Conflict;
         }
 
-        var now = clock.GetUtcNow();
         package.Status = PackageStatus.Generating;
         package.Hint = hint;
         package.UpdatedAt = now;
