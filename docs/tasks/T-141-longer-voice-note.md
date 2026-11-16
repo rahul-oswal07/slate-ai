@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Done (#300, not merged yet) |
+| Status | Done (#300) |
 | Issue | #299 |
 | Owner | R |
 | Screens | P5-todays-message, T3-approve, admin |
@@ -69,3 +69,4 @@ Today's message's spoken concept (the "voice note", D-105) was capped at 3 sente
   - Monika's review of the kn/te/ta/hi admin strings (drafts).
   - The real voice length was estimated from word counts, not measured with Sarvam.
 - 17 Nov 2026: added the Db test; renumbered the Under the hood task T-140 → T-142 so check-docs passes again.
+- 17 Nov 2026: merged (#300) and on prod in `v1.7`; the startup load put all 61 lessons' content on prod.
