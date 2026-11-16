@@ -124,7 +124,7 @@ These match the book, so a child hears the same word at home and in class. Each 
 
 ## Lessons with the book's exercises (T-128)
 
-Numbers only, copied from each lesson's own `examples` (above); code computes every answer (`ExerciseAnswers`). Today's message uses only `compare` so far (D-93); add and subtract wait for D-116.
+Numbers only, copied from each lesson's own `examples` (above); code computes every answer (`ExerciseAnswers`). Today's message uses `compare` for the demo lesson (D-93) and the first `add` or `sub` pair for the add and subtract lessons (D-116), while `TodaysMessage:ArithmeticExercises` is on (the default).
 
 | Lesson | Kind | Items |
 |---|---|---|
@@ -137,7 +137,7 @@ Numbers only, copied from each lesson's own `examples` (above); code computes ev
 | `M3.SUB.BORROW` | sub | 872 − 586 · 290 − 178 · 847 − 563 |
 | `M3.SUB.WORD` | sub | 468 − 365 · 274 − 158 |
 
-The full exercise lists on these pages are not extracted yet.
+Only these items are in the data. The rest of each page's exercises would have to be read from the textbook PDFs; T-128 doesn't need them.
 
 ## Nalikali demo lesson (built in T-87, D-90, D-93)
 

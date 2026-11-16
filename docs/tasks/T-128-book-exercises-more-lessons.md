@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Issue | #260 |
 | Owner | R / M |
 | Screens | curriculum, ai-pipeline, P5-todays-message, T1-today, T2-lesson-confirm, T3-approve |
@@ -49,6 +49,17 @@ What the picture question and activity look like for add and subtract: [D-116](.
 - `./scripts/verify.sh`.
 
 ## Notes
+
+- 16 Nov 2026: **closed.** Every acceptance criterion is on `main` (#264, #269):
+  - The new `exercises` blocks load, and bad items fail startup (`ExerciseAnswersTests`, `CurriculumStartupTests`).
+  - Confirming an add lesson with a family due starts a draft, and without one she goes to Today (`TodaysMessageEndpointTests`).
+  - Every number comes from the book's list, and answers are computed in code.
+  - `M3.BRIDGE.COMPARE` is unchanged (A9 v4).
+  - `docs/areas/curriculum/status.md` and `docs/design/curriculum.md` list the lessons. This PR fixes the stale line in `curriculum.md` that said add and subtract still waited for D-116.
+  - **Not part of this task, and still open:**
+    - Release to prod as `v1.6`: a `v*` tag, so it is Rahul's call before the finale.
+    - Native review of the new kn/te/ta/hi strings: the Book exercises tag and the sum question's intro (drafts listed in the T1, T2 and P5 `status.md`).
+    - Copying more of each page's exercises from the textbook PDFs: not needed: the 2–3 pairs per lesson already give the picture and "Choose another pair".
 
 - 15 Nov 2026: Eval run and sums on by default ([#269](https://github.com/rahul-oswal07/slate-ai/pull/269), which carries PR B to `main` after #264 merged with only PR A).
   - **Eval:** `a9-todays-message-sums` v1 + v4 passed: 28/28 after at most one retry. The 8 sum cases had 7 right first time; `add-carry-kn-hi` was too long once.
