@@ -22,6 +22,8 @@ const textButton = 'btn-link mt-1'
  * confirmed: while she can still replace it (`recordOpen`: today's message not approved, or tonight's message not
  * gone, D-104) the mic stays with the lesson as one line and "Change"; after that every lesson with its page and one
  * "Change" (D-33). `rerecord` (Re-record on T2, T-114) brings the mic back while a match waits, with focus on it.
+ * Once tonight's message has gone to families (`day.sentToFamilies`, T-143, D-124) there is no "Change": a line says
+ * why, because families already have the message about this lesson.
  */
 export function LessonCard({
   classId,
@@ -128,9 +130,13 @@ export function LessonCard({
             )
           })}
         </ul>
-        <button type="button" onClick={onPick} className={textButton}>
-          {t('today.lesson.change')}
-        </button>
+        {day?.sentToFamilies ? (
+          <p className="mt-2 text-caption text-ink-muted">{t('today.lesson.locked')}</p>
+        ) : (
+          <button type="button" onClick={onPick} className={textButton}>
+            {t('today.lesson.change')}
+          </button>
+        )}
       </section>
     )
   }

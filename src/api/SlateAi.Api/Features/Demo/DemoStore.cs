@@ -48,6 +48,9 @@ public sealed record DemoReset(
     IReadOnlyList<DemoRegisterDay>? StarDays = null,
     DemoRegisterDay? Today = null);
 
+/// <summary>The day's simulated SATS register that "Reset today" writes back (T-143), as the demo Reset does for today.</summary>
+public sealed record DemoDayRegister(IReadOnlyList<Guid> ChildIds, IReadOnlySet<Guid> AbsentChildIds, DateTimeOffset ReceivedAt);
+
 public enum DemoResetResult
 {
     Reset,
@@ -63,6 +66,15 @@ public interface IDemoStore
     /// pre-made catch-up. A replayed clientRequestId changes nothing. AI call rows stay: they are the cost log.
     /// </summary>
     Task<DemoResetResult> ResetAsync(DemoReset reset, DateTimeOffset now, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// "Reset today" in Settings (T-143): deletes what the class did on <paramref name="date"/> only: the register, the
+    /// lesson, today's message, lesson audio, tonight's messages (and their deliveries and answers), absence reasons and
+    /// buddy ticks. Earlier days, the children, catch-ups and weekly stars stay. <paramref name="register"/> (null on a
+    /// day without school) is written back as SATS sent it, so Today is ready at any hour. A replay changes nothing.
+    /// </summary>
+    Task<DemoResetResult> ResetDayAsync(
+        Guid classId, DateOnly date, DemoDayRegister? register, Guid clientRequestId, DateTimeOffset now, CancellationToken cancellationToken);
 
     /// <summary>The links sent to a child's family, newest first; null when the child isn't in the class.</summary>
     Task<IReadOnlyList<FamilyMessage>?> GetFamilyAsync(Guid classId, Guid childId, CancellationToken cancellationToken);
@@ -83,6 +95,45 @@ public interface IDemoStore
 public sealed class DemoStore(AppDbContext db) : IDemoStore
 {
     private const string ResetEndpoint = "demo-reset";
+
+    public async Task<DemoResetResult> ResetDayAsync(
+        Guid classId, DateOnly date, DemoDayRegister? register, Guid clientRequestId, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock({DemoSeeder.SeedLockKey})", cancellationToken);
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
+        {
+            return DemoResetResult.Replay;
+        }
+
+        // Tonight's messages cascade their deliveries; picture answers live on them.
+        await db.EveningMessages.Where(m => m.ClassId == classId && m.Date == date).ExecuteDeleteAsync(cancellationToken);
+        await db.TodaysMessages.Where(t => t.ClassId == classId && t.Date == date).ExecuteDeleteAsync(cancellationToken);
+        await db.LessonAudios.Where(l => l.ClassId == classId && l.Date == date).ExecuteDeleteAsync(cancellationToken);
+        await db.Lessons.Where(l => l.ClassId == classId && l.Date == date).ExecuteDeleteAsync(cancellationToken);
+        await db.AbsenceReasons.Where(r => r.ClassId == classId && r.Date == date).ExecuteDeleteAsync(cancellationToken);
+        await db.BuddyCards.Where(b => b.ClassId == classId && b.Date == date).ExecuteDeleteAsync(cancellationToken);
+        // The register too, then the simulated SATS one as it arrived that morning: her corrections are gone.
+        await db.Attendance.Where(a => a.ClassId == classId && a.Date == date).ExecuteDeleteAsync(cancellationToken);
+        if (register is not null)
+        {
+            db.Attendance.AddRange(register.ChildIds.Select(id => new Data.Entities.Attendance
+            {
+                ClassId = classId,
+                Date = date,
+                ChildId = id,
+                Present = !register.AbsentChildIds.Contains(id),
+                Source = AttendanceSources.Sats,
+                SourcePresent = !register.AbsentChildIds.Contains(id),
+                ReceivedAt = register.ReceivedAt.ToUniversalTime(),
+            }));
+        }
+
+        db.ProcessedRequests.Add(new ProcessedRequest { ClientRequestId = clientRequestId, Endpoint = "demo-reset-today", CreatedAt = now });
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return DemoResetResult.Reset;
+    }
 
     public async Task<DemoResetResult> ResetAsync(DemoReset reset, DateTimeOffset now, CancellationToken cancellationToken)
     {

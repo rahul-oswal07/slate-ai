@@ -13,6 +13,7 @@ Spec: [`spec.md`](spec.md)
 - **Lesson:** recorded as a voice note, with an optional photo, or picked from the list; confirmed on [T2 Lesson confirm](../T2-lesson-confirm/status.md). "Add a photo of the page" and "Pick from the list" sit side by side as outlined tiles (part of T-96).
 - **Today's message card** above Tonight: "waiting for you" with the one button **Check and approve**, or "approved · goes after 6 pm" (T-108).
 - Once the lesson is confirmed, the record card stays until today's message is approved, or, on a day without one, until tonight's message has gone: the lesson shows as one line ("Today: … · p …") with Change above the mic, and a new note replaces the lesson (T-114, D-104). After that, only the confirmed lesson shows.
+- Once tonight's message has gone to families (any evening message for the day, with or without today's message), the lesson can't change: Today shows the confirmed lesson with "Tonight's message about this lesson has gone to families, so it can't be changed", without Change or the mic, and the API refuses another lesson (409). A change refused that way goes back to the confirmed lesson on screen (T-143, D-124).
 - The confirmed lesson shows a **Book exercises** tag under its page when the lesson has the book's exercises (T-128).
 - After Re-record on Lesson confirm, Today shows the mic, idle, with focus on it (T-114).
 - There is no lesson audio tick: today's message's concept clip is the lesson audio (T-114, D-105).

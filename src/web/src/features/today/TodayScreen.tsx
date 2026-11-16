@@ -70,8 +70,10 @@ export function TodayScreen() {
   // D-104: once confirmed, a new note can still replace the lesson until today's message is approved, or, on a day
   // without one, until tonight's message has gone; until then the record card stays (T-114). Nobody away: nothing
   // goes tonight, so it stays all day. While that is still loading, the confirmed card shows, so nothing jumps.
+  // Once tonight's message has gone (any message, T-143) families have it: no new note, no Change.
   const recordOpen =
     confirmed.length > 0 &&
+    lesson.data?.sentToFamilies !== true &&
     (!done ||
       (todaysQuery.isSuccess &&
         (todays ? !todaysApproved : evening.isSuccess && evening.data.sent === 0)))

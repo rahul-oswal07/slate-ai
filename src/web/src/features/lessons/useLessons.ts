@@ -80,7 +80,10 @@ export function useSaveLesson(classId: string, date: string) {
       queryClient.setQueryData<LessonDay>(lessonKey(classId, date), (day) => day && withPending(day, body))
       // Her recording and photo are only kept until the lesson is confirmed.
       await Promise.all([db.notes.delete(date), db.photos.delete(date)])
-      if ((await flush()) > 0) {
+      // Sent, or refused (e.g. 409 once tonight's message has gone, T-143): either way the server's day replaces the
+      // pending copy, so a refused change doesn't stay on screen as if it were waiting to send.
+      const sent = await flush()
+      if (sent > 0 || (await db.failed.get(body.clientRequestId)) !== undefined) {
         await queryClient.invalidateQueries({ queryKey: lessonKey(classId, date) })
       }
     },

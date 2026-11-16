@@ -30,6 +30,7 @@ public sealed class LessonEndpointTests
         [new Chapter(4, "ಕೂಡಿ", "Adding"), new Chapter(5, "ಕಳೆಯುವ ಮೋಜು", "The fun of subtracting")]);
 
     private readonly FakeLessonStore _store = new();
+    private readonly FakeEveningStore _evening = new(ClassId, Guid.NewGuid());
 
     [Fact]
     public async Task No_lesson_yet_suggests_the_first_lesson()
@@ -46,6 +47,39 @@ public sealed class LessonEndpointTests
         _store.Lessons[Today.AddDays(-1)] = new LessonRecord(["M3.SUB.NOBORROW", "M3.ADD.CARRY"], "picked", "confirmed");
 
         Assert.Equal("M3.SUB.MAKE", (await GetAsync()).NextInBook);
+    }
+
+    [Fact]
+    public async Task Once_tonights_message_has_gone_another_lesson_is_refused_and_the_same_one_is_still_fine()
+    {
+        // T-143, D-124: families already have the message about this lesson; changing it would make Missed lessons
+        // disagree with what they got, and the message can't be sent again.
+        _store.Lessons[Today] = new LessonRecord(["M3.ADD.CARRY"], "picked", "confirmed");
+        _evening.Messages.Add((Today, new NewEveningMessage(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "kn", new SlotValues("", ""), "token", DateTimeOffset.UnixEpoch,
+            DateTimeOffset.UnixEpoch.AddDays(14))));
+
+        var changed = await PutAsync(Guid.NewGuid(), "M3.SUB.MAKE");
+        var same = await PutAsync(Guid.NewGuid(), "M3.ADD.CARRY");
+
+        Assert.Equal(HttpStatusCode.Conflict, changed.StatusCode);
+        var current = await changed.Content.ReadFromJsonAsync<LessonDayResponse>(Ct);
+        Assert.Equal(["M3.ADD.CARRY"], current!.Lesson!.CompetencyIds);
+        Assert.True(current.SentToFamilies);
+        Assert.Equal(["M3.ADD.CARRY"], _store.Lessons[Today].CompetencyIds);
+        Assert.Equal(HttpStatusCode.OK, same.StatusCode);
+    }
+
+    [Fact]
+    public async Task The_day_says_when_tonights_message_has_gone()
+    {
+        Assert.False((await GetAsync()).SentToFamilies);
+
+        _evening.Messages.Add((Today, new NewEveningMessage(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "kn", new SlotValues("", ""), "token", DateTimeOffset.UnixEpoch,
+            DateTimeOffset.UnixEpoch.AddDays(14))));
+
+        Assert.True((await GetAsync()).SentToFamilies);
     }
 
     [Fact]
@@ -143,7 +177,7 @@ public sealed class LessonEndpointTests
         {
             services.AddSingleton<ILessonStore>(_store);
             services.AddSingleton<ITodaysMessageStore>(new FakeTodaysMessageStore());
-            services.AddSingleton<IEveningStore>(new FakeEveningStore(ClassId, Guid.NewGuid()));
+            services.AddSingleton<IEveningStore>(_evening);
             // Confirming any lesson now checks who is due today's message (T-139): an empty register, nobody due.
             services.AddSingleton<IAttendanceStore>(new FakeAttendanceStore(ClassId, []));
             services.AddSingleton(Book);

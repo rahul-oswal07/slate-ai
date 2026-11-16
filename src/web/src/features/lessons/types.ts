@@ -32,4 +32,6 @@ export type LessonDay = {
     examplesUsed: string[]
   } | null
   nextInBook: string | null
+  /** Tonight's message has gone to families, so the confirmed lesson can't be changed any more (T-143, D-124). */
+  sentToFamilies?: boolean
 }

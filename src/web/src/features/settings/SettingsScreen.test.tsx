@@ -99,4 +99,49 @@ describe('SettingsScreen (T-71)', () => {
     const nav = screen.getByRole('navigation', { name: 'Main' })
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveAttribute('href', '/')
   })
+
+  it('a real class has no Reset today (T-143)', async () => {
+    setup(teacher)
+    renderApp('/settings')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 2, name: 'Reset today' })).not.toBeInTheDocument()
+  })
+
+  it('the demo class can reset today after saying yes, and cancel first (T-143)', async () => {
+    const calls = fakeApi({
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, demo: { sampleVoiceNote: true } } }),
+      [templateUrl]: () => ({ status: 200, body: template('approved') }),
+      'POST /api/demo/reset-today': () => ({ status: 200, body: { date: '2026-11-17' } }),
+    })
+    renderApp('/settings')
+
+    const reset = await card('Reset today')
+    await userEvent.click(within(reset).getByRole('button', { name: 'Reset today' }))
+    await userEvent.click(within(reset).getByRole('button', { name: 'Cancel' }))
+    expect(calls.some((c) => c.key === 'POST /api/demo/reset-today')).toBe(false)
+
+    await userEvent.click(within(reset).getByRole('button', { name: 'Reset today' }))
+    expect(within(reset).getByText(/Clear everything from today\?/)).toBeInTheDocument()
+    await userEvent.click(within(reset).getByRole('button', { name: 'Yes, reset today' }))
+
+    expect(await within(reset).findByText(/Today was reset. The register is back as SATS sent it./)).toBeInTheDocument()
+    const post = calls.find((c) => c.key === 'POST /api/demo/reset-today')
+    expect(post?.body).toMatchObject({ clientRequestId: expect.any(String) })
+  })
+
+  it('a failed reset says nothing changed (T-143)', async () => {
+    fakeApi({
+      'GET /api/me': () => ({ status: 200, body: { ...teacher, demo: { sampleVoiceNote: false } } }),
+      [templateUrl]: () => ({ status: 200, body: template('approved') }),
+      'POST /api/demo/reset-today': () => ({ status: 500 }),
+    })
+    renderApp('/settings')
+
+    const reset = await card('Reset today')
+    await userEvent.click(within(reset).getByRole('button', { name: 'Reset today' }))
+    await userEvent.click(within(reset).getByRole('button', { name: 'Yes, reset today' }))
+
+    expect(await within(reset).findByRole('alert')).toHaveTextContent('Could not reset. Nothing was changed.')
+  })
 })

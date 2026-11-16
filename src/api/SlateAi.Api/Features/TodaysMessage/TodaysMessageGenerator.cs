@@ -75,7 +75,7 @@ public sealed class TodaysMessageGenerator(
         var teacher = row.Sections is { Teacher: true } edited ? edited : null;
         if (lessons.Count == 0 || lessons.Count != row.CompetencyIds.Count)
         {
-            await Fail(row.Id, "fallback:unknown-lesson", cancellationToken);
+            await Fail(row, "fallback:unknown-lesson", cancellationToken);
             return;
         }
 
@@ -84,7 +84,7 @@ public sealed class TodaysMessageGenerator(
         // Each concept is voiced behind the AI disclosure, which every family language needs (spec §5.3).
         if (job.Languages.Any(l => disclosure.Text(l) is null))
         {
-            await Fail(row.Id, "fallback:no-disclosure", cancellationToken);
+            await Fail(row, "fallback:no-disclosure", cancellationToken);
             return;
         }
 
@@ -121,7 +121,7 @@ public sealed class TodaysMessageGenerator(
 
                 if (result.Texts is null)
                 {
-                    await Fail(row.Id, result.Verdict, cancellationToken);
+                    await Fail(row, result.Verdict, cancellationToken);
                     return;
                 }
 
@@ -143,7 +143,7 @@ public sealed class TodaysMessageGenerator(
                 using var voiceAbout = AiCallScope.For(job.ChildIdsIn(language));
                 if (await VoiceAsync(ConceptKind, language, text.Concept, cancellationToken) is not { } clipId)
                 {
-                    await Fail(row.Id, "fallback:audio-too-long", cancellationToken);
+                    await Fail(row, "fallback:audio-too-long", cancellationToken);
                     return;
                 }
 
@@ -180,7 +180,7 @@ public sealed class TodaysMessageGenerator(
         {
             // The AiCall row records the failure; she can try again.
             logger.LogWarning("Today's message {Id} voice failed: {Failure}", row.Id, e.Failure);
-            await Fail(row.Id, "error:voice", cancellationToken);
+            await Fail(row, "error:voice", cancellationToken);
         }
     }
 
@@ -208,8 +208,18 @@ public sealed class TodaysMessageGenerator(
         return (await audio.SaveSharedAsync(AudioKind.Lesson, language, hash, spoken, cancellationToken, transcript: text)).Id;
     }
 
-    private Task Fail(Guid id, string verdict, CancellationToken cancellationToken) =>
-        store.SetFailedAsync(id, verdict, clock.GetUtcNow(), cancellationToken);
+    /// <summary>
+    /// Marks the draft failed, unless a newer confirm restarted it for another lesson meanwhile (T-143): that run writes
+    /// its own draft, and a failure about the old lesson must not stop it. The same check as before a ready draft is saved.
+    /// </summary>
+    private async Task Fail(TodaysMessageRow row, string verdict, CancellationToken cancellationToken)
+    {
+        if (await store.GetByIdAsync(row.Id, cancellationToken) is { Status: TodaysMessageStatus.Generating } current
+            && current.CompetencyIds.SequenceEqual(row.CompetencyIds))
+        {
+            await store.SetFailedAsync(row.Id, verdict, clock.GetUtcNow(), cancellationToken);
+        }
+    }
 
     /// <summary>One clip per section kind, prompt version, language and wording (the concept's key is unchanged since T-88).</summary>
     private string Hash(string kind, string language, string text) =>

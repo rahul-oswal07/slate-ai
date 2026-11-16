@@ -482,6 +482,38 @@ public sealed class TodaysMessageGeneratorTests
         Assert.Contains("\"content\":null", _llm.Requests[0].UserContent);
     }
 
+    [Fact]
+    public async Task A_lesson_changed_while_the_first_draft_was_failing_still_gets_its_own_draft()
+    {
+        // T-143: she changes the lesson while the first draft is being voiced, and that draft then fails. The failure is
+        // about the old lesson: it must not mark the new lesson's draft failed, or the new job skips it.
+        var id = await StartAsync();
+        var newLesson = "M3.GEO.2D";
+        var changing = new ChangeLessonTts(() => _store.StartAsync(ClassId, Today, [newLesson], DateTimeOffset.UnixEpoch, Ct));
+
+        await Generator(changing).GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Equal(TodaysMessageStatus.Generating, _store.Rows.Single().Status);
+
+        _llm.Json = TodaysMessageTests.Output(LessonKannada);
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
+
+        var row = _store.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Ready, "valid"), (row.Status, row.Verdict));
+        Assert.Equal([newLesson], row.CompetencyIds);
+        Assert.Null(row.Sections!.Picture);
+    }
+
+    /// <summary>Changes the lesson the first time it is asked to speak, then fails like a voice outage.</summary>
+    private sealed class ChangeLessonTts(Func<Task> change) : ITextToSpeech
+    {
+        public async Task<SpokenAudio> SynthesizeAsync(string text, string languageCode, CancellationToken cancellationToken)
+        {
+            await change();
+            throw new SpeechException(SpeechFailure.Rejected, "down");
+        }
+    }
+
     private TodaysMessageGenerator Generator(ITextToSpeech? tts = null, bool arithmetic = false)
     {
         var curriculum = new CurriculumGraph(
