@@ -25,6 +25,12 @@ public sealed record DemoResetResponse(DateTimeOffset ResetAt, bool PreMade);
 
 public sealed record DemoSendNowRequest(Guid ClientRequestId);
 
+/// <summary>"Reset today" in Settings (T-143).</summary>
+public sealed record DemoResetDayRequest(Guid ClientRequestId);
+
+/// <param name="Date">The school day that was cleared: today, or the past day she is acting as (T-134).</param>
+public sealed record DemoResetDayResponse(DateOnly Date);
+
 /// <summary>What "Send messages now" sent.</summary>
 /// <param name="EveningBlocked">Why tonight's message didn't go (an <see cref="EveningBlock"/> code), or null.</param>
 /// <param name="EveningSent">Families sent tonight's message by this tap.</param>
@@ -94,6 +100,18 @@ public static class DemoEndpoints
                 "When data/seed/demo-catchup.json exists in Manjunath's language, that catch-up is restored as Ready. " +
                 "The evening template and the teacher's sign-in stay as they are. " +
                 "A replayed clientRequestId changes nothing. 404 unless signed in as the demo teacher. Demo only.");
+
+        app.MapPost("/api/demo/reset-today", ResetDayAsync)
+            .RequireAuthorization()
+            .WithTags("Demo")
+            .WithSummary("Clear the demo class's day, from Settings (T-143)")
+            .WithDescription(
+                "Deletes what the class did on the school day only (today, or the past day she is acting as, T-134): the " +
+                "lesson, today's message, lesson audio, tonight's messages with their deliveries and answers, absence " +
+                "reasons, buddy ticks and her register corrections; the register is written back as the simulated SATS " +
+                "sent it. Earlier days, the children, catch-ups and weekly stars stay. Families who already got tonight's WhatsApp may " +
+                "get it again after a re-run. A replayed clientRequestId changes nothing. 404 unless signed in to the demo " +
+                "class. Demo only.");
 
         app.MapPost("/api/demo/send-now", SendNowAsync)
             .RequireAuthorization()
@@ -237,6 +255,41 @@ public static class DemoEndpoints
         var lastReset = await store.GetLastResetAsync(cancellationToken);
         var child = seed.Children.Single(c => c.RollNo == DemoStory.ManjunathRollNo);
         return TypedResults.Ok(new DemoInfoResponse(seed.Class.Id, child.Id, lastReset, child.FirstName, child.HomeLanguage));
+    }
+
+    private static async Task<Results<Ok<DemoResetDayResponse>, NotFound, ValidationProblem>> ResetDayAsync(
+        DemoResetDayRequest request,
+        HttpContext http,
+        IDemoStore store,
+        IAttendanceStore attendance,
+        SimulatedSatsSource source,
+        SatsDemoHolds holds,
+        IOptions<SatsOptions> sats,
+        IOptions<DatabaseOptions> database,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        if (request.ClientRequestId == Guid.Empty)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["clientRequestId"] = ["Required."] });
+        }
+
+        var classId = (await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken)).Class.Id;
+        if (http.User.GetClassId() != classId)
+        {
+            return TypedResults.NotFound();
+        }
+
+        // The school day the request acts as: the X-School-Date day for the demo class, else today (T-134).
+        var date = SchoolClock.Today(clock);
+        // Today's register as the simulated SATS sent it that morning, so Today is ready at any hour (as after the Reset).
+        var roster = await attendance.GetRosterAsync(classId, cancellationToken) ?? [];
+        var register = (source.IsSchoolDay(date) || sats.Value.EveryDayClassIds.Contains(classId)) && roster.Count > 0
+            ? new DemoDayRegister(roster.Select(c => c.Id).ToList(), source.Simulate(classId, date, roster), SchoolClock.At(date, sats.Value.ArrivesAt))
+            : null;
+        await store.ResetDayAsync(classId, date, register, request.ClientRequestId, clock.GetUtcNow(), cancellationToken);
+        holds.Release(classId, date);
+        return TypedResults.Ok(new DemoResetDayResponse(date));
     }
 
     private static async Task<Results<Ok<DemoResetResponse>, NotFound>> ResetAsync(

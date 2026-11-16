@@ -1,7 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { api } from '../../api/client'
 import { Icon } from '../../components/Icon'
+import { db } from '../../offline/db'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useMe } from '../auth/useMe'
 import { useMessageTemplate } from '../evening/useEvening'
@@ -10,10 +13,13 @@ import { useWeeklyStarWording } from '../star/useWeeklyStar'
 /**
  * T10 Settings, MVP part (T-71, D-86): opened from the gear on Today. Her greeting (play it, record it again) and the
  * evening message (approved or not, review it). Families, Help, app language and withdrawing voice consent are roadmap.
+ * In the demo class only, "Reset today" clears the day so the Today flow can be run again (T-143).
  */
 export function SettingsScreen() {
   const { t } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
+  // The demo class only (T-143): a real class never sees Reset today.
+  const demo = useMe().data?.demo != null
 
   return (
     <section aria-labelledby="settings-title" className="flex flex-col gap-3">
@@ -26,6 +32,78 @@ export function SettingsScreen() {
       <GreetingRow />
       <EveningRow />
       <StarRow />
+      {demo && <ResetTodayRow />}
+    </section>
+  )
+}
+
+/**
+ * "Reset today" (T-143), demo class only: after "Yes, reset today" the API deletes the school day's lesson, today's
+ * message, lesson audio, tonight's messages with their answers and her register corrections, and puts the register back
+ * as the simulated SATS sent it; earlier days, children and catch-ups stay. Every screen then reloads from the server.
+ */
+function ResetTodayRow() {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [step, setStep] = useState<'idle' | 'confirm' | 'resetting' | 'done' | 'failed'>('idle')
+
+  async function reset() {
+    setStep('resetting')
+    try {
+      const { date } = await api<{ date: string }>('/api/demo/reset-today', {
+        method: 'POST',
+        body: { clientRequestId: crypto.randomUUID() },
+      })
+      // Her unsent note and photo for the day belonged to the lesson that is gone.
+      await Promise.all([db.notes.delete(date), db.photos.delete(date)])
+      await queryClient.invalidateQueries()
+      setStep('done')
+    } catch {
+      setStep('failed')
+    }
+  }
+
+  return (
+    <section aria-labelledby="settings-reset" className="card flex flex-col gap-3 p-[14px]">
+      <div className="flex items-start gap-3">
+        <Icon name="calendarX" className="mt-0.5 shrink-0 text-primary-strong" />
+        <div className="min-w-0 flex-1">
+          <h2 id="settings-reset" className="text-label">
+            {t('settings.reset.title')}
+          </h2>
+          <p className="text-caption text-ink-muted">{t('settings.reset.hint')}</p>
+        </div>
+      </div>
+      {step === 'confirm' || step === 'resetting' ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-body">{t('settings.reset.confirm')}</p>
+          <div className="flex items-center gap-3">
+            <button type="button" disabled={step === 'resetting'} onClick={() => void reset()} className="btn-secondary w-auto">
+              {t('settings.reset.yes')}
+            </button>
+            <button type="button" disabled={step === 'resetting'} onClick={() => setStep('idle')} className="btn-link min-h-target">
+              {t('settings.reset.cancel')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" onClick={() => setStep('confirm')} className="btn-secondary flex items-center justify-center">
+          {t('settings.reset.button')}
+        </button>
+      )}
+      {step === 'done' && (
+        <output className="text-caption text-ink-muted">
+          {t('settings.reset.done')}{' '}
+          <Link to="/" className="btn-link">
+            {t('settings.backToToday')}
+          </Link>
+        </output>
+      )}
+      {step === 'failed' && (
+        <p role="alert" className="text-caption text-error">
+          {t('settings.reset.failed')}
+        </p>
+      )}
     </section>
   )
 }

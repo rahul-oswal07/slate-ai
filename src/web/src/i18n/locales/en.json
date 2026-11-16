@@ -168,6 +168,7 @@
       "pickInstead": "Or pick the lesson from the list",
       "titlePlural": "Today’s lessons",
       "change": "Change",
+      "locked": "Tonight’s message about this lesson has gone to families, so it can’t be changed.",
       "current": "Today: {{lessons}} · p {{page}}",
       "currentNoPage": "Today: {{lessons}}",
       "hint": "Up to 30 seconds · in Kannada",
@@ -1012,6 +1013,16 @@
       "approved": "Approved. Goes on Saturday evening.",
       "needsApproval": "Needs your approval. No star messages go until you approve it.",
       "review": "Review the weekly star"
+    },
+    "reset": {
+      "title": "Reset today",
+      "hint": "Demo class only. Clears today’s lesson, today’s message, tonight’s messages with their answers, and any change to the register, so you can run Today again. Earlier days, children and catch-ups stay.",
+      "button": "Reset today",
+      "confirm": "Clear everything from today? Families who already got tonight’s message may get it again if you send again.",
+      "yes": "Yes, reset today",
+      "cancel": "Cancel",
+      "done": "Today was reset. The register is back as SATS sent it.",
+      "failed": "Could not reset. Nothing was changed. Try again."
     }
   },
   "profile": {

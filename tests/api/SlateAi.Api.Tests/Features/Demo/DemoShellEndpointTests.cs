@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
+using SlateAi.Api.Tests.Features.Attendance;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Tests.Infrastructure;
@@ -130,6 +131,7 @@ public sealed class DemoShellEndpointTests
     [Theory]
     [InlineData("POST", "/api/demo/login")]
     [InlineData("POST", "/api/demo/reset")]
+    [InlineData("POST", "/api/demo/reset-today")]
     [InlineData("GET", "/api/demo")]
     [InlineData("GET", "/api/demo/ai-calls")]
     public async Task Nothing_is_mapped_unless_demo_is_enabled(string method, string url)
@@ -154,6 +156,39 @@ public sealed class DemoShellEndpointTests
         var info = await client.GetFromJsonAsync<DemoInfoResponse>("/api/demo", Ct);
 
         Assert.Equal(new DemoInfoResponse(ClassId, Manjunath, Now.AddMinutes(-3), "Manjunath", "kn"), info);
+    }
+
+    [Fact]
+    public async Task Reset_today_clears_only_the_school_day_of_the_demo_class()
+    {
+        // T-143: Settings' "Reset today"; the store deletes the day's rows (Db-tested), the endpoint picks class and day.
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+        var requestId = Guid.NewGuid();
+
+        var response = await client.PostAsJsonAsync("/api/demo/reset-today", new DemoResetDayRequest(requestId), Ct);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var today = SchoolClock.Today(new FixedClock(Now));
+        Assert.Equal(new DemoResetDayResponse(today), await response.Content.ReadFromJsonAsync<DemoResetDayResponse>(Ct));
+        Assert.Equal((ClassId, today, requestId), Assert.Single(_store.DayResets));
+        Assert.Empty(_store.Resets);
+        // A school day: the register goes back as SATS sent it that morning, for every child, stamped at its arrival.
+        var register = _store.LastDayRegister!;
+        Assert.Equal(Seed.Children.Count, register.ChildIds.Count);
+        Assert.Equal(today, SchoolClock.DateOf(register.ReceivedAt));
+    }
+
+    [Fact]
+    public async Task Reset_today_is_not_found_for_another_class()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(Guid.NewGuid(), TeacherId);
+
+        var response = await client.PostAsJsonAsync("/api/demo/reset-today", new DemoResetDayRequest(Guid.NewGuid()), Ct);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Empty(_store.DayResets);
     }
 
     [Fact]
@@ -375,6 +410,8 @@ public sealed class DemoShellEndpointTests
                 services.AddSingleton<ISchoolDateSwitchStore>(new FakeSchoolDateSwitchStore(schoolDate));
                 services.AddSingleton<IDemoStore>(_store);
                 services.AddSingleton<IAuthStore>(_auth);
+                // Reset today writes the class's simulated register back (T-143).
+                services.AddSingleton<IAttendanceStore>(new FakeAttendanceStore(ClassId, Seed.Children.Select(c => c.Id).ToList()));
                 services.AddSingleton<TimeProvider>(new FixedClock(Now));
             },
             settings: new Dictionary<string, string?>
@@ -387,6 +424,16 @@ public sealed class DemoShellEndpointTests
     private sealed class FakeDemoStore : IDemoStore
     {
         public List<DemoReset> Resets { get; } = [];
+        public List<(Guid ClassId, DateOnly Date, Guid RequestId)> DayResets { get; } = [];
+        public DemoDayRegister? LastDayRegister { get; private set; }
+
+        public Task<DemoResetResult> ResetDayAsync(
+            Guid classId, DateOnly date, DemoDayRegister? register, Guid clientRequestId, DateTimeOffset now, CancellationToken cancellationToken)
+        {
+            DayResets.Add((classId, date, clientRequestId));
+            LastDayRegister = register;
+            return Task.FromResult(DemoResetResult.Reset);
+        }
         public Dictionary<(Guid ClassId, Guid ChildId), IReadOnlyList<FamilyMessage>> Families { get; } = [];
         public List<AiCallRow> AiCalls { get; } = [];
         public (DateTimeOffset? Since, int Limit)? LastAiCallQuery { get; private set; }

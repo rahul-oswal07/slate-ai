@@ -24,7 +24,9 @@ public sealed record LessonView(
 
 /// <summary>A day's lesson for T1/T2, plus the picker's suggestion.</summary>
 /// <param name="NextInBook">Competency the picker lists first (T2 "Next in the book"); null at the end of the book.</param>
-public sealed record LessonDayResponse(DateOnly Date, LessonView? Lesson, string? NextInBook);
+/// <param name="SentToFamilies">Tonight's message for this day has gone to at least one family, so the confirmed lesson
+/// can no longer be changed (T-143, D-124).</param>
+public sealed record LessonDayResponse(DateOnly Date, LessonView? Lesson, string? NextInBook, bool SentToFamilies = false);
 
 /// <param name="HasExercises">The lesson has the book's exercise numbers (D-93, T-128): the badge in the picker, on the
 /// confirm screen and on Today's lesson card.</param>
@@ -81,7 +83,8 @@ public static class LessonEndpoints
             .WithSummary("Confirm the day's lesson(s) from the list")
             .WithDescription(
                 "Creates or replaces the day's lesson (one per day, D-55) as picked and confirmed. 1–3 curriculum IDs. " +
-                "Replaying the same clientRequestId is a no-op (offline outbox).");
+                "Replaying the same clientRequestId is a no-op (offline outbox). 409 with the day as it is when tonight's " +
+                "message has already gone to families and the lesson would change (T-143, D-124); the same lesson is fine.");
 
         app.MapPost("/api/classes/{classId:guid}/lessons/{date}/audio", UploadAudioAsync)
             .RequireClassOwner()
@@ -115,6 +118,7 @@ public static class LessonEndpoints
         Guid classId,
         DateOnly date,
         ILessonStore store,
+        IEveningStore evening,
         CurriculumGraph curriculum,
         TimeProvider clock,
         CancellationToken cancellationToken)
@@ -124,7 +128,7 @@ public static class LessonEndpoints
             return FutureDate();
         }
 
-        return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
+        return TypedResults.Ok(await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
     }
 
     private static async Task<Results<Accepted<LessonDayResponse>, ValidationProblem, Conflict, StatusCodeHttpResult>>
@@ -196,7 +200,7 @@ public static class LessonEndpoints
 
                 // The reply describes the note just accepted ("processing"), so it is read before the job is queued:
                 // read afterwards, the background mapper may already have moved the lesson on (T-124).
-                var accepted = await DayAsync(classId, date, store, curriculum, clock, cancellationToken);
+                var accepted = await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken);
                 if (queue.TryEnqueue(job))
                 {
                     return TypedResults.Accepted((string?)null, accepted);
@@ -207,7 +211,7 @@ public static class LessonEndpoints
         }
 
         return TypedResults.Accepted(
-            (string?)null, await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
+            (string?)null, await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
     }
 
     private static string MediaType(IFormFile? file) =>
@@ -225,11 +229,12 @@ public static class LessonEndpoints
         return buffer.ToArray();
     }
 
-    private static async Task<Results<Ok<LessonDayResponse>, ValidationProblem>> SaveAsync(
+    private static async Task<Results<Ok<LessonDayResponse>, ValidationProblem, Conflict<LessonDayResponse>>> SaveAsync(
         Guid classId,
         DateOnly date,
         SaveLessonRequest request,
         ILessonStore store,
+        IEveningStore evening,
         CurriculumGraph curriculum,
         TodaysMessageService todays,
         TimeProvider clock,
@@ -268,17 +273,28 @@ public static class LessonEndpoints
 
         // Teaching order, so the done card and missed lessons read in book order.
         var ordered = ids.OrderBy(id => curriculum.Get(id)!.Sequence).ToList();
+
+        // T-143, D-124: once tonight's message has gone, families have the message about the confirmed lesson; another
+        // lesson would make Missed lessons disagree with it, and the message is never sent twice. The same lesson is fine.
+        if (await store.GetDayAsync(classId, date, cancellationToken) is { Status: LessonValues.Confirmed } current
+            && !current.CompetencyIds.Order(StringComparer.Ordinal).SequenceEqual(ordered.Order(StringComparer.Ordinal))
+            && await SentToFamiliesAsync(evening, classId, date, cancellationToken))
+        {
+            return TypedResults.Conflict(await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
+        }
+
         var saved = await store.SaveConfirmedAsync(
             classId, request.ClientRequestId, date, ordered, request.Source ?? LessonValues.Picked, cancellationToken);
         // D-91: confirming the lesson starts today's message for absent families (a replay of the same lesson doesn't).
         await todays.StartAsync(classId, date, saved.CompetencyIds, force: false, cancellationToken);
-        return TypedResults.Ok(await DayAsync(classId, date, store, curriculum, clock, cancellationToken));
+        return TypedResults.Ok(await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
     }
 
     private static async Task<LessonDayResponse> DayAsync(
         Guid classId,
         DateOnly date,
         ILessonStore store,
+        IEveningStore evening,
         CurriculumGraph curriculum,
         TimeProvider clock,
         CancellationToken cancellationToken)
@@ -290,8 +306,14 @@ public static class LessonEndpoints
         return new LessonDayResponse(
             date,
             lesson is null ? null : View(lesson, clock.GetUtcNow()),
-            curriculum.NextInBook(last)?.Id);
+            curriculum.NextInBook(last)?.Id,
+            await SentToFamiliesAsync(evening, classId, date, cancellationToken));
     }
+
+    /// <summary>Tonight's message for the day has gone to at least one family (T-143, D-124).</summary>
+    private static async Task<bool> SentToFamiliesAsync(
+        IEveningStore evening, Guid classId, DateOnly date, CancellationToken cancellationToken) =>
+        (await evening.GetSentChildIdsAsync(classId, date, cancellationToken)).Count > 0;
 
     private static LessonView View(LessonRecord lesson, DateTimeOffset now)
     {

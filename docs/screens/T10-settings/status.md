@@ -8,6 +8,8 @@ Spec: [`spec.md`](spec.md)
 
 - Settings for the greeting and the evening message (T-71).
 - Opened from the profile menu in the header on every teacher screen (T-109).
+- **Reset today**, demo class only: "Reset today" → "Yes, reset today" clears the school day's lesson, today's message, lesson audio, tonight's messages with their answers, reasons, buddy ticks and register changes, and puts the register back as the simulated SATS sent it; earlier days, children and catch-ups stay. Every screen reloads after it (T-143, D-124).
+- The kn, te, ta and hi strings of Reset today are drafts for Monika (T-143).
 
 ## Known gaps and drafts
 

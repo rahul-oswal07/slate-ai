@@ -6,6 +6,8 @@ using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.Lessons;
+using SlateAi.Api.Features.Parent;
+using SlateAi.Api.Features.EveningMessages;
 
 namespace SlateAi.Api.Tests.Db;
 
@@ -13,6 +15,71 @@ namespace SlateAi.Api.Tests.Db;
 [Collection(DbCollection.Name)]
 public sealed class DemoResetDbTests(PostgresFixture postgres)
 {
+    [Fact]
+    public async Task Reset_today_clears_only_the_day_with_its_cascades_and_puts_the_sats_register_back()
+    {
+        // T-143 on a real database (Rahul agreed, 17 Nov): the day's deletes, tonight's messages taking their deliveries
+        // and answers with them, yesterday left alone, the simulated register written back, and a replay changing nothing.
+        await using var api = await DemoClassApi.StartAsync(postgres);
+        var today = SchoolClock.Today(TimeProvider.System);
+        var yesterday = today.AddDays(-1);
+        var ravi = api.ChildIds[3]; // roll 4, Telugu, consent yes
+        var lessons = $"/api/classes/{api.ClassId}/lessons";
+
+        (await api.MarkAsync(Guid.NewGuid(), yesterday, ravi)).EnsureSuccessStatusCode();
+        (await api.Client.PutAsJsonAsync($"{lessons}/{yesterday:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        (await api.MarkAsync(Guid.NewGuid(), today, ravi)).EnsureSuccessStatusCode();
+        (await api.Client.PutAsJsonAsync($"{lessons}/{today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        var template = $"/api/classes/{api.ClassId}/message-template";
+        var draft = (await api.Client.GetFromJsonAsync<MessageTemplateResponse>(template, DemoClassApi.Ct))!;
+        (await api.Client.PostAsJsonAsync($"{template}/approve", new ApproveTemplateRequest(Guid.NewGuid(), draft.Version), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        (await api.Client.PostAsJsonAsync($"/api/classes/{api.ClassId}/evening-messages/send", new SendEveningRequest(Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        var token = await api.QueryAsync(db => db.EveningMessages.Where(m => m.ChildId == ravi && m.Date == today).Select(m => m.Token).SingleAsync(DemoClassApi.Ct));
+        (await api.Client.PostAsJsonAsync($"/api/p/{token}/reason", new ReasonRequest(ReasonCategory.Unwell, Guid.NewGuid()), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        for (var i = 0; i < 100 && await api.QueryAsync(db => db.TodaysMessages.AnyAsync(t => t.Status == "generating", DemoClassApi.Ct)); i++)
+        {
+            await Task.Delay(100, DemoClassApi.Ct);
+        }
+
+        // Once it has gone, another lesson is refused (D-124).
+        var refused = await api.Client.PutAsJsonAsync($"{lessons}/{today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), DemoClassApi.Ct);
+        Assert.Equal(System.Net.HttpStatusCode.Conflict, refused.StatusCode);
+        var deliveriesBefore = await api.QueryAsync(db => db.ParentDeliveries.CountAsync(DemoClassApi.Ct));
+        Assert.True(deliveriesBefore > 0);
+
+        var requestId = Guid.NewGuid();
+        var reset = await api.Client.PostAsJsonAsync("/api/demo/reset-today", new DemoResetDayRequest(requestId), DemoClassApi.Ct);
+
+        Assert.True(reset.IsSuccessStatusCode);
+        Assert.Equal(new DemoResetDayResponse(today), await reset.Content.ReadFromJsonAsync<DemoResetDayResponse>(DemoClassApi.Ct));
+        var after = await api.QueryAsync(async db => new
+        {
+            Evening = await db.EveningMessages.CountAsync(m => m.Date == today, DemoClassApi.Ct),
+            Deliveries = await db.ParentDeliveries.CountAsync(DemoClassApi.Ct),
+            Todays = await db.TodaysMessages.CountAsync(t => t.Date == today, DemoClassApi.Ct),
+            Lessons = await db.Lessons.CountAsync(l => l.Date == today, DemoClassApi.Ct),
+            Reasons = await db.AbsenceReasons.CountAsync(r => r.Date == today, DemoClassApi.Ct),
+            Register = await db.Attendance.Where(a => a.Date == today).Select(a => a.Source).ToListAsync(DemoClassApi.Ct),
+            YesterdayLesson = await db.Lessons.CountAsync(l => l.Date == yesterday, DemoClassApi.Ct),
+            YesterdayRegister = await db.Attendance.CountAsync(a => a.Date == yesterday, DemoClassApi.Ct),
+        });
+        Assert.Equal((0, 0, 0, 0, 0), (after.Evening, after.Deliveries, after.Todays, after.Lessons, after.Reasons));
+        Assert.Equal((1, 36), (after.YesterdayLesson, after.YesterdayRegister));
+        // On a school day the simulated SATS register is back, for every child; on a holiday there is none.
+        var schoolDay = await api.ScopedAsync<SlateAi.Api.Features.Attendance.Source.SimulatedSatsSource, bool>(s => Task.FromResult(s.IsSchoolDay(today)));
+        Assert.Equal(schoolDay ? 36 : 0, after.Register.Count);
+        Assert.All(after.Register, source => Assert.Equal(AttendanceSources.Sats, source));
+
+        // A new lesson saves again; replaying the reset doesn't remove it.
+        (await api.Client.PutAsJsonAsync($"{lessons}/{today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        (await api.Client.PostAsJsonAsync("/api/demo/reset-today", new DemoResetDayRequest(requestId), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        Assert.Equal(1, await api.QueryAsync(db => db.Lessons.CountAsync(l => l.Date == today, DemoClassApi.Ct)));
+    }
+
     [Fact]
     public async Task Reset_puts_a_used_demo_class_back_to_the_story_and_keeps_shared_audio_and_the_ai_log()
     {

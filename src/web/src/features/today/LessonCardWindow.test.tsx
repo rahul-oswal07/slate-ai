@@ -23,6 +23,7 @@ const curriculum: Curriculum = {
       nameEn: 'The fun of subtracting',
       competencies: [
         { id: 'M3.SUB.MAKE', nameKn: 'ಸಮಸ್ಯಾ ರಚನೆ', nameEn: 'Making subtraction sums', sequence: 14, textbookPage: { book: 'textbook', part: 1, page: 117 }, hasExercises: false },
+        { id: 'M3.SUB.BORROW', nameKn: 'ದಶಕ ಸಹಿತ ವ್ಯವಕಲನ', nameEn: 'Subtraction with borrowing', sequence: 15, textbookPage: { book: 'textbook', part: 1, page: 108 }, hasExercises: false },
       ],
     },
   ],
@@ -58,12 +59,19 @@ const evening = (sent: number): EveningDay => ({
   children: [],
 })
 
-function today(opts: { todays: TodaysMessage | null; sent?: number; absent?: string[] }) {
+function today(opts: {
+  todays: TodaysMessage | null
+  sent?: number
+  absent?: string[]
+  sentToFamilies?: boolean
+  put?: () => { status: number; body?: unknown }
+}) {
   return fakeApi({
+    ...(opts.put ? { [`PUT ${base}/lessons/${date}`]: opts.put } : {}),
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET ${base}/attendance/${date}`]: () => ({ status: 200, body: attendance(opts.absent ?? ['a', 'b']) }),
     'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
-    [`GET ${base}/lessons/${date}`]: () => ({ status: 200, body: confirmed }),
+    [`GET ${base}/lessons/${date}`]: () => ({ status: 200, body: { ...confirmed, sentToFamilies: opts.sentToFamilies ?? false } }),
     [`GET ${base}/evening-messages/${date}`]: () => ({ status: 200, body: evening(opts.sent ?? 0) }),
     [`GET ${base}/todays-message/${date}`]: () => (opts.todays ? { status: 200, body: opts.todays } : { status: 204 }),
   })
@@ -125,5 +133,43 @@ describe('Today record card after confirming (T-114)', () => {
 
     expect(await screen.findByText(line)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Record' })).toBeInTheDocument()
+  })
+
+  it('once tonight’s message has gone: no Change, and a line says why (T-143)', async () => {
+    today({ todays: null, sent: 2, sentToFamilies: true })
+    renderApp('/')
+
+    expect(await screen.findByText('Done for today. Thank you.')).toBeInTheDocument()
+    expect(screen.getByText(/has gone to families, so it can’t be changed/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Change' })).not.toBeInTheDocument()
+  })
+
+  it('a change the server refuses goes back to the confirmed lesson instead of waiting to send (T-143)', async () => {
+    // Tonight's message went out between loading Today and her tap: the API answers 409 with the day as it is.
+    // Approved, not sent yet: Today shows the confirmed lesson with Change and stays on Today after a pick.
+    const calls = today({
+      todays: todaysMessage({ status: 'approved', approvedVersion: 1 }),
+      put: () => ({ status: 409, body: { ...confirmed, sentToFamilies: true } }),
+    })
+    renderApp('/')
+
+    expect(await screen.findByText('Done for today. Thank you.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Change' }))
+    await userEvent.click(within(await screen.findByRole('dialog')).getByRole('radio', { name: /Subtraction with borrowing/ }))
+
+    await waitFor(() => expect(calls.some((c) => c.key === `PUT ${base}/lessons/${date}`)).toBe(true))
+    const card = screen.getByRole('region', { name: 'Today’s lesson' })
+    await waitFor(() => expect(within(card).queryByText('Subtraction with borrowing')).not.toBeInTheDocument())
+    expect(within(card).getByText('Making subtraction sums')).toBeInTheDocument()
+  })
+
+  it('a message not approved but tonight’s plain message gone: the confirmed lesson, no mic, no Change (T-143)', async () => {
+    today({ todays: todaysMessage({ status: 'failed' }), sent: 2, sentToFamilies: true })
+    renderApp('/')
+
+    expect(await screen.findByText('Done for today. Thank you.')).toBeInTheDocument()
+    expect(screen.getByText(/has gone to families, so it can’t be changed/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Record' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Change' })).not.toBeInTheDocument()
   })
 })
