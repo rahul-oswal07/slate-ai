@@ -96,13 +96,20 @@ public sealed class DemoStore(AppDbContext db) : IDemoStore
 
         // Children first: their rows cascade (attendance, evening messages, catch-up links and answers, reasons, buddy
         // cards). Packages cascade their own audio; shared clips (the disclosure) have no package and stay.
-        // Numbers saved on the admin page come back on the re-created children (T-118, D-110).
+        // Numbers saved on the admin page come back on the re-created children, both of them (T-118, T-140, D-110).
         // Not tracked: the same children are added back below with the same IDs.
         var saved = (await db.Children.AsNoTracking()
-                .Where(c => c.ClassId == classId && c.ParentPhoneSetAt != null && c.ParentPhone != null)
-                .Select(c => new { c.Id, Phone = c.ParentPhone!, SetAt = c.ParentPhoneSetAt!.Value })
+                .Where(c => c.ClassId == classId && (c.ParentPhoneSetAt != null || c.ParentPhone2SetAt != null))
+                .Select(c => new
+                {
+                    c.Id,
+                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
+                    c.ParentPhoneSetAt,
+                    Phone2 = c.ParentPhone2SetAt != null ? c.ParentPhone2 : null,
+                    c.ParentPhone2SetAt,
+                })
                 .ToListAsync(cancellationToken))
-            .ToDictionary(c => c.Id, c => new SavedPhone(c.Phone, c.SetAt));
+            .ToDictionary(c => c.Id, c => new SavedPhone(c.Phone, c.ParentPhoneSetAt, c.Phone2, c.ParentPhone2SetAt));
 
         // So do home languages changed there (T-122, D-113).
         var languages = (await db.Children.AsNoTracking()

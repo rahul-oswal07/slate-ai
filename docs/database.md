@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `AppSettings` (T-134) |
+| Last migration | `SecondParentPhone` (T-140) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
 
@@ -25,9 +25,9 @@ erDiagram
     Lessons ||--o{ EveningMessages : "slots from"
     Classes ||--o{ LessonAudios : "one per day and language, if ticked"
     LessonAudios ||--o{ EveningMessages : "approved clip goes with"
-    EveningMessages ||--o| ParentDeliveries : "queued for the phone"
-    CatchUpAssignments ||--o| ParentDeliveries : "queued for the phone"
-    WeeklyStarMessages ||--o| ParentDeliveries : "queued for the phone"
+    EveningMessages ||--o{ ParentDeliveries : "queued for each family number"
+    CatchUpAssignments ||--o{ ParentDeliveries : "queued for each family number"
+    WeeklyStarMessages ||--o{ ParentDeliveries : "queued for each family number"
     Children ||--o{ WeeklyStarMessages : "star for a full week"
     Classes ||--o| WeeklyStarApprovals : "star wording approved"
     AudioClips ||--o{ LessonAudios : "clip she listens to"
@@ -67,6 +67,8 @@ erDiagram
         varchar5 HomeLanguage "kn, te, ta, en, hi"
         varchar20 ParentPhone "nullable"
         timestamptz ParentPhoneSetAt "nullable"
+        varchar20 ParentPhone2 "nullable, Number 2"
+        timestamptz ParentPhone2SetAt "nullable"
         timestamptz HomeLanguageSetAt "nullable"
         timestamptz ParentConsentAt "nullable"
         bool HasPhone
@@ -150,9 +152,10 @@ erDiagram
         uuid Id PK
         uuid ClassId FK
         uuid ChildId FK
-        uuid EveningMessageId FK "nullable, unique"
-        uuid CatchUpAssignmentId FK "nullable, unique"
-        uuid WeeklyStarMessageId FK "nullable, unique"
+        uuid EveningMessageId FK "nullable, unique with Recipient"
+        uuid CatchUpAssignmentId FK "nullable, unique with Recipient"
+        uuid WeeklyStarMessageId FK "nullable, unique with Recipient"
+        smallint Recipient "1 or 2: the family's number"
         varchar10 Status "pending, sent, skipped, failed"
         varchar10 Channel "demo, whatsapp; null while pending"
         varchar100 ProviderMessageId "nullable, sha256 of the wamid"
@@ -325,7 +328,7 @@ erDiagram
 
 **`ClassTeachers`** — which teachers can sign in to a class (D-79): composite PK `(ClassId, TeacherId)`, FKs to `Classes` and `Teachers` (cascade), index on `TeacherId`. `AuthStore.GetMeAsync` takes the teacher's class from here (their own class first), and the class goes into the session cookie as before. The migration `ClassTeachers` adds one row per existing class for its main teacher; the seeder adds the demo class's main teacher and the co-teachers in `data/seed/demo-class.json` (`coTeachers`).
 
-**`Children`** — `RollNo` is unique within a class (`IX_Children_ClassId_RollNo`). `HomeLanguage` (`kn`, `en`, `te`, `ta` or `hi`) is the language of everything the family gets: evening message, today's message, lesson audio, catch-ups. It can be changed on `/admin/children`, which sets `HomeLanguageSetAt` (migration `HomeLanguageSetAt`, T-122, D-113); what was made before keeps its language, and the demo Reset puts a changed language back on the re-created child. `HasPhone = false` children still get the return-day buddy card (FR-12). `ParentPhone` is E.164; seeded values are fictional and never dialled. `ParentPhoneSetAt` is set when a number is saved on `/admin/children` (migration `ParentPhoneSetAt`, T-118, D-110): only then does WhatsApp use it, and it is the only number WhatsApp dials (D-114); clearing sets both null. The demo Reset puts saved numbers back on the re-created children. FK `ClassId → Classes` (cascade). `Consent` is the family's paper form as the teacher recorded it (D-39): `yes`, `no` or `nophone`; a form not back is `no` (column default). Nothing is sent unless `yes`. In the MVP it comes from `data/seed/demo-class.json`; the seeder keeps it in step until `ConsentChangedAt` is set (the T8 editing screen is roadmap, D-70). `ParentStoppedAt` is the family's "Stop these messages" (D-19), separate from consent; every send path refuses a stopped child (migration `EveningMessages`).
+**`Children`** — `RollNo` is unique within a class (`IX_Children_ClassId_RollNo`). `HomeLanguage` (`kn`, `en`, `te`, `ta` or `hi`) is the language of everything the family gets: evening message, today's message, lesson audio, catch-ups. It can be changed on `/admin/children`, which sets `HomeLanguageSetAt` (migration `HomeLanguageSetAt`, T-122, D-113); what was made before keeps its language, and the demo Reset puts a changed language back on the re-created child. `HasPhone = false` children still get the return-day buddy card (FR-12). `ParentPhone` is E.164; seeded values are fictional and never dialled. `ParentPhoneSetAt` is set when a number is saved on `/admin/children` (migration `ParentPhoneSetAt`, T-118, D-110): only then does WhatsApp use it, and it is the only number WhatsApp dials (D-114); clearing sets both null. `ParentPhone2` / `ParentPhone2SetAt` are the family's optional Number 2, with the same rules (migration `SecondParentPhone`, T-140, D-122); the seed has none, and every message goes to each saved number. The demo Reset puts both saved numbers back on the re-created children. FK `ClassId → Classes` (cascade). `Consent` is the family's paper form as the teacher recorded it (D-39): `yes`, `no` or `nophone`; a form not back is `no` (column default). Nothing is sent unless `yes`. In the MVP it comes from `data/seed/demo-class.json`; the seeder keeps it in step until `ConsentChangedAt` is set (the T8 editing screen is roadmap, D-70). `ParentStoppedAt` is the family's "Stop these messages" (D-19), separate from consent; every send path refuses a stopped child (migration `EveningMessages`).
 
 **`Attendance`** — one row per child per school day. Composite PK `(ClassId, Date, ChildId)`, which also serves "register for a class on a date" lookups; extra index on `ChildId`. FKs to `Classes` and `Children` (cascade, so deleting a child removes their attendance: FR-15). Provenance (D-27, D-69): `Present` is the effective value everything reads (ledger, missed lessons). `Source` is `sats` when the row came from the SATS feed (simulated in the MVP) and `manual` when the teacher marked the day before SATS arrived (existing rows default to `manual`). `SourcePresent` is what SATS said (null until it arrives) and `ReceivedAt` when it arrived; both are kept even when her marking wins. `CorrectedAt` is set on a SATS row only while it differs from SATS (putting it back clears it), and on manual rows when she marked them. Rules live in `Features/Attendance/RegisterMerge.cs`; nothing is written back to SATS. Timestamps are stored in UTC.
 - A `POST /api/classes/{id}/attendance` writes the **full register** for that date: every child in the class gets a row, absent ones with `Present = false`. A correction deletes and rewrites the date.
@@ -347,7 +350,7 @@ erDiagram
 
 **`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). The send step gives a `Token` (128-bit, unique), `ScheduledAt`, `SentAt` and `ExpiresAt` (+14 days) only to assignments whose child has consent `yes` and no `ParentStoppedAt`; the others stay on the buddy-card path. `OpenedAt` is not written: opens are never counted (D-20). The parent page (`/api/p/{token}`, T-15) shows the lesson only while the package is approved or sent at its approved version, the link hasn't expired and the child isn't stopped. FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
 
-**`ParentDeliveries`** — the outbox for families' phones (T-40, FR-16, migration `ParentDelivery`). A row is added **in the same transaction** as the `EveningMessages` row (`EveningStore.AddMessagesAsync`) or the catch-up token (`CatchUpStore.SendAsync`) it carries, so only what passed guardrail 3 is ever queued. Exactly one of `EveningMessageId` / `CatchUpAssignmentId` / `WeeklyStarMessageId` is set (check constraint `CK_ParentDeliveries_OneSource`, three sources since migration `WeeklyStarMessages`, T-125); each is unique, so a repeated send queues nothing new. Evenings the demo video story fills in after the fact (T-70) are not queued. `DeliveryDispatcher` (run every minute by the 6 pm job and by the demo's Send messages now) claims a pending row with a conditional update on `Attempts`, so two runs never send it twice, then re-checks stop, consent and link expiry and sends it over `Delivery:Channel`: `demo` marks it `skipped`; `whatsapp` sends the approved template to the child's number in `WhatsApp:Recipients` (config, not this table; others are `skipped`) and stores the SHA-256 of the `wamid` as `ProviderMessageId` (`sha256:…`): the raw wamid is base64 that contains the recipient's number, so it is never stored, logged or returned. A temporary failure stays `pending` until `Delivery:MaxAttempts` (3), then `failed`; `LastError` is a short code (`http-502`, `graph-131026`, `stopped`, `no-recipient`). **No names, numbers or message text are stored here**; they are looked up at send time. Index on `Status`. FKs: `ChildId` (cascade, FR-15), `EveningMessageId`, `CatchUpAssignmentId` and `WeeklyStarMessageId` (cascade), `ClassId`.
+**`ParentDeliveries`** — the outbox for families' phones (T-40, FR-16, migration `ParentDelivery`). A row is added **in the same transaction** as the `EveningMessages` row (`EveningStore.AddMessagesAsync`) or the catch-up token (`CatchUpStore.SendAsync`) it carries, so only what passed guardrail 3 is ever queued. Exactly one of `EveningMessageId` / `CatchUpAssignmentId` / `WeeklyStarMessageId` is set (check constraint `CK_ParentDeliveries_OneSource`, three sources since migration `WeeklyStarMessages`, T-125). Each message is queued once per family number: `Recipient` is 1 or 2 (migration `SecondParentPhone`, T-140, D-122), and each source is unique with `Recipient`, so a repeated send queues nothing new and each number is sent, retried and failed on its own. Evenings the demo video story fills in after the fact (T-70) are not queued. `DeliveryDispatcher` (run every minute by the 6 pm job and by the demo's Send messages now) claims a pending row with a conditional update on `Attempts`, so two runs never send it twice, then re-checks stop, consent and link expiry and sends it over `Delivery:Channel`: `demo` marks it `skipped`; `whatsapp` sends the approved template to the row's number, `Children.ParentPhone` or `ParentPhone2` by `Recipient`, read at send time and used only when saved on `/admin/children` (D-114; otherwise `skipped`, `no-recipient`) and stores the SHA-256 of the `wamid` as `ProviderMessageId` (`sha256:…`): the raw wamid is base64 that contains the recipient's number, so it is never stored, logged or returned. A temporary failure stays `pending` until `Delivery:MaxAttempts` (3), then `failed`; `LastError` is a short code (`http-502`, `graph-131026`, `stopped`, `no-recipient`). **No names, numbers or message text are stored here**; they are looked up at send time. Index on `Status`. FKs: `ChildId` (cascade, FR-15), `EveningMessageId`, `CatchUpAssignmentId` and `WeeklyStarMessageId` (cascade), `ClassId`.
 
 **`WeeklyStarMessages`** — the weekly star sent to one family for one finished week (T-125, D-118, migration `WeeklyStarMessages`): the child was present on every school day of it (`StarRules`). **Unique `(ChildId, WeekOf)`**, so the 6 pm job (Saturday, or Sunday for a week whose Saturday had no school) and the demo's Send messages now send it once; advisory lock `weekly-star:{classId}:{week}` around the write, which also re-checks the approval (guardrail 3). `MessageText` and `BadgeText` are the approved wording in the family's `Language` with `{child}` still in it; the page fills the name when it opens, so **no name is stored**. `Version` is the `data/seed/weekly-star.json` version she approved. `Token` (unique, 22 characters) opens `/p/{token}` for 14 days, like the other family links. The `ParentDeliveries` row is added in the same transaction. FKs: `ChildId` (cascade, FR-15), `ClassId`.
 
@@ -417,7 +420,7 @@ From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 
 ## 5. Privacy
 
-- Personal data is limited to `Teachers.DisplayName`, `Teachers.Phone`, `Children.FirstName` (first name only) and `Children.ParentPhone`. None of it is ever sent to Claude or Sarvam (guardrail 1, NFR-05); AI inputs use IDs and `{child}` / `{teacher}` placeholders. WhatsApp gets the child's and teacher's first names only in the final send to the family (T-40), and the number comes from `WhatsApp:Recipients` config, never from `ParentPhone`.
+- Personal data is limited to `Teachers.DisplayName`, `Teachers.Phone`, `Children.FirstName` (first name only) and `Children.ParentPhone` / `ParentPhone2`. None of it is ever sent to Claude or Sarvam (guardrail 1, NFR-05); AI inputs use IDs and `{child}` / `{teacher}` placeholders. WhatsApp gets the child's and teacher's first names only in the final send to the family (T-40), to a number saved on `/admin/children` (`ParentPhone` / `ParentPhone2` with their `SetAt`, D-114, D-122); seeded numbers are never dialled.
 - The demo seed (`data/seed/demo-class.json`) is fictional, with placeholder phone numbers that must never be messaged.
 - Logs record counts and IDs, never names.
 - Deleting a child removes all their rows by cascade; audio in blob storage is deleted in code (T-19).

@@ -30,7 +30,9 @@ public sealed class WhatsAppTestEndpointTests
         var text = await response.Content.ReadAsStringAsync(Ct);
         Assert.DoesNotContain("9812345678", text);
         Assert.DoesNotContain("wamid", text);
-        Assert.Equal(new WhatsAppTestResponse("sent", null, ProviderMessageIds.Hash("wamid.HELLO"), false), JsonSerializer.Deserialize<WhatsAppTestResponse>(text, JsonSerializerOptions.Web));
+        var result = JsonSerializer.Deserialize<WhatsAppTestResponse>(text, JsonSerializerOptions.Web)!;
+        Assert.Equal(("sent", (string?)null, ProviderMessageIds.Hash("wamid.HELLO"), false), (result.Outcome, result.Error, result.ProviderMessageId, result.Replay));
+        Assert.Equal([new WhatsAppTestNumber(1, "sent", null, ProviderMessageIds.Hash("wamid.HELLO"))], result.Numbers);
 
         using var body = JsonDocument.Parse(Assert.Single(_http.Requests).Body);
         var template = body.RootElement.GetProperty("template");
@@ -112,11 +114,28 @@ public sealed class WhatsAppTestEndpointTests
         Assert.Single(_http.Requests);
     }
 
-    private ApiFactory Create(string channel = DeliveryChannels.Demo, string environment = "Testing") => FakeApi.Create(
+    [Fact]
+    public async Task With_two_saved_numbers_it_sends_to_both_and_says_how_each_went_T140()
+    {
+        await using var factory = Create(second: "+919845012345");
+        using var client = factory.CreateClient();
+
+        var response = await client.PostAsJsonAsync(Url, new WhatsAppTestRequest(Guid.NewGuid(), Ravi), Ct);
+
+        var text = await response.Content.ReadAsStringAsync(Ct);
+        Assert.DoesNotContain("9845012345", text);
+        var result = JsonSerializer.Deserialize<WhatsAppTestResponse>(text, JsonSerializerOptions.Web)!;
+        Assert.Equal([1, 2], result.Numbers.Select(n => n.Slot));
+        Assert.All(result.Numbers, n => Assert.Equal("sent", n.Outcome));
+        Assert.Equal(["919812345678", "919845012345"], _http.Requests.Select(r => JsonDocument.Parse(r.Body).RootElement.GetProperty("to").GetString()));
+    }
+
+    private ApiFactory Create(string channel = DeliveryChannels.Demo, string environment = "Testing", string? second = null) => FakeApi.Create(
         services =>
         {
             services.AddHttpClient<WhatsAppClient>().ConfigurePrimaryHttpMessageHandler(() => _http);
-            services.AddSingleton<IAdminChildStore>(new SavedNumbers(new() { [Ravi] = Number }));
+            services.AddSingleton<IAdminChildStore>(new SavedNumbers(
+                new() { [Ravi] = Number }, second is null ? null : new() { [Ravi] = second }));
         },
         settings: new Dictionary<string, string?>
         {
@@ -127,16 +146,19 @@ public sealed class WhatsAppTestEndpointTests
         environment: environment);
 
     /// <summary>Only the saved numbers matter to the test send (D-114); the page's other calls aren't used here.</summary>
-    private sealed class SavedNumbers(Dictionary<Guid, string> numbers) : IAdminChildStore
+    /// <summary>Only the saved numbers matter to the test send (D-114, T-140); the page's other calls aren't used here.</summary>
+    private sealed class SavedNumbers(Dictionary<Guid, string> numbers, Dictionary<Guid, string>? second = null) : IAdminChildStore
     {
-        public Task<string?> GetSavedPhoneAsync(Guid childId, CancellationToken cancellationToken) =>
-            Task.FromResult(numbers.GetValueOrDefault(childId));
+        public Task<IReadOnlyList<SavedNumber>> GetSavedPhonesAsync(Guid childId, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<SavedNumber>>(
+                new[] { new SavedNumber(1, numbers.GetValueOrDefault(childId)), new SavedNumber(2, second?.GetValueOrDefault(childId)) }
+                    .Where(n => n.Phone is not null).ToList());
 
         public Task<IReadOnlyList<AdminChildClass>> ListAsync(CancellationToken cancellationToken) =>
             throw new NotSupportedException();
 
         public Task<AdminChildRow?> SetPhoneAsync(
-            Guid clientRequestId, Guid childId, string? phone, DateTimeOffset now, CancellationToken cancellationToken) =>
+            Guid clientRequestId, Guid childId, int slot, string? phone, DateTimeOffset now, CancellationToken cancellationToken) =>
             throw new NotSupportedException();
 
         public Task<AdminChildRow?> SetLanguageAsync(

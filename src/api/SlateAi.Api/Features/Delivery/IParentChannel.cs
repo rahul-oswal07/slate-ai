@@ -32,6 +32,8 @@ public static class DeliveryStatus
 /// </param>
 /// <param name="Token">The parent link token: the URL button opens /p/{token}.</param>
 /// <param name="WordingVersion">Evening only: the version of the wording the teacher approved (MessageTemplates.Version).</param>
+/// <param name="Phone">The saved number of this row's <paramref name="Recipient"/>, or null: not sent (D-114).</param>
+/// <param name="Recipient">The family's number 1 or 2 this row goes to (T-140, D-122).</param>
 public sealed record DeliveryMessage(
     Guid DeliveryId,
     Guid ChildId,
@@ -40,7 +42,8 @@ public sealed record DeliveryMessage(
     IReadOnlyList<string> Parameters,
     string Token,
     string? WordingVersion = null,
-    string? Phone = null);
+    string? Phone = null,
+    int Recipient = 1);
 
 /// <param name="Outcome">A <see cref="DeliveryStatus"/> value, or <see cref="ChannelOutcome.Retry"/>.</param>
 /// <param name="Error">A short code, never message text or a number.</param>

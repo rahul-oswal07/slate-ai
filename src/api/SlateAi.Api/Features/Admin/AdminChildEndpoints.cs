@@ -5,12 +5,15 @@ using SlateAi.Api.Data.Seed;
 
 namespace SlateAi.Api.Features.Admin;
 
-/// <param name="Phone">The number saved on the admin page, the only one WhatsApp uses (D-114); null: WhatsApp skips the family.</param>
+/// <param name="Phone">Number 1 saved on the admin page; WhatsApp uses only numbers saved here (D-114).</param>
 /// <param name="Consent">"yes", "no" or "nophone": nothing is sent unless "yes", whatever the number.</param>
 /// <param name="Stopped">The family tapped "Stop these messages": nothing is sent.</param>
 /// <param name="LanguageChanged">The home language was changed on this page (T-122), not the seed's.</param>
+/// <param name="Phone2">Number 2 saved on the admin page (T-140, D-122). Every message goes to each saved number; with
+/// neither, WhatsApp skips the family.</param>
 public sealed record AdminChild(
-    Guid Id, int RollNo, string FirstName, string HomeLanguage, string Consent, bool Stopped, string? Phone, bool LanguageChanged);
+    Guid Id, int RollNo, string FirstName, string HomeLanguage, string Consent, bool Stopped, string? Phone,
+    bool LanguageChanged, string? Phone2 = null);
 
 /// <param name="Label">"Shobha · Grade 3": the main teacher and grade.</param>
 /// <param name="Demo">The demo class, with the demo on: each child has a simulated family phone at <c>/demo/family/{id}</c> (T-130).</param>
@@ -19,7 +22,8 @@ public sealed record AdminChildrenClass(Guid Id, string Label, IReadOnlyList<Adm
 public sealed record AdminChildrenResponse(IReadOnlyList<AdminChildrenClass> Classes);
 
 /// <param name="Phone">A 10-digit Indian mobile, or a full number with its country code; blank clears the saved number.</param>
-public sealed record SetParentPhoneRequest(Guid ClientRequestId, string? Phone);
+/// <param name="Slot">Which of the family's numbers: 1 (the default) or 2 (T-140, D-122).</param>
+public sealed record SetParentPhoneRequest(Guid ClientRequestId, string? Phone, int Slot = 1);
 
 /// <param name="Language">"kn", "en", "te", "ta" or "hi".</param>
 public sealed record SetHomeLanguageRequest(Guid ClientRequestId, string? Language);
@@ -40,19 +44,20 @@ public static class AdminChildEndpoints
     {
         app.MapGet("/api/admin/children", ListAsync)
             .WithTags("Admin")
-            .WithSummary("Every class's children with the number their family's WhatsApp goes to (T-118)")
+            .WithSummary("Every class's children with the numbers their family's WhatsApp goes to (T-118, T-140)")
             .WithDescription(
-                "phone is the number saved on this page, the only one WhatsApp uses (D-114); null: WhatsApp skips the " +
-                "family. Seeded numbers are fictional and never shown. Consent and stopped still decide whether " +
+                "phone and phone2 are the family's number 1 and 2 saved on this page, the only ones WhatsApp uses (D-114); " +
+                "every message goes to each saved number (D-122), and with neither WhatsApp skips the family. Seeded numbers are fictional and never shown. Consent and stopped still decide whether " +
                 "anything is sent. demo is true for the demo class when the demo is on: each of its children has a " +
                 "simulated family phone at /demo/family/{id} (T-130). Admin page; no key (D-112).");
 
         app.MapPut("/api/admin/children/{childId:guid}/phone", SetPhoneAsync)
             .WithTags("Admin")
-            .WithSummary("Save or clear the number a family's WhatsApp goes to (T-118, D-114)")
+            .WithSummary("Save or clear one of the numbers a family's WhatsApp goes to (T-118, T-140, D-114, D-122)")
             .WithDescription(
-                "Body { clientRequestId, phone }: a 10-digit Indian mobile (+91 is added) or a full number with its country " +
-                "code, stored as E.164; blank clears it, and WhatsApp then skips the family. Idempotent per " +
+                "Body { clientRequestId, phone, slot }: slot 1 (the default) or 2 says which of the family's two numbers; " +
+                "the other is left as it is. phone is a 10-digit Indian mobile (+91 is added) or a full number with its " +
+                "country code, stored as E.164; blank clears it, and WhatsApp then skips that number. Idempotent per " +
                 "clientRequestId. 400 for anything else, 404 for an unknown child. Admin page; no key (D-112).");
 
         app.MapPut("/api/admin/children/{childId:guid}/language", SetLanguageAsync)
@@ -99,6 +104,11 @@ public static class AdminChildEndpoints
             errors["clientRequestId"] = ["Required."];
         }
 
+        if (request.Slot is not (1 or 2))
+        {
+            errors["slot"] = ["1 or 2."];
+        }
+
         var (phone, error) = ParentPhoneRules.Normalise(request.Phone);
         if (error is not null)
         {
@@ -110,7 +120,8 @@ public static class AdminChildEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
-        if (await store.SetPhoneAsync(request.ClientRequestId, childId, phone, clock.GetUtcNow(), cancellationToken) is not { } row)
+        if (await store.SetPhoneAsync(
+                request.ClientRequestId, childId, request.Slot, phone, clock.GetUtcNow(), cancellationToken) is not { } row)
         {
             return TypedResults.NotFound();
         }
@@ -154,5 +165,6 @@ public static class AdminChildEndpoints
     }
 
     private static AdminChild View(AdminChildRow row) => new(
-        row.Id, row.RollNo, row.FirstName, row.HomeLanguage, row.Consent, row.Stopped, row.SavedPhone, row.LanguageChanged);
+        row.Id, row.RollNo, row.FirstName, row.HomeLanguage, row.Consent, row.Stopped, row.SavedPhone, row.LanguageChanged,
+        row.SavedPhone2);
 }

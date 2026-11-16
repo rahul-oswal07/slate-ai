@@ -515,6 +515,13 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("ParentPhone2")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset?>("ParentPhone2SetAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset?>("ParentPhoneSetAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -902,6 +909,11 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<short>("Recipient")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
                     b.Property<DateTimeOffset?>("SentAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -915,19 +927,19 @@ namespace SlateAi.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CatchUpAssignmentId")
-                        .IsUnique();
-
                     b.HasIndex("ChildId");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("EveningMessageId")
-                        .IsUnique();
-
                     b.HasIndex("Status");
 
-                    b.HasIndex("WeeklyStarMessageId")
+                    b.HasIndex("CatchUpAssignmentId", "Recipient")
+                        .IsUnique();
+
+                    b.HasIndex("EveningMessageId", "Recipient")
+                        .IsUnique();
+
+                    b.HasIndex("WeeklyStarMessageId", "Recipient")
                         .IsUnique();
 
                     b.ToTable("ParentDeliveries", t =>
@@ -1364,8 +1376,8 @@ namespace SlateAi.Api.Data.Migrations
             modelBuilder.Entity("SlateAi.Api.Data.Entities.ParentDelivery", b =>
                 {
                     b.HasOne("SlateAi.Api.Data.Entities.CatchUpAssignment", null)
-                        .WithOne()
-                        .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "CatchUpAssignmentId")
+                        .WithMany()
+                        .HasForeignKey("CatchUpAssignmentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SlateAi.Api.Data.Entities.Child", null)
@@ -1381,13 +1393,13 @@ namespace SlateAi.Api.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("SlateAi.Api.Data.Entities.EveningMessage", null)
-                        .WithOne()
-                        .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "EveningMessageId")
+                        .WithMany()
+                        .HasForeignKey("EveningMessageId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SlateAi.Api.Data.Entities.WeeklyStarMessage", null)
-                        .WithOne()
-                        .HasForeignKey("SlateAi.Api.Data.Entities.ParentDelivery", "WeeklyStarMessageId")
+                        .WithMany()
+                        .HasForeignKey("WeeklyStarMessageId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -17,7 +17,7 @@ How to switch staging from the demo chat to real WhatsApp for the registered tes
 **How it works:**
 - When an evening message or catch-up is sent (guardrail 3 already passed), a `ParentDeliveries` row is queued in the same transaction.
 - Every minute, the 6 pm job sends queued rows over `Delivery:Channel`. "Send messages now" on `/demo` does the same straight away.
-- With `whatsapp`, only children with a number saved on `/admin/children` get a message: the approved template, with a button that opens `/p/{token}`. Everyone else stays on the demo chat. There is no server setting for numbers (D-114).
+- With `whatsapp`, only children with a number saved on `/admin/children` get a message: the approved template, with a button that opens `/p/{token}`. A family can have two numbers (Number 1 and Number 2); each saved one gets every message (D-122). Everyone else stays on the demo chat. There is no server setting for numbers (D-114).
 
 ## 1. Meta (one time, about 2 hours)
 
@@ -58,7 +58,7 @@ The button URL is fixed when the template is created, so a local run's button op
 Meta's `hello_world` template is approved on every test number. The admin test send uses it to check the token, the Phone number ID and one recipient straight away.
 
 How the endpoint works:
-- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches a number saved on `/admin/children` (D-114).
+- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches numbers saved on `/admin/children` (D-114), and goes to each of the child's saved numbers: `numbers` in the response has one result per number (T-140).
 - A repeated `clientRequestId` returns the first result without sending again.
 - The response never contains the number. The message ID is a SHA-256 hash, because WhatsApp's raw `wamid` encodes the number.
 

@@ -71,8 +71,9 @@ public sealed class DeliveryDispatcher(
 
             // IDs and codes only (NFR-05): never the name, number or text.
             logger.LogInformation(
-                "Delivery {DeliveryId} ({Kind}, child {ChildId}) over {Channel}: {Status} {Error} (attempt {Attempt})",
-                pending.Id, pending.Message.Kind, pending.Message.ChildId, channel.Name, status, result.Error, attempts);
+                "Delivery {DeliveryId} ({Kind}, child {ChildId}, number {Recipient}) over {Channel}: {Status} {Error} (attempt {Attempt})",
+                pending.Id, pending.Message.Kind, pending.Message.ChildId, pending.Message.Recipient, channel.Name, status,
+                result.Error, attempts);
             handled++;
         }
 

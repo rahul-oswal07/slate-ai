@@ -7,15 +7,17 @@ import { AdminPage, AdminQuery } from './AdminPage'
 import {
   type AdminChild,
   type AdminChildren,
+  type PhoneSlot,
   useAdminChildren,
   useSetHomeLanguage,
   useSetParentPhone,
 } from './useAdmin'
 
 /**
- * /admin/children (T-118; open without a key, D-112): every class's children with the number their family's WhatsApp goes
- * to. WhatsApp uses only a number saved here (T-123, D-114); without one it skips the family. Seeded numbers are
- * fictional and never shown. Saved numbers survive the demo Reset.
+ * /admin/children (T-118; open without a key, D-112): every class's children with the numbers their family's WhatsApp
+ * goes to. WhatsApp uses only numbers saved here (T-123, D-114): each family has an optional Number 1 and Number 2, and
+ * every message goes to each one saved (T-140, D-122); with neither it skips the family. Seeded numbers are fictional
+ * and never shown. Saved numbers survive the demo Reset.
  * Each child's home language can be changed here too (T-122, D-113): it is used for everything made after the change
  * and also survives the Reset.
  * In the demo class each child links to their simulated family phone, /demo/family/:childId (T-130).
@@ -53,29 +55,11 @@ function Classes({ data }: { data: AdminChildren }) {
 
 function ChildRow({ child, demo }: { child: AdminChild; demo: boolean }) {
   const { t } = useTranslation()
-  const set = useSetParentPhone()
-  const [editing, setEditing] = useState(false)
-  const [value, setValue] = useState('')
-  const [saved, setSaved] = useState<'saved' | 'cleared' | null>(null)
-  const inputId = useId()
-  const errorId = `${inputId}-error`
-  const refused = set.error instanceof ApiError && set.error.status === 400
   const name = t('admin.children.child', {
     rollNo: child.rollNo,
     name: child.firstName,
     language: t(`missed.language.${child.homeLanguage}`),
   })
-
-  const save = (phone: string, outcome: 'saved' | 'cleared') =>
-    set.mutate(
-      { id: child.id, phone },
-      {
-        onSuccess: () => {
-          setEditing(false)
-          setSaved(outcome)
-        },
-      },
-    )
 
   return (
     <li className="flex flex-col gap-2 p-3">
@@ -100,98 +84,134 @@ function ChildRow({ child, demo }: { child: AdminChild; demo: boolean }) {
 
       <LanguagePicker child={child} />
 
-      {editing ? (
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(event) => {
-            event.preventDefault()
-            save(value, value.trim() === '' ? 'cleared' : 'saved')
-          }}
-        >
-          <label htmlFor={inputId} className="text-caption text-ink-muted">
-            {t('admin.children.phoneLabel', { name: child.firstName })}
-          </label>
-          <input
-            id={inputId}
-            type="tel"
-            inputMode="tel"
-            autoComplete="off"
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            placeholder="98765 43210"
-            aria-invalid={refused}
-            aria-describedby={refused ? errorId : undefined}
-            className="min-h-target w-full rounded-button border-2 border-border bg-canvas px-3 text-body"
-          />
-          {refused && (
-            <p id={errorId} role="alert" className="text-caption text-error">
-              {t('admin.children.refused')}
-            </p>
-          )}
-          {set.isError && !refused && (
-            <p role="alert" className="text-caption text-error">
-              {t('admin.children.failed')}
-            </p>
-          )}
-          <div className="flex gap-2">
-            <button type="submit" disabled={set.isPending} className="btn-primary w-auto flex-1">
-              {t('admin.children.save')}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEditing(false)
-                set.reset()
-              }}
-              className="btn-secondary w-auto flex-1"
-            >
-              {t('admin.children.cancel')}
-            </button>
-          </div>
-        </form>
-      ) : (
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex min-w-0 flex-col">
-            {child.phone ? (
-              <span className="text-body tabular-nums">{child.phone}</span>
-            ) : (
-              <span className="text-body text-ink-muted">{t('admin.children.noNumber')}</span>
-            )}
-            {saved && (
-              <output className="text-caption text-primary-strong">
-                {t(saved === 'saved' ? 'admin.children.saved' : 'admin.children.cleared')}
-              </output>
-            )}
-          </div>
-          <div className="flex gap-2">
-            {child.phone && (
-              <button
-                type="button"
-                disabled={set.isPending}
-                onClick={() => save('', 'cleared')}
-                className="btn-secondary w-auto"
-                aria-label={t('admin.children.clearFor', { name: child.firstName })}
-              >
-                {t('admin.children.clear')}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                setValue(child.phone ?? '')
-                setSaved(null)
-                set.reset()
-                setEditing(true)
-              }}
-              className="btn-secondary w-auto"
-              aria-label={t('admin.children.editFor', { name: child.firstName })}
-            >
-              {t('admin.children.edit')}
-            </button>
-          </div>
-        </div>
+      {!child.phone && !child.phone2 && (
+        <span className="text-body text-ink-muted">{t('admin.children.noNumber')}</span>
       )}
+      <PhoneNumber child={child} slot={1} />
+      <PhoneNumber child={child} slot={2} />
     </li>
+  )
+}
+
+/** One of the family's two numbers (T-140, D-122), with its own Edit, Save and Clear; the other is left as it is. */
+function PhoneNumber({ child, slot }: { child: AdminChild; slot: PhoneSlot }) {
+  const { t } = useTranslation()
+  const set = useSetParentPhone()
+  const [editing, setEditing] = useState(false)
+  const [value, setValue] = useState('')
+  const [saved, setSaved] = useState<'saved' | 'cleared' | null>(null)
+  const inputId = useId()
+  const errorId = `${inputId}-error`
+  const refused = set.error instanceof ApiError && set.error.status === 400
+  const phone = (slot === 1 ? child.phone : child.phone2) ?? null
+  const label = { name: child.firstName, slot }
+
+  const save = (next: string, outcome: 'saved' | 'cleared') =>
+    set.mutate(
+      { id: child.id, phone: next, slot },
+      {
+        onSuccess: () => {
+          setEditing(false)
+          setSaved(outcome)
+        },
+      },
+    )
+
+  if (editing) {
+    return (
+      <form
+        className="flex flex-col gap-2"
+        onSubmit={(event) => {
+          event.preventDefault()
+          save(value, value.trim() === '' ? 'cleared' : 'saved')
+        }}
+      >
+        <label htmlFor={inputId} className="text-caption text-ink-muted">
+          {t('admin.children.phoneLabel', label)}
+        </label>
+        <input
+          id={inputId}
+          type="tel"
+          inputMode="tel"
+          autoComplete="off"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder="98765 43210"
+          aria-invalid={refused}
+          aria-describedby={refused ? errorId : undefined}
+          className="min-h-target w-full rounded-button border-2 border-border bg-canvas px-3 text-body"
+        />
+        {refused && (
+          <p id={errorId} role="alert" className="text-caption text-error">
+            {t('admin.children.refused')}
+          </p>
+        )}
+        {set.isError && !refused && (
+          <p role="alert" className="text-caption text-error">
+            {t('admin.children.failed')}
+          </p>
+        )}
+        <div className="flex gap-2">
+          <button type="submit" disabled={set.isPending} className="btn-primary w-auto flex-1">
+            {t('admin.children.save')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(false)
+              set.reset()
+            }}
+            className="btn-secondary w-auto flex-1"
+          >
+            {t('admin.children.cancel')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex min-w-0 flex-col">
+        <span className="text-caption text-ink-muted">{t('admin.children.number', { slot })}</span>
+        {phone ? (
+          <span className="text-body tabular-nums">{phone}</span>
+        ) : (
+          <span className="text-body text-ink-muted">{t('admin.children.notSet')}</span>
+        )}
+        {saved && (
+          <output className="text-caption text-primary-strong">
+            {t(saved === 'saved' ? 'admin.children.saved' : 'admin.children.cleared')}
+          </output>
+        )}
+      </div>
+      <div className="flex gap-2">
+        {phone && (
+          <button
+            type="button"
+            disabled={set.isPending}
+            onClick={() => save('', 'cleared')}
+            className="btn-secondary w-auto"
+            aria-label={t('admin.children.clearFor', label)}
+          >
+            {t('admin.children.clear')}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            setValue(phone ?? '')
+            setSaved(null)
+            set.reset()
+            setEditing(true)
+          }}
+          className="btn-secondary w-auto"
+          aria-label={t('admin.children.editFor', label)}
+        >
+          {t('admin.children.edit')}
+        </button>
+      </div>
+    </div>
   )
 }
 

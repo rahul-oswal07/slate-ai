@@ -51,6 +51,7 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
             // A number and a home language saved on the admin page (T-118, D-110; T-122, D-113): Reset keeps both.
             await db.Children.Where(c => c.Id == manjunath).ExecuteUpdateAsync(
                 s => s.SetProperty(c => c.ParentPhone, "+447700900123").SetProperty(c => c.ParentPhoneSetAt, savedAt)
+                    .SetProperty(c => c.ParentPhone2, "+919845012345").SetProperty(c => c.ParentPhone2SetAt, savedAt)
                     .SetProperty(c => c.HomeLanguage, "ta").SetProperty(c => c.HomeLanguageSetAt, savedAt),
                 DemoClassApi.Ct);
             db.CatchUpPackages.Add(new CatchUpPackage
@@ -87,6 +88,8 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.True(await api.QueryAsync(db => db.Children.AnyAsync(c => c.Id == ananya, DemoClassApi.Ct)));
         var kept = await api.QueryAsync(db => db.Children.SingleAsync(c => c.Id == manjunath, DemoClassApi.Ct));
         Assert.Equal(("+447700900123", (DateTimeOffset?)savedAt), (kept.ParentPhone, kept.ParentPhoneSetAt));
+        Assert.Equal(("+919845012345", (DateTimeOffset?)savedAt), (kept.ParentPhone2, kept.ParentPhone2SetAt)); // T-140
+        Assert.Null(restored.ParentPhone2);
         Assert.Equal(("ta", (DateTimeOffset?)savedAt), (kept.HomeLanguage, kept.HomeLanguageSetAt));
         Assert.Null(restored.HomeLanguageSetAt);
 
