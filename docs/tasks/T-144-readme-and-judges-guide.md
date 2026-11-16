@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Done (not merged yet) |
+| Status | Done (#305, not merged yet) |
 | Issue | #304 |
 | Owner | R |
 | Screens | demo |
