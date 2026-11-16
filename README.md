@@ -1,268 +1,246 @@
 # Tappida Paatha · "The Missed Lesson"
 
-Every absent child gets the lesson they missed, based on what their own teacher taught, in their home language: at home on the family phone, and again on the day they return.
+**When a child misses school, their family gets that day's lesson at home: as their own teacher taught it, in their home language, approved by the teacher.**
 
-Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism.
+Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational Learning Hackathon, Problem 1C: student absenteeism. Grand Finale, 18 Nov 2026.
 
-> **Judges: two ways to try it, no sign-up.** The **guided demo** (recommended, about 5 minutes) has a whole school week ready and walks you through it. The **real app** is exactly what a teacher uses, ideally on your own phone. Both are below, with the sign-in details.
->
-> **The demo and the real app are the same application** (same code, same screens, same AI). The only difference is the data: the guided demo runs on our **staging** server, where a fictional school week of test data is already set up for judges and the date is fixed so that week is always behind you. The real app runs on **production** on today's date, so you start from today's register.
+> ### 👩‍⚖️ Judges: start with **[JUDGES.md](JUDGES.md)**
+> It is a step-by-step test guide: the 5-minute guided path, sample inputs, sign-in details, every persona, and what is real or simulated.
 
 | | |
 |---|---|
-| ⭐ Guided demo (recommended) | https://slateai-staging.azurewebsites.net/demo |
-| 📱 Real app | https://slateai-prod.azurewebsites.net |
+| ⭐ Guided demo (two phones side by side) | https://slateai-staging.azurewebsites.net/demo |
+| 📱 Real app (production) | https://slateai-prod.azurewebsites.net |
+| 🔍 Under the hood (every AI call) | https://slateai-staging.azurewebsites.net/demo/ai |
 | 🎬 Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
-| Status | Build stage submission, 31 Oct 2026 |
+| 🔑 Sign-in | Teacher numbers in [JUDGES.md](JUDGES.md#5-sign-in-details); the PIN is on slide 14 of the submitted deck |
 
-## At a glance
+---
+
+## Contents
+
+[The problem](#the-problem) · [What it does](#what-it-does) · [A day in the app](#a-day-in-the-app) · [Screens](#screens) · [How the AI is used](#how-the-ai-is-used) · [How the AI is kept safe](#how-the-ai-is-kept-safe) · [Quality and evidence](#quality-and-evidence) · [Architecture](#architecture) · [Local setup](#local-setup) · [Commands](#commands) · [Documentation map](#documentation-map) · [Contributing](#contributing) · [Privacy](#privacy)
+
+---
+
+## The problem
+
+In Karnataka's government primary schools, a Grade 3 child who is absent for a day or two falls behind and rarely catches up. The teacher has 30–40 children and no time to re-teach. Most parents want to help but don't know what was taught, and many read little.
+
+**Tappida Paatha** closes that gap with the least work for the teacher:
+- one voice note a day about what she taught;
+- one tap to approve what goes home.
+
+## What it does
 
 | | |
 |---|---|
-| **5 languages** | The teacher app and the family pages work in Kannada, Telugu, Tamil, Hindi and English. Each child's catch-up is in their own home language. |
-| **AI that shows its work** | 5 versioned Claude prompts (lesson mapping from voice or photo, choosing what to teach, script writing, verifying, lesson recap) plus Sarvam speech. **Under the hood** shows every call live: model, prompt version, tokens, the check's result and which children it was about. |
-| **Measured, not claimed** | Latest eval runs: lesson mapping **13/13**, choosing what to teach **10/10**, scripts **14/14** first pass, verifier **8/8**, lesson recap **13/15**. Dated results in [`evals/results/`](evals/results/). |
-| **Safe by design, enforced in code** | No child or teacher names reach an AI provider. Every number a family sees is computed in code. Nothing reaches a parent until the teacher approves it. Each rule has tests ([For judges](#for-judges)). |
-| **Built with the people who will use it** | 2 government-school teachers, 2 parents, 2 mentor calls; 9 findings logged with what changed ([`user-testing.md`](docs/user-testing.md)). |
-| **Engineered to last** | 605 API tests and 347 web tests run on every PR; attendance and voice notes work offline and sync later; one container on Azure. |
+| 📋 **Knows who was away** | The day's register arrives from **SATS** (the state's attendance system; simulated here) at 9:00. The teacher can mark or correct it, offline too |
+| 🎙️ **Knows what was taught** | The teacher records a **20-second voice note in Kannada**, takes a **photo of the textbook page**, or picks from the list. AI matches it to the exact lesson and page in **Karnataka Grade 3 Maths** (Nalikali, Kannada medium) |
+| ✉️ **Today's message** for each absent child's family, in their **home language** (Kannada, Telugu, Tamil, Hindi or English) | **A spoken explanation, about a minute long**, built on how the textbook teaches that lesson · **a home activity** with sticks, leaves or coins · **a DIKSHA video** of how it's taught · **a picture question** the child answers (`>`, `<`, `=` or a sum) · the teacher's own note |
+| ✅ **Teacher approves everything** | She reads and listens in Kannada, can edit any sentence, and approves. **Nothing reaches a family without her approval**, enforced in code and tests |
+| 📲 **Families get it on WhatsApp** | A link, no app, no sign-in. They give a reason for the absence, listen, do the activity together; the child answers |
+| 📈 **Answers come back** | Code scores the child's answer and gives a level; the teacher sees it on **Today** and in **Missed lessons** |
+| 🔁 **Several days away** | The **weekly catch-up** keeps only the lessons that block next week's teaching: a 90-second home-language script, an activity and a 3-picture check |
+| 🤝 **The return day** | A **buddy card** pairs each returning child with a classmate: 3 sums and the textbook words |
+| 📊 **The week** | How fast children came back, the reasons families gave, attendance stars, a pacing nudge, and a **weekly star** message for children who came every day |
 
-## Two ways to test
+## A day in the app
 
-| | ⭐ 1. Guided demo (recommended) | 📱 2. Real app |
-|---|---|---|
-| Server | Staging, with test data set up for judges | Production |
-| Open | https://slateai-staging.azurewebsites.net/demo | https://slateai-prod.azurewebsites.net, on your phone or a desktop browser |
-| Sign-in | Automatic, as the class teacher | Mobile number ([table below](#login-credentials)) and the PIN on **slide 14 of the submitted deck** |
-| Data | A fictional Grade 3 class (36 children) on **today's real date**, with this week's absences and lessons already there. **Reset demo** starts the story again | The same fictional class on **today's real date** |
-| What you see | The teacher's phone and a family's phone side by side, with 6 steps on screen | Exactly what a teacher sees. Families get their messages after 6 pm IST, as in a real school |
-| Time | About 5 minutes | About 10 minutes |
+```
+ 9:00  SATS register ──► Today: who is away
+       Teacher's voice note / photo / pick ──► AI matches the textbook lesson ──► she confirms
+       AI writes today's message (every absent family's language, voiced) ──► teacher checks, edits, approves
+18:00  Evening send ──► family's WhatsApp link ──► reason · listen · activity · video · child answers
+       Answer scored by code ──► teacher's Today and Missed lessons
+ Week  Several days away ──► weekly catch-up · Return day ──► buddy card · Saturday ──► weekly star
+```
 
-### 1. Guided demo (recommended)
+## Screens
 
-Open https://slateai-staging.azurewebsites.net/demo. **EN** switches to English; **Reset demo** starts the story again. The same 6 steps are on screen:
+**Teacher app** (a PWA: installs on the phone, works offline for attendance and voice notes). It has five tabs:
 
-1. **Today** (teacher's phone): the simulated SATS register came in at 9:00 and shows Manjunath (roll 15, Kannada) absent. He was also away the two school days before today.
-2. **Record today's lesson** in Kannada ([samples below](#sample-inputs)), tap **Use the sample voice note (demo)** where it is offered, or pick it from the list, and confirm it. The demo lesson is Nalikali Maths Part 1, p 4 (more, less, equal).
-3. **Tonight's message:** tap **Send messages now** (in a school it goes by itself at 6 pm). Tonight's message arrives on Manjunath's family's phone, in Kannada; open it and pick a reason.
-4. **Approve:** tap *Make this week's catch-ups*. You get one, in Kannada, for the two lessons Manjunath missed before today. Listen, read the Kannada summary and **Why this**, tick and approve. In the demo, Approve sends it to the family's phone at once.
-5. **The family's side:** on Manjunath's family's phone, open the catch-up, listen, do the activity and tap a picture.
-6. **Back on the teacher's phone:** **Missed lessons** shows how Manjunath did, **Week** shows how fast children came back, the reasons and the attendance stars, and **Under the hood** lists every AI call.
-
-### 2. Real app
-
-1. Open https://slateai-prod.azurewebsites.net on your phone (or a desktop browser). Your browser can install it as an app (*Add to Home screen*).
-2. Sign in with a teacher's mobile number from the [table below](#login-credentials) and the PIN on slide 14 of the submitted deck. The first time a login is used, a short welcome asks for a 10-second greeting that families hear before each catch-up. To see that welcome, use Savitha's login ([steps](#3-first-time-sign-in-use-savithas-login)).
-3. **Today:** the simulated SATS attendance arrives at 9:00 (retry at 2 pm). Before then, or if it's wrong, mark or correct it yourself.
-4. **Record the lesson** by voice or with a photo of the textbook page, and confirm the match.
-5. **Approve the evening message** once (Today → tonight's card → *Review and approve*). After 6 pm IST it goes to each absent child's family with today's lesson and page.
-6. **Approve:** *Make this week's catch-ups*, review one, try **Simpler** or **Shorter**, then approve. Approved catch-ups go out after 6 pm.
-7. Explore **Missed lessons**, **Back today**, **Week** and **Settings** (your greeting, the evening message).
-
-To see what the families received, open https://slateai-prod.azurewebsites.net/demo. It's the same class, and its family phone shows Manjunath's family's messages (WhatsApp is simulated in this build).
-
-### 3. First-time sign-in (use Savitha's login)
-
-To see what a new teacher sees the first time she opens the app, sign in as **Savitha**. Her login has been reset to its first-time state on both servers: no greeting recorded, no voice consent given. Use her login for this: the other logins have usually done the welcome already, and then they go straight to Today.
-
-1. Open https://slateai-prod.azurewebsites.net/login (or https://slateai-staging.azurewebsites.net/login). If you're already signed in as another teacher, tap **Log out** at the top of the screen first.
-2. Sign in with Savitha's number, `9123456789`, and the PIN on slide 14 of the submitted deck.
-3. **Welcome:** *"Namaskara, Savitha ma'am"*, with three promises: attendance comes from SATS, nothing reaches a parent until she approves it, and only she can see the records. Tap **Start**.
-4. **Step 1 of 2, a 10-second greeting:** tap the microphone and say the suggested line (or anything short), then tap again to stop. Allow the microphone when the browser asks.
-   - Tap **Play your greeting** to hear it back, or **Record again**.
-   - Tick *"I agree my voice is used only in messages to parents…"*. This is the voice consent, and **Save and continue** doesn't work without it.
-   - With no microphone, tap **Continue without a greeting**. She can record it later in **Settings**.
-5. **Step 2 of 2, the evening message:** the message a family gets on each day their child is absent, shown filled with an example child. Shobha has already approved it for this class, so this step shows *"You approved this message"*. Tap **Go to Today**. On a new class, she would approve it here, once.
-6. **Today:** the welcome is done. Her greeting is in **Settings**, where she can play it back or record it again.
-
-The reset can only be used once: whoever finishes these steps first completes Savitha's welcome. After that, her login goes straight to Today, like the others.
-
-### Login credentials
-
-| Server | Role | Name | Mobile number | PIN | Notes |
-|---|---|---|---|---|---|
-| Production (real app) | Class teacher | Shobha | `9000000000` | deck, slide 14 | Families see her name and greeting |
-| Production (real app) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | Same class: several teachers can share one class. **Use for the [first-time sign-in](#3-first-time-sign-in-use-savithas-login)** |
-| Production (real app) | Co-teacher | Monika | `9123456788` | deck, slide 14 | Same class |
-| Staging (guided demo) | Class teacher | Shobha | `9000000000` | deck, slide 14 | Not needed for `/demo`, which signs you in by itself; for `/login` on staging |
-| Staging (guided demo) | Co-teacher | Savitha | `9123456789` | deck, slide 14 | **Use for the [first-time sign-in](#3-first-time-sign-in-use-savithas-login)** |
-| Staging (guided demo) | Co-teacher | Monika | `9123456788` | deck, slide 14 | |
-| Both | Family | — | — | none | Families never sign in: each link carries its own token (`/p/<token>`) |
-| — | Admin | — | — | — | Not needed for judging and not switched on in production |
-
-The PINs are on **slide 14 of the submitted deck**, not in this public repo. All three teachers use the same PIN, on staging and production. Enter the 10-digit number without `+91`. Five wrong PINs lock that login for 15 minutes.
-
-### Sample inputs
-
-1. **Kannada voice note** (Today → tap the mic). Read one of these aloud, then check the match and confirm it (or tap **Change**). Both are cases from our lesson-mapping evals, which matched them correctly on the latest run.
-
-   | Lesson | Read aloud | What it says | Expect |
-   |---|---|---|---|
-   | A. Addition with carrying (the next lesson in the guided demo) | ಇವತ್ತು ಮೂರಂಕಿ ಸಂಖ್ಯೆಗಳ ಸಂಕಲನ ಮಾಡಿದೆವು, ದಶಕ ವರ್ಗಾವಣೆ ಜೊತೆ. 456 plus 278, ಬಿಡಿ ಸ್ಥಾನದಲ್ಲಿ 14 ಬಂತು, ಒಂದು ಹತ್ತು carry ಮಾಡಿದೆವು. | "Today we did 3-digit addition with carrying. 456 plus 278: 14 in the ones place, so we carried one ten." | *3-digit addition with carrying* |
-   | B. Subtraction with borrowing | ಇವತ್ತು ಕಳೆಯುವಿಕೆ, borrowing ಜೊತೆ. 523 minus 168. ಬಿಡಿಯಲ್ಲಿ 3 ರಿಂದ 8 ಕಳೆಯಲು ಆಗಲ್ಲ, ಹತ್ತರ ಸ್ಥಾನದಿಂದ ಒಂದು ಹತ್ತು ಎರವಲು ತಗೊಂಡೆವು. | "Today, subtraction with borrowing. 523 minus 168. In the ones we can't take 8 from 3, so we borrowed one ten from the tens place." | *3-digit subtraction with borrowing* |
-
-   If you don't read Kannada, pick the lesson from the list instead. Children's names in a voice note are replaced by `{child}` before anything reaches the AI.
-2. **Photo of the lesson** (Today → *Add a photo of the page* → *Match from photo*), with or instead of the voice note: download [`sub-borrow-page.png`](evals/cases/images/sub-borrow-page.png) (expect *3-digit subtraction with borrowing*) or [`add-word-page.png`](evals/cases/images/add-word-page.png) (expect *Addition word problems*). These are synthetic textbook pages from our evals. The photo is only used to find the lesson; it is never sent to families.
-3. **Choosing what to teach** (Approve → *Make this week's catch-ups*): open the catch-up of a child who missed several lessons (in the guided demo, Manjunath, who missed two lessons before today) and read **Why this** to see which lessons were kept for next week and which were left out. Then tap **Simpler** or **Shorter** to get a new version.
-4. **The family's answer:** on the family's phone, pick a reason on the evening message and tap a picture on the catch-up. **Missed lessons** on the teacher's phone then shows how the child did, and **Week** shows the reason the family gave.
-5. **Language switch:** the language buttons at the top of the teacher app switch it to ಕನ್ನಡ, తెలుగు, தமிழ், हिन्दी or English. Children's catch-ups stay in their own home language.
-
-### Limits you will see
-
-- Only Grade 3 maths is loaded: the whole textbook, Parts 1 and 2, as 60 lessons in 12 chapters.
-- WhatsApp and the SATS attendance feed are simulated: messages appear on the demo's family phone, and the demo's **Bring in today's attendance** plays the SATS feed.
-- Each server has one class for everyone. If someone else uses it at the same time you may see their changes; on the guided demo, **Reset demo** starts again.
-- The AI calls are real, so catch-ups take a moment to write. Voice notes are in Kannada, the teacher's language.
-- Telugu, Tamil and Hindi text are drafts waiting for native review.
-
-## For judges
-
-Where to check how AI is used. Each row links to the files that prove it.
-
-| What to check | Where |
+| Tab | What she does there |
 |---|---|
-| Every AI call, live | the demo's **Under the hood** tab: step, which children it was about, model, prompt version, tokens and the check result, read from the `AiCalls` log ([`DemoEndpoints`](src/api/SlateAi.Api/Features/Demo/DemoEndpoints.cs)) |
-| Every LLM call goes through one client and is logged | [`Ai/`](src/api/SlateAi.Api/Ai/): [`ILlmClient`](src/api/SlateAi.Api/Ai/ILlmClient.cs), [`LoggedLlmClient`](src/api/SlateAi.Api/Ai/LoggedLlmClient.cs), [`AiCallStore`](src/api/SlateAi.Api/Ai/AiCallStore.cs) · test: [`LoggedLlmClientTests`](tests/api/SlateAi.Api.Tests/Ai/LoggedLlmClientTests.cs) |
-| Prompts, versioned | [`prompts/`](prompts/): [a1 lesson mapping](prompts/a1-lesson-mapping.md), [a2 compression](prompts/a2-compression.md), [a3 script](prompts/a3-script.md), [a4 check](prompts/a4-check.md), [a8 lesson recap](prompts/a8-lesson-recap.md) |
-| Eval cases and results | [`evals/cases/`](evals/cases/), [`evals/results/`](evals/results/) (dated; latest per prompt) · method and scores: [`docs/quality.md`](docs/quality.md) §2 |
-| What to teach is chosen by code; the LLM picks only from it | candidate set: [`CompressionPlanner`](src/api/SlateAi.Api/Features/CatchUps/Compression/CompressionPlanner.cs) · invalid output falls back to rules: [`A1Validator` tests](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/A1ValidatorTests.cs), [`A2Validator` tests](tests/api/SlateAi.Api.Tests/Features/CatchUps/A2ValidatorTests.cs), [`A3Validator` tests](tests/api/SlateAi.Api.Tests/Features/CatchUps/A3ValidatorTests.cs) |
-| Numbers come from code, not the LLM | [`ProblemGenerator`](src/api/SlateAi.Api/Features/CatchUps/Practice/ProblemGenerator.cs) · [tests](tests/api/SlateAi.Api.Tests/Features/CatchUps/ProblemGeneratorTests.cs) |
-| Verifier: arithmetic, language, length, key words, names | [`CodeChecks`](src/api/SlateAi.Api/Features/CatchUps/Verify/CodeChecks.cs), [`ContentCheck`](src/api/SlateAi.Api/Features/CatchUps/Verify/ContentCheck.cs) · tests: [`CodeChecksTests`](tests/api/SlateAi.Api.Tests/Features/CatchUps/CodeChecksTests.cs), [`ContentCheckTests`](tests/api/SlateAi.Api.Tests/Features/CatchUps/ContentCheckTests.cs) |
-| Nothing reaches a parent without teacher approval | [`CatchUpApprovalDbTests`](tests/api/SlateAi.Api.Tests/Db/CatchUpApprovalDbTests.cs), [`EveningMessageDbTests`](tests/api/SlateAi.Api.Tests/Db/EveningMessageDbTests.cs), [`EveningEligibilityTests`](tests/api/SlateAi.Api.Tests/Features/EveningMessages/EveningEligibilityTests.cs) |
-| No names sent to AI providers | [`NameScrubber`](src/api/SlateAi.Api/Features/Lessons/Voice/NameScrubber.cs) (names become `{child}` / `{teacher}`) · [tests](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/NameScrubberTests.cs) |
-| User testing and mentor input | [`docs/user-testing.md`](docs/user-testing.md), [`docs/mentor-feedback-2026-10-19.md`](docs/mentor-feedback-2026-10-19.md), [`docs/mentor-feedback-2026-10-24.md`](docs/mentor-feedback-2026-10-24.md) |
-| Decisions and why | [`docs/decisions/` decision log](docs/decisions/D-01-to-D-99.md) |
-| Rules for AI in this repo | [`CLAUDE.md`](CLAUDE.md) "AI guardrails" |
+| **Today** | Register, today's lesson (voice, photo or list), today's message status, tonight's send, the children's answers. One "next step" button at the top |
+| **Approve** | **Today's message**: listen, read, edit, approve and send. **Catch-ups**: the week's catch-ups with *Why this*, *Simpler*, *Shorter* |
+| **Missed** | Every child's missed lessons, whether their family got them, and how the child did |
+| **Back today** | A buddy card for each child returning today |
+| **Week** | Return speed, reasons, attendance stars, the pacing nudge |
+| ⚙️ Settings | Her voice greeting (families hear it first), the evening message and weekly star wording to approve, and **Reset today** in the demo class |
 
-## How it works
+**Family pages** (`/p/<token>`, from the WhatsApp link): the teacher's greeting → *"Is everything OK?"* (the reason, once) → the explanation (voiced) → *Try this at home* → *Watch how it's taught* → *the child's turn* (the picture question) → *Well done!* "Stop these messages" is always there.
 
-1. The teacher checks the absentees from the SATS register and records a 20-second voice note in Kannada about what she taught (or takes a photo of the textbook page).
-2. Claude maps the note to textbook competencies and logs it against each absent child.
-3. For a child who missed several lessons, Claude keeps only what blocks next week's lessons and writes a 90-second home-language catch-up, a household-object activity and a 3-picture check.
-4. The teacher approves once per lesson. The parent opens a link, taps Listen, and the child taps a picture to answer.
-5. The teacher sees who caught up, gets a buddy card for each returning child, and a weekly pacing nudge.
+**Admin pages** (`/admin`): family phone numbers (two per family) and home languages, lesson video links, **lesson descriptions from the textbook**, teacher voice consent, greetings, lesson audio, and the demo's past-day switch.
 
-Product and design detail: [`docs/intent.md`](docs/intent.md) · [`docs/spec.md`](docs/spec.md) · [`docs/plan.md`](docs/plan.md) · every screen: [`docs/README.md`](docs/README.md)
+**Demo shell** (`/demo`): the teacher's phone and a family's phone side by side, **Reset demo**, **Bring in today's attendance**, **Send messages now**, and **Under the hood**.
+
+The teacher app and the family pages work in **ಕನ್ನಡ, తెలుగు, தமிழ், हिन्दी and English**.
+
+## How the AI is used
+
+Every call goes through one client, uses a **versioned prompt file** in [`prompts/`](prompts/), is **logged** (`AiCalls`), and shows on **Under the hood**.
+
+| Step | What the AI does | Model | Prompt | What code does around it |
+|---|---|---|---|---|
+| **A1 · Lesson matching** | Kannada voice note (via Sarvam speech-to-text) and/or a textbook photo → the lesson(s) taught | Claude Sonnet | [`a1-lesson-mapping`](prompts/a1-lesson-mapping.md) v3 | Names scrubbed to `{child}` first; only curriculum IDs are accepted; low confidence → she picks |
+| **A2 · Choosing what to teach** | For a child who missed several lessons: which ones block next week | Claude Sonnet | [`a2-compression`](prompts/a2-compression.md) | Code builds the candidate set from the prerequisite graph; the AI only chooses from it, with reasons |
+| **A3 · Catch-up script** | 90-second home-language script, activity wording, key words | Claude Opus | [`a3-script`](prompts/a3-script.md) | All numbers made by code; checked for length, language, names, key words |
+| **A4 · Checker** | Is the script on topic, warm, right for a Grade 3 child? | Claude Haiku | [`a4-check`](prompts/a4-check.md) | Plus code checks (arithmetic, length, script); one retry, else "needs review" |
+| **A9 · Today's message** | The ~1-minute explanation and the home activity in every family's language, built on the lesson's textbook description and what she said in class | Claude Opus | [`a9-todays-message`](prompts/a9-todays-message.md) v5 · [`-sums`](prompts/a9-todays-message-sums.md) v2 · [`-lesson`](prompts/a9-todays-message-lesson.md) v2 | Picture question and answer chosen by code from the book's exercises; only allowed numbers; never the answer; her Kannada edits kept word for word |
+| **Speech** | Speech-to-text (Kannada), text-to-speech for every message | Sarvam `saaras:v4`, `bulbul:v3` | — | An AI-voice notice plays first; clips are cached and shared |
+
+Model IDs come from configuration (`Ai:Models:*`), never from code.
+
+## How the AI is kept safe
+
+These rules are in [`CLAUDE.md`](CLAUDE.md) and enforced in code with tests:
+
+| Rule | Where it is enforced and tested |
+|---|---|
+| **No child or teacher names reach an AI provider** | [`NameScrubber`](src/api/SlateAi.Api/Features/Lessons/Voice/NameScrubber.cs) ([tests](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/NameScrubberTests.cs)); `{child}` / `{teacher}` placeholders; outputs containing a class name are refused |
+| **Nothing reaches a parent without the teacher's approval** of that exact version | [`CatchUpApprovalDbTests`](tests/api/SlateAi.Api.Tests/Db/CatchUpApprovalDbTests.cs), [`EveningMessageDbTests`](tests/api/SlateAi.Api.Tests/Db/EveningMessageDbTests.cs), [`TodaysMessageDbTests`](tests/api/SlateAi.Api.Tests/Db/TodaysMessageDbTests.cs) |
+| **Every number a family sees comes from code** | [`ProblemGenerator`](src/api/SlateAi.Api/Features/CatchUps/Practice/ProblemGenerator.cs), [`ExerciseAnswers`](src/api/SlateAi.Api/Curriculum/ExerciseAnswers.cs); A9 output with a number not allowed is refused ([`TodaysMessageWriter`](src/api/SlateAi.Api/Features/TodaysMessage/TodaysMessageWriter.cs)) |
+| **AI output is parsed and validated; invalid output falls back to rules** | [`A1Validator`](tests/api/SlateAi.Api.Tests/Features/Lessons/Voice/A1ValidatorTests.cs), [`A2Validator`](tests/api/SlateAi.Api.Tests/Features/CatchUps/A2ValidatorTests.cs), [`A3Validator`](tests/api/SlateAi.Api.Tests/Features/CatchUps/A3ValidatorTests.cs) tests; [`CodeChecks`](src/api/SlateAi.Api/Features/CatchUps/Verify/CodeChecks.cs) |
+| **Deterministic logic stays in code** | Attendance, the missed-lesson ledger, the candidate set, picture scoring and levels, buddy pairs, pacing: all code |
+| **Every AI call is logged** | [`LoggedLlmClient`](src/api/SlateAi.Api/Ai/LoggedLlmClient.cs) ([tests](tests/api/SlateAi.Api.Tests/Ai/LoggedLlmClientTests.cs)) → Under the hood |
+| **A message that has gone can't be quietly contradicted** | Once tonight's message has gone, the day's lesson can't change (D-124) |
+
+## Quality and evidence
+
+**Live evals** (real Claude, the shipped prompts; dated results in [`evals/results/`](evals/results/), method in [`docs/quality.md`](docs/quality.md)):
+
+| Prompt | Latest run | Result |
+|---|---|---|
+| A1 lesson matching (voice and photo) | 13 Nov | **16/16** |
+| A2 choosing what to teach | 1 Nov | **10/10** |
+| A3 catch-up script (with A4 and code checks) | 1 Nov | **13/14** first pass, 14/14 after one retry |
+| A4 checker | 25 Oct | **11/11** |
+| A9 today's message (compare, sums, every other lesson) | 16 Nov | **38/38** first pass; no concept gives away the picture's answer |
+
+**Tests** run on every pull request in CI:
+- 1,057 API tests, with fakes and no database;
+- 24 PostgreSQL tests (approval, deletion, offline replay, migrations and seed, the day reset);
+- 579 web component tests;
+- 12 end-to-end tests with accessibility checks (axe).
+
+**Built with users:** 2 government-school teachers, 2 parents and our mentors; findings and what changed are in [`docs/user-testing.md`](docs/user-testing.md).
+
+**The textbook:** all 61 lessons of Karnataka Grade 3 Maths (Parts 1 and 2, plus the Nalikali bridge-course lesson). Each has its page, Kannada key words, a description and worked examples read from the book ([`data/curriculum/`](data/curriculum/), [`data/lesson-content/`](data/lesson-content/)).
 
 ## Architecture
 
 ```
-React PWA (teacher) ──┐                      ┌── Claude API (mapping, compression, scripts, checks)
-Parent web page ──────┼── SlateAi.Api (.NET) ┼── Sarvam AI (speech-to-text, text-to-speech)
-                      │   serves the SPA     ├── PostgreSQL
-                      └──────────────────────┴── Blob storage (audio)
+Teacher PWA (React) ──┐                         ┌── Claude API  (A1, A2, A3, A4, A9)
+Family pages ─────────┼── SlateAi.Api (.NET 10) ┼── Sarvam AI   (speech-to-text, text-to-speech)
+Demo shell, admin ────┘   one container, serves ├── WhatsApp Cloud API (Meta)
+                          the SPA from wwwroot  └── PostgreSQL (data and audio)
 ```
+
+- **One container** on Azure App Service: the API serves `/api/*` and the built React app.
+- **Vertical slices** in `src/api/SlateAi.Api/Features/<Feature>/`. Each has endpoints, a handler and a small store behind an interface, so endpoints are tested with fakes.
+- **All AI calls** live in `Ai/`, with the prompts in `prompts/`. **Background jobs** handle the 6 pm send, voice-note matching, today's message drafting and WhatsApp delivery with retries.
+- **Offline:** attendance and voice notes go through a Dexie outbox on the phone and are sent when the network is back.
+- **Deploy:** merges to `main` go to staging, and `v*` tags go to production (GitHub Actions, Azure OIDC). What runs where: [`docs/status.md`](docs/status.md).
 
 | Path | Contents |
 |---|---|
-| `src/api/SlateAi.Api` | .NET 10 Minimal API; `Features/` slices, `Ai/` (all LLM calls), `Speech/`, `Curriculum/`, `Data/` |
-| `src/web` | React + Vite + TypeScript PWA (teacher app, parent page, demo shell) |
-| `tests/api`, `src/web/e2e` | xUnit tests (fakes by default, plus a small Postgres suite); Playwright end-to-end + accessibility |
-| `evals/` | Live evaluation cases and results for each Claude call |
-| `prompts/` | Versioned prompt files |
-| `data/` | Curriculum dependency graph, picture library manifest, seed data |
-| `deploy/` | Dockerfile, docker-compose, hosting notes |
-| `docs/` | SDLC artifacts: intent, spec, plan, quality, user testing, judging narrative; a spec and status per screen (`screens/`), one file per task (`tasks/`) and per decision (`decisions/`). Map: [`docs/README.md`](docs/README.md) |
+| `src/api/SlateAi.Api` | .NET 10 Minimal API: `Features/`, `Ai/`, `Speech/`, `Curriculum/`, `Data/` (EF Core, migrations) |
+| `src/web` | React + Vite + TypeScript PWA: teacher app, family pages, demo shell, admin pages |
+| `tests/api`, `src/web/e2e` | xUnit (fakes by default, plus a small Postgres suite), Vitest, Playwright + axe |
+| `prompts/`, `evals/` | Versioned prompts; eval cases and dated results |
+| `data/` | Curriculum graph, lesson descriptions, DIKSHA links, seed data |
+| `deploy/` | Dockerfile, docker-compose, Azure runbook |
+| `docs/` | Intent, spec, plan, decisions, a spec and status per screen, one file per task: see [`docs/README.md`](docs/README.md) |
 
 ## Local setup
 
-Prerequisites: .NET 10 SDK, Node 22 LTS, Docker.
+Prerequisites: .NET 10 SDK, Node 22 LTS, Docker (or Colima).
 
 ```bash
 git clone https://github.com/rahul-oswal07/slate-ai.git && cd slate-ai
+./scripts/run-local.sh        # Postgres + API (:5080) + web dev server (:5173); Ctrl+C stops all
+```
+
+Or step by step:
+
+```bash
 docker compose -f deploy/docker-compose.yml up -d db
-dotnet run --project src/api/SlateAi.Api      # applies migrations + seeds demo class; http://localhost:5080
-cd src/web && npm ci && npm run dev           # http://localhost:5173
+dotnet run --project src/api/SlateAi.Api      # applies migrations, seeds the demo class; http://localhost:5080
+cd src/web && npm ci && npm run dev           # http://localhost:5173 (proxies /api)
 ```
 
-**Quickest way:** `./scripts/run-local.sh` starts Postgres, the API (:5080) and the web dev server with hot reload (:5173), and stops them on Ctrl+C. Use `./scripts/run-local.sh --container` for the production-like container on :8080, or `API_PORT=… WEB_PORT=…` to use other ports.
+- **Without API keys**, set `Ai__Provider=Fake`: fake AI and speech, enough for UI work.
+- `./scripts/run-local.sh --container` runs the production-like container on :8080.
+- On Apple Silicon, install the **arm64** .NET 10 SDK, then run `dotnet tool restore` once for `dotnet-ef`.
+- With **Colima**, also set `export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock` and `export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`.
 
-Without API keys the app runs with fake AI and speech providers (`Ai__Provider=Fake`), which is enough for UI work.
+### Configuration
 
-On Apple Silicon, install the **arm64** .NET 10 SDK (`brew install --cask dotnet-sdk`); the x64 build won't run without Rosetta. Run `dotnet tool restore` once to get `dotnet-ef`.
+| Variable | Purpose |
+|---|---|
+| `ConnectionStrings__Db` | PostgreSQL connection string (required) |
+| `Ai__Provider` | `Claude` (default) or `Fake` |
+| `Anthropic__ApiKey` | Claude API key |
+| `Ai__Models__Mapping` / `__Compression` / `__Script` / `__Check` | Model IDs for each kind of call (Sonnet, Sonnet, Opus, Haiku by default) |
+| `Sarvam__ApiKey` | Sarvam speech key; `Sarvam__SttModel`, `Sarvam__TtsModel`, `Sarvam__TtsSpeaker` override the defaults |
+| `Delivery__Channel` | `demo` (default: messages appear on the demo family phone) or `whatsapp` |
+| `WhatsApp__AccessToken`, `WhatsApp__PhoneNumberId` | WhatsApp Cloud API, when the channel is `whatsapp` |
+| `Demo__Enabled` | `/demo`, Reset and the simulated SATS controls (default `true`) |
+| `Demo__TeacherPin`, `Demo__CoTeacherPin` | PINs the seeder sets for the demo teachers on first start |
 
-**Colima instead of Docker Desktop:** `brew install colima docker docker-compose && colima start`. Docker is needed to run Postgres and the container locally, and for the small database test suite (`dotnet test --filter Category=Db`); `verify.sh` doesn't need it. Testcontainers needs Colima's socket:
-
-```bash
-export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
-export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
-```
-
-### Environment variables
-
-| Variable | Required | Purpose |
-|---|---|---|
-| `ConnectionStrings__Db` | yes | PostgreSQL connection string |
-| `Anthropic__ApiKey` | for real AI | Claude API key |
-| `Ai__Provider` | no | `Claude` (default) or `Fake` |
-| `Ai__Models__Script` / `__Mapping` / `__Check` | no | Override model IDs |
-| `Sarvam__ApiKey` | for real speech | Sarvam AI key |
-| `Sarvam__SttModel` | no | Speech-to-text model (default `saaras:v4`) |
-| `Sarvam__TtsModel` / `Sarvam__TtsSpeaker` | no | Text-to-speech model and voice (default `bulbul:v3` / `priya`); audio is re-encoded to Opus 24 kbps |
-| `Storage__Mode` | no | `Local` (default) or `AzureBlob` |
-| `Storage__AzureBlob__ConnectionString` | prod | Audio storage |
-| `WhatsApp__Token`, `WhatsApp__PhoneNumberId` | stretch | WhatsApp Cloud API |
-| `Demo__Enabled` | no | Enables `/demo`, reset and the demo SATS controls `POST /api/demo/sats-feed` (default `true`) |
-| `VITE_API_BASE` | no | Front-end API base when not same-origin |
-
-### API keys and other secrets
-
-Secrets never go in Git: not in `appsettings*.json`, code, tests or PR descriptions. `.env.example` only lists variable names; .NET does **not** read `.env` files, so don't put keys there.
-
-**Locally: .NET user-secrets.** They're stored outside the repo (`~/.microsoft/usersecrets/`) and loaded automatically in Development (`./scripts/run-local.sh`, `dotnet run`). Run these in a terminal; don't paste keys into chats or shared logs:
-
-```bash
-dotnet user-secrets set "Anthropic:ApiKey" "<key>" --project src/api/SlateAi.Api
-dotnet user-secrets set "Sarvam:ApiKey" "<key>"    --project src/api/SlateAi.Api
-dotnet user-secrets list --project src/api/SlateAi.Api      # shows values
-dotnet user-secrets remove "Sarvam:ApiKey" --project src/api/SlateAi.Api
-```
-
-**Demo teacher sign-in.** The seeded class teacher signs in with phone `9000000000` and the PIN from `Demo:TeacherPin`; the co-teachers use `Demo:CoTeacherPin`. `appsettings.Development.json` sets PINs for local use only (like the local database password). Staging and prod read `Demo__TeacherPin` and `Demo__CoTeacherPin` from App Service settings; if they aren't set, those teachers can't sign in. The seeder hashes the PIN on first start and never overwrites an existing one.
-
-**Azure (staging/prod): App Service app settings.** They're encrypted at rest and reach the app as environment variables (`__` = section separator). Setting them restarts the app:
-
-```bash
-az webapp config appsettings set -g rg-slateai -n slateai-staging --output none \
-  --settings Anthropic__ApiKey="<key>" Sarvam__ApiKey="<key>"
-```
-
-**CI:** none needed; tests run with `Ai__Provider=Fake`. Live evals in Actions would use a repository secret `ANTHROPIC_API_KEY`.
-
-Use separate Anthropic keys for local and Azure (revoke one without breaking the other) and set a spend limit per key in the Anthropic console.
+**Secrets never go in Git.**
+- Locally, use .NET user-secrets: `dotnet user-secrets set "Anthropic:ApiKey" "<key>" --project src/api/SlateAi.Api`, and the same for `Sarvam:ApiKey`.
+- On Azure, use App Service settings.
+- CI needs no secrets: tests use the fakes.
 
 ## Commands
 
 | Task | Command |
 |---|---|
-| Run the app locally | `./scripts/run-local.sh` (`--container` for the built image) |
-| Verify everything before a PR | `./scripts/verify.sh` |
-| API tests (no live AI, no Docker) | `dotnet test --filter "Category!=Eval&Category!=Db"` |
-| Database tests (needs Docker; CI runs them) | `dotnet test --filter Category=Db` |
-| Live AI evals | `dotnet test --filter Category=Eval` |
-| Web unit tests | `cd src/web && npm test` |
-| Web build (into the API's `wwwroot`) | `cd src/web && npm run build` |
-| End-to-end + accessibility (after a build) | `cd src/web && npm run e2e` |
-| Lint / format | `cd src/web && npm run lint` · `dotnet format` |
-| Build container | `docker build -f deploy/Dockerfile -t slate-ai .` |
-| API docs (Swagger UI) | http://localhost:5080/swagger (dev) · https://slateai-staging.azurewebsites.net/swagger |
-| Run full container locally | `docker compose -f deploy/docker-compose.yml up --build` → http://localhost:8080 |
+| Run locally | `./scripts/run-local.sh` |
+| Everything before a PR (docs, build, all tests, web build) | `./scripts/verify.sh` |
+| API tests without AI or Docker | `dotnet test --filter "Category!=Eval&Category!=Db"` |
+| PostgreSQL tests (Docker) | `dotnet test --filter "Category=Db"` |
+| Live AI evals (costs credits) | `dotnet test --filter "Category=Eval"` |
+| Web tests · lint · build | `cd src/web && npm test` · `npm run lint` · `npm run build` |
+| End-to-end + accessibility | `cd src/web && npx playwright test` |
+| New migration | `dotnet ef migrations add <Name> -p src/api/SlateAi.Api` |
+| API docs | http://localhost:5080/swagger · https://slateai-staging.azurewebsites.net/swagger |
+
+## Documentation map
+
+| Read | For |
+|---|---|
+| [`JUDGES.md`](JUDGES.md) | Testing the app as a judge |
+| [`docs/intent.md`](docs/intent.md) → [`docs/spec.md`](docs/spec.md) → [`docs/plan.md`](docs/plan.md) | Why, what, how |
+| [`docs/how-it-works.md`](docs/how-it-works.md) | The product in plain words |
+| [`docs/decisions/`](docs/decisions/README.md) | Every decision (D-01 …) and why |
+| [`docs/screens/`](docs/README.md) | A spec and status per screen |
+| [`docs/quality.md`](docs/quality.md), [`evals/`](evals/) | Evals and test strategy |
+| [`docs/user-testing.md`](docs/user-testing.md) | Teachers, parents and mentors we tested with |
+| [`docs/database.md`](docs/database.md) | Schema |
+| [`docs/whatsapp-setup.md`](docs/whatsapp-setup.md) | WhatsApp templates and setup |
+| [`CLAUDE.md`](CLAUDE.md) | Conventions and AI guardrails for contributors and Claude Code |
 
 ## Contributing
 
 We work trunk-based with short-lived branches.
 
-1. Pick an issue (task ID `T-xx`, its file is in `docs/tasks/`) and move it to **Doing**.
-2. Branch: `feat/T-07-lesson-mapping`, `fix/…`, `design/…`, `docs/…`.
-3. Commit with Conventional Commits and the task ID: `feat(api): map transcript to competencies (T-07)`.
-4. Run `./scripts/verify.sh`. Open a PR using the template; add screenshots for UI changes.
-5. Review: Monika approves UI/copy and `intent.md`/`spec.md` changes; Rahul approves code, `CLAUDE.md`, `prompts/`. Squash-merge when CI is green.
-6. Merges to `main` deploy to staging (https://slateai-staging.azurewebsites.net); tags `v*` deploy to production (https://slateai-prod.azurewebsites.net). Runbook: [`deploy/azure/README.md`](deploy/azure/README.md).
+1. Pick an issue (task `T-xx`, its file in `docs/tasks/`).
+2. Branch: `feat|fix|docs/T-xx-slug`.
+3. Commit with Conventional Commits and the task ID, e.g. `feat(api): … (T-xx)`.
+4. Run `./scripts/verify.sh`. Open a PR with screenshots for UI changes. Squash-merge when CI is green.
+5. Merges to `main` deploy to staging; `v*` tags deploy to production ([`deploy/azure/README.md`](deploy/azure/README.md)).
 
-Review policy: [`REVIEW.md`](REVIEW.md). Conventions for Claude Code and humans: [`CLAUDE.md`](CLAUDE.md).
+Review policy: [`REVIEW.md`](REVIEW.md).
 
 ## Privacy
 
-Demo data is fictional. Only first names, roll numbers, home language and parent numbers are stored; no child or teacher names are sent to AI providers; parents opt in; data can be deleted on request (DPDP Act 2023).
+- The demo data is fictional.
+- Only first names, roll numbers, home language and the family's numbers are stored.
+- No child or teacher names are sent to AI providers.
+- Families opt in, can stop messages at any time, and a child's data can be deleted (DPDP Act 2023).
 
 ## Licence
 
