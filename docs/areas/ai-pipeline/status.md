@@ -19,6 +19,7 @@ Spec: [`spec.md`](spec.md)
 | `a9-todays-message-sums` v1 | today's message for add and subtract lessons (D-116, T-128): adding and taking away with bundles; never writes a result; used only with `TodaysMessage:ArithmeticExercises` on (the default) | 15 Nov: 8 sum cases, 7 first try, 8 after one retry (with v4's 20: 28/28) |
 
 Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24 kbps, ~55 s / ~150 KB per catch-up). Numbers, candidate sets, buddies, scores and pacing are all computed in code.
+- A verdict longer than the AI log's column (100) is stored cut to fit, so logging can never fail a catch-up or any other AI step (T-137).
 
 ## Known gaps and drafts
 
