@@ -260,9 +260,12 @@
     "label": "முதன்மை",
     "today": "இன்று",
     "approve": "ஒப்புதல்",
-    "children": "குழந்தைகள்",
+    "missed": "தவறிய பாடம்",
+    "back": "திரும்பி வந்தோர்",
     "week": "வாரம்",
-    "approveWaiting": ", {{n}} காத்திருக்கின்றன"
+    "approveWaiting": ", {{n}} காத்திருக்கின்றன",
+    "backToday_one": ", {{count}} குழந்தை",
+    "backToday_other": ", {{count}} குழந்தைகள்"
   },
   "offline": {
     "showingSaved": "இணையம் இல்லை. {{time}} க்குச் சேமித்ததைக் காட்டுகிறது. இணையம் வந்ததும் புதுப்பிக்கப்படும்.",
@@ -555,14 +558,13 @@
     }
   },
   "missed": {
-    "title": "குழந்தைகள்",
+    "title": "தவறிய பாடங்கள்",
     "view": "காட்சி",
     "viewChild": "குழந்தை வாரியாக",
     "viewLesson": "பாடம் வாரியாக",
     "filter": "வடிகட்டி",
     "filterWeek": "இந்த வாரம் வராதவர்கள் · {{n}}",
     "filterAll": "அனைவரும் · {{n}}",
-    "filterBack": "இன்று திரும்பியவர்கள் · {{n}}",
     "daysAway_one": "· {{count}} நாள் வரவில்லை",
     "daysAway_other": "· {{count}} நாட்கள் வரவில்லை",
     "missed": "தவறியவை: {{lessons}}",

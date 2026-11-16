@@ -7,7 +7,7 @@ Spec: [`spec.md`](spec.md)
 ## Built
 
 - **Back today:** buddy cards with the buddy chosen from attendance, 3 sums made by code, textbook words and a print view (T-16).
-- It is a filter in Children ("Back today · n", `/missed?filter=back`), not its own tab (D-96, T-95); `/back` redirects there, and printing still prints only the cards.
+- It is its own tab at `/back` (D-117, T-129), with a badge counting today's buddy cards. Printing prints only the cards.
 
 ## Known gaps and drafts
 

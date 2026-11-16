@@ -260,9 +260,12 @@
     "label": "Main",
     "today": "Today",
     "approve": "Approve",
-    "children": "Children",
+    "missed": "Missed",
+    "back": "Back today",
     "week": "Week",
-    "approveWaiting": ", {{n}} waiting"
+    "approveWaiting": ", {{n}} waiting",
+    "backToday_one": ", {{count}} child",
+    "backToday_other": ", {{count}} children"
   },
   "offline": {
     "showingSaved": "No network. Showing what was saved at {{time}}. It updates when the network returns.",
@@ -555,14 +558,13 @@
     }
   },
   "missed": {
-    "title": "Children",
+    "title": "Missed lessons",
     "view": "View",
     "viewChild": "By child",
     "viewLesson": "By lesson",
     "filter": "Filter",
     "filterWeek": "Absent this week · {{n}}",
     "filterAll": "Everyone · {{n}}",
-    "filterBack": "Back today · {{n}}",
     "daysAway_one": "· {{count}} day away",
     "daysAway_other": "· {{count}} days away",
     "missed": "Missed: {{lessons}}",

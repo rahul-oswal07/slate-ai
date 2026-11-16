@@ -260,9 +260,12 @@
     "label": "ప్రధాన మెను",
     "today": "ఈ రోజు",
     "approve": "ఆమోదం",
-    "children": "పిల్లలు",
+    "missed": "తప్పిన పాఠం",
+    "back": "తిరిగి వచ్చినవారు",
     "week": "వారం",
-    "approveWaiting": ", {{n}} వేచి ఉన్నాయి"
+    "approveWaiting": ", {{n}} వేచి ఉన్నాయి",
+    "backToday_one": ", {{count}} బిడ్డ",
+    "backToday_other": ", {{count}} పిల్లలు"
   },
   "offline": {
     "showingSaved": "నెట్‌వర్క్ లేదు. {{time}}కి సేవ్ చేసినది చూపిస్తున్నాం. నెట్‌వర్క్ వచ్చినప్పుడు అప్‌డేట్ అవుతుంది.",
@@ -555,14 +558,13 @@
     }
   },
   "missed": {
-    "title": "పిల్లలు",
+    "title": "తప్పిన పాఠాలు",
     "view": "చూపు",
     "viewChild": "బిడ్డ వారీగా",
     "viewLesson": "పాఠం వారీగా",
     "filter": "ఫిల్టర్",
     "filterWeek": "ఈ వారం గైర్హాజరు · {{n}}",
     "filterAll": "అందరూ · {{n}}",
-    "filterBack": "ఈ రోజు తిరిగి వచ్చినవారు · {{n}}",
     "daysAway_one": "· {{count}} రోజు రాలేదు",
     "daysAway_other": "· {{count}} రోజులు రాలేదు",
     "missed": "తప్పినవి: {{lessons}}",

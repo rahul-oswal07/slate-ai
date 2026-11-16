@@ -20,6 +20,6 @@ No FR of its own: NFR-02 (offline), NFR-04 (WCAG 2.2 AA with AAA text contrast, 
 
 ## Decisions cited
 
-D-04, D-07, D-08, D-17, D-35, D-63, D-70, D-74, D-76, D-77; [D-117](../../decisions/D-117-five-tab-nav.md) (five tabs again, proposed).
+D-04, D-07, D-08, D-17, D-35, D-63, D-70, D-74, D-76, D-77; [D-117](../../decisions/D-117-five-tab-nav.md) (five tabs again).
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).
