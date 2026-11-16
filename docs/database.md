@@ -313,6 +313,14 @@ erDiagram
         varchar500 Url "https only"
         timestamptz UpdatedAt
     }
+    LessonContents {
+        varchar100 CompetencyId PK "curriculum ID"
+        varchar700 Description "English, how the book teaches it"
+        text_array Examples "1-4 worked examples"
+        varchar10 Source "textbook, written, edited"
+        timestamptz UpdatedAt
+        timestamptz EditedAt "nullable, set by the admin page"
+    }
     AppSettings {
         varchar100 Key PK "e.g. demo.school-date"
         varchar200 Value "on / off"
@@ -363,6 +371,8 @@ erDiagram
 **`BuddyCards`** — the teacher's two ticks on a return-day buddy card (T5, FR-12, D-22, T-16): `HomeworkReturnedAt` ("Brought homework") and `DoneAt` ("Buddy time done"; Undo clears it). Unique `(ChildId, Date)`; rows appear on the first tap. The card itself is not stored: the buddy (D-59), the 3 sums (code, guardrail 4), the textbook key words and the page are computed by `BuddyCardBuilder` from attendance, confirmed lessons, catch-up targets and the curriculum, so a register correction changes the card. Replays are caught by `ProcessedRequests` (endpoint `buddy-card`). FKs `ChildId` (cascade, FR-15), `ClassId`.
 
 **`PacingDecisions`** — the teacher's answer to a week's pacing nudge (T6, FR-13, T-46): `recap` or `skip` for the nudge's `LessonId`; unique `(ClassId, WeekOf)`, Change replaces it (advisory lock `pacing:{classId}:{week}`, replays via `ProcessedRequests`, endpoint `pacing-decision`). The nudge itself is computed from attendance each time; a stored decision shows only while it still names the nudge's lesson. A `recap` shows a reminder card on Today all the following week. FKs `ClassId` (cascade), `LessonId`.
+
+**`LessonContents`** — one description and 1–4 worked examples per curriculum lesson, for every class (T-141, D-123, migration `LessonContents`), in English: what the child learns, how the book teaches it and the idea to remember. A9 builds today's message's spoken concept on them, and their numbers are allowed in it (never the picture question's answer or choices). Key `CompetencyId` (no FK, like `LessonLinks`). Loaded at startup on every server from `data/lesson-content/grade3-maths.json` (`LessonContentLoader`, under the advisory lock `0x5EED_0141`): lessons without a row are added and rows with `EditedAt` null follow the file; `Source` is `textbook` or `written`. An edit on `/admin/lesson-links` sets `Source = edited` and `EditedAt`, and the file never overwrites it again; all blank removes the row. Rules in `LessonContentRules` (description ≤ 700, examples 1–4 of ≤ 200, no braces). Edits take the advisory lock `lesson-content:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-content`). The demo Reset leaves it alone.
 
 **`LessonLinks`** — one video link per curriculum lesson, for every class (T-94, D-106, migration `LessonLinks`). Set on the admin page `/admin/lesson-links` (key rule of D-102); any absolute https URL up to 500 characters (`LessonLinkRules`). Key `CompetencyId` (a curriculum ID such as `M3.BRIDGE.COMPARE`, no FK: the curriculum isn't in the database). A fresh today's message copies the first of its lessons' links into its `Sections` video; later changes here don't touch existing drafts. Writes take the advisory lock `lesson-link:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-link`). The demo Reset leaves it alone.
 

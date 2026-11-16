@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SlateAi.Api.Data.Seed;
+using SlateAi.Api.Features.LessonContents;
 
 namespace SlateAi.Api.Data;
 
@@ -34,6 +35,9 @@ public static class DatabaseStartup
             await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_unlock({MigrateLockKey})", CancellationToken.None);
             await db.Database.CloseConnectionAsync();
         }
+
+        // Curriculum data, not demo data: every server gets it (T-141); an edit on the admin page is never overwritten.
+        await scope.ServiceProvider.GetRequiredService<LessonContentLoader>().LoadAsync(cancellationToken);
 
         if (options.SeedOnStartup)
         {

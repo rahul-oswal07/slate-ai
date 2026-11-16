@@ -42,13 +42,22 @@ export interface AdminLessonAudioDay {
   audios: AdminLessonAudio[]
 }
 
-/** One lesson on the lesson links page (T-94), with its video link or null. */
+/** A lesson's description and worked examples (T-141, D-123): today's message's spoken explanation is built on them. */
+export interface AdminLessonContent {
+  description: string
+  examples: string[]
+  /** From the textbook, written for the app, or edited on this page (never overwritten by a deploy). */
+  source: 'textbook' | 'written' | 'edited'
+}
+
+/** One lesson on the lesson links page (T-94), with its video link or null, and its description or null (T-141). */
 export interface AdminLessonLink {
   id: string
   nameKn: string
   nameEn: string
   textbookPage: TextbookPage | null
   url: string | null
+  content?: AdminLessonContent | null
 }
 
 /** `GET /api/admin/lesson-links`: every chapter and lesson in book order. */
@@ -116,6 +125,22 @@ export function useSetLessonLink() {
       api<AdminLessonLink>(`/api/admin/lesson-links/${encodeURIComponent(id)}`, {
         method: 'PUT',
         body: { clientRequestId: crypto.randomUUID(), url },
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'lesson-links'] }),
+  })
+}
+
+/**
+ * Sets (description and 1–4 examples) or removes (all blank) one lesson's description (T-141). Text that breaks the
+ * rules is an `ApiError` with status 400.
+ */
+export function useSetLessonContent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, description, examples }: { id: string; description: string; examples: string[] }) =>
+      api<AdminLessonContent | undefined>(`/api/admin/lesson-content/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: { clientRequestId: crypto.randomUUID(), description, examples },
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'lesson-links'] }),
   })

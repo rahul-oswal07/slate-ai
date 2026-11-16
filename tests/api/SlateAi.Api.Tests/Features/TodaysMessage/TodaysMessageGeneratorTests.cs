@@ -6,10 +6,12 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Features.EveningMessages;
+using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.TodaysMessage;
 using SlateAi.Api.Tests.Features.Audio;
 using SlateAi.Api.Tests.Features.CatchUps;
 using SlateAi.Api.Tests.Features.EveningMessages;
+using SlateAi.Api.Tests.Features.LessonContents;
 using SlateAi.Api.Tests.Features.LessonLinks;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -34,6 +36,7 @@ public sealed class TodaysMessageGeneratorTests
     private readonly ScriptWriterTests.StubLlm _llm;
     private readonly FakeEveningStore _evening = new(ClassId, Guid.NewGuid());
     private readonly FakeLessonLinkStore _links = new();
+    private readonly FakeLessonContentStore _contents = new();
 
     public TodaysMessageGeneratorTests()
     {
@@ -448,6 +451,37 @@ public sealed class TodaysMessageGeneratorTests
                 : _fake.SynthesizeAsync(text, languageCode, cancellationToken);
     }
 
+    [Fact]
+    public async Task A9_gets_the_lessons_description_and_may_use_its_worked_examples_numbers()
+    {
+        // T-141, D-123: the spoken concept walks through one of the stored worked examples, so its numbers pass the check.
+        _contents.Contents[TodaysMessageTests.Compare.Id] = new StoredLessonContent(
+            "Look at the bundles of ten first.", ["52 and 25: 52 has 5 bundles of ten and 25 has only 2."], "written");
+        _llm.Json = TodaysMessageTests.Output(
+            TodaysMessageTests.Kannada.Replace("ಹೆಚ್ಚು ಕಟ್ಟು ಇರುವ ಸಂಖ್ಯೆ ಹೆಚ್ಚು.", "52 ರಲ್ಲಿ 5 ಕಟ್ಟು, 25 ರಲ್ಲಿ 2 ಕಟ್ಟು."), TodaysMessageTests.Hindi);
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Equal((TodaysMessageStatus.Ready, "valid"), (_store.Rows.Single().Status, _store.Rows.Single().Verdict));
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("Look at the bundles of ten first.", request);
+        Assert.Contains("52 and 25", request);
+    }
+
+    [Fact]
+    public async Task Without_stored_content_the_worked_example_numbers_are_not_allowed()
+    {
+        _llm.Json = TodaysMessageTests.Output(
+            TodaysMessageTests.Kannada.Replace("ಹೆಚ್ಚು ಕಟ್ಟು ಇರುವ ಸಂಖ್ಯೆ ಹೆಚ್ಚು.", "52 ರಲ್ಲಿ 5 ಕಟ್ಟು, 25 ರಲ್ಲಿ 2 ಕಟ್ಟು."), TodaysMessageTests.Hindi);
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        Assert.Equal((TodaysMessageStatus.Failed, "fallback:numbers"), (_store.Rows.Single().Status, _store.Rows.Single().Verdict));
+        Assert.Contains("\"content\":null", _llm.Requests[0].UserContent);
+    }
+
     private TodaysMessageGenerator Generator(ITextToSpeech? tts = null, bool arithmetic = false)
     {
         var curriculum = new CurriculumGraph(
@@ -466,6 +500,7 @@ public sealed class TodaysMessageGeneratorTests
             tts ?? _tts,
             _audio,
             _links,
+            _contents,
             new DisclosureClips(_tts, _audio, Disclosure),
             curriculum,
             prompts,

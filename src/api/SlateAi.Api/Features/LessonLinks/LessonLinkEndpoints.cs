@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Admin;
+using SlateAi.Api.Features.LessonContents;
 
 namespace SlateAi.Api.Features.LessonLinks;
 
-/// <summary>One lesson on the admin page, with its video link or null.</summary>
-public sealed record AdminLessonLink(string Id, string NameKn, string NameEn, TextbookPage? TextbookPage, string? Url);
+/// <summary>One lesson on the admin page, with its video link or null, and its description and examples or null (T-141).</summary>
+public sealed record AdminLessonLink(
+    string Id, string NameKn, string NameEn, TextbookPage? TextbookPage, string? Url, AdminLessonContent? Content = null);
 
 public sealed record AdminLessonLinkChapter(int Number, string NameKn, string NameEn, IReadOnlyList<AdminLessonLink> Lessons);
 
@@ -29,7 +31,7 @@ public static class LessonLinkEndpoints
     {
         app.MapGet("/api/admin/lesson-links", GetAsync)
             .WithTags("Admin")
-            .WithSummary("Every chapter and lesson with its video link (T-94)")
+            .WithSummary("Every chapter and lesson with its video link (T-94) and its description and examples (T-141)")
             .WithDescription("Admin page; no key (D-112).");
 
         app.MapPut("/api/admin/lesson-links/{competencyId}", SetAsync)
@@ -43,9 +45,14 @@ public static class LessonLinkEndpoints
     }
 
     private static async Task<Ok<AdminLessonLinksResponse>> GetAsync(
-        HttpContext http, ILessonLinkStore store, CurriculumGraph curriculum, CancellationToken cancellationToken)
+        HttpContext http,
+        ILessonLinkStore store,
+        ILessonContentStore contents,
+        CurriculumGraph curriculum,
+        CancellationToken cancellationToken)
     {
         var links = await store.GetAllAsync(cancellationToken);
+        var content = await contents.GetAllAsync(cancellationToken);
         var titles = curriculum.Chapters.ToDictionary(c => c.Number);
         var chapters = curriculum.All
             .GroupBy(c => c.Chapter)
@@ -54,7 +61,9 @@ public static class LessonLinkEndpoints
                 g.Key,
                 titles.GetValueOrDefault(g.Key)?.NameKn ?? "",
                 titles.GetValueOrDefault(g.Key)?.NameEn ?? "",
-                g.Select(c => new AdminLessonLink(c.Id, c.NameKn, c.NameEn, c.TextbookPage, links.GetValueOrDefault(c.Id))).ToList()))
+                g.Select(c => new AdminLessonLink(
+                    c.Id, c.NameKn, c.NameEn, c.TextbookPage, links.GetValueOrDefault(c.Id),
+                    AdminLessonContent.From(content.GetValueOrDefault(c.Id)))).ToList()))
             .ToList();
         AdminEndpoints.NoStore(http);
         return TypedResults.Ok(new AdminLessonLinksResponse(chapters));

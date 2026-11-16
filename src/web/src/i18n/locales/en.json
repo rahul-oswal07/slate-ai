@@ -901,6 +901,25 @@
       "notSavedCount_other": "Saved {{saved}} · {{count}} couldn’t be saved",
       "noMatches": "No lessons match."
     },
+    "lessonContent": {
+      "intro": "Each lesson also has a short description and worked examples, from the textbook. Today’s message builds its spoken explanation on them, so a change here reaches the next message for that lesson.",
+      "about": "About this lesson",
+      "sourceTextbook": "From the textbook",
+      "sourceWritten": "Written for this app",
+      "sourceEdited": "Edited here",
+      "none": "No description yet: today’s message uses the lesson’s short examples only.",
+      "examples": "Worked examples",
+      "edit": "Edit",
+      "add": "Add a description",
+      "save": "Save",
+      "cancel": "Cancel",
+      "descriptionLabel": "Description: what the child learns and how the book teaches it",
+      "examplesLabel": "Worked examples, one per line (1 to 4)",
+      "refused": "Not saved: write a description and 1 to 4 examples, without { or }.",
+      "failed": "Could not save. Nothing was changed. Try again.",
+      "saved": "Saved",
+      "describedCount": "{{described}} described"
+    },
     "index": {
       "title": "Admin pages",
       "intro": "Every admin page and its address.",

@@ -376,7 +376,7 @@ public sealed class TodaysMessageEndpointTests
     [Theory]
     [InlineData("Manjunath ಕಡ್ಡಿ ಕಟ್ಟು ಮಾಡಲಿ.", "name")]
     [InlineData("ಮೊದಲು 73 ನೋಡಿ.", "numbers")]
-    [InlineData("ಒಂದು. ಎರಡು. ಮೂರು. ನಾಲ್ಕು.", "too-long")]
+    [InlineData("ಒಂದು. ಎರಡು. ಮೂರು. ನಾಲ್ಕು. ಐದು. ಆರು. ಏಳು.", "too-long")]
     public async Task Her_text_that_fails_a_check_is_not_saved_and_says_why(string text, string problem)
     {
         _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());

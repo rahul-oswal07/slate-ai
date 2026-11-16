@@ -20,6 +20,6 @@ No FR of its own yet. It follows D-91 (today's message, approved every day), D-9
 
 ## Decisions cited
 
-D-91, D-93, D-95, D-98, D-121.
+D-91, D-93, D-95, D-98, D-121, D-123.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

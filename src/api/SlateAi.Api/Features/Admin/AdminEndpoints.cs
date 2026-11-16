@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Audio;
+using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.LessonLinks;
 
 namespace SlateAi.Api.Features.Admin;
@@ -65,6 +66,7 @@ public static class AdminEndpoints
             .WithDescription("404 for a clip that isn't lesson audio. Admin page; no key (D-112).");
 
         app.MapLessonLinkEndpoints();
+        app.MapLessonContentEndpoints();
         app.MapAdminChildEndpoints();
         app.MapAdminTeacherEndpoints();
         app.MapAdminDemoEndpoints();

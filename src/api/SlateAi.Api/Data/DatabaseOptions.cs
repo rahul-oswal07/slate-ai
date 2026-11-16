@@ -11,4 +11,7 @@ public sealed class DatabaseOptions
 
     /// <summary>Seed file path, relative to the app's output directory.</summary>
     public string SeedFile { get; set; } = "data/seed/demo-class.json";
+
+    /// <summary>Lesson descriptions and examples loaded at startup (T-141), relative to the app's output directory.</summary>
+    public string LessonContentFile { get; set; } = "data/lesson-content/grade3-maths.json";
 }

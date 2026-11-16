@@ -9,6 +9,7 @@ using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.LessonAudio;
 using SlateAi.Api.Speech;
+using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.LessonLinks;
 
 namespace SlateAi.Api.Features.TodaysMessage;
@@ -43,6 +44,7 @@ public sealed class TodaysMessageGenerator(
     ITextToSpeech tts,
     IAudioStore audio,
     ILessonLinkStore links,
+    ILessonContentStore contents,
     DisclosureClips disclosure,
     CurriculumGraph curriculum,
     PromptLibrary prompts,
@@ -89,6 +91,8 @@ public sealed class TodaysMessageGenerator(
         try
         {
             var names = (await evening.GetClassAsync(row.ClassId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
+            // How the book teaches each lesson, with worked examples (T-141, D-123): A9 builds the spoken concept on it.
+            var content = await contents.GetForAsync(row.CompetencyIds, cancellationToken);
             var kannada = teacher?.Kannada;
             // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any. A note she wrote
             // in another language is written in Kannada too, so Kannada families read it in Kannada (T-119, D-111).
@@ -100,7 +104,7 @@ public sealed class TodaysMessageGenerator(
                     await evening.LatestConfirmedLessonAsync(row.ClassId, row.Date, cancellationToken),
                     row.Date,
                     row.CompetencyIds,
-                    TodaysMessageValidator.AllowedNumbers(lessons, picture),
+                    TodaysMessageValidator.AllowedNumbers(lessons, picture, content),
                     names)
                 : null;
             var texts = new Dictionary<string, TodaysText>();
@@ -111,7 +115,7 @@ public sealed class TodaysMessageGenerator(
                 IReadOnlyList<string>? feedback = null;
                 for (var attempt = 1; attempt <= Attempts && result.Texts is null; attempt++)
                 {
-                    result = await writer.WriteAsync(toWrite, lessons, picture, feedback, names, cancellationToken, kannada, fromClass);
+                    result = await writer.WriteAsync(toWrite, lessons, picture, feedback, names, cancellationToken, kannada, fromClass, content);
                     feedback = [$"output: {result.Verdict}" + (result.Detail is { } detail ? $" ({detail})" : "")];
                 }
 

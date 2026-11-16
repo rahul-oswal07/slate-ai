@@ -37,6 +37,8 @@ Source: Karnataka state Grade 2–3 maths textbook (Kannada medium) and NIPUN Bh
 | `textbookPage` | Where the child finds it in their own book (D-22). `book` is `textbook` or `workbook` (the D-89 book), or `nalikali` (Nalikali Grade 3 Maths 2026-27, D-90; screens name the book: "Nalikali Maths · Part 1 · p 4"); `part` optional; `page` > 0 |
 | `exercises` | Optional (D-93): the book's own exercise numbers, never answers. `compare`: pairs for >, < or = (2 numbers each); `extremes`: sets to find the smallest and biggest in (2–6 different numbers); `add`: pairs to add (sum ≤ 999); `sub`: pairs to subtract, first minus second (the first not smaller) (T-128). Numbers 0–999. A lesson with any of them shows a **Book exercises** tag; only `compare` starts a today's message so far (D-116). Code computes the answers (`Curriculum/ExerciseAnswers.cs`) |
 
+Each lesson's description and worked examples, which today's message's spoken concept is built on, are in [`../lesson-content/grade3-maths.json`](../lesson-content/grade3-maths.json) (T-141, D-123): read from the same textbook in our own words, loaded into the database at startup and editable on `/admin/lesson-links`.
+
 A bad file stops the app at startup with every problem listed, and `CurriculumStartupTests` fails in CI. With no files, the app starts with an empty graph and logs a warning.
 
 ## `grade3-maths.json`

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Ai;
 using SlateAi.Api.Curriculum;
+using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -50,6 +51,11 @@ public sealed class A9TodaysMessageEvals
         var prompts = services.GetRequiredService<PromptLibrary>();
         var aiOptions = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value;
         string[] names = ["Ravi", "Ananya", "Bhavana", "Chetan", "Shobha"];
+        // The shipped descriptions and worked examples (T-141, D-123), as the startup load puts them in the database.
+        var (entries, _) = LessonContentFile.Load(Path.Combine(AppContext.BaseDirectory, "data", "lesson-content", "grade3-maths.json"))
+            .Check(curriculum);
+        var content = entries.ToDictionary(
+            e => e.CompetencyId, e => new StoredLessonContent(e.Content.Description, e.Content.Examples, e.Source));
 
         var results = await Task.WhenAll(file.Cases.Select(async c =>
         {
@@ -66,7 +72,8 @@ public sealed class A9TodaysMessageEvals
                 var written = await writer.WriteAsync(
                     c.Languages, lessons, picture, feedback, names, TestContext.Current.CancellationToken,
                     c.Teacher is { } t ? new TeacherKannada(t.Concept, t.Activity, t.Note) : null,
-                    c.FromClass is { } f ? new TodaysFromClass(f.SummaryKn, f.Examples) : null);
+                    c.FromClass is { } f ? new TodaysFromClass(f.SummaryKn, f.Examples) : null,
+                    content);
                 attempts.Add(new Attempt(written.Texts is not null, written.Verdict, written.Detail, written.Texts));
                 if (written.Texts is not null)
                 {
@@ -76,18 +83,25 @@ public sealed class A9TodaysMessageEvals
                 feedback = [$"output: {written.Verdict}" + (written.Detail is { } detail ? $" ({detail})" : "")];
             }
 
-            return new CaseResult(c.Id, picture, attempts[0].Passed, attempts[^1].Passed, attempts);
+            // T-141: about a minute (Kannada words), and the concept never compares or sums the picture question's numbers.
+            var kannada = attempts[^1].Texts?.GetValueOrDefault("kn")?.Concept;
+            var words = kannada?.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+            var leaks = picture is not null && attempts[^1].Texts is { } texts
+                && texts.Values.Any(t => t.Concept.Contains(picture.A.ToString()) && t.Concept.Contains(picture.B.ToString()));
+            return new CaseResult(c.Id, picture, attempts[0].Passed, attempts[^1].Passed, attempts, words, leaks);
         }));
 
         var firstPass = results.Count(r => r.FirstPass) / (double)results.Length;
         var passed = results.Count(r => r.Passed) / (double)results.Length;
         var used = results.Select(r => TodaysMessageWriter.PromptFor(r.Picture)).Distinct().Order().Select(prompts.Get).ToList();
+        var fresh = results.Where(r => r.Passed && r.KannadaConceptWords is not null).Select(r => r.KannadaConceptWords!.Value).ToList();
         var report = new Report(
             DateTimeOffset.UtcNow, string.Join(" + ", used.Select(p => $"{p.Id} v{p.Version}")), aiOptions.ModelFor(used[0].ModelKey),
-            results.Length, firstPass, passed, Target, results);
+            results.Length, firstPass, passed, Target, fresh.Count > 0 ? fresh.Average() : null, results.Count(r => r.PictureInConcept), results);
         var output = Path.Combine(root, "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-{name}.json");
         await File.WriteAllTextAsync(output, JsonSerializer.Serialize(report, Json) + "\n", TestContext.Current.CancellationToken);
 
+        Assert.DoesNotContain(results, r => r.PictureInConcept);
         Assert.True(passed >= Target,
             $"A9 pass rate {passed:P0} < {Target:P0}: " + string.Join("; ", results.Where(r => !r.Passed).Select(r => $"{r.Id} ({r.Attempts[^1].Verdict} {r.Attempts[^1].Detail})")));
     }
@@ -116,9 +130,13 @@ public sealed class A9TodaysMessageEvals
 
     private sealed record Attempt(bool Passed, string Verdict, string? Detail, IReadOnlyDictionary<string, TodaysText>? Texts);
 
-    private sealed record CaseResult(string Id, TodaysPicture? Picture, bool FirstPass, bool Passed, IReadOnlyList<Attempt> Attempts);
+    /// <param name="KannadaConceptWords">Null when Kannada was hers or nothing passed.</param>
+    /// <param name="PictureInConcept">Both picture numbers in one language's concept: it may give the answer away (T-141).</param>
+    private sealed record CaseResult(
+        string Id, TodaysPicture? Picture, bool FirstPass, bool Passed, IReadOnlyList<Attempt> Attempts, int? KannadaConceptWords = null,
+        bool PictureInConcept = false);
 
     private sealed record Report(
         DateTimeOffset RunAt, string Prompt, string Model, int Cases, double FirstPass, double Passed, double Target,
-        IReadOnlyList<CaseResult> Results);
+        double? AverageKannadaConceptWords, int PictureInConcept, IReadOnlyList<CaseResult> Results);
 }

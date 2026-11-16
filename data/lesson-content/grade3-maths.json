@@ -1,0 +1,982 @@
+{
+  "version": "2026-11-16",
+  "source": "Karnataka state Grade 3 maths textbook, Kannada medium, KTBS 2026-27, Part 1 and 2, read on 16 Nov 2026 (T-141); M3.BRIDGE.COMPARE from the Nalikali p 4 notes in docs/design/curriculum.md. Our own words; the book's numbers and methods as facts.",
+  "lessons": [
+    {
+      "id": "M3.BRIDGE.COMPARE",
+      "description": "The child compares two 2-digit numbers and says which is more, which is less, or that they are equal, and finds the smallest and the biggest number in a small group. The book's way is bundles of ten sticks and loose sticks: look at the bundles of ten first, and the number with more bundles is more. Only when the bundles are the same, count the loose sticks. When both are the same, the numbers are equal.",
+      "examples": [
+        "52 and 25: 52 has 5 bundles of ten and 25 has only 2, so 52 is more than 25.",
+        "63 and 67 both have 6 bundles of ten, so look at the loose sticks: 3 is less than 7, so 63 is less than 67.",
+        "45 and 45 have the same bundles and the same loose sticks, so they are equal.",
+        "Among 29, 92, 54 and 13, the fewest bundles are in 13, the smallest, and the most are in 92, the biggest."
+      ],
+      "source": "written",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "id": "M3.GEO.2D",
+      "description": "The child learns to count the sides and corners of flat shapes. The lesson starts by folding a square sheet of paper into a bird, then labels the sides, corners and diagonals of a triangle and a four-sided shape. A diagonal is a straight line that joins two opposite corners. The idea to remember: a triangle has 3 sides and 3 corners, and a four-sided shape (quadrilateral) has 4 sides, 4 corners and 2 diagonals.",
+      "examples": [
+        "Run a finger around a triangle: it has 3 straight sides and 3 corners.",
+        "A rectangle has 4 sides and 4 corners, and joining its opposite corners gives 2 diagonals that cross in the middle.",
+        "Fold a square sheet of paper corner to corner: the fold line is a diagonal, and it splits the square into 2 triangles."
+      ],
+      "source": "textbook",
+      "pages": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "M3.GEO.3D",
+      "description": "The child learns that solid shapes have length, width and height, unlike flat shapes drawn on paper. The book asks children to stack 25 coins in one pile and 25 bangles in another. Both piles make a tall round shape called a cylinder. The idea to remember: the coin pile is filled inside, so it is a solid cylinder, while the bangle pile is empty inside, so it is a hollow cylinder.",
+      "examples": [
+        "Stack 25 coins one on top of another: the pile is full inside, so it makes a solid cylinder.",
+        "Stack 25 bangles the same way: you can look through the middle, so it makes a hollow cylinder.",
+        "A candle is a solid cylinder, while a plastic pipe is a hollow cylinder."
+      ],
+      "source": "textbook",
+      "pages": [
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "M3.GEO.TILES",
+      "description": "The child learns which tile shapes can cover a floor with no gaps. The book shows floors made of triangle tiles and asks children to cut 10 cardboard pieces of each shape and try fitting them together. Squares, triangles and hexagons sit edge to edge perfectly, while circles and ovals always leave empty spaces between them. The idea to remember: tiles that fit leave no gaps, and the same tile can be arranged in different ways to make new patterns.",
+      "examples": [
+        "The same triangle tile can be laid in rows pointing up and down, or paired into diamonds, giving two different floor patterns with no gaps.",
+        "Six-sided hexagon tiles fit together like a honeycomb with no gaps, but round tiles always leave empty spaces between them.",
+        "Square tiles placed side by side cover a floor completely, like a chessboard, so squares are tiles that fit."
+      ],
+      "source": "textbook",
+      "pages": [
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "M3.GEO.MAP",
+      "description": "The child learns to read a simple district map. In the book, two children look at a district map hung at a railway station and work out what each small sign means. A line of short marks shows the railway, a wavy blue line shows a river, a ring with a dot marks the district's main town, and yellow boxes mark places tourists visit. The idea to remember: every sign on a map stands for something real, and the map's key tells you what.",
+      "examples": [
+        "Follow the railway sign along the map from the district's main town to find which station comes next.",
+        "Two wavy blue lines that join on the map show the place where two rivers meet.",
+        "The road marked NH-13 is a national highway, a big main road that links the district to faraway cities."
+      ],
+      "source": "textbook",
+      "pages": [
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "M3.GEO.DRAW",
+      "description": "The child learns to draw pictures by joining dots on a dot grid, using straight lines and curved lines. The book shows a kite drawn on dots and asks the child to count its straight and curved lines, then draw a leaf, a star and a flower. Next comes the tangram, a square cut into pieces that can be rearranged into animals and objects. The idea to remember: straight and curved lines together can make any picture, and the same pieces can make many shapes.",
+      "examples": [
+        "The kite drawn on the dot grid uses 8 straight lines and 1 curved line.",
+        "A square cut into 5 pieces is a 5-piece tangram, and a square cut into 7 pieces is a 7-piece tangram.",
+        "Putting tangram piece 2, a triangle, beside piece 3, a square, makes a new 4-sided shape."
+      ],
+      "source": "textbook",
+      "pages": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "id": "M3.NUM.COUNT999",
+      "description": "The child learns to count past 99 into the hundreds. The book uses sticks tied in bundles of ten: 9 bundles plus loose sticks make 91, 92 and so on up to 99. When a tenth loose stick is added, the 10 loose sticks become one more bundle, and 10 bundles tied together make one big bundle of 100. The idea to remember: 99 + 1 = 100, the smallest 3-digit number, with 1 hundred, 0 tens and 0 ones.",
+      "examples": [
+        "9 bundles of ten sticks and 1 loose stick make 90 + 1 = 91.",
+        "Add 1 more stick to 99 and the loose sticks make a full bundle: 10 bundles of ten = 100.",
+        "A batsman on 94 runs needs 6 more for a century, because 94 + 6 = 100."
+      ],
+      "source": "textbook",
+      "pages": [
+        18,
+        19,
+        20,
+        21,
+        22
+      ]
+    },
+    {
+      "id": "M3.NUM.NAMES",
+      "description": "The child learns to read and write number names up to 999. The book shows bundles of 100 sticks and beads on an abacus to build 100, 200, 300 and so on up to 900, giving each its name. Then the child fills in names for numbers like 199 and 299, and helps an elephant reach a pond by naming the numbers on its path. The idea to remember: say the hundreds first, then the rest, just like a two-digit number.",
+      "examples": [
+        "5 bundles of 100 sticks make 500, read as five hundred (ಐದು ನೂರು).",
+        "199 is 100 and 99 together, read as ಒಂದು ನೂರ ತೊಂಬತ್ತೊಂಬತ್ತು (one hundred ninety-nine).",
+        "275 is read hundreds first, then the rest: ಎರಡುನೂರ ಎಪ್ಪತ್ತೈದು (two hundred seventy-five)."
+      ],
+      "source": "textbook",
+      "pages": [
+        28,
+        29,
+        30,
+        31,
+        32
+      ]
+    },
+    {
+      "id": "M3.PV.HTO",
+      "description": "The child learns that each digit in a 3-digit number has a place: hundreds, tens or ones. The book counts flowers using three tins of cards worth 1, 10 and 100; every time ten 1-cards are collected they are swapped for one 10-card, and ten 10-cards for one 100-card. It then shows the same idea with ₹100 notes, ₹10 notes and ₹1 coins. The idea to remember: ten ones make a ten, and ten tens make a hundred.",
+      "examples": [
+        "4 hundred-cards, 3 ten-cards and 2 one-cards show 432 flowers, because 400 + 30 + 2 = 432.",
+        "245 bananas are 2 hundreds, 4 tens and 5 ones.",
+        "To pay ₹185, give one ₹100 note, eight ₹10 notes and five ₹1 coins: 100 + 80 + 5 = 185."
+      ],
+      "source": "textbook",
+      "pages": [
+        35,
+        36,
+        37,
+        38,
+        39
+      ]
+    },
+    {
+      "id": "M3.PV.EXPAND",
+      "description": "The child learns to write a 3-digit number as the sum of its hundreds, tens and ones, called the expanded form. The book uses a place-value table and a colouring game where number names and expanded forms are matched to the right number on a grid. The idea to remember: each digit stands for its place value, so 751 really means 7 hundreds, 5 tens and 1 one, and a place holding 0 is simply left out of the sum.",
+      "examples": [
+        "751 has 7 hundreds, 5 tens and 1 one, so 751 = 700 + 50 + 1.",
+        "920 has 0 ones, so its expanded form is just 900 + 20.",
+        "Going the other way, 400 + 20 + 2 = 422, and 500 + 8 = 508 because there are no tens."
+      ],
+      "source": "textbook",
+      "pages": [
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "id": "M3.NUM.SEQUENCE",
+      "description": "The child learns which number comes just before, just after and between other numbers, and how to count forward and backward in jumps. In the book, children skip with animals that jump 1, 2, 5 or 10 steps at a time, a rabbit climbs steps numbered in tens, and friends hop across stepping stones in jumps of 50. The idea to remember: just after means add 1, just before means take away 1, and in skip counting every jump is the same size.",
+      "examples": [
+        "Jumping forward 2 at a time from 390 gives 390, 392, 394, 396, 398, 400.",
+        "The number just after 899 is 900, and the number just before 500 is 499.",
+        "The number between 724 and 726 is 725, which is one more than 724 and one less than 726."
+      ],
+      "source": "textbook",
+      "pages": [
+        47,
+        48,
+        49,
+        50,
+        51
+      ]
+    },
+    {
+      "id": "M3.NUM.COMPARE",
+      "description": "The child learns to find the biggest and smallest among several 3-digit numbers. In the book, forest animals argue about whose number is biggest, and the numbers are written in a place-value table to settle it. First compare the hundreds digits; if they are the same, compare the tens; if those are also the same, compare the ones. The idea to remember: the number with the bigger digit in the first place where they differ is the bigger number.",
+      "examples": [
+        "Among 520, 250, 396 and 499 the hundreds digits are 5, 2, 3 and 4, so 520 is biggest and 250 smallest.",
+        "510 and 520 both have 5 hundreds, so look at the tens: 2 is more than 1, so 520 is bigger.",
+        "867, 861, 864, 865 and 863 share 8 hundreds and 6 tens, so the ones decide: 867 is biggest, 861 smallest."
+      ],
+      "source": "textbook",
+      "pages": [
+        52,
+        53,
+        54,
+        55,
+        56
+      ]
+    },
+    {
+      "id": "M3.NUM.ORDER",
+      "description": "The child learns to arrange 3-digit numbers in ascending order (smallest to biggest) and descending order (biggest to smallest). In the book, children write numbers on small paper chits, pick six from a box and line them up, and a staircase picture shows going up for ascending and coming down for descending. The method is the same as comparing: look at the hundreds first, then the tens, then the ones. The idea to remember: ascending climbs up, descending comes down.",
+      "examples": [
+        "For 225, 352, 561, 833, 417 and 799, the hundreds digits put them in ascending order: 225, 352, 417, 561, 799, 833.",
+        "The same numbers in descending order, biggest first, are 833, 799, 561, 417, 352, 225.",
+        "472, 477, 478, 475, 476 and 473 share hundreds and tens, so the ones decide the descending order: 478, 477, 476, 475, 473, 472."
+      ],
+      "source": "textbook",
+      "pages": [
+        57,
+        58,
+        59,
+        60
+      ]
+    },
+    {
+      "id": "M3.NUM.FORM",
+      "description": "The child learns to make the biggest and smallest 3-digit numbers from three given digits. The book uses number cards in a box: the child picks three cards and places them in a place-value table drawn on paper or on the floor. For the biggest number, put the biggest digit in the hundreds place and the smallest in the ones place; for the smallest number, do the opposite. The idea to remember: the hundreds place matters most.",
+      "examples": [
+        "With 3, 1 and 7, put 7 in hundreds, 3 in tens and 1 in ones for the biggest, 731; reverse it for the smallest, 137.",
+        "The digits 4, 9 and 0 can make 490, 409, 940, 904, 049 and 094, and the biggest of these is 940.",
+        "The smallest number from 4, 9 and 0 is 049, which is just 49, because the 0 sits in the hundreds place."
+      ],
+      "source": "textbook",
+      "pages": [
+        61,
+        62,
+        63
+      ]
+    },
+    {
+      "id": "M3.NUM.LINE",
+      "description": "The child learns to read and mark numbers on a number line. A number line is a straight line with numbers written in order at equal gaps, for example in steps of 10 from 100 to 200 or steps of 100 from 0 to 900. The book asks which number lies between two others, which comes just before or after, and which side a number is on. The idea to remember: numbers get bigger as you move right and smaller as you move left.",
+      "examples": [
+        "On a line marked 100, 110, 120 and so on up to 200, the mark between 140 and 160 is 150.",
+        "On a line from 0 to 900 in steps of 100, 600 is the sixth mark after 0.",
+        "On a line from 500 to 620, numbers left of 580, like 570, are smaller, and numbers to its right, like 590, are bigger."
+      ],
+      "source": "textbook",
+      "pages": [
+        64,
+        65,
+        66
+      ]
+    },
+    {
+      "id": "M3.ADD.QUICK",
+      "description": "Your child learned quick ways to add two 2-digit numbers by splitting them into tens and ones. The book uses a building with 100 numbered rooms, 10 on each floor: going up one floor adds 10, and moving one room across adds 1. It also shows breaking each number into tens and ones, adding the tens together and the ones together, then joining the two answers. The idea to remember: add tens with tens and ones with ones.",
+      "examples": [
+        "To add 34 + 22 on the 100-room building, climb 2 floors from 34 to 54, then move 2 rooms across to reach 56.",
+        "For ₹49 + ₹42 of fruit, split into 40 + 9 and 40 + 2, add the tens (80) and the ones (11): 80 + 11 = ₹91.",
+        "To add 23 + 64, add the tens (20 + 60 = 80), then the ones (3 + 4 = 7), and put them together: 87."
+      ],
+      "source": "textbook",
+      "pages": [
+        67,
+        68,
+        69,
+        70
+      ]
+    },
+    {
+      "id": "M3.ADD.WORD",
+      "description": "Your child solved addition stories, such as counting how many animals walked to a feast together. They read the story to find the two numbers and see that the question asks for a total. They first guess whether the answer will be more or less than a round number like 400, then add in a place-value table with hundreds, tens and ones, where 10 ones become 1 ten. The idea to remember: 'altogether' or 'in total' means add.",
+      "examples": [
+        "A girl has 328 marbles and gets 133 more; the answer should be a bit over 450, and adding by place value gives 461.",
+        "Two gardens have 266 and 314 roses: ones 6 + 4 = 10 (carry 1), tens 6 + 1 + 1 = 8, hundreds 2 + 3 = 5: 580."
+      ],
+      "source": "textbook",
+      "pages": [
+        71,
+        72,
+        73,
+        74,
+        75
+      ]
+    },
+    {
+      "id": "M3.ADD.NOCARRY",
+      "description": "Your child learned to add two 3-digit numbers when no column adds up to 10 or more. The book shows each number as pictures of hundreds, tens and ones, then writes the digits in a place-value table with hundreds, tens and ones columns, and also in expanded form. They add the ones first, then the tens, then the hundreds, and later do it without the table. The idea to remember: line up the places and start from the ones.",
+      "examples": [
+        "To add 716 and 243, add the ones (6 + 3 = 9), the tens (1 + 4 = 5), then the hundreds (7 + 2 = 9): 959.",
+        "In expanded form, 534 + 152 is 500 + 100 = 600, 30 + 50 = 80 and 4 + 2 = 6, which together make 686.",
+        "For 404 + 440, the ones give 4 + 0 = 4, the tens 0 + 4 = 4 and the hundreds 4 + 4 = 8: 844."
+      ],
+      "source": "textbook",
+      "pages": [
+        77,
+        78,
+        79,
+        80
+      ]
+    },
+    {
+      "id": "M3.ADD.CARRY",
+      "description": "Your child learned to add 3-digit numbers when a column adds up to 10 or more. The book uses pictures and tokens for hundreds, tens and ones in a place-value table: when 10 or more ones collect, 10 of them are grouped into 1 ten and moved to the tens column, and 10 tens likewise become 1 hundred. The carried 1 is written small above the next column. The idea to remember: 10 in any place becomes 1 in the next place to the left.",
+      "examples": [
+        "Adding 296 and 362: ones 6 + 2 = 8, tens 9 + 6 = 15 (write 5, carry 1), hundreds 2 + 3 + 1 = 6, so 658.",
+        "For 696 + 146, 6 + 6 = 12 (carry 1), 9 + 4 + 1 = 14 (carry 1), and 6 + 1 + 1 = 8, giving 842."
+      ],
+      "source": "textbook",
+      "pages": [
+        80,
+        81,
+        82,
+        83,
+        84
+      ]
+    },
+    {
+      "id": "M3.ADD.MAKE",
+      "description": "Your child learned that many different addition sums can give the same answer. The book shows five sums, such as 200 + 130 and 175 + 155, that all make 330, and a game where a boy holds a card with 932 and the child finds the sweets whose sums match it. Then the child invents their own pairs of numbers for a given total. The idea to remember: if one number goes up, the other must go down by the same amount to keep the total.",
+      "examples": [
+        "To make 330, you can use 200 + 130, 300 + 30 or 175 + 155, because each pair adds up to 330.",
+        "Start with 90 + 65 = 155; take 10 from 90 and give it to 65 to get 80 + 75, which still makes 155.",
+        "For a total of 932, the sums 801 + 131, 705 + 227 and 900 + 32 all work."
+      ],
+      "source": "textbook",
+      "pages": [
+        89,
+        90,
+        91
+      ]
+    },
+    {
+      "id": "M3.ADD.ESTIMATE",
+      "description": "Your child learned to round a number to the nearest ten and use it to guess a sum quickly. The book starts with two children guessing how many flowers have fallen, and a number line showing that 38 is closer to 40 than to 30. The rule: look at the ones digit; if it is less than 5, round down to the ten below, and if it is 5 or more, round up to the next ten. Then round each number and add the tens.",
+      "examples": [
+        "38 rounds to 40 because 8 is 5 or more, while 52 rounds to 50 because 2 is less than 5.",
+        "15 is exactly halfway between 10 and 20, and the rule says round up, so 15 becomes 20.",
+        "To estimate 55 + 26, round 55 up to 60 and 26 up to 30, so the sum is about 90 (the exact answer is 81)."
+      ],
+      "source": "textbook",
+      "pages": [
+        91,
+        92,
+        93,
+        94
+      ]
+    },
+    {
+      "id": "M3.SUB.WORD",
+      "description": "Your child solved subtraction stories, such as how many more books one shop has than another, or how much change a shopkeeper should give back. They first guess whether the answer is more or less than 100, then subtract in a place-value table with tokens for hundreds, tens and ones: ones first, then tens, then hundreds. When there are not enough ones, 1 ten is broken into 10 ones. The idea to remember: 'how many more' and 'how much is left' mean subtract.",
+      "examples": [
+        "A girl pays ₹200 for a book costing ₹150, so the change is 200 − 150 = ₹50.",
+        "One shop has 587 books and another has 342; subtracting ones, tens and hundreds (7 − 2, 8 − 4, 5 − 3) shows 245 more.",
+        "To check a shopkeeper's change, add it back: ₹185 for bananas plus ₹115 change makes ₹300, the amount paid, so the change is right."
+      ],
+      "source": "textbook",
+      "pages": [
+        96,
+        97,
+        98,
+        99,
+        100
+      ]
+    },
+    {
+      "id": "M3.SUB.NOBORROW",
+      "description": "Your child learned to subtract one 3-digit number from another when every top digit is big enough, so no borrowing is needed. The book shows the numbers as pictures of hundreds, tens and ones, then in a place-value table with hundreds, tens and ones columns, and also in expanded form. They take away the ones first, then the tens, then the hundreds. The idea to remember: put the bigger number on top, line up the places and subtract from the ones.",
+      "examples": [
+        "To find 978 − 572, subtract the ones (8 − 2 = 6), the tens (7 − 7 = 0), then the hundreds (9 − 5 = 4): 406.",
+        "For 870 − 240: ones 0 − 0 = 0, tens 7 − 4 = 3, hundreds 8 − 2 = 6, so the difference is 630.",
+        "In expanded form, 695 − 152 is 600 − 100 = 500, 90 − 50 = 40 and 5 − 2 = 3, which makes 543."
+      ],
+      "source": "textbook",
+      "pages": [
+        104,
+        105,
+        106,
+        107
+      ]
+    },
+    {
+      "id": "M3.SUB.BORROW",
+      "description": "Your child learned to subtract 3-digit numbers when a top digit is smaller than the one below it. The book uses pictures and tokens for hundreds, tens and ones in a place-value table: if there are too few ones, one ten is broken into 10 ones, and if there are too few tens, one hundred is broken into 10 tens. The digit borrowed from is crossed out and made 1 less. The idea to remember: borrow from the next place on the left, then subtract.",
+      "examples": [
+        "In 376 − 258, borrow a ten for the ones: 16 − 8 = 8, then tens 6 − 5 = 1, hundreds 3 − 2 = 1: 118.",
+        "In 844 − 455, borrow twice: ones 14 − 5 = 9, tens 13 − 5 = 8 (after borrowing a hundred), hundreds 7 − 4 = 3: 389."
+      ],
+      "source": "textbook",
+      "pages": [
+        108,
+        109,
+        110,
+        111,
+        112
+      ]
+    },
+    {
+      "id": "M3.SUB.MAKE",
+      "description": "Your child learned that many different subtraction sums can have the same answer. The book shows five sums, such as 371 − 250 and 977 − 856, that all give 121, and a game where a postman holds the number 529 and the child finds the cards whose difference matches it. Then the child makes up their own subtraction sums for a given answer. The idea to remember: add the same amount to both numbers and the difference stays the same.",
+      "examples": [
+        "Both 371 − 250 and 760 − 639 give 121, so very different numbers can have the same difference.",
+        "To make a sum with answer 752, pick any number such as 102, add it to 752 to get 854, and write 854 − 102 = 752.",
+        "From 355 − 155 = 200, adding 100 to both numbers gives 455 − 255, which is still 200."
+      ],
+      "source": "textbook",
+      "pages": [
+        117,
+        118,
+        119
+      ]
+    },
+    {
+      "id": "M3.SUB.ESTIMATE",
+      "description": "Your child learned to guess the answer to a subtraction quickly by rounding. Each number is first rounded to the nearest ten with the same rule as before: a ones digit less than 5 rounds down, 5 or more rounds up. Then the two round numbers are subtracted, which is easy because only the tens change. The book practises this with 2-digit numbers and a matching game. The idea to remember: round first, then subtract the tens.",
+      "examples": [
+        "To estimate 87 − 34, round 87 up to 90 and 34 down to 30, so the difference is about 60 (exactly 53).",
+        "To estimate 55 − 16, round 55 up to 60 and 16 up to 20, so the difference is about 40 (exactly 39).",
+        "72 − 44 is about 70 − 40 = 30, because 72 rounds down to 70 and 44 rounds down to 40."
+      ],
+      "source": "textbook",
+      "pages": [
+        121,
+        122
+      ]
+    },
+    {
+      "id": "M3.MUL.REPEAT",
+      "description": "Your child learned that multiplication is a short way of adding the same number again and again. The book shows children each holding 5 paper flowers, students standing in rows of 10 for assembly, cows and their legs, and birds in cages, and writes each picture first as an addition and then as a multiplication. So 5 added 4 times is written 5 × 4. The one idea to remember: repeated addition is multiplication.",
+      "examples": [
+        "4 children make 5 flowers each: 5 + 5 + 5 + 5 = 20, so 5 added 4 times is 5 × 4 = 20 flowers.",
+        "3 rows with 10 children in each row: 10 + 10 + 10 = 30, so 10 × 3 = 30 children.",
+        "3 cows have 4 legs each: 4 + 4 + 4 = 12, so 4 × 3 = 12 legs."
+      ],
+      "source": "textbook",
+      "pages": [
+        124,
+        125,
+        126,
+        127
+      ]
+    },
+    {
+      "id": "M3.MUL.SIGN",
+      "description": "Your child learned the multiplication sign × and the names of the three numbers in a multiplication. The book shows a shopkeeper handing over coconuts 3 at a time, 4 times, and windows with 3 bars each. The word 'times' is replaced by the × sign, so '3, four times' becomes 3 × 4. The number being repeated is the multiplicand (ಗುಣ್ಯ), how many times is the multiplier (ಗುಣಕ), and the answer is the product (ಗುಣಲಬ್ಧ).",
+      "examples": [
+        "A shopkeeper gives 3 coconuts at a time, 4 times: 3 + 3 + 3 + 3 = 12, written 3 × 4 = 12 coconuts.",
+        "2 windows with 3 bars each: 3 + 3 = 6, so 3 × 2 = 6; 3 is the multiplicand, 2 the multiplier, 6 the product.",
+        "In 8 × 4 = 32, the multiplicand is 8, the multiplier is 4 and the product is 32."
+      ],
+      "source": "textbook",
+      "pages": [
+        128,
+        129,
+        130
+      ]
+    },
+    {
+      "id": "M3.MUL.TABLES",
+      "description": "Your child built the multiplication tables from 1 to 10. The book fills in the tables of 1 to 5, then shows the tables of 6 to 10 as growing rows of pictures, one more group on each line. It also shows a quick way to make a table: write the counting numbers in rows (2 in a row for the 2 table, 3 for the 3 table), and the last column is the table. Remember: any number × 1 is itself, and any number × 0 is 0.",
+      "examples": [
+        "In the 6 table each line adds one more group of 6: 6 × 6 = 36, so 6 × 7 = 36 + 6 = 42.",
+        "Write 1 to 20 two in a row (1 2, 3 4, 5 6 and so on); the right-hand column 2, 4, 6 up to 20 is the 2 table.",
+        "In the 9 table the digits of each answer add up to 9: 9 × 3 = 27 and 2 + 7 = 9; 9 × 8 = 72 and 7 + 2 = 9."
+      ],
+      "source": "textbook",
+      "pages": [
+        131,
+        132,
+        133,
+        134,
+        135
+      ]
+    },
+    {
+      "id": "M3.MUL.DAILY",
+      "description": "Your child used multiplication to solve everyday problems about shopping and counting. In the book, a boy and his father buy things using a shop's price list, and a girl buys ribbon, bangles and bindi packs; the cost of many items is the number of items × the price of one. The costs of the different items are then added to get the total bill. Remember: when the same amount repeats, multiply instead of adding again and again.",
+      "examples": [
+        "One notebook costs ₹6, so 3 notebooks cost 3 × 6 = ₹18.",
+        "Ribbon 3 × ₹5 = ₹15, bangles 2 × ₹8 = ₹16, bindi packs 4 × ₹3 = ₹12; the total is ₹15 + ₹16 + ₹12 = ₹43.",
+        "8 benches with 4 children on each bench: 8 × 4 = 32 children."
+      ],
+      "source": "textbook",
+      "pages": [
+        137,
+        138,
+        139,
+        140
+      ]
+    },
+    {
+      "id": "M3.MUL.2D1D",
+      "description": "Your child learned to multiply a 2-digit number by a 1-digit number when no carrying is needed. The book uses 3 dozen bangles: split 12 into 10 and 2, multiply each part by 3, and add the two answers. Then it shows the short way: multiply the ones first and write the answer in the ones place, then multiply the tens and write that in the tens place. Remember: always start with the ones.",
+      "examples": [
+        "For 12 × 3, split 12 into 10 + 2: 10 × 3 = 30 and 2 × 3 = 6, so 30 + 6 = 36 bangles.",
+        "For 32 × 4, ones: 2 × 4 = 8, write 8; tens: 3 × 4 = 12 tens, write 2 in tens and 1 in hundreds: 128.",
+        "For 20 × 3, ones: 0 × 3 = 0; tens: 2 × 3 = 6; so 20 × 3 = 60."
+      ],
+      "source": "textbook",
+      "pages": [
+        141,
+        142,
+        143
+      ]
+    },
+    {
+      "id": "M3.MUL.2D1D.CARRY",
+      "description": "Your child learned to multiply a 2-digit number by a 1-digit number when the ones make 10 or more. Multiply the ones first; if the answer has a ten in it, write the ones digit and carry the ten over to the tens place. Then multiply the tens and add the carried number. The book also shows a box method: split 13 into 10 and 3, multiply each part by 4, and add 40 + 12. Remember: add the carry after multiplying the tens.",
+      "examples": [
+        "For 13 × 4, ones: 3 × 4 = 12, write 2 and carry 1; tens: 1 × 4 = 4, plus 1 is 5: 52.",
+        "For 65 × 7, ones: 5 × 7 = 35, write 5 and carry 3; tens: 6 × 7 = 42, plus 3 is 45: 455.",
+        "For 32 × 6, ones: 2 × 6 = 12, write 2 and carry 1; tens: 3 × 6 = 18, plus 1 is 19: 192."
+      ],
+      "source": "textbook",
+      "pages": [
+        144,
+        145,
+        146
+      ]
+    },
+    {
+      "id": "M3.MUL.2D2D",
+      "description": "Your child learned to multiply two 2-digit numbers. The book starts with 11 baskets of 10 apples, splitting each number into tens and ones (11 = 10 + 1, 12 = 10 + 2), multiplying every part in a box and adding the answers. The short way: multiply by the ones digit on the first line, then by the tens digit on a second line moved one place to the left, and add the two lines. Remember to shift the second line left.",
+      "examples": [
+        "11 baskets of 10 apples: 11 × 10 = (10 × 10) + (1 × 10) = 100 + 10 = 110 apples.",
+        "For 11 × 12, multiply the parts: 10 × 10 = 100, 10 × 2 = 20, 1 × 10 = 10, 1 × 2 = 2; add them: 132.",
+        "For 72 × 13, first 72 × 3 = 216; then 72 × 1 ten = 720; add 216 + 720 = 936."
+      ],
+      "source": "textbook",
+      "pages": [
+        147,
+        148,
+        149,
+        150
+      ]
+    },
+    {
+      "id": "M3.DIV.SHARE",
+      "description": "Your child learned what division means: sharing equally and making equal groups. The book shows a boy taking 8 tablets, 2 each day, taking away 2 at a time until none are left, and a girl giving 12 balloons to 4 friends one at a time, round after round. Exercises ask the child to make equal groups of objects and thread beads equally on strings. The ÷ sign means divide; division is taking away equal groups again and again.",
+      "examples": [
+        "8 tablets, 2 a day: 8 − 2 = 6, 6 − 2 = 4, 4 − 2 = 2, 2 − 2 = 0, so they last 4 days.",
+        "12 balloons shared among 4 friends, one each per round: 12 − 4 = 8, 8 − 4 = 4, 4 − 4 = 0; so 12 ÷ 4 = 3 each.",
+        "9 beads on 3 strings, one bead on each string at a time: every string gets 3, so 9 ÷ 3 = 3."
+      ],
+      "source": "textbook",
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "M3.DIV.MULREL",
+      "description": "Your child learned that division is multiplication done backwards. The book shows 12 flowers in 3 rows of 4: 4 × 3 = 12, and the same flowers make 3 groups of 4, so 12 ÷ 4 = 3. Every multiplication fact gives two division facts. It also puts 12 pens into 4 pen stands, one at a time, to show 12 ÷ 4 = 3. Remember: if you know the table, you can divide.",
+      "examples": [
+        "12 flowers in 3 rows of 4: 4 × 3 = 12, so 12 ÷ 4 = 3 and 12 ÷ 3 = 4.",
+        "From 4 × 7 = 28 we get two division facts: 28 ÷ 7 = 4 and 28 ÷ 4 = 7.",
+        "12 pens into 4 stands, one pen in each stand per round: after 3 rounds none are left, so 12 ÷ 4 = 3."
+      ],
+      "source": "textbook",
+      "pages": [
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": "M3.DIV.TABLES",
+      "description": "Your child learned to divide using the multiplication tables. To find 45 ÷ 5, ask which number times 5 makes 45; the 5 table says 5 × 9 = 45, so the answer is 9. The book names the parts: the number being divided (ಭಾಜ್ಯ), the number you divide by (ಭಾಜಕ) and the answer (ಭಾಗಲಬ್ಧ), and shows them in the long division layout with 0 left over. Remember: a number ÷ 1 is itself, and a number ÷ itself is 1.",
+      "examples": [
+        "For 45 ÷ 5, the 5 table says 5 × 9 = 45, so 45 ÷ 5 = 9.",
+        "For 28 ÷ 7, the 7 table says 7 × 4 = 28, so 28 ÷ 7 = 4 with nothing left over.",
+        "16 girls in teams of 2: 2 × 8 = 16, so 16 ÷ 2 = 8 teams."
+      ],
+      "source": "textbook",
+      "pages": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "M3.MENT.ADDSUB",
+      "description": "Your child practises adding and subtracting small numbers in their head, without writing them down. The book uses a magic square where every side must add to the same total, a picture of children comparing how many tamarind seeds they collected, and a 'race to 100' game where two players take turns adding a number from 1 to 9. A handy trick is to reach a round ten first: 39 + 1 = 40, then 40 + 3 = 43.",
+      "examples": [
+        "In the magic square every side adds to 8: 2 + 4 + 2 = 8 and 1 + 4 + 3 = 8.",
+        "In the race to 100, one player adds 1 to 39 to make 40, the next adds 3 to make 43, then 7 more makes 50.",
+        "To work out 75 + 13 in your head, add the tens (70 + 10 = 80), then the ones (5 + 3 = 8): 88."
+      ],
+      "source": "textbook",
+      "pages": [
+        13,
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "id": "M3.MENT.DOUBLE",
+      "description": "Your child learns to double a number, which means adding it to itself or multiplying it by 2. The book shows a magician whose hat doubles whatever is put in it, a cat climbing steps by writing the double of each number, a doubling game for two friends, and two paper wheels turned to match numbers with their doubles. To double a two-digit number, double the tens and the ones separately, then add them.",
+      "examples": [
+        "8 flowers put in the magic hat become 8 + 8 = 16 flowers, and 13 seeds become 13 + 13 = 26.",
+        "To double 35, double the tens (30 + 30 = 60) and the ones (5 + 5 = 10), then add: 60 + 10 = 70.",
+        "Double 24 is 24 × 2 = 48, because double 20 is 40, double 4 is 8, and 40 + 8 = 48."
+      ],
+      "source": "textbook",
+      "pages": [
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "id": "M3.FRAC.HALF",
+      "description": "Your child learns what half means. The book starts with two children who both want to feed a roti to a dog and are told to give half each. It then shows a roti, a sheet of paper, a cake and a biscuit each cut into 2 equal parts, a glass half full of water, and asks which shapes and letters a line can split into two matching halves. Remember: the 2 parts must be equal, and 2 halves make 1 whole.",
+      "examples": [
+        "Cut 1 roti into 2 equal parts: each part is half a roti, and the 2 halves together make 1 whole roti.",
+        "Fold a square paper into 2 equal parts and colour 1 part: half the paper is coloured and half is still white.",
+        "Draw a line down the middle of the letter A: the left half matches the right half, so the line splits it into 2 halves."
+      ],
+      "source": "textbook",
+      "pages": [
+        26,
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "id": "M3.FRAC.QUARTER",
+      "description": "Your child learns quarter and three quarters. The book asks how a girl can share one piece of bread equally among 4 cats, then shows a glass filled to 1 of 4 equal levels, a square with 1 of 4 parts coloured, a chocolate bar with 1 of 4 pieces eaten, and a paper cross folded into 4 equal parts. One of 4 equal parts is a quarter, 3 of them are three quarters, and 4 quarters make 1 whole.",
+      "examples": [
+        "A girl shares 1 bread equally among 4 cats, so each cat gets 1 of 4 equal parts: a quarter.",
+        "A chocolate bar has 4 equal pieces; after 1 piece is eaten, 3 pieces are left, which is three quarters of the bar.",
+        "Fold a paper into 4 equal parts: 1 part is a quarter, 2 parts are a half, 3 parts are three quarters, 4 parts are the whole."
+      ],
+      "source": "textbook",
+      "pages": [
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    {
+      "id": "M3.FRAC.SYMBOL",
+      "description": "Your child learns to write half, quarter and three quarters as numbers: ½, ¼ and ¾. The book uses shapes split into equal parts with some parts coloured, and asks how many equal parts there are and how many are coloured. The number below the line tells how many equal parts the whole is cut into, and the number above the line tells how many of those parts we take.",
+      "examples": [
+        "A shape cut into 2 equal parts with 1 part coloured shows ½: the 2 goes below the line and the 1 above it.",
+        "A circle cut into 4 equal parts with 1 part coloured shows ¼, which means a quarter.",
+        "A rectangle with 4 equal strips and 3 of them coloured shows ¾, which means three quarters."
+      ],
+      "source": "textbook",
+      "pages": [
+        39,
+        40,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "id": "M3.MONEY.COINS",
+      "description": "Your child learns how rupees and paise fit together, using real coins and notes. The book has children trace coins on paper and cut out note shapes to play with, then shows which coins add up to each note: ₹1, ₹2, ₹5 and ₹10. The one fact to remember is ₹1 = 100 paise, so ₹2 = 200 paise and ₹5 = 500 paise.",
+      "examples": [
+        "₹1 is the same as two 50 paise coins, because 50 + 50 = 100 paise.",
+        "₹5 can be five ₹1 coins, or two ₹2 coins and one ₹1 coin, since 2 + 2 + 1 = 5; that is 500 paise.",
+        "₹10 can be two ₹5 coins, because 5 + 5 = 10, or five ₹2 coins."
+      ],
+      "source": "textbook",
+      "pages": [
+        45,
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "id": "M3.MONEY.WRITE",
+      "description": "Your child learns to say and write an amount of money in three ways: as we speak it, in words, and in numbers. The book shows a boy buying a notebook at a stationery shop, where the shopkeeper says it costs 20 rupees 50 paise. In numbers, write the ₹ sign and the rupees, then a dot, then the paise as two digits: ₹20.50. The rupee is our money and paise are its smaller parts.",
+      "examples": [
+        "20 rupees 50 paise is written in words as twenty rupees and fifty paise, and in numbers as ₹20.50.",
+        "75 paise with no rupees is written ₹0.75, with a 0 before the dot.",
+        "10 rupees 25 paise is written ₹10.25, and 50 rupees with no paise is written ₹50.00."
+      ],
+      "source": "textbook",
+      "pages": [
+        50,
+        51
+      ]
+    },
+    {
+      "id": "M3.MONEY.CONVERT",
+      "description": "Your child learns to change rupees into paise. Because ₹1 is 100 paise, multiply the rupees by 100. When an amount has rupees and paise, multiply only the rupees by 100 and then add the paise. The book works through tables of examples and points out a shortcut: remove the dot from ₹3.25 and the number left, 325, is the paise.",
+      "examples": [
+        "₹7 = 7 × 100 = 700 paise.",
+        "5 rupees 50 paise = (5 × 100) + 50 = 500 + 50 = 550 paise.",
+        "9 rupees 5 paise, written ₹9.05, = (9 × 100) + 5 = 900 + 5 = 905 paise."
+      ],
+      "source": "textbook",
+      "pages": [
+        52,
+        53,
+        54
+      ]
+    },
+    {
+      "id": "M3.MONEY.ADDSUB",
+      "description": "Your child learns to add and subtract money. The book writes amounts in two columns, rupees and paise, works the paise column first and then the rupees, and also shows the same sums written with a dot and the ₹ sign. It then uses a price list of a pencil, notebook, ink bottle and pen for shopping sums, and short word problems about spending. Remember: add for a total, subtract for what is left.",
+      "examples": [
+        "To add ₹26.40 and ₹31.20, add the paise (40 + 20 = 60), then the rupees (26 + 31 = 57): ₹57.60.",
+        "To take ₹21.30 from ₹64.80, subtract the paise (80 − 30 = 50), then the rupees (64 − 21 = 43): ₹43.50.",
+        "A pen at ₹10.25 and a notebook at ₹18.25 cost 25 + 25 = 50 paise and 10 + 18 = 28 rupees: ₹28.50."
+      ],
+      "source": "textbook",
+      "pages": [
+        55,
+        56,
+        57
+      ]
+    },
+    {
+      "id": "M3.MONEY.BILL",
+      "description": "Your child learns to read a price list and a simple bill. The book shows a grocery shop board listing the price of 1 kg of rice, sugar and other items, a bakery price list, and shop bills showing each item, how many were bought, the price of one and the total. To check a bill, multiply the quantity by the price of one for each item, then add the rows.",
+      "examples": [
+        "The board says 1 kg of rice costs ₹31 and 1 kg of sugar costs ₹28, so both together cost 31 + 28 = ₹59.",
+        "2 notebooks at ₹15 each cost 2 × 15 = ₹30, and 5 pencils at ₹4 each cost 5 × 4 = ₹20.",
+        "A bill for 1 book at ₹30, 2 notebooks for ₹30 and 5 pencils for ₹20 adds up to 30 + 30 + 20 = ₹80."
+      ],
+      "source": "textbook",
+      "pages": [
+        62,
+        63,
+        64,
+        65
+      ]
+    },
+    {
+      "id": "M3.MEAS.CM",
+      "description": "The child learns to measure length in centimetres with a ruler. The book first measures with arm lengths and hand spans: a father and his son measure the same flower string, and children measure the blackboard with their spans, but the answers differ because hands differ in size. When everyone uses the same ruler, everyone gets the same answer. To measure, put the 0 of the ruler at one end and read the number at the other end.",
+      "examples": [
+        "Children measure the blackboard with their own hand spans and get different answers, but with the same ruler all of them count 20 lengths.",
+        "A pencil that starts at 0 and ends at 9 on the ruler is 9 centimetres long.",
+        "A school ruler is 15 centimetres long, so a key that reaches the 6 mark from 0 is 6 centimetres long."
+      ],
+      "source": "textbook",
+      "pages": [
+        68,
+        69,
+        70,
+        71,
+        72
+      ]
+    },
+    {
+      "id": "M3.MEAS.METRE",
+      "description": "The child learns the metre, a bigger unit for long things. The book asks why a cloth shop uses a long measuring tape: measuring a saree or a room with a small ruler is slow and tiring. A metre tape is 100 centimetres long, so 1 metre = 100 centimetres. Children then choose the right tool: a ruler for a pen, pencil or eraser, and a metre tape for a door, the classroom or the playground.",
+      "examples": [
+        "A pen fits on a ruler, so we measure it in centimetres, but a playground is far too long, so we use a metre tape.",
+        "1 metre is 100 centimetres, so 2 metres is 200 centimetres.",
+        "A cloth seller measures a saree with a metre tape, not a 15 centimetre ruler, because the tape covers 100 centimetres at a time."
+      ],
+      "source": "textbook",
+      "pages": [
+        74,
+        75
+      ]
+    },
+    {
+      "id": "M3.MEAS.ESTIMATE",
+      "description": "The child learns to guess a length first and then check it by measuring. The book shows a pencil, a pen, a bat, a tube light and some lines, and asks for a guess and then the real length with a ruler. Children also guess their friends' heights and check them against marks on a wall, and guess the length of a door, window or broom at home. The idea: make a sensible guess, measure, and see how close you were.",
+      "examples": [
+        "A child guesses a pencil is 10 centimetres, measures it as 8 centimetres, so the guess was 2 centimetres too long.",
+        "A child guesses a line is 6 centimetres, puts the ruler's 0 at one end, reads 7 at the other end, and was 1 centimetre short.",
+        "A child guesses a friend is 120 centimetres tall, marks the height on the wall, measures 115 centimetres, so the guess was 5 centimetres too much."
+      ],
+      "source": "textbook",
+      "pages": [
+        78,
+        79,
+        80
+      ]
+    },
+    {
+      "id": "M3.MEAS.WEIGHT",
+      "description": "The child learns which things are heavier or lighter and how a balance compares them. In the book, one sister buys 1 kg of laddus and the other 1 kg of biscuits; the biscuit bag looks bigger, but both weigh the same 1 kg. A balance has two pans: put an object in one pan and add things to the other until both pans are level. The idea: size does not tell weight, the balance does.",
+      "examples": [
+        "1 kg of laddus and 1 kg of biscuits weigh the same, even though the biscuit packet looks bigger.",
+        "A water bottle in one pan is balanced by marbles in the other; when the pans are level, count the marbles that equal the bottle.",
+        "A pumpkin is heavier than a carrot, so on a balance the pumpkin's pan goes down and the carrot's pan goes up."
+      ],
+      "source": "textbook",
+      "pages": [
+        80,
+        81,
+        82,
+        83,
+        84
+      ]
+    },
+    {
+      "id": "M3.MEAS.CAPACITY",
+      "description": "The child learns capacity, which means how much a container can hold. The book shows a bottle, cup, water tank, bucket, pot, drum and milk can, all used to store water or other things. Children fill the same pot using a small glass and then a big glass, and count the turns. The pot holds the same amount either way, but the small glass needs more turns and the big glass needs fewer.",
+      "examples": [
+        "A pot fills with 10 small glasses of water but only 5 big glasses, so the big glass holds more.",
+        "From the most to the least water held: water tank, drum, pot, jug, bottle, glass.",
+        "A bucket holds more than a jug, so the jug must be filled and poured into the bucket several times."
+      ],
+      "source": "textbook",
+      "pages": [
+        86,
+        87,
+        88,
+        89,
+        90
+      ]
+    },
+    {
+      "id": "M3.TIME.CALENDAR",
+      "description": "The child learns to read a calendar and write dates. Using a full-year calendar, children count the Sundays in a month, find which months have 31 days and which have 30, and mark festivals and special days. A date is written as day, then month, then year. The idea: every month has 30 or 31 days, except February, which has fewer than 30.",
+      "examples": [
+        "Independence Day is written 15/08: the 15 is the day and the 08 is the month, August.",
+        "January, March, May, July, August, October and December have 31 days, which makes 7 months.",
+        "The last day of the year is 31/12: day 31 of month 12, December."
+      ],
+      "source": "textbook",
+      "pages": [
+        91,
+        92,
+        93,
+        94,
+        95
+      ]
+    },
+    {
+      "id": "M3.TIME.CLOCK",
+      "description": "The child learns to read the hour on a clock. The clock face has the numbers 1 to 12; the long hand shows minutes and the short hand shows hours. When the long hand goes all the way round, past 60 small marks, the short hand moves to the next number, so 60 minutes make 1 hour. When the short hand is close to a number but not on it, the time is about that hour.",
+      "examples": [
+        "The long hand is on 12 and the short hand is on 3, so it is 3 o'clock.",
+        "The short hand has passed 1 and is close to 2, so the time is about 2 o'clock.",
+        "The long hand takes 60 minutes to go once round the clock, and in that time the short hand moves from 5 to 6."
+      ],
+      "source": "textbook",
+      "pages": [
+        97,
+        98,
+        99,
+        100
+      ]
+    },
+    {
+      "id": "M3.TIME.ORDER",
+      "description": "The child learns to put the events of a day in the order they happen. The book follows a farmer's day from waking at 6 in the morning to sleeping at 10.30 at night, a family trip told day by day, and a set of jumbled cards about a boy's day to be sorted. The idea: morning comes before afternoon and night, and an earlier time comes first.",
+      "examples": [
+        "A farmer gets up at 6, cleans the cowshed by 7.30, eats breakfast at 9, works in the field till 1, and sleeps at 10.30 at night.",
+        "Jumbled cards in order: wake at 5.30, fetch milk at 7.30, go to school at 9, lunch at 1.30, water plants at 5, study at 6.",
+        "A family trip starts on Monday and ends on Sunday, so the places seen on Monday come first and the trip home comes last."
+      ],
+      "source": "textbook",
+      "pages": [
+        101,
+        102,
+        103,
+        104
+      ]
+    },
+    {
+      "id": "M3.DATA.TALLY",
+      "description": "The child learns to count things and record them with tally marks. The book shows animals at a zoo, a grid of pets, balloons of different colours at a fair, and vehicles with two, three or four wheels. For every object, children draw one short line next to its name, then count the lines. The tally table shows at a glance which group has the most, which has the fewest, and the total.",
+      "examples": [
+        "The pets picture has 2 fish, so we draw 2 lines beside fish, and 1 rabbit gets 1 line.",
+        "A flower tally shows rose 2, chrysanthemum 3, hibiscus 1 and jasmine 4, so jasmine is the most and hibiscus the fewest.",
+        "Adding the flower lines, 2 + 3 + 1 + 4 = 10 flowers in all, and jasmine has 2 more than rose."
+      ],
+      "source": "textbook",
+      "pages": [
+        105,
+        106,
+        107,
+        108,
+        109
+      ]
+    },
+    {
+      "id": "M3.DATA.PICTO",
+      "description": "The child learns to read a pictograph, a chart that uses small pictures in place of numbers. The book first draws one face for each absent child in each class, then shows saplings planted by each class, where one plant picture stands for 2 saplings. Children read the key first, then count the pictures and use the key to find the number. The idea: one picture can stand for more than one thing.",
+      "examples": [
+        "If 1 plant picture means 2 saplings, a class with 5 pictures planted 5 × 2 = 10 saplings.",
+        "One face stands for 1 absent child; class 1 shows 4 faces, so 4 children were absent, the most in the school.",
+        "In a games chart where 1 face means 2 children, 4 faces for cricket means 8 children like cricket."
+      ],
+      "source": "textbook",
+      "pages": [
+        110,
+        111,
+        112,
+        113,
+        114
+      ]
+    },
+    {
+      "id": "M3.PAT.SYMMETRY",
+      "description": "The child learns about symmetry: a shape is symmetric if a line splits it into two halves that match exactly. The book tells a funny story of an artist who paints only half of a girl's picture and says a mirror will show the other half. Children check shapes by folding along a dotted line and finish half-drawn shapes. A triangle, a leaf, the letter T and the number 8 fold into matching halves; the letter L does not.",
+      "examples": [
+        "Fold a leaf along its middle vein and the two halves sit exactly on each other, so the leaf is symmetric.",
+        "The letter T has matching halves on each side of a line down its middle, but the letter L has no such line.",
+        "Given half a circle beside a dotted line, draw the same curve on the other side to make a full circle."
+      ],
+      "source": "textbook",
+      "pages": [
+        116,
+        117,
+        118,
+        119,
+        120
+      ]
+    },
+    {
+      "id": "M3.PAT.SHAPE",
+      "description": "The child learns to spot a pattern in shapes and draw what comes next. The book shows triangles that point up and down in turn, a square whose mark turns a little each time, triangles that change size, and shapes that grow step by step. Children find the rule, continue it, and draw their own designs on dot grids, such as a kite, leaf, boat or star. The idea: a pattern repeats or grows by a fixed rule.",
+      "examples": [
+        "Triangle up, triangle down, triangle up, triangle down: the next shape is a triangle pointing up.",
+        "A flower grows 1 petal, then 2, then 3, then 4, so the next flower has 5 petals.",
+        "Squares are stacked as 1, then 3, then 6, adding a longer row each time, so the next stack has 6 + 4 = 10 squares."
+      ],
+      "source": "textbook",
+      "pages": [
+        120,
+        121,
+        122,
+        123,
+        124
+      ]
+    },
+    {
+      "id": "M3.PAT.NUMBER",
+      "description": "The child learns to find number patterns using a chart of 1 to 100. Going down a column, the numbers grow by 1; going across a row, they grow by 10. Adding 2 each time to an odd number gives more odd numbers, and to an even number gives more even numbers. The book also adds two numbers that sit next to each other: the answer is always odd and these answers go up by 2.",
+      "examples": [
+        "1, 3, 5, 7, 9 are odd numbers made by adding 2 each time, so 11 comes next.",
+        "1, 11, 21, 31 go up by 10 along a row of the chart, so 41 comes next.",
+        "1 + 2 = 3, 2 + 3 = 5, 3 + 4 = 7: sums of two numbers in a row are odd and go up by 2."
+      ],
+      "source": "textbook",
+      "pages": [
+        125,
+        126,
+        127,
+        128,
+        129
+      ]
+    },
+    {
+      "id": "M3.PAT.SPLIT",
+      "description": "The child learns that one number can be made in many different ways. The book puts a number in the middle of a circle, with arrows pointing out to sums, differences and products that all equal it. Children notice a pattern: when one part goes down by 1 and the other goes up by 1, the total stays the same. The idea: 10 is 9 + 1, and also 8 + 2, and also 11 − 1.",
+      "examples": [
+        "10 = 9 + 1 = 8 + 2 = 7 + 3: one part goes down by 1 while the other goes up by 1.",
+        "10 = 11 − 1 = 12 − 2 = 13 − 3: both numbers go up by 1, so the answer stays 10.",
+        "20 can be split as 12 + 8, as 30 − 10, or as 5 × 4."
+      ],
+      "source": "textbook",
+      "pages": [
+        130,
+        131,
+        132,
+        133,
+        134
+      ]
+    },
+    {
+      "id": "M3.PAT.TABLES",
+      "description": "The child learns to look for patterns in a multiplication chart from 1 to 10. Each row and each column is a times table that goes up by the same number at every step. The book asks children to look at the digits: in the 5 table the ones digit goes 5, 0, 5, 0; in the 3 table the digits add up to 3, 6, 9 again and again; in the 9 table they always add up to 9.",
+      "examples": [
+        "5, 10, 15, 20, 25: the ones digit goes 5, 0, 5, 0, 5, so the next number, 30, ends in 0.",
+        "9, 18, 27, 36: 1 + 8 = 9, 2 + 7 = 9 and 3 + 6 = 9, so the digits always add to 9.",
+        "3, 6, 9, 12, 15, 18: the digits of 12, 15 and 18 add to 3, 6 and 9, so 3, 6, 9 repeats."
+      ],
+      "source": "textbook",
+      "pages": [
+        140,
+        141,
+        142
+      ]
+    }
+  ]
+}

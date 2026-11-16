@@ -5,6 +5,7 @@ import { ApiError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { lessonName, pageText } from '../lessons/lessonText'
 import { AdminPage, AdminQuery } from './AdminPage'
+import { LessonContentEditor } from './LessonContentEditor'
 import { type AdminLessonLink, type AdminLessonLinks, useAdminLessonLinks, useSetLessonLink } from './useAdmin'
 
 type Chapter = AdminLessonLinks['chapters'][number]
@@ -13,7 +14,8 @@ type Chapter = AdminLessonLinks['chapters'][number]
  * /admin/lesson-links (T-94, D-106; open without a key, D-112): every chapter and lesson of the curriculum with its video link. Whoever sets
  * a link here has checked it on a phone; code copies it into a new today's message for that lesson, never the AI.
  * Chapters start folded with "N of M linked"; search and "Only lessons without a link" narrow the list; she types in
- * as many rows as she likes and saves them together from the bar at the bottom.
+ * as many rows as she likes and saves them together from the bar at the bottom. Under each lesson, "About this lesson"
+ * shows and edits its description and worked examples (T-141, D-123), saved on their own.
  */
 export function LessonLinksAdminScreen() {
   const { t } = useTranslation()
@@ -114,6 +116,7 @@ function Editor({ data }: { data: AdminLessonLinks }) {
   return (
     <div className="flex flex-col gap-3 pb-24">
       <p className="text-body text-ink-muted">{t('admin.lessonLinks.intro')}</p>
+      <p className="text-body text-ink-muted">{t('admin.lessonContent.intro')}</p>
       <div className="flex flex-col gap-2">
         <label className="flex flex-col gap-1">
           <span className="text-label">{t('admin.lessonLinks.search')}</span>
@@ -212,6 +215,7 @@ function ChapterGroup({
   const { t } = useTranslation()
   const id = useId()
   const linked = chapter.lessons.filter((lesson) => lesson.url).length
+  const described = chapter.lessons.filter((lesson) => lesson.content).length
 
   return (
     <section className="rounded-card border-[1.5px] border-edge bg-surface">
@@ -226,6 +230,8 @@ function ChapterGroup({
           <span>{title}</span>
           <span className="flex shrink-0 items-center gap-2 text-caption text-ink-muted">
             {t('admin.lessonLinks.linkedCount', { linked, total: chapter.lessons.length })}
+            {' · '}
+            {t('admin.lessonContent.describedCount', { described })}
             <Icon name={open ? 'chevronUp' : 'chevronDown'} size={20} />
           </span>
         </button>
@@ -240,6 +246,7 @@ function ChapterGroup({
                 refused={refused.has(lesson.id)}
                 onEdit={(value) => onEdit(lesson.id, value)}
               />
+              <LessonContentEditor lesson={lesson} />
             </li>
           ))}
         </ul>
