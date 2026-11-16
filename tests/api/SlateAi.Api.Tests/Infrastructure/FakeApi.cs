@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.LessonLinks;
+using SlateAi.Api.Features.WeeklyStar;
 using SlateAi.Api.Tests.Features.Delivery;
 using SlateAi.Api.Tests.Features.LessonLinks;
+using SlateAi.Api.Tests.Features.WeeklyStar;
 
 namespace SlateAi.Api.Tests.Infrastructure;
 
@@ -25,6 +27,8 @@ public static class FakeApi
             all.AddSingleton<IDeliveryStore>(new FakeDeliveryStore());
             // A new today's message reads the lesson links (T-94); none unless a test adds some.
             all.AddSingleton<ILessonLinkStore>(new FakeLessonLinkStore());
+            // The 6 pm job, the demo send and family links read the weekly star (T-125); nothing unless a test adds it.
+            all.AddSingleton<IWeeklyStarStore>(new FakeWeeklyStarStore());
             services?.Invoke(all);
         });
 }

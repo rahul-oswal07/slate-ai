@@ -1,0 +1,31 @@
+{
+  "_note": "Weekly star for families (T-125, D-118). The teacher approves this once in setup; code fills only {child} from the register. whatsApp is the body of the Meta template weekly_star_v1 ({{1}} = {child}), shown so she approves what goes out; message and badge are the two screens of the page. Change any text → bump version (she approves again, D-49) and, for whatsApp, a new Meta template. Copy from Monika (T-125, 15 Nov); kn, te, ta and hi are drafts for native review (T-26). Only the en weekly_star_v1 is submitted at Meta so far.",
+  "version": "1",
+  "languages": {
+    "en": {
+      "whatsApp": "Class update – {child}. Weekly attendance: present every school day this week. Tap the button below to open the update.",
+      "message": "{child} came to school every day this week. Thank you for sending {child} to school every day.",
+      "badge": "A star for {child}! For coming to school every day this week."
+    },
+    "kn": {
+      "whatsApp": "ತರಗತಿಯ ಮಾಹಿತಿ – {child}. ವಾರದ ಹಾಜರಾತಿ: ಈ ವಾರ ಎಲ್ಲಾ ಶಾಲಾ ದಿನಗಳಲ್ಲೂ ಹಾಜರು. ಮಾಹಿತಿ ತೆರೆಯಲು ಕೆಳಗಿನ ಬಟನ್ ಒತ್ತಿ.",
+      "message": "{child} ಈ ವಾರ ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಬಂದಿದ್ದಾರೆ. ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಕಳುಹಿಸಿದ್ದಕ್ಕೆ ಧನ್ಯವಾದ.",
+      "badge": "{child} ಗೆ ಒಂದು ನಕ್ಷತ್ರ! ಈ ವಾರ ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಬಂದದ್ದಕ್ಕೆ."
+    },
+    "te": {
+      "whatsApp": "తరగతి సమాచారం – {child}. వారపు హాజరు: ఈ వారం అన్ని బడి రోజులలో హాజరు. సమాచారం తెరవడానికి కింది బటన్ నొక్కండి.",
+      "message": "{child} ఈ వారం ప్రతి రోజు బడికి వచ్చారు. ప్రతి రోజు బడికి పంపినందుకు ధన్యవాదాలు.",
+      "badge": "{child} కు ఒక నక్షత్రం! ఈ వారం ప్రతి రోజు బడికి వచ్చినందుకు."
+    },
+    "ta": {
+      "whatsApp": "வகுப்புத் தகவல் – {child}. வார வருகை: இந்த வாரம் எல்லா பள்ளி நாட்களிலும் வருகை. தகவலைத் திறக்க கீழே உள்ள பொத்தானை அழுத்தவும்.",
+      "message": "{child} இந்த வாரம் ஒவ்வொரு நாளும் பள்ளிக்கு வந்தார். தினமும் பள்ளிக்கு அனுப்பியதற்கு நன்றி.",
+      "badge": "{child} க்கு ஒரு நட்சத்திரம்! இந்த வாரம் ஒவ்வொரு நாளும் பள்ளிக்கு வந்ததற்காக."
+    },
+    "hi": {
+      "whatsApp": "कक्षा की जानकारी – {child}। साप्ताहिक उपस्थिति: इस हफ़्ते स्कूल के हर दिन उपस्थित। जानकारी देखने के लिए नीचे का बटन दबाएँ।",
+      "message": "इस हफ़्ते {child} की हर दिन स्कूल में उपस्थिति रही। हर दिन स्कूल भेजने के लिए धन्यवाद।",
+      "badge": "{child} के लिए एक स्टार! इस हफ़्ते हर दिन स्कूल आने के लिए।"
+    }
+  }
+}

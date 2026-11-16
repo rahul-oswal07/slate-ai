@@ -70,10 +70,10 @@
       "start": "ಪ್ರಾರಂಭಿಸಿ"
     },
     "step1": {
-      "progress": "ಹಂತ 1 / 2"
+      "progress": "ಹಂತ 1 / 3"
     },
     "step2": {
-      "progress": "ಹಂತ 2 / 2"
+      "progress": "ಹಂತ 2 / 3"
     },
     "template": {
       "heading": "ಗೈರಾದ ದಿನದ ಸಂಜೆಯ ಸಂದೇಶ",
@@ -109,6 +109,20 @@
     "error": {
       "noGreeting": "ಮೊದಲು ಶುಭಾಶಯ ದಾಖಲಿಸಿ.",
       "noConsent": "ಒಪ್ಪಿಗೆಗೆ ಗುರುತು ಹಾಕಿ."
+    },
+    "step3": {
+      "progress": "ಹಂತ 3 / 3"
+    },
+    "star": {
+      "heading": "ಕುಟುಂಬಗಳಿಗೆ ವಾರದ ನಕ್ಷತ್ರ",
+      "lead": "ಈ ವಾರ ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಬಂದ ಮಕ್ಕಳ ಕುಟುಂಬಗಳಿಗೆ ಶನಿವಾರ ಸಂಜೆ ಇದು ಹೋಗುತ್ತದೆ. ಒಮ್ಮೆ ಒಪ್ಪಿ. ನಿಮ್ಮ ಹಾಜರಾತಿಯಿಂದ ಮಗುವಿನ ಹೆಸರು ಮಾತ್ರ ಬದಲಾಗುತ್ತದೆ. ಇದನ್ನು AI ಬರೆಯುವುದಿಲ್ಲ.",
+      "whatsApp": "ವಾಟ್ಸ್‌ಆ್ಯಪ್ ಸಂದೇಶ",
+      "page": "ಲಿಂಕ್ ತೆರೆಯುವ ಪುಟ",
+      "thenBadge": "ನಂತರ ನಕ್ಷತ್ರ ಬ್ಯಾಡ್ಜ್:",
+      "kannadaVersion": "ಕನ್ನಡ ಆವೃತ್ತಿ",
+      "approve": "ವಾರದ ನಕ್ಷತ್ರ ಒಪ್ಪಿ",
+      "approved": "ನೀವು ಇದನ್ನು ಒಪ್ಪಿದ್ದೀರಿ. ಪ್ರತಿದಿನ ಬಂದ ಮಕ್ಕಳ ಕುಟುಂಬಗಳಿಗೆ ಶನಿವಾರ ಸಂಜೆ ಹೋಗುತ್ತದೆ.",
+      "next": "ಮುಂದೆ: ವಾರದ ನಕ್ಷತ್ರ"
     }
   },
   "today": {
@@ -555,6 +569,11 @@
       "sendFailed": "ಕಳುಹಿಸಲು ಆಗಲಿಲ್ಲ. ನೆಟ್‌ವರ್ಕ್ ನೋಡಿ ಮತ್ತೆ ಒತ್ತಿ.",
       "doneBody": "{{child}} ಗೆ ಇಂದಿನ ನಕ್ಷತ್ರ ಸಿಕ್ಕಿದೆ. {{teacher}} ಉತ್ತರ ನೋಡುತ್ತಾರೆ. ನಾಳೆ ತರಗತಿಯಲ್ಲಿ ಸಿಗೋಣ!",
       "submit": "ಕಳುಹಿಸಿ"
+    },
+    "star": {
+      "title": "ಈ ವಾರದ ನಕ್ಷತ್ರ",
+      "badgeTitle": "ನಕ್ಷತ್ರ ಬ್ಯಾಡ್ಜ್",
+      "open": "ನಿಮ್ಮ ನಕ್ಷತ್ರ ಬ್ಯಾಡ್ಜ್ ನೋಡಲು ತೆರೆಯಿರಿ"
     }
   },
   "missed": {
@@ -699,16 +718,12 @@
     "stars": {
       "title": "ನಕ್ಷತ್ರಗಳು",
       "titleThisWeek": "ಈ ವಾರದ ನಕ್ಷತ್ರಗಳು",
-      "earned_one": "ಈ ವಾರ {{count}} ಮಗು ನಕ್ಷತ್ರ ಗಳಿಸಿದೆ.",
-      "earned_other": "ಈ ವಾರ {{count}} ಮಕ್ಕಳು ನಕ್ಷತ್ರ ಗಳಿಸಿದ್ದಾರೆ.",
-      "soFar_one": "ಇಲ್ಲಿಯವರೆಗೆ {{count}} ಮಗು ನಕ್ಷತ್ರದ ಹಾದಿಯಲ್ಲಿದೆ.",
-      "soFar_other": "ಇಲ್ಲಿಯವರೆಗೆ {{count}} ಮಕ್ಕಳು ನಕ್ಷತ್ರದ ಹಾದಿಯಲ್ಲಿದ್ದಾರೆ.",
       "none": "ಈ ವಾರ ನಕ್ಷತ್ರಗಳಿಲ್ಲ. ಪ್ರತಿ ವಾರವೂ ಹೊಸ ಆರಂಭ.",
-      "total_one": "ಈ ಅವಧಿಯಲ್ಲಿ {{count}} ನಕ್ಷತ್ರ",
-      "total_other": "ಈ ಅವಧಿಯಲ್ಲಿ {{count}} ನಕ್ಷತ್ರಗಳು",
-      "childLabel": "{{name}}, ಹಾಜರಾತಿ ಸಂಖ್ಯೆ {{roll}}, {{total}}: ಶಾಲೆಗೆ ಬಂದಿದ್ದಕ್ಕೆ {{attendance}}, ಕ್ಯಾಚ್‑ಅಪ್‌ಗೆ {{catchUps}}",
+      "childLabel": "{{name}}, ಹಾಜರಾತಿ ಸಂಖ್ಯೆ {{roll}}",
       "hint": "ತರಗತಿಯಲ್ಲಿ ಭೇಷ್ ಎನ್ನಿ.",
-      "rule": "ಒಂದು ದಿನಕ್ಕಿಂತ ಹೆಚ್ಚು ಗೈರಾಗದ ಪ್ರತಿ ವಾರಕ್ಕೂ, ಮನೆಯಲ್ಲಿ ಮಾಡಿದ ಪ್ರತಿ ಕ್ಯಾಚ್‑ಅಪ್‌ಗೂ ಒಂದು ನಕ್ಷತ್ರ."
+      "rule": "ವಾರದ ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಬಂದದ್ದಕ್ಕೆ ಒಂದು ನಕ್ಷತ್ರ. ಪ್ರತಿ ವಾರ ಹೊಸ ಆರಂಭ.",
+      "earned": "ಈ ವಾರ ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಬಂದವರು:",
+      "soFar": "ಈ ವಾರ ಇಲ್ಲಿಯವರೆಗೆ ಪ್ರತಿದಿನ ಬಂದವರು:"
     }
   },
   "demo": {
@@ -749,7 +764,9 @@
         "templateNotApproved": "Tonight's message wasn't sent: approve the evening message on Today first.",
         "lessonNotConfirmed": "Tonight's message wasn't sent: confirm today's lesson first.",
         "noAttendance": "Tonight's message wasn't sent: bring in today's attendance first."
-      }
+      },
+      "stars": "Weekly stars: {{n}}.",
+      "starsNotApproved": "Weekly star: approve it in Settings first."
     },
     "panels": "Demo panels",
     "tab": {
@@ -779,7 +796,8 @@
       "evening": "Evening message · {{date}}",
       "catchUp": "Catch-up lesson · week of {{date}}",
       "open": "Open",
-      "voice": "ಧ್ವನಿ ಸಂದೇಶ · {{duration}}"
+      "voice": "ಧ್ವನಿ ಸಂದೇಶ · {{duration}}",
+      "weeklyStar": "Weekly star · week of {{date}}"
     },
     "ai": {
       "title": "Under the hood",
@@ -927,6 +945,12 @@
       "approved": "ಅನುಮೋದಿಸಲಾಗಿದೆ · {{date}}",
       "needsApproval": "ನಿಮ್ಮ ಅನುಮೋದನೆ ಬೇಕು. ನೀವು ಒಪ್ಪುವವರೆಗೆ ಸಂಜೆಯ ಸಂದೇಶಗಳು ಹೋಗುವುದಿಲ್ಲ.",
       "review": "ಸಂದೇಶ ನೋಡಿ"
+    },
+    "star": {
+      "title": "ವಾರದ ನಕ್ಷತ್ರ",
+      "approved": "ಒಪ್ಪಿಗೆಯಾಗಿದೆ. ಶನಿವಾರ ಸಂಜೆ ಹೋಗುತ್ತದೆ.",
+      "needsApproval": "ನಿಮ್ಮ ಅನುಮೋದನೆ ಬೇಕು. ನೀವು ಒಪ್ಪುವವರೆಗೆ ನಕ್ಷತ್ರ ಸಂದೇಶಗಳು ಹೋಗುವುದಿಲ್ಲ.",
+      "review": "ವಾರದ ನಕ್ಷತ್ರ ನೋಡಿ"
     }
   },
   "profile": {

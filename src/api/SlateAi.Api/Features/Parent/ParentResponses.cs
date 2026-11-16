@@ -81,3 +81,13 @@ public sealed record ReasonResponse(string Category);
 public sealed record StopRequest(Guid ClientRequestId);
 
 public sealed record StopResponse(bool Stopped);
+
+/// <summary>
+/// The weekly star page (T-125, D-118): screen 1's message, then the badge card. Both texts are the wording she approved,
+/// with the child's name filled in by code; null when the family stopped messages. No numbers anywhere.
+/// </summary>
+public sealed record ParentWeeklyStarResponse(
+    string Language, string ChildName, string TeacherName, DateOnly WeekOf, bool Stopped, string? Message, string? Badge)
+{
+    public string Kind => "weeklyStar";
+}

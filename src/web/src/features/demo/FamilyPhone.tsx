@@ -66,7 +66,7 @@ export function FamilyChat({ childId, name }: { childId: string; name: string })
                 )}
                 <button type="button" onClick={() => setOpen(message)} className="chat-bubble block w-full text-left">
                   <span className="block text-body font-bold">
-                    {t(message.kind === 'evening' ? 'demo.message.evening' : 'demo.message.catchUp', {
+                    {t(`demo.message.${message.kind}`, {
                       date: shortDate(message.date, i18n.language),
                     })}
                   </span>

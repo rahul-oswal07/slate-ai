@@ -26,6 +26,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<BuddyCard> BuddyCards => Set<BuddyCard>();
     public DbSet<PacingDecision> PacingDecisions => Set<PacingDecision>();
     public DbSet<ParentDelivery> ParentDeliveries => Set<ParentDelivery>();
+    public DbSet<WeeklyStarMessage> WeeklyStarMessages => Set<WeeklyStarMessage>();
+    public DbSet<WeeklyStarApproval> WeeklyStarApprovals => Set<WeeklyStarApproval>();
     public DbSet<LessonLink> LessonLinks => Set<LessonLink>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
@@ -185,10 +187,37 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<ParentDelivery>(d => d.CatchUpAssignmentId)
                 .OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(d => d.EveningMessageId).IsUnique(); // one delivery per message: a repeated send queues nothing new
+            e.HasOne<WeeklyStarMessage>().WithOne().HasForeignKey<ParentDelivery>(d => d.WeeklyStarMessageId)
+                .OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(d => d.CatchUpAssignmentId).IsUnique();
+            e.HasIndex(d => d.WeeklyStarMessageId).IsUnique();
             e.HasIndex(d => d.Status); // the dispatcher reads pending rows
             e.ToTable(t => t.HasCheckConstraint(
-                "CK_ParentDeliveries_OneSource", "(\"EveningMessageId\" IS NULL) <> (\"CatchUpAssignmentId\" IS NULL)"));
+                "CK_ParentDeliveries_OneSource",
+                "(CASE WHEN \"EveningMessageId\" IS NULL THEN 0 ELSE 1 END + CASE WHEN \"CatchUpAssignmentId\" IS NULL THEN 0 ELSE 1 END" +
+                " + CASE WHEN \"WeeklyStarMessageId\" IS NULL THEN 0 ELSE 1 END) = 1"));
+        });
+
+        modelBuilder.Entity<WeeklyStarMessage>(e =>
+        {
+            e.Property(m => m.Language).HasMaxLength(5);
+            e.Property(m => m.Version).HasMaxLength(20);
+            e.Property(m => m.MessageText).HasMaxLength(500);
+            e.Property(m => m.BadgeText).HasMaxLength(500);
+            e.Property(m => m.Token).HasMaxLength(30);
+            e.HasOne<Class>().WithMany().HasForeignKey(m => m.ClassId);
+            e.HasOne<Child>().WithMany().HasForeignKey(m => m.ChildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(m => new { m.ChildId, m.WeekOf }).IsUnique(); // one star message per child per week
+            e.HasIndex(m => m.Token).IsUnique();
+            e.HasIndex(m => new { m.ClassId, m.WeekOf });
+        });
+
+        modelBuilder.Entity<WeeklyStarApproval>(e =>
+        {
+            e.HasKey(a => a.ClassId);
+            e.Property(a => a.Version).HasMaxLength(20);
+            e.HasOne<Class>().WithOne().HasForeignKey<WeeklyStarApproval>(a => a.ClassId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Teacher>().WithMany().HasForeignKey(a => a.ApprovedByTeacherId);
         });
 
         modelBuilder.Entity<AbsenceReason>(e =>

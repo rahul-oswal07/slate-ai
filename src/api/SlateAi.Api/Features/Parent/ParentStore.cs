@@ -108,6 +108,8 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
         await db.CatchUpAssignments.Where(a => a.Token == token).Select(a => (Guid?)a.ChildId)
             .SingleOrDefaultAsync(cancellationToken)
         ?? await db.EveningMessages.Where(m => m.Token == token).Select(m => (Guid?)m.ChildId)
+            .SingleOrDefaultAsync(cancellationToken)
+        ?? await db.WeeklyStarMessages.Where(m => m.Token == token).Select(m => (Guid?)m.ChildId)
             .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<int?> SaveAnswerAsync(CheckResponse response, CancellationToken cancellationToken)

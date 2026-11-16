@@ -142,7 +142,7 @@ describe('GreetingScreen (T0 step 1)', () => {
     })
     renderApp('/setup/greeting')
     await screen.findByRole('heading', { level: 1, name: 'A 10-second greeting in your voice' })
-    expect(screen.queryByText('Step 1 of 2')).not.toBeInTheDocument()
+    expect(screen.queryByText('Step 1 of 3')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Not now' })).toHaveAttribute('href', '/')
 
     await record()
@@ -160,7 +160,7 @@ describe('GreetingScreen (T0 step 1)', () => {
     })
     renderApp('/settings/greeting')
     await screen.findByRole('heading', { level: 1, name: 'A 10-second greeting in your voice' })
-    expect(screen.queryByText('Step 1 of 2')).not.toBeInTheDocument()
+    expect(screen.queryByText('Step 1 of 3')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Not now' })).toHaveAttribute('href', '/settings')
 
     await record()

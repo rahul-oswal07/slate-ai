@@ -48,6 +48,18 @@ export type ParentEvening = {
   activityAudio?: ParentEvening['lessonAudio']
 }
 
+/** A weekly star link (T-125, D-118): the texts she approved with the name filled in; none when the family stopped. */
+export type ParentWeeklyStar = {
+  kind: 'weeklyStar'
+  language: string
+  childName: string
+  teacherName: string
+  weekOf: string
+  stopped: boolean
+  message: string | null
+  badge: string | null
+}
+
 /** A sign the child taps on the picture question (T-90). */
 export type Sign = '>' | '<' | '='
 

@@ -34,7 +34,7 @@ describe('WelcomeScreen', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Start' }))
 
     expect(await screen.findByRole('heading', { level: 1, name: 'A 10-second greeting in your voice' })).toBeInTheDocument()
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
     expect(calls.some((c) => c.key === 'POST /api/me/welcome')).toBe(false)
   })
 

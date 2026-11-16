@@ -1,6 +1,7 @@
 using SlateAi.Api.Features.Attendance.Source;
 using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.Ledger;
+using SlateAi.Api.Features.Stars;
 using SlateAi.Api.Features.Week;
 using SlateAi.Api.Tests.Features.Buddy;
 
@@ -114,6 +115,28 @@ public sealed class DemoStoryTests
         var stars = DemoStory.StarWeeks(Friday, Roster, IsSchoolDay);
 
         Assert.All(stars, d => Assert.DoesNotContain(Manjunath, d.AbsentChildIds));
+    }
+
+    [Fact]
+    public void On_the_finale_wednesday_the_story_child_has_last_weeks_star_and_this_week_he_is_away()
+    {
+        // Wed 18 Nov 2026 (T-125, D-118): Send messages now sends the latest finished week, the week of 9 Nov.
+        var today = new DateOnly(2026, 11, 18);
+        var lastWeek = new DateOnly(2026, 11, 9);
+        var register = Build(today)
+            .Select(d => new DemoRegisterDay(d.Date, d.AbsentChildIds))
+            .Concat(DemoStory.StarWeeks(today, Roster, IsSchoolDay))
+            .SelectMany(d => Roster.Select(c => new RegisterRow(c.Id, d.Date, !d.AbsentChildIds.Contains(c.Id))))
+            .ToList();
+        var data = new LedgerData([.. Roster.Select(c => new LedgerChildRow(c.Id, c.RollNo, c.FirstName))], register, []);
+
+        var last = StarRules.For(data, lastWeek, today)!;
+        var current = StarRules.For(data, today, today)!;
+
+        Assert.True(last.Finished);
+        Assert.Contains(Manjunath, last.Children.Select(c => c.ChildId));
+        Assert.False(current.Finished);
+        Assert.DoesNotContain(Manjunath, current.Children.Select(c => c.ChildId));
     }
 
     private static bool IsSchoolDay(DateOnly date) =>

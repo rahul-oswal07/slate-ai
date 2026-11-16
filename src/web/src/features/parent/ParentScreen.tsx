@@ -13,6 +13,7 @@ import { AiLabel, HomeworkCard, ParentHeader, PrimaryButton, StepDots, StopContr
 import type { ParentCatchUp, ParentExpired } from './types'
 import { cleanToken } from './parentToken'
 import { useParentPage } from './useParentPage'
+import { WeeklyStarPages } from './WeeklyStarPages'
 
 /**
  * The family's page in their home language, without changing the language saved on this phone: a shared phone or
@@ -70,6 +71,12 @@ export function ParentScreen() {
         )
       ) : page.data?.kind === 'evening' ? (
         <EveningView token={token} message={page.data} />
+      ) : page.data?.kind === 'weeklyStar' ? (
+        page.data.stopped ? (
+          <StoppedView token={token} childName={page.data.childName} />
+        ) : (
+          <WeeklyStarPages token={token} page={page.data} />
+        )
       ) : expired ? (
         <ExpiredView token={token} expired={expired} />
       ) : page.isPending ? (

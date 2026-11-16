@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
@@ -33,8 +32,8 @@ public static class WeekEndpoints
                 "A spell belongs to the week it started in; a child still away counts in the total but not as back " +
                 "within 2 school days. Reasons: one per child absent that week (latest), else notGiven. Nudge when 5 " +
                 "or more children missed the same lesson (D-60). empty = no absence started that week (D-61). " +
-                "Future weeks are 400. stars (FR-24): who earned the week's star, or is on track in the current week; null when " +
-                "the week has no register.");
+                "Future weeks are 400. stars (FR-24, D-118): who was present every school day of the week (finished), or every day so far " +
+                "(current), in roll order, with no counts; null when the week has no register.");
 
         app.MapPut("/api/classes/{classId:guid}/week/{date}/pacing", DecideAsync)
             .RequireClassOwner()
@@ -53,7 +52,6 @@ public static class WeekEndpoints
         IWeekStore store,
         CurriculumGraph curriculum,
         TimeProvider clock,
-        IOptions<StarsOptions> stars,
         CancellationToken cancellationToken)
     {
         var weekOf = CompressionPlanner.Week(date).From;
@@ -62,7 +60,7 @@ public static class WeekEndpoints
             return FutureWeek();
         }
 
-        return await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, stars.Value, cancellationToken) is { } week
+        return await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, cancellationToken) is { } week
             ? TypedResults.Ok(week)
             : TypedResults.NotFound();
     }
@@ -75,7 +73,6 @@ public static class WeekEndpoints
         IWeekStore store,
         CurriculumGraph curriculum,
         TimeProvider clock,
-        IOptions<StarsOptions> stars,
         CancellationToken cancellationToken)
     {
         if (request.ClientRequestId == Guid.Empty || request.Decision is not ("recap" or "skip"))
@@ -93,7 +90,7 @@ public static class WeekEndpoints
             return FutureWeek();
         }
 
-        if (await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, stars.Value, cancellationToken) is not { } week)
+        if (await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, cancellationToken) is not { } week)
         {
             return TypedResults.NotFound();
         }
@@ -106,12 +103,12 @@ public static class WeekEndpoints
         await store.SaveDecisionAsync(
             classId, weekOf, new DecisionRow(request.LessonId, request.Decision), request.ClientRequestId, clock.GetUtcNow(),
             cancellationToken);
-        return TypedResults.Ok((await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, stars.Value, cancellationToken))!);
+        return TypedResults.Ok((await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, cancellationToken))!);
     }
 
     private static async Task<WeekResponse?> WeekAsync(
         Guid classId, DateOnly weekOf, ILedgerStore ledger, IWeekStore store, CurriculumGraph curriculum,
-        TimeProvider clock, StarsOptions stars, CancellationToken cancellationToken)
+        TimeProvider clock, CancellationToken cancellationToken)
     {
         if (await ledger.LoadAsync(classId, cancellationToken) is not { } data)
         {
@@ -120,7 +117,7 @@ public static class WeekEndpoints
 
         var decision = await store.GetDecisionAsync(classId, weekOf, cancellationToken);
         return WeekBuilder.Build(data, curriculum, weekOf, decision)
-            with { Stars = StarRules.For(data, weekOf, SchoolClock.Today(clock), stars) };
+            with { Stars = StarRules.For(data, weekOf, SchoolClock.Today(clock)) };
     }
 
     private static ValidationProblem FutureWeek() =>

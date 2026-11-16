@@ -27,6 +27,9 @@ erDiagram
     LessonAudios ||--o{ EveningMessages : "approved clip goes with"
     EveningMessages ||--o| ParentDeliveries : "queued for the phone"
     CatchUpAssignments ||--o| ParentDeliveries : "queued for the phone"
+    WeeklyStarMessages ||--o| ParentDeliveries : "queued for the phone"
+    Children ||--o{ WeeklyStarMessages : "star for a full week"
+    Classes ||--o| WeeklyStarApprovals : "star wording approved"
     AudioClips ||--o{ LessonAudios : "clip she listens to"
     Classes ||--o{ TodaysMessages : "one per day, if the lesson has exercises"
     TodaysMessages ||--o{ EveningMessages : "approved version goes with"
@@ -149,6 +152,7 @@ erDiagram
         uuid ChildId FK
         uuid EveningMessageId FK "nullable, unique"
         uuid CatchUpAssignmentId FK "nullable, unique"
+        uuid WeeklyStarMessageId FK "nullable, unique"
         varchar10 Status "pending, sent, skipped, failed"
         varchar10 Channel "demo, whatsapp; null while pending"
         varchar100 ProviderMessageId "nullable, sha256 of the wamid"
@@ -156,6 +160,25 @@ erDiagram
         varchar40 LastError "nullable, code only"
         timestamptz CreatedAt
         timestamptz SentAt "nullable"
+    }
+    WeeklyStarMessages {
+        uuid Id PK
+        uuid ClassId FK
+        uuid ChildId FK
+        date WeekOf "Monday; unique with ChildId"
+        varchar5 Language
+        varchar20 Version "weekly-star.json she approved"
+        varchar500 MessageText "with {child}, never the name"
+        varchar500 BadgeText "with {child}"
+        varchar30 Token UK
+        timestamptz SentAt
+        timestamptz ExpiresAt
+    }
+    WeeklyStarApprovals {
+        uuid ClassId PK
+        varchar20 Version
+        timestamptz ApprovedAt
+        uuid ApprovedByTeacherId FK
     }
     CatchUpPackages {
         uuid Id PK
@@ -319,7 +342,11 @@ erDiagram
 
 **`CatchUpAssignments`** — one child's catch-up for a week (unique `(ChildId, WeekOf)`): the package, `MissedCompetencyIds` (curriculum IDs; the spec's `MissedLessonIds` became competency IDs because A2 works on them) and `CompressionRationale` (A2's targets and dropped lessons with reasons, `source` ai/rule and verdict: T3's "Why this"). Children without consent or a phone get one too (buddy-card path); the consent filter applies at send (T-14). The send step gives a `Token` (128-bit, unique), `ScheduledAt`, `SentAt` and `ExpiresAt` (+14 days) only to assignments whose child has consent `yes` and no `ParentStoppedAt`; the others stay on the buddy-card path. `OpenedAt` is not written: opens are never counted (D-20). The parent page (`/api/p/{token}`, T-15) shows the lesson only while the package is approved or sent at its approved version, the link hasn't expired and the child isn't stopped. FKs `ChildId` (cascade, FR-15), `PackageId` (cascade), `ClassId`.
 
-**`ParentDeliveries`** — the outbox for families' phones (T-40, FR-16, migration `ParentDelivery`). A row is added **in the same transaction** as the `EveningMessages` row (`EveningStore.AddMessagesAsync`) or the catch-up token (`CatchUpStore.SendAsync`) it carries, so only what passed guardrail 3 is ever queued. Exactly one of `EveningMessageId` / `CatchUpAssignmentId` is set (check constraint `CK_ParentDeliveries_OneSource`); each is unique, so a repeated send queues nothing new. Evenings the demo video story fills in after the fact (T-70) are not queued. `DeliveryDispatcher` (run every minute by the 6 pm job and by the demo's Send messages now) claims a pending row with a conditional update on `Attempts`, so two runs never send it twice, then re-checks stop, consent and link expiry and sends it over `Delivery:Channel`: `demo` marks it `skipped`; `whatsapp` sends the approved template to the child's number in `WhatsApp:Recipients` (config, not this table; others are `skipped`) and stores the SHA-256 of the `wamid` as `ProviderMessageId` (`sha256:…`): the raw wamid is base64 that contains the recipient's number, so it is never stored, logged or returned. A temporary failure stays `pending` until `Delivery:MaxAttempts` (3), then `failed`; `LastError` is a short code (`http-502`, `graph-131026`, `stopped`, `no-recipient`). **No names, numbers or message text are stored here**; they are looked up at send time. Index on `Status`. FKs: `ChildId` (cascade, FR-15), `EveningMessageId` and `CatchUpAssignmentId` (cascade), `ClassId`.
+**`ParentDeliveries`** — the outbox for families' phones (T-40, FR-16, migration `ParentDelivery`). A row is added **in the same transaction** as the `EveningMessages` row (`EveningStore.AddMessagesAsync`) or the catch-up token (`CatchUpStore.SendAsync`) it carries, so only what passed guardrail 3 is ever queued. Exactly one of `EveningMessageId` / `CatchUpAssignmentId` / `WeeklyStarMessageId` is set (check constraint `CK_ParentDeliveries_OneSource`, three sources since migration `WeeklyStarMessages`, T-125); each is unique, so a repeated send queues nothing new. Evenings the demo video story fills in after the fact (T-70) are not queued. `DeliveryDispatcher` (run every minute by the 6 pm job and by the demo's Send messages now) claims a pending row with a conditional update on `Attempts`, so two runs never send it twice, then re-checks stop, consent and link expiry and sends it over `Delivery:Channel`: `demo` marks it `skipped`; `whatsapp` sends the approved template to the child's number in `WhatsApp:Recipients` (config, not this table; others are `skipped`) and stores the SHA-256 of the `wamid` as `ProviderMessageId` (`sha256:…`): the raw wamid is base64 that contains the recipient's number, so it is never stored, logged or returned. A temporary failure stays `pending` until `Delivery:MaxAttempts` (3), then `failed`; `LastError` is a short code (`http-502`, `graph-131026`, `stopped`, `no-recipient`). **No names, numbers or message text are stored here**; they are looked up at send time. Index on `Status`. FKs: `ChildId` (cascade, FR-15), `EveningMessageId`, `CatchUpAssignmentId` and `WeeklyStarMessageId` (cascade), `ClassId`.
+
+**`WeeklyStarMessages`** — the weekly star sent to one family for one finished week (T-125, D-118, migration `WeeklyStarMessages`): the child was present on every school day of it (`StarRules`). **Unique `(ChildId, WeekOf)`**, so the 6 pm job (Saturday, or Sunday for a week whose Saturday had no school) and the demo's Send messages now send it once; advisory lock `weekly-star:{classId}:{week}` around the write, which also re-checks the approval (guardrail 3). `MessageText` and `BadgeText` are the approved wording in the family's `Language` with `{child}` still in it; the page fills the name when it opens, so **no name is stored**. `Version` is the `data/seed/weekly-star.json` version she approved. `Token` (unique, 22 characters) opens `/p/{token}` for 14 days, like the other family links. The `ParentDeliveries` row is added in the same transaction. FKs: `ChildId` (cascade, FR-15), `ClassId`.
+
+**`WeeklyStarApprovals`** — her one approval of the weekly star wording (T-125, guardrail 3): PK `ClassId`, the `Version` approved, when and by whom. It counts only while `Version` equals the file's: a new version asks her again (D-49). Kept by the demo reset, like `MessageTemplates`. FKs: `ClassId`, `ApprovedByTeacherId` (cascade).
 
 **`CheckResponses`** — the family's picture tap on P3, scored by code (FR-11): `ChoiceId` is the position shown (0–2), `Correct` compares it with the package's stored correct index, `Outcome` is `caughtUp` or `needsBuddy`. Primary key `AssignmentId`, so one row per assignment holding the **latest** of at most two submits (D-108, migration `CheckResponseAttempts`): the second replaces `ChoiceId`, `Correct`, `Outcome`, `ClientRequestId` and `AnsweredAt` and sets `Attempts` to 2; a third is refused (409). Replays are caught by `ProcessedRequests` (`catchup-answer`). The family never sees the outcome (D-20); the ledger does. FK `AssignmentId` (cascade, so a deleted child's answers go too).
 
@@ -339,7 +366,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments → ParentDeliveries. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -370,7 +397,7 @@ All of these are covered by the `Category=Db` test suite (`tests/api/SlateAi.Api
 
 A missed lesson's `status` is **learning only** (B-08, T-13), from the child's catch-up for that week (the assignment whose `MissedCompetencyIds` include one of the lesson's competencies): `caughtUp` / `needsBuddy` from `CheckResponses` once answered (FR-11), else `sent` when the link went out, else `missed`. The family's **`channel`** is a separate per-child field: `stopped` (`Children.ParentStoppedAt`, FR-19), else `noPhone` / `noConsent` from `Consent`, else null. The ledger also returns this school week (`weekOf`, Monday to today IST): the week's confirmed lessons, `daysAwayThisWeek` and a per-child `history` (away with the lessons, reason from `AbsenceReasons`, catch-up sent with its language, picture answer, stop), all in `LedgerBuilder`. Nothing is stored for the ledger itself, so it can't drift from attendance.
 
-**Attendance stars (FR-24, D-81, T-63) are a query too.** `Features/Stars/StarRules.cs` counts them from `Attendance` (a finished Mon–Sat week with at least one day present and at most `Stars:MaxDaysAwayPerWeek` away, default 1; a day with no register is not a school day) and from `CatchUpAssignments`/`CheckResponses` (a catch-up with an outcome, whatever the answer). The result is `stars` on `GET week`; no table, no migration, so a star can never go away or drift from attendance.
+**The weekly star (FR-24, D-118, T-125) is a query too.** `Features/Stars/StarRules.cs` lists the children present on **every** school day of a week from `Attendance` (a day with no register is not a school day; a register day without the child's row loses it), or every day so far in the current week. Nothing is counted: no term total, no catch-up star (D-118 replaced D-81). The result is `stars` on `GET week`. Only the messages sent to families are stored (`WeeklyStarMessages`).
 
 ## 4. Planned tables (not built yet)
 

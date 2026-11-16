@@ -25,6 +25,7 @@ using SlateAi.Api.Features.Parent;
 using SlateAi.Api.Features.Spa;
 using SlateAi.Api.Features.Stars;
 using SlateAi.Api.Features.Week;
+using SlateAi.Api.Features.WeeklyStar;
 using SlateAi.Api.Features.LessonLinks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +33,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.Section));
 builder.Services.Configure<BuildInfoOptions>(builder.Configuration.GetSection(BuildInfoOptions.Section));
 builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.Section));
-builder.Services.AddOptions<StarsOptions>().Bind(builder.Configuration.GetSection(StarsOptions.Section)).ValidateDataAnnotations().ValidateOnStart();
 
 // Resolve the connection string lazily so test hosts can override configuration.
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -50,6 +50,7 @@ builder.Services.AddAttendance(builder.Configuration);
 builder.Services.AddLedger();
 builder.Services.AddLessons();
 builder.Services.AddEveningMessages(builder.Configuration);
+builder.Services.AddWeeklyStar(builder.Configuration);
 builder.Services.AddCatchUps(builder.Configuration);
 builder.Services.AddDelivery(builder.Configuration);
 builder.Services.AddAudio();
@@ -82,6 +83,7 @@ app.MapAttendanceEndpoints();
 app.MapLedgerEndpoints();
 app.MapLessonEndpoints();
 app.MapEveningMessageEndpoints();
+app.MapWeeklyStarEndpoints();
 app.MapCatchUpEndpoints();
 app.MapCatchUpApprovalEndpoints();
 app.MapAudioEndpoints();

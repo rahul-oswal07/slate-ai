@@ -3,8 +3,8 @@ namespace SlateAi.Api.Data.Entities;
 /// <summary>
 /// The outbox for a message to a family's phone (T-40, FR-16). Written in the same transaction as the evening message
 /// or the catch-up token it carries, so only what already passed guardrail 3 is ever queued; the 6 pm job then sends
-/// it over the configured channel. Exactly one of <see cref="EveningMessageId"/> and <see cref="CatchUpAssignmentId"/>
-/// is set. Holds no names, numbers or message text: those are looked up at send time.
+/// it over the configured channel. Exactly one of <see cref="EveningMessageId"/>, <see cref="CatchUpAssignmentId"/> and
+/// <see cref="WeeklyStarMessageId"/> is set. Holds no names, numbers or message text: those are looked up at send time.
 /// </summary>
 public sealed class ParentDelivery
 {
@@ -13,6 +13,9 @@ public sealed class ParentDelivery
     public Guid ChildId { get; set; }
     public Guid? EveningMessageId { get; set; }
     public Guid? CatchUpAssignmentId { get; set; }
+
+    /// <summary>The weekly star message (T-125, D-118).</summary>
+    public Guid? WeeklyStarMessageId { get; set; }
 
     /// <summary>"pending", "sent", "skipped" (demo channel, or no registered number) or "failed".</summary>
     public required string Status { get; set; }

@@ -27,7 +27,8 @@ export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'se
   const telugu = languages.find((l) => l.language === 'te')
   const approved = template.data?.status === 'approved'
   const settings = mode === 'settings'
-  const done = settings ? '/settings' : '/'
+  // Setup goes on to the weekly star (step 3, T-125); Settings goes back to Settings.
+  const done = settings ? '/settings' : '/setup/star'
 
   function approveError() {
     const error = approve.error
@@ -96,7 +97,7 @@ export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'se
                 onClick={() => void navigate(done, { replace: true })}
                 className="min-h-target-primary w-full rounded-button bg-primary font-extrabold text-label text-on-primary"
               >
-                {t(settings ? 'settings.backToSettings' : 'common.goToday')}
+                {t(settings ? 'settings.backToSettings' : 'setup.star.next')}
               </button>
             </>
           ) : (

@@ -8,7 +8,7 @@ Spec: [`spec.md`](spec.md)
 
 - The catch-up flow is Listen → activity with sticks → 3-picture check scored by code → Done. A stop link is on every page (T-15).
 - The catch-up page's title in Kannada is "{child} ಅವರ ಪಾಠ", with no suffix glued to the name (T-101).
-- Done tells the family the child earned a star for doing the catch-up (T-63).
+- Done tells the family the child earned a star for doing the catch-up (T-63). It is a picture only: nothing counts it (D-118, T-125).
 - The answer: choose, then "This one, send"; their choice comes back with Try again and Next; after the second send it is locked. The latest counts on the teacher's ledger; nothing says right or wrong (D-108).
 - Every step has Back (but Listen) and its title in one row, then the teacher line; a reopened link starts at Listen; Back from Done opens the answer page (T-116).
 

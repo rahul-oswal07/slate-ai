@@ -113,12 +113,20 @@ export function DemoScreen() {
             onClick={() =>
               sendNow.mutate(undefined, {
                 onSuccess: (sent) => {
+                  const starsSent = sent.starsSent ?? 0
+                  // The weekly star for the latest finished week (T-125): how many, or why none (not approved).
+                  const stars =
+                    starsSent > 0
+                      ? ` ${t('demo.sendNow.stars', { n: starsSent })}`
+                      : sent.starsBlocked === 'notApproved'
+                        ? ` ${t('demo.sendNow.starsNotApproved')}`
+                        : ''
                   setStatus(
-                    sent.eveningBlocked
+                    (sent.eveningBlocked
                       ? `${t(`demo.sendNow.blocked.${sent.eveningBlocked}`)} ${t('demo.sendNow.catchUps', { n: sent.catchUpsSent })}`
-                      : sent.eveningSent + sent.catchUpsSent === 0
+                      : sent.eveningSent + sent.catchUpsSent + starsSent === 0
                         ? t('demo.sendNow.nothing')
-                        : t('demo.sendNow.sent', { evening: sent.eveningSent, catchUps: sent.catchUpsSent }),
+                        : t('demo.sendNow.sent', { evening: sent.eveningSent, catchUps: sent.catchUpsSent })) + stars,
                   )
                   reload()
                 },

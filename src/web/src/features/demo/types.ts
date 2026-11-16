@@ -17,7 +17,7 @@ export interface DemoReset {
 
 /** One link on the simulated parent phone. */
 export interface FamilyMessage {
-  kind: 'evening' | 'catchUp'
+  kind: 'evening' | 'catchUp' | 'weeklyStar'
   date: string
   sentAt: string
   token: string
@@ -49,6 +49,9 @@ export interface DemoSendNow {
   eveningBlocked: 'templateNotApproved' | 'lessonNotConfirmed' | 'noAttendance' | null
   eveningSent: number
   catchUpsSent: number
+  /** Why no weekly star went for the latest finished week (T-125), or null. */
+  starsBlocked?: 'notApproved' | 'noRegister' | 'notFinished' | null
+  starsSent?: number
 }
 
 /** GET /api/demo/children/{id}: who a family phone opened on its own belongs to (T-126). */

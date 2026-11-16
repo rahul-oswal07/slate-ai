@@ -25,6 +25,7 @@ public sealed class WhatsAppChannel(WhatsAppClient client, IOptions<WhatsAppOpti
         {
             DeliveryKinds.Todays => settings.Todays,
             DeliveryKinds.CatchUp => settings.CatchUp,
+            DeliveryKinds.WeeklyStar => settings.WeeklyStar,
             _ => settings.Evening,
         };
         if (string.IsNullOrWhiteSpace(template.Name) || !template.Languages.TryGetValue(message.Language, out var language))

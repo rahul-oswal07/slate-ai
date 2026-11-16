@@ -54,6 +54,19 @@ public sealed class WhatsAppOptions
         Name = "catchup_link_v1",
         Languages = new() { ["en"] = "en", ["kn"] = "kn", ["te"] = "te", ["hi"] = "hi" },
     };
+
+    /// <summary>
+    /// The weekly star (T-125, D-118): {{1}} child; button opens /p/{token}. Copies <c>whatsApp</c> in
+    /// <c>data/seed/weekly-star.json</c> at <see cref="WhatsAppTemplate.WordingVersion"/>. No language until Meta
+    /// approves it (English submitted 15 Nov): until then families keep the demo chat. Add one with
+    /// <c>WhatsApp__WeeklyStar__Languages__en=en</c> once Meta approves it.
+    /// </summary>
+    public WhatsAppTemplate WeeklyStar { get; set; } = new()
+    {
+        Name = "weekly_star_v1",
+        WordingVersion = "1",
+        Languages = new(),
+    };
 }
 
 public sealed class WhatsAppTemplate
@@ -61,7 +74,8 @@ public sealed class WhatsAppTemplate
     public string Name { get; set; } = "";
 
     /// <summary>
-    /// Evening only: the version of <c>data/seed/evening-message.json</c> whose text the Meta template copies word for
+    /// Evening and weekly star: the version of the wording file (<c>data/seed/evening-message.json</c>,
+    /// <c>data/seed/weekly-star.json</c>) whose text the Meta template copies word for
     /// word. A message the teacher approved at another version is skipped, so WhatsApp never carries wording she didn't
     /// approve (guardrail 3, D-49). A new wording version needs a new Meta template and this setting changed with it.
     /// </summary>

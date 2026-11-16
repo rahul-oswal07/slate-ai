@@ -10,6 +10,7 @@ How to switch staging from the demo chat to real WhatsApp for the registered tes
 > | Catch-up | `catchup_link_v1` | en, kn, te, hi (**no ta**) | sent; a Tamil catch-up stays on the demo chat |
 > | Plain evening message | none yet (D-107) | — | skipped (`no-template`): the family keeps the demo chat |
 > | Step 2 (T-106) | `todays_lesson_chat_v1` | en, kn, te, ta, hi | not used yet |
+> | Weekly star (T-125) | `weekly_star_v1` | none yet (en in review) | skipped (`no-template`) until a language is added: `WhatsApp__WeeklyStar__Languages__en=en` |
 >
 > **To fix in WhatsApp Manager (Monika):** every approved button's URL is stored as `https://slateai-staging.azurewebsites.net/p/%7B%7B1%7D%7D{{1}}`: a typed `{{1}}` plus Meta's own. Edit each template's button to the base URL `https://slateai-staging.azurewebsites.net/p/` with **Dynamic** (no `{{1}}` typed). Until then the family page reads past the stray `{{1}}` (`cleanToken`), so links already sent work. Also to submit: `catchup_link_v1` in **ta**, and the factual plain evening template (D-107). Only the admin test send (§2b) still uses `hello_world`.
 
@@ -80,6 +81,7 @@ Three templates, each in en, kn, te, ta and hi. They were first made in **Monika
 | `todays_lesson_link_v1` | Today's message (T-88, T-91) | `{{1}}` child · `{{2}}` lesson name · `{{3}}` page number | URL |
 | `todays_lesson_chat_v1` | Today's message in the chat (step 2, T-106) | same | Quick reply, then URL |
 | `catchup_link_v1` | Friday catch-up | `{{1}}` child · `{{2}}` target lesson names ("A and B") · `{{3}}` pages with the word ("page 4", "pages 4 and 6") | URL |
+| `weekly_star_v1` | Weekly star, Saturday (T-125, D-118) | `{{1}}` child | URL |
 
 Not created: `catchup_chat_v1` (flagged as Marketing in every wording; the catch-up stays link-only).
 
