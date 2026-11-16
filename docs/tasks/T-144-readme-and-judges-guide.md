@@ -40,3 +40,4 @@ The README described the 31 Oct build-stage submission.
 - 17 Nov 2026: §5 lists the three teachers with their numbers and what each is for; the PIN now goes to judges by email, not on slide 14 (README and JUDGES.md).
 - 17 Nov 2026: JUDGES.md gets *Go back to a past day* (switch on `/admin/demo`, the arrows at the date, per browser, Reset demo removes those days).
 - 17 Nov 2026: matched to the jury email: both servers with their app and admin links, the GitHub link, WhatsApp on both servers (Rahul set production's keys), and *What the parents see* in JUDGES.md.
+- 17 Nov 2026: CI on `main` failed after #301 (docs only) on a flaky web test: `ConfirmLesson.test.tsx` read a checkbox's name before the curriculum query had filled in the lesson names (1 failure in 5 runs locally). It now waits with `findByRole`; 8 runs and the full suite (579) pass.
