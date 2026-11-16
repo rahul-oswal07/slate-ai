@@ -87,7 +87,7 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 | **The textbook behind the voice note** | `/admin/lesson-links` → open a chapter → **About this lesson** | The description and worked examples, read from the textbook, that today's message is built on |
 | **The weekly star** | **Settings → Weekly star → approve**, then **Send messages now** on `/demo` | Families of children who came every school day of the week get a star message |
 | **The return day** | **Back today** | A buddy card for each returning child: who sits with them, 3 sums and the textbook words |
-| **Run Today again** | **Settings → Reset today** (demo class only) | Clears today's lesson, message and answers, puts the register back as SATS sent it, and keeps earlier days |
+| **Run Today again** | **Settings → Reset today** (demo class only), see [below](#start-today-again-reset-today) | Clears today's lesson, message and answers, puts the register back as SATS sent it, and keeps earlier days |
 | **Offline** | Turn on airplane mode, mark attendance or record a note, turn it off | It saves on the phone and sends when the network is back |
 | **The link on a real WhatsApp** | `/admin/children` on staging: save your number against a child, see [below](#get-the-link-on-your-own-whatsapp) | The same message arrives on WhatsApp, as a family would get it |
 
@@ -104,6 +104,23 @@ Staging sends real WhatsApp messages from Meta's test number. Meta only delivers
 - Any other number is accepted by the page, but Meta won't deliver to it: that family still gets the message on the demo's family phone.
 - The admin page is open to anyone with the address, so please tap **Clear** on your number when you are done.
 - Production doesn't send WhatsApp: there, messages appear only on the demo's family phone.
+
+### Start today again: Reset today
+
+Once tonight's message has gone to families, the day's lesson is locked: Today says *"Tonight's message about this lesson has gone to families, so it can't be changed"*, because they already have it. To try another lesson, a voice note or the WhatsApp send again, reset the day:
+
+1. Tap your profile in the header (**Profile and settings**) → **Settings**.
+2. Scroll to **Reset today** and tap it, then **Yes, reset today**.
+3. You see *"Today was reset. The register is back as SATS sent it."* Every screen reloads, and **Today** is ready for a new lesson.
+
+| Cleared, for today only | Kept |
+|---|---|
+| The lesson, today's message and its voice, tonight's messages with the children's answers, the reasons families gave, buddy ticks, and your changes to the register (it goes back as SATS sent it) | Earlier days, the children, saved phone numbers and home languages, catch-ups, weekly stars |
+
+- It is only in the demo class; a real class has no Reset today.
+- **Reset today vs Reset demo:** Reset today clears just today, in the teacher app on either server. **Reset demo** on `/demo` puts the whole demo week back as it started.
+- If your number is saved on `/admin/children`, sending again after a reset sends the WhatsApp message again.
+- What it looks like: [`settings-reset-today-360-light.png`](docs/design/screenshots/settings-reset-today-360-light.png).
 
 ---
 
