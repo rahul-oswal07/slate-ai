@@ -13,7 +13,7 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 | 📱 Real app (production) | https://slateai-prod.azurewebsites.net |
 | 🔍 Under the hood (every AI call) | https://slateai-staging.azurewebsites.net/demo/ai |
 | 🎬 Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
-| 🔑 Sign-in | Teacher numbers in [JUDGES.md](JUDGES.md#5-sign-in-details); the PIN is on slide 14 of the submitted deck |
+| 🔑 Sign-in | Shobha (class teacher) `9000000000` · Savitha `9123456789` · Monika `9123456788` (co-teachers); details in [JUDGES.md](JUDGES.md#5-sign-in-details). The PIN is sent to judges separately by email |
 | 📲 A real WhatsApp message | Save your number against a child on https://slateai-staging.azurewebsites.net/admin/children: [how](JUDGES.md#get-the-link-on-your-own-whatsapp) |
 
 ---

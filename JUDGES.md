@@ -127,7 +127,7 @@ Once tonight's message has gone to families, the day's lesson is locked: Today s
 ## 4. Real app
 
 1. Open **https://slateai-prod.azurewebsites.net** on your phone (or a laptop). Your browser can install it (*Add to Home screen*).
-2. Sign in with a teacher's mobile number ([below](#5-sign-in-details)) and the PIN from **slide 14 of our submitted deck**.
+2. Sign in with a teacher's mobile number ([below](#5-sign-in-details)) and the PIN **we sent you separately by email**.
 3. Do the same journey as above on today's real date:
    - the register arrives at 9:00 (mark or correct it yourself before then);
    - record or pick the lesson;
@@ -140,7 +140,7 @@ Once tonight's message has gone to families, the day's lesson is locked: Today s
 
 Sign in as **Savitha** to see the set-up a teacher goes through the first time. She is a co-teacher of the same class and hasn't set up yet.
 
-1. Open **/login** on either server (e.g. https://slateai-prod.azurewebsites.net/login). Enter Savitha's mobile number **`9123456789`** (without `+91`) and the PIN from slide 14 of the deck.
+1. Open **/login** on either server (e.g. https://slateai-prod.azurewebsites.net/login). Enter Savitha's mobile number **`9123456789`** (without `+91`) and the PIN from our email.
 2. **Welcome:** *"Namaskara, Savitha ma'am"* and three promises: attendance comes from SATS and it's one voice note a day; nothing reaches a parent until she approves it; only she can see these records. Tap **Start**.
 3. **Step 1 of 3, her greeting:** tap the mic and record about 10 seconds in Kannada (a suggested sentence is on screen), play it back, tick the voice consent (*"I agree my voice is used only in messages to parents…"*) and tap **Save and continue**. No microphone? **Continue without a greeting**.
 4. **Step 2 of 3, the evening message:** the short message families get on a day of absence. Only the highlighted words change each evening, filled from her records, and no AI writes it. **Approve this message**, or **Not now** (it can be changed in Settings).
@@ -155,16 +155,20 @@ Sign in as **Savitha** to see the set-up a teacher goes through the first time. 
 
 ## 5. Sign-in details
 
-| Server | Role | Name | Mobile number | PIN |
-|---|---|---|---|---|
-| Both | Class teacher | Shobha | `9000000000` | slide 14 of the deck |
-| Both | Co-teacher (first-time sign-in, [see above](#first-time-sign-in-what-a-new-teacher-sees)) | Savitha | `9123456789` | slide 14 of the deck |
-| Both | Co-teacher | Monika | `9123456788` | slide 14 of the deck |
-| Both | Family | — | — | none: each family link carries its own key |
+All three teachers share one class, **Grade 3 · Kannada medium** (36 children), on both servers. Sign in with any of them at `/login`.
 
-- `/demo` signs you in by itself. The PIN is only needed for `/login`.
-- The PIN is not in this public repository. All three teachers use the same PIN on both servers.
+| Teacher | Role | Mobile number | Use it to |
+|---|---|---|---|
+| **Shobha** | Class teacher | `9000000000` | Run the class: register, lesson, approvals. Families hear her greeting |
+| **Savitha** | Co-teacher | `9123456789` | See the [first-time sign-in](#first-time-sign-in-what-a-new-teacher-sees) |
+| **Monika** | Co-teacher | `9123456788` | Work in the same class as a second teacher |
+| Family | — | — | No sign-in: each family's link carries its own key |
+
+**The PIN is sent to you separately by email.** It is not in this public repository.
+- All three teachers use the same PIN, on both servers.
+- `/demo` signs you in by itself as Shobha. The PIN is only needed for `/login`.
 - Enter the 10-digit number without `+91`. Five wrong PINs lock that login for 15 minutes.
+- No email yet? The guided demo at `/demo` needs no PIN.
 
 ---
 

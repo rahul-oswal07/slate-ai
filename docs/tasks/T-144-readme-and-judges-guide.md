@@ -21,7 +21,7 @@ The README described the 31 Oct build-stage submission.
 - **`JUDGES.md`** (new), a judge's test guide:
   - the story through Manjunath;
   - a 10-step guided path on `/demo` (register → lesson → AI draft → approve → family → child's answer → teacher → Under the hood);
-  - more things to try, the real app, sign-in details (the PIN stays on slide 14 of the deck, not in the public repo) and sample inputs;
+  - more things to try, the real app, sign-in details (the PIN goes to judges by email, not in the public repo) and sample inputs;
   - personas (R1), what is real or simulated (R7), where to check the AI, and what to do if something looks off.
   - It answers the jury's J3 (they couldn't reach the family and child views) with the side-by-side phones and `/demo/family/<id>`.
 
@@ -37,3 +37,4 @@ The README described the 31 Oct build-stage submission.
 - 17 Nov 2026: JUDGES.md gets *Start today again: Reset today* (where it is, what it clears and keeps, vs Reset demo).
 - 17 Nov 2026: §4's first-time sign-in is now a step list for Savitha (Welcome → greeting with consent → evening message → weekly star → Today), with Clear consent on `/admin/teachers` to see it again.
 - The demo's on-screen step guide (`demo.guide.*`) still says "Tap Use the sample voice note", which staging doesn't offer, and it doesn't mention today's message. It is worth updating to match JUDGES.md.
+- 17 Nov 2026: §5 lists the three teachers with their numbers and what each is for; the PIN now goes to judges by email, not on slide 14 (README and JUDGES.md).
