@@ -32,7 +32,7 @@ describe('/admin: every admin page', () => {
     expect(await screen.findByRole('heading', { name: 'Admin pages' })).toBeInTheDocument()
     const list = screen.getByRole('list')
     const items = within(list).getAllByRole('listitem')
-    expect(items.map((item) => within(item).getByRole('link').textContent)).toEqual(['Greetings', 'Lesson audio', 'Lesson links', 'Children', 'Teachers', 'Demo'])
+    expect(items.map((item) => within(item).getByRole('link').textContent)).toEqual(['Greetings', 'Lesson audio', 'Lesson links', 'Children', 'Teachers', 'Demo', 'Under the hood'])
     expect(within(list).getByText('/admin/lesson-links')).toBeInTheDocument()
     expect(within(list).getByText(/Set the video link for each lesson/)).toBeInTheDocument()
   })
@@ -49,7 +49,16 @@ describe('/admin: every admin page', () => {
       '/admin/children',
       '/admin/teachers',
       '/admin/demo',
+      '/demo/ai',
     ])
+  })
+
+  it("lists the demo's Under the hood, /demo/ai (T-140)", async () => {
+    renderAt('/admin')
+
+    const list = await screen.findByRole('list')
+    expect(within(list).getByRole('link', { name: 'Under the hood' })).toHaveAttribute('href', '/demo/ai')
+    expect(within(list).getByText(/Every AI call in the demo since the last reset/)).toBeInTheDocument()
   })
 
   it('every admin page links back to it', async () => {

@@ -846,7 +846,8 @@
       "lessonLinks": "Lesson links",
       "children": "Children",
       "teachers": "Teachers",
-      "demo": "Demo"
+      "demo": "Demo",
+      "underTheHood": "Under the hood"
     },
     "greetings": {
       "title": "Teacher greetings",
@@ -908,7 +909,8 @@
       "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families.",
       "children": "Every class's children and the number their family's WhatsApp goes to; edit or clear a number.",
       "teachers": "Each teacher's voice consent and greeting; clear her consent so she records her greeting again.",
-      "demo": "Switch on going back to a past day in the demo class, to make test data."
+      "demo": "Switch on going back to a past day in the demo class, to make test data.",
+      "underTheHood": "Every AI call in the demo since the last reset, on its own page."
     },
     "children": {
       "title": "Children and phone numbers",
