@@ -100,7 +100,7 @@ public sealed class TodaysMessageService(
 
         // Kannada first: it is hers to read and approve (D-92).
         var languages = due.Select(c => c.HomeLanguage).Append("kn").Distinct().OrderBy(l => l == "kn" ? 0 : 1).ThenBy(l => l).ToList();
-        queue.TryEnqueue(new TodaysJob(id, languages, due.Select(c => c.Id).ToList()));
+        queue.TryEnqueue(new TodaysJob(id, languages, due.Select(c => new TodaysFamily(c.Id, c.HomeLanguage)).ToList()));
         return true;
     }
 
@@ -200,7 +200,7 @@ public sealed class TodaysMessageService(
         if (change == TodaysChange.Applied)
         {
             var due = await DueAsync(classId, date, cancellationToken) ?? [];
-            queue.TryEnqueue(new TodaysJob(row.Id, edited.Languages, due.Select(c => c.Id).ToList()));
+            queue.TryEnqueue(new TodaysJob(row.Id, edited.Languages, due.Select(c => new TodaysFamily(c.Id, c.HomeLanguage)).ToList()));
         }
 
         return (change, null);

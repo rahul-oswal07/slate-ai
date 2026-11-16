@@ -14,8 +14,20 @@ using SlateAi.Api.Features.LessonLinks;
 namespace SlateAi.Api.Features.TodaysMessage;
 
 /// <summary>One message to draft, in Kannada and the absent families' languages.</summary>
-/// <param name="ChildIds">The children whose families get it: its AI calls are about them (T-127, D-115). IDs only.</param>
-public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages, IReadOnlyList<Guid>? ChildIds = null);
+/// <param name="Families">
+/// The children whose families get it, with their home language: A9 is about all of them, each language's voice only
+/// about that language's (T-127, D-115). IDs only.
+/// </param>
+public sealed record TodaysJob(Guid Id, IReadOnlyList<string> Languages, IReadOnlyList<TodaysFamily>? Families = null)
+{
+    public IReadOnlyList<Guid> ChildIds => Families?.Select(f => f.ChildId).ToList() ?? [];
+
+    public IReadOnlyList<Guid> ChildIdsIn(string language) =>
+        Families?.Where(f => f.Language == language).Select(f => f.ChildId).ToList() ?? [];
+}
+
+/// <summary>A child whose family gets today's message, and the language they get it in.</summary>
+public sealed record TodaysFamily(Guid ChildId, string Language);
 
 /// <summary>
 /// Drafts one today's message (D-91): code picks the picture pair from the book (D-93), A9 writes the concept and the
@@ -52,8 +64,8 @@ public sealed class TodaysMessageGenerator(
             return;
         }
 
-        // A9 and the voice are about the children whose families get it tonight: Under the hood says so (T-127, D-115).
-        using var about = AiCallScope.For(job.ChildIds ?? []);
+        // A9 is about the children whose families get it tonight: Under the hood says so (T-127, D-115).
+        using var about = AiCallScope.For(job.ChildIds);
 
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.
@@ -120,6 +132,8 @@ public sealed class TodaysMessageGenerator(
             var stepClips = new Dictionary<string, Guid>();
             foreach (var (language, text) in texts)
             {
+                // A voice is one language, so it is about only the families who hear it in that language.
+                using var voiceAbout = AiCallScope.For(job.ChildIdsIn(language));
                 if (await VoiceAsync(ConceptKind, language, text.Concept, cancellationToken) is not { } clipId)
                 {
                     await Fail(row.Id, "fallback:audio-too-long", cancellationToken);

@@ -90,18 +90,37 @@ public sealed class TodaysMessageGeneratorTests
     }
 
     [Fact]
-    public async Task A9_and_the_voice_are_logged_as_about_the_children_whose_families_get_it()
+    public async Task A9_is_about_every_family_who_gets_it_and_each_voice_only_about_its_languages_families()
     {
         // T-127, D-115: the demo's Under the hood "For" column; IDs only, the scope ends with the job.
+        // A9 writes every language in one call; a voice call is one language, so only that language's families.
         var (manjunath, rohan) = (_evening.Children[0].Id, _evening.Children[1].Id);
         var id = await StartAsync();
 
-        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"], [manjunath, rohan]), Ct);
+        await Generator().GenerateAsync(
+            new TodaysJob(id, ["kn", "hi"], [new TodaysFamily(manjunath, "kn"), new TodaysFamily(rohan, "hi")]), Ct);
 
         Assert.Equal([manjunath, rohan], Assert.Single(_aiCalls.Calls).ChildIds!);
-        Assert.NotEmpty(_tts.About);
-        Assert.All(_tts.About, about => Assert.Equal([manjunath, rohan], about!));
+        Assert.Contains("kn-IN", _tts.LanguageCodes);
+        Assert.Contains("hi-IN", _tts.LanguageCodes);
+        Assert.All(
+            _tts.LanguageCodes.Zip(_tts.About),
+            call => Assert.Equal(call.First == "kn-IN" ? [manjunath] : [rohan], call.Second!));
         Assert.Null(AiCallScope.Current);
+    }
+
+    [Fact]
+    public async Task A_voice_in_a_language_no_family_gets_tonight_is_class_level()
+    {
+        // Kannada is always drafted, for her to read (D-92); with only a Hindi family, the Kannada voice is about no one.
+        var rohan = _evening.Children[1].Id;
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"], [new TodaysFamily(rohan, "hi")]), Ct);
+
+        Assert.All(
+            _tts.LanguageCodes.Zip(_tts.About),
+            call => Assert.Equal(call.First == "kn-IN" ? null : [rohan], call.Second));
     }
 
     [Fact]

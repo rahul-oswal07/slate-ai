@@ -8,6 +8,7 @@ Spec: [`spec.md`](spec.md)
 
 - `/demo` has two phones, Reset, the simulated SATS feed, **Send messages now**, and Under the hood with a "For" column (T-18, T-73).
 - The For column names the children a call was about: the weekly catch-up's calls and today's message (A9 and its voice). Every other call is class-level and shows "–" (D-87, D-115).
+- A today's message voice row names only the children whose family hears that language; A9, which writes every language in one call, names all of them (D-115).
 - After a Reset, Manjunath's weekly catch-up is pre-made, so its A2, A3 and A4 calls don't run and don't appear (T-127).
 - It has one story on the real date, told through one child: Manjunath (Kannada), away the two days before today and today (T-93, D-94).
 - The video story and the fixed 31 Oct date were removed on 14 Nov (T-105).
