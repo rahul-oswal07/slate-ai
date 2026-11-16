@@ -29,6 +29,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<WeeklyStarMessage> WeeklyStarMessages => Set<WeeklyStarMessage>();
     public DbSet<WeeklyStarApproval> WeeklyStarApprovals => Set<WeeklyStarApproval>();
     public DbSet<LessonLink> LessonLinks => Set<LessonLink>();
+    public DbSet<LessonContent> LessonContents => Set<LessonContent>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
@@ -89,6 +90,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasKey(l => l.CompetencyId); // one link per lesson, for every class (D-106)
             e.Property(l => l.CompetencyId).HasMaxLength(100);
             e.Property(l => l.Url).HasMaxLength(Features.LessonLinks.LessonLinkRules.MaxLength);
+        });
+
+        modelBuilder.Entity<LessonContent>(e =>
+        {
+            e.HasKey(l => l.CompetencyId); // one description per lesson, for every class (D-123)
+            e.Property(l => l.CompetencyId).HasMaxLength(100);
+            e.Property(l => l.Description).HasMaxLength(Features.LessonContents.LessonContentRules.MaxDescription);
+            e.Property(l => l.Source).HasMaxLength(10);
         });
 
         modelBuilder.Entity<AppSetting>(e =>

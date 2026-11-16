@@ -209,7 +209,7 @@ public sealed class TodaysMessageTests
     [InlineData("a sign", "fallback:placeholder")]
     [InlineData("a made-up number", "fallback:numbers")]
     [InlineData("four steps", "fallback:too-long")]
-    [InlineData("four sentences", "fallback:too-long")]
+    [InlineData("seven sentences", "fallback:too-long")]
     [InlineData("wrong script", "fallback:script")]
     public void Bad_output_is_refused_never_passed_through(string problem, string verdict)
     {
@@ -222,7 +222,7 @@ public sealed class TodaysMessageTests
             "a sign" => Output(Kannada.Replace("75 ಮತ್ತು 57", "75 > 57"), Hindi),
             "a made-up number" => Output(Kannada.Replace("75 ಮತ್ತು 57", "73 ಮತ್ತು 57"), Hindi),
             "four steps" => Output(Kannada.Replace("\"]}", "\",\"ಮತ್ತೆ ಮಾಡಿ.\"]}"), Hindi),
-            "four sentences" => Output(Kannada.Replace("ಸಂಖ್ಯೆ ಹೆಚ್ಚು.\"", "ಸಂಖ್ಯೆ ಹೆಚ್ಚು. ಚೆನ್ನಾಗಿದೆ.\""), Hindi),
+            "seven sentences" => Output(Kannada.Replace("ಸಂಖ್ಯೆ ಹೆಚ್ಚು.\"", "ಸಂಖ್ಯೆ ಹೆಚ್ಚು. ಚೆನ್ನಾಗಿದೆ. ಚೆನ್ನಾಗಿದೆ. ಚೆನ್ನಾಗಿದೆ. ಚೆನ್ನಾಗಿದೆ.\""), Hindi),
             "wrong script" => Output(Kannada, Hindi.Replace("पहले दस की गड्डियाँ गिनिए।", "First count the bundles of ten and then the loose sticks.")),
             _ => throw new ArgumentOutOfRangeException(nameof(problem)),
         };

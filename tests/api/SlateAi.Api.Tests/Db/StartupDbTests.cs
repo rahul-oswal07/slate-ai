@@ -7,6 +7,7 @@ using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Auth;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Demo;
+using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Tests.Infrastructure;
 
 namespace SlateAi.Api.Tests.Db;
@@ -66,6 +67,48 @@ public sealed class StartupDbTests(PostgresFixture postgres)
             var store = scope.ServiceProvider.GetRequiredService<ISchoolDateSwitchStore>();
             Assert.Equal(new SchoolDateSetting(true, at), await store.GetAsync(ct));
             Assert.Equal(new SchoolDateSetting(false, at.AddMinutes(2)), await store.SetAsync(Guid.NewGuid(), false, at.AddMinutes(2), ct));
+        }
+    }
+
+    [Fact]
+    public async Task Lesson_content_loads_at_startup_follows_the_file_and_never_overwrites_an_admin_edit()
+    {
+        // T-141, D-123: a new table (LessonContents) filled from data/lesson-content at startup; text[] examples.
+        var ct = TestContext.Current.CancellationToken;
+        await using var factory = new ApiFactory(await postgres.CreateEmptyDatabaseAsync(ct));
+        var at = new DateTimeOffset(2026, 11, 16, 5, 0, 0, TimeSpan.Zero);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var store = scope.ServiceProvider.GetRequiredService<ILessonContentStore>();
+            var all = await store.GetAllAsync(ct);
+            Assert.Equal(61, all.Count);
+            Assert.Equal(LessonContentSources.Written, all["M3.BRIDGE.COMPARE"].Source);
+            Assert.NotEmpty(all["M3.ADD.CARRY"].Examples);
+
+            // An admin edit, replayed: one write.
+            var request = Guid.NewGuid();
+            var edit = new LessonContentText("Hers.", ["2 + 3 = 5", "4 + 4 = 8"]);
+            Assert.Equal(LessonContentSources.Edited, (await store.SetAsync(request, "M3.ADD.CARRY", edit, at, ct))!.Source);
+            Assert.Equal("Hers.", (await store.SetAsync(request, "M3.ADD.CARRY", null, at, ct))!.Description);
+        }
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            // The file changed for two lessons: the unedited one follows it, the edited one is kept.
+            var store = scope.ServiceProvider.GetRequiredService<ILessonContentStore>();
+            var changed = new LessonContentText("Changed in the file.", ["1 + 1 = 2"]);
+            var result = await store.SyncAsync(
+                [new("M3.ADD.CARRY", changed, LessonContentSources.Textbook), new("M3.SUB.BORROW", changed, LessonContentSources.Textbook)],
+                at.AddDays(1), ct);
+            Assert.Equal(new LessonContentSyncResult(0, 1, 1), result);
+
+            await scope.ServiceProvider.GetRequiredService<LessonContentLoader>().LoadAsync(ct);
+            var two = await store.GetForAsync(["M3.SUB.BORROW", "M3.ADD.CARRY", "M3.NOPE"], ct);
+            Assert.Equal(2, two.Count);
+            Assert.Equal(["2 + 3 = 5", "4 + 4 = 8"], two["M3.ADD.CARRY"].Examples);
+            Assert.Equal(LessonContentSources.Textbook, two["M3.SUB.BORROW"].Source);
+            Assert.NotEqual("Changed in the file.", two["M3.SUB.BORROW"].Description); // the startup load put the file back
         }
     }
 

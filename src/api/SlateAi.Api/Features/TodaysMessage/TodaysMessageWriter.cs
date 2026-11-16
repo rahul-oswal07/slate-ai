@@ -6,6 +6,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps.Script;
 using SlateAi.Api.Features.CatchUps.Verify;
 using SlateAi.Api.Features.LessonAudio;
+using SlateAi.Api.Features.LessonContents;
 
 namespace SlateAi.Api.Features.TodaysMessage;
 
@@ -26,13 +27,17 @@ public sealed record TodaysWriteResult(IReadOnlyDictionary<string, TodaysText>? 
 /// </summary>
 public static partial class TodaysMessageValidator
 {
-    public const int MaxSentences = 3;
-    public const int MaxConceptWords = 60;
+    /// <summary>
+    /// The concept is about a minute heard once (T-141, D-123): the idea, the book's way, one worked example. A9 is asked
+    /// for 80–110 words; Hindi and English run longer for the same words' worth, so the check leaves room.
+    /// </summary>
+    public const int MaxConceptSentences = 6;
+    public const int MaxConceptWords = 140;
     public const int MaxSteps = 3;
     public const int MaxStepWords = 30;
     public const int MaxNoteSentences = 2;
     public const int MaxNoteWords = 40;
-    public const int MaxChars = 900;
+    public const int MaxChars = 2000;
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -69,13 +74,15 @@ public static partial class TodaysMessageValidator
 
     /// <param name="names">The class's child names, only to refuse output that contains one; never sent.</param>
     /// <param name="expectNote">Her note is being translated: every language must have one.</param>
+    /// <param name="content">The lessons' descriptions and examples (T-141), whose numbers A9 may also use.</param>
     public static TodaysWriteResult Validate(
         string json,
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
         TodaysPicture? picture,
         IEnumerable<string> names,
-        bool expectNote = false)
+        bool expectNote = false,
+        IReadOnlyDictionary<string, StoredLessonContent>? content = null)
     {
         Output? output;
         try
@@ -95,7 +102,7 @@ public static partial class TodaysMessageValidator
             return Refused("fallback:invalid-output", $"write exactly these languages, once each{(expectNote ? ", each with the note" : "")}: {string.Join(", ", languages)}");
         }
 
-        var allowed = AllowedNumbers(lessons, picture);
+        var allowed = AllowedNumbers(lessons, picture, content);
         var namesList = names.ToList();
         var texts = new Dictionary<string, TodaysText>();
         foreach (var item in items)
@@ -130,7 +137,7 @@ public static partial class TodaysMessageValidator
         }
 
         if (steps.Count > MaxSteps || steps.Any(s => Words(s) > MaxStepWords)
-            || Sentences(concept) > MaxSentences || Words(concept) > MaxConceptWords
+            || Sentences(concept) > MaxConceptSentences || Words(concept) > MaxConceptWords
             || (note is not null && (Sentences(note) > MaxNoteSentences || Words(note) > MaxNoteWords))
             || concept.Length + steps.Sum(s => s.Length) + (note?.Length ?? 0) > MaxChars)
         {
@@ -183,7 +190,39 @@ public static partial class TodaysMessageValidator
     /// Without a picture (a lesson without the book's exercises, T-139): only the lesson's own example numbers, its page
     /// and part. Nothing else, not even 10 for a bundle unless an example has it.
     /// </remarks>
-    public static HashSet<string> AllowedNumbers(IReadOnlyList<Competency> lessons, TodaysPicture? picture)
+    /// <remarks>
+    /// With <paramref name="content"/> (T-141, D-123) also every number in the lessons' stored descriptions and worked
+    /// examples, except the picture question's answer and, for a sum, its other choices: a worked example never gives
+    /// the question away.
+    /// </remarks>
+    public static HashSet<string> AllowedNumbers(
+        IReadOnlyList<Competency> lessons, TodaysPicture? picture, IReadOnlyDictionary<string, StoredLessonContent>? content = null)
+    {
+        var allowed = AllowedFromBook(lessons, picture);
+        if (content is null)
+        {
+            return allowed;
+        }
+
+        var secret = picture is null
+            ? []
+            : (picture.Options ?? []).Select(o => o.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append(picture.Answer)
+                .ToHashSet(StringComparer.Ordinal);
+        foreach (var number in lessons
+            .Select(l => content.GetValueOrDefault(l.Id))
+            .OfType<StoredLessonContent>()
+            .SelectMany(c => c.Examples.Prepend(c.Description))
+            .SelectMany(t => Digits().Matches(t))
+            .Select(m => m.Value)
+            .Where(n => !secret.Contains(n)))
+        {
+            allowed.Add(number);
+        }
+
+        return allowed;
+    }
+
+    private static HashSet<string> AllowedFromBook(IReadOnlyList<Competency> lessons, TodaysPicture? picture)
     {
         if (picture is null)
         {
@@ -277,11 +316,13 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
         IEnumerable<string> names,
         CancellationToken cancellationToken,
         TeacherKannada? teacher = null,
-        TodaysFromClass? fromClass = null)
+        TodaysFromClass? fromClass = null,
+        IReadOnlyDictionary<string, StoredLessonContent>? content = null)
     {
         var request = new LlmRequest(
-            prompts.Get(PromptFor(picture)), UserContent(languages, lessons, picture, feedback, teacher, fromClass), TodaysMessageValidator.Schema(),
-            MaxTokens: 8192);
+            prompts.Get(PromptFor(picture)), UserContent(languages, lessons, picture, feedback, teacher, fromClass, content), TodaysMessageValidator.Schema(),
+            // Five languages of a minute-long concept (T-141) went past 8192 in the eval run.
+            MaxTokens: 16384);
         LlmResponse response;
         try
         {
@@ -293,7 +334,8 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
             return TodaysMessageValidator.Refused($"error:{e.Failure}");
         }
 
-        var result = TodaysMessageValidator.Validate(response.Json, languages, lessons, picture, names, expectNote: teacher?.Note is not null);
+        var result = TodaysMessageValidator.Validate(
+            response.Json, languages, lessons, picture, names, expectNote: teacher?.Note is not null, content: content);
         if (response.AiCallId != Guid.Empty)
         {
             await aiCalls.SetVerdictAsync(response.AiCallId, result.Verdict, cancellationToken);
@@ -313,7 +355,8 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
         TodaysPicture? picture,
         IReadOnlyList<string>? feedback,
         TeacherKannada? teacher = null,
-        TodaysFromClass? fromClass = null) =>
+        TodaysFromClass? fromClass = null,
+        IReadOnlyDictionary<string, StoredLessonContent>? content = null) =>
         JsonSerializer.Serialize(new
         {
             languages = languages.Select(l => new { code = l, name = ScriptWriter.LanguageNames.GetValueOrDefault(l, l) }),
@@ -327,6 +370,10 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
                 keyWordsKn = c.KeyWordsKn ?? [],
                 textbookPage = c.TextbookPage,
                 exercises = c.Exercises,
+                // How the book teaches it, with worked examples (T-141): curriculum data in English, no names.
+                content = content?.GetValueOrDefault(c.Id) is { } about
+                    ? new { about.Description, about.Examples }
+                    : null,
             }),
             // The kind only for a sum, so a compare lesson's input is exactly what v4 was evaluated on. Never the answer.
             // Null for a lesson without the book's exercises (T-139): the lesson prompt writes no picture question.

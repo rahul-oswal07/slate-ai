@@ -6,6 +6,6 @@ export const ADMIN_PAGES = [
   { path: '/admin/children', label: 'admin.nav.children', description: 'admin.index.children' },
   { path: '/admin/teachers', label: 'admin.nav.teachers', description: 'admin.index.teachers' },
   { path: '/admin/demo', label: 'admin.nav.demo', description: 'admin.index.demo' },
-  // Not an admin page: the demo's Under the hood on its own (T-126), listed here so it is easy to find (T-140).
+  // Not an admin page: the demo's Under the hood on its own (T-126), listed here so it is easy to find (T-142).
   { path: '/demo/ai', label: 'admin.nav.underTheHood', description: 'admin.index.underTheHood' },
 ] as const

@@ -53,7 +53,7 @@ describe('/admin: every admin page', () => {
     ])
   })
 
-  it("lists the demo's Under the hood, /demo/ai (T-140)", async () => {
+  it("lists the demo's Under the hood, /demo/ai (T-142)", async () => {
     renderAt('/admin')
 
     const list = await screen.findByRole('list')

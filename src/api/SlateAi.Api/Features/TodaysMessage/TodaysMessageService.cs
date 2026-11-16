@@ -3,6 +3,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.EveningMessages;
+using SlateAi.Api.Features.LessonContents;
 
 namespace SlateAi.Api.Features.TodaysMessage;
 
@@ -60,6 +61,7 @@ public sealed class TodaysMessageService(
     IEveningStore evening,
     EveningSender sender,
     CurriculumGraph curriculum,
+    ILessonContentStore contents,
     TodaysMessageQueue queue,
     SendNow sendNow,
     IOptions<TodaysMessageOptions> options,
@@ -187,7 +189,9 @@ public sealed class TodaysMessageService(
         }
 
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        var allowed = TodaysMessageValidator.AllowedNumbers(lessons, edited.Picture);
+        // The worked examples' numbers too (T-141): the draft she is editing may use them.
+        var content = await contents.GetForAsync(row.CompetencyIds, cancellationToken);
+        var allowed = TodaysMessageValidator.AllowedNumbers(lessons, edited.Picture, content);
         var names = (await evening.GetClassAsync(classId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
         var kannada = edited.Kannada;
         // Her note may be in any language (T-119): it gets every check but the script; her concept and steps stay Kannada.
