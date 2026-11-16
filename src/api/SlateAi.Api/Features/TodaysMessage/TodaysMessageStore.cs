@@ -291,7 +291,8 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
             .Where(t => t.ClassId == classId && t.Date == date)
             .Select(t => new { t.Id, t.Sections })
             .SingleOrDefaultAsync(cancellationToken);
-        if (row is null || TodaysSections.Parse(row.Sections) is not { } sections)
+        // No picture question (a lesson without the book's exercises, T-139): nothing to answer.
+        if (row is null || TodaysSections.Parse(row.Sections) is not { Picture: { } question })
         {
             return null;
         }
@@ -303,7 +304,7 @@ public sealed class TodaysMessageStore(AppDbContext db) : ITodaysMessageStore
                 orderby c.RollNo
                 select new TodaysAnswerRow(c.Id, c.FirstName, c.RollNo, m.PictureFirst, m.PictureSecond))
             .ToListAsync(cancellationToken);
-        return (sections.Picture.Answer, rows);
+        return (question.Answer, rows);
     }
 
     private async Task<TodaysMessageRow?> RowAsync(IQueryable<Data.Entities.TodaysMessage> query, CancellationToken cancellationToken)

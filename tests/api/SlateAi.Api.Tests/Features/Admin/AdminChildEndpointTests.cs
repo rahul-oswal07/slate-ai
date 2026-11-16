@@ -96,6 +96,38 @@ public sealed class AdminChildEndpointTests
     }
 
     [Fact]
+    public async Task Number_2_is_saved_and_cleared_on_its_own_and_number_1_stays_T140()
+    {
+        // T-140: two optional numbers per family (e.g. mother and father); WhatsApp goes to both.
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var saved = await client.PutAsJsonAsync($"{Url}/{Manjunath}/phone", new SetParentPhoneRequest(Guid.NewGuid(), "98450 12345", Slot: 2), Ct);
+        var both = (await saved.Content.ReadFromJsonAsync<AdminChild>(Ct))!;
+        var cleared = await client.PutAsJsonAsync($"{Url}/{Manjunath}/phone", new SetParentPhoneRequest(Guid.NewGuid(), "", Slot: 1), Ct);
+        var onlyTwo = (await cleared.Content.ReadFromJsonAsync<AdminChild>(Ct))!;
+
+        Assert.Equal(("+919876543210", "+919845012345"), (both.Phone, both.Phone2));
+        Assert.Equal(((string?)null, "+919845012345"), (onlyTwo.Phone, onlyTwo.Phone2));
+        var listed = (await client.GetFromJsonAsync<AdminChildrenResponse>(Url, Ct))!.Classes.Single().Children.Single(c => c.Id == Manjunath);
+        Assert.Equal("+919845012345", listed.Phone2);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    public async Task A_slot_other_than_1_or_2_is_refused(int slot)
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var response = await client.PutAsJsonAsync($"{Url}/{Ananya}/phone", new SetParentPhoneRequest(Guid.NewGuid(), "98450 12345", slot), Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Null(_store.Rows.Single(r => r.Id == Ananya).SavedPhone);
+    }
+
+    [Fact]
     public async Task Clearing_leaves_no_number_so_WhatsApp_skips_the_family_D114()
     {
         await using var factory = Create();
@@ -259,7 +291,7 @@ public sealed class AdminChildEndpointTests
                 [new AdminChildClass(ClassId, "Shobha", 3, [.. Rows.OrderBy(r => r.RollNo)]), .. Classes]);
 
         public Task<AdminChildRow?> SetPhoneAsync(
-            Guid clientRequestId, Guid childId, string? phone, DateTimeOffset now, CancellationToken cancellationToken)
+            Guid clientRequestId, Guid childId, int slot, string? phone, DateTimeOffset now, CancellationToken cancellationToken)
         {
             var index = Rows.FindIndex(r => r.Id == childId);
             if (index < 0)
@@ -269,7 +301,7 @@ public sealed class AdminChildEndpointTests
 
             if (_applied.Add(clientRequestId))
             {
-                Rows[index] = Rows[index] with { SavedPhone = phone };
+                Rows[index] = slot == 2 ? Rows[index] with { SavedPhone2 = phone } : Rows[index] with { SavedPhone = phone };
             }
 
             return Task.FromResult<AdminChildRow?>(Rows[index]);
@@ -295,7 +327,10 @@ public sealed class AdminChildEndpointTests
 
         public int LanguageWrites { get; private set; }
 
-        public Task<string?> GetSavedPhoneAsync(Guid childId, CancellationToken cancellationToken) =>
-            Task.FromResult(Rows.SingleOrDefault(r => r.Id == childId)?.SavedPhone);
+        public Task<IReadOnlyList<SavedNumber>> GetSavedPhonesAsync(Guid childId, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<SavedNumber>>(
+                Rows.SingleOrDefault(r => r.Id == childId) is { } row
+                    ? new[] { new SavedNumber(1, row.SavedPhone), new SavedNumber(2, row.SavedPhone2) }.Where(n => n.Phone is not null).ToList()
+                    : []);
     }
 }

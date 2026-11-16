@@ -62,6 +62,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(c => c.FirstName).HasMaxLength(50);
             e.Property(c => c.HomeLanguage).HasMaxLength(5);
             e.Property(c => c.ParentPhone).HasMaxLength(20);
+            e.Property(c => c.ParentPhone2).HasMaxLength(20);
             e.Property(c => c.Consent).HasMaxLength(10).HasDefaultValue("no");
             e.HasOne<Class>().WithMany().HasForeignKey(c => c.ClassId);
             e.HasIndex(c => new { c.ClassId, c.RollNo }).IsUnique();
@@ -190,15 +191,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(d => d.LastError).HasMaxLength(40);
             e.HasOne<Class>().WithMany().HasForeignKey(d => d.ClassId);
             e.HasOne<Child>().WithMany().HasForeignKey(d => d.ChildId).OnDelete(DeleteBehavior.Cascade);
-            e.HasOne<EveningMessage>().WithOne().HasForeignKey<ParentDelivery>(d => d.EveningMessageId)
+            // A message has one delivery per family number (T-140, D-122), so these are one-to-many.
+            e.HasOne<EveningMessage>().WithMany().HasForeignKey(d => d.EveningMessageId)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne<CatchUpAssignment>().WithOne().HasForeignKey<ParentDelivery>(d => d.CatchUpAssignmentId)
+            e.HasOne<CatchUpAssignment>().WithMany().HasForeignKey(d => d.CatchUpAssignmentId)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasIndex(d => d.EveningMessageId).IsUnique(); // one delivery per message: a repeated send queues nothing new
-            e.HasOne<WeeklyStarMessage>().WithOne().HasForeignKey<ParentDelivery>(d => d.WeeklyStarMessageId)
+            e.HasOne<WeeklyStarMessage>().WithMany().HasForeignKey(d => d.WeeklyStarMessageId)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasIndex(d => d.CatchUpAssignmentId).IsUnique();
-            e.HasIndex(d => d.WeeklyStarMessageId).IsUnique();
+            // One delivery per message and number: a repeated send queues nothing new.
+            e.Property(d => d.Recipient).HasDefaultValue((short)1);
+            e.HasIndex(d => new { d.EveningMessageId, d.Recipient }).IsUnique();
+            e.HasIndex(d => new { d.CatchUpAssignmentId, d.Recipient }).IsUnique();
+            e.HasIndex(d => new { d.WeeklyStarMessageId, d.Recipient }).IsUnique();
             e.HasIndex(d => d.Status); // the dispatcher reads pending rows
             e.ToTable(t => t.HasCheckConstraint(
                 "CK_ParentDeliveries_OneSource",

@@ -22,6 +22,15 @@ public sealed class Child
     /// <summary>When <see cref="ParentPhone"/> was saved on the admin page; null for a seeded or cleared number.</summary>
     public DateTimeOffset? ParentPhoneSetAt { get; set; }
 
+    /// <summary>
+    /// The family's second number (E.164), e.g. the other parent or a guardian (T-140, D-122): optional, saved on the
+    /// admin page only, and every WhatsApp message goes to it too. The seed has none.
+    /// </summary>
+    public string? ParentPhone2 { get; set; }
+
+    /// <summary>When <see cref="ParentPhone2"/> was saved on the admin page; null when there is none.</summary>
+    public DateTimeOffset? ParentPhone2SetAt { get; set; }
+
     public DateTimeOffset? ParentConsentAt { get; set; }
     public bool HasPhone { get; set; }
 

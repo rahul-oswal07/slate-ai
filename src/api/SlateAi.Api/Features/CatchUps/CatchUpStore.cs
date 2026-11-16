@@ -365,7 +365,7 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
             family.Assignment.SentAt = now;
             family.Assignment.ExpiresAt = expiresAt;
             // Same transaction as the token: only an approved package's consenting families are queued (T-40).
-            db.ParentDeliveries.Add(DeliveryStore.Queue(
+            db.ParentDeliveries.AddRange(DeliveryStore.QueueAll(
                 package.ClassId, family.Assignment.ChildId, now, assignmentId: family.Assignment.Id));
         }
 

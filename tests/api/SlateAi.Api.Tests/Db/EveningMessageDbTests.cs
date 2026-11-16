@@ -53,10 +53,12 @@ public sealed class EveningMessageDbTests(PostgresFixture postgres)
         Assert.Contains("Ravi", parent.Text);
 
         // T-40: queued for the phone in the same transaction, once despite the race; the demo channel settles it.
-        var queued = Assert.Single(await api.QueryAsync(db => db.ParentDeliveries.ToListAsync(DemoClassApi.Ct)));
-        Assert.Equal((message.Id, ravi, DeliveryStatus.Pending), (queued.EveningMessageId, queued.ChildId, queued.Status));
-        Assert.Equal(1, await api.ScopedAsync<DeliveryDispatcher, int>(d => d.RunOnceAsync(DemoClassApi.Ct)));
-        var settled = Assert.Single(await api.QueryAsync(db => db.ParentDeliveries.ToListAsync(DemoClassApi.Ct)));
-        Assert.Equal((DeliveryStatus.Skipped, DeliveryChannels.Demo, 1), (settled.Status, settled.Channel, settled.Attempts));
+        // T-140: once per family number, 1 and 2.
+        var queued = await api.QueryAsync(db => db.ParentDeliveries.OrderBy(d => d.Recipient).ToListAsync(DemoClassApi.Ct));
+        Assert.Equal([1, 2], queued.Select(d => (int)d.Recipient));
+        Assert.All(queued, d => Assert.Equal((message.Id, ravi, DeliveryStatus.Pending), (d.EveningMessageId, d.ChildId, d.Status)));
+        Assert.Equal(2, await api.ScopedAsync<DeliveryDispatcher, int>(d => d.RunOnceAsync(DemoClassApi.Ct)));
+        var settled = await api.QueryAsync(db => db.ParentDeliveries.ToListAsync(DemoClassApi.Ct));
+        Assert.All(settled, d => Assert.Equal((DeliveryStatus.Skipped, DeliveryChannels.Demo, 1), (d.Status, d.Channel, d.Attempts)));
     }
 }

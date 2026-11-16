@@ -322,6 +322,26 @@ describe("Approve → Today's message (T-89)", () => {
     expect(screen.queryByText('Kannada families read:')).not.toBeInTheDocument()
   })
 
+  it('a lesson without the book\'s exercises (T-139): concept, activity and video, no picture question or pair picker', async () => {
+    const user = userEvent.setup()
+    setup(() => ({
+      status: 200,
+      body: message({ competencyIds: ['M3.GEO.2D'], picture: null, pairs: [], pictureIndex: null, video: { url: 'https://diksha.gov.in/play/content/do_1', removed: false } }),
+    }))
+    renderApp('/approve')
+
+    expect(await screen.findByRole('button', { name: 'Concept' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Activity at home' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Picture question' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /another pair/i })).not.toBeInTheDocument()
+
+    // Concept and activity are still promised (D-108); the video can go, as on any message.
+    await user.click(screen.getByRole('button', { name: 'Video' }))
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Concept' }))
+    expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument()
+  })
+
   it("the picture question: she picks another pair from the book's list, never types numbers", async () => {
     const user = userEvent.setup()
     let current = message()

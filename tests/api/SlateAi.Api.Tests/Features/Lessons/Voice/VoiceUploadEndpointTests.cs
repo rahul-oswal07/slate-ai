@@ -11,6 +11,7 @@ using SlateAi.Api.Features.TodaysMessage;
 using SlateAi.Api.Tests.Features.EveningMessages;
 using SlateAi.Api.Tests.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
+using SlateAi.Api.Tests.Features.Attendance;
 
 namespace SlateAi.Api.Tests.Features.Lessons.Voice;
 
@@ -278,6 +279,8 @@ public sealed class VoiceUploadEndpointTests
             services.AddSingleton<IAiCallStore>(_aiCalls);
             services.AddSingleton<ITodaysMessageStore>(_todays);
             services.AddSingleton<IEveningStore>(_evening);
+            // Confirming any lesson now checks who is due today's message (T-139): an empty register, nobody due.
+            services.AddSingleton<IAttendanceStore>(new FakeAttendanceStore(ClassId, []));
             services.AddSingleton(Book);
             services.AddSingleton<TimeProvider>(_clock);
         });

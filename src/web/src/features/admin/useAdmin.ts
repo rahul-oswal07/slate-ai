@@ -121,7 +121,10 @@ export function useSetLessonLink() {
   })
 }
 
-/** One child on the admin children page (T-118): the number their family's WhatsApp goes to, and where it comes from. */
+/**
+ * One child on the admin children page (T-118): the numbers their family's WhatsApp goes to. `phone` is Number 1 and
+ * `phone2` Number 2 (T-140, D-122); every message goes to each one saved, and with neither the family is skipped.
+ */
 export interface AdminChild {
   id: string
   rollNo: number
@@ -130,6 +133,8 @@ export interface AdminChild {
   consent: 'yes' | 'no' | 'nophone'
   stopped: boolean
   phone: string | null
+  /** Number 2 (T-140); absent from a response cached before it existed. */
+  phone2?: string | null
   /** The home language was changed on this page (T-122, D-113): it stays after a demo Reset. */
   languageChanged: boolean
 }
@@ -167,14 +172,20 @@ function useReplaceChild() {
     )
 }
 
-/** Saves (a phone number) or clears (blank) a family's number; a refused number is an `ApiError` with status 400. */
+/** The family's Number 1 or Number 2 (T-140, D-122). */
+export type PhoneSlot = 1 | 2
+
+/**
+ * Saves (a phone number) or clears (blank) one of a family's two numbers, leaving the other as it is; a refused number
+ * is an `ApiError` with status 400.
+ */
 export function useSetParentPhone() {
   const replaceChild = useReplaceChild()
   return useMutation({
-    mutationFn: ({ id, phone }: { id: string; phone: string }) =>
+    mutationFn: ({ id, phone, slot }: { id: string; phone: string; slot: PhoneSlot }) =>
       api<AdminChild>(`/api/admin/children/${encodeURIComponent(id)}/phone`, {
         method: 'PUT',
-        body: { clientRequestId: crypto.randomUUID(), phone },
+        body: { clientRequestId: crypto.randomUUID(), phone, slot },
       }),
     onSuccess: replaceChild,
   })

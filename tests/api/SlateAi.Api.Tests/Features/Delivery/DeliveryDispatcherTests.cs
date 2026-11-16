@@ -82,6 +82,33 @@ public sealed class DeliveryDispatcherTests
     }
 
     [Fact]
+    public async Task Both_numbers_of_a_family_get_the_message_and_a_failure_on_one_never_resends_to_the_other()
+    {
+        // T-140: one row per number (Number 1, Number 2), each sent and retried on its own.
+        var child = Guid.NewGuid();
+        var first = QueueFor(child, 1, "+919000000001");
+        var second = QueueFor(child, 2, "+919000000002");
+        _channel.FailFor = "+919000000002";
+
+        await Dispatcher().RunOnceAsync(Ct);
+        _channel.FailFor = null;
+        await Dispatcher().RunOnceAsync(Ct);
+
+        Assert.Equal(["+919000000001", "+919000000002", "+919000000002"], _channel.Sent.Select(m => m.Phone));
+        Assert.Equal(DeliveryStatus.Sent, _store.Updates.Last(u => u.Id == first.Id).Status);
+        Assert.Equal(DeliveryStatus.Sent, _store.Updates.Last(u => u.Id == second.Id).Status);
+    }
+
+    private PendingDelivery QueueFor(Guid child, int recipient, string phone)
+    {
+        var id = Guid.NewGuid();
+        var pending = new PendingDelivery(id, 0, "yes", false, Now.AddDays(14), new DeliveryMessage(
+            id, child, DeliveryKinds.Evening, "kn", ["Asha", "ವ್ಯವಕಲನ", "ಪುಟ 15"], "tok", Phone: phone, Recipient: recipient));
+        _store.Pending.Add(pending);
+        return pending;
+    }
+
+    [Fact]
     public async Task A_channel_exception_is_retried_and_does_not_stop_the_others()
     {
         Queue();
@@ -124,6 +151,9 @@ public sealed class DeliveryDispatcherTests
         public ChannelResult? Next { get; set; }
         public bool ThrowOnce { get; set; }
 
+        /// <summary>A number whose sends fail for now (T-140): the other number of the family still goes.</summary>
+        public string? FailFor { get; set; }
+
         public string Name => "recording";
 
         public Task<ChannelResult> SendAsync(DeliveryMessage message, CancellationToken cancellationToken)
@@ -135,7 +165,9 @@ public sealed class DeliveryDispatcherTests
             }
 
             Sent.Add(message);
-            return Task.FromResult(Next ?? ChannelResult.Sent($"wamid.{Sent.Count}"));
+            return Task.FromResult(message.Phone is not null && message.Phone == FailFor
+                ? ChannelResult.Retry("http-502")
+                : Next ?? ChannelResult.Sent($"wamid.{Sent.Count}"));
         }
     }
 }

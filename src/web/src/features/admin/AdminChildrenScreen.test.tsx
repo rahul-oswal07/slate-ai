@@ -10,23 +10,27 @@ import type { AdminChild, AdminChildren } from './useAdmin'
 const i18n = initI18n()
 
 const children: AdminChild[] = [
-  { id: 'c1', rollNo: 1, firstName: 'Ananya', homeLanguage: 'kn', consent: 'no', stopped: false, phone: null, languageChanged: false },
-  { id: 'c15', rollNo: 15, firstName: 'Manjunath', homeLanguage: 'kn', consent: 'yes', stopped: false, phone: '+919876543210', languageChanged: false },
-  { id: 'c24', rollNo: 24, firstName: 'Ravi', homeLanguage: 'te', consent: 'yes', stopped: true, phone: '+919812345678', languageChanged: true },
+  { id: 'c1', rollNo: 1, firstName: 'Ananya', homeLanguage: 'kn', consent: 'no', stopped: false, phone: null, phone2: null, languageChanged: false },
+  { id: 'c15', rollNo: 15, firstName: 'Manjunath', homeLanguage: 'kn', consent: 'yes', stopped: false, phone: '+919876543210', phone2: '+919845012345', languageChanged: false },
+  { id: 'c24', rollNo: 24, firstName: 'Ravi', homeLanguage: 'te', consent: 'yes', stopped: true, phone: '+919812345678', phone2: null, languageChanged: true },
 ]
 
 /**
- * The admin API (no key, D-112): GET lists the class; PUT …/phone saves (as E.164), clears (blank) or refuses a short
- * number (400); PUT …/language changes the home language (T-122), or fails with 500 when `languageFails`.
+ * The admin API (no key, D-112): GET lists the class; PUT …/phone saves number 1 or 2 (`slot`, T-140) as E.164, clears
+ * it (blank) or refuses a short number (400); PUT …/language changes the home language (T-122), or fails with 500 when `languageFails`.
  */
 function stubApi({ languageFails = false, demo = false }: { languageFails?: boolean; demo?: boolean } = {}) {
   const rows = new Map(children.map((c) => [c.id, c]))
-  const calls: { method: string; url: string; body: { phone?: string; language?: string; clientRequestId?: string } | null }[] = []
+  const calls: {
+    method: string
+    url: string
+    body: { phone?: string; slot?: number; language?: string; clientRequestId?: string } | null
+  }[] = []
   vi.stubGlobal(
     'fetch',
     vi.fn<typeof globalThis.fetch>(async (input, init) => {
       const method = init?.method ?? 'GET'
-      const body = init?.body ? (JSON.parse(String(init.body)) as { phone?: string; language?: string }) : null
+      const body = init?.body ? (JSON.parse(String(init.body)) as { phone?: string; slot?: number; language?: string }) : null
       calls.push({ method, url: String(input), body })
       if (method === 'PUT' && String(input).endsWith('/language')) {
         const id = String(input).split('/').at(-2) ?? ''
@@ -48,8 +52,8 @@ function stubApi({ languageFails = false, demo = false }: { languageFails?: bool
         if (!current) {
           return new Response(null, { status: 404 })
         }
-        const updated: AdminChild =
-          digits === '' ? { ...current, phone: null } : { ...current, phone: `+91${digits}` }
+        const value = digits === '' ? null : `+91${digits}`
+        const updated: AdminChild = body?.slot === 2 ? { ...current, phone2: value } : { ...current, phone: value }
         rows.set(id, updated)
         return Response.json(updated)
       }
@@ -79,21 +83,25 @@ describe('AdminChildrenScreen (T-118)', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('lists the class with each child and the number saved for them (T-123)', async () => {
+  it('lists the class with each child and the two numbers saved for them (T-123, T-140)', async () => {
     stubApi()
     renderAt()
 
     expect(await screen.findByRole('heading', { level: 2, name: 'Shobha · Grade 3 · 3 children' })).toBeInTheDocument()
     const ananya = await row(/1 · Ananya · Kannada/)
     expect(within(ananya).getByText('No number: WhatsApp skips this family')).toBeInTheDocument()
+    expect(within(ananya).getAllByText('Not set')).toHaveLength(2)
     expect(within(ananya).getByText('No consent: nothing is sent')).toBeInTheDocument()
     const manjunath = await row(/15 · Manjunath · Kannada/)
     expect(within(manjunath).getByText('+919876543210')).toBeInTheDocument()
-    expect(within(manjunath).getByRole('button', { name: "Clear Manjunath's saved number" })).toBeInTheDocument()
+    expect(within(manjunath).getByText('+919845012345')).toBeInTheDocument()
+    expect(within(manjunath).getByRole('button', { name: "Clear Manjunath's number 1" })).toBeInTheDocument()
+    expect(within(manjunath).getByRole('button', { name: "Clear Manjunath's number 2" })).toBeInTheDocument()
     const ravi = await row(/24 · Ravi · Telugu/)
     expect(within(ravi).getByText('+919812345678')).toBeInTheDocument()
     expect(within(ravi).getByText('Family stopped messages: nothing is sent')).toBeInTheDocument()
-    expect(within(ravi).getByRole('button', { name: "Clear Ravi's saved number" })).toBeInTheDocument()
+    expect(within(ravi).getByRole('button', { name: "Clear Ravi's number 1" })).toBeInTheDocument()
+    expect(within(ravi).queryByRole('button', { name: "Clear Ravi's number 2" })).not.toBeInTheDocument()
     expect(within(ananya).queryByRole('button', { name: /Clear/ })).not.toBeInTheDocument()
   })
 
@@ -126,16 +134,17 @@ describe('AdminChildrenScreen (T-118)', () => {
     const { calls } = stubApi()
     renderAt()
 
-    await user.click(await screen.findByRole('button', { name: "Edit Ananya's number" }))
-    await user.type(screen.getByLabelText("Ananya's family's number"), '98450 12345')
+    await user.click(await screen.findByRole('button', { name: "Edit Ananya's number 1" }))
+    await user.type(screen.getByLabelText("Ananya's family's number 1"), '98450 12345')
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     const ananya = await row(/1 · Ananya/)
     expect(await within(ananya).findByText('+919845012345')).toBeInTheDocument()
     expect(within(ananya).getByText('Saved')).toBeInTheDocument()
+    expect(within(ananya).queryByText('No number: WhatsApp skips this family')).not.toBeInTheDocument()
     const put = calls.find((c) => c.method === 'PUT')
     expect(put?.url).toBe('/api/admin/children/c1/phone')
-    expect(put?.body).toMatchObject({ phone: '98450 12345' })
+    expect(put?.body).toMatchObject({ phone: '98450 12345', slot: 1 })
   })
 
   it('a refused number says how to fix it and keeps what was typed', async () => {
@@ -143,8 +152,8 @@ describe('AdminChildrenScreen (T-118)', () => {
     stubApi()
     renderAt()
 
-    await user.click(await screen.findByRole('button', { name: "Edit Ananya's number" }))
-    const input = screen.getByLabelText("Ananya's family's number")
+    await user.click(await screen.findByRole('button', { name: "Edit Ananya's number 1" }))
+    const input = screen.getByLabelText("Ananya's family's number 1")
     await user.type(input, '12345')
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -153,27 +162,52 @@ describe('AdminChildrenScreen (T-118)', () => {
     expect(input).toHaveAttribute('aria-invalid', 'true')
   })
 
-  it('Clear removes the saved number', async () => {
+  it('Number 2 is saved on its own and Number 1 stays (T-140)', async () => {
     const user = userEvent.setup()
     const { calls } = stubApi()
     renderAt()
 
-    await user.click(await screen.findByRole('button', { name: "Clear Manjunath's saved number" }))
+    await user.click(await screen.findByRole('button', { name: "Edit Ravi's number 2" }))
+    await user.type(screen.getByLabelText("Ravi's family's number 2"), '98450 99999')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
-    const manjunath = await row(/15 · Manjunath/)
-    expect(await within(manjunath).findByText('No number: WhatsApp skips this family')).toBeInTheDocument()
-    expect(within(manjunath).getByText('Cleared: WhatsApp now skips this family')).toBeInTheDocument()
-    expect(calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ phone: '' })
+    const ravi = await row(/24 · Ravi/)
+    expect(await within(ravi).findByText('+919845099999')).toBeInTheDocument()
+    expect(within(ravi).getByText('+919812345678')).toBeInTheDocument()
+    expect(within(ravi).queryByText('Not set')).not.toBeInTheDocument()
+    expect(calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ phone: '98450 99999', slot: 2 })
   })
 
-  it('Edit starts from the saved number', async () => {
+  it('Clear removes one number and keeps the other; with neither the family is skipped (T-140)', async () => {
+    const user = userEvent.setup()
+    const { calls } = stubApi()
+    renderAt()
+
+    await user.click(await screen.findByRole('button', { name: "Clear Manjunath's number 1" }))
+
+    const manjunath = await row(/15 · Manjunath/)
+    expect(await within(manjunath).findByText('Cleared')).toBeInTheDocument()
+    expect(within(manjunath).getByText('+919845012345')).toBeInTheDocument()
+    expect(within(manjunath).getByText('Not set')).toBeInTheDocument()
+    expect(within(manjunath).queryByText('No number: WhatsApp skips this family')).not.toBeInTheDocument()
+    expect(calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ phone: '', slot: 1 })
+
+    await user.click(within(manjunath).getByRole('button', { name: "Clear Manjunath's number 2" }))
+
+    expect(await within(manjunath).findByText('No number: WhatsApp skips this family')).toBeInTheDocument()
+    expect(within(manjunath).getAllByText('Not set')).toHaveLength(2)
+    expect(calls.filter((c) => c.method === 'PUT').at(-1)?.body).toMatchObject({ phone: '', slot: 2 })
+  })
+
+  it('Edit starts from the saved number of that slot', async () => {
     const user = userEvent.setup()
     stubApi()
     renderAt()
 
-    await user.click(await screen.findByRole('button', { name: "Edit Ravi's number" }))
+    await user.click(await screen.findByRole('button', { name: "Edit Manjunath's number 2" }))
 
-    expect(screen.getByLabelText("Ravi's family's number")).toHaveValue('+919812345678')
+    expect(screen.getByLabelText("Manjunath's family's number 2")).toHaveValue('+919845012345')
+    expect(screen.queryByLabelText("Manjunath's family's number 1")).not.toBeInTheDocument()
   })
 
   it('choosing another home language saves it at once (T-122)', async () => {

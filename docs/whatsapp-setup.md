@@ -17,7 +17,7 @@ How to switch staging from the demo chat to real WhatsApp for the registered tes
 **How it works:**
 - When an evening message or catch-up is sent (guardrail 3 already passed), a `ParentDeliveries` row is queued in the same transaction.
 - Every minute, the 6 pm job sends queued rows over `Delivery:Channel`. "Send messages now" on `/demo` does the same straight away.
-- With `whatsapp`, only children with a number saved on `/admin/children` get a message: the approved template, with a button that opens `/p/{token}`. Everyone else stays on the demo chat. There is no server setting for numbers (D-114).
+- With `whatsapp`, only children with a number saved on `/admin/children` get a message: the approved template, with a button that opens `/p/{token}`. A family can have two numbers (Number 1 and Number 2); each saved one gets every message (D-122). Everyone else stays on the demo chat. There is no server setting for numbers (D-114).
 
 ## 1. Meta (one time, about 2 hours)
 
@@ -58,7 +58,7 @@ The button URL is fixed when the template is created, so a local run's button op
 Meta's `hello_world` template is approved on every test number. The admin test send uses it to check the token, the Phone number ID and one recipient straight away.
 
 How the endpoint works:
-- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches a number saved on `/admin/children` (D-114).
+- It needs no key (D-112), runs wherever the API runs, and works whatever `Delivery:Channel` is set to. It only reaches numbers saved on `/admin/children` (D-114), and goes to each of the child's saved numbers: `numbers` in the response has one result per number (T-140).
 - A repeated `clientRequestId` returns the first result without sending again.
 - The response never contains the number. The message ID is a SHA-256 hash, because WhatsApp's raw `wamid` encodes the number.
 
@@ -114,6 +114,8 @@ Not created: `catchup_chat_v1` (flagged as Marketing in every wording; the catch
 | te | తరగతి సమాచారం – {{1}}. తప్పిన పాఠాలు: {{2}}, నలికలి గణితం {{3}}. పాఠం ఆడియో, ఇంట్లో చేసే కార్యకలాపం, బొమ్మ ప్రశ్న సిద్ధంగా ఉన్నాయి. తెరవడానికి కింది బటన్ నొక్కండి. | పాఠం తెరవండి |
 | ta | வகுப்புத் தகவல் – {{1}}. தவறிய பாடங்கள்: {{2}}, நலிகலி கணிதம் {{3}}. பாட ஒலி, வீட்டில் செய்யும் செயல்பாடு, படக் கேள்வி தயாராக உள்ளன. திறக்க கீழே உள்ள பொத்தானை அழுத்தவும். | பாடத்தைத் திறக்கவும் |
 | hi | कक्षा की जानकारी – {{1}}। छूटे पाठ: {{2}}, नलि-कलि गणित {{3}}। पाठ का ऑडियो, घर पर करने की गतिविधि और चित्र वाला प्रश्न तैयार हैं। खोलने के लिए नीचे का बटन दबाएँ। | पाठ खोलें |
+
+**Lessons without a picture question (T-139, D-121):** today's message for a lesson without the book's exercises has no picture question, but it is still sent as `todays_lesson_link_v1`, whose fixed text says one is ready. Rahul accepted this for now; a template without that line would fix it.
 
 **Pages outside Nalikali (T-132, D-119):** the fixed text says "Nalikali Maths", so code puts the book after a Maths textbook page, in the family's language: {{3}} = "80 (Maths textbook)" for today's message, "pages 77 and 80 (Maths textbook)" for a catch-up, with "Part 2" from part 2 on. Nalikali pages are filled as they are. A lesson in another book is not sent (`no-values`; the family keeps the demo chat).
 

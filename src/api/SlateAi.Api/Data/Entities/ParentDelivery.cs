@@ -11,6 +11,12 @@ public sealed class ParentDelivery
     public Guid Id { get; set; }
     public Guid ClassId { get; set; }
     public Guid ChildId { get; set; }
+
+    /// <summary>
+    /// Which of the family's saved numbers this row goes to: 1 or 2 (T-140, D-122). Each message is queued once per
+    /// number, so each send, retry and failure is its own; the number itself is looked up at send time.
+    /// </summary>
+    public short Recipient { get; set; } = 1;
     public Guid? EveningMessageId { get; set; }
     public Guid? CatchUpAssignmentId { get; set; }
 

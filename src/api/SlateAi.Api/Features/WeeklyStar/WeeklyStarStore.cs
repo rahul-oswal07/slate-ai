@@ -101,7 +101,7 @@ public sealed class WeeklyStarStore(AppDbContext db, TimeProvider clock) : IWeek
                 ExpiresAt = message.ExpiresAt.ToUniversalTime(),
             });
             // Same transaction as the message: only what passed guardrail 3 is ever queued for a phone (T-40).
-            db.ParentDeliveries.Add(DeliveryStore.Queue(classId, message.ChildId, now, weeklyStarMessageId: id));
+            db.ParentDeliveries.AddRange(DeliveryStore.QueueAll(classId, message.ChildId, now, weeklyStarMessageId: id));
             added++;
         }
 

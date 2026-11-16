@@ -69,15 +69,17 @@ public sealed class TodaysMessageService(
     private bool Arithmetic => options.Value.ArithmeticExercises;
 
     /// <summary>
-    /// Starts the draft for her confirmed lesson when it has the book's exercises (D-93) and someone is due tonight's
-    /// message; a replay of the same lesson changes nothing. <paramref name="force"/>: "Try again". A lesson that gets no
-    /// today's message removes the day's unsent one, so a message about the lesson she replaced never goes (T-114).
+    /// Starts the draft for her confirmed lesson when someone is due tonight's message: every lesson the curriculum knows
+    /// (T-139, D-121), with a picture question only when it has the book's exercises (D-93). A replay of the same lesson
+    /// changes nothing. <paramref name="force"/>: "Try again". A lesson that gets no today's message removes the day's
+    /// unsent one, so a message about the lesson she replaced never goes (T-114).
     /// </summary>
     public async Task<bool> StartAsync(
         Guid classId, DateOnly date, IReadOnlyList<string> competencyIds, bool force, CancellationToken cancellationToken)
     {
         var lessons = competencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        if (!TodaysPicturePicker.Supported(lessons, Arithmetic) || await DueAsync(classId, date, cancellationToken) is not { Count: > 0 } due)
+        if (lessons.Count == 0 || lessons.Count != competencyIds.Count
+            || await DueAsync(classId, date, cancellationToken) is not { Count: > 0 } due)
         {
             if (await store.GetAsync(classId, date, cancellationToken) is { } stale && !stale.CompetencyIds.SequenceEqual(competencyIds))
             {
@@ -133,7 +135,7 @@ public sealed class TodaysMessageService(
             ? []
             : TodaysSectionKind.All.Where(k => IsRemoved(sections, k)).ToList();
         var pairs = Pairs(row.CompetencyIds);
-        var index = sections is null ? -1 : pairs.FindIndex(p => p[0] == sections.Picture.A && p[1] == sections.Picture.B);
+        var index = sections?.Picture is not { } shown ? -1 : pairs.FindIndex(p => p[0] == shown.A && p[1] == shown.B);
         return new TodaysMessageView(
             row.Date,
             stale ? TodaysMessageStatus.Failed : row.Status,
@@ -223,7 +225,7 @@ public sealed class TodaysMessageService(
 
         return await store.ReviseAsync(
             classId, date, clientRequestId, version,
-            s => s with { Picture = picture with { Removed = s.Picture.Removed } },
+            s => s with { Picture = picture with { Removed = s.Picture?.Removed == true } },
             redraft: false, clock.GetUtcNow(), cancellationToken);
     }
 
@@ -291,7 +293,7 @@ public sealed class TodaysMessageService(
     {
         TodaysSectionKind.Concept => sections.Concept.Removed,
         TodaysSectionKind.Activity => sections.Activity.Removed,
-        TodaysSectionKind.Picture => sections.Picture.Removed,
+        TodaysSectionKind.Picture => sections.Picture?.Removed == true,
         TodaysSectionKind.Video => sections.Video?.Removed == true,
         TodaysSectionKind.Note => sections.Note?.Removed == true,
         _ => false,

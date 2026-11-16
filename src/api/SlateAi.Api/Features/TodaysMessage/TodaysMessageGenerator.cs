@@ -69,12 +69,15 @@ public sealed class TodaysMessageGenerator(
 
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.
+        // A lesson without the book's exercises has no picture question (T-139, D-121): concept and activity only.
         var teacher = row.Sections is { Teacher: true } edited ? edited : null;
-        if (lessons.Count != row.CompetencyIds.Count || (teacher?.Picture ?? TodaysPicturePicker.Pick(lessons, 0, todaysOptions.Value.ArithmeticExercises)) is not { } picture)
+        if (lessons.Count == 0 || lessons.Count != row.CompetencyIds.Count)
         {
-            await Fail(row.Id, "fallback:no-exercises", cancellationToken);
+            await Fail(row.Id, "fallback:unknown-lesson", cancellationToken);
             return;
         }
+
+        var picture = teacher?.Picture ?? TodaysPicturePicker.Pick(lessons, 0, todaysOptions.Value.ArithmeticExercises);
 
         // Each concept is voiced behind the AI disclosure, which every family language needs (spec §5.3).
         if (job.Languages.Any(l => disclosure.Text(l) is null))

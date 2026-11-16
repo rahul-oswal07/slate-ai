@@ -73,7 +73,7 @@ public static partial class TodaysMessageValidator
         string json,
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
-        TodaysPicture picture,
+        TodaysPicture? picture,
         IEnumerable<string> names,
         bool expectNote = false)
     {
@@ -179,8 +179,17 @@ public static partial class TodaysMessageValidator
     /// of a hundred, so "2 bundles of a hundred, 4 bundles of ten and 8 loose sticks" is fine. Never the sum's answer or
     /// the other choices, unless the lesson's own examples print them.
     /// </remarks>
-    public static HashSet<string> AllowedNumbers(IReadOnlyList<Competency> lessons, TodaysPicture picture)
+    /// <remarks>
+    /// Without a picture (a lesson without the book's exercises, T-139): only the lesson's own example numbers, its page
+    /// and part. Nothing else, not even 10 for a bundle unless an example has it.
+    /// </remarks>
+    public static HashSet<string> AllowedNumbers(IReadOnlyList<Competency> lessons, TodaysPicture? picture)
     {
+        if (picture is null)
+        {
+            return LessonScriptValidator.AllowedNumbers(lessons);
+        }
+
         if (picture.IsSum)
         {
             var sums = LessonScriptValidator.AllowedNumbers(lessons);
@@ -245,7 +254,11 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
     /// <summary>Sums (D-116) have their own prompt, so compare lessons keep v4 of <see cref="PromptId"/> as evaluated.</summary>
     public const string SumsPromptId = "a9-todays-message-sums";
 
-    public static string PromptFor(TodaysPicture picture) => picture.IsSum ? SumsPromptId : PromptId;
+    /// <summary>A lesson without the book's exercises (T-139, D-121): concept and activity, no picture question.</summary>
+    public const string LessonPromptId = "a9-todays-message-lesson";
+
+    public static string PromptFor(TodaysPicture? picture) =>
+        picture is null ? LessonPromptId : picture.IsSum ? SumsPromptId : PromptId;
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
@@ -259,7 +272,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
     public async Task<TodaysWriteResult> WriteAsync(
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
-        TodaysPicture picture,
+        TodaysPicture? picture,
         IReadOnlyList<string>? feedback,
         IEnumerable<string> names,
         CancellationToken cancellationToken,
@@ -297,7 +310,7 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
     public static string UserContent(
         IReadOnlyList<string> languages,
         IReadOnlyList<Competency> lessons,
-        TodaysPicture picture,
+        TodaysPicture? picture,
         IReadOnlyList<string>? feedback,
         TeacherKannada? teacher = null,
         TodaysFromClass? fromClass = null) =>
@@ -316,7 +329,10 @@ public sealed class TodaysMessageWriter(ILlmClient llm, IAiCallStore aiCalls, Pr
                 exercises = c.Exercises,
             }),
             // The kind only for a sum, so a compare lesson's input is exactly what v4 was evaluated on. Never the answer.
-            pictureQuestion = picture.IsSum ? (object)new { kind = picture.Kind, picture.A, picture.B } : new { picture.A, picture.B },
+            // Null for a lesson without the book's exercises (T-139): the lesson prompt writes no picture question.
+            pictureQuestion = picture is null
+                ? null
+                : picture.IsSum ? (object)new { kind = picture.Kind, picture.A, picture.B } : new { picture.A, picture.B },
             fromClass = teacher is null && fromClass is not null ? new { fromClass.SummaryKn, examples = fromClass.Examples } : null,
             teacherKannada = teacher is null ? null : new { teacher.Concept, activity = teacher.Steps, teacher.Note },
             previousAttemptProblems = feedback ?? [],

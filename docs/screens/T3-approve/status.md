@@ -11,6 +11,7 @@ Spec: [`spec.md`](spec.md)
 - When she edits today's message, the concept box and each activity-step box have a placeholder saying what goes in it, in Kannada (T-96).
 - **Her note** can be written in any language: Approve shows what she typed and, when it was translated, what Kannada families read; every family reads it in their home language, and Edit starts from what she typed (T-119, D-111).
 - **Draft of today's message** (finale, D-90–D-96): confirming a lesson with the book's exercises (today only Nalikali p 4) drafts a message for absent families: concept with voice, a parent-led activity and a `>,<,=` picture pair chosen by code (T-88).
+- Since T-139 (D-121) every confirmed lesson gets today's message. A lesson without the book's exercises has concept, activity and video but **no picture question**: Approve shows no picture section and no "Choose another pair", and only the concept and activity are promised.
 - With `TodaysMessage:ArithmeticExercises` on (the default everywhere), add and subtract lessons with the book's pairs get today's message too. The picture section shows "248 + 438 = ?", the three choices and the answer by code, and "Choose another pair" lists the other sums (D-116, T-128).
 - A fresh draft of today's message starts from what she said in class: A1's summary and her examples, filtered by code; her own Kannada edit wins over it (T-120).
 - The Activity section has a player for the voiced steps, as families will hear them (T-120).
@@ -26,7 +27,7 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- Changing the lesson to one without the book's exercises (or with nobody due) removes the day's unsent today's message, so an approval for the old lesson can't go (T-114).
+- Changing the lesson starts a new draft for the new lesson, which clears the old approval; with nobody due it removes the day's unsent today's message, so an approval for the old lesson can't go (T-114, T-139).
 - Catch-ups already made before the fix (staging's included) stay failed until the next week.
 - The design card is not updated for T-89 and T-108 (Monika's file).
 

@@ -9,6 +9,7 @@ using SlateAi.Api.Features.TodaysMessage;
 using SlateAi.Api.Tests.Features.EveningMessages;
 using SlateAi.Api.Tests.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
+using SlateAi.Api.Tests.Features.Attendance;
 
 namespace SlateAi.Api.Tests.Features.Lessons;
 
@@ -143,6 +144,8 @@ public sealed class LessonEndpointTests
             services.AddSingleton<ILessonStore>(_store);
             services.AddSingleton<ITodaysMessageStore>(new FakeTodaysMessageStore());
             services.AddSingleton<IEveningStore>(new FakeEveningStore(ClassId, Guid.NewGuid()));
+            // Confirming any lesson now checks who is due today's message (T-139): an empty register, nobody due.
+            services.AddSingleton<IAttendanceStore>(new FakeAttendanceStore(ClassId, []));
             services.AddSingleton(Book);
             services.AddSingleton<TimeProvider>(new FixedClock(SchoolClock.At(Today, new TimeOnly(15, 0))));
         });

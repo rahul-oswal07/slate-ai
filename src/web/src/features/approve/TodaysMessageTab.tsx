@@ -21,9 +21,17 @@ type Editable = 'concept' | 'activity' | 'note'
 const SECTIONS: TodaysSectionKind[] = ['concept', 'activity', 'video', 'picture', 'note']
 const PROMISED: TodaysSectionKind[] = ['concept', 'activity', 'picture']
 
-/** The sections this message has: the video only when its lesson has a link (T-94), the note only once she adds one. */
+/**
+ * The sections this message has: the video only when its lesson has a link (T-94), the note only once she adds one, the
+ * picture question only when the lesson has the book's exercises (T-139).
+ */
 const present = (message: TodaysMessage) =>
-  SECTIONS.filter((kind) => (kind !== 'video' || message.video !== null) && (kind !== 'note' || message.note !== null))
+  SECTIONS.filter(
+    (kind) =>
+      (kind !== 'video' || message.video !== null) &&
+      (kind !== 'note' || message.note !== null) &&
+      (kind !== 'picture' || message.picture !== null),
+  )
 
 /**
  * Approve → Today's message (T-89, D-91, D-92): the day's message as sections, one open at a time. She reads and edits
@@ -140,7 +148,7 @@ function Editor({ classId, date, message }: { classId: string; date: string; mes
       )}
 
       <ul className="flex flex-col gap-2">
-        {SECTIONS.filter((kind) => kind !== 'video' || message.video !== null).map((kind) => (
+        {SECTIONS.filter((kind) => (kind !== 'video' || message.video !== null) && (kind !== 'picture' || message.picture !== null)).map((kind) => (
           <li key={kind}>
             <Section
               kind={kind}

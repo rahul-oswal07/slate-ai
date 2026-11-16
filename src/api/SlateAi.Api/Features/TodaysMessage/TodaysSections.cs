@@ -27,6 +27,13 @@ public static class TodaysSectionKind
     /// are ready"), so these can't be removed (D-108); she can still edit the text and choose another picture pair.
     /// </summary>
     public static readonly string[] Promised = [Concept, Activity, Picture];
+
+    /// <summary>
+    /// What a given message promises: the picture only when it has one. A lesson without the book's exercises has no
+    /// picture question (T-139, D-121), so only the concept and the activity can't be removed.
+    /// </summary>
+    public static IReadOnlyList<string> PromisedFor(TodaysSections sections) =>
+        sections.Picture is null ? [Concept, Activity] : Promised;
 }
 
 /// <summary>A short explanation of the lesson, per language, with its voiced clip (D-91: text and audio).</summary>
@@ -67,11 +74,12 @@ public sealed record TodaysVideo(string Url, bool Removed = false);
 public sealed record TodaysNote(IReadOnlyDictionary<string, string> Text, bool Removed = false, string? Original = null);
 
 /// <summary>Everything a today's message holds. Stored as JSON on the row; never holds a name or a child ID.</summary>
+/// <param name="Picture">The picture question; null for a lesson without the book's exercises (T-139, D-121).</param>
 /// <param name="Teacher">The Kannada is hers (she edited it, D-92): a new draft keeps it and A9 only writes the other languages.</param>
 public sealed record TodaysSections(
     TodaysConcept Concept,
     TodaysActivity Activity,
-    TodaysPicture Picture,
+    TodaysPicture? Picture,
     TodaysVideo? Video = null,
     TodaysNote? Note = null,
     bool Teacher = false)
@@ -120,7 +128,7 @@ public sealed record TodaysSections(
     {
         TodaysSectionKind.Concept => this with { Concept = Concept with { Removed = removed } },
         TodaysSectionKind.Activity => this with { Activity = Activity with { Removed = removed } },
-        TodaysSectionKind.Picture => this with { Picture = Picture with { Removed = removed } },
+        TodaysSectionKind.Picture when Picture is not null => this with { Picture = Picture with { Removed = removed } },
         TodaysSectionKind.Video when Video is not null => this with { Video = Video with { Removed = removed } },
         TodaysSectionKind.Note when Note is not null => this with { Note = Note with { Removed = removed } },
         _ => null,
@@ -128,7 +136,7 @@ public sealed record TodaysSections(
 
     /// <summary>At least one section still goes: removing the last one is refused (there would be nothing to approve).</summary>
     public bool HasAnySection =>
-        !Concept.Removed || !Activity.Removed || !Picture.Removed || Video is { Removed: false } || Note is { Removed: false };
+        !Concept.Removed || !Activity.Removed || Picture is { Removed: false } || Video is { Removed: false } || Note is { Removed: false };
 }
 
 /// <summary>Picks the picture question's numbers from the book's exercise list (D-93). Pure; the AI never chooses them.</summary>
@@ -195,9 +203,10 @@ public static class TodaysFamilyView
     public static EveningMessages.ParentTodaysMessage For(TodaysSections sections, string language) => new(
         sections.Concept.Removed ? null : sections.Concept.Text.GetValueOrDefault(language),
         sections.Activity.Removed ? null : sections.Activity.Steps.GetValueOrDefault(language),
-        sections.Picture.Removed
+        // None for a lesson without the book's exercises (T-139), or when she removed it.
+        sections.Picture is not { Removed: false } picture
             ? null
-            : new EveningMessages.ParentPicture(sections.Picture.A, sections.Picture.B, Kind: sections.Picture.Kind, Options: sections.Picture.Options),
+            : new EveningMessages.ParentPicture(picture.A, picture.B, Kind: picture.Kind, Options: picture.Options),
         sections.Video is { Removed: false } video ? video : null,
         sections.Note is { Removed: false } note ? note.Text.GetValueOrDefault(language) : null);
 }

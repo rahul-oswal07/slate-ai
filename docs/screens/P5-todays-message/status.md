@@ -14,6 +14,7 @@ Spec: [`spec.md`](spec.md)
 - Her note is shown in the family's home language, Kannada included, whatever language she wrote it in, and marked with that language so a screen reader reads it right (T-119, D-111).
 - The activity step has a player for the steps, voiced after the AI disclosure; without a clip (too long to voice, or a draft made before) it is text only (T-120).
 - When the lesson has a link on the admin page, the steps include "Watch how it's taught" with that video (T-94, D-106); the teacher can remove it.
+- A lesson without the book's exercises (T-139, D-121) has no picture question: the steps go concept → activity → (video) → Done, and Done says "Thank you for doing it together" instead of that the teacher will see the answer. The WhatsApp template still says a picture question is ready (accepted for now).
 
 ## Known gaps and drafts
 

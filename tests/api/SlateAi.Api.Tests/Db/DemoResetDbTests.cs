@@ -32,8 +32,8 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         // A class that has been used: today's register, a lesson, a deleted child, a stop, a changed consent, a package
         // with its own audio, a shared disclosure clip and an AI call.
         (await api.MarkAsync(Guid.NewGuid(), today, bhavana)).EnsureSuccessStatusCode();
-        // A lesson without the book's exercises, so confirming it starts no today's message and no background AI call
-        // (D-93, D-116): the AI log below then holds only the one call added here.
+        // Every confirmed lesson starts today's message when a family is due (T-139), so its background AI calls are
+        // waited for below before Reset: the AI log must come through Reset whole.
         (await api.Client.PutAsJsonAsync($"/api/classes/{api.ClassId}/lessons/{today:yyyy-MM-dd}",
             new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
         (await api.Client.DeleteAsync(
@@ -51,6 +51,7 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
             // A number and a home language saved on the admin page (T-118, D-110; T-122, D-113): Reset keeps both.
             await db.Children.Where(c => c.Id == manjunath).ExecuteUpdateAsync(
                 s => s.SetProperty(c => c.ParentPhone, "+447700900123").SetProperty(c => c.ParentPhoneSetAt, savedAt)
+                    .SetProperty(c => c.ParentPhone2, "+919845012345").SetProperty(c => c.ParentPhone2SetAt, savedAt)
                     .SetProperty(c => c.HomeLanguage, "ta").SetProperty(c => c.HomeLanguageSetAt, savedAt),
                 DemoClassApi.Ct);
             db.CatchUpPackages.Add(new CatchUpPackage
@@ -65,6 +66,13 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
             return await db.SaveChangesAsync(DemoClassApi.Ct);
         });
 
+        // Let the background drafting finish, so the AI log no longer changes while Reset runs.
+        for (var i = 0; i < 100 && await api.QueryAsync(db => db.TodaysMessages.AnyAsync(t => t.Status == "generating", DemoClassApi.Ct)); i++)
+        {
+            await Task.Delay(100, DemoClassApi.Ct);
+        }
+
+        var aiCallsBefore = await api.QueryAsync(db => db.AiCalls.CountAsync(DemoClassApi.Ct));
         var requestId = Guid.NewGuid();
         var response = await api.Client.PostAsJsonAsync("/api/demo/reset", new DemoResetRequest(requestId), DemoClassApi.Ct);
         var body = await response.Content.ReadFromJsonAsync<DemoResetResponse>(DemoClassApi.Ct);
@@ -80,6 +88,8 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.True(await api.QueryAsync(db => db.Children.AnyAsync(c => c.Id == ananya, DemoClassApi.Ct)));
         var kept = await api.QueryAsync(db => db.Children.SingleAsync(c => c.Id == manjunath, DemoClassApi.Ct));
         Assert.Equal(("+447700900123", (DateTimeOffset?)savedAt), (kept.ParentPhone, kept.ParentPhoneSetAt));
+        Assert.Equal(("+919845012345", (DateTimeOffset?)savedAt), (kept.ParentPhone2, kept.ParentPhone2SetAt)); // T-140
+        Assert.Null(restored.ParentPhone2);
         Assert.Equal(("ta", (DateTimeOffset?)savedAt), (kept.HomeLanguage, kept.HomeLanguageSetAt));
         Assert.Null(restored.HomeLanguageSetAt);
 
@@ -105,7 +115,8 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         // The old package and its own audio are gone; the shared clip and the AI log stay; Manjunath has the pre-made one.
         Assert.False(await api.QueryAsync(db => db.CatchUpPackages.AnyAsync(p => p.Id == oldPackage, DemoClassApi.Ct)));
         Assert.True(await api.QueryAsync(db => db.AudioClips.AnyAsync(c => c.Id == sharedClip, DemoClassApi.Ct)));
-        Assert.Equal(1, await api.QueryAsync(db => db.AiCalls.CountAsync(DemoClassApi.Ct)));
+        Assert.True(aiCallsBefore >= 1);
+        Assert.Equal(aiCallsBefore, await api.QueryAsync(db => db.AiCalls.CountAsync(DemoClassApi.Ct)));
         var package = await api.QueryAsync(db => db.CatchUpPackages.SingleAsync(DemoClassApi.Ct));
         Assert.Equal(("kn", PackageStatus.Ready), (package.Language, package.Status));
         Assert.Equal(manjunath, await api.QueryAsync(db => db.CatchUpAssignments.Select(a => a.ChildId).SingleAsync(DemoClassApi.Ct)));

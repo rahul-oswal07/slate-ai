@@ -87,4 +87,53 @@ public sealed class DeliveryStoreDbTests(PostgresFixture postgres)
         Assert.Equal(DeliveryKinds.Evening, byChild[ravi].Kind);
         Assert.Equal(["Ravi", "ఎక్కువ – తక్కువ – సమానం", "నలికలి గణితం భాగం 1, పేజీ 4"], byChild[ravi].Parameters);
     }
+
+    [Fact]
+    public async Task Each_pending_row_carries_its_own_saved_number_and_a_seeded_or_cleared_one_gives_none_T140()
+    {
+        await using var api = await DemoClassApi.StartAsync(postgres);
+        var today = SchoolClock.Today(TimeProvider.System);
+        var ravi = api.ChildIds[3];       // both numbers saved
+        var manjunath = api.ChildIds[14]; // only the seed's number 1 (never dialled) and number 2 saved then cleared
+        (await api.Client.PutAsJsonAsync(
+            $"/api/classes/{api.ClassId}/lessons/{today:yyyy-MM-dd}",
+            new SaveLessonRequest(Guid.NewGuid(), [Nalikali]), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        (await api.Client.GetAsync($"/api/classes/{api.ClassId}/message-template", DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        foreach (var (child, slot, phone) in new[] { (ravi, 1, "98765 43210"), (ravi, 2, "98450 12345"), (manjunath, 2, "98123 45678"), (manjunath, 2, "") })
+        {
+            (await api.Client.PutAsJsonAsync(
+                $"/api/admin/children/{child}/phone",
+                new SlateAi.Api.Features.Admin.SetParentPhoneRequest(Guid.NewGuid(), phone, slot), DemoClassApi.Ct)).EnsureSuccessStatusCode();
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        await api.QueryAsync(async db =>
+        {
+            var lessonId = await db.Lessons.Where(l => l.ClassId == api.ClassId && l.Date == today).Select(l => l.Id).SingleAsync(DemoClassApi.Ct);
+            var template = await db.MessageTemplates.Where(t => t.ClassId == api.ClassId && t.Language == "kn").Select(t => t.Id).SingleAsync(DemoClassApi.Ct);
+            foreach (var child in new[] { ravi, manjunath })
+            {
+                var id = Guid.NewGuid();
+                db.EveningMessages.Add(new EveningMessage
+                {
+                    Id = id, ClassId = api.ClassId, ChildId = child, Date = today, TemplateId = template, LessonId = lessonId,
+                    Language = "kn", SlotValues = """{"lesson":"ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ","page":"ಪುಟ 4"}""",
+                    Token = $"tok2-{(child == ravi ? "r" : "m")}", SentAt = now, ExpiresAt = now.AddDays(14),
+                });
+                db.ParentDeliveries.AddRange(DeliveryStore.QueueAll(api.ClassId, child, now, eveningMessageId: id));
+            }
+
+            return await db.SaveChangesAsync(DemoClassApi.Ct);
+        });
+
+        var pending = await api.ScopedAsync<IDeliveryStore, IReadOnlyList<PendingDelivery>>(
+            s => s.GetPendingAsync(10, DemoClassApi.Ct));
+
+        var phones = pending.ToDictionary(p => (p.Message.ChildId, p.Message.Recipient), p => p.Message.Phone);
+        Assert.Equal(4, phones.Count);
+        Assert.Equal("+919876543210", phones[(ravi, 1)]);
+        Assert.Equal("+919845012345", phones[(ravi, 2)]);
+        Assert.Null(phones[(manjunath, 1)]);
+        Assert.Null(phones[(manjunath, 2)]);
+    }
 }

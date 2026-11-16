@@ -51,9 +51,12 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 select new
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
-                    m.Language, m.SlotValues, m.Token, m.ExpiresAt, t.Version, m.TodaysMessageId,
-                    // Only a number saved on the admin page is dialled; seeded ones are fictional (T-118, D-110).
-                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
+                    m.Language, m.SlotValues, m.Token, m.ExpiresAt, t.Version, m.TodaysMessageId, d.Recipient,
+                    // Only a number saved on the admin page is dialled; seeded ones are fictional (T-118, D-110). Each row
+                    // has its own number, the family's 1 or 2 (T-140).
+                    Phone = d.Recipient == 2
+                        ? (c.ParentPhone2SetAt != null ? c.ParentPhone2 : null)
+                        : (c.ParentPhoneSetAt != null ? c.ParentPhone : null),
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -69,8 +72,10 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 select new
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
-                    p.Language, a.Token, a.ExpiresAt, p.TargetCompetencyIds,
-                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
+                    p.Language, a.Token, a.ExpiresAt, p.TargetCompetencyIds, d.Recipient,
+                    Phone = d.Recipient == 2
+                        ? (c.ParentPhone2SetAt != null ? c.ParentPhone2 : null)
+                        : (c.ParentPhoneSetAt != null ? c.ParentPhone : null),
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -84,8 +89,10 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 select new
                 {
                     d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
-                    m.Language, m.Token, m.ExpiresAt, m.Version,
-                    Phone = c.ParentPhoneSetAt != null ? c.ParentPhone : null,
+                    m.Language, m.Token, m.ExpiresAt, m.Version, d.Recipient,
+                    Phone = d.Recipient == 2
+                        ? (c.ParentPhone2SetAt != null ? c.ParentPhone2 : null)
+                        : (c.ParentPhoneSetAt != null ? c.ParentPhone : null),
                 })
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -108,19 +115,19 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                     var lessons = todaysLessons.GetValueOrDefault(todaysId) ?? [];
                     return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
                         e.Id, e.ChildId, DeliveryKinds.Todays, e.Language,
-                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculum) ?? [], e.Token, e.Version, e.Phone));
+                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculum) ?? [], e.Token, e.Version, e.Phone, e.Recipient));
                 }
 
                 var slots = JsonSerializer.Deserialize<SlotValues>(e.SlotValues, Json)!;
                 return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
-                    e.Id, e.ChildId, DeliveryKinds.Evening, e.Language, [e.FirstName, slots.Lesson, slots.Page], e.Token, e.Version, e.Phone));
+                    e.Id, e.ChildId, DeliveryKinds.Evening, e.Language, [e.FirstName, slots.Lesson, slots.Page], e.Token, e.Version, e.Phone, e.Recipient));
             }),
             .. catchUps.Select(c => new PendingDelivery(c.Id, c.Attempts, c.Consent, c.Stopped, c.ExpiresAt, new DeliveryMessage(
                 c.Id, c.ChildId, DeliveryKinds.CatchUp, c.Language,
-                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!, Phone: c.Phone))),
+                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!, Phone: c.Phone, Recipient: c.Recipient))),
             // weekly_star_v1 (T-125): {{1}} is the child's name, nothing else.
             .. stars.Select(s => new PendingDelivery(s.Id, s.Attempts, s.Consent, s.Stopped, s.ExpiresAt, new DeliveryMessage(
-                s.Id, s.ChildId, DeliveryKinds.WeeklyStar, s.Language, [s.FirstName], s.Token, s.Version, s.Phone))),
+                s.Id, s.ChildId, DeliveryKinds.WeeklyStar, s.Language, [s.FirstName], s.Token, s.Version, s.Phone, s.Recipient))),
         ];
     }
 
@@ -139,15 +146,28 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 .SetProperty(d => d.LastError, update.Error)
                 .SetProperty(d => d.SentAt, update.SentAt), cancellationToken);
 
-    /// <summary>A pending delivery row for a message just stored; added by the senders' stores in their transaction.</summary>
-    public static ParentDelivery Queue(
+    /// <summary>The family's numbers a message goes to (T-140, D-122): each has its own row.</summary>
+    public static readonly short[] Recipients = [1, 2];
+
+    /// <summary>
+    /// The pending delivery rows for a message just stored, one per family number (T-140, D-122); added by the senders'
+    /// stores in their transaction. A number not saved by send time is skipped then (<c>no-recipient</c>).
+    /// </summary>
+    public static IEnumerable<ParentDelivery> QueueAll(
         Guid classId, Guid childId, DateTimeOffset now, Guid? eveningMessageId = null, Guid? assignmentId = null,
         Guid? weeklyStarMessageId = null) =>
+        Recipients.Select(r => Queue(classId, childId, now, eveningMessageId, assignmentId, weeklyStarMessageId, r));
+
+    /// <summary>One pending delivery row, for the family's number <paramref name="recipient"/>.</summary>
+    public static ParentDelivery Queue(
+        Guid classId, Guid childId, DateTimeOffset now, Guid? eveningMessageId = null, Guid? assignmentId = null,
+        Guid? weeklyStarMessageId = null, short recipient = 1) =>
         new()
         {
             Id = Guid.NewGuid(),
             ClassId = classId,
             ChildId = childId,
+            Recipient = recipient,
             EveningMessageId = eveningMessageId,
             CatchUpAssignmentId = assignmentId,
             WeeklyStarMessageId = weeklyStarMessageId,
