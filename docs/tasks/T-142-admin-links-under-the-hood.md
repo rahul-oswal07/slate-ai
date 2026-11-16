@@ -1,4 +1,4 @@
-# T-140 · Under the hood listed on the admin pages
+# T-142 · Under the hood listed on the admin pages
 
 | | |
 |---|---|
@@ -25,3 +25,4 @@ The demo's Under the hood on its own (`/demo/ai`, T-126) was linked only from `/
 ## Notes
 
 - 16 Nov 2026: added `/demo/ai` to `ADMIN_PAGES`, so the `/admin` list and every admin page's nav show it. The kn, te, ta and hi strings are drafts for Monika.
+- 17 Nov 2026: renumbered from T-140, which T-140-two-family-numbers.md also used (check-docs failed on main). PR #297 and issue #296 still say T-140.
