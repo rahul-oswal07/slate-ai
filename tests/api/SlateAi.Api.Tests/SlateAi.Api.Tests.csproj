@@ -22,6 +22,11 @@
     <ProjectReference Include="../../../src/api/SlateAi.Api/SlateAi.Api.csproj" />
   </ItemGroup>
 
+  <!-- T-138: the DIKSHA links applied by scripts/set-lesson-links.mjs, checked against the curriculum. -->
+  <ItemGroup>
+    <None Include="../../../data/lesson-links/*.json" Link="data/lesson-links/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>

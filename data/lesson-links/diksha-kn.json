@@ -1,0 +1,483 @@
+{
+  "_note": "DIKSHA links for each lesson, for /admin/lesson-links (T-94, D-106), applied by scripts/set-lesson-links.mjs (T-138). Source: Karnataka Class 3 Kannada-medium digital textbooks on DIKSHA, '3. ಗಣಿತ ಭಾಗ-1' (do_31338234814977638414751) and 'ಭಾಗ-2' (do_31338236796715827215181), whose 12 chapters are ours; the 2026-27 editions on DIKSHA have no content linked yet. Every link was Live on 16 Nov 2026 (DIKSHA content read API). match 'topic': the item teaches this lesson's skill; 'chapter': the chapter's general video, the closest there is. Videos are the state's Kannada teacher-training videos ('how it is taught'); activities are short interactive exercises. url null: nothing suitable is live, so the lesson keeps no link.",
+  "source": {
+    "board": "State (Karnataka)",
+    "grade": "Class 3",
+    "medium": "Kannada",
+    "textbooks": [
+      "do_31338234814977638414751",
+      "do_31338236796715827215181"
+    ],
+    "checkedOn": "2026-11-16"
+  },
+  "lessons": [
+    {
+      "competencyId": "M3.BRIDGE.COMPARE",
+      "url": "https://diksha.gov.in/play/content/do_312594609376018432224025",
+      "title": "ಹೋಲಿಸುವುದು-NSC4_2A-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು",
+      "note": "Comparing numbers; the activity uses 3-digit numbers, the lesson 2-digit"
+    },
+    {
+      "competencyId": "M3.GEO.2D",
+      "url": "https://diksha.gov.in/play/content/do_3131211895677255681299",
+      "title": "2D Shapes using TLMs",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "1.ಆಕೃತಿಗಳು"
+    },
+    {
+      "competencyId": "M3.GEO.3D",
+      "url": "https://diksha.gov.in/play/content/do_3131211984056238081497",
+      "title": "3D Shapes using TLMs",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "1.ಆಕೃತಿಗಳು"
+    },
+    {
+      "competencyId": "M3.GEO.TILES",
+      "url": "https://diksha.gov.in/play/content/do_3131211677884743681596",
+      "title": "2D & 3D Shapes- Full Video",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "1.ಆಕೃತಿಗಳು"
+    },
+    {
+      "competencyId": "M3.GEO.MAP",
+      "url": "https://diksha.gov.in/play/content/do_3131211677884743681596",
+      "title": "2D & 3D Shapes- Full Video",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "1.ಆಕೃತಿಗಳು"
+    },
+    {
+      "competencyId": "M3.GEO.DRAW",
+      "url": "https://diksha.gov.in/play/content/do_3131211677884743681596",
+      "title": "2D & 3D Shapes- Full Video",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "1.ಆಕೃತಿಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.COUNT999",
+      "url": "https://diksha.gov.in/play/content/do_31312399413957427211187",
+      "title": "Numbers (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.NAMES",
+      "url": "https://diksha.gov.in/play/content/do_31312399413957427211187",
+      "title": "Numbers (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.PV.HTO",
+      "url": "https://diksha.gov.in/play/content/do_312594610649776128124228",
+      "title": "ಸ್ಥಾನ ಬೆಲೆ-NSPV3_2-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.PV.EXPAND",
+      "url": "https://diksha.gov.in/play/content/do_312594610593587200124225",
+      "title": "ಸ್ಥಾನ ಬೆಲೆ -NSPV3_1-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.SEQUENCE",
+      "url": "https://diksha.gov.in/play/content/do_312594611252510720124243",
+      "title": "ಕ್ರಮ-NSS2_4-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.COMPARE",
+      "url": "https://diksha.gov.in/play/content/do_312594609625358336224030",
+      "title": "ಹೋಲಿಸುವುದು-NSC4_6-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.ORDER",
+      "url": "https://diksha.gov.in/play/content/do_312594609489330176224027",
+      "title": "ಹೋಲಿಸುವುದು-NSC4_4-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.FORM",
+      "url": "https://diksha.gov.in/play/content/do_31312399413957427211187",
+      "title": "Numbers (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.NUM.LINE",
+      "url": "https://diksha.gov.in/play/content/do_31312399413957427211187",
+      "title": "Numbers (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "2.ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.ADD.QUICK",
+      "url": "https://diksha.gov.in/play/content/do_31312322204386918411212",
+      "title": "Addition using TLMs (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "3.ಸಂಕಲನ"
+    },
+    {
+      "competencyId": "M3.ADD.WORD",
+      "url": "https://diksha.gov.in/play/content/do_313123917262389248171",
+      "title": "Addition- Real Life Examples ( Kannada )",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "3.ಸಂಕಲನ"
+    },
+    {
+      "competencyId": "M3.ADD.NOCARRY",
+      "url": "https://diksha.gov.in/play/content/do_3131232731820523521923",
+      "title": "Addition without Regrouping-Using TLMS (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "3.ಸಂಕಲನ"
+    },
+    {
+      "competencyId": "M3.ADD.CARRY",
+      "url": "https://diksha.gov.in/play/content/do_31312354133038694411018",
+      "title": "Addition with Regrouping- Using TLMs",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "3.ಸಂಕಲನ"
+    },
+    {
+      "competencyId": "M3.ADD.MAKE",
+      "url": "https://diksha.gov.in/play/content/do_31312322807907942411085",
+      "title": "Addition-Full Concept Video (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "3.ಸಂಕಲನ"
+    },
+    {
+      "competencyId": "M3.ADD.ESTIMATE",
+      "url": "https://diksha.gov.in/play/content/do_31312322807907942411085",
+      "title": "Addition-Full Concept Video (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "3.ಸಂಕಲನ"
+    },
+    {
+      "competencyId": "M3.SUB.WORD",
+      "url": "https://diksha.gov.in/play/content/do_3131248779560304641181",
+      "title": "Real-life Applications/Scenarios of Subtraction (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "4.ವ್ಯವಕಲನ"
+    },
+    {
+      "competencyId": "M3.SUB.NOBORROW",
+      "url": "https://diksha.gov.in/play/content/do_3131248625856102401174",
+      "title": "Subtraction Without Regrouping, Using CRA Method (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "4.ವ್ಯವಕಲನ"
+    },
+    {
+      "competencyId": "M3.SUB.BORROW",
+      "url": "https://diksha.gov.in/play/content/do_3131248691687342081178",
+      "title": "Subtraction with Regrouping, Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "4.ವ್ಯವಕಲನ"
+    },
+    {
+      "competencyId": "M3.SUB.MAKE",
+      "url": "https://diksha.gov.in/play/content/do_3131248419184230401225",
+      "title": "Subtraction (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "4.ವ್ಯವಕಲನ"
+    },
+    {
+      "competencyId": "M3.SUB.ESTIMATE",
+      "url": "https://diksha.gov.in/play/content/do_3131248419184230401225",
+      "title": "Subtraction (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "4.ವ್ಯವಕಲನ"
+    },
+    {
+      "competencyId": "M3.MUL.REPEAT",
+      "url": "https://diksha.gov.in/play/content/do_3131233873323540481976",
+      "title": "Multiplication Using Teaching Learning Materials and CPA (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MUL.SIGN",
+      "url": "https://diksha.gov.in/play/content/do_3131233624648335361952",
+      "title": "Multiplication (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MUL.TABLES",
+      "url": "https://diksha.gov.in/play/content/do_312594610348310528124218",
+      "title": "ಗುಣಾಕಾರ-NOM12_1-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MUL.DAILY",
+      "url": "https://diksha.gov.in/play/content/do_31312341193228288018",
+      "title": "Real-life Applications/Scenarios of Multiplication (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MUL.2D1D",
+      "url": "https://diksha.gov.in/play/content/do_3131233624648335361952",
+      "title": "Multiplication (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MUL.2D1D.CARRY",
+      "url": "https://diksha.gov.in/play/content/do_3131233624648335361952",
+      "title": "Multiplication (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MUL.2D2D",
+      "url": "https://diksha.gov.in/play/content/do_312594610451128320124220",
+      "title": "ಗುಣಾಕಾರ-NOM14_1-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "5.ಗುಣಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.DIV.SHARE",
+      "url": "https://diksha.gov.in/play/content/do_313124687642828800124",
+      "title": "Division of Small Numbers Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "6.ಭಾಗಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.DIV.MULREL",
+      "url": "https://diksha.gov.in/play/content/do_313124750914207744183",
+      "title": "Division - Rules and Facts (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "6.ಭಾಗಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.DIV.TABLES",
+      "url": "https://diksha.gov.in/play/content/do_312594609841504256124208",
+      "title": "ಭಾಗಾಕಾರ-NOD16_3-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "6.ಭಾಗಾಕಾರ"
+    },
+    {
+      "competencyId": "M3.MENT.ADDSUB",
+      "url": null,
+      "reason": "Mental maths: nothing live on DIKSHA (the chapter PDF is retired)"
+    },
+    {
+      "competencyId": "M3.MENT.DOUBLE",
+      "url": null,
+      "reason": "Mental maths: nothing live on DIKSHA (the chapter PDF is retired)"
+    },
+    {
+      "competencyId": "M3.FRAC.HALF",
+      "url": "https://diksha.gov.in/play/content/do_3131253359688826881149",
+      "title": "Fractions Shapes Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "8.ಭಿನ್ನರಾಶಿ ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.FRAC.QUARTER",
+      "url": "https://diksha.gov.in/play/content/do_312594610109685760224045",
+      "title": "ಭಿನ್ನರಾಶಿಗಳು-NSF1_4-G3",
+      "kind": "activity",
+      "match": "topic",
+      "chapter": "8.ಭಿನ್ನರಾಶಿ ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.FRAC.SYMBOL",
+      "url": "https://diksha.gov.in/play/content/do_3131253482992435201151",
+      "title": "Fractions - Representational Method (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "8.ಭಿನ್ನರಾಶಿ ಸಂಖ್ಯೆಗಳು"
+    },
+    {
+      "competencyId": "M3.MONEY.COINS",
+      "url": "https://diksha.gov.in/play/content/do_3131233523915980801929",
+      "title": "Money Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "9.ಹಣ"
+    },
+    {
+      "competencyId": "M3.MONEY.WRITE",
+      "url": "https://diksha.gov.in/play/content/do_3131233284313661441974",
+      "title": "Money (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "9.ಹಣ"
+    },
+    {
+      "competencyId": "M3.MONEY.CONVERT",
+      "url": "https://diksha.gov.in/play/content/do_3131233284313661441974",
+      "title": "Money (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "9.ಹಣ"
+    },
+    {
+      "competencyId": "M3.MONEY.ADDSUB",
+      "url": "https://diksha.gov.in/play/content/do_3131233574433423361979",
+      "title": "Money - Real-life Applications and Misconceptions (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "9.ಹಣ"
+    },
+    {
+      "competencyId": "M3.MONEY.BILL",
+      "url": "https://diksha.gov.in/play/content/do_3131233284313661441974",
+      "title": "Money (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "9.ಹಣ"
+    },
+    {
+      "competencyId": "M3.MEAS.CM",
+      "url": "https://diksha.gov.in/play/content/do_3131233196872581121971",
+      "title": "Measurements - Length Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "10.ಅಳತೆಗಳು - ಉದ್ದ, ತೂಕ, ಕಾಲ"
+    },
+    {
+      "competencyId": "M3.MEAS.METRE",
+      "url": "https://diksha.gov.in/play/content/do_3131233196872581121971",
+      "title": "Measurements - Length Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "10.ಅಳತೆಗಳು - ಉದ್ದ, ತೂಕ, ಕಾಲ"
+    },
+    {
+      "competencyId": "M3.MEAS.ESTIMATE",
+      "url": "https://diksha.gov.in/play/content/do_31312329349577932811161",
+      "title": "Measurements (Kannada) - Full Concept",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "10.ಅಳತೆಗಳು - ಉದ್ದ, ತೂಕ, ಕಾಲ"
+    },
+    {
+      "competencyId": "M3.MEAS.WEIGHT",
+      "url": "https://diksha.gov.in/play/content/do_3131233074932203521891",
+      "title": "Measurements - Weight Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "10.ಅಳತೆಗಳು - ಉದ್ದ, ತೂಕ, ಕಾಲ"
+    },
+    {
+      "competencyId": "M3.MEAS.CAPACITY",
+      "url": "https://diksha.gov.in/play/content/do_3131233154047016961945",
+      "title": "Measurements - Volume Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "10.ಅಳತೆಗಳು - ಉದ್ದ, ತೂಕ, ಕಾಲ"
+    },
+    {
+      "competencyId": "M3.TIME.CALENDAR",
+      "url": null,
+      "reason": "No time content in the measurement chapter on DIKSHA"
+    },
+    {
+      "competencyId": "M3.TIME.CLOCK",
+      "url": null,
+      "reason": "No time content in the measurement chapter on DIKSHA"
+    },
+    {
+      "competencyId": "M3.TIME.ORDER",
+      "url": null,
+      "reason": "No time content in the measurement chapter on DIKSHA"
+    },
+    {
+      "competencyId": "M3.DATA.TALLY",
+      "url": "https://diksha.gov.in/play/content/do_31312413601974681611288",
+      "title": "Data Handling using TLMs (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "11.ದತ್ತಾಂಶ ನಿರ್ವಹಣೆ"
+    },
+    {
+      "competencyId": "M3.DATA.PICTO",
+      "url": "https://diksha.gov.in/play/content/do_31312414743457792011699",
+      "title": "Data Handling- Full Concept (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "11.ದತ್ತಾಂಶ ನಿರ್ವಹಣೆ"
+    },
+    {
+      "competencyId": "M3.PAT.SYMMETRY",
+      "url": "https://diksha.gov.in/play/content/do_31312409227929190411392",
+      "title": "Symmetry Using Teaching Learning Materials (Kannada",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "12.ನಮೂನೆಗಳು"
+    },
+    {
+      "competencyId": "M3.PAT.SHAPE",
+      "url": "https://diksha.gov.in/play/content/do_31312404650927718411358",
+      "title": "Patterns Using Teaching Learning Materials (Kannada)",
+      "kind": "video",
+      "match": "topic",
+      "chapter": "12.ನಮೂನೆಗಳು"
+    },
+    {
+      "competencyId": "M3.PAT.NUMBER",
+      "url": "https://diksha.gov.in/play/content/do_31312408036903321611387",
+      "title": "Patterns Using the Pictorial and Representational Method (Kannada)",
+      "kind": "video",
+      "match": "chapter",
+      "chapter": "12.ನಮೂನೆಗಳು"
+    },
+    {
+      "competencyId": "M3.PAT.SPLIT",
+      "url": null,
+      "reason": "No pattern content for splitting numbers; the chapter video is still processing on DIKSHA"
+    },
+    {
+      "competencyId": "M3.PAT.TABLES",
+      "url": null,
+      "reason": "No pattern content for the multiplication table; the chapter video is still processing on DIKSHA"
+    }
+  ]
+}
