@@ -918,6 +918,8 @@
       "cancel": "Cancel",
       "edit": "Edit",
       "editFor": "Edit {{name}}'s number",
+      "familyPhone": "Family phone (simulated)",
+      "familyPhoneFor": "Family phone (simulated) for {{name}}",
       "clear": "Clear",
       "clearFor": "Clear {{name}}'s saved number",
       "saved": "Saved",

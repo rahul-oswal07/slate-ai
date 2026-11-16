@@ -134,9 +134,12 @@ export interface AdminChild {
   languageChanged: boolean
 }
 
-/** `GET /api/admin/children`: every class with its children by roll number. */
+/**
+ * `GET /api/admin/children`: every class with its children by roll number. `demo` marks the demo class (with the demo
+ * on), whose children each have a simulated family phone at `/demo/family/:childId` (T-130).
+ */
 export interface AdminChildren {
-  classes: { id: string; label: string; children: AdminChild[] }[]
+  classes: { id: string; label: string; demo: boolean; children: AdminChild[] }[]
 }
 
 /** Every class's children and their WhatsApp numbers (T-118, D-110). */

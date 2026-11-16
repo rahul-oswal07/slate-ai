@@ -19,7 +19,7 @@ const children: AdminChild[] = [
  * The admin API (no key, D-112): GET lists the class; PUT …/phone saves (as E.164), clears (blank) or refuses a short
  * number (400); PUT …/language changes the home language (T-122), or fails with 500 when `languageFails`.
  */
-function stubApi({ languageFails = false }: { languageFails?: boolean } = {}) {
+function stubApi({ languageFails = false, demo = false }: { languageFails?: boolean; demo?: boolean } = {}) {
   const rows = new Map(children.map((c) => [c.id, c]))
   const calls: { method: string; url: string; body: { phone?: string; language?: string; clientRequestId?: string } | null }[] = []
   vi.stubGlobal(
@@ -53,7 +53,7 @@ function stubApi({ languageFails = false }: { languageFails?: boolean } = {}) {
         rows.set(id, updated)
         return Response.json(updated)
       }
-      const list: AdminChildren = { classes: [{ id: 'k1', label: 'Shobha · Grade 3', children: [...rows.values()] }] }
+      const list: AdminChildren = { classes: [{ id: 'k1', label: 'Shobha · Grade 3', demo, children: [...rows.values()] }] }
       return Response.json(list)
     }),
   )
@@ -95,6 +95,30 @@ describe('AdminChildrenScreen (T-118)', () => {
     expect(within(ravi).getByText('Family stopped messages: nothing is sent')).toBeInTheDocument()
     expect(within(ravi).getByRole('button', { name: "Clear Ravi's saved number" })).toBeInTheDocument()
     expect(within(ananya).queryByRole('button', { name: /Clear/ })).not.toBeInTheDocument()
+  })
+
+  it("links each demo child's simulated family phone (T-130)", async () => {
+    stubApi({ demo: true })
+    renderAt()
+
+    const manjunath = await row(/15 · Manjunath/)
+    expect(within(manjunath).getByRole('link', { name: 'Family phone (simulated) for Manjunath' })).toHaveAttribute(
+      'href',
+      '/demo/family/c15',
+    )
+    expect(screen.getAllByRole('link', { name: /Family phone \(simulated\)/ }).map((a) => a.getAttribute('href'))).toEqual([
+      '/demo/family/c1',
+      '/demo/family/c15',
+      '/demo/family/c24',
+    ])
+  })
+
+  it('a class that is not the demo class has no family phone links (T-130)', async () => {
+    stubApi()
+    renderAt()
+
+    await row(/15 · Manjunath/)
+    expect(screen.queryByRole('link', { name: /Family phone \(simulated\)/ })).not.toBeInTheDocument()
   })
 
   it('Edit then Save sends the number and shows it saved', async () => {

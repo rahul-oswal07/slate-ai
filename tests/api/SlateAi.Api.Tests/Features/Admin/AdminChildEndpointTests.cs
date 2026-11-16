@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Admin;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -15,6 +16,9 @@ public sealed class AdminChildEndpointTests
     private static readonly Guid Manjunath = Guid.NewGuid();
     private static readonly Guid Ravi = Guid.NewGuid();
     private static readonly Guid Ananya = Guid.NewGuid();
+
+    private static readonly Guid DemoClassId =
+        DemoSeedFile.LoadAsync("data/seed/demo-class.json", Ct).GetAwaiter().GetResult().Class.Id;
 
     private readonly FakeAdminChildStore _store = new();
 
@@ -47,6 +51,34 @@ public sealed class AdminChildEndpointTests
                 new AdminChild(Ravi, 24, "Ravi", "ta", "yes", true, null, LanguageChanged: true),
             ],
             cls.Children);
+    }
+
+    [Fact]
+    public async Task Marks_the_demo_class_so_the_page_can_link_each_childs_family_phone()
+    {
+        // T-130: /demo/family/{id} only knows the demo class's children, so only that class gets the links.
+        _store.Classes.Add(new AdminChildClass(DemoClassId, "Shobha", 3, []));
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var classes = (await client.GetFromJsonAsync<AdminChildrenResponse>(Url, Ct))!.Classes;
+
+        Assert.Equal([(ClassId, false), (DemoClassId, true)], classes.Select(c => (c.Id, c.Demo)));
+    }
+
+    [Fact]
+    public async Task No_class_is_the_demo_class_when_the_demo_is_off()
+    {
+        _store.Classes.Add(new AdminChildClass(DemoClassId, "Shobha", 3, []));
+        await using var factory = FakeApi.Create(
+            services => services.AddSingleton<IAdminChildStore>(_store),
+            settings: new Dictionary<string, string?> { ["Demo:Enabled"] = "false" });
+        using var client = factory.CreateHttpsClient();
+
+        var classes = (await client.GetFromJsonAsync<AdminChildrenResponse>(Url, Ct))!.Classes;
+
+        Assert.Equal(2, classes.Count);
+        Assert.All(classes, c => Assert.False(c.Demo));
     }
 
     [Fact]
@@ -219,8 +251,12 @@ public sealed class AdminChildEndpointTests
 
         public List<AdminChildRow> Rows { get; } = [];
 
+        /// <summary>Classes listed after the one holding <see cref="Rows"/>.</summary>
+        public List<AdminChildClass> Classes { get; } = [];
+
         public Task<IReadOnlyList<AdminChildClass>> ListAsync(CancellationToken cancellationToken) =>
-            Task.FromResult<IReadOnlyList<AdminChildClass>>([new AdminChildClass(ClassId, "Shobha", 3, [.. Rows.OrderBy(r => r.RollNo)])]);
+            Task.FromResult<IReadOnlyList<AdminChildClass>>(
+                [new AdminChildClass(ClassId, "Shobha", 3, [.. Rows.OrderBy(r => r.RollNo)]), .. Classes]);
 
         public Task<AdminChildRow?> SetPhoneAsync(
             Guid clientRequestId, Guid childId, string? phone, DateTimeOffset now, CancellationToken cancellationToken)
