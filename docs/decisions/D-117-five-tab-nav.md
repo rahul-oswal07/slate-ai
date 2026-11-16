@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Proposed |
-| Owner | Monika, 15 Nov 2026. **[CONFIRM: Rahul]** |
+| Status | Accepted (16 Nov, Rahul) |
+| Owner | Monika, 15 Nov 2026; accepted by Rahul, 16 Nov |
 | Gate | T-129 |
 | Screens | app-shell, T4-missed-lessons, T5-back-today |
 
@@ -41,3 +41,4 @@ Everything else built since D-96 stays as it is, for example the level tags in B
 ## Notes
 
 - 15 Nov 2026: proposed by Monika after seeing the four-tab nav on the built app. Once Rahul accepts, D-96's row in the frozen log gets the status "Changed (nav: D-117; header: D-101)".
+- 16 Nov 2026: accepted by Rahul, including the old link `/missed?filter=back` opening `/back`. D-96's row in the frozen log is now "Changed (nav: D-117; header: D-101)". Built in T-129.

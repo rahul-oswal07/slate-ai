@@ -12,11 +12,13 @@ Spec: [`spec.md`](spec.md)
 - The header stays at the top while she scrolls, on teacher screens only (family pages don't use it); focused headings and the skip link land below it (T-114).
 - The tagline is "The missed lesson" (no "at home"); Kannada shows none, since the name already says it (T-114).
 - The header is one row: the name centred with language and a profile button, the tagline under the name. The profile menu is Profile · Settings · Log out. Sign-in has no profile button; before set-up the menu has Log out only (T-109, D-101).
-- Bottom nav: four tabs, Today · Approve · Children · Week (D-96, T-95). Children opens the missed-lessons screen; Back today is one of its filters, and the old `/back` link lands there.
+- Bottom nav: five tabs, Today · Approve · Missed · Back today · Week (D-117, T-129). Today stays current on Lesson confirm, Settings and Profile.
+- Approve and Back today show a neutral count badge (waiting catch-ups; today's buddy cards, from the saved cards when offline); screen readers hear it in the tab name (T-129).
 
 ## Known gaps and drafts
 
 - Tamil layout at 360 px (T-84) is fixed (T-101, #211); the Tamil tab label "திரும்பி வந்தோர்" is a draft for native review (T-26).
+- The kn, te, ta and hi wording read out with the Back today badge (", 2 children") is a draft for Monika (T-129).
 - Offline covers attendance and voice notes only (roadmap, D-70).
 - The short language labels and the kn, hi, te and ta strings of the profile menu are drafts for Monika (T-109).
 

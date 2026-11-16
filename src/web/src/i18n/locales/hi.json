@@ -260,9 +260,12 @@
     "label": "मुख्य",
     "today": "आज",
     "approve": "मंज़ूरी",
-    "children": "बच्चे",
+    "missed": "छूटे",
+    "back": "आज लौटे",
     "week": "सप्ताह",
-    "approveWaiting": ", {{n}} इंतज़ार में"
+    "approveWaiting": ", {{n}} इंतज़ार में",
+    "backToday_one": ", {{count}} बच्चा",
+    "backToday_other": ", {{count}} बच्चे"
   },
   "offline": {
     "showingSaved": "नेटवर्क नहीं है। {{time}} पर सहेजा हुआ दिखा रहे हैं। नेटवर्क आने पर यह अपडेट होगा।",
@@ -555,14 +558,13 @@
     }
   },
   "missed": {
-    "title": "बच्चे",
+    "title": "छूटे हुए पाठ",
     "view": "दृश्य",
     "viewChild": "बच्चे के अनुसार",
     "viewLesson": "पाठ के अनुसार",
     "filter": "फ़िल्टर",
     "filterWeek": "इस सप्ताह अनुपस्थित · {{n}}",
     "filterAll": "सभी · {{n}}",
-    "filterBack": "आज लौटे · {{n}}",
     "daysAway_one": "· {{count}} दिन अनुपस्थित",
     "daysAway_other": "· {{count}} दिन अनुपस्थित",
     "missed": "छूटा: {{lessons}}",

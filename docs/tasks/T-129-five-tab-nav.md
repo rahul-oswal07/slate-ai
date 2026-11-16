@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done |
 | Issue | #265 |
 | Owner | R |
 | Screens | app-shell, T4-missed-lessons, T5-back-today |
@@ -32,7 +32,7 @@ Mostly this undoes the nav and title part of #237. Everything built since D-96 s
   - ta: தவறிய பாடம் · திரும்பி வந்தோர்
   - hi: छूटे · आज लौटे
 - The Missed screen's title is "Missed lessons" (kn ತಪ್ಪಿದ ಪಾಠಗಳು, te తప్పిన పాఠాలు, ta தவறிய பாடங்கள், hi छूटे हुए पाठ). By child has no "Back today" filter.
-- `/back` shows the Back today screen. It doesn't redirect anymore. Printing still prints only the cards. **[CONFIRM: Rahul]** The old link `/missed?filter=back` opens `/back`.
+- `/back` shows the Back today screen. It doesn't redirect anymore. Printing still prints only the cards. The old link `/missed?filter=back` opens `/back`.
 - The Back today badge:
   - shows the number of today's buddy cards when it is 1 or more, and nothing at 0;
   - uses Approve's neutral style, never the error colour;
@@ -55,3 +55,4 @@ Mostly this undoes the nav and title part of #237. Everything built since D-96 s
 ## Notes
 
 - 15 Nov 2026: proposed by Monika (D-117). She chose the old order and labels, the "Missed lessons" title without the Back today filter, and the count badge. D-117 was first numbered D-116, which T-128 (#264) took first.
+- 16 Nov 2026: **built.** This undoes the nav and title part of #237 (code reverted to before T-95; `App.tsx` and locales edited by hand, so the later work stays). D-117 is accepted, including `/missed?filter=back` → `/back` (handled by a small `MissedRoute` in `App.tsx`). The Back today badge counts today's buddy cards with `useBuddyCards`, the same query as the screen, so offline it uses the saved cards. It reuses Approve's neutral badge (`bg-ink`, `aria-hidden` number, `sr-only` suffix). Screen readers hear "Back today, 2 children" (`nav.backToday_one` / `_other`, plural like the Approve headings). New `BottomNav.test.tsx`: order, hrefs, `aria-current` incl. Today's sub-screens, badge at 0 / 1 / 2, offline snapshot, kn/te/ta/hi labels. `MissedScreen.test.tsx`: title, two filters only, the old link. **Drafts for Monika:** the kn/te/ta/hi badge suffix (taken from the Approve "child / children" headings). Checked at 360 px in all five languages, light and dark (a throwaway Playwright script, not committed): every tab ≥ 48 px, labels inside the screen and not overlapping. Tamil "வந்தோர்" is 74 px in a 72 px tab, so it reaches ~1 px into the neighbours' padding without clipping. axe has no serious/critical issues on Today, Missed and Back today (en, kn; light and dark). Screenshots: `docs/design/screenshots/T1-nav-five-tabs-*`, `T4-missed-five-tabs-*`, `T5-back-today-badge-*`. Existing 12 e2e specs pass. The T1 design card already shows five tabs (it never changed for D-96).

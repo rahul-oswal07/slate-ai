@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { saveSnapshot } from '../../offline/db'
 import { fakeApi, renderApp, teacher } from '../../test/renderApp'
-import { istToday } from '../today/schoolTime'
 import { curriculum, ledger } from './fixtures'
 import type { Ledger } from './types'
 
@@ -46,10 +45,13 @@ describe('MissedScreen (T4)', () => {
     setup(() => ledger())
     renderApp('/missed')
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Children' })).toHaveFocus()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Missed lessons' })).toHaveFocus()
     expect(await screen.findByRole('button', { name: 'Absent this week · 2' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'Everyone · 4' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'By child' })).toHaveAttribute('aria-pressed', 'true')
+    // Back today has its own tab again, so it is not a filter here (D-117, T-129).
+    expect(within(screen.getByRole('group', { name: 'Filter' })).getAllByRole('button')).toHaveLength(2)
+    expect(screen.queryByRole('button', { name: /Back today/ })).not.toBeInTheDocument()
     // Lesson names come from the curriculum, which may arrive after the ledger.
     await screen.findAllByText(/Subtraction with borrowing/)
 
@@ -127,22 +129,12 @@ describe('MissedScreen (T4)', () => {
     expect(screen.getByRole('button', { name: 'Absent this week · 2' })).toBeInTheDocument()
   })
 
-  it('Back today is the third filter in Children; the Children tab stays current (D-96, T-95)', async () => {
-    const user = userEvent.setup()
-    fakeApi({
-      'GET /api/me': () => ({ status: 200, body: teacher }),
-      [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
-      [`GET /api/classes/${teacher.classId}/buddy-cards/${istToday()}`]: () => ({ status: 200, body: { date: istToday(), cards: [] } }),
-    })
-    renderApp('/missed')
+  it('the old /missed?filter=back link opens the Back today tab (D-117, T-129)', async () => {
+    setup(() => ledger())
+    renderApp('/missed?filter=back')
 
-    const back = await screen.findByRole('button', { name: 'Back today · 0' })
-    expect(back).toHaveAttribute('aria-pressed', 'false')
-    await user.click(back)
-
-    expect(back).toHaveAttribute('aria-pressed', 'true')
-    expect(await screen.findByRole('heading', { level: 2, name: 'Back today' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Back today' })).toHaveFocus()
     const nav = screen.getByRole('navigation', { name: 'Main' })
-    expect(within(nav).getByRole('link', { name: 'Children' })).toHaveAttribute('aria-current', 'page')
+    expect(within(nav).getByRole('link', { name: /^Back today/ })).toHaveAttribute('aria-current', 'page')
   })
 })

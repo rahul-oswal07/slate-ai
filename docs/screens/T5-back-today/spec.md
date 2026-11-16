@@ -28,6 +28,6 @@ Moved as they are from `spec.md` §2 (15 Nov 2026). This file is now where they 
 
 ## Decisions cited
 
-D-20, D-22, D-29, D-59; [D-117](../../decisions/D-117-five-tab-nav.md) (Back today is its own tab again, proposed).
+D-20, D-22, D-29, D-59; [D-117](../../decisions/D-117-five-tab-nav.md) (Back today is its own tab again).
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

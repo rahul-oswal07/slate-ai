@@ -253,9 +253,10 @@ describe('TodayScreen', () => {
 
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav).getByRole('link', { name: 'Today' })).toHaveAttribute('aria-current', 'page')
-    // Four tabs (D-96, T-95): Back today is a filter in Children now.
-    expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['Today', 'Approve', 'Children', 'Week'])
-    expect(within(nav).getByRole('link', { name: 'Children' })).toHaveAttribute('href', '/missed')
+    // Five tabs again (D-117, T-129).
+    expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['Today', 'Approve', 'Missed', 'Back today', 'Week'])
+    expect(within(nav).getByRole('link', { name: 'Missed' })).toHaveAttribute('href', '/missed')
+    expect(within(nav).getByRole('link', { name: 'Back today' })).toHaveAttribute('href', '/back')
 
     // Every tab is a real screen now (Week, T6, was the last placeholder until T-46).
     await userEvent.click(within(nav).getByRole('link', { name: 'Week' }))

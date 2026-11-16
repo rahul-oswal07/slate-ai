@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useSearchParams } from 'react-router'
 import { AdminChildrenScreen } from '../features/admin/AdminChildrenScreen'
 import { AdminIndexScreen } from '../features/admin/AdminIndexScreen'
 import { GreetingsAdminScreen } from '../features/admin/GreetingsAdminScreen'
@@ -7,6 +7,7 @@ import { LessonLinksAdminScreen } from '../features/admin/LessonLinksAdminScreen
 import { LoginScreen } from '../features/auth/LoginScreen'
 import { TeacherGate } from '../features/auth/TeacherGate'
 import { ApproveScreen } from '../features/approve/ApproveScreen'
+import { BackTodayScreen } from '../features/back/BackTodayScreen'
 import { PackageScreen } from '../features/approve/PackageScreen'
 import { DemoAiScreen } from '../features/demo/DemoAiScreen'
 import { DemoFamilyScreen } from '../features/demo/DemoFamilyScreen'
@@ -60,10 +61,9 @@ export function App() {
             <Route path="lesson" element={<ConfirmLessonScreen />} />
             <Route path="approve" element={<ApproveScreen />} />
             <Route path="approve/:id" element={<PackageScreen />} />
-            <Route path="missed" element={<MissedScreen />} />
+            <Route path="missed" element={<MissedRoute />} />
             <Route path="missed/:childId" element={<ChildScreen />} />
-            {/* Back today is a filter in Children now (D-96, T-95); old links still land there. */}
-            <Route path="back" element={<Navigate to="/missed?filter=back" replace />} />
+            <Route path="back" element={<BackTodayScreen />} />
             <Route path="week" element={<WeekScreen />} />
           </Route>
         </Route>
@@ -71,4 +71,10 @@ export function App() {
       </Route>
     </Routes>
   )
+}
+
+/** Back today was a filter in Missed for a day (D-96, T-95); its old link opens the Back today tab now (D-117, T-129). */
+function MissedRoute() {
+  const [params] = useSearchParams()
+  return params.get('filter') === 'back' ? <Navigate to="/back" replace /> : <MissedScreen />
 }

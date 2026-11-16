@@ -3,16 +3,21 @@ import { Link, useLocation } from 'react-router'
 import { Icon, type IconName } from '../components/Icon'
 import { useMe } from '../features/auth/useMe'
 import { usePackages, waitingCount } from '../features/approve/usePackages'
+import { useBuddyCards } from '../features/back/useBuddyCards'
+import { istToday } from '../features/today/schoolTime'
 
-const tabs: { to: string; key: 'today' | 'approve' | 'children' | 'week'; icon: IconName }[] = [
+const tabs: { to: string; key: 'today' | 'approve' | 'missed' | 'back' | 'week'; icon: IconName }[] = [
   { to: '/', key: 'today', icon: 'house' },
   { to: '/approve', key: 'approve', icon: 'check' },
-  // Children: missed lessons by child or lesson, and Back today as one of its filters (D-96).
-  { to: '/missed', key: 'children', icon: 'users' },
+  { to: '/missed', key: 'missed', icon: 'list' },
+  { to: '/back', key: 'back', icon: 'users' },
   { to: '/week', key: 'week', icon: 'chartColumn' },
 ]
 
-/** Teacher bottom nav (T1 card §8, D-96): four equal tabs, active tab marked with aria-current. Hidden during setup. */
+/**
+ * Teacher bottom nav (T1 card §8, D-117): five equal tabs, active tab marked with aria-current. Hidden during setup.
+ * Approve and Back today carry a neutral count badge that screen readers hear as part of the tab name.
+ */
 export function BottomNav() {
   const { t } = useTranslation()
   // T2 Lesson confirm, Settings (T-71) and Profile (T-109, both opened from the header's profile menu) are
@@ -23,11 +28,18 @@ export function BottomNav() {
   const active = (to: string) =>
     to === '/' ? pathname === '/' || onTodaySubScreen : pathname === to || pathname.startsWith(`${to}/`)
   // Catch-ups waiting for her (ready or needs review); neutral badge, never error-coloured (T3).
-  const waiting = waitingCount(usePackages(useMe().data?.classId ?? '').data)
+  const classId = useMe().data?.classId ?? ''
+  const waiting = waitingCount(usePackages(classId).data)
+  // Children back today: the number of today's buddy cards, counted in code (D-117, guardrail 4); offline, the saved cards.
+  const backToday = useBuddyCards(classId, istToday()).data?.cards.length ?? 0
+  const badge: Partial<Record<(typeof tabs)[number]['key'], { n: number; label: string }>> = {
+    approve: { n: waiting, label: t('nav.approveWaiting', { n: waiting }) },
+    back: { n: backToday, label: t('nav.backToday', { count: backToday }) },
+  }
 
   return (
     <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-10 border-t border-edge bg-surface print:hidden">
-      <ul className="mx-auto grid max-w-md grid-cols-4">
+      <ul className="mx-auto grid max-w-md grid-cols-5">
         {tabs.map((tab) => (
           <li key={tab.key}>
             <Link
@@ -41,17 +53,17 @@ export function BottomNav() {
             >
               <span className="relative">
                 <Icon name={tab.icon} size={24} />
-                {tab.key === 'approve' && waiting > 0 && (
+                {(badge[tab.key]?.n ?? 0) > 0 && (
                   <span
                     aria-hidden="true"
                     className="absolute -right-3.5 -top-1.5 min-w-5 rounded-pill bg-ink px-1 text-center text-[13px] font-bold leading-5 text-surface"
                   >
-                    {waiting}
+                    {badge[tab.key]?.n}
                   </span>
                 )}
               </span>
               {t(`nav.${tab.key}`)}
-              {tab.key === 'approve' && waiting > 0 && <span className="sr-only">{t('nav.approveWaiting', { n: waiting })}</span>}
+              {(badge[tab.key]?.n ?? 0) > 0 && <span className="sr-only">{badge[tab.key]?.label}</span>}
             </Link>
           </li>
         ))}
