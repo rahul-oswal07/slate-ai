@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | In progress |
-| Issue | none yet |
+| Status | Done (#256) |
+| Issue | none (merged in #256 without one) |
 | Owner | R |
 | Screens | demo |
 | Source | Rahul, 15 Nov 2026; FR-14; S |
@@ -32,4 +32,5 @@ Both pages sign in as the demo teacher themselves, like `/demo`, so the link wor
 
 ## Notes
 
+- 16 Nov 2026: merged in #256; status set to Done. Still open, not blocking: Monika's check of the copy and one run against a real database.
 - 15 Nov 2026: built. `DemoScreen.tsx` is split into `DemoParts.tsx` (header, page, frame), `FamilyPhone.tsx` (`FamilyChat` + `ParentPhone`) and `UnderTheHood.tsx`, with no change to `/demo`. The kn strings for the new keys are in English, like the rest of the kn demo strings. Screenshots at 360 px and 1280 px came from the Vite dev server with the API mocked in the browser. Axe found no violations on `/demo/ai`, `/demo/family/<id>` or the not-found state. Left: Monika's check of the copy, a GitHub issue, and one run against a real database.
