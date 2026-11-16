@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Done (#262) |
 | Issue | #261 · Record card merged in #207 |
 | Owner | R |
 | Screens | T1-today, T3-approve, T9-sign-in, admin |
@@ -22,6 +22,7 @@ Vitest
 
 ## Notes
 
+- 16 Nov: done: one next step on Today and placeholders in every input merged in #262 (#261 closed). On prod in `v1.6`.
 - 15 Nov: moved here from `tasks.md` (T-110).
 - 14 Nov: "after Approve the app returns to Today" was built by T-108 (#209).
 - 14 Nov: Record card on Today follows Rahul's design (part of T-96, not the whole row): the mic hint is "Up to 30 seconds · in Kannada" (no "holding also works", all locales; holding still records); "Add a photo of the page" and "Pick from the list" sit side by side as outlined tiles (`.btn-tile`, icon above label) with the photo hint under both; "Pick from the list" stays under the photo once one is added. axe clean light and dark at 360 px; screenshots `T1-today-record-360-*.png`.
