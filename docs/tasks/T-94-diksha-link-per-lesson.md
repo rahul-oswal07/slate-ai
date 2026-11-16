@@ -22,5 +22,6 @@ Unit test; Vitest
 
 ## Notes
 
+- 16 Nov 2026: links for 54 of 61 lessons found on DIKSHA, with a script to set them on a server (T-138).
 - 15 Nov: **built** (Rahul's answers, D-106: links are set on a new admin page, `/admin/lesson-links`, by whoever checked them; any https link; one per lesson for every class; full scope). New table `LessonLinks` (migration `LessonLinks`); `GET`/`PUT /api/admin/lesson-links` with the D-102 key rule; a fresh today's message gets the first of its lessons' links as its video, by code; Approve → Today's message shows a Video section with Remove (no Edit), and the "remove" rule now counts the sections a message has; the family page already showed the video step. Also, at Rahul's request: `/admin` lists every admin page with its address (links keep `#key=…`; each page's nav has "All pages"). Then, from Rahul's review (too much scrolling): the lesson links page folds chapters with "N of M linked", has a search and "Only lessons without a link", and saves every typed link from one "Save all" bar. Left: Monika enters the checked Nalikali p 4 link on staging (M-1); kn, te, ta, hi strings of the admin page are drafts.
 - 15 Nov: moved here from `tasks.md` (T-110).

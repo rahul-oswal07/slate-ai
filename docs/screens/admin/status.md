@@ -12,6 +12,7 @@ Spec: [`spec.md`](spec.md)
 - The lesson-links search has a placeholder: "Lesson name or ID, e.g. compare" (T-96).
 - The lesson links page starts with every chapter folded and "N of M linked" on each; a search (English or Kannada name, or ID) and "Only lessons without a link" narrow it; links typed in any rows are saved together from a bar at the bottom, a refused link stays as typed with how to fix it, and leaving with unsaved links asks first (T-94).
 - The kn, te, ta and hi strings of the lesson links page are drafts for Monika (T-94).
+- `scripts/set-lesson-links.mjs` sets a DIKSHA link on every lesson that has one in `data/lesson-links/diksha-kn.json` (54 of 61). It is a dry run unless `--apply`, and keeps hand-set links unless `--overwrite` (T-138).
 - **Children** (`/admin/children`): every class's children by roll number with the number saved for their family, the only one WhatsApp uses (T-123, D-114), and a note when consent or "stop" means nothing is sent; Edit / Save / Cancel and Clear per child (T-118, D-110).
 - A number saved there is stored as E.164 (a 10-digit Indian mobile gets +91), is the only number WhatsApp dials, and survives the demo Reset; seeded numbers are never shown (T-118).
 - Each child's home language can be changed there too, from a picker of Kannada, English, Telugu, Tamil and Hindi that saves on change. A changed language shows "Changed here", is used for everything made or sent after it, and survives the demo Reset. What was already made keeps its language (T-122, D-113).
