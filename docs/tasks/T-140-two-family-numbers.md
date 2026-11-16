@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Done (#295, not merged yet) |
+| Status | Done (#295) |
 | Issue | #298 |
 | Owner | R |
 | Screens | admin, delivery |
@@ -45,3 +45,4 @@ Each child has an optional Number 1 and Number 2 on `/admin/children` (e.g. both
 ## Notes
 
 - 16 Nov 2026: built and tested locally (verify.sh and the Db suite pass) in PR #295 with T-139. Rahul asked not to merge yet. Left: Monika's review of the kn/te/ta/hi strings.
+- 17 Nov 2026: merged (#295) and on prod in `v1.7`.
