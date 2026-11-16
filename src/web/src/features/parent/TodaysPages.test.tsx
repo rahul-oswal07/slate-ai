@@ -78,6 +78,24 @@ describe("Family page for today's message (T-91, T-90)", () => {
     expect(screen.getByRole('button', { name: /Is everything OK/ })).toBeInTheDocument()
   })
 
+  it('without a picture question (T-139): activity goes straight to done, which says nothing about an answer', async () => {
+    const user = userEvent.setup()
+    setup(evening(todays({ picture: null })))
+    renderApp(`/p/${token}`)
+
+    await screen.findByRole('heading', { name: 'What Manjunath learned today' })
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Skip' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('heading', { name: 'Try this at home' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(await screen.findByRole('heading', { name: 'Well done!' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: "Manjunath's turn" })).not.toBeInTheDocument()
+    expect(screen.getByText('Manjunath has a star for today. Thank you for doing it together. See you in class tomorrow!')).toBeInTheDocument()
+    expect(screen.queryByText(/will see the answer/)).not.toBeInTheDocument()
+  })
+
   it('every step has Back and its title in one row above the teacher line; none on the first step (T-116)', async () => {
     const user = userEvent.setup()
     setup(evening())

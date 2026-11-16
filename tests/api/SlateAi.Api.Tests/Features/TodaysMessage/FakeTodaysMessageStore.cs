@@ -183,7 +183,8 @@ public sealed class FakeTodaysMessageStore : ITodaysMessageStore
     public Func<Guid, DateOnly, (string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> Answers { get; set; } = (_, _) => null;
 
     public Task<(string Answer, IReadOnlyList<TodaysAnswerRow> Rows)?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken) =>
-        Task.FromResult(Find(classId, date) is null ? null : Answers(classId, date));
+        // As the real store: no picture question (T-139), nothing to answer.
+        Task.FromResult(Find(classId, date) is not { Sections.Picture: not null } ? null : Answers(classId, date));
 
     /// <summary>
     /// What the evening store's GetApprovedTodaysMessageAsync returns for this store: the day's message only when it is

@@ -165,7 +165,13 @@ export function TodaysPages({
         {step === 'done' && (
           <>
             <Celebration />
-            <p className="text-body">{t('parent.todays.doneBody', { child: message.childName, teacher: message.teacherName })}</p>
+            <p className="text-body">
+              {/* Without a picture question (T-139) there is no answer for her to see. */}
+              {t(todays.picture ? 'parent.todays.doneBody' : 'parent.todays.doneBodyNoQuestion', {
+                child: message.childName,
+                teacher: message.teacherName,
+              })}
+            </p>
             {message.reason ? (
               <p className="flex items-center justify-between gap-3 text-body">
                 {t('parent.reason.given')}

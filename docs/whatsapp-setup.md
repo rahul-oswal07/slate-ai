@@ -115,6 +115,8 @@ Not created: `catchup_chat_v1` (flagged as Marketing in every wording; the catch
 | ta | வகுப்புத் தகவல் – {{1}}. தவறிய பாடங்கள்: {{2}}, நலிகலி கணிதம் {{3}}. பாட ஒலி, வீட்டில் செய்யும் செயல்பாடு, படக் கேள்வி தயாராக உள்ளன. திறக்க கீழே உள்ள பொத்தானை அழுத்தவும். | பாடத்தைத் திறக்கவும் |
 | hi | कक्षा की जानकारी – {{1}}। छूटे पाठ: {{2}}, नलि-कलि गणित {{3}}। पाठ का ऑडियो, घर पर करने की गतिविधि और चित्र वाला प्रश्न तैयार हैं। खोलने के लिए नीचे का बटन दबाएँ। | पाठ खोलें |
 
+**Lessons without a picture question (T-139, D-121):** today's message for a lesson without the book's exercises has no picture question, but it is still sent as `todays_lesson_link_v1`, whose fixed text says one is ready. Rahul accepted this for now; a template without that line would fix it.
+
 **Pages outside Nalikali (T-132, D-119):** the fixed text says "Nalikali Maths", so code puts the book after a Maths textbook page, in the family's language: {{3}} = "80 (Maths textbook)" for today's message, "pages 77 and 80 (Maths textbook)" for a catch-up, with "Part 2" from part 2 on. Nalikali pages are filled as they are. A lesson in another book is not sent (`no-values`; the family keeps the demo chat).
 
 `{{3}}` in the catch-up carries the word for page, so code writes it per language: en "page 4" / "pages 4 and 6", kn "ಪುಟ 4" / "ಪುಟ 4 ಮತ್ತು 6", te "పేజీ 4" / "పేజీలు 4, 6", ta "பக்கம் 4" / "பக்கங்கள் 4, 6", hi "पृष्ठ 4" / "पृष्ठ 4 और 6". Lesson names come from the curriculum in the family's language. Indic wording is a draft for native review (T-26).

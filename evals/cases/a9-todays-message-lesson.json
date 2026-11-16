@@ -1,0 +1,18 @@
+{
+  "_note": "A9 lesson prompt (prompts/a9-todays-message-lesson.md, T-139, D-121): today's message for a lesson without the book's exercises, so no picture question. Concept and activity in each language; numbers only from the lesson's examples. Lessons and languages spread over the curriculum and the five family languages; one case with what she said in class.",
+  "cases": [
+    { "id": "geo-2d-kn", "languages": ["kn"], "lessons": ["M3.GEO.2D"] },
+    { "id": "meas-weight-kn-hi", "languages": ["kn", "hi"], "lessons": ["M3.MEAS.WEIGHT"] },
+    { "id": "money-coins-kn-en", "languages": ["kn", "en"], "lessons": ["M3.MONEY.COINS"] },
+    { "id": "mul-tables-kn-te", "languages": ["kn", "te"], "lessons": ["M3.MUL.TABLES"] },
+    { "id": "frac-half-kn-ta", "languages": ["kn", "ta"], "lessons": ["M3.FRAC.HALF"] },
+    { "id": "data-tally-kn-hi-en", "languages": ["kn", "hi", "en"], "lessons": ["M3.DATA.TALLY"] },
+    { "id": "num-sequence-kn-te", "languages": ["kn", "te"], "lessons": ["M3.NUM.SEQUENCE"] },
+    { "id": "pv-expand-kn-en", "languages": ["kn", "en"], "lessons": ["M3.PV.EXPAND"] },
+    { "id": "time-clock-kn-hi", "languages": ["kn", "hi"], "lessons": ["M3.TIME.CLOCK"] },
+    {
+      "id": "pat-symmetry-from-class-kn-ta", "languages": ["kn", "ta"], "lessons": ["M3.PAT.SYMMETRY"],
+      "fromClass": { "summaryKn": "ಎಲೆಯನ್ನು ಅರ್ಧಕ್ಕೆ ಮಡಚಿ ಎರಡೂ ಭಾಗ ಒಂದೇ ರೀತಿ ಇದೆಯೇ ಎಂದು ನೋಡಿದೆವು.", "examples": ["a leaf folded in half"] }
+    }
+  ]
+}

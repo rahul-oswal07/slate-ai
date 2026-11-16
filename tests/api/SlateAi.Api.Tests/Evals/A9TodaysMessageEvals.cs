@@ -24,11 +24,20 @@ public sealed class A9TodaysMessageEvals
     };
 
     [Fact]
-    public async Task Todays_messages_pass_the_checks_after_at_most_one_retry_on_at_least_85_percent_of_cases()
+    public Task Todays_messages_pass_the_checks_after_at_most_one_retry_on_at_least_85_percent_of_cases() =>
+        RunAsync("a9-todays-message");
+
+    /// <summary>Lessons without the book's exercises (T-139, D-121): the lesson prompt, no picture question.</summary>
+    [Fact]
+    public Task Lesson_todays_messages_pass_the_checks_after_at_most_one_retry_on_at_least_85_percent_of_cases() =>
+        RunAsync("a9-todays-message-lesson");
+
+    /// <param name="name">The case file in <c>evals/cases/</c> and the results file's suffix.</param>
+    private static async Task RunAsync(string name)
     {
         var root = RepoRoot();
         var file = JsonSerializer.Deserialize<CaseFile>(
-            await File.ReadAllTextAsync(Path.Combine(root, "evals", "cases", "a9-todays-message.json"), TestContext.Current.CancellationToken),
+            await File.ReadAllTextAsync(Path.Combine(root, "evals", "cases", $"{name}.json"), TestContext.Current.CancellationToken),
             Json)!;
         var key = new ConfigurationBuilder().AddUserSecrets<Program>().AddEnvironmentVariables().Build()["Anthropic:ApiKey"];
         Assert.False(string.IsNullOrWhiteSpace(key), "Set Anthropic:ApiKey in the API's user-secrets to run evals.");
@@ -47,8 +56,9 @@ public sealed class A9TodaysMessageEvals
             await using var scope = services.CreateAsyncScope();
             var writer = scope.ServiceProvider.GetRequiredService<TodaysMessageWriter>();
             var lessons = c.Lessons.Select(curriculum.Get).OfType<Competency>().ToList();
-            // Sums too (D-116): their cases are written by a9-todays-message-sums; compare cases still by v4.
-            var picture = TodaysPicturePicker.Pick(lessons, c.Pair, arithmetic: true)!;
+            // Sums too (D-116): their cases are written by a9-todays-message-sums; compare cases still by v4. A case without
+            // a pair is a lesson without the book's exercises (T-139): no picture, written by a9-todays-message-lesson.
+            var picture = c.Pair is { } pair ? TodaysPicturePicker.Pick(lessons, pair, arithmetic: true)! : null;
             var attempts = new List<Attempt>();
             IReadOnlyList<string>? feedback = null;
             for (var i = 0; i < 2; i++)
@@ -71,12 +81,11 @@ public sealed class A9TodaysMessageEvals
 
         var firstPass = results.Count(r => r.FirstPass) / (double)results.Length;
         var passed = results.Count(r => r.Passed) / (double)results.Length;
-        var prompt = prompts.Get(TodaysMessageWriter.PromptId);
-        var sums = prompts.Get(TodaysMessageWriter.SumsPromptId);
+        var used = results.Select(r => TodaysMessageWriter.PromptFor(r.Picture)).Distinct().Order().Select(prompts.Get).ToList();
         var report = new Report(
-            DateTimeOffset.UtcNow, $"{prompt.Id} v{prompt.Version} + {sums.Id} v{sums.Version}", aiOptions.ModelFor(prompt.ModelKey),
+            DateTimeOffset.UtcNow, string.Join(" + ", used.Select(p => $"{p.Id} v{p.Version}")), aiOptions.ModelFor(used[0].ModelKey),
             results.Length, firstPass, passed, Target, results);
-        var output = Path.Combine(root, "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-a9-todays-message.json");
+        var output = Path.Combine(root, "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-{name}.json");
         await File.WriteAllTextAsync(output, JsonSerializer.Serialize(report, Json) + "\n", TestContext.Current.CancellationToken);
 
         Assert.True(passed >= Target,
@@ -97,7 +106,7 @@ public sealed class A9TodaysMessageEvals
     private sealed record CaseFile(IReadOnlyList<EvalCase> Cases);
 
     private sealed record EvalCase(
-        string Id, IReadOnlyList<string> Languages, IReadOnlyList<string> Lessons, int Pair, TeacherCase? Teacher = null,
+        string Id, IReadOnlyList<string> Languages, IReadOnlyList<string> Lessons, int? Pair = null, TeacherCase? Teacher = null,
         FromClassCase? FromClass = null);
 
     /// <summary>What she said in class (T-120, prompt v4), as code would pass it after <see cref="TodaysFromClassFilter"/>.</summary>
@@ -107,7 +116,7 @@ public sealed class A9TodaysMessageEvals
 
     private sealed record Attempt(bool Passed, string Verdict, string? Detail, IReadOnlyDictionary<string, TodaysText>? Texts);
 
-    private sealed record CaseResult(string Id, TodaysPicture Picture, bool FirstPass, bool Passed, IReadOnlyList<Attempt> Attempts);
+    private sealed record CaseResult(string Id, TodaysPicture? Picture, bool FirstPass, bool Passed, IReadOnlyList<Attempt> Attempts);
 
     private sealed record Report(
         DateTimeOffset RunAt, string Prompt, string Model, int Cases, double FirstPass, double Passed, double Target,

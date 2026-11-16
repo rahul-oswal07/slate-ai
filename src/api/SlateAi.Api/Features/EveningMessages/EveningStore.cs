@@ -385,7 +385,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
         if (row.Todays is not null && Features.TodaysMessage.TodaysSections.Parse(row.Todays) is { } sections)
         {
             todays = Features.TodaysMessage.TodaysFamilyView.For(sections, row.Language);
-            if (todays.Picture is { } picture)
+            if (todays.Picture is { } picture && sections.Picture is { } question)
             {
                 todays = todays with
                 {
@@ -396,7 +396,7 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
                         Locked = Features.TodaysMessage.TodaysLevel.Locked(row.PictureFirst, row.PictureSecond),
                     },
                 };
-                pictureAnswer = sections.Picture.Answer;
+                pictureAnswer = question.Answer;
             }
 
             // Its concept, voiced, plays instead of the lesson clip (T-88); removed concept means no audio.

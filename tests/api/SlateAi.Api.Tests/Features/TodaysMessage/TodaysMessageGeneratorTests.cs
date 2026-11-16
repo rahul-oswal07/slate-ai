@@ -72,21 +72,24 @@ public sealed class TodaysMessageGeneratorTests
 
         var row = _store.Rows.Single();
         Assert.Equal((TodaysMessageStatus.Ready, "valid"), (row.Status, row.Verdict));
-        var picture = row.Sections!.Picture;
+        var picture = row.Sections!.Picture!;
         Assert.Equal(("add", 248, 438, "686"), (picture.Kind, picture.A, picture.B, picture.Answer));
         Assert.Equal([676, 696, 686], picture.Options!);
         Assert.Equal("a9-todays-message-sums", _llm.Requests.Single().Prompt.Id);
     }
 
     [Fact]
-    public async Task A_sum_lesson_without_the_flag_fails_and_nothing_is_written()
+    public async Task A_sum_lesson_without_the_flag_gets_no_picture_and_the_lesson_prompt()
     {
+        // T-139: with TodaysMessage:ArithmeticExercises off, an add lesson is like any lesson without exercises.
+        _llm.Json = TodaysMessageTests.Output(LessonKannada);
         var id = (await _store.StartAsync(ClassId, Today, [TodaysMessageTests.Carry.Id], DateTimeOffset.UnixEpoch, Ct))!.Value;
 
-        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
 
-        Assert.Equal(TodaysMessageStatus.Failed, _store.Rows.Single().Status);
-        Assert.Empty(_llm.Requests);
+        Assert.Equal(TodaysMessageStatus.Ready, _store.Rows.Single().Status);
+        Assert.Null(_store.Rows.Single().Sections!.Picture);
+        Assert.Equal(TodaysMessageWriter.LessonPromptId, _llm.Requests.Single().Prompt.Id);
     }
 
     [Fact]
@@ -176,15 +179,26 @@ public sealed class TodaysMessageGeneratorTests
         Assert.Empty(_tts.Texts);
     }
 
+    /// <summary>A lesson-prompt answer with no numbers at all (T-139): any lesson's allowed numbers accept it.</summary>
+    private const string LessonKannada =
+        """{"language":"kn","concept":"ಎರಡು ರಾಶಿಗಳನ್ನು ಸೇರಿಸಿದಾಗ ಎಲ್ಲವನ್ನೂ ಒಟ್ಟಿಗೆ ಎಣಿಸುತ್ತೇವೆ. ಮೊದಲು ಬಿಡಿ ಕಡ್ಡಿಗಳನ್ನು ಎಣಿಸಿ, ನಂತರ ಕಟ್ಟುಗಳನ್ನು ಎಣಿಸಿ.","activity":["ಕಡ್ಡಿಗಳಿಂದ ಎರಡು ಸಣ್ಣ ರಾಶಿ ಮಾಡಿ.","ಮಗು ಅವುಗಳನ್ನು ಸೇರಿಸಿ ಎಣಿಸಿ ಹೇಳಲಿ."]}""";
+
     [Fact]
-    public async Task A_lesson_without_the_books_exercises_asks_nothing()
+    public async Task A_lesson_without_the_books_exercises_gets_concept_and_activity_from_the_lesson_prompt_and_no_picture()
     {
+        // T-139, D-121: every confirmed lesson gets today's message; with no exercises there is no picture question.
+        _llm.Json = TodaysMessageTests.Output(LessonKannada);
         var id = (await _store.StartAsync(ClassId, Today, [TodaysMessageTests.NoExercises.Id], DateTimeOffset.UnixEpoch, Ct))!.Value;
 
         await Generator().GenerateAsync(new TodaysJob(id, ["kn"]), Ct);
 
-        Assert.Equal("fallback:no-exercises", _store.Rows.Single().Verdict);
-        Assert.Empty(_llm.Requests);
+        var row = _store.Rows.Single();
+        Assert.Equal((TodaysMessageStatus.Ready, "valid"), (row.Status, row.Verdict));
+        Assert.Null(row.Sections!.Picture);
+        Assert.Single(row.Sections.Concept.Clips);
+        var request = _llm.Requests.Single();
+        Assert.Equal("a9-todays-message-lesson", request.Prompt.Id);
+        Assert.Contains("\"pictureQuestion\":null", request.UserContent);
     }
 
     [Fact]
@@ -442,6 +456,7 @@ public sealed class TodaysMessageGeneratorTests
             [
                 ("a9-todays-message.md", "---\nid: a9-todays-message\nversion: 1\nmodel_key: Script\n---\nPrompt."),
                 ("a9-todays-message-sums.md", "---\nid: a9-todays-message-sums\nversion: 1\nmodel_key: Script\n---\nSums."),
+                ("a9-todays-message-lesson.md", "---\nid: a9-todays-message-lesson\nversion: 1\nmodel_key: Script\n---\nLesson."),
             ],
             ["Script"]);
         return new TodaysMessageGenerator(

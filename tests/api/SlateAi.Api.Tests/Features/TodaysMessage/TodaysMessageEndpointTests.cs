@@ -267,9 +267,10 @@ public sealed class TodaysMessageEndpointTests
 
     [Theory]
     [InlineData(true, 1)]
-    [InlineData(false, 0)]
-    public async Task Confirming_an_add_lesson_starts_a_draft_only_with_the_flag_on(bool arithmetic, int starts)
+    [InlineData(false, 1)]
+    public async Task Confirming_an_add_lesson_starts_a_draft_with_or_without_the_flag(bool arithmetic, int starts)
     {
+        // T-139: every lesson gets a draft; the flag only decides whether it has the sum picture.
         // D-116, T-128: this draft is what takes her to Approve after confirming, as for the Nalikali lesson.
         await using var factory = Create(new HangingLlmClient(), arithmetic);
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
@@ -308,7 +309,7 @@ public sealed class TodaysMessageEndpointTests
     }
 
     [Fact]
-    public async Task Confirming_a_lesson_without_exercises_starts_nothing()
+    public async Task Confirming_a_lesson_without_exercises_starts_a_draft_too()
     {
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
@@ -318,11 +319,12 @@ public sealed class TodaysMessageEndpointTests
             new SaveLessonRequest(Guid.NewGuid(), ["M3.GEO.2D"]),
             Ct)).EnsureSuccessStatusCode();
 
-        Assert.Equal(0, _todays.Starts);
+        // T-139, D-121: every lesson gets today's message, with no picture question when the book has no exercises.
+        Assert.Equal(1, _todays.Starts);
     }
 
     [Fact]
-    public async Task Changing_to_a_lesson_without_exercises_removes_the_approved_message_for_the_old_lesson()
+    public async Task Changing_to_a_lesson_without_exercises_replaces_the_approved_message_for_the_old_lesson()
     {
         // Guardrail 3 (T-114): a message she approved for the lesson she replaced must not go at 6 pm.
         var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
@@ -335,8 +337,23 @@ public sealed class TodaysMessageEndpointTests
             new SaveLessonRequest(Guid.NewGuid(), ["M3.GEO.2D"]),
             Ct)).EnsureSuccessStatusCode();
 
-        Assert.Empty(_todays.Rows);
-        Assert.Equal(HttpStatusCode.NoContent, (await client.GetAsync(DayUrl, Ct)).StatusCode);
+        // The approval for the old lesson is gone: a new draft for the new lesson starts and needs her approval again.
+        var now = _todays.Rows.Single();
+        Assert.Equal(["M3.GEO.2D"], now.CompetencyIds);
+        Assert.Equal(TodaysMessageStatus.Generating, now.Status);
+        Assert.Null(now.ApprovedVersion);
+    }
+
+    [Fact]
+    public async Task A_message_without_a_picture_question_has_no_answers()
+    {
+        // T-139: nothing to answer, so Today shows no answers card and Missed no levels.
+        _todays.AddReady(ClassId, Today, TodaysMessageTests.NoPicture());
+        _todays.Answers = (_, _) => ("<", []);
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId, TeacherId);
+
+        Assert.Equal(HttpStatusCode.NoContent, (await client.GetAsync($"{DayUrl}/answers", Ct)).StatusCode);
     }
 
     [Fact]
@@ -556,7 +573,7 @@ public sealed class TodaysMessageEndpointTests
         sections ??= TodaysMessageTests.Sections();
         _todays.AddReady(ClassId, Today, sections);
         _evening.TodaysMessage = TodaysFamilyView.For(sections, "kn");
-        _evening.PictureAnswer = answer ?? sections.Picture.Answer;
+        _evening.PictureAnswer = answer ?? sections.Picture!.Answer;
         await ApproveAsync(1, send: true);
         return _evening.Messages.Single(m => m.Message.ChildId == Manjunath.Id).Message.Token;
     }

@@ -56,7 +56,7 @@ public sealed class TodaysMessageTests
     }
 
     [Fact]
-    public void Only_a_lesson_with_the_books_exercises_gets_a_message()
+    public void Only_a_lesson_with_the_books_exercises_gets_a_picture_question()
     {
         Assert.True(TodaysPicturePicker.Supported([Compare]));
         Assert.False(TodaysPicturePicker.Supported([NoExercises]));
@@ -64,7 +64,7 @@ public sealed class TodaysMessageTests
     }
 
     [Fact]
-    public void An_add_or_sub_lesson_gets_a_message_only_with_the_flag_on()
+    public void An_add_or_sub_lesson_gets_a_sum_picture_only_with_the_flag_on()
     {
         // D-116: today's message for sums is behind TodaysMessage:ArithmeticExercises (on by default since its eval run).
         Assert.False(TodaysPicturePicker.Supported([Carry]));
@@ -269,6 +269,43 @@ public sealed class TodaysMessageTests
         Assert.Null(view.Note);
     }
 
+    // T-139, D-121: every lesson gets today's message; without the book's exercises it has no picture question.
+    [Fact]
+    public void A_message_without_a_picture_question_promises_concept_and_activity_only_and_sends_no_picture()
+    {
+        var sections = NoPicture();
+
+        Assert.Equal([TodaysSectionKind.Concept, TodaysSectionKind.Activity], TodaysSectionKind.PromisedFor(sections));
+        Assert.Equal([TodaysSectionKind.Concept, TodaysSectionKind.Activity, TodaysSectionKind.Picture], TodaysSectionKind.PromisedFor(Sections()));
+        Assert.Null(sections.WithRemoved(TodaysSectionKind.Picture, true));
+        Assert.True(sections.WithRemoved(TodaysSectionKind.Concept, true)!.HasAnySection);
+        Assert.False(sections.WithRemoved(TodaysSectionKind.Concept, true)!.WithRemoved(TodaysSectionKind.Activity, true)!.HasAnySection);
+        Assert.Null(TodaysFamilyView.For(sections, "hi").Picture);
+        Assert.Null(TodaysSections.Parse(sections.ToJson())!.Picture); // stored and read back without one
+    }
+
+    [Fact]
+    public void Without_a_picture_only_the_lessons_own_numbers_page_and_part_are_allowed()
+    {
+        // NoExercises: example "456 + 278", textbook part 1 page 80. Nothing from a picture, not even 10 for a bundle.
+        var allowed = TodaysMessageValidator.AllowedNumbers([NoExercises], null);
+
+        Assert.Contains("456", allowed);
+        Assert.Contains("278", allowed);
+        Assert.Contains("80", allowed);
+        Assert.DoesNotContain("10", allowed);
+        Assert.DoesNotContain("734", allowed);
+    }
+
+    [Fact]
+    public void A_lesson_without_a_picture_has_its_own_prompt_and_the_other_inputs_stay_as_evaluated()
+    {
+        Assert.Equal("a9-todays-message-lesson", TodaysMessageWriter.PromptFor(null));
+        Assert.Equal(TodaysMessageWriter.PromptId, TodaysMessageWriter.PromptFor(Pair));
+        Assert.Contains("\"pictureQuestion\":null", TodaysMessageWriter.UserContent(["kn"], [NoExercises], null, null));
+        Assert.Contains("\"pictureQuestion\":{\"a\":48,\"b\":33}", TodaysMessageWriter.UserContent(["kn"], [Compare], Pair, null));
+    }
+
     [Fact]
     public void The_last_section_cannot_be_removed_and_unknown_ones_are_refused()
     {
@@ -336,6 +373,9 @@ public sealed class TodaysMessageTests
         Assert.Equal(level, TodaysLevel.For(first, second, ">"));
         Assert.Equal(locked, TodaysLevel.Locked(first, second));
     }
+
+    /// <summary>A message for a lesson without the book's exercises (T-139): no picture question.</summary>
+    internal static TodaysSections NoPicture() => Sections() with { Picture = null };
 
     internal static TodaysSections Sections() => new(
         new TodaysConcept(

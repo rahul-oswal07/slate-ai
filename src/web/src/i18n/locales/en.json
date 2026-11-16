@@ -569,7 +569,8 @@
       },
       "sendFailed": "Could not send. Check the network and tap again.",
       "doneBody": "{{child}} has a star for today. {{teacher}} will see the answer. See you in class tomorrow!",
-      "submit": "Submit"
+      "submit": "Submit",
+      "doneBodyNoQuestion": "{{child}} has a star for today. Thank you for doing it together. See you in class tomorrow!"
     },
     "star": {
       "title": "A star this week",
