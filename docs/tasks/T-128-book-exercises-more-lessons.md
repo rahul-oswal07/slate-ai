@@ -50,6 +50,7 @@ What the picture question and activity look like for add and subtract: [D-116](.
 
 ## Notes
 
+- 16 Nov 2026: Monika reviewed the new kn/te/ta/hi strings (the Book exercises tag, the sum question's intro, Approve's picture-sum line) and found them fine. The draft lines in the T1, T2 and P5 `status.md` are removed.
 - 16 Nov 2026: **closed.** Every acceptance criterion is on `main` (#264, #269):
   - The new `exercises` blocks load, and bad items fail startup (`ExerciseAnswersTests`, `CurriculumStartupTests`).
   - Confirming an add lesson with a family due starts a draft, and without one she goes to Today (`TodaysMessageEndpointTests`).

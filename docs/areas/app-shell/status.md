@@ -18,7 +18,6 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - Tamil layout at 360 px (T-84) is fixed (T-101, #211); the Tamil tab label "திரும்பி வந்தோர்" is a draft for native review (T-26).
-- The kn, te, ta and hi wording read out with the Back today badge (", 2 children") is a draft for Monika (T-129).
 - Offline covers attendance and voice notes only (roadmap, D-70).
 - The short language labels and the kn, hi, te and ta strings of the profile menu are drafts for Monika (T-109).
 

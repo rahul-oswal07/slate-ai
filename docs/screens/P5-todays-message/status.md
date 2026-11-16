@@ -18,7 +18,6 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - No design card.
-- The kn, te, ta and hi words of the sum question's intro are drafts (T-128).
 
 ## Open tasks
 
