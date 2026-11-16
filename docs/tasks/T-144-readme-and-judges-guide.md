@@ -39,3 +39,4 @@ The README described the 31 Oct build-stage submission.
 - The demo's on-screen step guide (`demo.guide.*`) still says "Tap Use the sample voice note", which staging doesn't offer, and it doesn't mention today's message. It is worth updating to match JUDGES.md.
 - 17 Nov 2026: §5 lists the three teachers with their numbers and what each is for; the PIN now goes to judges by email, not on slide 14 (README and JUDGES.md).
 - 17 Nov 2026: JUDGES.md gets *Go back to a past day* (switch on `/admin/demo`, the arrows at the date, per browser, Reset demo removes those days).
+- 17 Nov 2026: matched to the jury email: both servers with their app and admin links, the GitHub link, WhatsApp on both servers (Rahul set production's keys), and *What the parents see* in JUDGES.md.

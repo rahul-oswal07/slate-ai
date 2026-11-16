@@ -10,11 +10,13 @@ Built by **Slate AI** (Monika Sisodia, Rahul Oswal) for the AI for Foundational 
 | | |
 |---|---|
 | ⭐ Guided demo (two phones side by side) | https://slateai-staging.azurewebsites.net/demo |
-| 📱 Real app (production) | https://slateai-prod.azurewebsites.net |
+| 📱 Real app: production | https://slateai-prod.azurewebsites.net (admin: https://slateai-prod.azurewebsites.net/admin) |
+| 📱 Real app: staging | https://slateai-staging.azurewebsites.net (admin: https://slateai-staging.azurewebsites.net/admin) |
 | 🔍 Under the hood (every AI call) | https://slateai-staging.azurewebsites.net/demo/ai |
+| 💻 Source code | https://github.com/rahul-oswal07/slate-ai |
 | 🎬 Video (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
 | 🔑 Sign-in | Shobha (class teacher) `9000000000` · Savitha `9123456789` · Monika `9123456788` (co-teachers); details in [JUDGES.md](JUDGES.md#5-sign-in-details). The PIN is sent to judges separately by email |
-| 📲 A real WhatsApp message | Save your number against a child on https://slateai-staging.azurewebsites.net/admin/children: [how](JUDGES.md#get-the-link-on-your-own-whatsapp) |
+| 📲 A real WhatsApp message | On either server, save your number against a child on **Admin → Children**: [how](JUDGES.md#get-the-link-on-your-own-whatsapp) |
 
 ---
 
@@ -70,7 +72,7 @@ In Karnataka's government primary schools, a Grade 3 child who is absent for a d
 | **Week** | Return speed, reasons, attendance stars, the pacing nudge |
 | ⚙️ Settings | Her voice greeting (families hear it first), the evening message and weekly star wording to approve, and **Reset today** in the demo class |
 
-**Family pages** (`/p/<token>`, from the WhatsApp link): the teacher's greeting → *"Is everything OK?"* (the reason, once) → the explanation (voiced) → *Try this at home* → *Watch how it's taught* → *the child's turn* (the picture question) → *Well done!* "Stop these messages" is always there.
+**Family pages** (`/p/<token>`, from the WhatsApp link; no app, no sign-in, in the family's home language): the teacher's greeting → *"Is everything OK?"* (the reason, once: unwell, travel or work, festival, needed at home, other; only the teacher sees it) → the explanation (voiced, about a minute) → *Try this at home* (steps read aloud) → *Watch how it's taught* (DIKSHA, can be skipped) → *the child's turn* (the picture question; *Try again* if wrong) → *Well done!* and a star for the day. "Stop these messages" is always there. Every family's pages also open from **Family phone (simulated)** on `/admin/children`. More in [JUDGES.md](JUDGES.md#what-the-parents-see).
 
 **Admin pages** (`/admin`): family phone numbers (two per family) and home languages, lesson video links, **lesson descriptions from the textbook**, teacher voice consent, greetings, lesson audio, and the demo's past-day switch (`/admin/demo`: turn it on to use the demo class as an earlier school day).
 

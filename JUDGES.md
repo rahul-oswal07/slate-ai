@@ -4,16 +4,21 @@ Thank you for testing **Tappida Paatha** ("the missed lesson"). This page gets y
 
 No sign-up is needed. Everything below works on a phone or a laptop browser.
 
+**The app runs on two servers** with the same code, screens and AI. Use either one; each has its own class data.
+
+| Server | Teacher app | Admin pages |
+|---|---|---|
+| **Staging** | https://slateai-staging.azurewebsites.net | https://slateai-staging.azurewebsites.net/admin |
+| **Production** | https://slateai-prod.azurewebsites.net | https://slateai-prod.azurewebsites.net/admin |
+
 | | |
 |---|---|
-| ⭐ **Guided demo** (start here, ~5 min) | https://slateai-staging.azurewebsites.net/demo |
-| 📱 **Real app** (what a teacher uses, ~10 min) | https://slateai-prod.azurewebsites.net |
+| ⭐ **Guided demo** (~5 min, no sign-in) | https://slateai-staging.azurewebsites.net/demo: the teacher's phone and a family's phone side by side, with a ready-made school week |
 | 🔍 **Under the hood** (every AI call, live) | https://slateai-staging.azurewebsites.net/demo/ai |
-| 🛠️ **Admin pages** | https://slateai-staging.azurewebsites.net/admin |
+| 💻 **Source code** (GitHub) | https://github.com/rahul-oswal07/slate-ai |
 | 🎬 **Video** (3 min) | https://www.youtube.com/watch?v=lDvo7b93d4A |
 | 📄 **Project overview** | [README.md](README.md) |
-
-> **Same app, two servers.** The guided demo and the real app run the same code, screens and AI. The guided demo (staging) shows the teacher's phone and a family's phone side by side and has a ready-made school week. The real app (production) is the teacher app on its own.
+| 🔑 **Sign-in** | [Teachers and their numbers](#5-sign-in-details); the PIN is sent to you by email |
 
 ---
 
@@ -90,21 +95,20 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 | **Go back to a past day** | Switch it on in the admin pages, `/admin/demo`, see [below](#go-back-to-a-past-day) | Use the app as if it were an earlier school day, to see a week build up |
 | **Run Today again** | **Settings → Reset today** (demo class only), see [below](#start-today-again-reset-today) | Clears today's lesson, message and answers, puts the register back as SATS sent it, and keeps earlier days |
 | **Offline** | Turn on airplane mode, mark attendance or record a note, turn it off | It saves on the phone and sends when the network is back |
-| **The link on a real WhatsApp** | `/admin/children` on staging: save your number against a child, see [below](#get-the-link-on-your-own-whatsapp) | The same message arrives on WhatsApp, as a family would get it |
+| **The link on a real WhatsApp** | `/admin/children` on either server: save your number against a child, see [below](#get-the-link-on-your-own-whatsapp) | The same message arrives on WhatsApp, as a family would get it |
 
 ### Get the link on your own WhatsApp
 
-Staging sends real WhatsApp messages from Meta's test number. Meta only delivers a test number's messages to phones registered with it, and for the finale **only the numbers of jury members Navya and Navneet are registered**. Navya, Navneet: this is for you.
+Both servers send real WhatsApp messages. Meta only delivers our WhatsApp number's messages to phones registered with it, and for the finale **only the numbers of jury members Navya and Navneet are registered**. Navya, Navneet: this is for you.
 
-1. Open **https://slateai-staging.azurewebsites.net/admin/children** (no key needed).
+1. Open **Admin → Children** on the server you are using: https://slateai-prod.azurewebsites.net/admin/children or https://slateai-staging.azurewebsites.net/admin/children (no key needed).
 2. Pick any child, e.g. **Manjunath** (roll 15). Tap **Edit** under **Number 1**, type your 10-digit mobile number (`+91` is added for you), and tap **Save**. **Number 2** is optional: every message goes to each saved number.
-3. Make sure that child is absent today (on **Today**, edit the register if needed), then follow the [5-minute path](#2-guided-demo-the-5-minute-path) and tap **Approve and send now**.
-4. The message arrives on your WhatsApp in the child's home language, with a button that opens the family pages. The same message also shows on the demo's family phone.
+3. Make sure that child is absent today (on **Today**, edit the register if needed), then sign in as Shobha ([Real app](#4-real-app)) or follow the [5-minute path](#2-guided-demo-the-5-minute-path), confirm a lesson and tap **Approve and send now**.
+4. The message arrives on your WhatsApp in the child's home language, with a button that opens the [family pages](#what-the-parents-see). Open it, and answer as the child.
 
 - WhatsApp only goes to numbers saved on this page; the seeded numbers are never dialled. A saved number survives **Reset demo**.
-- Any other number is accepted by the page, but Meta won't deliver to it: that family still gets the message on the demo's family phone.
+- Any other number is accepted by the page, but Meta won't deliver to it. Every family's pages can still be opened from **Family phone (simulated)** on the same page.
 - The admin page is open to anyone with the address, so please tap **Clear** on your number when you are done.
-- Production doesn't send WhatsApp: there, messages appear only on the demo's family phone.
 
 ### Start today again: Reset today
 
@@ -144,7 +148,7 @@ The teacher app normally runs on today's real date. To use it as if it were an e
 
 ## 4. Real app
 
-1. Open **https://slateai-prod.azurewebsites.net** on your phone (or a laptop). Your browser can install it (*Add to Home screen*).
+1. Open **https://slateai-prod.azurewebsites.net** or **https://slateai-staging.azurewebsites.net** on your phone (or a laptop). Your browser can install it (*Add to Home screen*).
 2. Sign in with a teacher's mobile number ([below](#5-sign-in-details)) and the PIN **we sent you separately by email**.
 3. Do the same journey as above on today's real date:
    - the register arrives at 9:00 (mark or correct it yourself before then);
@@ -152,7 +156,22 @@ The teacher app normally runs on today's real date. To use it as if it were an e
    - check today's message on **Approve**;
    - choose **Approve and send now**, or **Approve, send after 6 pm** as in a real school.
 4. If **Today** asks you to approve the evening message first, do it once: it is the short message every absent child's family gets.
-5. To see what the families received, open **https://slateai-prod.azurewebsites.net/demo**. It is the same class, with the family's phone beside the teacher's.
+5. Back on **Today**, **See answers** shows each child's answer and level. **Missed**, **Back today** and **Week** show the rest.
+6. To see what a family received: get it on [your own WhatsApp](#get-the-link-on-your-own-whatsapp), or open **Admin → Children** and tap **Family phone (simulated)** next to the child.
+
+### What the parents see
+
+Parents get a WhatsApp message with a link. There's no app to install and no sign-in. The link opens the family pages, in the family's home language (Kannada, Telugu, Tamil, Hindi or English):
+
+1. **The teacher's greeting:** a short recording in the class teacher's own voice.
+2. **"Is everything OK? Tell us":** the parent taps one picture for why the child was away (*Unwell*, *Family travel or work*, *Festival or function*, *Needed at home* or *Other*), or skips it. Only the teacher sees the reason. The **Week** tab totals the reasons.
+3. **What the child learned today:** the lesson explained in about a minute, as spoken audio and as text.
+4. **Try this at home:** an activity with sticks, leaves or stones. **Listen to the steps** reads them aloud.
+5. **Watch how it's taught:** a short DIKSHA video of the lesson. It can be skipped to save mobile data.
+6. **The child's turn:** a picture question with bundles of sticks. The child taps **>**, **<** or **=**, or picks the answer to a sum. A wrong answer gets **Try again**.
+7. **Well done!:** the child gets a star for the day. The answer and the child's level appear on the teacher's **Today** screen.
+
+**Stop these messages** is always at the bottom, so a family can opt out at any time. A child who came every school day of the week gets a **weekly star** message instead, with a star badge.
 
 ### First-time sign-in: what a new teacher sees
 
@@ -215,7 +234,7 @@ All three teachers share one class, **Grade 3 · Kannada medium** (36 children),
 |---|---|---|
 | **Class teacher** (Shobha) | Teacher app: **Today · Approve · Missed · Back today · Week**, **Settings** | Register, lesson, approves every message, sees answers and levels, buddy cards, the weekly view |
 | **Co-teacher** (Savitha, Monika) | The same app, the same class | Shares the class; families hear the class teacher's greeting |
-| **Family and child** | A link on WhatsApp (`/p/<token>`): no app, no sign-in | Listen in their language, give a reason for the absence, do the activity, the child answers; "Stop these messages" at any time |
+| **Family and child** | A link on WhatsApp (`/p/<token>`): no app, no sign-in ([what they see](#what-the-parents-see)) | Listen in their language, give a reason for the absence, do the activity, the child answers; "Stop these messages" at any time |
 | **Administrator** | `/admin` | Family phone numbers (where WhatsApp goes) and home languages, lesson video links and lesson descriptions, teacher consent, greetings |
 | **Judge / reviewer** | `/demo`, `/demo/ai` | Both phones side by side, and every AI call |
 
@@ -226,7 +245,7 @@ All three teachers share one class, **Grade 3 · Kannada medium** (36 children),
 | Real | Simulated or fixed |
 |---|---|
 | **Every AI call**: Claude (lesson matching from voice or photo, choosing what to teach, writing messages and catch-ups, checking them) and Sarvam (speech-to-text, text-to-speech) | **SATS attendance**: a simulated feed, arriving at 9:00; **Bring in today's attendance** on `/demo` |
-| **The teacher app, approvals, the family pages, answers and levels**, stored in PostgreSQL on Azure | **WhatsApp delivery**: on production, messages appear on the demo's family phone. Staging sends real WhatsApp templates from Meta's test number, but only to phones registered with Meta (jury members Navya and Navneet): see [Get the link on your own WhatsApp](#get-the-link-on-your-own-whatsapp) |
+| **The teacher app, approvals, the family pages, answers and levels**, stored in PostgreSQL on Azure | **WhatsApp delivery**: both servers send real WhatsApp templates, but Meta only delivers them to phones registered with it (jury members Navya and Navneet); every other family's pages open from **Family phone (simulated)** on `/admin/children`: see [Get the link on your own WhatsApp](#get-the-link-on-your-own-whatsapp) |
 | **The textbook**: Karnataka Grade 3 Maths (Kannada medium), all 61 lessons, with page numbers and descriptions read from the book | **The class**: 36 fictional children with first names only; families speak Kannada, Telugu, Tamil, Hindi or English |
 | **The 6 pm evening send**, the weekly star on Saturday, offline sync | In the demo, **Approve and send now** and **Send messages now** send at once instead of waiting for 6 pm |
 
