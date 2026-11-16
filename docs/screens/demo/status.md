@@ -14,6 +14,7 @@ Spec: [`spec.md`](spec.md)
 - The video story and the fixed 31 Oct date were removed on 14 Nov (T-105).
 - The demo class has a register every day (T-69).
 - `/demo/ai` shows Under the hood on its own, and `/demo/family/:childId` shows any demo child's family phone on its own, full screen on a phone (T-126).
+- `/admin/children` links every demo child's family phone (T-130).
 - `/demo` links to both from its step guide (T-126).
 - **Send messages now** also sends the weekly star for the latest finished week, once she has approved the star wording (Settings → Weekly star); it shows on the family phone as "Weekly star · week of …" (T-125, D-118).
 - The family phone's browser bar reads "Tappida Paatha" on every page, as the real page's title does (T-116).

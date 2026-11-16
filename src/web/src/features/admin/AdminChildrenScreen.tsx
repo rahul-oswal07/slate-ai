@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { ApiError } from '../../api/client'
 import { type Language, SUPPORTED_LANGUAGES } from '../../i18n'
 import { AdminPage, AdminQuery } from './AdminPage'
@@ -17,6 +18,7 @@ import {
  * fictional and never shown. Saved numbers survive the demo Reset.
  * Each child's home language can be changed here too (T-122, D-113): it is used for everything made after the change
  * and also survives the Reset.
+ * In the demo class each child links to their simulated family phone, /demo/family/:childId (T-130).
  */
 export function AdminChildrenScreen() {
   const { t } = useTranslation()
@@ -40,7 +42,7 @@ function Classes({ data }: { data: AdminChildren }) {
           </h2>
           <ul className="flex flex-col divide-y divide-divider rounded-card border-[1.5px] border-edge bg-surface">
             {cls.children.map((child) => (
-              <ChildRow key={child.id} child={child} />
+              <ChildRow key={child.id} child={child} demo={cls.demo} />
             ))}
           </ul>
         </section>
@@ -49,7 +51,7 @@ function Classes({ data }: { data: AdminChildren }) {
   )
 }
 
-function ChildRow({ child }: { child: AdminChild }) {
+function ChildRow({ child, demo }: { child: AdminChild; demo: boolean }) {
   const { t } = useTranslation()
   const set = useSetParentPhone()
   const [editing, setEditing] = useState(false)
@@ -85,6 +87,16 @@ function ChildRow({ child }: { child: AdminChild }) {
           </span>
         )}
       </div>
+
+      {demo && (
+        <Link
+          to={`/demo/family/${child.id}`}
+          aria-label={t('admin.children.familyPhoneFor', { name: child.firstName })}
+          className="self-start text-body font-bold text-primary-strong underline"
+        >
+          {t('admin.children.familyPhone')}
+        </Link>
+      )}
 
       <LanguagePicker child={child} />
 

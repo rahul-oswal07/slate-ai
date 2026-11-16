@@ -16,7 +16,7 @@ Linked from nowhere and open to anyone with the address, on every server and loc
 
 ## Requirements
 
-No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`), T-94 (lesson links, D-106), T-118 (children and their WhatsApp numbers, D-110) and T-122 (home language, D-113).
+No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`), T-94 (lesson links, D-106), T-118 (children and their WhatsApp numbers, D-110), T-122 (home language, D-113) and T-130 (links to the demo children's family phones).
 
 ## Decisions cited
 
