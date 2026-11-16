@@ -78,7 +78,8 @@ describe('T2 Lesson confirm', () => {
     renderApp('/lesson')
 
     const group = await screen.findByRole('group', { name: 'Today’s lessons' })
-    expect(within(group).getByRole('checkbox', { name: /Subtraction with borrowing.*Book exercises/ })).toBeChecked()
+    // The lesson names come from the curriculum query, which can land after the group: wait for them.
+    expect(await within(group).findByRole('checkbox', { name: /Subtraction with borrowing.*Book exercises/ })).toBeChecked()
     expect(within(group).getByRole('checkbox', { name: /Making subtraction sums/ })).not.toHaveAccessibleName(/Book exercises/)
   })
 
