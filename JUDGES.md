@@ -93,7 +93,7 @@ That is the whole loop: **register → lesson → AI draft → teacher approval 
 
 ### Get the link on your own WhatsApp
 
-Staging sends real WhatsApp messages from Meta's test number. Meta only delivers a test number's messages to phones registered with it, and for the finale **only Navya's and Navneet's numbers are registered**. If you are one of them:
+Staging sends real WhatsApp messages from Meta's test number. Meta only delivers a test number's messages to phones registered with it, and for the finale **only the numbers of jury members Navya and Navneet are registered**. Navya, Navneet: this is for you.
 
 1. Open **https://slateai-staging.azurewebsites.net/admin/children** (no key needed).
 2. Pick any child, e.g. **Manjunath** (roll 15). Tap **Edit** under **Number 1**, type your 10-digit mobile number (`+91` is added for you), and tap **Save**. **Number 2** is optional: every message goes to each saved number.
@@ -174,7 +174,7 @@ Staging sends real WhatsApp messages from Meta's test number. Meta only delivers
 | Real | Simulated or fixed |
 |---|---|
 | **Every AI call**: Claude (lesson matching from voice or photo, choosing what to teach, writing messages and catch-ups, checking them) and Sarvam (speech-to-text, text-to-speech) | **SATS attendance**: a simulated feed, arriving at 9:00; **Bring in today's attendance** on `/demo` |
-| **The teacher app, approvals, the family pages, answers and levels**, stored in PostgreSQL on Azure | **WhatsApp delivery**: on production, messages appear on the demo's family phone. Staging sends real WhatsApp templates from Meta's test number, but only to phones registered with Meta (Navya's and Navneet's): see [Get the link on your own WhatsApp](#get-the-link-on-your-own-whatsapp) |
+| **The teacher app, approvals, the family pages, answers and levels**, stored in PostgreSQL on Azure | **WhatsApp delivery**: on production, messages appear on the demo's family phone. Staging sends real WhatsApp templates from Meta's test number, but only to phones registered with Meta (jury members Navya and Navneet): see [Get the link on your own WhatsApp](#get-the-link-on-your-own-whatsapp) |
 | **The textbook**: Karnataka Grade 3 Maths (Kannada medium), all 61 lessons, with page numbers and descriptions read from the book | **The class**: 36 fictional children with first names only; families speak Kannada, Telugu, Tamil, Hindi or English |
 | **The 6 pm evening send**, the weekly star on Saturday, offline sync | In the demo, **Approve and send now** and **Send messages now** send at once instead of waiting for 6 pm |
 
