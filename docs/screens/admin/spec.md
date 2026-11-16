@@ -4,7 +4,7 @@ Pages to play teachers' greetings and a day's lesson audio, set each lesson's vi
 
 | | |
 |---|---|
-| Route | `/admin`, `/admin/greetings`, `/admin/lesson-audio`, `/admin/lesson-links`, `/admin/children`, `/admin/teachers`, `/admin/demo` |
+| Route | `/admin`, `/admin/greetings`, `/admin/lesson-audio`, `/admin/lesson-links`, `/admin/children`, `/admin/teachers`, `/admin/demo`; `/admin` also links to the demo's `/demo/ai` (T-140) |
 | Web | `features/admin/` |
 | API | `Features/Admin/` |
 | Design card (Monika) | none yet |
@@ -16,7 +16,7 @@ Linked from nowhere and open to anyone with the address, on every server and loc
 
 ## Requirements
 
-No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`), T-94 (lesson links, D-106), T-118 (children and their WhatsApp numbers, D-110), T-122 (home language, D-113), T-130 (links to the demo children's family phones), T-133 (clear a teacher's voice consent, D-44) and T-134 (the demo's past-day switch, D-120).
+No FR of its own. Rules in D-83 and D-112; built behaviour in T-66, T-67, T-68 (`archive/tasks-until-2026-11-15.md`), T-94 (lesson links, D-106), T-118 (children and their WhatsApp numbers, D-110), T-122 (home language, D-113), T-130 (links to the demo children's family phones), T-133 (clear a teacher's voice consent, D-44) T-134 (the demo's past-day switch, D-120) and T-140 (a link to the demo's Under the hood, `/demo/ai`).
 
 ## Decisions cited
 

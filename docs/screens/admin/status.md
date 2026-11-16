@@ -8,6 +8,7 @@ Spec: [`spec.md`](spec.md)
 
 - Admin pages for greetings and lesson audio (T-66–T-68).
 - **`/admin`** lists every admin page with its address and what it is for, and every page's nav links back to it (T-94). It asks the API nothing.
+- `/admin` and every admin page's nav also link to the demo's Under the hood on its own, `/demo/ai`, with what it is for (T-140).
 - **Lesson links** (`/admin/lesson-links`): every chapter and lesson with one video link each (any https link), saved per lesson for every class (T-94, D-106).
 - The lesson-links search has a placeholder: "Lesson name or ID, e.g. compare" (T-96).
 - The lesson links page starts with every chapter folded and "N of M linked" on each; a search (English or Kannada name, or ID) and "Only lessons without a link" narrow it; links typed in any rows are saved together from a bar at the bottom, a refused link stays as typed with how to fix it, and leaving with unsaved links asks first (T-94).
@@ -20,6 +21,7 @@ Spec: [`spec.md`](spec.md)
 - The kn, te, ta and hi strings of the children page are drafts for Monika (T-118, T-122, T-130).
 - **Teachers** (`/admin/teachers`): each teacher's class, voice consent and greeting length. Clear consent asks first, then clears `Teacher.ConsentAt` and deletes her greeting (D-44): at her next visit she sees the Welcome and records it again (T-133).
 - The kn, te, ta and hi strings of the teachers page are drafts for Monika (T-133).
+- The kn, te, ta and hi strings of the Under the hood entry are drafts for Monika (T-140).
 - **Demo** (`/admin/demo`): one switch per server, off until switched on, that lets the demo teacher act as a past school day (T-134, D-120). It saves on change, shows when it last changed, and is disabled when the demo is off on this server. Its kn, te, ta and hi strings are drafts for Monika.
 - Every admin page and the WhatsApp test send open without a key, on staging, prod and locally: anyone with the address can read and change what they show (T-121, D-112).
 
