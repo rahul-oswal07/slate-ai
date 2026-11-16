@@ -7,6 +7,7 @@ Spec: [`spec.md`](spec.md)
 ## Built
 
 - First-run Welcome, a 10-second greeting with voice consent (T-61), and approving the evening message once (T-44).
+- An admin can clear a teacher's voice consent on `/admin/teachers`. That deletes her greeting, and her next visit opens the Welcome again (T-133).
 - Step 3 is the weekly star (`/setup/star`, also `/settings/star`): the WhatsApp text and the page's two screens, filled with a child from her class; she approves it once, and nothing goes until she does. A new wording version asks again (T-125, D-118).
 
 ## Known gaps and drafts

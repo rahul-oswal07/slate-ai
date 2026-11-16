@@ -66,6 +66,7 @@ public static class AdminEndpoints
 
         app.MapLessonLinkEndpoints();
         app.MapAdminChildEndpoints();
+        app.MapAdminTeacherEndpoints();
         return app;
     }
 
