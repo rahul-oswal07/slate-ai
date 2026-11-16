@@ -11,6 +11,7 @@ Spec: [`spec.md`](spec.md)
 - A today's message voice row names only the children whose family hears that language; A9, which writes every language in one call, names all of them (D-115).
 - After a Reset, Manjunath's weekly catch-up is pre-made, so its A2, A3 and A4 calls don't run and don't appear (T-127).
 - It has one story on the real date, told through one child: Manjunath (Kannada), away the two days before today and today (T-93, D-94).
+- The demo class's 36 families: 23 Kannada, 6 Telugu, 3 Tamil, 2 Hindi (Rohan, Pooja) and 2 English (Sanjay, Shreya). An existing database gets this mix at its next Reset (T-131).
 - The video story and the fixed 31 Oct date were removed on 14 Nov (T-105).
 - The demo class has a register every day (T-69).
 - `/demo/ai` shows Under the hood on its own, and `/demo/family/:childId` shows any demo child's family phone on its own, full screen on a phone (T-126).
