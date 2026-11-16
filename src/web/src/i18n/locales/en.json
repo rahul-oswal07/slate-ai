@@ -840,7 +840,8 @@
       "greetings": "Greetings",
       "lessonAudio": "Lesson audio",
       "lessonLinks": "Lesson links",
-      "children": "Children"
+      "children": "Children",
+      "teachers": "Teachers"
     },
     "greetings": {
       "title": "Teacher greetings",
@@ -900,7 +901,8 @@
       "greetings": "Listen to and download each teacher’s recorded greeting.",
       "lessonAudio": "One day’s lesson audio: every class’s clip and the families it went to.",
       "lessonLinks": "Set the video link for each lesson; a new today’s message for that lesson shows it to families.",
-      "children": "Every class's children and the number their family's WhatsApp goes to; edit or clear a number."
+      "children": "Every class's children and the number their family's WhatsApp goes to; edit or clear a number.",
+      "teachers": "Each teacher's voice consent and greeting; clear her consent so she records her greeting again."
     },
     "children": {
       "title": "Children and phone numbers",
@@ -928,6 +930,22 @@
       "languageSaved": "Home language saved",
       "languageFailed": "Could not save the language. Nothing was changed. Try again.",
       "languageChanged": "Changed here"
+    },
+    "teachers": {
+      "title": "Teachers and voice consent",
+      "intro": "Clearing a teacher's voice consent deletes her greeting. At her next visit she sees the Welcome again and records it with her consent.",
+      "empty": "No teachers yet.",
+      "consentGiven": "Voice consent given {{date}}",
+      "noConsent": "No voice consent: at her next visit she sees the Welcome and records her greeting.",
+      "greeting": "Greeting: {{seconds}} s",
+      "noGreeting": "No greeting recorded",
+      "clear": "Clear consent",
+      "clearFor": "Clear consent for {{name}}",
+      "confirm": "Clear {{name}}'s voice consent? Her greeting is deleted, and at her next visit she records it again.",
+      "yes": "Yes, clear it",
+      "cancel": "Cancel",
+      "cleared": "Cleared",
+      "failed": "Could not clear it. Try again."
     }
   },
   "settings": {

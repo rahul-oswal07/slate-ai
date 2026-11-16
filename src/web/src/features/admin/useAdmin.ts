@@ -192,3 +192,39 @@ export function useSetHomeLanguage() {
     onSuccess: replaceChild,
   })
 }
+
+/** One teacher on the admin teachers page (T-133): her voice consent and greeting. */
+export interface AdminTeacher {
+  id: string
+  name: string
+  /** "Shobha · Grade 3", or null when she has no class. */
+  classLabel: string | null
+  /** Her voice consent, the first-run gate; null: at her next visit she sees the Welcome and records her greeting. */
+  consentAt: string | null
+  greetingSeconds: number | null
+}
+
+/** Every teacher with her voice consent and greeting (T-133). */
+export function useAdminTeachers() {
+  return useQuery({
+    queryKey: ['admin', 'teachers'],
+    queryFn: () => api<AdminTeacher[]>('/api/admin/teachers'),
+    retry: false,
+  })
+}
+
+/** Clears a teacher's voice consent and deletes her greeting (T-133, D-44); the card updates in place. */
+export function useClearConsent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<AdminTeacher>(`/api/admin/teachers/${encodeURIComponent(id)}/clear-consent`, {
+        method: 'POST',
+        body: { clientRequestId: crypto.randomUUID() },
+      }),
+    onSuccess: (teacher) =>
+      queryClient.setQueryData<AdminTeacher[]>(['admin', 'teachers'], (data) =>
+        data?.map((existing) => (existing.id === teacher.id ? teacher : existing)),
+      ),
+  })
+}
