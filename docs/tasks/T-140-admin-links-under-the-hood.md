@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Done (PR to follow) |
+| Status | Done (#297) |
 | Issue | #296 |
 | Owner | R |
 | Screens | admin, demo |
