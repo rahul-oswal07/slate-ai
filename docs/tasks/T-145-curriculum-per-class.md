@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
+| Status | Done (#310) |
 | Issue | #307 |
 | Owner | R |
 | Screens | curriculum, T1-today, T2-lesson-confirm, admin |
