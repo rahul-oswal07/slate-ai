@@ -329,7 +329,8 @@ public sealed class TodaysMessageEndpointTests
         // Guardrail 3 (T-114): a message she approved for the lesson she replaced must not go at 6 pm.
         var row = _todays.AddReady(ClassId, Today, TodaysMessageTests.Sections());
         _todays.Rows[0] = row with { CompetencyIds = [TodaysMessageTests.Compare.Id], Status = TodaysMessageStatus.Approved, ApprovedVersion = row.Version };
-        await using var factory = Create();
+        // A9 never answers, so the new draft stays generating; the default throwing client could fail it before we read the row.
+        await using var factory = Create(llm: new HangingLlmClient());
         using var client = factory.CreateTeacherClient(ClassId, TeacherId);
 
         (await client.PutAsJsonAsync(
