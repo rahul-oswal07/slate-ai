@@ -33,7 +33,7 @@ public sealed record EveningDayResponse(
 public sealed class EveningSender(
     IEveningStore store,
     AttendanceDayLoader attendance,
-    CurriculumGraph curriculum,
+    ICurriculumProvider curricula,
     EveningWording wording,
     IOptions<EveningOptions> options,
     TimeProvider clock,
@@ -76,6 +76,7 @@ public sealed class EveningSender(
 
         var templates = (await store.GetTemplatesAsync(classId, wording, cancellationToken))
             .ToDictionary(t => t.Language);
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         var templateApproved = templates.Count > 0 && templates.Values.All(t => t.Status == TemplateStatus.Approved);
         var lesson = await store.LatestConfirmedLessonAsync(classId, date, cancellationToken);
         var lessonConfirmed = lesson?.Date == date;

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Ai;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.CatchUps.Script;
 using SlateAi.Api.Features.CatchUps.Verify;
@@ -38,6 +39,7 @@ public sealed class A4CheckEvals
             settings: new Dictionary<string, string?> { ["Ai:Provider"] = "Claude", ["Anthropic:ApiKey"] = key });
         await using var scope = factory.Services.CreateAsyncScope();
         var content = scope.ServiceProvider.GetRequiredService<ContentCheck>();
+        var curriculum = scope.ServiceProvider.GetRequiredService<BuiltInCurriculum>().Graph;
         var prompt = scope.ServiceProvider.GetRequiredService<PromptLibrary>().Get(ContentCheck.PromptId);
         var model = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value.ModelFor(prompt.ModelKey);
 
@@ -50,7 +52,7 @@ public sealed class A4CheckEvals
                 new ActivityData(c.Targets[0], "", "", [], 0, null, null),
                 new CheckData(c.Targets[0], "", "", [], 0, 0, null),
                 []);
-            var check = await content.RunAsync(input, TestContext.Current.CancellationToken);
+            var check = await content.RunAsync(input, curriculum, TestContext.Current.CancellationToken);
             results.Add(new CaseResult(c.Id, check.Passed == c.ExpectPass, c.ExpectPass, check.Passed, check.Detail, c.Note));
         }
 

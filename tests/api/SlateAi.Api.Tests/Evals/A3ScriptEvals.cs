@@ -42,7 +42,7 @@ public sealed class A3ScriptEvals
             services => services.AddSingleton<IAiCallStore>(new FakeAiCallStore()),
             settings: new Dictionary<string, string?> { ["Ai:Provider"] = "Claude", ["Anthropic:ApiKey"] = key });
         var services = factory.Services;
-        var curriculum = services.GetRequiredService<CurriculumGraph>();
+        var curriculum = services.GetRequiredService<BuiltInCurriculum>().Graph;
         var prompts = services.GetRequiredService<PromptLibrary>();
         var aiOptions = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value;
         string[] names = ["Ravi", "Ananya", "Bhavana", "Chetan", "Shobha"];
@@ -61,7 +61,7 @@ public sealed class A3ScriptEvals
             for (var i = 0; i < CatchUpWriter.Attempts; i++)
             {
                 var written = await writer.WriteAsync(
-                    new ScriptInput(c.Language, c.Targets, problems, c.TeacherExamples, Feedback: feedback), names, TestContext.Current.CancellationToken);
+                    new ScriptInput(c.Language, c.Targets, problems, c.TeacherExamples, Feedback: feedback), curriculum, names, TestContext.Current.CancellationToken);
                 if (written.Content is not { } content)
                 {
                     attempts.Add(new Attempt(false, written.Verdict, null, []));
@@ -70,7 +70,7 @@ public sealed class A3ScriptEvals
                 }
 
                 var review = await verifier.VerifyAsync(
-                    new VerifyInput(c.Language, c.Targets, content, activity, check, names), TestContext.Current.CancellationToken);
+                    new VerifyInput(c.Language, c.Targets, content, activity, check, names), curriculum, TestContext.Current.CancellationToken);
                 attempts.Add(new Attempt(review.Passed, review.Verdict, content, review.Checks));
                 if (review.Passed)
                 {

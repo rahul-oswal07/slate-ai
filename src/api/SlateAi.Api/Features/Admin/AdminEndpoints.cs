@@ -84,7 +84,7 @@ public static class AdminEndpoints
         string? date,
         HttpContext http,
         IAdminStore store,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         CancellationToken cancellationToken)
     {
         if (!DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day))
@@ -94,12 +94,19 @@ public static class AdminEndpoints
 
         var rows = await store.GetLessonAudioDayAsync(day, cancellationToken);
         var sent = await store.CountLessonAudioSentAsync(day, cancellationToken);
+        // Each class names its lessons from its own curriculum (T-145).
+        var curriculumOf = new Dictionary<Guid, CurriculumGraph>();
+        foreach (var classId in rows.Select(r => r.ClassId).Distinct())
+        {
+            curriculumOf[classId] = await curricula.ForClassAsync(classId, cancellationToken);
+        }
+
         var audios = rows
             .Select(r => new AdminLessonAudio(
                 r.Id,
                 $"{r.TeacherName} · Grade {r.Grade}",
                 r.Language,
-                r.CompetencyIds.Select(id => curriculum.Get(id)?.Name("en") ?? id).ToList(),
+                r.CompetencyIds.Select(id => curriculumOf[r.ClassId].Get(id)?.Name("en") ?? id).ToList(),
                 r.Status,
                 r.Verdict,
                 r.ApprovedBy,

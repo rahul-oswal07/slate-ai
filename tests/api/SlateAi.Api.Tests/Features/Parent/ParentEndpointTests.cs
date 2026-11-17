@@ -533,6 +533,7 @@ public sealed class ParentEndpointTests
     private ParentCatchUpRecord Record() => new(
         _assignmentId,
         Ravi,
+        Guid.NewGuid(),
         "Ravi",
         "Shobha",
         "te",
@@ -561,7 +562,7 @@ public sealed class ParentEndpointTests
             services.AddSingleton<IEveningStore>(_evening);
             services.AddSingleton<ILlmClient>(new ThrowingLlmClient()); // no AI anywhere on the family's side
             services.AddSingleton<IAudioStore>(_audio);
-            services.AddSingleton(A3ValidatorTests.Book);
+            services.AddSingleton(new BuiltInCurriculum(A3ValidatorTests.Book));
             services.AddSingleton<TimeProvider>(_clock);
         });
 }

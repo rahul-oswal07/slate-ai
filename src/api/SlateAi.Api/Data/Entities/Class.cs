@@ -8,4 +8,10 @@ public sealed class Class
 
     /// <summary>Medium of instruction as a language code, e.g. "kn".</summary>
     public required string Medium { get; set; }
+
+    /// <summary>
+    /// The published <see cref="StoredCurriculum"/> the class follows (T-145, D-125); null for the built-in curriculum from
+    /// <c>data/curriculum/</c>.
+    /// </summary>
+    public Guid? CurriculumId { get; set; }
 }

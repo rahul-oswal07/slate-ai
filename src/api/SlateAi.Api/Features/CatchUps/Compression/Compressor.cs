@@ -14,7 +14,7 @@ public sealed class Compressor(
     ILlmClient llm,
     IAiCallStore aiCalls,
     PromptLibrary prompts,
-    CurriculumGraph curriculum,
+    ICurriculumProvider curricula,
     ILedgerStore ledger)
 {
     public const string PromptId = "a2-compression";
@@ -31,17 +31,18 @@ public sealed class Compressor(
             return [];
         }
 
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         var inputs = CompressionPlanner.Plan(LedgerBuilder.Build(classId, data), data.Lessons, date, curriculum);
 
         // Children who missed the same lessons on the same days get the same request: ask Claude once per request, and
         // tag that call with all of them (T-73).
         var results = new List<A2Result>();
-        foreach (var group in inputs.Where(i => skip?.Contains(i.ChildId) != true).GroupBy(UserContent, StringComparer.Ordinal))
+        foreach (var group in inputs.Where(i => skip?.Contains(i.ChildId) != true).GroupBy(i => UserContent(i, curriculum), StringComparer.Ordinal))
         {
             A2Result answer;
             using (AiCallScope.For(group.Select(i => i.ChildId).ToList()))
             {
-                answer = await CompressAsync(group.First(), cancellationToken);
+                answer = await CompressAsync(group.First(), curriculum, cancellationToken);
             }
 
             results.AddRange(group.Select(input => answer with { ChildId = input.ChildId }));
@@ -51,7 +52,8 @@ public sealed class Compressor(
     }
 
     /// <summary>A2 for one child. Also what the eval suite runs.</summary>
-    public async Task<A2Result> CompressAsync(CompressionInput input, CancellationToken cancellationToken)
+    /// <param name="curriculum">The child's class's curriculum (T-145).</param>
+    public async Task<A2Result> CompressAsync(CompressionInput input, CurriculumGraph curriculum, CancellationToken cancellationToken)
     {
         if (input.Candidates.Count == 0)
         {
@@ -60,7 +62,7 @@ public sealed class Compressor(
         }
 
         // The default 4096: with five missed lessons and a reason for each, 1024 was truncated in the eval.
-        var request = new LlmRequest(prompts.Get(PromptId), UserContent(input), A2Validator.Schema(input));
+        var request = new LlmRequest(prompts.Get(PromptId), UserContent(input, curriculum), A2Validator.Schema(input));
         LlmResponse response;
         try
         {
@@ -82,7 +84,7 @@ public sealed class Compressor(
     }
 
     /// <summary>IDs, curriculum data and dates only: no names or child IDs reach Claude (guardrail 1).</summary>
-    internal string UserContent(CompressionInput input) =>
+    internal static string UserContent(CompressionInput input, CurriculumGraph curriculum) =>
         JsonSerializer.Serialize(new
         {
             missed = input.Missed.Select(m => curriculum.Get(m.Id) is { } c

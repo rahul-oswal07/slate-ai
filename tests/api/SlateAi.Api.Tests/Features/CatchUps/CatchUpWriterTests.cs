@@ -10,6 +10,7 @@ using SlateAi.Api.Speech;
 using SlateAi.Api.Tests.Features.Audio;
 using SlateAi.Api.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
+using SlateAi.Api.Tests.Curriculum;
 
 namespace SlateAi.Api.Tests.Features.CatchUps;
 
@@ -197,10 +198,10 @@ public sealed class CatchUpWriterTests
         var book = A3ValidatorTests.Book;
         return new CatchUpWriter(
             _store,
-            new ScriptWriter(_llm, _aiCalls, prompts, book),
-            new Verifier(new ContentCheck(_llm, _aiCalls, prompts, book), book, Options.Create(new VerifierOptions())),
+            new ScriptWriter(_llm, _aiCalls, prompts),
+            new Verifier(new ContentCheck(_llm, _aiCalls, prompts), Options.Create(new VerifierOptions())),
             new PackageAudio(_tts, _audio, new DisclosureClips(_tts, _audio, Disclosure), Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance),
-            book,
+            new FixedCurriculumProvider(book),
             prompts);
     }
 

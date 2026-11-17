@@ -32,7 +32,7 @@ const curriculum: Curriculum = {
 function setup(todays: FakeRoute, extra: Record<string, FakeRoute> = {}) {
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
-    'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
+    [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: curriculum }),
     [`GET /api/classes/${teacher.classId}/packages`]: () => ({ status: 200, body: { weekOf: istToday(), packages: [] } }),
     [`GET ${base}`]: todays,
     ...extra,

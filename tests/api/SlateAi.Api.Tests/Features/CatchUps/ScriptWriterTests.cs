@@ -16,7 +16,7 @@ public sealed class ScriptWriterTests
     [Fact]
     public async Task Valid_words_are_returned_and_logged_valid()
     {
-        var result = await Writer().WriteAsync(A3ValidatorTests.Input, ["Ravi"], Ct);
+        var result = await Writer().WriteAsync(A3ValidatorTests.Input, A3ValidatorTests.Book, ["Ravi"], Ct);
 
         Assert.NotNull(result.Content);
         Assert.Equal("valid", Assert.Single(_aiCalls.Calls).Verdict);
@@ -26,7 +26,7 @@ public sealed class ScriptWriterTests
     [Fact]
     public async Task A_hindi_family_is_asked_for_hindi()
     {
-        await Writer().WriteAsync(A3ValidatorTests.Input with { Language = "hi" }, ["Ravi", "Shobha"], Ct);
+        await Writer().WriteAsync(A3ValidatorTests.Input with { Language = "hi" }, A3ValidatorTests.Book, ["Ravi", "Shobha"], Ct);
 
         Assert.Contains("\"languageName\":\"Hindi\"", _llm.Requests.Single().UserContent);
     }
@@ -34,7 +34,7 @@ public sealed class ScriptWriterTests
     [Fact]
     public async Task Claude_gets_the_code_made_numbers_and_lesson_data_but_no_names_or_the_correct_option_position()
     {
-        await Writer().WriteAsync(A3ValidatorTests.Input with { Hint = "shorter" }, ["Ravi", "Shobha"], Ct);
+        await Writer().WriteAsync(A3ValidatorTests.Input with { Hint = "shorter" }, A3ValidatorTests.Book, ["Ravi", "Shobha"], Ct);
 
         var content = _llm.Requests.Single().UserContent;
         var problems = A3ValidatorTests.Input.Problems;
@@ -51,10 +51,10 @@ public sealed class ScriptWriterTests
     public async Task Invalid_output_and_llm_failures_are_refused()
     {
         _llm.Json = A3ValidatorTests.Output(script: "Hello {child}");
-        Assert.Equal("fallback:placeholder", (await Writer().WriteAsync(A3ValidatorTests.Input, [], Ct)).Verdict);
+        Assert.Equal("fallback:placeholder", (await Writer().WriteAsync(A3ValidatorTests.Input, A3ValidatorTests.Book, [], Ct)).Verdict);
 
         _llm.Failure = LlmFailure.Unavailable;
-        var down = await Writer().WriteAsync(A3ValidatorTests.Input, [], Ct);
+        var down = await Writer().WriteAsync(A3ValidatorTests.Input, A3ValidatorTests.Book, [], Ct);
         Assert.Null(down.Content);
         Assert.Equal("error:Unavailable", down.Verdict);
     }
@@ -62,8 +62,7 @@ public sealed class ScriptWriterTests
     private ScriptWriter Writer() => new(
         _llm,
         _aiCalls,
-        PromptLibrary.Load([("a3-script.md", "---\nid: a3-script\nversion: 1\nmodel_key: Script\n---\nPrompt.")], ["Script"]),
-        A3ValidatorTests.Book);
+        PromptLibrary.Load([("a3-script.md", "---\nid: a3-script\nversion: 1\nmodel_key: Script\n---\nPrompt.")], ["Script"]));
 
     internal sealed class StubLlm(FakeAiCallStore calls) : ILlmClient
     {

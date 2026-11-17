@@ -44,11 +44,12 @@ public static class LessonContentEndpoints
         SetLessonContentRequest request,
         HttpContext http,
         ILessonContentStore store,
-        CurriculumGraph curriculum,
+        BuiltInCurriculum builtIn,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        if (curriculum.Get(competencyId) is not { } lesson)
+        // The file and this page describe the built-in curriculum (T-145).
+        if (builtIn.Graph.Get(competencyId) is not { } lesson)
         {
             return TypedResults.NotFound();
         }

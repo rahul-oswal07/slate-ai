@@ -35,7 +35,7 @@ public interface IDeliveryStore
     Task MarkAsync(DeliveryUpdate update, CancellationToken cancellationToken);
 }
 
-public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) : IDeliveryStore
+public sealed class DeliveryStore(AppDbContext db, ICurriculumProvider curricula) : IDeliveryStore
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -50,7 +50,7 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 orderby d.CreatedAt
                 select new
                 {
-                    d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
+                    d.Id, d.ChildId, d.ClassId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
                     m.Language, m.SlotValues, m.Token, m.ExpiresAt, t.Version, m.TodaysMessageId, d.Recipient,
                     // Only a number saved on the admin page is dialled; seeded ones are fictional (T-118, D-110). Each row
                     // has its own number, the family's 1 or 2 (T-140).
@@ -71,7 +71,7 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 orderby d.CreatedAt
                 select new
                 {
-                    d.Id, d.ChildId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
+                    d.Id, d.ChildId, d.ClassId, d.Attempts, c.Consent, Stopped = c.ParentStoppedAt != null, c.FirstName,
                     p.Language, a.Token, a.ExpiresAt, p.TargetCompetencyIds, d.Recipient,
                     Phone = d.Recipient == 2
                         ? (c.ParentPhone2SetAt != null ? c.ParentPhone2 : null)
@@ -105,6 +105,13 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                 .Where(t => todaysIds.Contains(t.Id))
                 .ToDictionaryAsync(t => t.Id, t => t.CompetencyIds, cancellationToken);
 
+        // A batch mixes classes, and each names lessons from its own curriculum (T-145).
+        var curriculumOf = new Dictionary<Guid, CurriculumGraph>();
+        foreach (var classId in evening.Select(e => e.ClassId).Concat(catchUps.Select(c => c.ClassId)).Distinct())
+        {
+            curriculumOf[classId] = await curricula.ForClassAsync(classId, cancellationToken);
+        }
+
         return
         [
             .. evening.Select(e =>
@@ -115,7 +122,7 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
                     var lessons = todaysLessons.GetValueOrDefault(todaysId) ?? [];
                     return new PendingDelivery(e.Id, e.Attempts, e.Consent, e.Stopped, e.ExpiresAt, new DeliveryMessage(
                         e.Id, e.ChildId, DeliveryKinds.Todays, e.Language,
-                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculum) ?? [], e.Token, e.Version, e.Phone, e.Recipient));
+                        TemplateValues.Todays(e.FirstName, e.Language, lessons, curriculumOf[e.ClassId]) ?? [], e.Token, e.Version, e.Phone, e.Recipient));
                 }
 
                 var slots = JsonSerializer.Deserialize<SlotValues>(e.SlotValues, Json)!;
@@ -124,7 +131,7 @@ public sealed class DeliveryStore(AppDbContext db, CurriculumGraph curriculum) :
             }),
             .. catchUps.Select(c => new PendingDelivery(c.Id, c.Attempts, c.Consent, c.Stopped, c.ExpiresAt, new DeliveryMessage(
                 c.Id, c.ChildId, DeliveryKinds.CatchUp, c.Language,
-                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculum) ?? [], c.Token!, Phone: c.Phone, Recipient: c.Recipient))),
+                TemplateValues.CatchUp(c.FirstName, c.Language, c.TargetCompetencyIds, curriculumOf[c.ClassId]) ?? [], c.Token!, Phone: c.Phone, Recipient: c.Recipient))),
             // weekly_star_v1 (T-125): {{1}} is the child's name, nothing else.
             .. stars.Select(s => new PendingDelivery(s.Id, s.Attempts, s.Consent, s.Stopped, s.ExpiresAt, new DeliveryMessage(
                 s.Id, s.ChildId, DeliveryKinds.WeeklyStar, s.Language, [s.FirstName], s.Token, s.Version, s.Phone, s.Recipient))),

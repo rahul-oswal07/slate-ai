@@ -55,7 +55,7 @@ public sealed record LessonContentFile(string Version, IReadOnlyList<LessonConte
 /// <summary>Puts the content file into <c>LessonContents</c> at startup, never over an edit made on the admin page.</summary>
 public sealed class LessonContentLoader(
     ILessonContentStore store,
-    CurriculumGraph curriculum,
+    BuiltInCurriculum builtIn,
     IOptions<DatabaseOptions> options,
     TimeProvider clock,
     ILogger<LessonContentLoader> logger)
@@ -69,7 +69,7 @@ public sealed class LessonContentLoader(
             return;
         }
 
-        var (entries, problems) = LessonContentFile.Load(path).Check(curriculum);
+        var (entries, problems) = LessonContentFile.Load(path).Check(builtIn.Graph);
         foreach (var problem in problems)
         {
             logger.LogWarning("Lesson content skipped: {Problem}", problem);

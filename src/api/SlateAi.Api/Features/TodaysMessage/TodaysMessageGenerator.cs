@@ -46,7 +46,7 @@ public sealed class TodaysMessageGenerator(
     ILessonLinkStore links,
     ILessonContentStore contents,
     DisclosureClips disclosure,
-    CurriculumGraph curriculum,
+    ICurriculumProvider curricula,
     PromptLibrary prompts,
     IOptions<VerifierOptions> options,
     IOptions<TodaysMessageOptions> todaysOptions,
@@ -69,6 +69,7 @@ public sealed class TodaysMessageGenerator(
         // A9 is about the children whose families get it tonight: Under the hood says so (T-127, D-115).
         using var about = AiCallScope.For(job.ChildIds);
 
+        var curriculum = await curricula.ForClassAsync(row.ClassId, cancellationToken);
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.
         // A lesson without the book's exercises has no picture question (T-139, D-121): concept and activity only.

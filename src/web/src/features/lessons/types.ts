@@ -14,7 +14,7 @@ export type CurriculumLesson = {
 
 export type Chapter = { number: number; nameKn: string; nameEn: string; competencies: CurriculumLesson[] }
 
-/** GET /api/curriculum */
+/** GET /api/classes/{id}/curriculum (T-145) */
 export type Curriculum = { chapters: Chapter[] }
 
 /** GET/PUT /api/classes/{id}/lessons/{date} */

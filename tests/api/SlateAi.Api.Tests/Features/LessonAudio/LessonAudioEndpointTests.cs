@@ -314,7 +314,7 @@ public sealed class LessonAudioEndpointTests
             services.AddSingleton<ILessonAudioStore>(_lessons);
             services.AddSingleton<IAudioStore>(_audio);
             services.AddSingleton<IAiCallStore>(_aiCalls);
-            services.AddSingleton(Book);
+            services.AddSingleton(new BuiltInCurriculum(Book));
             services.AddSingleton(Wording);
             services.AddSingleton(llm);
             services.AddSingleton<TimeProvider>(_clock);

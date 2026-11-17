@@ -6,13 +6,18 @@ Spec: [`spec.md`](spec.md)
 
 ## Built
 
-- Only Grade 3 maths is loaded: the whole book, 60 competencies (T-81, on prod since `v1.2`).
+- Each class follows one curriculum: the built-in one from `data/curriculum/*.json`, or a published one stored in the database (`Classes.CurriculumId`, T-145, D-125). Code reads it per class through `ICurriculumProvider`; the lesson picker loads `GET /api/classes/{id}/curriculum`.
+- A stored curriculum gets every check a file gets (`CurriculumLoader`) and never changes once published.
+- Every class so far follows the built-in curriculum: nothing can make or publish a stored one until the importer (T-146) and the review page (T-147) are built.
+- The built-in curriculum is Grade 3 maths only: the whole book, 60 competencies (T-81, on prod since `v1.2`).
 - The Nalikali demo lesson `M3.BRIDGE.COMPARE` (more, less, equal; Nalikali Part 1 p 4) is in chapter 0 with the book's exercises (T-87).
 - Exercises can also be `add` and `sub` pairs, checked at startup: a sum ≤ 999, a difference not below 0 (T-128).
 - M3.ADD.NOCARRY, M3.ADD.CARRY, M3.ADD.WORD, M3.SUB.NOBORROW, M3.SUB.BORROW and M3.SUB.WORD have `add`/`sub` exercises, and M3.NUM.COMPARE has `extremes`, all copied from their `examples` (T-128).
 - `GET /api/curriculum` says which lessons have exercises (`hasExercises`) (T-128).
 
 ## Known gaps and drafts
+
+- Lesson descriptions (`LessonContents`) and video links (`LessonLinks`) exist for the built-in curriculum only, keyed by lesson ID (T-147 makes them per curriculum).
 
 - Only 13 have a practice rule, so the other 47 get no catch-up yet.
 - Only the demo lesson has `compare` exercises. Add and subtract lessons start a today's message too, while `TodaysMessage:ArithmeticExercises` is on (the default; `false` turns it off) (D-116, T-128).

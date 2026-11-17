@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Ledger;
 using SlateAi.Api.Features.Week;
@@ -126,7 +127,7 @@ public sealed class WeekEndpointTests
         {
             services.AddSingleton<ILedgerStore>(new FakeLedger(ClassId, _data));
             services.AddSingleton<IWeekStore>(_store);
-            services.AddSingleton(BuddyCardBuilderTests.Book);
+            services.AddSingleton(new BuiltInCurriculum(BuddyCardBuilderTests.Book));
             services.AddSingleton<TimeProvider>(new FixedClock(SchoolClock.At(Mon.AddDays(4), new TimeOnly(15, 0))));
         });
 

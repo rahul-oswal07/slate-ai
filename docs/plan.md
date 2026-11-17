@@ -38,7 +38,7 @@ slate-ai/
 │  │  ├─ Features/                Attendance, Lessons, Ledger, CatchUp, Delivery, Parent, Pacing, Demo
 │  │  ├─ Ai/                      ClaudeClient, prompt loader, validators, verifier, AiCall logging
 │  │  ├─ Speech/                  Sarvam STT/TTS client
-│  │  ├─ Curriculum/              graph loader, candidate-set computation
+│  │  ├─ Curriculum/              graph loader, candidate-set computation; per-class provider (T-145, D-125)
 │  │  ├─ Data/                    DbContext, entities, migrations, seed
 │  │  └─ Jobs/                    background queue
 │  └─ web/                        React + Vite PWA; `npm run build` writes into the API's wwwroot
@@ -132,3 +132,4 @@ Acceptance criteria per requirement are in the owning screen's `spec.md` (index 
 - `docs/lessons.md`: each production bug or demo failure gets a line and, where possible, a new eval case.
 - Watch one metric during judging: `/health` + error rate in Application Insights; alert by email.
 - If shortlisted (Top 10, 18 Nov): new `intent.md` revision for the final stage.
+- After the finale: curricula made from a class's own textbook (D-125), in three PRs: T-145 storage and a per-class curriculum, T-146 the A10 importer, T-147 review and publish on `/admin/curriculum`.

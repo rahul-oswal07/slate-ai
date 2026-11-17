@@ -281,7 +281,7 @@ public sealed class VoiceUploadEndpointTests
             services.AddSingleton<IEveningStore>(_evening);
             // Confirming any lesson now checks who is due today's message (T-139): an empty register, nobody due.
             services.AddSingleton<IAttendanceStore>(new FakeAttendanceStore(ClassId, []));
-            services.AddSingleton(Book);
+            services.AddSingleton(new BuiltInCurriculum(Book));
             services.AddSingleton<TimeProvider>(_clock);
         });
 

@@ -70,7 +70,7 @@ function today(opts: {
     ...(opts.put ? { [`PUT ${base}/lessons/${date}`]: opts.put } : {}),
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET ${base}/attendance/${date}`]: () => ({ status: 200, body: attendance(opts.absent ?? ['a', 'b']) }),
-    'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
+    [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: curriculum }),
     [`GET ${base}/lessons/${date}`]: () => ({ status: 200, body: { ...confirmed, sentToFamilies: opts.sentToFamilies ?? false } }),
     [`GET ${base}/evening-messages/${date}`]: () => ({ status: 200, body: evening(opts.sent ?? 0) }),
     [`GET ${base}/todays-message/${date}`]: () => (opts.todays ? { status: 200, body: opts.todays } : { status: 204 }),

@@ -88,7 +88,7 @@ public static class ParentEndpoints
             IEveningStore evenings,
             IWeeklyStarStore stars,
             DisclosureClips disclosure,
-            CurriculumGraph curriculum,
+            ICurriculumProvider curricula,
             TimeProvider clock,
             CancellationToken cancellationToken)
     {
@@ -104,7 +104,7 @@ public static class ParentEndpoints
                 return TypedResults.NotFound();
             }
 
-            var homework = Homework(record, curriculum);
+            var homework = Homework(record, await curricula.ForClassAsync(record.ClassId, cancellationToken));
             if (clock.GetUtcNow() >= record.ExpiresAt)
             {
                 return TypedResults.Json(

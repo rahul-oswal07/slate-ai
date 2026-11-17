@@ -214,7 +214,7 @@ GET  /api/demo                              { classId, parentChildId, lastResetA
 GET  /api/classes/{id}/attendance/{date}    { status: sats|manual|waiting|missing|noSchool, receivedAt, corrected, satsDiffers, syncAt, retryAt, absentChildIds[], children[] } (fetches the simulated SATS feed when due, D-45, D-69)
 POST /api/classes/{id}/attendance           { date, absentChildIds[] }  (idempotent by clientId; correction or manual marking, never written back to SATS)
 POST /api/demo/sats-feed                    { classId, date, mode: waiting|arrive } (only while Demo:Enabled, D-69)
-GET  /api/curriculum                        chapters (titles) with their lessons and textbook pages, for the lesson picker
+GET  /api/classes/{id}/curriculum           the class's chapters (titles) with their lessons and textbook pages, for the lesson picker: the built-in curriculum or the published one the class follows (T-145, D-125; was GET /api/curriculum)
 GET  /api/classes/{id}/lessons/{date}       { lesson: { competencyIds, source, status: processing|mapped|low|unclear|confirmed, summaryKn, summaryEn, examplesUsed } | null, nextInBook } (one lesson record per day, D-55; no confidence number)
 PUT  /api/classes/{id}/lessons/{date}       { clientRequestId, competencyIds[1..3], source?: voice|picked } → confirmed; "Change" overwrites (FR-03, FR-04)
 POST /api/classes/{id}/lessons/{date}/audio multipart { file ≤ 1 MB, clientRequestId } → 202 at once; STT → name scrubber → A1 in the background; 409 once confirmed and no longer replaceable: after today's message is approved, or tonight's message has gone (D-104, changing D-55); a note that replaces a confirmed lesson leaves it unconfirmed until she confirms the new match; audio not stored

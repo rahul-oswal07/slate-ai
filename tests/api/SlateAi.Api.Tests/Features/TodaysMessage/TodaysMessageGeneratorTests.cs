@@ -14,6 +14,7 @@ using SlateAi.Api.Tests.Features.EveningMessages;
 using SlateAi.Api.Tests.Features.LessonContents;
 using SlateAi.Api.Tests.Features.LessonLinks;
 using SlateAi.Api.Tests.Infrastructure;
+using SlateAi.Api.Tests.Curriculum;
 
 namespace SlateAi.Api.Tests.Features.TodaysMessage;
 
@@ -534,7 +535,7 @@ public sealed class TodaysMessageGeneratorTests
             _links,
             _contents,
             new DisclosureClips(_tts, _audio, Disclosure),
-            curriculum,
+            new FixedCurriculumProvider(curriculum),
             prompts,
             Options.Create(new VerifierOptions()),
             Options.Create(new TodaysMessageOptions { ArithmeticExercises = arithmetic }),

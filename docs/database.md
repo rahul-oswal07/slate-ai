@@ -4,9 +4,9 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `SecondParentPhone` (T-140) |
+| Last migration | `ClassCurricula` (T-145) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
-| Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
+| Curriculum | The built-in one is not in the database: loaded from `data/curriculum/*.json` at startup (T-05). A class can instead follow a stored curriculum (`Curricula`, T-145, D-125). Rows reference competencies by string ID such as `M3.ADD.CARRY`, read in the class's curriculum |
 
 ## 1. Current schema (built)
 
@@ -41,6 +41,8 @@ erDiagram
     Children ||--o{ AbsenceReasons : "one per absent day"
     Children ||--o{ BuddyCards : "ticks per return day"
     Classes ||--o{ PacingDecisions : "one per week"
+    Curricula |o--o{ Classes : "followed by (null = built-in)"
+    Curricula ||--o{ CurriculumLessons : has
     Lessons ||--o{ PacingDecisions : "the nudge's lesson"
 
     Teachers {
@@ -58,6 +60,24 @@ erDiagram
         uuid TeacherId FK
         int Grade
         varchar5 Medium "e.g. kn"
+        uuid CurriculumId FK "nullable: null = built-in"
+    }
+    Curricula {
+        uuid Id PK
+        varchar200 Title
+        int Grade
+        varchar50 Subject "e.g. maths"
+        varchar5 Medium "e.g. kn"
+        varchar20 Status "draft | published"
+        jsonb Chapters
+        timestamptz CreatedAt
+        timestamptz PublishedAt "nullable"
+    }
+    CurriculumLessons {
+        uuid CurriculumId PK,FK
+        varchar100 CompetencyId PK
+        int Sequence
+        jsonb Competency
     }
     Children {
         uuid Id PK
@@ -332,7 +352,7 @@ erDiagram
 
 **`Teachers`** — one per teacher login (D-40, T-47). `Phone` is the 10-digit national number, unique. `PinHash` is a PBKDF2 hash (`PasswordHasher`) of the 4–6 digit PIN; the demo teacher's comes from `Demo:TeacherPin` and the co-teachers' from `Demo:CoTeacherPin` via the seeder, never stored in clear. `FailedPinAttempts` / `PinLockedUntil`: 5 wrong PINs lock sign-in for 15 minutes. `ConsentAt` is the first-run gate: null → Welcome. It is set once by saving the greeting with the voice-consent tick (`POST /api/me/greeting`, T-61), or by `POST /api/me/welcome` when she continues without a greeting because the microphone is blocked (D-34). `GreetingAudioUrl` is `/api/audio/{id}` of the teacher's own recorded greeting (an `AudioClips` row of kind `greeting`), played first in every parent message (FR-09); null until she records one.
 
-**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
+**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `CurriculumId` (nullable, migration `ClassCurricula`, T-145, D-125) is the published `Curricula` row the class follows; null, as for every class so far, is the built-in curriculum from `data/curriculum/*.json`. FK `CurriculumId → Curricula` restrict, so a curriculum a class follows can't be deleted. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
 
 **`ClassTeachers`** — which teachers can sign in to a class (D-79): composite PK `(ClassId, TeacherId)`, FKs to `Classes` and `Teachers` (cascade), index on `TeacherId`. `AuthStore.GetMeAsync` takes the teacher's class from here (their own class first), and the class goes into the session cookie as before. The migration `ClassTeachers` adds one row per existing class for its main teacher; the seeder adds the demo class's main teacher and the co-teachers in `data/seed/demo-class.json` (`coTeachers`).
 
@@ -376,6 +396,10 @@ erDiagram
 
 **`LessonLinks`** — one video link per curriculum lesson, for every class (T-94, D-106, migration `LessonLinks`). Set on the admin page `/admin/lesson-links` (key rule of D-102); any absolute https URL up to 500 characters (`LessonLinkRules`). Key `CompetencyId` (a curriculum ID such as `M3.BRIDGE.COMPARE`, no FK: the curriculum isn't in the database). A fresh today's message copies the first of its lessons' links into its `Sections` video; later changes here don't touch existing drafts. Writes take the advisory lock `lesson-link:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-link`). The demo Reset leaves it alone.
 
+**`Curricula`** — a curriculum stored in the database (T-145, D-125, migration `ClassCurricula`), e.g. one made from a textbook by the importer (T-146). `Status` is `draft` (being made or reviewed; no class can follow it) or `published` (checked; never changes again, so the API caches its graph by `Id` for its life; a change is a new curriculum). `Chapters` is a jsonb array of `{ number, nameKn, nameEn }`. The built-in curriculum has no row here. Read by `Curriculum/CurriculumStore.cs` behind `ICurriculumStore`; every read goes through `CurriculumLoader`, so it gets the same checks as a file (IDs, prerequisites, no cycles, exercises). The demo Reset leaves it alone. Covered by `CurriculumDbTests`.
+
+**`CurriculumLessons`** — the lessons of a `Curricula` row: composite PK `(CurriculumId, CompetencyId)`, so an ID is unique within a curriculum and two curricula can both have `M3.ADD.CARRY`. `Competency` is the lesson as jsonb, the same shape as a lesson in `data/curriculum/*.json` (names, prerequisites, chapter, sequence, examples, page, key words, practice, exercises); `Sequence` is copied out of it so rows read in teaching order. FK `CurriculumId → Curricula` (cascade).
+
 **`AppSettings`** — server-wide switches set on an admin page, by key (T-134, migration `AppSettings`). Today only `demo.school-date` (`on`/`off`): whether the demo teacher can act as a past school day (D-120), set on `/admin/demo`; **a missing row is off**. Writes take the advisory lock on the key and record their `clientRequestId` in `ProcessedRequests` (`admin-school-date`). The API keeps the value in memory after the first read (`SchoolDateSwitch`) and updates it on write. No FKs; the demo Reset leaves it alone. Covered by `StartupDbTests.The_school_date_switch_starts_off_and_keeps_what_the_admin_page_saves`.
 
 **`ProcessedRequests`** — idempotency store shared by all write endpoints. A client-generated `ClientRequestId` (from the offline outbox) is inserted in the same transaction as the write it guards; a replay finds it and does nothing. `Endpoint` records which endpoint used it (`attendance` today). No FK; rows are small and can be pruned after the outbox retention period.
@@ -386,7 +410,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId` and `Classes.CurriculumId` (restrict, T-145): Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 

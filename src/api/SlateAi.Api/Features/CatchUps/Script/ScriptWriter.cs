@@ -9,7 +9,7 @@ namespace SlateAi.Api.Features.CatchUps.Script;
 /// A3, the catch-up script writer (FR-07): the words of one catch-up in the family's language, around numbers that
 /// code already chose. Opus 5.5, structured output, validated before anything is stored (guardrail 2).
 /// </summary>
-public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLibrary prompts, CurriculumGraph curriculum)
+public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLibrary prompts)
 {
     public const string PromptId = "a3-script";
 
@@ -28,8 +28,10 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         ["hi"] = "Hindi",
     };
 
+    /// <param name="curriculum">The class's curriculum (T-145): the targets' names and key words.</param>
     /// <param name="names">The class's names, only to refuse output that contains one; never sent.</param>
-    public async Task<A3Result> WriteAsync(ScriptInput input, IEnumerable<string> names, CancellationToken cancellationToken)
+    public async Task<A3Result> WriteAsync(
+        ScriptInput input, CurriculumGraph curriculum, IEnumerable<string> names, CancellationToken cancellationToken)
     {
         var choices = A3Validator.KeyWordChoices(input, curriculum);
         if (choices.Count < A3Validator.KeyWords)
@@ -38,7 +40,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         }
 
         // 8192: Opus thinks before writing six fields in an Indic script; 4096 was truncated in the eval.
-        var request = new LlmRequest(prompts.Get(PromptId), UserContent(input), A3Validator.Schema(choices), MaxTokens: 8192);
+        var request = new LlmRequest(prompts.Get(PromptId), UserContent(input, curriculum), A3Validator.Schema(choices), MaxTokens: 8192);
         LlmResponse response;
         try
         {
@@ -60,7 +62,7 @@ public sealed class ScriptWriter(ILlmClient llm, IAiCallStore aiCalls, PromptLib
     }
 
     /// <summary>Curriculum data and code-made numbers only: no names, no child IDs (guardrail 1).</summary>
-    internal string UserContent(ScriptInput input)
+    internal static string UserContent(ScriptInput input, CurriculumGraph curriculum)
     {
         var p = input.Problems;
         return JsonSerializer.Serialize(new

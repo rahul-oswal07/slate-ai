@@ -12,7 +12,7 @@ The lesson graph the whole product reads: lessons, prerequisites, pages, practic
 
 ## Purpose and states
 
-The lessons, their order and prerequisites, textbook pages, book examples and key words. Monika's content is in [`design/curriculum.md`](../../design/curriculum.md); the file format is in `data/curriculum/README.md`; how it grounds the AI is [`spec.md`](../../spec.md) §5.3.
+The lessons, their order and prerequisites, textbook pages, book examples and key words. Each class follows one curriculum: the built-in one from `data/curriculum/`, or one stored in the database and made from the class's own textbook (D-125: T-145 storage, T-146 importer, T-147 review and publish). Monika's content is in [`design/curriculum.md`](../../design/curriculum.md); the file format is in `data/curriculum/README.md`; how it grounds the AI is [`spec.md`](../../spec.md) §5.3.
 
 ## Requirements
 
@@ -20,6 +20,6 @@ No FR of its own. D-01 and D-89 (the Grade 3 book), D-90 (Nalikali for the final
 
 ## Decisions cited
 
-D-01, D-14, D-22, D-89, D-90, D-91, D-93.
+D-01, D-14, D-22, D-89, D-90, D-91, D-93, D-125.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).

@@ -34,7 +34,7 @@ public sealed class A2CompressionEvals
             settings: new Dictionary<string, string?> { ["Ai:Provider"] = "Claude", ["Anthropic:ApiKey"] = key });
         await using var scope = factory.Services.CreateAsyncScope();
         var compressor = scope.ServiceProvider.GetRequiredService<Compressor>();
-        var curriculum = scope.ServiceProvider.GetRequiredService<CurriculumGraph>();
+        var curriculum = scope.ServiceProvider.GetRequiredService<BuiltInCurriculum>().Graph;
         var prompt = scope.ServiceProvider.GetRequiredService<PromptLibrary>().Get(Compressor.PromptId);
         var model = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value.ModelFor(prompt.ModelKey);
 
@@ -49,7 +49,7 @@ public sealed class A2CompressionEvals
                 nextWeek,
                 curriculum.CandidateSet(c.Missed, nextWeek),
                 curriculum.WithPractice(c.Missed));
-            var result = await compressor.CompressAsync(input, TestContext.Current.CancellationToken);
+            var result = await compressor.CompressAsync(input, curriculum, TestContext.Current.CancellationToken);
             var targets = result.Targets.Select(t => t.Id).ToList();
             var accepted = new[] { c.Best }.Concat(c.AlsoAcceptable ?? []).ToHashSet();
             // D-76: every reason also comes in Kannada (the validator drops one that isn't Kannada script).

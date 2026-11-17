@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback } from 'react'
 import { api, NetworkError } from '../../api/client'
+import { useMe } from '../auth/useMe'
 import { db, saveSnapshot } from '../../offline/db'
 import { enqueue, flush, pendingFor } from '../../offline/outbox'
 import type { Curriculum, LessonDay } from './types'
@@ -21,10 +22,14 @@ async function withSnapshot<T>(key: string, load: () => Promise<T>): Promise<T> 
   }
 }
 
+/** The signed-in teacher's class's curriculum (T-145): classes can follow different books, so it is cached per class. */
 export function useCurriculum() {
+  const classId = useMe().data?.classId ?? ''
   return useQuery({
-    queryKey: ['curriculum'],
-    queryFn: () => withSnapshot('curriculum', () => api<Curriculum>('/api/curriculum')),
+    queryKey: ['curriculum', classId],
+    queryFn: () =>
+      withSnapshot(`curriculum:${classId}`, () => api<Curriculum>(`/api/classes/${classId}/curriculum`)),
+    enabled: classId !== '',
     staleTime: Infinity,
     retry: false,
   })

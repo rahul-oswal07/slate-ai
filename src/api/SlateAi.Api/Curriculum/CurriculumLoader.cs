@@ -32,23 +32,37 @@ public static partial class CurriculumLoader
     public static CurriculumGraph Load(IEnumerable<(string Name, string Json)> files)
     {
         var errors = new List<string>();
-        var competencies = new List<Competency>();
-        var chapters = new Dictionary<int, Chapter>();
-        var seen = new Dictionary<string, string>(StringComparer.Ordinal);
-
+        var parsed = new List<(string Name, CurriculumFile? File)>();
         foreach (var (name, json) in files)
         {
-            CurriculumFile? file;
             try
             {
-                file = JsonSerializer.Deserialize<CurriculumFile>(json, Json);
+                parsed.Add((name, JsonSerializer.Deserialize<CurriculumFile>(json, Json)));
             }
             catch (JsonException e)
             {
                 errors.Add($"{name}: not valid JSON ({e.Message})");
-                continue;
             }
+        }
 
+        return Build(parsed, errors);
+    }
+
+    /// <summary>
+    /// Runs every check a file gets on curricula already parsed, e.g. one read from the database (T-145).
+    /// </summary>
+    /// <param name="curricula">(name for error messages, the curriculum)</param>
+    public static CurriculumGraph Load(IEnumerable<(string Name, CurriculumFile File)> curricula) =>
+        Build(curricula.Select(c => (c.Name, (CurriculumFile?)c.File)), []);
+
+    private static CurriculumGraph Build(IEnumerable<(string Name, CurriculumFile? File)> files, List<string> errors)
+    {
+        var competencies = new List<Competency>();
+        var chapters = new Dictionary<int, Chapter>();
+        var seen = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var (name, file) in files)
+        {
             foreach (var chapter in file?.Chapters ?? [])
             {
                 if (string.IsNullOrWhiteSpace(chapter.NameKn) || string.IsNullOrWhiteSpace(chapter.NameEn))

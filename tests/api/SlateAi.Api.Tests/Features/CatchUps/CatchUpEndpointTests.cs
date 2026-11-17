@@ -173,7 +173,7 @@ public sealed class CatchUpEndpointTests
             services.AddSingleton<ILedgerStore>(new StubLedger(ledger));
             services.AddSingleton<IAiCallStore>(_aiCalls);
             services.AddSingleton<ILlmClient>(_llm);
-            services.AddSingleton(Book);
+            services.AddSingleton(new BuiltInCurriculum(Book));
             services.AddSingleton<TimeProvider>(Clock);
         });
 

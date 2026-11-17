@@ -545,6 +545,9 @@ namespace SlateAi.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CurriculumId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Grade")
                         .HasColumnType("integer");
 
@@ -557,6 +560,8 @@ namespace SlateAi.Api.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CurriculumId");
 
                     b.HasIndex("TeacherId");
 
@@ -998,6 +1003,71 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("ProcessedRequests");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.StoredCurriculum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Chapters")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Grade")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Medium")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Curricula", (string)null);
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.StoredCurriculumLesson", b =>
+                {
+                    b.Property<Guid>("CurriculumId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompetencyId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Competency")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CurriculumId", "CompetencyId");
+
+                    b.ToTable("CurriculumLessons", (string)null);
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Teacher", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1289,6 +1359,11 @@ namespace SlateAi.Api.Data.Migrations
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.Class", b =>
                 {
+                    b.HasOne("SlateAi.Api.Data.Entities.StoredCurriculum", null)
+                        .WithMany()
+                        .HasForeignKey("CurriculumId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("SlateAi.Api.Data.Entities.Teacher", null)
                         .WithMany()
                         .HasForeignKey("TeacherId")
@@ -1432,6 +1507,15 @@ namespace SlateAi.Api.Data.Migrations
                         .WithMany()
                         .HasForeignKey("WeeklyStarMessageId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.StoredCurriculumLesson", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.StoredCurriculum", null)
+                        .WithMany()
+                        .HasForeignKey("CurriculumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.TodaysMessage", b =>

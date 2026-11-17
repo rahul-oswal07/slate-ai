@@ -3,6 +3,7 @@ using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.Ledger;
 using SlateAi.Api.Tests.Infrastructure;
+using SlateAi.Api.Tests.Curriculum;
 
 namespace SlateAi.Api.Tests.Features.CatchUps;
 
@@ -30,7 +31,7 @@ public sealed class CompressorTests
     [Fact]
     public async Task A_valid_choice_passes_through_as_the_ais_and_is_logged_valid()
     {
-        var result = await Create().CompressAsync(Input, Ct);
+        var result = await Create().CompressAsync(Input, CompressionBook.Graph, Ct);
 
         Assert.Equal(CompressionSource.Ai, result.Source);
         Assert.Equal(["M3.SUB.BORROW"], result.Targets.Select(t => t.Id));
@@ -43,7 +44,7 @@ public sealed class CompressorTests
     {
         _llm.Json = """{"targets":[{"competencyId":"M3.SUB.MAKE","reason":"x"}],"dropped":[]}""";
 
-        var result = await Create().CompressAsync(Input, Ct);
+        var result = await Create().CompressAsync(Input, CompressionBook.Graph, Ct);
 
         Assert.Equal(CompressionSource.Rule, result.Source);
         Assert.Equal("fallback:target-outside-candidates", Assert.Single(_aiCalls.Calls).Verdict);
@@ -54,7 +55,7 @@ public sealed class CompressorTests
     {
         _llm.Failure = LlmFailure.Unavailable;
 
-        var result = await Create().CompressAsync(Input, Ct);
+        var result = await Create().CompressAsync(Input, CompressionBook.Graph, Ct);
 
         Assert.Equal(CompressionSource.Rule, result.Source);
         Assert.Equal("error:Unavailable", result.Verdict);
@@ -64,7 +65,7 @@ public sealed class CompressorTests
     [Fact]
     public async Task No_candidates_means_no_llm_call()
     {
-        var result = await Create().CompressAsync(Input with { Candidates = [] }, Ct);
+        var result = await Create().CompressAsync(Input with { Candidates = [] }, CompressionBook.Graph, Ct);
 
         Assert.Equal("rule:no-candidates", result.Verdict);
         Assert.Empty(_llm.Requests);
@@ -73,7 +74,7 @@ public sealed class CompressorTests
     [Fact]
     public async Task Claude_gets_lesson_ids_and_names_but_no_child_id_or_names_and_the_schema_enum_is_the_candidates()
     {
-        await Create().CompressAsync(Input, Ct);
+        await Create().CompressAsync(Input, CompressionBook.Graph, Ct);
 
         var request = _llm.Requests.Single();
         Assert.Contains("\"candidates\":[\"M3.SUB.BORROW\",\"M3.SUB.NOBORROW\"]", request.UserContent);
@@ -131,7 +132,7 @@ public sealed class CompressorTests
         _llm,
         _aiCalls,
         PromptLibrary.Load([("a2-compression.md", "---\nid: a2-compression\nversion: 1\nmodel_key: Compression\n---\nPrompt.")], ["Compression"]),
-        CompressionBook.Graph,
+        new FixedCurriculumProvider(CompressionBook.Graph),
         _ledger);
 
     private static MissedCompetency Missed(string id) => new(id, [Tuesday]);

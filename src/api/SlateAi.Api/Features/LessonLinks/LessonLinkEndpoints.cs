@@ -48,11 +48,13 @@ public static class LessonLinkEndpoints
         HttpContext http,
         ILessonLinkStore store,
         ILessonContentStore contents,
-        CurriculumGraph curriculum,
+        BuiltInCurriculum builtIn,
         CancellationToken cancellationToken)
     {
         var links = await store.GetAllAsync(cancellationToken);
         var content = await contents.GetAllAsync(cancellationToken);
+        // This page lists the built-in curriculum's lessons (T-145).
+        var curriculum = builtIn.Graph;
         var titles = curriculum.Chapters.ToDictionary(c => c.Number);
         var chapters = curriculum.All
             .GroupBy(c => c.Chapter)
@@ -74,11 +76,11 @@ public static class LessonLinkEndpoints
         SetLessonLinkRequest request,
         HttpContext http,
         ILessonLinkStore store,
-        CurriculumGraph curriculum,
+        BuiltInCurriculum builtIn,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        if (curriculum.Get(competencyId) is not { } lesson)
+        if (builtIn.Graph.Get(competencyId) is not { } lesson)
         {
             return TypedResults.NotFound();
         }

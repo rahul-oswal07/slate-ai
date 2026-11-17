@@ -47,7 +47,7 @@ public sealed class A9TodaysMessageEvals
             services => services.AddSingleton<IAiCallStore>(new FakeAiCallStore()),
             settings: new Dictionary<string, string?> { ["Ai:Provider"] = "Claude", ["Anthropic:ApiKey"] = key });
         var services = factory.Services;
-        var curriculum = services.GetRequiredService<CurriculumGraph>();
+        var curriculum = services.GetRequiredService<BuiltInCurriculum>().Graph;
         var prompts = services.GetRequiredService<PromptLibrary>();
         var aiOptions = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value;
         string[] names = ["Ravi", "Ananya", "Bhavana", "Chetan", "Shobha"];

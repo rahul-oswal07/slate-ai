@@ -50,7 +50,7 @@ public static class WeekEndpoints
         DateOnly date,
         ILedgerStore ledger,
         IWeekStore store,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -60,7 +60,7 @@ public static class WeekEndpoints
             return FutureWeek();
         }
 
-        return await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, cancellationToken) is { } week
+        return await WeekAsync(classId, weekOf, ledger, store, curricula, clock, cancellationToken) is { } week
             ? TypedResults.Ok(week)
             : TypedResults.NotFound();
     }
@@ -71,7 +71,7 @@ public static class WeekEndpoints
         PacingDecisionRequest request,
         ILedgerStore ledger,
         IWeekStore store,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -90,7 +90,7 @@ public static class WeekEndpoints
             return FutureWeek();
         }
 
-        if (await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, cancellationToken) is not { } week)
+        if (await WeekAsync(classId, weekOf, ledger, store, curricula, clock, cancellationToken) is not { } week)
         {
             return TypedResults.NotFound();
         }
@@ -103,11 +103,11 @@ public static class WeekEndpoints
         await store.SaveDecisionAsync(
             classId, weekOf, new DecisionRow(request.LessonId, request.Decision), request.ClientRequestId, clock.GetUtcNow(),
             cancellationToken);
-        return TypedResults.Ok((await WeekAsync(classId, weekOf, ledger, store, curriculum, clock, cancellationToken))!);
+        return TypedResults.Ok((await WeekAsync(classId, weekOf, ledger, store, curricula, clock, cancellationToken))!);
     }
 
     private static async Task<WeekResponse?> WeekAsync(
-        Guid classId, DateOnly weekOf, ILedgerStore ledger, IWeekStore store, CurriculumGraph curriculum,
+        Guid classId, DateOnly weekOf, ILedgerStore ledger, IWeekStore store, ICurriculumProvider curricula,
         TimeProvider clock, CancellationToken cancellationToken)
     {
         if (await ledger.LoadAsync(classId, cancellationToken) is not { } data)
@@ -116,6 +116,7 @@ public static class WeekEndpoints
         }
 
         var decision = await store.GetDecisionAsync(classId, weekOf, cancellationToken);
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         return WeekBuilder.Build(data, curriculum, weekOf, decision)
             with { Stars = StarRules.For(data, weekOf, SchoolClock.Today(clock)) };
     }

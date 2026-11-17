@@ -89,7 +89,7 @@ public sealed class CurriculumStartupTests
         using var directory = new TempDirectory();
         await using var factory = FakeApi.Create(settings: Settings(directory.Path));
 
-        Assert.Empty(factory.Services.GetRequiredService<CurriculumGraph>().All);
+        Assert.Empty(factory.Services.GetRequiredService<BuiltInCurriculum>().Graph.All);
     }
 
     [Fact]

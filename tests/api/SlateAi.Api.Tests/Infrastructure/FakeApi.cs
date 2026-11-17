@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.Demo;
 using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.LessonLinks;
 using SlateAi.Api.Features.WeeklyStar;
+using SlateAi.Api.Tests.Curriculum;
 using SlateAi.Api.Tests.Features.Delivery;
 using SlateAi.Api.Tests.Features.Demo;
 using SlateAi.Api.Tests.Features.LessonContents;
@@ -37,7 +39,15 @@ public static class FakeApi
             all.AddSingleton<IWeeklyStarStore>(new FakeWeeklyStarStore());
             // Acting as a past day (T-134) is off unless a test switches it on.
             all.AddSingleton<ISchoolDateSwitchStore>(new FakeSchoolDateSwitchStore());
+            // Every class follows the built-in curriculum (T-145) unless a test gives one a stored curriculum.
+            all.AddSingleton<ICurriculumStore>(new FakeCurriculumStore());
             services?.Invoke(all);
+            // Nothing reads an app-wide graph any more, so one registered here would be silently ignored.
+            if (all.Any(d => d.ServiceType == typeof(CurriculumGraph)))
+            {
+                throw new InvalidOperationException(
+                    "Register `new BuiltInCurriculum(graph)` instead of a CurriculumGraph: the app reads each class's curriculum (T-145).");
+            }
         });
 }
 

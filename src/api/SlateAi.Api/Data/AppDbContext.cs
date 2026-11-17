@@ -30,6 +30,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<WeeklyStarApproval> WeeklyStarApprovals => Set<WeeklyStarApproval>();
     public DbSet<LessonLink> LessonLinks => Set<LessonLink>();
     public DbSet<LessonContent> LessonContents => Set<LessonContent>();
+    public DbSet<StoredCurriculum> Curricula => Set<StoredCurriculum>();
+    public DbSet<StoredCurriculumLesson> CurriculumLessons => Set<StoredCurriculumLesson>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
@@ -48,6 +50,27 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         {
             e.Property(c => c.Medium).HasMaxLength(5);
             e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId);
+            // A curriculum a class follows can't be deleted (T-145); null = the built-in one.
+            e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(c => c.CurriculumId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<StoredCurriculum>(e =>
+        {
+            e.ToTable("Curricula");
+            e.Property(c => c.Title).HasMaxLength(200);
+            e.Property(c => c.Subject).HasMaxLength(50);
+            e.Property(c => c.Medium).HasMaxLength(5);
+            e.Property(c => c.Status).HasMaxLength(20);
+            e.Property(c => c.Chapters).HasColumnType("jsonb");
+        });
+
+        modelBuilder.Entity<StoredCurriculumLesson>(e =>
+        {
+            e.ToTable("CurriculumLessons");
+            e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // IDs are unique within a curriculum
+            e.Property(l => l.CompetencyId).HasMaxLength(100);
+            e.Property(l => l.Competency).HasColumnType("jsonb");
+            e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(l => l.CurriculumId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ClassTeacher>(e =>

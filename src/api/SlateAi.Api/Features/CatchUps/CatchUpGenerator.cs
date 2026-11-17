@@ -14,7 +14,7 @@ namespace SlateAi.Api.Features.CatchUps;
 /// (targets, language) with numbers from code; the words (A3) are written in the background.
 /// </summary>
 public sealed class CatchUpGenerator(
-    ICatchUpStore store, Compressor compressor, CurriculumGraph curriculum, CatchUpQueue queue, ILogger<CatchUpGenerator> logger)
+    ICatchUpStore store, Compressor compressor, ICurriculumProvider curricula, CatchUpQueue queue, ILogger<CatchUpGenerator> logger)
 {
     /// <summary>Plans and stores the week up to <paramref name="date"/>, queues A3 for new catch-ups. Null if no class.</summary>
     public async Task<IReadOnlyList<PackageView>?> GenerateAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
@@ -27,6 +27,7 @@ public sealed class CatchUpGenerator(
         var weekOf = CompressionPlanner.Week(date).From;
         var assigned = await store.GetAssignedChildIdsAsync(classId, weekOf, cancellationToken);
         var results = await compressor.CompressClassAsync(classId, date, cancellationToken, skip: assigned);
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         var (packages, assignments) = CatchUpPlanner.Plan(classId, weekOf, results, languages, curriculum);
         var created = await store.SaveGenerationAsync(classId, weekOf, packages, assignments, cancellationToken);
         foreach (var id in created.Where(id => !queue.TryEnqueue(id)))
@@ -46,7 +47,7 @@ public sealed class CatchUpGenerator(
 /// (spec §5.1 A3). Passes → ready; a second verifier failure → needsReview with the reasons; nothing usable → failed.
 /// </summary>
 public sealed class CatchUpWriter(
-    ICatchUpStore store, ScriptWriter writer, Verifier verifier, PackageAudio audio, CurriculumGraph curriculum, PromptLibrary prompts)
+    ICatchUpStore store, ScriptWriter writer, Verifier verifier, PackageAudio audio, ICurriculumProvider curricula, PromptLibrary prompts)
 {
     public const int Attempts = 2;
 
@@ -61,6 +62,7 @@ public sealed class CatchUpWriter(
         using var about = AiCallScope.For(package.ChildIds ?? []);
 
         var promptVersion = prompts.Get(ScriptWriter.PromptId).Version;
+        var curriculum = await curricula.ForClassAsync(package.ClassId, cancellationToken);
         var problems = PackagePractice.For(
             package.TargetIds, curriculum,
             CatchUpPlanner.SeedKey(package.ClassId, package.WeekOf, package.TargetKey, package.Language));
@@ -82,7 +84,7 @@ public sealed class CatchUpWriter(
         for (var attempt = 1; attempt <= Attempts; attempt++)
         {
             var input = new ScriptInput(package.Language, package.TargetIds, problems, examples, package.Hint, feedback);
-            var written = await writer.WriteAsync(input, names, cancellationToken);
+            var written = await writer.WriteAsync(input, curriculum, names, cancellationToken);
             if (written.Content is not { } content)
             {
                 // Keep a verified-but-flawed earlier attempt rather than nothing.
@@ -92,7 +94,7 @@ public sealed class CatchUpWriter(
             }
 
             var review = await verifier.VerifyAsync(
-                new VerifyInput(package.Language, package.TargetIds, content, activity, check, names), cancellationToken);
+                new VerifyInput(package.Language, package.TargetIds, content, activity, check, names), curriculum, cancellationToken);
             outcome = new ScriptOutcome(
                 review.Passed ? PackageStatus.Ready : PackageStatus.NeedsReview, content, review.Verdict, promptVersion,
                 new PackageReview(review.Passed, attempt, review.Checks));
