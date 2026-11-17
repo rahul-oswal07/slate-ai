@@ -1,3 +1,4 @@
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.LessonContents;
 
@@ -16,7 +17,7 @@ public sealed class LessonContentLoaderTests
     {
         var store = new FakeLessonContentStore();
         await store.SyncAsync([Entry("M3.A", "First."), Entry("M3.B", "First.")], DateTimeOffset.UnixEpoch, Ct);
-        await store.SetAsync(Guid.NewGuid(), "M3.B", new LessonContentText("Hers.", ["Her example."]), DateTimeOffset.UnixEpoch, Ct);
+        await store.SetAsync(Guid.NewGuid(), BuiltInCurriculum.Id, "M3.B", new LessonContentText("Hers.", ["Her example."]), DateTimeOffset.UnixEpoch, Ct);
 
         var result = await store.SyncAsync(
             [Entry("M3.A", "Second."), Entry("M3.B", "Second."), Entry("M3.C", "New.")], DateTimeOffset.UnixEpoch, Ct);

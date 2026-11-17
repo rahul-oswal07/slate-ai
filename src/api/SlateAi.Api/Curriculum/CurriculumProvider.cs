@@ -10,13 +10,23 @@ public interface ICurriculumProvider
 {
     /// <summary>The class's published curriculum, or the built-in one when it has none (or there is no such class).</summary>
     Task<CurriculumGraph> ForClassAsync(Guid classId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The ID of that curriculum, which keys its lesson descriptions and links (T-147): <see cref="BuiltInCurriculum.Id"/>
+    /// for the built-in one.
+    /// </summary>
+    Task<Guid> IdForClassAsync(Guid classId, CancellationToken cancellationToken);
 }
 
 /// <summary>
 /// The curriculum from <c>data/curriculum/*.json</c>, checked at startup (T-05). Classes without a stored curriculum use
 /// it; the admin lesson-link and lesson-content pages and the lesson-content file describe it.
 /// </summary>
-public sealed record BuiltInCurriculum(CurriculumGraph Graph);
+public sealed record BuiltInCurriculum(CurriculumGraph Graph)
+{
+    /// <summary>The built-in curriculum has no <c>Curricula</c> row; this keys its lesson descriptions and links (T-147).</summary>
+    public static readonly Guid Id = Guid.Empty;
+}
 
 /// <summary>Graphs of stored curricula by ID. Safe to keep for the app's life: a published curriculum never changes.</summary>
 public sealed class CurriculumCache
@@ -31,6 +41,9 @@ public sealed class CurriculumCache
 public sealed class CurriculumProvider(ICurriculumStore store, BuiltInCurriculum builtIn, CurriculumCache cache)
     : ICurriculumProvider
 {
+    public async Task<Guid> IdForClassAsync(Guid classId, CancellationToken cancellationToken) =>
+        await store.GetClassCurriculumIdAsync(classId, cancellationToken) ?? BuiltInCurriculum.Id;
+
     public async Task<CurriculumGraph> ForClassAsync(Guid classId, CancellationToken cancellationToken)
     {
         if (await store.GetClassCurriculumIdAsync(classId, cancellationToken) is not { } curriculumId)

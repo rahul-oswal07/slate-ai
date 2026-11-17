@@ -8,7 +8,8 @@ Spec: [`spec.md`](spec.md)
 
 - Each class follows one curriculum: the built-in one from `data/curriculum/*.json`, or a published one stored in the database (`Classes.CurriculumId`, T-145, D-125). Code reads it per class through `ICurriculumProvider`; the lesson picker loads `GET /api/classes/{id}/curriculum`.
 - A stored curriculum gets every check a file gets (`CurriculumLoader`) and never changes once published.
-- Every class so far follows the built-in curriculum: nothing can publish a stored one until the review page (T-147) is built.
+- On `/admin/curriculum` an admin checks a draft lesson by lesson, publishes it, and moves classes to it (T-147). A move that would lose a lesson ID the class has used is refused.
+- Every class on staging and prod still follows the built-in curriculum until an admin moves it.
 - A textbook PDF can be imported into a **draft** curriculum through the admin API (T-146, prompts A10).
   - Chapters, IDs, order and pages are made by code.
   - Exercises are checked by `ExerciseAnswers`; other exercises are kept as summaries and pictures as descriptions.
@@ -22,7 +23,9 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- Lesson descriptions (`LessonContents`) and video links (`LessonLinks`) exist for the built-in curriculum only, keyed by lesson ID (T-147 makes them per curriculum).
+- Lesson descriptions (`LessonContents`) and video links (`LessonLinks`) are per curriculum (T-147). Publishing writes a curriculum's descriptions. Video links for a stored curriculum can't be set yet: `/admin/lesson-links` edits the built-in one's only.
+- A published curriculum can't be edited; a fix means a new import.
+- The teacher's app keeps a class's lesson list until it reloads, so a class moved to another curriculum sees it after a reload.
 
 - Only 13 have a practice rule, so the other 47 get no catch-up yet.
 - Only the demo lesson has `compare` exercises. Add and subtract lessons start a today's message too, while `TodaysMessage:ArithmeticExercises` is on (the default; `false` turns it off) (D-116, T-128).

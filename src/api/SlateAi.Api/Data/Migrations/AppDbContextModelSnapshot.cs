@@ -888,6 +888,9 @@ namespace SlateAi.Api.Data.Migrations
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonContent", b =>
                 {
+                    b.Property<Guid>("CurriculumId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("CompetencyId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -912,13 +915,16 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("CompetencyId");
+                    b.HasKey("CurriculumId", "CompetencyId");
 
                     b.ToTable("LessonContents");
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonLink", b =>
                 {
+                    b.Property<Guid>("CurriculumId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("CompetencyId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -931,7 +937,7 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.HasKey("CompetencyId");
+                    b.HasKey("CurriculumId", "CompetencyId");
 
                     b.ToTable("LessonLinks");
                 });

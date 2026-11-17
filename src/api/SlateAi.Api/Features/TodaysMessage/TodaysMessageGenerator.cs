@@ -56,8 +56,8 @@ public sealed class TodaysMessageGenerator(
     private const int Attempts = 2;
 
     /// <summary>The first lesson's link, in the order she confirmed them, or null: no video (T-94).</summary>
-    private async Task<TodaysVideo?> VideoAsync(IReadOnlyList<string> competencyIds, CancellationToken cancellationToken) =>
-        (await links.GetForAsync(competencyIds, cancellationToken)) is [var (_, url), ..] ? new TodaysVideo(url) : null;
+    private async Task<TodaysVideo?> VideoAsync(Guid curriculumId, IReadOnlyList<string> competencyIds, CancellationToken cancellationToken) =>
+        (await links.GetForAsync(curriculumId, competencyIds, cancellationToken)) is [var (_, url), ..] ? new TodaysVideo(url) : null;
 
     public async Task GenerateAsync(TodaysJob job, CancellationToken cancellationToken)
     {
@@ -70,6 +70,8 @@ public sealed class TodaysMessageGenerator(
         using var about = AiCallScope.For(job.ChildIds);
 
         var curriculum = await curricula.ForClassAsync(row.ClassId, cancellationToken);
+        // The class's curriculum's descriptions and links (T-147), not another book's lesson with the same ID.
+        var curriculumId = await curricula.IdForClassAsync(row.ClassId, cancellationToken);
         var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
         // A draft she edited keeps her Kannada and her picture pair (D-92); a fresh one starts from the book's first pair.
         // A lesson without the book's exercises has no picture question (T-139, D-121): concept and activity only.
@@ -93,7 +95,7 @@ public sealed class TodaysMessageGenerator(
         {
             var names = (await evening.GetClassAsync(row.ClassId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
             // How the book teaches each lesson, with worked examples (T-141, D-123): A9 builds the spoken concept on it.
-            var content = await contents.GetForAsync(row.CompetencyIds, cancellationToken);
+            var content = await contents.GetForAsync(curriculumId, row.CompetencyIds, cancellationToken);
             var kannada = teacher?.Kannada;
             // Her Kannada is never rewritten; A9 is asked only for the languages she can't write, if any. A note she wrote
             // in another language is written in Kannada too, so Kannada families read it in Kannada (T-119, D-111).
@@ -168,7 +170,7 @@ public sealed class TodaysMessageGenerator(
                 : new TodaysNote(texts.ToDictionary(t => t.Key, t => t.Value.Note!), teacher!.Note!.Removed, kannada.Note);
             // A fresh draft takes the lesson's link as it is now; a draft she edited keeps its video and her Remove.
             var sections = teacher is null
-                ? new TodaysSections(concept, activity, picture, await VideoAsync(row.CompetencyIds, cancellationToken))
+                ? new TodaysSections(concept, activity, picture, await VideoAsync(curriculumId, row.CompetencyIds, cancellationToken))
                 : teacher with { Concept = concept, Activity = activity, Note = note };
             // A newer confirm may have restarted it meanwhile; that run writes its own draft.
             if (await store.GetByIdAsync(row.Id, cancellationToken) is { Status: TodaysMessageStatus.Generating } current

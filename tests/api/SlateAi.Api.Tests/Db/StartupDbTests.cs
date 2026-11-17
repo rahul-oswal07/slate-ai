@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Auth;
@@ -81,7 +82,7 @@ public sealed class StartupDbTests(PostgresFixture postgres)
         await using (var scope = factory.Services.CreateAsyncScope())
         {
             var store = scope.ServiceProvider.GetRequiredService<ILessonContentStore>();
-            var all = await store.GetAllAsync(ct);
+            var all = await store.GetAllAsync(BuiltInCurriculum.Id, ct);
             Assert.Equal(61, all.Count);
             Assert.Equal(LessonContentSources.Written, all["M3.BRIDGE.COMPARE"].Source);
             Assert.NotEmpty(all["M3.ADD.CARRY"].Examples);
@@ -89,8 +90,8 @@ public sealed class StartupDbTests(PostgresFixture postgres)
             // An admin edit, replayed: one write.
             var request = Guid.NewGuid();
             var edit = new LessonContentText("Hers.", ["2 + 3 = 5", "4 + 4 = 8"]);
-            Assert.Equal(LessonContentSources.Edited, (await store.SetAsync(request, "M3.ADD.CARRY", edit, at, ct))!.Source);
-            Assert.Equal("Hers.", (await store.SetAsync(request, "M3.ADD.CARRY", null, at, ct))!.Description);
+            Assert.Equal(LessonContentSources.Edited, (await store.SetAsync(request, BuiltInCurriculum.Id, "M3.ADD.CARRY", edit, at, ct))!.Source);
+            Assert.Equal("Hers.", (await store.SetAsync(request, BuiltInCurriculum.Id, "M3.ADD.CARRY", null, at, ct))!.Description);
         }
 
         await using (var scope = factory.Services.CreateAsyncScope())
@@ -104,7 +105,7 @@ public sealed class StartupDbTests(PostgresFixture postgres)
             Assert.Equal(new LessonContentSyncResult(0, 1, 1), result);
 
             await scope.ServiceProvider.GetRequiredService<LessonContentLoader>().LoadAsync(ct);
-            var two = await store.GetForAsync(["M3.SUB.BORROW", "M3.ADD.CARRY", "M3.NOPE"], ct);
+            var two = await store.GetForAsync(BuiltInCurriculum.Id, ["M3.SUB.BORROW", "M3.ADD.CARRY", "M3.NOPE"], ct);
             Assert.Equal(2, two.Count);
             Assert.Equal(["2 + 3 = 5", "4 + 4 = 8"], two["M3.ADD.CARRY"].Examples);
             Assert.Equal(LessonContentSources.Textbook, two["M3.SUB.BORROW"].Source);

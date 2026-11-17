@@ -27,10 +27,17 @@ Spec: [`spec.md`](spec.md)
 - The kn, te, ta and hi strings of the teachers page are drafts for Monika (T-133).
 - The kn, te, ta and hi strings of the Under the hood entry are drafts for Monika (T-142).
 - **Demo** (`/admin/demo`): one switch per server, off until switched on, that lets the demo teacher act as a past school day (T-134, D-120). It saves on change, shows when it last changed, and is disabled when the demo is off on this server. Its kn, te, ta and hi strings are drafts for Monika.
-- **Textbook imports, API only** (`/api/admin/curriculum-imports`, T-146, D-125):
-  - What it does: upload a textbook PDF (≤ 100 MB, ≤ 600 pages), follow its progress, Try again (carries on where it stopped), Discard.
-  - Claude (A10) reads it in the background into a draft curriculum whose lessons all need review.
-  - The page that uses this, `/admin/curriculum`, is T-147.
+- **Curriculum** (`/admin/curriculum`, T-146, T-147, D-125):
+  - Upload a textbook PDF (≤ 100 MB, ≤ 600 pages) with its name, grade, subject, medium, book and part. Claude (A10) reads it in the background into a draft curriculum.
+  - Each import shows its progress ("Reading: step 7 of 25"), Try again when it stopped (it carries on where it stopped), and Discard, which asks first.
+  - A ready import links to its draft.
+  - Lists the built-in curriculum and every stored one, as draft or published.
+  - Each class has a picker of the built-in curriculum and the published ones. A move that would lose lessons the class has taught is refused with their IDs.
+- **A curriculum** (`/admin/curriculum/:id`, T-147):
+  - Shows the import's notes about the book, then chapters → lessons, each with To check or Checked and its notes.
+  - In a draft each lesson can be edited: names (te/ta/hi drafts), key words, printed page, earlier lessons it needs, practice kind, the book's exercises with the app's answers beside them, example problems, description and worked examples, other exercises and pictures as words. "Checked" marks it ready; a lesson can also be removed.
+  - Publish is enabled once every lesson is checked and the curriculum passes the file rules; until then it lists what stops it. A published curriculum is read only.
+- The kn, te, ta and hi strings of the curriculum pages are drafts for Monika (T-147).
 - Every admin page and the WhatsApp test send open without a key, on staging, prod and locally: anyone with the address can read and change what they show (T-121, D-112).
 
 ## Known gaps and drafts

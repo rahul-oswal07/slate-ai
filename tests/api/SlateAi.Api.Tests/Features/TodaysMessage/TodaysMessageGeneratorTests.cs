@@ -38,6 +38,7 @@ public sealed class TodaysMessageGeneratorTests
     private readonly FakeEveningStore _evening = new(ClassId, Guid.NewGuid());
     private readonly FakeLessonLinkStore _links = new();
     private readonly FakeLessonContentStore _contents = new();
+    private Guid? _curriculumId;
 
     public TodaysMessageGeneratorTests()
     {
@@ -471,6 +472,27 @@ public sealed class TodaysMessageGeneratorTests
     }
 
     [Fact]
+    public async Task A_class_following_a_stored_curriculum_gets_that_curriculum_s_description_and_video_not_the_built_in_one_s()
+    {
+        // T-147: two books can both have a lesson with this ID; each class reads its own.
+        var stored = Guid.NewGuid();
+        _curriculumId = stored;
+        _contents.Contents[TodaysMessageTests.Compare.Id] = new StoredLessonContent("From the built-in book.", ["1 and 2."], "written");
+        _links.Links[TodaysMessageTests.Compare.Id] = "https://diksha.gov.in/play/content/built_in";
+        await _contents.SetAsync(Guid.NewGuid(), stored, TodaysMessageTests.Compare.Id,
+            new LessonContentText("From the class's own book.", ["3 and 4."]), DateTimeOffset.UnixEpoch, Ct);
+        await _links.SetAsync(Guid.NewGuid(), stored, TodaysMessageTests.Compare.Id, "https://diksha.gov.in/play/content/own", DateTimeOffset.UnixEpoch, Ct);
+        var id = await StartAsync();
+
+        await Generator().GenerateAsync(new TodaysJob(id, ["kn", "hi"]), Ct);
+
+        var request = _llm.Requests.Single().UserContent;
+        Assert.Contains("From the class's own book.", request);
+        Assert.DoesNotContain("From the built-in book.", request);
+        Assert.Equal(new TodaysVideo("https://diksha.gov.in/play/content/own"), _store.Rows.Single().Sections!.Video);
+    }
+
+    [Fact]
     public async Task Without_stored_content_the_worked_example_numbers_are_not_allowed()
     {
         _llm.Json = TodaysMessageTests.Output(
@@ -535,7 +557,7 @@ public sealed class TodaysMessageGeneratorTests
             _links,
             _contents,
             new DisclosureClips(_tts, _audio, Disclosure),
-            new FixedCurriculumProvider(curriculum),
+            new FixedCurriculumProvider(curriculum, _curriculumId),
             prompts,
             Options.Create(new VerifierOptions()),
             Options.Create(new TodaysMessageOptions { ArithmeticExercises = arithmetic }),

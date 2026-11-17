@@ -65,7 +65,7 @@ public static class LessonContentEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
-        var stored = await store.SetAsync(request.ClientRequestId, lesson.Id, content, clock.GetUtcNow(), cancellationToken);
+        var stored = await store.SetAsync(request.ClientRequestId, BuiltInCurriculum.Id, lesson.Id, content, clock.GetUtcNow(), cancellationToken);
         AdminEndpoints.NoStore(http);
         return AdminLessonContent.From(stored) is { } result ? TypedResults.Ok(result) : TypedResults.NoContent();
     }

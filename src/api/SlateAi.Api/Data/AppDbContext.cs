@@ -143,14 +143,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
         modelBuilder.Entity<LessonLink>(e =>
         {
-            e.HasKey(l => l.CompetencyId); // one link per lesson, for every class (D-106)
+            e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // one link per lesson of a curriculum (D-106, T-147)
             e.Property(l => l.CompetencyId).HasMaxLength(100);
             e.Property(l => l.Url).HasMaxLength(Features.LessonLinks.LessonLinkRules.MaxLength);
         });
 
         modelBuilder.Entity<LessonContent>(e =>
         {
-            e.HasKey(l => l.CompetencyId); // one description per lesson, for every class (D-123)
+            e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // one description per lesson of a curriculum (D-123, T-147)
             e.Property(l => l.CompetencyId).HasMaxLength(100);
             e.Property(l => l.Description).HasMaxLength(Features.LessonContents.LessonContentRules.MaxDescription);
             e.Property(l => l.Source).HasMaxLength(10);

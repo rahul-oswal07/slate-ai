@@ -51,8 +51,8 @@ public static class LessonLinkEndpoints
         BuiltInCurriculum builtIn,
         CancellationToken cancellationToken)
     {
-        var links = await store.GetAllAsync(cancellationToken);
-        var content = await contents.GetAllAsync(cancellationToken);
+        var links = await store.GetAllAsync(BuiltInCurriculum.Id, cancellationToken);
+        var content = await contents.GetAllAsync(BuiltInCurriculum.Id, cancellationToken);
         // This page lists the built-in curriculum's lessons (T-145).
         var curriculum = builtIn.Graph;
         var titles = curriculum.Chapters.ToDictionary(c => c.Number);
@@ -102,7 +102,7 @@ public static class LessonLinkEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
-        var stored = await store.SetAsync(request.ClientRequestId, lesson.Id, url, clock.GetUtcNow(), cancellationToken);
+        var stored = await store.SetAsync(request.ClientRequestId, BuiltInCurriculum.Id, lesson.Id, url, clock.GetUtcNow(), cancellationToken);
         AdminEndpoints.NoStore(http);
         return TypedResults.Ok(new AdminLessonLink(lesson.Id, lesson.NameKn, lesson.NameEn, lesson.TextbookPage, stored));
     }

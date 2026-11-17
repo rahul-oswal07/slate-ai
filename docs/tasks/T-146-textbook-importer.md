@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Built in part (#310): the A10 eval is still to run |
 | Issue | #308 |
 | Owner | R |
 | Screens | curriculum, ai-pipeline, admin |

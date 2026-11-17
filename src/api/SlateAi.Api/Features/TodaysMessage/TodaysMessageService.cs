@@ -190,7 +190,8 @@ public sealed class TodaysMessageService(
 
         var lessons = await LessonsAsync(classId, row.CompetencyIds, cancellationToken);
         // The worked examples' numbers too (T-141): the draft she is editing may use them.
-        var content = await contents.GetForAsync(row.CompetencyIds, cancellationToken);
+        var content = await contents.GetForAsync(
+            await curricula.IdForClassAsync(classId, cancellationToken), row.CompetencyIds, cancellationToken);
         var allowed = TodaysMessageValidator.AllowedNumbers(lessons, edited.Picture, content);
         var names = (await evening.GetClassAsync(classId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
         var kannada = edited.Kannada;
