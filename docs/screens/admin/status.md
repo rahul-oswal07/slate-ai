@@ -27,6 +27,10 @@ Spec: [`spec.md`](spec.md)
 - The kn, te, ta and hi strings of the teachers page are drafts for Monika (T-133).
 - The kn, te, ta and hi strings of the Under the hood entry are drafts for Monika (T-142).
 - **Demo** (`/admin/demo`): one switch per server, off until switched on, that lets the demo teacher act as a past school day (T-134, D-120). It saves on change, shows when it last changed, and is disabled when the demo is off on this server. Its kn, te, ta and hi strings are drafts for Monika.
+- **Textbook imports, API only** (`/api/admin/curriculum-imports`, T-146, D-125):
+  - What it does: upload a textbook PDF (≤ 100 MB, ≤ 600 pages), follow its progress, Try again (carries on where it stopped), Discard.
+  - Claude (A10) reads it in the background into a draft curriculum whose lessons all need review.
+  - The page that uses this, `/admin/curriculum`, is T-147.
 - Every admin page and the WhatsApp test send open without a key, on staging, prod and locally: anyone with the address can read and change what they show (T-121, D-112).
 
 ## Known gaps and drafts

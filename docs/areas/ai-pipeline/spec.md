@@ -1,6 +1,6 @@
 # AI pipeline · spec
 
-Prompts A1–A9, validators, the verifier, speech, evals.
+Prompts A1–A10, validators, the verifier, speech, evals.
 
 | | |
 |---|---|

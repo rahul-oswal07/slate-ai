@@ -4,6 +4,7 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.LessonLinks;
+using SlateAi.Api.Features.TextbookImport;
 
 namespace SlateAi.Api.Features.Admin;
 
@@ -67,6 +68,7 @@ public static class AdminEndpoints
 
         app.MapLessonLinkEndpoints();
         app.MapLessonContentEndpoints();
+        app.MapTextbookImportEndpoints();
         app.MapAdminChildEndpoints();
         app.MapAdminTeacherEndpoints();
         app.MapAdminDemoEndpoints();

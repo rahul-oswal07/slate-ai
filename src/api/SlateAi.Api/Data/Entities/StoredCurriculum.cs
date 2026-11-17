@@ -30,6 +30,9 @@ public sealed class StoredCurriculum
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? PublishedAt { get; set; }
+
+    /// <summary>The <see cref="CurriculumImport"/> that made it from a textbook (T-146), if any.</summary>
+    public Guid? ImportId { get; set; }
 }
 
 /// <summary>One lesson of a <see cref="StoredCurriculum"/>.</summary>
@@ -45,6 +48,27 @@ public sealed class StoredCurriculumLesson
 
     /// <summary>The lesson as a JSON <c>Curriculum.Competency</c>, checked by <c>CurriculumLoader</c> like a file's.</summary>
     public required string Competency { get; set; }
+
+    /// <summary>
+    /// <see cref="CurriculumReviewStatuses"/>: a lesson made from a textbook needs an admin to check it before the
+    /// curriculum can be published (T-147).
+    /// </summary>
+    public string ReviewStatus { get; set; } = CurriculumReviewStatuses.Reviewed;
+
+    /// <summary>What the admin should look at, from the importer's checks, e.g. "exercise dropped: add 600 + 500".</summary>
+    public string[] Flags { get; set; } = [];
+
+    /// <summary>
+    /// What the importer found that is not part of <c>Competency</c>, as JSON <c>LessonExtras</c>: the printed pages, the
+    /// description and examples (our own words), the book's other exercises and its pictures, described (T-146, D-125).
+    /// </summary>
+    public string? Extras { get; set; }
+}
+
+public static class CurriculumReviewStatuses
+{
+    public const string NeedsReview = "needs-review";
+    public const string Reviewed = "reviewed";
 }
 
 public static class CurriculumStatuses

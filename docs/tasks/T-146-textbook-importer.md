@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Open |
+| Status | In progress |
 | Issue | #308 |
 | Owner | R |
 | Screens | curriculum, ai-pipeline, admin |
@@ -39,4 +39,11 @@ Each stage is saved, so Try again resumes where it stopped. The PDF is kept only
 
 ## Notes
 
+- 17 Nov 2026: built on `feat/T-146-textbook-importer`, stacked on T-145 (#310); the PR goes to `main` after #310 merges.
+  - API only: `Features/TextbookImport/`; upload, list, one, retry, discard on `/api/admin/curriculum-imports`.
+  - Migration `TextbookImports`: the import, its pages (one single-page PDF each, from PdfPig 0.1.16), its steps; review columns on `CurriculumLessons`.
+  - Prompts `a10-textbook-outline`, `a10-textbook-lessons`, `a10-textbook-prerequisites` v1 on the new `Import` model key (Opus 5.5).
+  - `ILlmClient` can now send PDFs (`LlmRequest.Documents`).
+  - The pages are deleted when the draft is written, not at publish as first planned: nothing after that needs them.
+  - Left: the A10 eval run (needs the KTBS PDF path and credits), then T-147.
 - 17 Nov 2026: planned with D-125.

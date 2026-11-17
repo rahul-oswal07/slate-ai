@@ -109,6 +109,15 @@ public static partial class CurriculumLoader
         return errors.Count > 0 ? throw new CurriculumException(errors) : new CurriculumGraph(competencies, chapters.Values);
     }
 
+    /// <summary>
+    /// What is wrong with one lesson on its own (ID, names, practice, exercises, page): every check a file's lesson gets
+    /// except those across lessons (unknown prerequisites, cycles, duplicate IDs). Used by the textbook importer (T-146).
+    /// </summary>
+    public static IReadOnlyList<string> Problems(Competency competency) => Check(Normalise(competency)).ToList();
+
+    /// <summary>The ID looks like M3.ADD.CARRY.</summary>
+    public static bool IsValidId(string id) => IdFormat().IsMatch(id);
+
     // JSON can omit arrays or send nulls; the graph relies on non-null lists.
     private static Competency Normalise(Competency c) => c with
     {

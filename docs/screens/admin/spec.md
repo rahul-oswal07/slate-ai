@@ -6,7 +6,7 @@ Pages to play teachers' greetings and a day's lesson audio, set each lesson's vi
 |---|---|
 | Route | `/admin`, `/admin/greetings`, `/admin/lesson-audio`, `/admin/lesson-links`, `/admin/children`, `/admin/teachers`, `/admin/demo`; `/admin` also links to the demo's `/demo/ai` (T-142) |
 | Web | `features/admin/` |
-| API | `Features/Admin/` |
+| API | `Features/Admin/`, `Features/TextbookImport/` (textbook imports, T-146) |
 | Design card (Monika) | none yet |
 | Status | [`status.md`](status.md) |
 

@@ -32,6 +32,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<LessonContent> LessonContents => Set<LessonContent>();
     public DbSet<StoredCurriculum> Curricula => Set<StoredCurriculum>();
     public DbSet<StoredCurriculumLesson> CurriculumLessons => Set<StoredCurriculumLesson>();
+    public DbSet<CurriculumImport> CurriculumImports => Set<CurriculumImport>();
+    public DbSet<CurriculumImportPage> CurriculumImportPages => Set<CurriculumImportPage>();
+    public DbSet<CurriculumImportStep> CurriculumImportSteps => Set<CurriculumImportStep>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
@@ -70,7 +73,37 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // IDs are unique within a curriculum
             e.Property(l => l.CompetencyId).HasMaxLength(100);
             e.Property(l => l.Competency).HasColumnType("jsonb");
+            e.Property(l => l.ReviewStatus).HasMaxLength(20).HasDefaultValue(CurriculumReviewStatuses.Reviewed);
+            e.Property(l => l.Extras).HasColumnType("jsonb");
             e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(l => l.CurriculumId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CurriculumImport>(e =>
+        {
+            e.Property(i => i.Title).HasMaxLength(200);
+            e.Property(i => i.Subject).HasMaxLength(50);
+            e.Property(i => i.Medium).HasMaxLength(5);
+            e.Property(i => i.Book).HasMaxLength(20);
+            e.Property(i => i.Status).HasMaxLength(20);
+            e.Property(i => i.Stage).HasMaxLength(20);
+            e.Property(i => i.Error).HasMaxLength(200);
+            e.HasIndex(i => i.ClientRequestId).IsUnique(); // a replayed upload finds its import (T-146)
+            // The draft outlives a discarded import only if published (T-147); otherwise discard deletes both in code.
+            e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(i => i.CurriculumId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<CurriculumImportPage>(e =>
+        {
+            e.HasKey(p => new { p.ImportId, p.Number });
+            e.HasOne<CurriculumImport>().WithMany().HasForeignKey(p => p.ImportId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CurriculumImportStep>(e =>
+        {
+            e.HasKey(s => new { s.ImportId, s.Key });
+            e.Property(s => s.Key).HasMaxLength(50);
+            e.Property(s => s.Result).HasColumnType("jsonb");
+            e.HasOne<CurriculumImport>().WithMany().HasForeignKey(s => s.ImportId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ClassTeacher>(e =>

@@ -76,22 +76,26 @@ public sealed class ClaudeLlmClient(AnthropicClient client, IOptions<AiOptions> 
         };
     }
 
-    /// <summary>Plain text, or the images first and then the text (vision works best with the image before the question).</summary>
-    private static MessageParamContent UserContent(LlmRequest request)
+    /// <summary>
+    /// Plain text, or the documents and images first and then the text (Claude reads best with the pages before the
+    /// question).
+    /// </summary>
+    internal static MessageParamContent UserContent(LlmRequest request)
     {
-        if (request.Images is not { Count: > 0 } images)
+        if (request.Images is not { Count: > 0 } && request.Documents is not { Count: > 0 })
         {
             return request.UserContent;
         }
 
-        var blocks = images
-            .Select(image => (ContentBlockParam)new ImageBlockParam
-            {
-                Source = new Base64ImageSource { Data = Convert.ToBase64String(image.Data), MediaType = image.MediaType },
-            })
-            .Append(new TextBlockParam { Text = request.UserContent })
-            .ToList();
-        return blocks;
+        var documents = (request.Documents ?? []).Select(document => (ContentBlockParam)new DocumentBlockParam
+        {
+            Source = new Base64PdfSource { Data = Convert.ToBase64String(document.Pdf) },
+        });
+        var images = (request.Images ?? []).Select(image => (ContentBlockParam)new ImageBlockParam
+        {
+            Source = new Base64ImageSource { Data = Convert.ToBase64String(image.Data), MediaType = image.MediaType },
+        });
+        return documents.Concat(images).Append(new TextBlockParam { Text = request.UserContent }).ToList();
     }
 
     private static Effort ToSdk(LlmEffort effort) => effort switch

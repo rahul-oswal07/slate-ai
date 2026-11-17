@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `ClassCurricula` (T-145) |
+| Last migration | `TextbookImports` (T-146) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | The built-in one is not in the database: loaded from `data/curriculum/*.json` at startup (T-05). A class can instead follow a stored curriculum (`Curricula`, T-145, D-125). Rows reference competencies by string ID such as `M3.ADD.CARRY`, read in the class's curriculum |
 
@@ -43,6 +43,9 @@ erDiagram
     Classes ||--o{ PacingDecisions : "one per week"
     Curricula |o--o{ Classes : "followed by (null = built-in)"
     Curricula ||--o{ CurriculumLessons : has
+    CurriculumImports |o--o| Curricula : "drafts"
+    CurriculumImports ||--o{ CurriculumImportPages : "the book, until the draft is written"
+    CurriculumImports ||--o{ CurriculumImportSteps : "finished steps"
     Lessons ||--o{ PacingDecisions : "the nudge's lesson"
 
     Teachers {
@@ -72,12 +75,47 @@ erDiagram
         jsonb Chapters
         timestamptz CreatedAt
         timestamptz PublishedAt "nullable"
+        uuid ImportId "nullable, no FK"
     }
     CurriculumLessons {
         uuid CurriculumId PK,FK
         varchar100 CompetencyId PK
         int Sequence
         jsonb Competency
+        varchar20 ReviewStatus "needs-review | reviewed"
+        text_array Flags
+        jsonb Extras "nullable"
+    }
+    CurriculumImports {
+        uuid Id PK
+        uuid ClientRequestId "unique"
+        varchar200 Title
+        int Grade
+        varchar50 Subject
+        varchar5 Medium
+        varchar20 Book "textbook | workbook | nalikali"
+        int Part "nullable"
+        int PageCount
+        varchar20 Status "queued | running | ready | failed"
+        varchar20 Stage "nullable"
+        int StepsDone
+        int StepsTotal
+        varchar200 Error "nullable"
+        text_array Notes
+        uuid CurriculumId FK "nullable"
+        timestamptz CreatedAt
+        timestamptz UpdatedAt
+    }
+    CurriculumImportPages {
+        uuid ImportId PK,FK
+        int Number PK
+        bytea Pdf
+    }
+    CurriculumImportSteps {
+        uuid ImportId PK,FK
+        varchar50 Key PK
+        jsonb Result
+        timestamptz CreatedAt
     }
     Children {
         uuid Id PK
@@ -398,7 +436,13 @@ erDiagram
 
 **`Curricula`** — a curriculum stored in the database (T-145, D-125, migration `ClassCurricula`), e.g. one made from a textbook by the importer (T-146). `Status` is `draft` (being made or reviewed; no class can follow it) or `published` (checked; never changes again, so the API caches its graph by `Id` for its life; a change is a new curriculum). `Chapters` is a jsonb array of `{ number, nameKn, nameEn }`. The built-in curriculum has no row here. Read by `Curriculum/CurriculumStore.cs` behind `ICurriculumStore`; every read goes through `CurriculumLoader`, so it gets the same checks as a file (IDs, prerequisites, no cycles, exercises). The demo Reset leaves it alone. Covered by `CurriculumDbTests`.
 
-**`CurriculumLessons`** — the lessons of a `Curricula` row: composite PK `(CurriculumId, CompetencyId)`, so an ID is unique within a curriculum and two curricula can both have `M3.ADD.CARRY`. `Competency` is the lesson as jsonb, the same shape as a lesson in `data/curriculum/*.json` (names, prerequisites, chapter, sequence, examples, page, key words, practice, exercises); `Sequence` is copied out of it so rows read in teaching order. FK `CurriculumId → Curricula` (cascade).
+**`CurriculumLessons`** — the lessons of a `Curricula` row: composite PK `(CurriculumId, CompetencyId)`, so an ID is unique within a curriculum and two curricula can both have `M3.ADD.CARRY`. `Competency` is the lesson as jsonb, the same shape as a lesson in `data/curriculum/*.json` (names, prerequisites, chapter, sequence, examples, page, key words, practice, exercises); `Sequence` is copied out of it so rows read in teaching order. FK `CurriculumId → Curricula` (cascade). For a lesson made from a textbook (migration `TextbookImports`, T-146): `ReviewStatus` is `needs-review` until an admin checks it (T-147; default `reviewed`), `Flags` lists what the importer's checks dropped or couldn't find, and `Extras` (jsonb) holds what isn't part of the lesson itself: its PDF and printed pages, the description and examples in our own words, the book's other exercises as summaries, and its pictures **described, never copied** (D-125).
+
+**`CurriculumImports`** — a textbook being turned into a draft curriculum (T-146, D-125, migration `TextbookImports`), uploaded on `/admin/curriculum`. `ClientRequestId` is unique, so a replayed upload returns the same import (the create runs under the advisory lock `curriculum-import-request:{ClientRequestId}`). `Status`: `queued` → `running` (the worker claims it with a conditional update, so only one run has it; `Stage` is outline, lessons, prerequisites or assemble; `StepsDone` of `StepsTotal` Claude calls) → `ready` with `CurriculumId` = the draft, or `failed` with a short `Error` (e.g. `error:Unavailable reading chapter 3`, `fallback:no-chapters`; never book text). A `running` or `queued` import whose `UpdatedAt` hasn't moved for 10 minutes reads as failed (`error:stale`; the queue is in memory). Retry puts a failed or stale one back to `queued`. `Notes` are about the whole book (renumbered chapters, no prerequisites). FK `CurriculumId → Curricula` set null. Discarding deletes the import, its pages and steps, and its draft unless it was published. The demo Reset leaves it alone.
+
+**`CurriculumImportPages`** — the uploaded book, one single-page PDF per row (`Number` = PDF page), so Claude reads a few pages at a time. Deleted in the same transaction that writes the draft, and with the import (cascade): the book is not kept (D-125).
+
+**`CurriculumImportSteps`** — each finished, checked step of an import (`Key` e.g. `outline:11-20`, `lessons:3:1`, `prerequisites`; `Result` jsonb). PK `(ImportId, Key)`; Try again skips steps that are here, so it carries on where it stopped. FK `ImportId` (cascade). Covered by `TextbookImportDbTests`.
 
 **`AppSettings`** — server-wide switches set on an admin page, by key (T-134, migration `AppSettings`). Today only `demo.school-date` (`on`/`off`): whether the demo teacher can act as a past school day (D-120), set on `/admin/demo`; **a missing row is off**. Writes take the advisory lock on the key and record their `clientRequestId` in `ProcessedRequests` (`admin-school-date`). The API keeps the value in memory after the first read (`SchoolDateSwitch`) and updates it on write. No FKs; the demo Reset leaves it alone. Covered by `StartupDbTests.The_school_date_switch_starts_off_and_keeps_what_the_admin_page_saves`.
 
@@ -410,7 +454,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId` and `Classes.CurriculumId` (restrict, T-145): Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`, `Classes.CurriculumId` (restrict, T-145) and `CurriculumImports.CurriculumId` (set null, T-146): Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -424,6 +468,8 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId` an
 | Two catch-up generates for the same week | `pg_advisory_xact_lock(hashtextextended('catchups:{classId}:{week}', 0))` + unique `(ClassId, WeekOf, Language, TargetKey)` and `(ChildId, WeekOf)` | `Features/CatchUps/CatchUpStore.cs` |
 | Two picture answers racing (a retry while the first is in flight) | `pg_advisory_xact_lock(hashtextextended('answer:{assignmentId}', 0))` + primary key `AssignmentId` | `Features/Parent/ParentStore.cs` |
 | A reason tap racing its retry, or a late replay after a newer tap | `pg_advisory_xact_lock(hashtextextended('reason:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Parent/ParentStore.cs` |
+| A replayed textbook upload racing its original | `pg_advisory_xact_lock(hashtextextended('curriculum-import-request:{clientRequestId}', 0))` + unique `ClientRequestId` | `Features/TextbookImport/TextbookImportStore.cs` |
+| Two runs of the same import (a retry while it is still queued) | conditional `UPDATE … SET Status = 'running' WHERE Status = 'queued'`; only the run that changed the row goes on | same |
 | Two pacing decisions for the same week racing | `pg_advisory_xact_lock(hashtextextended('pacing:{classId}:{week}', 0))` + `ProcessedRequests` + unique `(ClassId, WeekOf)` | `Features/Week/WeekStore.cs` |
 | Two taps on the same buddy card racing | `pg_advisory_xact_lock(hashtextextended('buddy:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Buddy/BuddyStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |
