@@ -115,7 +115,7 @@ public sealed class LessonLinkEndpointTests
         services =>
         {
             services.AddSingleton<ILessonLinkStore>(_store);
-            services.AddSingleton(Book);
+            services.AddSingleton(new BuiltInCurriculum(Book));
         },
         environment: environment);
 }

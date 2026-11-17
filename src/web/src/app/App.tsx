@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes, useSearchParams } from 'react-router'
 import { AdminChildrenScreen } from '../features/admin/AdminChildrenScreen'
+import { CurriculumAdminScreen } from '../features/admin/CurriculumAdminScreen'
+import { CurriculumReviewScreen } from '../features/admin/CurriculumReviewScreen'
 import { AdminTeachersScreen } from '../features/admin/AdminTeachersScreen'
 import { AdminDemoScreen } from '../features/admin/AdminDemoScreen'
 import { AdminIndexScreen } from '../features/admin/AdminIndexScreen'
@@ -45,6 +47,8 @@ export function App() {
       <Route path="admin/greetings" element={<GreetingsAdminScreen />} />
       <Route path="admin/lesson-audio" element={<LessonAudioAdminScreen />} />
       <Route path="admin/lesson-links" element={<LessonLinksAdminScreen />} />
+      <Route path="admin/curriculum" element={<CurriculumAdminScreen />} />
+      <Route path="admin/curriculum/:id" element={<CurriculumReviewScreen />} />
       <Route path="admin/children" element={<AdminChildrenScreen />} />
       <Route path="admin/teachers" element={<AdminTeachersScreen />} />
       <Route path="admin/demo" element={<AdminDemoScreen />} />

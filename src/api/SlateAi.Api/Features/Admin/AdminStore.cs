@@ -17,6 +17,7 @@ public sealed record AdminFamily(string ChildName, int RollNo, string Language, 
 /// <param name="ClipId">The approved clip, else the one waiting for approval; null while it is made or after a failure.</param>
 public sealed record AdminLessonAudioRow(
     Guid Id,
+    Guid ClassId,
     string TeacherName,
     int Grade,
     string Language,
@@ -124,6 +125,7 @@ public sealed class AdminStore(AppDbContext db) : IAdminStore
                 var clip = a.ClipId is { } id ? clips.GetValueOrDefault(id) : null;
                 return new AdminLessonAudioRow(
                     a.Id,
+                    a.ClassId,
                     a.TeacherName,
                     a.Grade,
                     a.Language,

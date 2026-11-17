@@ -21,7 +21,7 @@ const ledgerUrl = `GET /api/classes/${teacher.classId}/ledger`
 function setup(current: () => Ledger | 'offline') {
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
-    'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
+    [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: curriculum }),
     [`GET /api/classes/${teacher.classId}/packages`]: () => ({ status: 200, body: { weekOf: '2026-10-19', packages: [] } }),
     [ledgerUrl]: () => {
       const value = current()

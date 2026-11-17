@@ -619,7 +619,7 @@ public sealed class TodaysMessageEndpointTests
                 services.AddSingleton<IParentStore>(new FakeParentStore());
                 services.AddSingleton<IAttendanceStore>(_attendance);
                 services.AddSingleton<IAttendanceSource>(new NotYetSource());
-                services.AddSingleton(Book);
+                services.AddSingleton(new BuiltInCurriculum(Book));
                 services.AddSingleton(Wording);
                 services.AddSingleton<ILlmClient>(llm ?? new ThrowingLlmClient());
                 services.AddSingleton<TimeProvider>(_clock);

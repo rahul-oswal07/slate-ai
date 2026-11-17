@@ -1,0 +1,283 @@
+{
+  "runAt": "2026-11-17T13:49:51.186167+00:00",
+  "prompts": [
+    "a10-textbook-outline",
+    "a10-textbook-lessons",
+    "a10-textbook-prerequisites"
+  ],
+  "promptVersion": 1,
+  "model": "claude-opus-5-5",
+  "part": 1,
+  "pages": 160,
+  "seconds": 1112,
+  "chapters": 5,
+  "expectedChapters": 5,
+  "lessons": 38,
+  "flaggedLessons": 1,
+  "typedExercises": 139,
+  "otherExercises": 142,
+  "pictures": 142,
+  "lessonsWithPrerequisites": 35,
+  "notes": [],
+  "lessonRecall": 0.90625,
+  "exerciseRecall": 0,
+  "target": 0.8,
+  "results": [
+    {
+      "id": "M3.GEO.2D",
+      "page": 3,
+      "matchedId": "M3.GEO.2D",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.GEO.3D",
+      "page": 5,
+      "matchedId": "M3.GEO.2D",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.GEO.TILES",
+      "page": 9,
+      "matchedId": "M3.GEO.2D",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.GEO.MAP",
+      "page": 12,
+      "matchedId": "M3.GEO.TILES",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.GEO.DRAW",
+      "page": 14,
+      "matchedId": "M3.GEO.MAP",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.COUNT999",
+      "page": 18,
+      "matchedId": "M3.GEO.TANGRAM",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.NAMES",
+      "page": 28,
+      "matchedId": "M3.NUM.SEQ999",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.PV.HTO",
+      "page": 35,
+      "matchedId": "M3.NUM.NAMES",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.PV.EXPAND",
+      "page": 42,
+      "matchedId": "M3.NUM.PLACE3",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.SEQUENCE",
+      "page": 47,
+      "matchedId": "M3.NUM.PLACE3",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.COMPARE",
+      "page": 52,
+      "matchedId": "M3.NUM.JUMPS",
+      "found": true,
+      "exercises": 2,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.ORDER",
+      "page": 57,
+      "matchedId": "M3.NUM.EXTREMES3",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.FORM",
+      "page": 61,
+      "matchedId": "M3.NUM.EXTREMES3",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.NUM.LINE",
+      "page": 64,
+      "matchedId": null,
+      "found": false,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.ADD.QUICK",
+      "page": 67,
+      "matchedId": "M3.NUM.LINE",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.ADD.WORD",
+      "page": 71,
+      "matchedId": null,
+      "found": false,
+      "exercises": 2,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.ADD.NOCARRY",
+      "page": 77,
+      "matchedId": null,
+      "found": false,
+      "exercises": 3,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.ADD.CARRY",
+      "page": 80,
+      "matchedId": "M3.ADD.3D.NOCARRY",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.ADD.MAKE",
+      "page": 89,
+      "matchedId": "M3.ADD.MAKE",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.ADD.ESTIMATE",
+      "page": 91,
+      "matchedId": "M3.ADD.MAKE",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.SUB.WORD",
+      "page": 96,
+      "matchedId": "M3.ADD.ESTIMATE",
+      "found": true,
+      "exercises": 2,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.SUB.NOBORROW",
+      "page": 104,
+      "matchedId": "M3.SUB.BORROW",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.SUB.BORROW",
+      "page": 108,
+      "matchedId": "M3.SUB.NOBORROW",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.SUB.MAKE",
+      "page": 117,
+      "matchedId": "M3.SUB.TERMS",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.SUB.ESTIMATE",
+      "page": 121,
+      "matchedId": "M3.SUB.MAKE",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.REPEAT",
+      "page": 124,
+      "matchedId": "M3.SUB.PUZZLE",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.SIGN",
+      "page": 128,
+      "matchedId": "M3.MUL.REPEAT",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.TABLES",
+      "page": 131,
+      "matchedId": "M3.MUL.SIGN",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.DAILY",
+      "page": 137,
+      "matchedId": "M3.MUL.TABLES",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.2D1D",
+      "page": 141,
+      "matchedId": "M3.MUL.DAILY",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.2D1D.CARRY",
+      "page": 144,
+      "matchedId": "M3.MUL.2D1D",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    },
+    {
+      "id": "M3.MUL.2D2D",
+      "page": 147,
+      "matchedId": "M3.MUL.CARRY",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0
+    }
+  ]
+}

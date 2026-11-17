@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data;
 using SlateAi.Api.Data.Entities;
 
@@ -16,22 +17,24 @@ public sealed record LessonContentSyncResult(int Added, int Updated, int KeptEdi
 /// <summary>Database side of the lesson descriptions (T-141), behind an interface so endpoints and the drafter can use a fake.</summary>
 public interface ILessonContentStore
 {
-    /// <summary>Every lesson that has content: competency ID → content.</summary>
-    Task<IReadOnlyDictionary<string, StoredLessonContent>> GetAllAsync(CancellationToken cancellationToken);
+    /// <summary>Every lesson of the curriculum that has content: competency ID → content.</summary>
+    /// <param name="curriculumId">A published curriculum, or <c>BuiltInCurriculum.Id</c> (T-147).</param>
+    Task<IReadOnlyDictionary<string, StoredLessonContent>> GetAllAsync(Guid curriculumId, CancellationToken cancellationToken);
 
-    /// <summary>The content of these lessons; lessons without any are left out.</summary>
+    /// <summary>The content of these lessons of the curriculum; lessons without any are left out.</summary>
     Task<IReadOnlyDictionary<string, StoredLessonContent>> GetForAsync(
-        IReadOnlyList<string> competencyIds, CancellationToken cancellationToken);
+        Guid curriculumId, IReadOnlyList<string> competencyIds, CancellationToken cancellationToken);
 
     /// <summary>
     /// Sets (an edit on the admin page, never overwritten by the file again) or removes (null) the lesson's content,
     /// unless <paramref name="clientRequestId"/> was already applied. Returns the lesson's content afterwards.
     /// </summary>
     Task<StoredLessonContent?> SetAsync(
-        Guid clientRequestId, string competencyId, LessonContentText? content, DateTimeOffset now, CancellationToken cancellationToken);
+        Guid clientRequestId, Guid curriculumId, string competencyId, LessonContentText? content, DateTimeOffset now,
+        CancellationToken cancellationToken);
 
     /// <summary>
-    /// The startup load: adds the file's lessons that have no row and updates rows nobody edited when the file changed.
+    /// The startup load of the built-in curriculum's descriptions: adds the file's lessons that have no row and updates rows nobody edited when the file changed.
     /// A row edited on the admin page is left alone, and so is a lesson the file doesn't list.
     /// </summary>
     Task<LessonContentSyncResult> SyncAsync(
@@ -45,25 +48,28 @@ public sealed class LessonContentStore(AppDbContext db) : ILessonContentStore
     /// <summary>Arbitrary app-wide key: one startup load at a time when two instances start together.</summary>
     private const long SyncLockKey = 0x5EED_0141;
 
-    public async Task<IReadOnlyDictionary<string, StoredLessonContent>> GetAllAsync(CancellationToken cancellationToken) =>
-        await db.LessonContents.AsNoTracking().ToDictionaryAsync(l => l.CompetencyId, ToStored, cancellationToken);
+    public async Task<IReadOnlyDictionary<string, StoredLessonContent>> GetAllAsync(Guid curriculumId, CancellationToken cancellationToken) =>
+        await db.LessonContents.AsNoTracking().Where(l => l.CurriculumId == curriculumId)
+            .ToDictionaryAsync(l => l.CompetencyId, ToStored, cancellationToken);
 
     public async Task<IReadOnlyDictionary<string, StoredLessonContent>> GetForAsync(
-        IReadOnlyList<string> competencyIds, CancellationToken cancellationToken)
+        Guid curriculumId, IReadOnlyList<string> competencyIds, CancellationToken cancellationToken)
     {
         var ids = competencyIds.ToList();
         return await db.LessonContents.AsNoTracking()
-            .Where(l => ids.Contains(l.CompetencyId))
+            .Where(l => l.CurriculumId == curriculumId && ids.Contains(l.CompetencyId))
             .ToDictionaryAsync(l => l.CompetencyId, ToStored, cancellationToken);
     }
 
     public async Task<StoredLessonContent?> SetAsync(
-        Guid clientRequestId, string competencyId, LessonContentText? content, DateTimeOffset now, CancellationToken cancellationToken)
+        Guid clientRequestId, Guid curriculumId, string competencyId, LessonContentText? content, DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         await db.Database.ExecuteSqlAsync(
-            $"SELECT pg_advisory_xact_lock(hashtextextended({$"lesson-content:{competencyId}"}, 0))", cancellationToken);
-        var row = await db.LessonContents.SingleOrDefaultAsync(l => l.CompetencyId == competencyId, cancellationToken);
+            $"SELECT pg_advisory_xact_lock(hashtextextended({$"lesson-content:{curriculumId}:{competencyId}"}, 0))", cancellationToken);
+        var row = await db.LessonContents.SingleOrDefaultAsync(
+            l => l.CurriculumId == curriculumId && l.CompetencyId == competencyId, cancellationToken);
         if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
         {
             return row is null ? null : ToStored(row);
@@ -83,6 +89,7 @@ public sealed class LessonContentStore(AppDbContext db) : ILessonContentStore
             {
                 row = new LessonContent
                 {
+                    CurriculumId = curriculumId,
                     CompetencyId = competencyId, Description = "", Examples = [], Source = LessonContentSources.Edited,
                 };
                 db.LessonContents.Add(row);
@@ -106,7 +113,8 @@ public sealed class LessonContentStore(AppDbContext db) : ILessonContentStore
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock({SyncLockKey})", cancellationToken);
-        var rows = await db.LessonContents.ToDictionaryAsync(l => l.CompetencyId, cancellationToken);
+        var rows = await db.LessonContents.Where(l => l.CurriculumId == BuiltInCurriculum.Id)
+            .ToDictionaryAsync(l => l.CompetencyId, cancellationToken);
         int added = 0, updated = 0, kept = 0;
         foreach (var entry in entries)
         {
@@ -114,6 +122,7 @@ public sealed class LessonContentStore(AppDbContext db) : ILessonContentStore
             {
                 db.LessonContents.Add(new LessonContent
                 {
+                    CurriculumId = BuiltInCurriculum.Id,
                     CompetencyId = entry.CompetencyId,
                     Description = entry.Content.Description,
                     Examples = [.. entry.Content.Examples],

@@ -6,6 +6,9 @@ namespace SlateAi.Api.Data.Entities;
 /// </summary>
 public sealed class LessonLink
 {
+    /// <summary>The curriculum the lesson is in (T-147); <see cref="Guid.Empty"/> for the built-in one.</summary>
+    public Guid CurriculumId { get; set; }
+
     /// <summary>The curriculum competency ID, e.g. "M3.BRIDGE.COMPARE".</summary>
     public required string CompetencyId { get; set; }
 

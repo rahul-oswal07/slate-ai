@@ -9,7 +9,7 @@ namespace SlateAi.Api.Features.CatchUps.Verify;
 /// A4's LLM check (spec §5.4, Haiku): the script teaches the target, suits an 8-year-old, never shames, and the
 /// Kannada/English summary matches it. Names never reach it (the text was already checked for them).
 /// </summary>
-public sealed class ContentCheck(ILlmClient llm, IAiCallStore aiCalls, PromptLibrary prompts, CurriculumGraph curriculum)
+public sealed class ContentCheck(ILlmClient llm, IAiCallStore aiCalls, PromptLibrary prompts)
 {
     public const string PromptId = "a4-check";
     public const string Name = "content";
@@ -29,9 +29,10 @@ public sealed class ContentCheck(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         ["glossMatches"] = "the summary doesn't match the script",
     };
 
-    public async Task<VerifierCheck> RunAsync(VerifyInput input, CancellationToken cancellationToken)
+    /// <param name="curriculum">The class's curriculum (T-145): the targets' names.</param>
+    public async Task<VerifierCheck> RunAsync(VerifyInput input, CurriculumGraph curriculum, CancellationToken cancellationToken)
     {
-        var request = new LlmRequest(prompts.Get(PromptId), UserContent(input), Schema(), MaxTokens: 2048);
+        var request = new LlmRequest(prompts.Get(PromptId), UserContent(input, curriculum), Schema(), MaxTokens: 2048);
         LlmResponse response;
         try
         {
@@ -74,7 +75,7 @@ public sealed class ContentCheck(ILlmClient llm, IAiCallStore aiCalls, PromptLib
         }
     }
 
-    internal string UserContent(VerifyInput input) =>
+    internal static string UserContent(VerifyInput input, CurriculumGraph curriculum) =>
         JsonSerializer.Serialize(new
         {
             language = input.Language,
@@ -119,14 +120,15 @@ public sealed record VerifierResult(bool Passed, IReadOnlyList<VerifierCheck> Ch
 }
 
 /// <summary>A4 (spec §5.4): code checks first; the Haiku check only when they all pass.</summary>
-public sealed class Verifier(ContentCheck content, CurriculumGraph curriculum, Microsoft.Extensions.Options.IOptions<VerifierOptions> options)
+public sealed class Verifier(ContentCheck content, Microsoft.Extensions.Options.IOptions<VerifierOptions> options)
 {
-    public async Task<VerifierResult> VerifyAsync(VerifyInput input, CancellationToken cancellationToken)
+    /// <param name="curriculum">The class's curriculum (T-145): the targets' key words.</param>
+    public async Task<VerifierResult> VerifyAsync(VerifyInput input, CurriculumGraph curriculum, CancellationToken cancellationToken)
     {
         var checks = CodeChecks.Run(input, curriculum, options.Value).ToList();
         if (checks.All(c => c.Passed))
         {
-            checks.Add(await content.RunAsync(input, cancellationToken));
+            checks.Add(await content.RunAsync(input, curriculum, cancellationToken));
         }
 
         return new VerifierResult(checks.All(c => c.Passed), checks);

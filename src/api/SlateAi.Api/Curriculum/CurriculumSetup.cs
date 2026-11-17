@@ -23,11 +23,16 @@ public static class CurriculumSetup
                 logger.LogInformation("Loaded {Count} competencies from {Directory}", graph.All.Count, directory);
             }
 
-            return graph;
+            return new BuiltInCurriculum(graph);
         });
+
+        // Per class (T-145): no app-wide CurriculumGraph is registered, so nothing can read one by mistake.
+        services.AddSingleton<CurriculumCache>();
+        services.AddScoped<ICurriculumStore, CurriculumStore>();
+        services.AddScoped<ICurriculumProvider, CurriculumProvider>();
         return services;
     }
 
-    /// <summary>Loads the curriculum now so a bad file stops startup instead of the first request.</summary>
-    public static void LoadCurriculum(this WebApplication app) => app.Services.GetRequiredService<CurriculumGraph>();
+    /// <summary>Loads the built-in curriculum now so a bad file stops startup instead of the first request.</summary>
+    public static void LoadCurriculum(this WebApplication app) => app.Services.GetRequiredService<BuiltInCurriculum>();
 }

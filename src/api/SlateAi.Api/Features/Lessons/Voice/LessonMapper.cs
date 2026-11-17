@@ -27,7 +27,7 @@ public sealed class LessonMapper(
     ILlmClient llm,
     IAiCallStore aiCalls,
     PromptLibrary prompts,
-    CurriculumGraph curriculum,
+    ICurriculumProvider curricula,
     ILessonStore store)
 {
     public const string PromptId = "a1-lesson-mapping";
@@ -45,6 +45,8 @@ public sealed class LessonMapper(
 
     private async Task<A1Result> MatchAsync(MappingJob job, CancellationToken cancellationToken)
     {
+        var curriculum = await curricula.ForClassAsync(job.ClassId, cancellationToken);
+
         // With a photo, a note that can't be heard still gets matched from the photo alone.
         var transcript = "";
         string? speechFailure = null;
@@ -54,7 +56,7 @@ public sealed class LessonMapper(
             {
                 using var audio = new MemoryStream(recording, writable: false);
                 transcript = (await speech.TranscribeAsync(
-                    audio, job.FileName, job.ContentType, "kn-IN", KeyTerms(), cancellationToken)).Text;
+                    audio, job.FileName, job.ContentType, "kn-IN", KeyTerms(curriculum), cancellationToken)).Text;
                 speechFailure = string.IsNullOrWhiteSpace(transcript) ? "fallback:no-speech" : null;
             }
             catch (SpeechException)
@@ -69,19 +71,20 @@ public sealed class LessonMapper(
         }
 
         return await MapTranscriptAsync(
-            transcript, await store.GetNamesAsync(job.ClassId, cancellationToken), cancellationToken, job.Photo);
+            transcript, await store.GetNamesAsync(job.ClassId, cancellationToken), curriculum, cancellationToken, job.Photo);
     }
 
     /// <summary>
     /// Scrub → A1 → validate → scrub A1's wording again (a photo of the board can show a child's name, and Claude
     /// may copy it). Also what the eval suite runs, without speech-to-text.
     /// </summary>
+    /// <param name="curriculum">The class's curriculum (T-145): A1 picks only from its lessons.</param>
     public async Task<A1Result> MapTranscriptAsync(
-        string transcript, ClassNames names, CancellationToken cancellationToken, LlmImage? photo = null)
+        string transcript, ClassNames names, CurriculumGraph curriculum, CancellationToken cancellationToken, LlmImage? photo = null)
     {
         var request = new LlmRequest(
             prompts.Get(PromptId),
-            UserContent(NameScrubber.Scrub(transcript, names.Children, names.Teacher), photo is not null),
+            UserContent(curriculum, NameScrubber.Scrub(transcript, names.Children, names.Teacher), photo is not null),
             A1Validator.Schema(curriculum),
             MaxTokens: 1024,
             Images: photo is null ? null : [photo]);
@@ -118,7 +121,7 @@ public sealed class LessonMapper(
     }
 
     /// <summary>The scrubbed transcript (empty with a photo only) and the textbook's lessons; no names, no IDs of people.</summary>
-    internal string UserContent(string scrubbedTranscript, bool hasPhoto = false) =>
+    internal static string UserContent(CurriculumGraph curriculum, string scrubbedTranscript, bool hasPhoto = false) =>
         JsonSerializer.Serialize(new
         {
             transcript = scrubbedTranscript,
@@ -128,6 +131,6 @@ public sealed class LessonMapper(
         }, Json);
 
     /// <summary>Lesson names help Sarvam with maths vocabulary. Never child or teacher names.</summary>
-    internal IReadOnlyList<string> KeyTerms() =>
+    internal static IReadOnlyList<string> KeyTerms(CurriculumGraph curriculum) =>
         curriculum.All.SelectMany(c => new[] { c.NameKn, c.NameEn }).Distinct().Take(MaxKeyTerms).ToList();
 }

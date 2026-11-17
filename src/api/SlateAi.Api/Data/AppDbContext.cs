@@ -30,6 +30,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<WeeklyStarApproval> WeeklyStarApprovals => Set<WeeklyStarApproval>();
     public DbSet<LessonLink> LessonLinks => Set<LessonLink>();
     public DbSet<LessonContent> LessonContents => Set<LessonContent>();
+    public DbSet<StoredCurriculum> Curricula => Set<StoredCurriculum>();
+    public DbSet<StoredCurriculumLesson> CurriculumLessons => Set<StoredCurriculumLesson>();
+    public DbSet<CurriculumImport> CurriculumImports => Set<CurriculumImport>();
+    public DbSet<CurriculumImportFile> CurriculumImportFiles => Set<CurriculumImportFile>();
+    public DbSet<CurriculumImportStep> CurriculumImportSteps => Set<CurriculumImportStep>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
@@ -48,6 +53,57 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         {
             e.Property(c => c.Medium).HasMaxLength(5);
             e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId);
+            // A curriculum a class follows can't be deleted (T-145); null = the built-in one.
+            e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(c => c.CurriculumId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<StoredCurriculum>(e =>
+        {
+            e.ToTable("Curricula");
+            e.Property(c => c.Title).HasMaxLength(200);
+            e.Property(c => c.Subject).HasMaxLength(50);
+            e.Property(c => c.Medium).HasMaxLength(5);
+            e.Property(c => c.Status).HasMaxLength(20);
+            e.Property(c => c.Chapters).HasColumnType("jsonb");
+        });
+
+        modelBuilder.Entity<StoredCurriculumLesson>(e =>
+        {
+            e.ToTable("CurriculumLessons");
+            e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // IDs are unique within a curriculum
+            e.Property(l => l.CompetencyId).HasMaxLength(100);
+            e.Property(l => l.Competency).HasColumnType("jsonb");
+            e.Property(l => l.ReviewStatus).HasMaxLength(20).HasDefaultValue(CurriculumReviewStatuses.Reviewed);
+            e.Property(l => l.Extras).HasColumnType("jsonb");
+            e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(l => l.CurriculumId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CurriculumImport>(e =>
+        {
+            e.Property(i => i.Title).HasMaxLength(200);
+            e.Property(i => i.Subject).HasMaxLength(50);
+            e.Property(i => i.Medium).HasMaxLength(5);
+            e.Property(i => i.Book).HasMaxLength(20);
+            e.Property(i => i.Status).HasMaxLength(20);
+            e.Property(i => i.Stage).HasMaxLength(20);
+            e.Property(i => i.Error).HasMaxLength(200);
+            e.HasIndex(i => i.ClientRequestId).IsUnique(); // a replayed upload finds its import (T-146)
+            // The draft outlives a discarded import only if published (T-147); otherwise discard deletes both in code.
+            e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(i => i.CurriculumId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<CurriculumImportFile>(e =>
+        {
+            e.HasKey(f => f.ImportId);
+            e.HasOne<CurriculumImport>().WithOne().HasForeignKey<CurriculumImportFile>(f => f.ImportId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CurriculumImportStep>(e =>
+        {
+            e.HasKey(s => new { s.ImportId, s.Key });
+            e.Property(s => s.Key).HasMaxLength(50);
+            e.Property(s => s.Result).HasColumnType("jsonb");
+            e.HasOne<CurriculumImport>().WithMany().HasForeignKey(s => s.ImportId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ClassTeacher>(e =>
@@ -87,14 +143,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
         modelBuilder.Entity<LessonLink>(e =>
         {
-            e.HasKey(l => l.CompetencyId); // one link per lesson, for every class (D-106)
+            e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // one link per lesson of a curriculum (D-106, T-147)
             e.Property(l => l.CompetencyId).HasMaxLength(100);
             e.Property(l => l.Url).HasMaxLength(Features.LessonLinks.LessonLinkRules.MaxLength);
         });
 
         modelBuilder.Entity<LessonContent>(e =>
         {
-            e.HasKey(l => l.CompetencyId); // one description per lesson, for every class (D-123)
+            e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // one description per lesson of a curriculum (D-123, T-147)
             e.Property(l => l.CompetencyId).HasMaxLength(100);
             e.Property(l => l.Description).HasMaxLength(Features.LessonContents.LessonContentRules.MaxDescription);
             e.Property(l => l.Source).HasMaxLength(10);

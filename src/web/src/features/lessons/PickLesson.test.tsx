@@ -52,7 +52,7 @@ function today(lesson: LessonDay | (() => LessonDay), extra: Record<string, Fake
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET /api/classes/${teacher.classId}/attendance/${date}`]: () => ({ status: 200, body: attendance(absent) }),
-    'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
+    [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: curriculum }),
     [`GET ${lessonUrl}`]: () => ({ status: 200, body: typeof lesson === 'function' ? lesson() : lesson }),
     // Approved, so Today shows the confirmed lesson card; the record card that stays before approval is in
     // LessonCardWindow.test.tsx (T-114, D-104).

@@ -1,0 +1,960 @@
+{
+  "runAt": "2026-11-17T14:15:11.649556+00:00",
+  "prompts": [
+    "a10-textbook-outline",
+    "a10-textbook-lessons",
+    "a10-textbook-prerequisites"
+  ],
+  "promptVersion": 1,
+  "model": "claude-opus-5-5",
+  "part": 1,
+  "pages": 160,
+  "seconds": 1003,
+  "chapters": 5,
+  "expectedChapters": 5,
+  "lessons": 40,
+  "flaggedLessons": 1,
+  "typedExercises": 149,
+  "otherExercises": 147,
+  "pictures": 156,
+  "lessonsWithPrerequisites": 37,
+  "notes": [],
+  "lessonRecall": 1,
+  "exerciseRecall": 0.1111111111111111,
+  "exerciseRecallInDraft": 0.1111111111111111,
+  "target": 0.8,
+  "tokens": {
+    "calls": 33,
+    "input": 799937,
+    "output": 99626,
+    "cacheRead": 68100,
+    "verdicts": {
+      "valid": 33
+    }
+  },
+  "results": [
+    {
+      "id": "M3.GEO.2D",
+      "name": "2-D shapes: sides, corners, diagonals",
+      "page": 3,
+      "matchedId": "M3.GEO.2D",
+      "matchedName": "2-D shapes: sides, corners and diagonals",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.GEO.3D",
+      "name": "3-D shapes: solid and hollow cylinders",
+      "page": 5,
+      "matchedId": "M3.GEO.3D",
+      "matchedName": "3-D shapes",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.GEO.TILES",
+      "name": "Tiles that fit and do not fit",
+      "page": 9,
+      "matchedId": "M3.GEO.TILES",
+      "matchedName": "Tiles that fit and tiles that leave gaps",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.GEO.MAP",
+      "name": "Reading a simple map",
+      "page": 12,
+      "matchedId": "M3.MAP.READ",
+      "matchedName": "Reading a simple map",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.GEO.DRAW",
+      "name": "Making shapes: dot grids, straight and curved lines, tangram",
+      "page": 14,
+      "matchedId": "M3.GEO.DOTS",
+      "matchedName": "Drawing shapes by joining dots",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.COUNT999",
+      "name": "Counting to 999",
+      "page": 18,
+      "matchedId": "M3.NUM.HUNDRED",
+      "matchedName": "Counting up to 100",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.NAMES",
+      "name": "Number names to 999",
+      "page": 28,
+      "matchedId": "M3.NUM.HUNDREDS",
+      "matchedName": "Counting in hundreds",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PV.HTO",
+      "name": "Hundreds, tens and ones (to 999)",
+      "page": 35,
+      "matchedId": "M3.NUM.HTU.CARDS",
+      "matchedName": "Counting with hundreds, tens and ones cards",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PV.EXPAND",
+      "name": "Expanded form",
+      "page": 42,
+      "matchedId": "M3.NUM.PLACE.HTU",
+      "matchedName": "Place value: hundreds, tens and ones",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.SEQUENCE",
+      "name": "Before, after, between and skip counting",
+      "page": 47,
+      "matchedId": "M3.NUM.SKIP",
+      "matchedName": "Skip counting forward and backward",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.COMPARE",
+      "name": "Biggest and smallest of 3-digit numbers",
+      "page": 52,
+      "matchedId": "M3.NUM.BIG.SMALL",
+      "matchedName": "Biggest and smallest number",
+      "found": true,
+      "exercises": 2,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.ORDER",
+      "name": "Ascending and descending order",
+      "page": 57,
+      "matchedId": "M3.NUM.ORDER",
+      "matchedName": "Ascending and descending order",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.FORM",
+      "name": "Making the biggest and smallest number from 3 digits",
+      "page": 61,
+      "matchedId": "M3.NUM.FORM",
+      "matchedName": "Making numbers from digits",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.NUM.LINE",
+      "name": "Number line",
+      "page": 64,
+      "matchedId": "M3.NUM.LINE",
+      "matchedName": "Number line",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.ADD.QUICK",
+      "name": "Adding 2-digit numbers by tens and ones",
+      "page": 67,
+      "matchedId": "M3.ADD.CHART",
+      "matchedName": "Adding on a hundred chart",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.ADD.WORD",
+      "name": "Addition word problems",
+      "page": 71,
+      "matchedId": "M3.ADD.PVCHART",
+      "matchedName": "Adding 3-digit numbers on a place value chart",
+      "found": true,
+      "exercises": 2,
+      "exercisesFound": 1,
+      "exercisesInDraft": 1
+    },
+    {
+      "id": "M3.ADD.NOCARRY",
+      "name": "3-digit addition without carrying",
+      "page": 77,
+      "matchedId": "M3.ADD.NOCARRY",
+      "matchedName": "Addition without carrying",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 1,
+      "exercisesInDraft": 1
+    },
+    {
+      "id": "M3.ADD.CARRY",
+      "name": "3-digit addition with carrying",
+      "page": 80,
+      "matchedId": "M3.ADD.CARRY",
+      "matchedName": "Addition with carrying",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.ADD.MAKE",
+      "name": "Making addition sums for a given total",
+      "page": 89,
+      "matchedId": "M3.ADD.MAKE",
+      "matchedName": "Making and matching addition problems",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.ADD.ESTIMATE",
+      "name": "Rounding to the nearest ten and estimating a sum",
+      "page": 91,
+      "matchedId": "M3.NUM.ROUND10",
+      "matchedName": "Rounding to the nearest ten",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.SUB.WORD",
+      "name": "Subtraction word problems",
+      "page": 96,
+      "matchedId": "M3.SUB.STORY",
+      "matchedName": "Subtraction using place-value groups",
+      "found": true,
+      "exercises": 2,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.SUB.NOBORROW",
+      "name": "3-digit subtraction without borrowing",
+      "page": 104,
+      "matchedId": "M3.SUB.NOBORROW",
+      "matchedName": "Subtraction without borrowing",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.SUB.BORROW",
+      "name": "3-digit subtraction with borrowing",
+      "page": 108,
+      "matchedId": "M3.SUB.BORROW",
+      "matchedName": "Subtraction with borrowing",
+      "found": true,
+      "exercises": 3,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.SUB.MAKE",
+      "name": "Making subtraction sums for a given difference",
+      "page": 117,
+      "matchedId": "M3.SUB.MAKE",
+      "matchedName": "Making subtraction problems",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.SUB.ESTIMATE",
+      "name": "Estimating a difference",
+      "page": 121,
+      "matchedId": "M3.SUB.ESTIMATE",
+      "matchedName": "Estimating the difference",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.REPEAT",
+      "name": "Multiplication as repeated addition",
+      "page": 124,
+      "matchedId": "M3.MUL.REPEAT",
+      "matchedName": "Multiplication as repeated addition",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.SIGN",
+      "name": "The \u00D7 sign: multiplicand, multiplier, product",
+      "page": 128,
+      "matchedId": "M3.MUL.SIGN",
+      "matchedName": "Multiplication sign and its parts",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.TABLES",
+      "name": "Multiplication tables 1 to 10",
+      "page": 131,
+      "matchedId": "M3.MUL.TABLES",
+      "matchedName": "Multiplication tables 1 to 10",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.DAILY",
+      "name": "Multiplication in daily life (word problems)",
+      "page": 137,
+      "matchedId": "M3.MUL.DAILY",
+      "matchedName": "Multiplication in daily life",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.2D1D",
+      "name": "2-digit \u00D7 1-digit without carrying",
+      "page": 141,
+      "matchedId": "M3.MUL.2D1D",
+      "matchedName": "Multiplying a 2-digit number by a 1-digit number",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.2D1D.CARRY",
+      "name": "2-digit \u00D7 1-digit with carrying",
+      "page": 144,
+      "matchedId": "M3.MUL.CARRY",
+      "matchedName": "Multiplication with carrying",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MUL.2D2D",
+      "name": "2-digit \u00D7 2-digit",
+      "page": 147,
+      "matchedId": "M3.MUL.2D2D",
+      "matchedName": "Multiplying a 2-digit number by a 2-digit number",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    }
+  ],
+  "imported": [
+    {
+      "id": "M3.GEO.2D",
+      "name": "2-D shapes: sides, corners and diagonals",
+      "chapter": 1,
+      "firstPage": 2,
+      "lastPage": 8,
+      "typedExercises": 0,
+      "otherExercises": 6,
+      "pictures": 5,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.GEO.3D",
+      "name": "3-D shapes",
+      "chapter": 1,
+      "firstPage": 5,
+      "lastPage": 8,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.GEO.CYLINDER",
+      "name": "Solid and hollow cylinders",
+      "chapter": 1,
+      "firstPage": 6,
+      "lastPage": 8,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.GEO.3D"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.GEO.TILES",
+      "name": "Tiles that fit and tiles that leave gaps",
+      "chapter": 1,
+      "firstPage": 9,
+      "lastPage": 11,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MAP.READ",
+      "name": "Reading a simple map",
+      "chapter": 1,
+      "firstPage": 12,
+      "lastPage": 14,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 1,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.GEO.DOTS",
+      "name": "Drawing shapes by joining dots",
+      "chapter": 1,
+      "firstPage": 14,
+      "lastPage": 15,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.GEO.TANGRAM",
+      "name": "Tangram",
+      "chapter": 1,
+      "firstPage": 15,
+      "lastPage": 17,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.GEO.2D"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.HUNDRED",
+      "name": "Counting up to 100",
+      "chapter": 2,
+      "firstPage": 18,
+      "lastPage": 22,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 5,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.COUNT.999",
+      "name": "Numbers from 100 to 999",
+      "chapter": 2,
+      "firstPage": 23,
+      "lastPage": 27,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.NUM.HUNDRED"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.HUNDREDS",
+      "name": "Counting in hundreds",
+      "chapter": 2,
+      "firstPage": 28,
+      "lastPage": 29,
+      "typedExercises": 0,
+      "otherExercises": 0,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.NUM.HUNDRED"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.NAMES",
+      "name": "Number names up to 1000",
+      "chapter": 2,
+      "firstPage": 30,
+      "lastPage": 34,
+      "typedExercises": 0,
+      "otherExercises": 6,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.NUM.COUNT.999",
+        "M3.NUM.HUNDREDS"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.HTU.CARDS",
+      "name": "Counting with hundreds, tens and ones cards",
+      "chapter": 2,
+      "firstPage": 34,
+      "lastPage": 37,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.NUM.HUNDREDS"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.PLACE.HTU",
+      "name": "Place value: hundreds, tens and ones",
+      "chapter": 2,
+      "firstPage": 38,
+      "lastPage": 46,
+      "typedExercises": 0,
+      "otherExercises": 13,
+      "pictures": 8,
+      "prerequisites": [
+        "M3.NUM.HTU.CARDS",
+        "M3.NUM.COUNT.999"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.SKIP",
+      "name": "Skip counting forward and backward",
+      "chapter": 2,
+      "firstPage": 47,
+      "lastPage": 52,
+      "typedExercises": 0,
+      "otherExercises": 9,
+      "pictures": 7,
+      "prerequisites": [
+        "M3.NUM.COUNT.999"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.BEFORE.AFTER",
+      "name": "Number before, after and between",
+      "chapter": 2,
+      "firstPage": 51,
+      "lastPage": 51,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 0,
+      "prerequisites": [
+        "M3.NUM.COUNT.999"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.BIG.SMALL",
+      "name": "Biggest and smallest number",
+      "chapter": 2,
+      "firstPage": 52,
+      "lastPage": 60,
+      "typedExercises": 21,
+      "otherExercises": 4,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.NUM.PLACE.HTU"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.ORDER",
+      "name": "Ascending and descending order",
+      "chapter": 2,
+      "firstPage": 57,
+      "lastPage": 60,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.NUM.BIG.SMALL"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.FORM",
+      "name": "Making numbers from digits",
+      "chapter": 2,
+      "firstPage": 61,
+      "lastPage": 63,
+      "typedExercises": 0,
+      "otherExercises": 1,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.NUM.PLACE.HTU",
+        "M3.NUM.BIG.SMALL"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.LINE",
+      "name": "Number line",
+      "chapter": 2,
+      "firstPage": 64,
+      "lastPage": 66,
+      "typedExercises": 1,
+      "otherExercises": 9,
+      "pictures": 7,
+      "prerequisites": [
+        "M3.NUM.SKIP",
+        "M3.NUM.BEFORE.AFTER"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.ADD.CHART",
+      "name": "Adding on a hundred chart",
+      "chapter": 3,
+      "firstPage": 67,
+      "lastPage": 69,
+      "typedExercises": 5,
+      "otherExercises": 3,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.NUM.HUNDRED"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.ADD.SPLIT",
+      "name": "Easy addition by splitting into tens and ones",
+      "chapter": 3,
+      "firstPage": 69,
+      "lastPage": 70,
+      "typedExercises": 2,
+      "otherExercises": 2,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.ADD.CHART"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.ADD.PVCHART",
+      "name": "Adding 3-digit numbers on a place value chart",
+      "chapter": 3,
+      "firstPage": 71,
+      "lastPage": 76,
+      "typedExercises": 9,
+      "otherExercises": 5,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.NUM.PLACE.HTU",
+        "M3.ADD.SPLIT"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.ADD.NOCARRY",
+      "name": "Addition without carrying",
+      "chapter": 3,
+      "firstPage": 77,
+      "lastPage": 87,
+      "typedExercises": 14,
+      "otherExercises": 0,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.NUM.PLACE.HTU",
+        "M3.ADD.SPLIT"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.ADD.CARRY",
+      "name": "Addition with carrying",
+      "chapter": 3,
+      "firstPage": 80,
+      "lastPage": 87,
+      "typedExercises": 12,
+      "otherExercises": 0,
+      "pictures": 7,
+      "prerequisites": [
+        "M3.ADD.NOCARRY",
+        "M3.ADD.PVCHART"
+      ],
+      "flags": 1
+    },
+    {
+      "id": "M3.ADD.MAKE",
+      "name": "Making and matching addition problems",
+      "chapter": 3,
+      "firstPage": 88,
+      "lastPage": 91,
+      "typedExercises": 26,
+      "otherExercises": 5,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.ADD.CARRY"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.NUM.ROUND10",
+      "name": "Rounding to the nearest ten",
+      "chapter": 3,
+      "firstPage": 91,
+      "lastPage": 94,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.NUM.LINE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.ADD.ESTIMATE",
+      "name": "Estimating a sum",
+      "chapter": 3,
+      "firstPage": 94,
+      "lastPage": 95,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 1,
+      "prerequisites": [
+        "M3.NUM.ROUND10",
+        "M3.ADD.SPLIT"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.SUB.STORY",
+      "name": "Subtraction using place-value groups",
+      "chapter": 4,
+      "firstPage": 96,
+      "lastPage": 103,
+      "typedExercises": 5,
+      "otherExercises": 5,
+      "pictures": 0,
+      "prerequisites": [
+        "M3.NUM.PLACE.HTU"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.SUB.NOBORROW",
+      "name": "Subtraction without borrowing",
+      "chapter": 4,
+      "firstPage": 104,
+      "lastPage": 107,
+      "typedExercises": 2,
+      "otherExercises": 0,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.SUB.STORY"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.SUB.BORROW",
+      "name": "Subtraction with borrowing",
+      "chapter": 4,
+      "firstPage": 108,
+      "lastPage": 116,
+      "typedExercises": 23,
+      "otherExercises": 0,
+      "pictures": 8,
+      "prerequisites": [
+        "M3.SUB.NOBORROW",
+        "M3.SUB.STORY"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.SUB.MAKE",
+      "name": "Making subtraction problems",
+      "chapter": 4,
+      "firstPage": 117,
+      "lastPage": 119,
+      "typedExercises": 11,
+      "otherExercises": 6,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.SUB.BORROW",
+        "M3.ADD.MAKE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.SUB.MIXED",
+      "name": "Addition and subtraction practice",
+      "chapter": 4,
+      "firstPage": 120,
+      "lastPage": 123,
+      "typedExercises": 18,
+      "otherExercises": 4,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.ADD.CARRY",
+        "M3.SUB.BORROW"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.SUB.ESTIMATE",
+      "name": "Estimating the difference",
+      "chapter": 4,
+      "firstPage": 121,
+      "lastPage": 122,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 1,
+      "prerequisites": [
+        "M3.NUM.ROUND10",
+        "M3.ADD.ESTIMATE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.REPEAT",
+      "name": "Multiplication as repeated addition",
+      "chapter": 5,
+      "firstPage": 124,
+      "lastPage": 127,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.ADD.SPLIT"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.SIGN",
+      "name": "Multiplication sign and its parts",
+      "chapter": 5,
+      "firstPage": 128,
+      "lastPage": 130,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.MUL.REPEAT"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.TABLES",
+      "name": "Multiplication tables 1 to 10",
+      "chapter": 5,
+      "firstPage": 131,
+      "lastPage": 136,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 8,
+      "prerequisites": [
+        "M3.MUL.SIGN",
+        "M3.NUM.SKIP"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.DAILY",
+      "name": "Multiplication in daily life",
+      "chapter": 5,
+      "firstPage": 137,
+      "lastPage": 140,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.MUL.TABLES"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.2D1D",
+      "name": "Multiplying a 2-digit number by a 1-digit number",
+      "chapter": 5,
+      "firstPage": 141,
+      "lastPage": 144,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.MUL.TABLES",
+        "M3.NUM.PLACE.HTU"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.CARRY",
+      "name": "Multiplication with carrying",
+      "chapter": 5,
+      "firstPage": 144,
+      "lastPage": 146,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.MUL.2D1D",
+        "M3.ADD.CARRY"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MUL.2D2D",
+      "name": "Multiplying a 2-digit number by a 2-digit number",
+      "chapter": 5,
+      "firstPage": 147,
+      "lastPage": 150,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.MUL.CARRY"
+      ],
+      "flags": 0
+    }
+  ]
+}

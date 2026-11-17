@@ -1,59 +1,73 @@
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.LessonContents;
 
 namespace SlateAi.Api.Tests.Features.LessonContents;
 
-/// <summary>In-memory lesson descriptions (T-141) with the real store's replay and keep-the-edit rules.</summary>
+/// <summary>
+/// In-memory lesson descriptions (T-141) with the real store's replay and keep-the-edit rules, per curriculum (T-147).
+/// <see cref="Contents"/> is the built-in curriculum's.
+/// </summary>
 public sealed class FakeLessonContentStore : ILessonContentStore
 {
     private readonly Lock _gate = new();
     private readonly HashSet<Guid> _processed = [];
-    private readonly HashSet<string> _edited = [];
+    private readonly HashSet<(Guid, string)> _edited = [];
 
-    public Dictionary<string, StoredLessonContent> Contents { get; } = [];
+    /// <summary>Curriculum ID → competency ID → content.</summary>
+    public Dictionary<Guid, Dictionary<string, StoredLessonContent>> ByCurriculum { get; } = new() { [BuiltInCurriculum.Id] = [] };
+
+    /// <summary>The built-in curriculum's descriptions.</summary>
+    public Dictionary<string, StoredLessonContent> Contents => ByCurriculum[BuiltInCurriculum.Id];
+
+    private Dictionary<string, StoredLessonContent> Of(Guid curriculumId) =>
+        ByCurriculum.TryGetValue(curriculumId, out var contents) ? contents : ByCurriculum[curriculumId] = [];
 
     /// <summary>How many requests changed something (replays don't count).</summary>
     public int Writes { get; private set; }
 
-    public Task<IReadOnlyDictionary<string, StoredLessonContent>> GetAllAsync(CancellationToken cancellationToken)
+    public Task<IReadOnlyDictionary<string, StoredLessonContent>> GetAllAsync(Guid curriculumId, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
-            return Task.FromResult<IReadOnlyDictionary<string, StoredLessonContent>>(new Dictionary<string, StoredLessonContent>(Contents));
+            return Task.FromResult<IReadOnlyDictionary<string, StoredLessonContent>>(new Dictionary<string, StoredLessonContent>(Of(curriculumId)));
         }
     }
 
     public Task<IReadOnlyDictionary<string, StoredLessonContent>> GetForAsync(
-        IReadOnlyList<string> competencyIds, CancellationToken cancellationToken)
+        Guid curriculumId, IReadOnlyList<string> competencyIds, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
+            var contents = Of(curriculumId);
             return Task.FromResult<IReadOnlyDictionary<string, StoredLessonContent>>(
-                competencyIds.Where(Contents.ContainsKey).Distinct().ToDictionary(id => id, id => Contents[id]));
+                competencyIds.Where(contents.ContainsKey).Distinct().ToDictionary(id => id, id => contents[id]));
         }
     }
 
     public Task<StoredLessonContent?> SetAsync(
-        Guid clientRequestId, string competencyId, LessonContentText? content, DateTimeOffset now, CancellationToken cancellationToken)
+        Guid clientRequestId, Guid curriculumId, string competencyId, LessonContentText? content, DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
         lock (_gate)
         {
+            var contents = Of(curriculumId);
             if (!_processed.Add(clientRequestId))
             {
-                return Task.FromResult(Contents.GetValueOrDefault(competencyId));
+                return Task.FromResult(contents.GetValueOrDefault(competencyId));
             }
 
             Writes++;
             if (content is null)
             {
-                Contents.Remove(competencyId);
-                _edited.Remove(competencyId);
+                contents.Remove(competencyId);
+                _edited.Remove((curriculumId, competencyId));
                 return Task.FromResult<StoredLessonContent?>(null);
             }
 
             var stored = new StoredLessonContent(content.Description, content.Examples, LessonContentSources.Edited);
-            Contents[competencyId] = stored;
-            _edited.Add(competencyId);
+            contents[competencyId] = stored;
+            _edited.Add((curriculumId, competencyId));
             return Task.FromResult<StoredLessonContent?>(stored);
         }
     }
@@ -71,7 +85,7 @@ public sealed class FakeLessonContentStore : ILessonContentStore
                 {
                     added++;
                 }
-                else if (_edited.Contains(entry.CompetencyId))
+                else if (_edited.Contains((BuiltInCurriculum.Id, entry.CompetencyId)))
                 {
                     kept++;
                     continue;

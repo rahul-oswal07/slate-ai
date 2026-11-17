@@ -44,11 +44,12 @@ public static class LessonContentEndpoints
         SetLessonContentRequest request,
         HttpContext http,
         ILessonContentStore store,
-        CurriculumGraph curriculum,
+        BuiltInCurriculum builtIn,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        if (curriculum.Get(competencyId) is not { } lesson)
+        // The file and this page describe the built-in curriculum (T-145).
+        if (builtIn.Graph.Get(competencyId) is not { } lesson)
         {
             return TypedResults.NotFound();
         }
@@ -64,7 +65,7 @@ public static class LessonContentEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
-        var stored = await store.SetAsync(request.ClientRequestId, lesson.Id, content, clock.GetUtcNow(), cancellationToken);
+        var stored = await store.SetAsync(request.ClientRequestId, BuiltInCurriculum.Id, lesson.Id, content, clock.GetUtcNow(), cancellationToken);
         AdminEndpoints.NoStore(http);
         return AdminLessonContent.From(stored) is { } result ? TypedResults.Ok(result) : TypedResults.NoContent();
     }

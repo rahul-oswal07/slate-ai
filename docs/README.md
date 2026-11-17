@@ -43,7 +43,7 @@ Same two files per folder.
 
 | Area | What it is | Code | Read with | Docs |
 |---|---|---|---|---|
-| AI pipeline | Prompts A1–A9, validators, the verifier, speech, evals | `Ai/`, `Speech/`, `Features/CatchUps/`, `prompts/`, `evals/` | [`spec.md`](spec.md) §5, [`quality.md`](quality.md) §2 | [spec](areas/ai-pipeline/spec.md) · [status](areas/ai-pipeline/status.md) |
+| AI pipeline | Prompts A1–A10, validators, the verifier, speech, evals | `Ai/`, `Speech/`, `Features/CatchUps/`, `Features/TextbookImport/`, `prompts/`, `evals/` | [`spec.md`](spec.md) §5, [`quality.md`](quality.md) §2 | [spec](areas/ai-pipeline/spec.md) · [status](areas/ai-pipeline/status.md) |
 | Delivery | The 6 pm send job, the outbox, WhatsApp | `Features/Delivery/`, `Features/EveningMessages/` | [`whatsapp-setup.md`](whatsapp-setup.md), [`whatsapp-delivery-plan.md`](whatsapp-delivery-plan.md) | [spec](areas/delivery/spec.md) · [status](areas/delivery/status.md) |
 | Curriculum | Lessons, prerequisites, pages, practice rules | `Curriculum/`, `data/curriculum/` | [`design/curriculum.md`](design/curriculum.md) | [spec](areas/curriculum/spec.md) · [status](areas/curriculum/status.md) |
 | App shell and look | Header, bottom nav, language, offline outbox, tokens and themes | `src/web/src/app/`, `components/`, `styles/`, `i18n/`, `offline/` | [`design/tokens.md`](design/tokens.md), [`spec.md`](spec.md) §3.4 and §6 | [spec](areas/app-shell/spec.md) · [status](areas/app-shell/status.md) |

@@ -535,7 +535,7 @@ public sealed class EveningEndpointTests
                 services.AddSingleton<IParentStore>(new FakeParentStore());
                 services.AddSingleton<IAttendanceStore>(_attendance);
                 services.AddSingleton<IAttendanceSource>(new NotYetSource());
-                services.AddSingleton(Book);
+                services.AddSingleton(new BuiltInCurriculum(Book));
                 services.AddSingleton(Wording);
                 services.AddSingleton<ILlmClient>(new ThrowingLlmClient());
                 services.AddSingleton<TimeProvider>(_clock);

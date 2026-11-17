@@ -4,9 +4,9 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `SecondParentPhone` (T-140) |
+| Last migration | `TextbookImportFiles` (T-146) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
-| Curriculum | Not in the database: loaded from `data/curriculum/*.json` at startup (T-05); rows reference competencies by string ID such as `M3.ADD.CARRY` |
+| Curriculum | The built-in one is not in the database: loaded from `data/curriculum/*.json` at startup (T-05). A class can instead follow a stored curriculum (`Curricula`, T-145, D-125). Rows reference competencies by string ID such as `M3.ADD.CARRY`, read in the class's curriculum |
 
 ## 1. Current schema (built)
 
@@ -41,6 +41,11 @@ erDiagram
     Children ||--o{ AbsenceReasons : "one per absent day"
     Children ||--o{ BuddyCards : "ticks per return day"
     Classes ||--o{ PacingDecisions : "one per week"
+    Curricula |o--o{ Classes : "followed by (null = built-in)"
+    Curricula ||--o{ CurriculumLessons : has
+    CurriculumImports |o--o| Curricula : "drafts"
+    CurriculumImports ||--o| CurriculumImportFiles : "the book, until the draft is written"
+    CurriculumImports ||--o{ CurriculumImportSteps : "finished steps"
     Lessons ||--o{ PacingDecisions : "the nudge's lesson"
 
     Teachers {
@@ -58,6 +63,59 @@ erDiagram
         uuid TeacherId FK
         int Grade
         varchar5 Medium "e.g. kn"
+        uuid CurriculumId FK "nullable: null = built-in"
+    }
+    Curricula {
+        uuid Id PK
+        varchar200 Title
+        int Grade
+        varchar50 Subject "e.g. maths"
+        varchar5 Medium "e.g. kn"
+        varchar20 Status "draft | published"
+        jsonb Chapters
+        timestamptz CreatedAt
+        timestamptz PublishedAt "nullable"
+        uuid ImportId "nullable, no FK"
+    }
+    CurriculumLessons {
+        uuid CurriculumId PK,FK
+        varchar100 CompetencyId PK
+        int Sequence
+        jsonb Competency
+        varchar20 ReviewStatus "needs-review | reviewed"
+        text_array Flags
+        jsonb Extras "nullable"
+    }
+    CurriculumImports {
+        uuid Id PK
+        uuid ClientRequestId "unique"
+        varchar200 Title
+        int Grade
+        varchar50 Subject
+        varchar5 Medium
+        varchar20 Book "textbook | workbook | nalikali"
+        int Part "nullable"
+        int PageCount
+        varchar20 Status "queued | running | ready | failed"
+        varchar20 Stage "nullable"
+        int StepsDone
+        int StepsTotal
+        varchar200 Error "nullable"
+        text_array Notes
+        uuid CurriculumId FK "nullable"
+        timestamptz CreatedAt
+        timestamptz UpdatedAt
+    }
+    CurriculumImportFiles {
+        uuid ImportId PK,FK
+        bytea Pdf
+        int_array PageSizes
+    }
+    CurriculumImportSteps {
+        uuid ImportId PK,FK
+        varchar50 Key PK
+        jsonb Result
+        timestamptz CreatedAt
     }
     Children {
         uuid Id PK
@@ -309,11 +367,13 @@ erDiagram
         timestamptz UpdatedAt
     }
     LessonLinks {
+        uuid CurriculumId PK "Guid.Empty = built-in"
         varchar100 CompetencyId PK "curriculum ID"
         varchar500 Url "https only"
         timestamptz UpdatedAt
     }
     LessonContents {
+        uuid CurriculumId PK "Guid.Empty = built-in"
         varchar100 CompetencyId PK "curriculum ID"
         varchar700 Description "English, how the book teaches it"
         text_array Examples "1-4 worked examples"
@@ -332,7 +392,7 @@ erDiagram
 
 **`Teachers`** — one per teacher login (D-40, T-47). `Phone` is the 10-digit national number, unique. `PinHash` is a PBKDF2 hash (`PasswordHasher`) of the 4–6 digit PIN; the demo teacher's comes from `Demo:TeacherPin` and the co-teachers' from `Demo:CoTeacherPin` via the seeder, never stored in clear. `FailedPinAttempts` / `PinLockedUntil`: 5 wrong PINs lock sign-in for 15 minutes. `ConsentAt` is the first-run gate: null → Welcome. It is set once by saving the greeting with the voice-consent tick (`POST /api/me/greeting`, T-61), or by `POST /api/me/welcome` when she continues without a greeting because the microphone is blocked (D-34). `GreetingAudioUrl` is `/api/audio/{id}` of the teacher's own recorded greeting (an `AudioClips` row of kind `greeting`), played first in every parent message (FR-09); null until she records one.
 
-**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
+**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `CurriculumId` (nullable, migration `ClassCurricula`, T-145, D-125) is the published `Curricula` row the class follows; null is the built-in curriculum from `data/curriculum/*.json`. It is set on `/admin/curriculum` (T-147), which refuses a curriculum missing any lesson ID the class has used in `Lessons`, `TodaysMessages`, `CatchUpPackages` or `CatchUpAssignments`. FK `CurriculumId → Curricula` restrict, so a curriculum a class follows can't be deleted. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
 
 **`ClassTeachers`** — which teachers can sign in to a class (D-79): composite PK `(ClassId, TeacherId)`, FKs to `Classes` and `Teachers` (cascade), index on `TeacherId`. `AuthStore.GetMeAsync` takes the teacher's class from here (their own class first), and the class goes into the session cookie as before. The migration `ClassTeachers` adds one row per existing class for its main teacher; the seeder adds the demo class's main teacher and the co-teachers in `data/seed/demo-class.json` (`coTeachers`).
 
@@ -372,9 +432,19 @@ erDiagram
 
 **`PacingDecisions`** — the teacher's answer to a week's pacing nudge (T6, FR-13, T-46): `recap` or `skip` for the nudge's `LessonId`; unique `(ClassId, WeekOf)`, Change replaces it (advisory lock `pacing:{classId}:{week}`, replays via `ProcessedRequests`, endpoint `pacing-decision`). The nudge itself is computed from attendance each time; a stored decision shows only while it still names the nudge's lesson. A `recap` shows a reminder card on Today all the following week. FKs `ClassId` (cascade), `LessonId`.
 
-**`LessonContents`** — one description and 1–4 worked examples per curriculum lesson, for every class (T-141, D-123, migration `LessonContents`), in English: what the child learns, how the book teaches it and the idea to remember. A9 builds today's message's spoken concept on them, and their numbers are allowed in it (never the picture question's answer or choices). Key `CompetencyId` (no FK, like `LessonLinks`). Loaded at startup on every server from `data/lesson-content/grade3-maths.json` (`LessonContentLoader`, under the advisory lock `0x5EED_0141`): lessons without a row are added and rows with `EditedAt` null follow the file; `Source` is `textbook` or `written`. An edit on `/admin/lesson-links` sets `Source = edited` and `EditedAt`, and the file never overwrites it again; all blank removes the row. Rules in `LessonContentRules` (description ≤ 700, examples 1–4 of ≤ 200, no braces). Edits take the advisory lock `lesson-content:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-content`). The demo Reset leaves it alone.
+**`LessonContents`** — one description and 1–4 worked examples per lesson of a curriculum (T-141, D-123, migration `LessonContents`; per curriculum since `LessonContentPerCurriculum`, T-147: composite key `(CurriculumId, CompetencyId)`, where `CurriculumId` is a published `Curricula` row or `Guid.Empty` for the built-in curriculum, which every row before T-147 became; no FK, because the built-in one has no row). Publishing a curriculum (T-147) writes its lessons' descriptions here with `Source = textbook`, under the curriculum's lock. Today's message reads the rows of the class's own curriculum, in English: what the child learns, how the book teaches it and the idea to remember. A9 builds today's message's spoken concept on them, and their numbers are allowed in it (never the picture question's answer or choices). Loaded at startup on every server from `data/lesson-content/grade3-maths.json` (`LessonContentLoader`, under the advisory lock `0x5EED_0141`): lessons without a row are added and rows with `EditedAt` null follow the file; `Source` is `textbook` or `written`. An edit on `/admin/lesson-links` sets `Source = edited` and `EditedAt`, and the file never overwrites it again; all blank removes the row. Rules in `LessonContentRules` (description ≤ 700, examples 1–4 of ≤ 200, no braces). The startup load and `/admin/lesson-links` work on the built-in curriculum only. Edits take the advisory lock `lesson-content:{CurriculumId}:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-content`). The demo Reset leaves it alone.
 
-**`LessonLinks`** — one video link per curriculum lesson, for every class (T-94, D-106, migration `LessonLinks`). Set on the admin page `/admin/lesson-links` (key rule of D-102); any absolute https URL up to 500 characters (`LessonLinkRules`). Key `CompetencyId` (a curriculum ID such as `M3.BRIDGE.COMPARE`, no FK: the curriculum isn't in the database). A fresh today's message copies the first of its lessons' links into its `Sections` video; later changes here don't touch existing drafts. Writes take the advisory lock `lesson-link:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-link`). The demo Reset leaves it alone.
+**`LessonLinks`** — one video link per lesson of a curriculum (T-94, D-106, migration `LessonLinks`; key `(CurriculumId, CompetencyId)` since `LessonContentPerCurriculum`, T-147, with `Guid.Empty` for the built-in curriculum, which every existing link became). A new today's message reads the links of the class's own curriculum; `/admin/lesson-links` sets the built-in one's, and a stored curriculum has none yet. Set on the admin page `/admin/lesson-links` (key rule of D-102); any absolute https URL up to 500 characters (`LessonLinkRules`). `CompetencyId` is a curriculum ID such as `M3.BRIDGE.COMPARE`; no FK. A fresh today's message copies the first of its lessons' links into its `Sections` video; later changes here don't touch existing drafts. Writes take the advisory lock `lesson-link:{CurriculumId}:{CompetencyId}` and record their `clientRequestId` in `ProcessedRequests` (`admin-lesson-link`). The demo Reset leaves it alone.
+
+**`Curricula`** — a curriculum stored in the database (T-145, D-125, migration `ClassCurricula`), e.g. one made from a textbook by the importer (T-146). `Status` is `draft` (being made or reviewed; no class can follow it) or `published` (checked; never changes again, so the API caches its graph by `Id` for its life; a change is a new curriculum). `Chapters` is a jsonb array of `{ number, nameKn, nameEn }`. The built-in curriculum has no row here. Read by `Curriculum/CurriculumStore.cs` behind `ICurriculumStore`; every read goes through `CurriculumLoader`, so it gets the same checks as a file (IDs, prerequisites, no cycles, exercises). The demo Reset leaves it alone. Covered by `CurriculumDbTests`.
+
+**`CurriculumLessons`** — the lessons of a `Curricula` row: composite PK `(CurriculumId, CompetencyId)`, so an ID is unique within a curriculum and two curricula can both have `M3.ADD.CARRY`. `Competency` is the lesson as jsonb, the same shape as a lesson in `data/curriculum/*.json` (names, prerequisites, chapter, sequence, examples, page, key words, practice, exercises); `Sequence` is copied out of it so rows read in teaching order. FK `CurriculumId → Curricula` (cascade). For a lesson made from a textbook (migration `TextbookImports`, T-146): `ReviewStatus` is `needs-review` until an admin checks it (T-147; default `reviewed`), `Flags` lists what the importer's checks dropped or couldn't find, and `Extras` (jsonb) holds what isn't part of the lesson itself: its PDF and printed pages, the description and examples in our own words, the book's other exercises as summaries, and its pictures **described, never copied** (D-125).
+
+**`CurriculumImports`** — a textbook being turned into a draft curriculum (T-146, D-125, migration `TextbookImports`), uploaded on `/admin/curriculum`. `ClientRequestId` is unique, so a replayed upload returns the same import (the create runs under the advisory lock `curriculum-import-request:{ClientRequestId}`). `Status`: `queued` → `running` (the worker claims it with a conditional update, so only one run has it; `Stage` is outline, lessons, prerequisites or assemble; `StepsDone` of `StepsTotal` Claude calls) → `ready` with `CurriculumId` = the draft, or `failed` with a short `Error` (e.g. `error:Unavailable reading chapter 3`, `fallback:no-chapters`; never book text). A `running` or `queued` import whose `UpdatedAt` hasn't moved for 10 minutes reads as failed (`error:stale`; the queue is in memory). Retry puts a failed or stale one back to `queued`. `Notes` are about the whole book (renumbered chapters, no prerequisites). FK `CurriculumId → Curricula` set null. Discarding deletes the import, its pages and steps, and its draft unless it was published. The demo Reset leaves it alone.
+
+**`CurriculumImportFiles`** — the uploaded book, once (migration `TextbookImportFiles`, which replaced the `CurriculumImportPages` table of `TextbookImports`): every page cut on its own carries the book's shared fonts and pictures, so a 31 MB book stored as single pages took 161 MB. `PageSizes` is each page's size when cut on its own, measured at upload, so a call's pages stay under the request limit; each call cuts its pages from the book (`PdfBook`). PK and FK `ImportId` (cascade). Deleted in the same transaction that writes the draft, and with the import: the book is not kept (D-125).
+
+**`CurriculumImportSteps`** — each finished, checked step of an import (`Key` e.g. `outline:11-20`, `lessons:3:1`, `prerequisites`; `Result` jsonb). PK `(ImportId, Key)`; Try again skips steps that are here, so it carries on where it stopped. FK `ImportId` (cascade). Covered by `TextbookImportDbTests`.
 
 **`AppSettings`** — server-wide switches set on an admin page, by key (T-134, migration `AppSettings`). Today only `demo.school-date` (`on`/`off`): whether the demo teacher can act as a past school day (D-120), set on `/admin/demo`; **a missing row is off**. Writes take the advisory lock on the key and record their `clientRequestId` in `ProcessedRequests` (`admin-school-date`). The API keeps the value in memory after the first read (`SchoolDateSwitch`) and updates it on write. No FKs; the demo Reset leaves it alone. Covered by `StartupDbTests.The_school_date_switch_starts_off_and_keeps_what_the_admin_page_saves`.
 
@@ -386,7 +456,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`, `Classes.CurriculumId` (restrict, T-145) and `CurriculumImports.CurriculumId` (set null, T-146): Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -400,6 +470,10 @@ Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`: T
 | Two catch-up generates for the same week | `pg_advisory_xact_lock(hashtextextended('catchups:{classId}:{week}', 0))` + unique `(ClassId, WeekOf, Language, TargetKey)` and `(ChildId, WeekOf)` | `Features/CatchUps/CatchUpStore.cs` |
 | Two picture answers racing (a retry while the first is in flight) | `pg_advisory_xact_lock(hashtextextended('answer:{assignmentId}', 0))` + primary key `AssignmentId` | `Features/Parent/ParentStore.cs` |
 | A reason tap racing its retry, or a late replay after a newer tap | `pg_advisory_xact_lock(hashtextextended('reason:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Parent/ParentStore.cs` |
+| A replayed textbook upload racing its original | `pg_advisory_xact_lock(hashtextextended('curriculum-import-request:{clientRequestId}', 0))` + unique `ClientRequestId` | `Features/TextbookImport/TextbookImportStore.cs` |
+| Two runs of the same import (a retry while it is still queued) | conditional `UPDATE … SET Status = 'running' WHERE Status = 'queued'`; only the run that changed the row goes on | same |
+| An edit of a draft racing its publish, or two edits of one curriculum | `pg_advisory_xact_lock(hashtextextended('curriculum:{id}', 0))`; the draft is read and checked inside the lock; `ProcessedRequests` (`admin-curriculum-lesson`, `admin-curriculum-lesson-remove`, `admin-curriculum-publish`) | `Features/Curricula/CurriculumAdminStore.cs` |
+| Two changes of a class's curriculum racing | `pg_advisory_xact_lock(hashtextextended('class-curriculum:{classId}', 0))` + `ProcessedRequests` (`admin-class-curriculum`); the lesson IDs the class has used are read inside the lock | same |
 | Two pacing decisions for the same week racing | `pg_advisory_xact_lock(hashtextextended('pacing:{classId}:{week}', 0))` + `ProcessedRequests` + unique `(ClassId, WeekOf)` | `Features/Week/WeekStore.cs` |
 | Two taps on the same buddy card racing | `pg_advisory_xact_lock(hashtextextended('buddy:{childId}:{date}', 0))` + `ProcessedRequests` + unique `(ChildId, Date)` | `Features/Buddy/BuddyStore.cs` |
 | The 6 pm job and a manual send racing | `pg_advisory_xact_lock(hashtextextended('evening:{classId}:{date}', 0))` + unique `(ChildId, Date)` | `Features/EveningMessages/EveningStore.cs` |

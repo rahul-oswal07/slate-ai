@@ -78,7 +78,7 @@ function today(opts: { lesson: LessonStatus | null; todays?: TodaysMessage | nul
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET ${base}/attendance/${date}`]: () => ({ status: 200, body: attendance }),
-    'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
+    [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: curriculum }),
     [`GET ${base}/lessons/${date}`]: () => ({ status: 200, body: lessonDay(opts.lesson) }),
     [`GET ${base}/evening-messages/${date}`]: () => ({ status: 200, body: evening(opts.answers ? 2 : 0) }),
     [`GET ${base}/todays-message/${date}`]: () => (opts.todays ? { status: 200, body: opts.todays } : { status: 204 }),

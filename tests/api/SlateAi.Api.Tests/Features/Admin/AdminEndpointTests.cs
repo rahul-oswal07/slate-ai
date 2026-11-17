@@ -151,10 +151,10 @@ public sealed class AdminEndpointTests
             AskedFor = date;
             return Task.FromResult<IReadOnlyList<AdminLessonAudioRow>>(
             [
-                new(Guid.NewGuid(), "Shobha", 3, "te", ["M3.ADD.CARRY", "M9.UNKNOWN"], "approved", "valid", "Savitha", SixPm,
+                new(Guid.NewGuid(), Guid.NewGuid(), "Shobha", 3, "te", ["M3.ADD.CARRY", "M9.UNKNOWN"], "approved", "valid", "Savitha", SixPm,
                     LessonClipId, 42.5, "Today we added with carrying.",
                     [new("Ravi", 4, "te", SixPm), new("Rohan", 9, "te", SixPm)]),
-                new(Guid.NewGuid(), "Shobha", 3, "hi", ["M3.ADD.CARRY"], "failed", "fallback:numbers", null, null,
+                new(Guid.NewGuid(), Guid.NewGuid(), "Shobha", 3, "hi", ["M3.ADD.CARRY"], "failed", "fallback:numbers", null, null,
                     null, null, null, []),
             ]);
         }

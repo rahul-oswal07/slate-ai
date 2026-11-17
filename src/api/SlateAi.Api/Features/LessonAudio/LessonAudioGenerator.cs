@@ -26,7 +26,7 @@ public sealed class LessonAudioGenerator(
     ITextToSpeech tts,
     IAudioStore audio,
     DisclosureClips disclosure,
-    CurriculumGraph curriculum,
+    ICurriculumProvider curricula,
     PromptLibrary prompts,
     IOptions<VerifierOptions> options,
     TimeProvider clock,
@@ -44,6 +44,7 @@ public sealed class LessonAudioGenerator(
         var ids = (await evening.LatestConfirmedLessonAsync(row.ClassId, row.Date, cancellationToken)) is { } lesson && lesson.Date == row.Date
             ? lesson.CompetencyIds
             : null;
+        var curriculum = await curricula.ForClassAsync(row.ClassId, cancellationToken);
         var lessons = ids?.Select(curriculum.Get).OfType<Competency>().ToList();
         if (ids is null || lessons is null || lessons.Count != ids.Count || disclosure.Text(row.Language) is null)
         {

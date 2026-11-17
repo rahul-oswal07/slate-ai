@@ -32,23 +32,37 @@ public static partial class CurriculumLoader
     public static CurriculumGraph Load(IEnumerable<(string Name, string Json)> files)
     {
         var errors = new List<string>();
-        var competencies = new List<Competency>();
-        var chapters = new Dictionary<int, Chapter>();
-        var seen = new Dictionary<string, string>(StringComparer.Ordinal);
-
+        var parsed = new List<(string Name, CurriculumFile? File)>();
         foreach (var (name, json) in files)
         {
-            CurriculumFile? file;
             try
             {
-                file = JsonSerializer.Deserialize<CurriculumFile>(json, Json);
+                parsed.Add((name, JsonSerializer.Deserialize<CurriculumFile>(json, Json)));
             }
             catch (JsonException e)
             {
                 errors.Add($"{name}: not valid JSON ({e.Message})");
-                continue;
             }
+        }
 
+        return Build(parsed, errors);
+    }
+
+    /// <summary>
+    /// Runs every check a file gets on curricula already parsed, e.g. one read from the database (T-145).
+    /// </summary>
+    /// <param name="curricula">(name for error messages, the curriculum)</param>
+    public static CurriculumGraph Load(IEnumerable<(string Name, CurriculumFile File)> curricula) =>
+        Build(curricula.Select(c => (c.Name, (CurriculumFile?)c.File)), []);
+
+    private static CurriculumGraph Build(IEnumerable<(string Name, CurriculumFile? File)> files, List<string> errors)
+    {
+        var competencies = new List<Competency>();
+        var chapters = new Dictionary<int, Chapter>();
+        var seen = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var (name, file) in files)
+        {
             foreach (var chapter in file?.Chapters ?? [])
             {
                 if (string.IsNullOrWhiteSpace(chapter.NameKn) || string.IsNullOrWhiteSpace(chapter.NameEn))
@@ -94,6 +108,15 @@ public static partial class CurriculumLoader
 
         return errors.Count > 0 ? throw new CurriculumException(errors) : new CurriculumGraph(competencies, chapters.Values);
     }
+
+    /// <summary>
+    /// What is wrong with one lesson on its own (ID, names, practice, exercises, page): every check a file's lesson gets
+    /// except those across lessons (unknown prerequisites, cycles, duplicate IDs). Used by the textbook importer (T-146).
+    /// </summary>
+    public static IReadOnlyList<string> Problems(Competency competency) => Check(Normalise(competency)).ToList();
+
+    /// <summary>The ID looks like M3.ADD.CARRY.</summary>
+    public static bool IsValidId(string id) => IdFormat().IsMatch(id);
 
     // JSON can omit arrays or send nulls; the graph relies on non-null lists.
     private static Competency Normalise(Competency c) => c with

@@ -6,6 +6,7 @@ using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.TodaysMessage;
+using SlateAi.Api.Tests.Curriculum;
 using SlateAi.Api.Tests.Features.EveningMessages;
 using SlateAi.Api.Tests.Features.TodaysMessage;
 using SlateAi.Api.Tests.Infrastructure;
@@ -151,7 +152,7 @@ public sealed class LessonEndpointTests
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId);
 
-        var curriculum = await client.GetFromJsonAsync<CurriculumResponse>("/api/curriculum", Ct);
+        var curriculum = await client.GetFromJsonAsync<CurriculumResponse>($"/api/classes/{ClassId}/curriculum", Ct);
 
         Assert.Equal([4, 5], curriculum!.Chapters.Select(c => c.Number));
         var five = curriculum.Chapters[1];
@@ -165,22 +166,62 @@ public sealed class LessonEndpointTests
         await using var factory = Create();
         using var client = factory.CreateTeacherClient(ClassId);
 
-        var curriculum = await client.GetFromJsonAsync<CurriculumResponse>("/api/curriculum", Ct);
+        var curriculum = await client.GetFromJsonAsync<CurriculumResponse>($"/api/classes/{ClassId}/curriculum", Ct);
 
         var lessons = curriculum!.Chapters.SelectMany(c => c.Competencies).ToDictionary(c => c.Id, c => c.HasExercises);
         Assert.True(lessons["M3.ADD.CARRY"]);
         Assert.False(lessons["M3.SUB.MAKE"]);
     }
 
-    private ApiFactory Create() =>
+    [Fact]
+    public async Task A_class_that_follows_a_stored_curriculum_gets_its_lessons_and_can_only_pick_from_them()
+    {
+        var curricula = new FakeCurriculumStore();
+        var stored = Guid.NewGuid();
+        curricula.ClassCurricula[ClassId] = stored;
+        curricula.Published[stored] = new CurriculumFile(
+            3, "maths", null,
+            [new Competency("M3.SHAPE.SIDES", "ಬದಿಗಳು", "Sides and corners", [], null, 1, 1, [], null)],
+            [new Chapter(1, "ಆಕೃತಿಗಳು", "Shapes")]);
+        await using var factory = Create(curricula);
+        using var client = factory.CreateTeacherClient(ClassId);
+
+        var curriculum = await client.GetFromJsonAsync<CurriculumResponse>($"/api/classes/{ClassId}/curriculum", Ct);
+        var builtInLesson = await client.PutAsJsonAsync(Url, new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.MAKE"]), Ct);
+        var ownLesson = await client.PutAsJsonAsync(Url, new SaveLessonRequest(Guid.NewGuid(), ["M3.SHAPE.SIDES"]), Ct);
+
+        var chapter = Assert.Single(curriculum!.Chapters);
+        Assert.Equal("Shapes", chapter.NameEn);
+        Assert.Equal(["M3.SHAPE.SIDES"], chapter.Competencies.Select(c => c.Id));
+        Assert.Equal(HttpStatusCode.BadRequest, builtInLesson.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, ownLesson.StatusCode);
+    }
+
+    [Fact]
+    public async Task Curriculum_is_only_for_the_class_s_teachers()
+    {
+        await using var factory = Create();
+        using var anonymous = factory.CreateHttpsClient();
+        using var other = factory.CreateTeacherClient(Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync($"/api/classes/{ClassId}/curriculum", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"/api/classes/{ClassId}/curriculum", Ct)).StatusCode);
+    }
+
+    private ApiFactory Create(FakeCurriculumStore? curricula = null) =>
         FakeApi.Create(services =>
         {
+            if (curricula is not null)
+            {
+                services.AddSingleton<ICurriculumStore>(curricula);
+            }
+
             services.AddSingleton<ILessonStore>(_store);
             services.AddSingleton<ITodaysMessageStore>(new FakeTodaysMessageStore());
             services.AddSingleton<IEveningStore>(_evening);
             // Confirming any lesson now checks who is due today's message (T-139): an empty register, nobody due.
             services.AddSingleton<IAttendanceStore>(new FakeAttendanceStore(ClassId, []));
-            services.AddSingleton(Book);
+            services.AddSingleton(new BuiltInCurriculum(Book));
             services.AddSingleton<TimeProvider>(new FixedClock(SchoolClock.At(Today, new TimeOnly(15, 0))));
         });
 

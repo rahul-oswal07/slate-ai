@@ -9,9 +9,11 @@ namespace SlateAi.Api.Features.Parent;
 
 /// <summary>A catch-up link as stored: the assignment, its package and the family's state.</summary>
 /// <param name="ChildName">Written text only (the page header, "Well done"); never sent to an AI provider (D-50).</param>
+/// <param name="ClassId">The child's class: its curriculum names the homework page (T-145).</param>
 public sealed record ParentCatchUpRecord(
     Guid AssignmentId,
     Guid ChildId,
+    Guid ClassId,
     string ChildName,
     string TeacherName,
     string Language,
@@ -82,7 +84,7 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
                 join t in db.Teachers on k.TeacherId equals t.Id
                 select new
                 {
-                    a.Id, a.ChildId, c.FirstName, t.DisplayName, p.Language, p.Status, p.ScriptVersion,
+                    a.Id, a.ChildId, a.ClassId, c.FirstName, t.DisplayName, p.Language, p.Status, p.ScriptVersion,
                     p.ApprovedScriptVersion, p.TargetCompetencyIds, p.Script, p.KeyWordsKn, p.Activity, p.CheckItem,
                     p.AudioSegments, a.ExpiresAt, Stopped = c.ParentStoppedAt != null,
                     Attempts = db.CheckResponses.Where(r => r.AssignmentId == a.Id).Select(r => r.Attempts).FirstOrDefault(),
@@ -92,7 +94,7 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
         return row is null
             ? null
             : new ParentCatchUpRecord(
-                row.Id, row.ChildId, row.FirstName, row.DisplayName, row.Language, row.Status, row.ScriptVersion,
+                row.Id, row.ChildId, row.ClassId, row.FirstName, row.DisplayName, row.Language, row.Status, row.ScriptVersion,
                 row.ApprovedScriptVersion, row.TargetCompetencyIds, row.Script, row.KeyWordsKn,
                 JsonSerializer.Deserialize<ActivityData>(row.Activity, Json)!,
                 JsonSerializer.Deserialize<CheckData>(row.CheckItem, Json)!,

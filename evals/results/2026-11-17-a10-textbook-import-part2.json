@@ -1,0 +1,887 @@
+{
+  "runAt": "2026-11-17T14:50:27.068067+00:00",
+  "prompts": [
+    "a10-textbook-outline",
+    "a10-textbook-lessons",
+    "a10-textbook-prerequisites"
+  ],
+  "promptVersion": 1,
+  "model": "claude-opus-5-5",
+  "part": 2,
+  "pages": 144,
+  "seconds": 938,
+  "chapters": 7,
+  "expectedChapters": 7,
+  "lessons": 39,
+  "flaggedLessons": 0,
+  "typedExercises": 28,
+  "otherExercises": 206,
+  "pictures": 139,
+  "lessonsWithPrerequisites": 32,
+  "notes": [],
+  "lessonRecall": 1,
+  "exerciseRecall": null,
+  "exerciseRecallInDraft": null,
+  "target": 0.8,
+  "tokens": {
+    "calls": 31,
+    "input": 710505,
+    "output": 94788,
+    "cacheRead": 63560,
+    "verdicts": {
+      "valid": 31
+    }
+  },
+  "results": [
+    {
+      "id": "M3.DIV.SHARE",
+      "name": "Sharing equally and making groups",
+      "page": 1,
+      "matchedId": "M3.DIV.SHARE",
+      "matchedName": "Equal sharing and grouping",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.DIV.MULREL",
+      "name": "Division and multiplication are linked",
+      "page": 5,
+      "matchedId": "M3.DIV.MULT",
+      "matchedName": "Division and multiplication",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.DIV.TABLES",
+      "name": "Dividing with the tables",
+      "page": 8,
+      "matchedId": "M3.DIV.TABLES",
+      "matchedName": "Division using multiplication tables",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MENT.ADDSUB",
+      "name": "Adding and subtracting 1- and 2-digit numbers in your head",
+      "page": 13,
+      "matchedId": "M3.MENTAL.ADDSUB",
+      "matchedName": "Mental addition and subtraction",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MENT.DOUBLE",
+      "name": "Doubling numbers (to 100)",
+      "page": 21,
+      "matchedId": "M3.MENTAL.DOUBLE",
+      "matchedName": "Doubling numbers",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.FRAC.HALF",
+      "name": "Half",
+      "page": 26,
+      "matchedId": "M3.FRAC.HALF",
+      "matchedName": "Half of a whole",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.FRAC.QUARTER",
+      "name": "Quarter and three quarters",
+      "page": 30,
+      "matchedId": "M3.FRAC.QUARTER",
+      "matchedName": "Quarter of a whole",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.FRAC.SYMBOL",
+      "name": "Writing \u00BD, \u00BC and \u00BE",
+      "page": 39,
+      "matchedId": "M3.FRAC.SYMBOL",
+      "matchedName": "Writing half, quarter and three-quarters as numbers",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MONEY.COINS",
+      "name": "Coins and notes: \u20B91 = 100 paise",
+      "page": 45,
+      "matchedId": "M3.MONEY.COINS",
+      "matchedName": "Notes and coins of equal value",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MONEY.WRITE",
+      "name": "Writing money in words and numbers",
+      "page": 50,
+      "matchedId": "M3.MONEY.WRITE",
+      "matchedName": "Saying and writing amounts of money",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MONEY.CONVERT",
+      "name": "Rupees to paise",
+      "page": 52,
+      "matchedId": "M3.MONEY.PAISE",
+      "matchedName": "Converting rupees to paise",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MONEY.ADDSUB",
+      "name": "Adding and subtracting money",
+      "page": 55,
+      "matchedId": "M3.MONEY.ADDSUB",
+      "matchedName": "Adding and subtracting money",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MONEY.BILL",
+      "name": "Price lists and simple bills",
+      "page": 62,
+      "matchedId": "M3.MONEY.RATELIST",
+      "matchedName": "Reading a rate list",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MEAS.CM",
+      "name": "Measuring length in centimetres with a ruler",
+      "page": 68,
+      "matchedId": "M3.MONEY.BILL",
+      "matchedName": "Reading a simple bill",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MEAS.METRE",
+      "name": "Metres: 1 m = 100 cm",
+      "page": 74,
+      "matchedId": "M3.MEAS.LENGTH.M",
+      "matchedName": "Measuring in metres",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MEAS.ESTIMATE",
+      "name": "Estimating length, then measuring",
+      "page": 78,
+      "matchedId": "M3.MEAS.ESTIMATE",
+      "matchedName": "Estimating and measuring length",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MEAS.WEIGHT",
+      "name": "Weight: heavier, lighter and the balance",
+      "page": 80,
+      "matchedId": "M3.MEAS.WEIGHT",
+      "matchedName": "Weight: heavier and lighter",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.MEAS.CAPACITY",
+      "name": "Capacity: how much a container holds",
+      "page": 86,
+      "matchedId": "M3.MEAS.CAPACITY",
+      "matchedName": "Capacity of containers",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.TIME.CALENDAR",
+      "name": "Calendar: days, months and dates",
+      "page": 91,
+      "matchedId": "M3.TIME.CALENDAR",
+      "matchedName": "Reading a calendar",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.TIME.CLOCK",
+      "name": "Reading the clock (hours, about the hour)",
+      "page": 97,
+      "matchedId": "M3.TIME.CLOCK",
+      "matchedName": "Reading the clock: hours",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.TIME.ORDER",
+      "name": "Putting the day\u0027s events in time order",
+      "page": 101,
+      "matchedId": "M3.TIME.CLOCK",
+      "matchedName": "Reading the clock: hours",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.DATA.TALLY",
+      "name": "Recording data with tally marks",
+      "page": 105,
+      "matchedId": "M3.DATA.TALLY",
+      "matchedName": "Recording data with tally marks",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.DATA.PICTO",
+      "name": "Reading a pictograph",
+      "page": 110,
+      "matchedId": "M3.DATA.PICTO",
+      "matchedName": "Pictographs",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PAT.SYMMETRY",
+      "name": "Symmetry: shapes that fold into two matching halves",
+      "page": 116,
+      "matchedId": "M3.GEO.SYMMETRY",
+      "matchedName": "Simple symmetric shapes",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PAT.SHAPE",
+      "name": "Shape, colour and size patterns",
+      "page": 121,
+      "matchedId": "M3.PAT.SHAPE",
+      "matchedName": "Continuing shape patterns",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PAT.NUMBER",
+      "name": "Number patterns, odd and even numbers",
+      "page": 125,
+      "matchedId": "M3.PAT.NUM.CHART",
+      "matchedName": "Number patterns on the 1-100 chart",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PAT.SPLIT",
+      "name": "Splitting a number in different ways",
+      "page": 130,
+      "matchedId": "M3.PAT.NUM.SPLIT",
+      "matchedName": "Patterns in splitting numbers",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    },
+    {
+      "id": "M3.PAT.TABLES",
+      "name": "Patterns in the multiplication table",
+      "page": 140,
+      "matchedId": "M3.PAT.TABLE",
+      "matchedName": "Number patterns in the multiplication table",
+      "found": true,
+      "exercises": 0,
+      "exercisesFound": 0,
+      "exercisesInDraft": 0
+    }
+  ],
+  "imported": [
+    {
+      "id": "M3.DIV.SHARE",
+      "name": "Equal sharing and grouping",
+      "chapter": 6,
+      "firstPage": 1,
+      "lastPage": 4,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 5,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.DIV.MULT",
+      "name": "Division and multiplication",
+      "chapter": 6,
+      "firstPage": 5,
+      "lastPage": 7,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.DIV.SHARE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.DIV.GROUP",
+      "name": "Dividing by making groups",
+      "chapter": 6,
+      "firstPage": 7,
+      "lastPage": 10,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.DIV.SHARE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.DIV.TABLES",
+      "name": "Division using multiplication tables",
+      "chapter": 6,
+      "firstPage": 8,
+      "lastPage": 12,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.DIV.MULT",
+        "M3.DIV.GROUP"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MENTAL.ADDSUB",
+      "name": "Mental addition and subtraction",
+      "chapter": 7,
+      "firstPage": 13,
+      "lastPage": 20,
+      "typedExercises": 28,
+      "otherExercises": 10,
+      "pictures": 5,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.MENTAL.DOUBLE",
+      "name": "Doubling numbers",
+      "chapter": 7,
+      "firstPage": 20,
+      "lastPage": 25,
+      "typedExercises": 0,
+      "otherExercises": 9,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.MENTAL.ADDSUB"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.FRAC.HALF",
+      "name": "Half of a whole",
+      "chapter": 8,
+      "firstPage": 26,
+      "lastPage": 30,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.DIV.SHARE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.FRAC.QUARTER",
+      "name": "Quarter of a whole",
+      "chapter": 8,
+      "firstPage": 30,
+      "lastPage": 32,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.FRAC.HALF"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.FRAC.THREEQ",
+      "name": "Three-quarters of a whole",
+      "chapter": 8,
+      "firstPage": 32,
+      "lastPage": 34,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.FRAC.QUARTER"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.FRAC.PRACTICE",
+      "name": "Half, quarter and three-quarters in shapes, weights and money",
+      "chapter": 8,
+      "firstPage": 34,
+      "lastPage": 39,
+      "typedExercises": 0,
+      "otherExercises": 9,
+      "pictures": 10,
+      "prerequisites": [
+        "M3.FRAC.HALF",
+        "M3.FRAC.QUARTER",
+        "M3.FRAC.THREEQ"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.FRAC.SYMBOL",
+      "name": "Writing half, quarter and three-quarters as numbers",
+      "chapter": 8,
+      "firstPage": 39,
+      "lastPage": 44,
+      "typedExercises": 0,
+      "otherExercises": 8,
+      "pictures": 8,
+      "prerequisites": [
+        "M3.FRAC.PRACTICE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.COINS",
+      "name": "Notes and coins of equal value",
+      "chapter": 9,
+      "firstPage": 45,
+      "lastPage": 49,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 5,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.WRITE",
+      "name": "Saying and writing amounts of money",
+      "chapter": 9,
+      "firstPage": 50,
+      "lastPage": 51,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.MONEY.COINS"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.PAISE",
+      "name": "Converting rupees to paise",
+      "chapter": 9,
+      "firstPage": 52,
+      "lastPage": 54,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 0,
+      "prerequisites": [
+        "M3.MONEY.COINS",
+        "M3.MONEY.WRITE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.ADDSUB",
+      "name": "Adding and subtracting money",
+      "chapter": 9,
+      "firstPage": 55,
+      "lastPage": 59,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.MONEY.WRITE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.WORD",
+      "name": "Money word problems",
+      "chapter": 9,
+      "firstPage": 57,
+      "lastPage": 61,
+      "typedExercises": 0,
+      "otherExercises": 10,
+      "pictures": 0,
+      "prerequisites": [
+        "M3.MONEY.ADDSUB"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.RATELIST",
+      "name": "Reading a rate list",
+      "chapter": 9,
+      "firstPage": 62,
+      "lastPage": 63,
+      "typedExercises": 0,
+      "otherExercises": 1,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.MONEY.WRITE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MONEY.BILL",
+      "name": "Reading a simple bill",
+      "chapter": 9,
+      "firstPage": 64,
+      "lastPage": 67,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.MONEY.RATELIST",
+        "M3.MONEY.ADDSUB"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MEAS.STANDARD",
+      "name": "Need for a standard unit",
+      "chapter": 10,
+      "firstPage": 69,
+      "lastPage": 70,
+      "typedExercises": 0,
+      "otherExercises": 1,
+      "pictures": 2,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.MEAS.LENGTH.CM",
+      "name": "Measuring length in centimetres",
+      "chapter": 10,
+      "firstPage": 71,
+      "lastPage": 74,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 4,
+      "prerequisites": [
+        "M3.MEAS.STANDARD"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MEAS.LENGTH.M",
+      "name": "Measuring in metres",
+      "chapter": 10,
+      "firstPage": 74,
+      "lastPage": 77,
+      "typedExercises": 0,
+      "otherExercises": 6,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.MEAS.LENGTH.CM"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MEAS.ESTIMATE",
+      "name": "Estimating and measuring length",
+      "chapter": 10,
+      "firstPage": 78,
+      "lastPage": 80,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.MEAS.LENGTH.CM",
+        "M3.MEAS.LENGTH.M"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MEAS.WEIGHT",
+      "name": "Weight: heavier and lighter",
+      "chapter": 10,
+      "firstPage": 80,
+      "lastPage": 85,
+      "typedExercises": 0,
+      "otherExercises": 10,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.MEAS.STANDARD"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.MEAS.CAPACITY",
+      "name": "Capacity of containers",
+      "chapter": 10,
+      "firstPage": 86,
+      "lastPage": 91,
+      "typedExercises": 0,
+      "otherExercises": 9,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.MEAS.STANDARD"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.TIME.CALENDAR",
+      "name": "Reading a calendar",
+      "chapter": 10,
+      "firstPage": 91,
+      "lastPage": 92,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 1,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.TIME.DATE",
+      "name": "Writing dates: day, month, year",
+      "chapter": 10,
+      "firstPage": 93,
+      "lastPage": 95,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 1,
+      "prerequisites": [
+        "M3.TIME.CALENDAR"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.TIME.ROUTINE",
+      "name": "Daily routine and order of events",
+      "chapter": 10,
+      "firstPage": 96,
+      "lastPage": 104,
+      "typedExercises": 0,
+      "otherExercises": 7,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.TIME.CALENDAR"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.TIME.CLOCK",
+      "name": "Reading the clock: hours",
+      "chapter": 10,
+      "firstPage": 97,
+      "lastPage": 100,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 7,
+      "prerequisites": [
+        "M3.TIME.ROUTINE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.DATA.TALLY",
+      "name": "Recording data with tally marks",
+      "chapter": 11,
+      "firstPage": 105,
+      "lastPage": 113,
+      "typedExercises": 0,
+      "otherExercises": 7,
+      "pictures": 5,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.DATA.ANALYSE",
+      "name": "Reading a tally table and drawing conclusions",
+      "chapter": 11,
+      "firstPage": 109,
+      "lastPage": 114,
+      "typedExercises": 0,
+      "otherExercises": 2,
+      "pictures": 2,
+      "prerequisites": [
+        "M3.DATA.TALLY"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.DATA.PICTO",
+      "name": "Pictographs",
+      "chapter": 11,
+      "firstPage": 110,
+      "lastPage": 113,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.DATA.ANALYSE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.GEO.SYMMETRY",
+      "name": "Simple symmetric shapes",
+      "chapter": 12,
+      "firstPage": 116,
+      "lastPage": 122,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.FRAC.HALF"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.SHAPE",
+      "name": "Continuing shape patterns",
+      "chapter": 12,
+      "firstPage": 120,
+      "lastPage": 122,
+      "typedExercises": 0,
+      "otherExercises": 3,
+      "pictures": 3,
+      "prerequisites": [],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.DOTS",
+      "name": "Designs on a dot grid",
+      "chapter": 12,
+      "firstPage": 123,
+      "lastPage": 124,
+      "typedExercises": 0,
+      "otherExercises": 5,
+      "pictures": 3,
+      "prerequisites": [
+        "M3.PAT.SHAPE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.NUM.CHART",
+      "name": "Number patterns on the 1-100 chart",
+      "chapter": 12,
+      "firstPage": 125,
+      "lastPage": 127,
+      "typedExercises": 0,
+      "otherExercises": 4,
+      "pictures": 1,
+      "prerequisites": [
+        "M3.MENTAL.ADDSUB"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.NUM.RULE",
+      "name": "Number patterns and their rules",
+      "chapter": 12,
+      "firstPage": 127,
+      "lastPage": 130,
+      "typedExercises": 0,
+      "otherExercises": 8,
+      "pictures": 1,
+      "prerequisites": [
+        "M3.PAT.NUM.CHART"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.NUM.SPLIT",
+      "name": "Patterns in splitting numbers",
+      "chapter": 12,
+      "firstPage": 130,
+      "lastPage": 135,
+      "typedExercises": 0,
+      "otherExercises": 12,
+      "pictures": 5,
+      "prerequisites": [
+        "M3.PAT.NUM.RULE",
+        "M3.MENTAL.ADDSUB"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.ENV",
+      "name": "Patterns of shape, colour and size around us",
+      "chapter": 12,
+      "firstPage": 135,
+      "lastPage": 140,
+      "typedExercises": 0,
+      "otherExercises": 10,
+      "pictures": 6,
+      "prerequisites": [
+        "M3.PAT.SHAPE"
+      ],
+      "flags": 0
+    },
+    {
+      "id": "M3.PAT.TABLE",
+      "name": "Number patterns in the multiplication table",
+      "chapter": 12,
+      "firstPage": 140,
+      "lastPage": 142,
+      "typedExercises": 0,
+      "otherExercises": 8,
+      "pictures": 1,
+      "prerequisites": [
+        "M3.PAT.NUM.RULE",
+        "M3.DIV.MULT"
+      ],
+      "flags": 0
+    }
+  ]
+}

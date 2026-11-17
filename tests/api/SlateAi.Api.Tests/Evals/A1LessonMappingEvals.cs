@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Ai;
+using SlateAi.Api.Curriculum;
 using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.Lessons.Voice;
 using SlateAi.Api.Tests.Infrastructure;
@@ -37,6 +38,7 @@ public sealed class A1LessonMappingEvals
         var prompt = scope.ServiceProvider.GetRequiredService<PromptLibrary>().Get(LessonMapper.PromptId);
         var model = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiOptions>>().Value.ModelFor(prompt.ModelKey);
         var names = new ClassNames(["Ravi", "Ananya", "Bhavana", "Chetan"], "Shobha");
+        var curriculum = scope.ServiceProvider.GetRequiredService<BuiltInCurriculum>().Graph;
 
         var results = new List<CaseResult>();
         foreach (var c in file.Cases)
@@ -46,7 +48,7 @@ public sealed class A1LessonMappingEvals
                 : new LlmImage(
                     await File.ReadAllBytesAsync(Path.Combine(root, "evals", "cases", c.Photo), TestContext.Current.CancellationToken),
                     "image/png");
-            var result = await mapper.MapTranscriptAsync(c.Transcript, names, TestContext.Current.CancellationToken, photo);
+            var result = await mapper.MapTranscriptAsync(c.Transcript, names, curriculum, TestContext.Current.CancellationToken, photo);
             var first = result.CompetencyIds.FirstOrDefault();
             var pass = c.ExpectLow
                 ? result.Status is LessonValues.Low or LessonValues.Unclear

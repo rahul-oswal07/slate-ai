@@ -10,6 +10,7 @@ using SlateAi.Api.Tests.Features.Audio;
 using SlateAi.Api.Tests.Features.CatchUps;
 using SlateAi.Api.Tests.Features.EveningMessages;
 using SlateAi.Api.Tests.Infrastructure;
+using SlateAi.Api.Tests.Curriculum;
 
 namespace SlateAi.Api.Tests.Features.LessonAudio;
 
@@ -171,7 +172,7 @@ public sealed class LessonAudioGeneratorTests
             _tts,
             _audio,
             new DisclosureClips(_tts, _audio, CatchUpWriterTests.Disclosure),
-            curriculum,
+            new FixedCurriculumProvider(curriculum),
             prompts,
             Options.Create(new VerifierOptions()),
             new FixedClock(DateTimeOffset.UnixEpoch),

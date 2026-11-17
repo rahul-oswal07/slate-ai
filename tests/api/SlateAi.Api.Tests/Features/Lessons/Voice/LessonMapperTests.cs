@@ -6,6 +6,7 @@ using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.Lessons.Voice;
 using SlateAi.Api.Speech;
 using SlateAi.Api.Tests.Infrastructure;
+using SlateAi.Api.Tests.Curriculum;
 
 namespace SlateAi.Api.Tests.Features.Lessons.Voice;
 
@@ -33,7 +34,7 @@ public sealed class LessonMapperTests
 
     private LessonMapper Mapper(CurriculumGraph? book = null) => new(
         _speech, _llm, _aiCalls, PromptLibrary.Load([("a1-lesson-mapping.md", "---\nid: a1-lesson-mapping\nversion: 1\nmodel_key: Mapping\n---\nPrompt.")], ["Mapping"]),
-        book ?? Book, _store);
+        new FixedCurriculumProvider(book ?? Book), _store);
 
     private static MappingJob Job() => new(ClassId, Day, Started, [1, 2, 3], "note.webm", "audio/webm");
 

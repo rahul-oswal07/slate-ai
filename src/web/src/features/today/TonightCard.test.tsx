@@ -59,7 +59,7 @@ function today(eveningDay: EveningDay | null, opts: { absent?: string[]; confirm
   return fakeApi({
     'GET /api/me': () => ({ status: 200, body: teacher }),
     [`GET ${base}/attendance/${date}`]: () => ({ status: 200, body: attendance(opts.absent ?? ['c1', 'c2', 'c3', 'c4']) }),
-    'GET /api/curriculum': () => ({ status: 200, body: { chapters: [] } }),
+    [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: { chapters: [] } }),
     [`GET ${base}/lessons/${date}`]: () => ({ status: 200, body: lesson(opts.confirmed === false ? null : 'confirmed') }),
     [`GET ${base}/evening-messages/${date}`]: () => (eveningDay ? { status: 200, body: eveningDay } : { status: 500 }),
     [`GET ${base}/todays-message/${date}`]: () => (opts.todays ? { status: 200, body: opts.todays } : { status: 204 }),

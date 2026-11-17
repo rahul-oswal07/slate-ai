@@ -110,11 +110,11 @@ public static class EveningEndpoints
         Guid classId,
         IEveningStore store,
         EveningWording wording,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
-        return await TemplateAsync(classId, store, wording, curriculum, clock, cancellationToken) is { } template
+        return await TemplateAsync(classId, store, wording, curricula, clock, cancellationToken) is { } template
             ? TypedResults.Ok(template)
             : TypedResults.NotFound();
     }
@@ -126,7 +126,7 @@ public static class EveningEndpoints
             HttpContext http,
             IEveningStore store,
             EveningWording wording,
-            CurriculumGraph curriculum,
+            ICurriculumProvider curricula,
             TimeProvider clock,
             CancellationToken cancellationToken)
     {
@@ -139,14 +139,14 @@ public static class EveningEndpoints
         }
 
         // Makes sure the rows exist at the current wording before approving.
-        if (await TemplateAsync(classId, store, wording, curriculum, clock, cancellationToken) is null)
+        if (await TemplateAsync(classId, store, wording, curricula, clock, cancellationToken) is null)
         {
             return TypedResults.NotFound();
         }
 
         var result = await store.ApproveAsync(
             classId, request.ClientRequestId, request.Version, http.User.GetTeacherId()!.Value, cancellationToken);
-        var latest = (await TemplateAsync(classId, store, wording, curriculum, clock, cancellationToken))!;
+        var latest = (await TemplateAsync(classId, store, wording, curricula, clock, cancellationToken))!;
         return result == ApproveResult.Stale ? TypedResults.Conflict(latest) : TypedResults.Ok(latest);
     }
 
@@ -209,7 +209,7 @@ public static class EveningEndpoints
         Guid classId,
         IEveningStore store,
         EveningWording wording,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -219,6 +219,7 @@ public static class EveningEndpoints
         }
 
         var templates = await store.GetTemplatesAsync(classId, wording, cancellationToken);
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
 
         // T0 shows "Ravi, Tuesday": a Telugu-speaking child (the parent-language sample, A-21) and a real lesson.
         var child = group.Children.FirstOrDefault(c => c.HomeLanguage == "te") ?? group.Children.FirstOrDefault();

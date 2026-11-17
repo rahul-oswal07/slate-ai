@@ -66,11 +66,13 @@ public static class LessonEndpoints
 
     public static IEndpointRouteBuilder MapLessonEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/curriculum", GetCurriculum)
-            .RequireAuthorization()
+        app.MapGet("/api/classes/{classId:guid}/curriculum", GetCurriculumAsync)
+            .RequireClassOwner()
             .WithTags("Lessons")
-            .WithSummary("Chapters and their lessons, for the lesson picker")
-            .WithDescription("`hasExercises`: the lesson has the book's own exercise numbers (D-93, T-128).");
+            .WithSummary("The class's chapters and their lessons, for the lesson picker")
+            .WithDescription(
+                "The curriculum the class follows (T-145, D-125): the built-in one, or a published one made from a " +
+                "textbook. `hasExercises`: the lesson has the book's own exercise numbers (D-93, T-128).");
 
         app.MapGet("/api/classes/{classId:guid}/lessons/{date}", GetDayAsync)
             .RequireClassOwner()
@@ -99,8 +101,10 @@ public static class LessonEndpoints
         return app;
     }
 
-    private static Ok<CurriculumResponse> GetCurriculum(CurriculumGraph curriculum)
+    private static async Task<Ok<CurriculumResponse>> GetCurriculumAsync(
+        Guid classId, ICurriculumProvider curricula, CancellationToken cancellationToken)
     {
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         var titles = curriculum.Chapters.ToDictionary(c => c.Number);
         var chapters = curriculum.All
             .GroupBy(c => c.Chapter)
@@ -119,7 +123,7 @@ public static class LessonEndpoints
         DateOnly date,
         ILessonStore store,
         IEveningStore evening,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -128,7 +132,7 @@ public static class LessonEndpoints
             return FutureDate();
         }
 
-        return TypedResults.Ok(await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
+        return TypedResults.Ok(await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken));
     }
 
     private static async Task<Results<Accepted<LessonDayResponse>, ValidationProblem, Conflict, StatusCodeHttpResult>>
@@ -142,7 +146,7 @@ public static class LessonEndpoints
             ITodaysMessageStore todays,
             IEveningStore evening,
             LessonMappingQueue queue,
-            CurriculumGraph curriculum,
+            ICurriculumProvider curricula,
             TimeProvider clock,
             CancellationToken cancellationToken)
     {
@@ -200,7 +204,7 @@ public static class LessonEndpoints
 
                 // The reply describes the note just accepted ("processing"), so it is read before the job is queued:
                 // read afterwards, the background mapper may already have moved the lesson on (T-124).
-                var accepted = await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken);
+                var accepted = await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken);
                 if (queue.TryEnqueue(job))
                 {
                     return TypedResults.Accepted((string?)null, accepted);
@@ -211,7 +215,7 @@ public static class LessonEndpoints
         }
 
         return TypedResults.Accepted(
-            (string?)null, await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
+            (string?)null, await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken));
     }
 
     private static string MediaType(IFormFile? file) =>
@@ -235,11 +239,12 @@ public static class LessonEndpoints
         SaveLessonRequest request,
         ILessonStore store,
         IEveningStore evening,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TodaysMessageService todays,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         var errors = new Dictionary<string, string[]>();
         if (request.ClientRequestId == Guid.Empty)
         {
@@ -280,14 +285,14 @@ public static class LessonEndpoints
             && !current.CompetencyIds.Order(StringComparer.Ordinal).SequenceEqual(ordered.Order(StringComparer.Ordinal))
             && await SentToFamiliesAsync(evening, classId, date, cancellationToken))
         {
-            return TypedResults.Conflict(await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
+            return TypedResults.Conflict(await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken));
         }
 
         var saved = await store.SaveConfirmedAsync(
             classId, request.ClientRequestId, date, ordered, request.Source ?? LessonValues.Picked, cancellationToken);
         // D-91: confirming the lesson starts today's message for absent families (a replay of the same lesson doesn't).
         await todays.StartAsync(classId, date, saved.CompetencyIds, force: false, cancellationToken);
-        return TypedResults.Ok(await DayAsync(classId, date, store, evening, curriculum, clock, cancellationToken));
+        return TypedResults.Ok(await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken));
     }
 
     private static async Task<LessonDayResponse> DayAsync(
@@ -295,10 +300,11 @@ public static class LessonEndpoints
         DateOnly date,
         ILessonStore store,
         IEveningStore evening,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         var lesson = await store.GetDayAsync(classId, date, cancellationToken);
         var last = (await store.LastConfirmedBeforeAsync(classId, date, cancellationToken))
             .Where(curriculum.Contains)

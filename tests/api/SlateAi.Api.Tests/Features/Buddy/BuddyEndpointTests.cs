@@ -93,7 +93,7 @@ public sealed class BuddyEndpointTests
         {
             services.AddSingleton<ILedgerStore>(new FakeLedger(ClassId, _data));
             services.AddSingleton<IBuddyStore>(_store);
-            services.AddSingleton(BuddyCardBuilderTests.Book);
+            services.AddSingleton(new BuiltInCurriculum(BuddyCardBuilderTests.Book));
             services.AddSingleton<TimeProvider>(new FixedClock(SchoolClock.At(Thu, new TimeOnly(11, 0))));
         });
 

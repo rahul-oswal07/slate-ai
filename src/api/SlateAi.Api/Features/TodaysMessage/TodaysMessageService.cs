@@ -60,7 +60,7 @@ public sealed class TodaysMessageService(
     ITodaysMessageStore store,
     IEveningStore evening,
     EveningSender sender,
-    CurriculumGraph curriculum,
+    ICurriculumProvider curricula,
     ILessonContentStore contents,
     TodaysMessageQueue queue,
     SendNow sendNow,
@@ -79,7 +79,7 @@ public sealed class TodaysMessageService(
     public async Task<bool> StartAsync(
         Guid classId, DateOnly date, IReadOnlyList<string> competencyIds, bool force, CancellationToken cancellationToken)
     {
-        var lessons = competencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
+        var lessons = await LessonsAsync(classId, competencyIds, cancellationToken);
         if (lessons.Count == 0 || lessons.Count != competencyIds.Count
             || await DueAsync(classId, date, cancellationToken) is not { Count: > 0 } due)
         {
@@ -136,7 +136,7 @@ public sealed class TodaysMessageService(
         var removed = sections is null
             ? []
             : TodaysSectionKind.All.Where(k => IsRemoved(sections, k)).ToList();
-        var pairs = Pairs(row.CompetencyIds);
+        var pairs = Pairs(await LessonsAsync(classId, row.CompetencyIds, cancellationToken));
         var index = sections?.Picture is not { } shown ? -1 : pairs.FindIndex(p => p[0] == shown.A && p[1] == shown.B);
         return new TodaysMessageView(
             row.Date,
@@ -188,9 +188,10 @@ public sealed class TodaysMessageService(
             return (TodaysChange.Conflict, null);
         }
 
-        var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
+        var lessons = await LessonsAsync(classId, row.CompetencyIds, cancellationToken);
         // The worked examples' numbers too (T-141): the draft she is editing may use them.
-        var content = await contents.GetForAsync(row.CompetencyIds, cancellationToken);
+        var content = await contents.GetForAsync(
+            await curricula.IdForClassAsync(classId, cancellationToken), row.CompetencyIds, cancellationToken);
         var allowed = TodaysMessageValidator.AllowedNumbers(lessons, edited.Picture, content);
         var names = (await evening.GetClassAsync(classId, cancellationToken))?.Children.Select(c => c.FirstName).ToList() ?? [];
         var kannada = edited.Kannada;
@@ -221,8 +222,8 @@ public sealed class TodaysMessageService(
             return TodaysChange.NotFound;
         }
 
-        var lessons = row.CompetencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
-        if (index < 0 || index >= Pairs(row.CompetencyIds).Count || TodaysPicturePicker.Pick(lessons, index, Arithmetic) is not { } picture)
+        var lessons = await LessonsAsync(classId, row.CompetencyIds, cancellationToken);
+        if (index < 0 || index >= Pairs(lessons).Count || TodaysPicturePicker.Pick(lessons, index, Arithmetic) is not { } picture)
         {
             return TodaysChange.Conflict;
         }
@@ -233,8 +234,16 @@ public sealed class TodaysMessageService(
             redraft: false, clock.GetUtcNow(), cancellationToken);
     }
 
-    private List<IReadOnlyList<int>> Pairs(IReadOnlyList<string> competencyIds) =>
-        TodaysPicturePicker.Pairs(competencyIds.Select(curriculum.Get).OfType<Competency>().ToList(), Arithmetic).Pairs.ToList();
+    private List<IReadOnlyList<int>> Pairs(IReadOnlyList<Competency> lessons) =>
+        TodaysPicturePicker.Pairs(lessons, Arithmetic).Pairs.ToList();
+
+    /// <summary>The lessons with these IDs in the class's curriculum (T-145); an unknown ID is left out.</summary>
+    private async Task<List<Competency>> LessonsAsync(
+        Guid classId, IReadOnlyList<string> competencyIds, CancellationToken cancellationToken)
+    {
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
+        return competencyIds.Select(curriculum.Get).OfType<Competency>().ToList();
+    }
 
     /// <summary>The answers that came back, levels by code (T-92, D-108); null when there is no today's message.</summary>
     public async Task<TodaysAnswersView?> GetAnswersAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)

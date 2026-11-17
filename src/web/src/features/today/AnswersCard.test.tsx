@@ -96,7 +96,7 @@ describe('Answers back on Today (T-92)', () => {
   it('Missed lessons shows the same level next to the child', async () => {
     fakeApi({
       'GET /api/me': () => ({ status: 200, body: teacher }),
-      'GET /api/curriculum': () => ({ status: 200, body: curriculum }),
+      [`GET /api/classes/${teacher.classId}/curriculum`]: () => ({ status: 200, body: curriculum }),
       [`GET /api/classes/${teacher.classId}/packages`]: () => ({ status: 200, body: { weekOf: '2026-10-19', packages: [] } }),
       [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
       [url]: () => ({ status: 200, body: answers() }),

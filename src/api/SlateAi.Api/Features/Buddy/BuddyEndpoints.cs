@@ -46,7 +46,7 @@ public static class BuddyEndpoints
         DateOnly date,
         ILedgerStore ledger,
         IBuddyStore store,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -55,7 +55,7 @@ public static class BuddyEndpoints
             return FutureDate();
         }
 
-        return await CardsAsync(classId, date, ledger, store, curriculum, cancellationToken) is { } cards
+        return await CardsAsync(classId, date, ledger, store, curricula, cancellationToken) is { } cards
             ? TypedResults.Ok(new BuddyCardsResponse(date, cards))
             : TypedResults.NotFound();
     }
@@ -67,7 +67,7 @@ public static class BuddyEndpoints
         SaveBuddyTicksRequest request,
         ILedgerStore ledger,
         IBuddyStore store,
-        CurriculumGraph curriculum,
+        ICurriculumProvider curricula,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -81,7 +81,7 @@ public static class BuddyEndpoints
             return FutureDate();
         }
 
-        var cards = await CardsAsync(classId, date, ledger, store, curriculum, cancellationToken);
+        var cards = await CardsAsync(classId, date, ledger, store, curricula, cancellationToken);
         if (cards?.Any(c => c.ChildId == childId) != true)
         {
             return TypedResults.NotFound();
@@ -90,12 +90,12 @@ public static class BuddyEndpoints
         await store.SaveTicksAsync(
             classId, childId, date, new BuddyTickChange(request.HomeworkReturned, request.Done), request.ClientRequestId,
             clock.GetUtcNow(), cancellationToken);
-        var card = (await CardsAsync(classId, date, ledger, store, curriculum, cancellationToken))!.Single(c => c.ChildId == childId);
+        var card = (await CardsAsync(classId, date, ledger, store, curricula, cancellationToken))!.Single(c => c.ChildId == childId);
         return TypedResults.Ok(card);
     }
 
     private static async Task<IReadOnlyList<BuddyCardView>?> CardsAsync(
-        Guid classId, DateOnly date, ILedgerStore ledger, IBuddyStore store, CurriculumGraph curriculum,
+        Guid classId, DateOnly date, ILedgerStore ledger, IBuddyStore store, ICurriculumProvider curricula,
         CancellationToken cancellationToken)
     {
         if (await ledger.LoadAsync(classId, cancellationToken) is not { } data)
@@ -105,6 +105,7 @@ public static class BuddyEndpoints
 
         var targets = await store.GetTargetsAsync(classId, cancellationToken);
         var ticks = await store.GetTicksAsync(classId, date, cancellationToken);
+        var curriculum = await curricula.ForClassAsync(classId, cancellationToken);
         return BuddyCardBuilder.Build(data, targets, ticks, curriculum, date);
     }
 

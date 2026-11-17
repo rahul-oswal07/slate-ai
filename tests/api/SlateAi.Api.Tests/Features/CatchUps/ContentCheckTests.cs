@@ -18,7 +18,7 @@ public sealed class ContentCheckTests
     [Fact]
     public async Task All_four_true_passes_and_is_logged()
     {
-        var check = await Check().RunAsync(Input(), Ct);
+        var check = await Check().RunAsync(Input(), A3ValidatorTests.Book, Ct);
 
         Assert.True(check.Passed);
         Assert.Equal("pass", Assert.Single(_aiCalls.Calls).Verdict);
@@ -30,7 +30,7 @@ public sealed class ContentCheckTests
     {
         _llm.Json = """{"teachesTarget":true,"ageAppropriate":true,"noShaming":false,"glossMatches":true,"reason":"It says missing school was bad."}""";
 
-        var check = await Check().RunAsync(Input(), Ct);
+        var check = await Check().RunAsync(Input(), A3ValidatorTests.Book, Ct);
 
         Assert.False(check.Passed);
         Assert.Equal("speaks negatively about the absence (It says missing school was bad.)", check.Detail);
@@ -41,13 +41,13 @@ public sealed class ContentCheckTests
     {
         _llm.Failure = LlmFailure.Unavailable;
 
-        Assert.False((await Check().RunAsync(Input(), Ct)).Passed);
+        Assert.False((await Check().RunAsync(Input(), A3ValidatorTests.Book, Ct)).Passed);
     }
 
     [Fact]
     public async Task Haiku_gets_the_words_but_no_names()
     {
-        await Check().RunAsync(Input(), Ct);
+        await Check().RunAsync(Input(), A3ValidatorTests.Book, Ct);
 
         var content = _llm.Requests.Single().UserContent;
         Assert.Contains("ದಶಕ", content);
@@ -57,8 +57,7 @@ public sealed class ContentCheckTests
     private ContentCheck Check() => new(
         _llm,
         _aiCalls,
-        PromptLibrary.Load([("a4-check.md", "---\nid: a4-check\nversion: 1\nmodel_key: Check\n---\nPrompt.")], ["Check"]),
-        A3ValidatorTests.Book);
+        PromptLibrary.Load([("a4-check.md", "---\nid: a4-check\nversion: 1\nmodel_key: Check\n---\nPrompt.")], ["Check"]));
 
     private static VerifyInput Input() =>
         new("te", ["M3.SUB.BORROW"],
