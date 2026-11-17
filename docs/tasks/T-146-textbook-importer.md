@@ -39,6 +39,7 @@ Each stage is saved, so Try again resumes where it stopped. The PDF is kept only
 
 ## Notes
 
+- 17 Nov 2026: A10 eval on Part 2 (144 pages): 28/28 lessons found, about 26/28 the same topic by name, 7/7 chapters, about USD 4.75 and 16 minutes. Both parts: 60/60, about 54/60 by name. Eval results are now named by part.
 - 17 Nov 2026: A10 eval on Part 1: 32/32 lessons found, about 28/32 the same topic by name, 5/5 chapters, about USD 5 and 17 minutes.
   - Exercise accuracy can't be measured against our hand-typed pairs, which came from worked examples; it needs a hand-checked list.
   - The first run's matching was too loose and was replaced (`A10MatchTests`). Details in `docs/quality.md` §2.

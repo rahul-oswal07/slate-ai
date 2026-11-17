@@ -77,7 +77,13 @@ Store cases in `evals/cases/*.json`; results (date, model, prompt version, score
 - **Exercises aren't measured yet: 2 of 18 hand-typed pairs are anywhere in the draft.** Those pairs were copied from the book's worked examples (T-128), which A10 doesn't list as exercises, so this gold set can't measure exercise accuracy; a hand-checked exercise list for a few pages can.
 - Cost: 33 calls, all valid; 800k input and 100k output tokens, about USD 5 at Opus 5.5 list prices; 16¾ minutes.
 - A first run the same day scored 29 of 32 with a matching that was too loose: most lessons matched the one before them. That matching was replaced, with unit tests (`A10MatchTests`).
-- Results: `evals/results/2026-11-17-a10-textbook-import.json` (with every imported lesson listed); first run `…-run1.json`.
+- Results: `evals/results/2026-11-17-a10-textbook-import-part1.json` (with every imported lesson listed); first run `…-part1-run1.json`.
+- **Part 2** (144 pages, same day): 28 of 28 found.
+  - By name, about 26 of 28 are the same topic. Measuring in cm matched the lesson before it, because its own lesson starts after a "standard unit" page. Time order matched "reading the clock", which sits inside the "daily routine and order of events" lesson that was found.
+  - Chapters 7 of 7. The draft: 39 lessons (none flagged), 28 typed exercises (mental adding and subtracting; the other topics' exercises are summaries, 206 of them), 139 pictures described; 32 lessons have prerequisites.
+  - Cost: 31 calls, all valid; 711k input and 95k output tokens, about USD 4.75; 15¾ minutes.
+  - Results: `evals/results/2026-11-17-a10-textbook-import-part2.json`.
+- **Both parts: 60 of 60 lessons found, about 54 of 60 the same topic by name, about USD 10.**
 
 **A4 content check** (`evals/cases/a4-check.json`: 2 good A3 scripts + 4 crafted flaws: wrong topic, shaming, mismatched summary, too hard; pass = Haiku's verdict equals `expectPass`): **6/6** (`evals/results/2026-10-22-a4-check.json`). The first run was 5/6: Haiku failed a good Kannada script because the summary mentioned household objects it hadn't been shown; it now gets the object option and judges "same lesson, numbers and homework", not extra detail.
 

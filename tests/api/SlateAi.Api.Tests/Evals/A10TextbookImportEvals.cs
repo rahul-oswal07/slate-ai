@@ -24,7 +24,7 @@ namespace SlateAi.Api.Tests.Evals;
 /// The book is not in the repo (it is marked "not to be republished"): set <c>Evals:TextbookPdf</c> (path) and
 /// <c>Evals:TextbookPart</c> (1 or 2) in the API's user-secrets, with <c>Anthropic:ApiKey</c>. Costs credits: the results file records the
 /// tokens (Part 1, 160 pages, took about 18 minutes); run with <c>dotnet test --filter Category=Eval</c>. Writes
-/// <c>evals/results/&lt;date&gt;-a10-textbook-import.json</c>: IDs, pages and counts only, no book text.
+/// <c>evals/results/&lt;date&gt;-a10-textbook-import-part&lt;n&gt;.json</c>: IDs, pages and counts only, no book text.
 /// </summary>
 [Trait("Category", "Eval")]
 public sealed class A10TextbookImportEvals
@@ -116,7 +116,7 @@ public sealed class A10TextbookImportEvals
                 l.Extras.PrintedPages.Count > 0 ? l.Extras.PrintedPages.Max() : null,
                 Items(l.Competency.Exercises).Count, l.Extras.OtherExercises.Count, l.Extras.Pictures.Count,
                 l.Competency.Prerequisites, l.Flags.Count)).ToList());
-        var output = Path.Combine(RepoRoot(), "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-a10-textbook-import.json");
+        var output = Path.Combine(RepoRoot(), "evals", "results", $"{DateTime.UtcNow:yyyy-MM-dd}-a10-textbook-import-part{part}.json");
         await File.WriteAllTextAsync(output, JsonSerializer.Serialize(report, Json) + "\n", ct);
 
         Assert.True(recall >= Target,
