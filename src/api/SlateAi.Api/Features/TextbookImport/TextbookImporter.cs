@@ -85,11 +85,13 @@ public sealed class TextbookImporter(
     {
         var book = new ImportBook(import.Title, import.Grade, import.Subject, import.Medium, import.Book, import.Part);
         var steps = await store.GetStepsAsync(import.Id, cancellationToken);
-        var sizes = await store.GetPageSizesAsync(import.Id, cancellationToken);
-        if (sizes.Count != import.PageCount)
+        if (await store.GetBookAsync(import.Id, cancellationToken) is not var (pdf, sizes) || sizes.Count != import.PageCount)
         {
-            throw new StepFailedException("error:pages-missing");
+            throw new StepFailedException("error:book-missing");
         }
+
+        // Opened once for the run; each call cuts its few pages from it.
+        using var pdfBook = new PdfBook(pdf);
 
         // 1. Outline.
         var windows = Plan(Enumerable.Range(1, import.PageCount).ToList(), sizes, MaxPagesPerWindow, MaxRequestBytes);
@@ -105,7 +107,7 @@ public sealed class TextbookImporter(
             {
                 var response = await CallAsync(
                     TextbookOutline.PromptId, TextbookOutline.UserContent(book, first, window.Count), TextbookOutline.Schema(),
-                    window, 8192, LlmEffort.Medium, $"reading pages {first}–{last}", import.Id, cancellationToken);
+                    window, 8192, LlmEffort.Medium, $"reading pages {first}–{last}", pdfBook, cancellationToken);
                 return await CheckedAsync(response, TextbookOutline.Validate(response.Json, first, window.Count), $"reading pages {first}–{last}", cancellationToken);
             }, cancellationToken));
         }
@@ -133,7 +135,7 @@ public sealed class TextbookImporter(
                     var response = await CallAsync(
                         TextbookLessons.PromptId,
                         TextbookLessons.UserContent(book, chapter, number, chapterParts.Count, part, outline.PrintedPages, earlier),
-                        TextbookLessons.Schema(), part, 16000, LlmEffort.High, what, import.Id, cancellationToken);
+                        TextbookLessons.Schema(), part, 16000, LlmEffort.High, what, pdfBook, cancellationToken);
                     return await CheckedAsync(response, TextbookLessons.Validate(response.Json, part, outline.PrintedPages), what, cancellationToken);
                 }, cancellationToken));
             }
@@ -226,9 +228,9 @@ public sealed class TextbookImporter(
 
     private async Task<LlmResponse> CallAsync(
         string promptId, string userContent, JsonElement schema, IReadOnlyList<int> pages, int maxTokens, LlmEffort effort,
-        string what, Guid id, CancellationToken cancellationToken)
+        string what, PdfBook book, CancellationToken cancellationToken)
     {
-        var pdf = PdfPages.Join(await store.GetPagesAsync(id, pages, cancellationToken));
+        var pdf = book.Pages(pages);
         try
         {
             return await llm.CompleteJsonAsync(

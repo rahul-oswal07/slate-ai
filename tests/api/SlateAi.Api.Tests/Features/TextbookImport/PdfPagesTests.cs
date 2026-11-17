@@ -10,21 +10,23 @@ namespace SlateAi.Api.Tests.Features.TextbookImport;
 public sealed class PdfPagesTests
 {
     [Fact]
-    public void A_book_splits_into_one_pdf_per_page_and_joins_back_in_order()
+    public void Every_page_is_measured_and_a_call_s_pages_are_cut_from_the_book_in_order()
     {
-        var pages = PdfPages.Split(Book(5), maxPages: 600);
+        var sizes = PdfPages.Measure(Book(5), maxPages: 600);
+        using var book = new PdfBook(Book(5));
 
-        Assert.Equal(5, pages.Count);
-        Assert.All(pages, p => Assert.Equal(1, PdfPages.Count(p)));
-        var joined = PdfPages.Join([pages[1], pages[2], pages[3]]);
-        Assert.Equal(["page 2", "page 3", "page 4"], Texts(joined));
+        Assert.Equal(5, sizes.Count);
+        Assert.All(sizes, size => Assert.True(size > 0));
+        Assert.Equal(5, book.PageCount);
+        Assert.Equal(["page 2", "page 3", "page 4"], Texts(book.Pages([2, 3, 4])));
+        Assert.Equal(["page 5", "page 1"], Texts(book.Pages([5, 1])));
     }
 
     [Fact]
     public void Not_a_pdf_too_many_pages_or_no_pages_are_refused()
     {
-        Assert.Throws<PdfUnreadableException>(() => PdfPages.Split(Encoding.UTF8.GetBytes("hello"), maxPages: 600));
-        var tooLong = Assert.Throws<PdfUnreadableException>(() => PdfPages.Split(Book(3), maxPages: 2));
+        Assert.Throws<PdfUnreadableException>(() => PdfPages.Measure(Encoding.UTF8.GetBytes("hello"), maxPages: 600));
+        var tooLong = Assert.Throws<PdfUnreadableException>(() => PdfPages.Measure(Book(3), maxPages: 2));
         Assert.Contains("3 pages", tooLong.Message);
     }
 

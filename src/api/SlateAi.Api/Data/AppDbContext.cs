@@ -33,7 +33,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<StoredCurriculum> Curricula => Set<StoredCurriculum>();
     public DbSet<StoredCurriculumLesson> CurriculumLessons => Set<StoredCurriculumLesson>();
     public DbSet<CurriculumImport> CurriculumImports => Set<CurriculumImport>();
-    public DbSet<CurriculumImportPage> CurriculumImportPages => Set<CurriculumImportPage>();
+    public DbSet<CurriculumImportFile> CurriculumImportFiles => Set<CurriculumImportFile>();
     public DbSet<CurriculumImportStep> CurriculumImportSteps => Set<CurriculumImportStep>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
@@ -92,10 +92,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(i => i.CurriculumId).OnDelete(DeleteBehavior.SetNull);
         });
 
-        modelBuilder.Entity<CurriculumImportPage>(e =>
+        modelBuilder.Entity<CurriculumImportFile>(e =>
         {
-            e.HasKey(p => new { p.ImportId, p.Number });
-            e.HasOne<CurriculumImport>().WithMany().HasForeignKey(p => p.ImportId).OnDelete(DeleteBehavior.Cascade);
+            e.HasKey(f => f.ImportId);
+            e.HasOne<CurriculumImport>().WithOne().HasForeignKey<CurriculumImportFile>(f => f.ImportId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<CurriculumImportStep>(e =>

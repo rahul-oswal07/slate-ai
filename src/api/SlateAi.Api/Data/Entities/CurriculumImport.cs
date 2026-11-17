@@ -3,7 +3,7 @@ namespace SlateAi.Api.Data.Entities;
 /// <summary>
 /// A textbook being turned into a draft curriculum (T-146, D-125): uploaded on <c>/admin/curriculum</c>, read by Claude
 /// (prompts A10) in a background job, checked by code. When it is <see cref="CurriculumImportStatuses.Ready"/>, its
-/// draft is <see cref="CurriculumId"/> and the book's pages are deleted.
+/// draft is <see cref="CurriculumId"/> and the book is deleted.
 /// </summary>
 public sealed class CurriculumImport
 {
@@ -57,15 +57,18 @@ public sealed class CurriculumImport
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
-/// <summary>One page of an import's book as a single-page PDF; all are deleted once the draft is written or discarded.</summary>
-public sealed class CurriculumImportPage
+/// <summary>
+/// The uploaded book, kept once until its draft is written or the import is discarded (D-125). Each Claude call cuts its
+/// few pages from it: stored as single pages, a book takes about five times its size.
+/// </summary>
+public sealed class CurriculumImportFile
 {
     public Guid ImportId { get; set; }
 
-    /// <summary>1-based page number in the PDF (not the number printed on the page).</summary>
-    public int Number { get; set; }
-
     public required byte[] Pdf { get; set; }
+
+    /// <summary>Each page's size in bytes when cut on its own, in page order, so calls stay under the request limit.</summary>
+    public required int[] PageSizes { get; set; }
 }
 
 /// <summary>

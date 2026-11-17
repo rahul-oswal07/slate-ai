@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built in part (#310): the A10 eval is still to run |
+| Status | Done (#310) |
 | Issue | #308 |
 | Owner | R |
 | Screens | curriculum, ai-pipeline, admin |
@@ -39,6 +39,12 @@ Each stage is saved, so Try again resumes where it stopped. The PDF is kept only
 
 ## Notes
 
+- 17 Nov 2026: A10 eval on Part 1: 32/32 lessons found, about 28/32 the same topic by name, 5/5 chapters, about USD 5 and 17 minutes.
+  - Exercise accuracy can't be measured against our hand-typed pairs, which came from worked examples; it needs a hand-checked list.
+  - The first run's matching was too loose and was replaced (`A10MatchTests`). Details in `docs/quality.md` §2.
+- 17 Nov 2026: the book is stored once (`CurriculumImportFiles`, migration `TextbookImportFiles`) instead of one PDF per page.
+  - Why: on the real KTBS Part 1 (31 MB, 160 pages) each page cut on its own carried the shared fonts and pictures: 161 MB in all.
+  - Now each Claude call cuts its pages from the book, opened once per run (`PdfBook`); the upload still cuts every page once to check it and measure it.
 - 17 Nov 2026: built on `feat/T-146-textbook-importer`, stacked on T-145 (#310); the PR goes to `main` after #310 merges.
   - API only: `Features/TextbookImport/`; upload, list, one, retry, discard on `/api/admin/curriculum-imports`.
   - Migration `TextbookImports`: the import, its pages (one single-page PDF each, from PdfPig 0.1.16), its steps; review columns on `CurriculumLessons`.

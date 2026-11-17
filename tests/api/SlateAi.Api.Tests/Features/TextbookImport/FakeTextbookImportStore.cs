@@ -10,7 +10,8 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
 
     public Dictionary<Guid, CurriculumImport> Imports { get; } = [];
 
-    public Dictionary<Guid, List<byte[]>> Pages { get; } = [];
+    /// <summary>Each import's book and page sizes, until the draft is written.</summary>
+    public Dictionary<Guid, (byte[] Pdf, List<int> Sizes)?> Books { get; } = [];
 
     public Dictionary<Guid, Dictionary<string, string>> Steps { get; } = [];
 
@@ -21,7 +22,8 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
     public List<Guid> DiscardedDrafts { get; } = [];
 
     public Task<(CurriculumImport Import, bool Created)> CreateAsync(
-        Guid clientRequestId, ImportBook book, IReadOnlyList<byte[]> pages, DateTimeOffset now, CancellationToken cancellationToken)
+        Guid clientRequestId, ImportBook book, byte[] pdf, IReadOnlyList<int> pageSizes, DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
         lock (_lock)
         {
@@ -30,13 +32,16 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
                 return Task.FromResult((Copy(existing), false));
             }
 
-            var import = Add(book, pages, now, clientRequestId);
+            var import = Add(book, pdf, pageSizes, now, clientRequestId);
             return Task.FromResult((Copy(import), true));
         }
     }
 
-    /// <summary>Adds a queued import, as an upload would.</summary>
-    public CurriculumImport Add(ImportBook book, IReadOnlyList<byte[]> pages, DateTimeOffset now, Guid? clientRequestId = null)
+    /// <summary>Adds a queued import, as an upload would; the page sizes are measured as at upload.</summary>
+    public CurriculumImport Add(ImportBook book, byte[] pdf, DateTimeOffset now, Guid? clientRequestId = null) =>
+        Add(book, pdf, PdfPages.Measure(pdf, 600), now, clientRequestId);
+
+    private CurriculumImport Add(ImportBook book, byte[] pdf, IReadOnlyList<int> pageSizes, DateTimeOffset now, Guid? clientRequestId)
     {
         lock (_lock)
         {
@@ -50,13 +55,13 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
                 Medium = book.Medium,
                 Book = book.Book,
                 Part = book.Part,
-                PageCount = pages.Count,
+                PageCount = pageSizes.Count,
                 Status = CurriculumImportStatuses.Queued,
                 CreatedAt = now,
                 UpdatedAt = now,
             };
             Imports[import.Id] = import;
-            Pages[import.Id] = [.. pages];
+            Books[import.Id] = (pdf, [.. pageSizes]);
             Steps[import.Id] = [];
             return import;
         }
@@ -112,19 +117,12 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
         }
     }
 
-    public Task<IReadOnlyList<int>> GetPageSizesAsync(Guid id, CancellationToken cancellationToken)
+    public Task<(byte[] Pdf, IReadOnlyList<int> PageSizes)?> GetBookAsync(Guid id, CancellationToken cancellationToken)
     {
         lock (_lock)
         {
-            return Task.FromResult<IReadOnlyList<int>>(Pages[id].Select(p => p.Length).ToList());
-        }
-    }
-
-    public Task<IReadOnlyList<byte[]>> GetPagesAsync(Guid id, IReadOnlyList<int> numbers, CancellationToken cancellationToken)
-    {
-        lock (_lock)
-        {
-            return Task.FromResult<IReadOnlyList<byte[]>>(numbers.Select(n => Pages[id][n - 1]).ToList());
+            return Task.FromResult<(byte[], IReadOnlyList<int>)?>(
+                Books.GetValueOrDefault(id) is var (pdf, sizes) ? (pdf, sizes) : null);
         }
     }
 
@@ -180,7 +178,7 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
             var import = Imports[id];
             (import.Status, import.Stage, import.Error, import.CurriculumId, import.Notes, import.StepsDone, import.UpdatedAt) =
                 (CurriculumImportStatuses.Ready, null, null, curriculumId, [.. notes], import.StepsTotal, now);
-            Pages[id].Clear();
+            Books[id] = null;
             return Task.FromResult(curriculumId);
         }
     }
@@ -214,7 +212,7 @@ public sealed class FakeTextbookImportStore : ITextbookImportStore
                 return Task.FromResult(false);
             }
 
-            Pages.Remove(id);
+            Books.Remove(id);
             Steps.Remove(id);
             if (Drafts.Remove(id, out var draft))
             {

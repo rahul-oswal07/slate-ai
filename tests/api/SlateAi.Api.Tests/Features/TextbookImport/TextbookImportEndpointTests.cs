@@ -35,7 +35,7 @@ public sealed class TextbookImportEndpointTests
         Assert.Equal((CurriculumImportStatuses.Queued, 4, "maths", "textbook", (int?)1), (view.Status, view.PageCount, view.Subject, view.Book, view.Part));
         Assert.Equal(view.Id, (await replay.Content.ReadFromJsonAsync<TextbookImportView>(Ct))!.Id);
         Assert.Single(_store.Imports);
-        Assert.Equal(4, _store.Pages[view.Id].Count);
+        Assert.Equal(4, _store.Books[view.Id]!.Value.Sizes.Count);
         Assert.Equal(view.Id, await NextJobAsync(factory));
         Assert.Equal("no-store", first.Headers.CacheControl?.ToString());
     }
@@ -64,10 +64,10 @@ public sealed class TextbookImportEndpointTests
     [Fact]
     public async Task The_list_shows_progress_and_an_import_that_stopped_moving_reads_as_failed_and_can_be_tried_again()
     {
-        var stuck = _store.Add(TextbookStepsTests.Book, [[1]], Now.AddMinutes(-30));
+        var stuck = _store.Add(TextbookStepsTests.Book, PdfPagesTests.Book(1), Now.AddMinutes(-30));
         _store.Imports[stuck.Id].Status = CurriculumImportStatuses.Running;
         _store.Imports[stuck.Id].Stage = CurriculumImportStages.Lessons;
-        var ready = _store.Add(TextbookStepsTests.Book with { Title = "Part 2" }, [[1]], Now);
+        var ready = _store.Add(TextbookStepsTests.Book with { Title = "Part 2" }, PdfPagesTests.Book(1), Now);
         _store.Imports[ready.Id].Status = CurriculumImportStatuses.Ready;
         await using var factory = Create();
         using var client = factory.CreateHttpsClient();
@@ -88,7 +88,7 @@ public sealed class TextbookImportEndpointTests
     [Fact]
     public async Task A_ready_import_shows_its_draft_counts_and_notes_and_discard_deletes_it_and_its_draft()
     {
-        var import = _store.Add(TextbookStepsTests.Book, [[1]], Now);
+        var import = _store.Add(TextbookStepsTests.Book, PdfPagesTests.Book(1), Now);
         await _store.SaveDraftAsync(import.Id, new DraftCurriculum([], []), ["Chapter numbers were renumbered."], Now, Ct);
         await using var factory = Create();
         using var client = factory.CreateHttpsClient();

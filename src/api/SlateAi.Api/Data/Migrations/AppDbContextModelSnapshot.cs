@@ -663,21 +663,22 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("CurriculumImports");
                 });
 
-            modelBuilder.Entity("SlateAi.Api.Data.Entities.CurriculumImportPage", b =>
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CurriculumImportFile", b =>
                 {
                     b.Property<Guid>("ImportId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Number")
-                        .HasColumnType("integer");
+                    b.PrimitiveCollection<int[]>("PageSizes")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
 
                     b.Property<byte[]>("Pdf")
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.HasKey("ImportId", "Number");
+                    b.HasKey("ImportId");
 
-                    b.ToTable("CurriculumImportPages");
+                    b.ToTable("CurriculumImportFiles");
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.CurriculumImportStep", b =>
@@ -1535,11 +1536,11 @@ namespace SlateAi.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("SlateAi.Api.Data.Entities.CurriculumImportPage", b =>
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.CurriculumImportFile", b =>
                 {
                     b.HasOne("SlateAi.Api.Data.Entities.CurriculumImport", null)
-                        .WithMany()
-                        .HasForeignKey("ImportId")
+                        .WithOne()
+                        .HasForeignKey("SlateAi.Api.Data.Entities.CurriculumImportFile", "ImportId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

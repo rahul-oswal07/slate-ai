@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `LessonContentPerCurriculum` (T-147) |
+| Last migration | `TextbookImportFiles` (T-146) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | The built-in one is not in the database: loaded from `data/curriculum/*.json` at startup (T-05). A class can instead follow a stored curriculum (`Curricula`, T-145, D-125). Rows reference competencies by string ID such as `M3.ADD.CARRY`, read in the class's curriculum |
 
@@ -44,7 +44,7 @@ erDiagram
     Curricula |o--o{ Classes : "followed by (null = built-in)"
     Curricula ||--o{ CurriculumLessons : has
     CurriculumImports |o--o| Curricula : "drafts"
-    CurriculumImports ||--o{ CurriculumImportPages : "the book, until the draft is written"
+    CurriculumImports ||--o| CurriculumImportFiles : "the book, until the draft is written"
     CurriculumImports ||--o{ CurriculumImportSteps : "finished steps"
     Lessons ||--o{ PacingDecisions : "the nudge's lesson"
 
@@ -106,10 +106,10 @@ erDiagram
         timestamptz CreatedAt
         timestamptz UpdatedAt
     }
-    CurriculumImportPages {
+    CurriculumImportFiles {
         uuid ImportId PK,FK
-        int Number PK
         bytea Pdf
+        int_array PageSizes
     }
     CurriculumImportSteps {
         uuid ImportId PK,FK
@@ -442,7 +442,7 @@ erDiagram
 
 **`CurriculumImports`** — a textbook being turned into a draft curriculum (T-146, D-125, migration `TextbookImports`), uploaded on `/admin/curriculum`. `ClientRequestId` is unique, so a replayed upload returns the same import (the create runs under the advisory lock `curriculum-import-request:{ClientRequestId}`). `Status`: `queued` → `running` (the worker claims it with a conditional update, so only one run has it; `Stage` is outline, lessons, prerequisites or assemble; `StepsDone` of `StepsTotal` Claude calls) → `ready` with `CurriculumId` = the draft, or `failed` with a short `Error` (e.g. `error:Unavailable reading chapter 3`, `fallback:no-chapters`; never book text). A `running` or `queued` import whose `UpdatedAt` hasn't moved for 10 minutes reads as failed (`error:stale`; the queue is in memory). Retry puts a failed or stale one back to `queued`. `Notes` are about the whole book (renumbered chapters, no prerequisites). FK `CurriculumId → Curricula` set null. Discarding deletes the import, its pages and steps, and its draft unless it was published. The demo Reset leaves it alone.
 
-**`CurriculumImportPages`** — the uploaded book, one single-page PDF per row (`Number` = PDF page), so Claude reads a few pages at a time. Deleted in the same transaction that writes the draft, and with the import (cascade): the book is not kept (D-125).
+**`CurriculumImportFiles`** — the uploaded book, once (migration `TextbookImportFiles`, which replaced the `CurriculumImportPages` table of `TextbookImports`): every page cut on its own carries the book's shared fonts and pictures, so a 31 MB book stored as single pages took 161 MB. `PageSizes` is each page's size when cut on its own, measured at upload, so a call's pages stay under the request limit; each call cuts its pages from the book (`PdfBook`). PK and FK `ImportId` (cascade). Deleted in the same transaction that writes the draft, and with the import: the book is not kept (D-125).
 
 **`CurriculumImportSteps`** — each finished, checked step of an import (`Key` e.g. `outline:11-20`, `lessons:3:1`, `prerequisites`; `Result` jsonb). PK `(ImportId, Key)`; Try again skips steps that are here, so it carries on where it stopped. FK `ImportId` (cascade). Covered by `TextbookImportDbTests`.
 

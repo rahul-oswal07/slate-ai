@@ -21,11 +21,13 @@ public enum ImportRetry
 public interface ITextbookImportStore
 {
     /// <summary>
-    /// Saves a new import with its pages as <see cref="CurriculumImportStatuses.Queued"/>, unless an import with this
+    /// Saves a new import with its book as <see cref="CurriculumImportStatuses.Queued"/>, unless an import with this
     /// <paramref name="clientRequestId"/> exists: then that one (a replayed upload). <c>Created</c> says which.
     /// </summary>
+    /// <param name="pageSizes">From <see cref="PdfPages.Measure"/>.</param>
     Task<(CurriculumImport Import, bool Created)> CreateAsync(
-        Guid clientRequestId, ImportBook book, IReadOnlyList<byte[]> pages, DateTimeOffset now, CancellationToken cancellationToken);
+        Guid clientRequestId, ImportBook book, byte[] pdf, IReadOnlyList<int> pageSizes, DateTimeOffset now,
+        CancellationToken cancellationToken);
 
     /// <summary>The import made by this upload request, if any.</summary>
     Task<CurriculumImport?> FindByRequestAsync(Guid clientRequestId, CancellationToken cancellationToken);
@@ -41,11 +43,8 @@ public interface ITextbookImportStore
     /// <summary>Moves a queued import to running and returns it; null if it isn't queued (another run has it, or it's done).</summary>
     Task<CurriculumImport?> TryStartAsync(Guid id, DateTimeOffset now, CancellationToken cancellationToken);
 
-    /// <summary>The size in bytes of each page's PDF, in page order.</summary>
-    Task<IReadOnlyList<int>> GetPageSizesAsync(Guid id, CancellationToken cancellationToken);
-
-    /// <summary>The pages' PDFs, in the order asked.</summary>
-    Task<IReadOnlyList<byte[]>> GetPagesAsync(Guid id, IReadOnlyList<int> numbers, CancellationToken cancellationToken);
+    /// <summary>The book and each page's size, or null once the draft is written (the book is gone).</summary>
+    Task<(byte[] Pdf, IReadOnlyList<int> PageSizes)?> GetBookAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>Finished steps by key, as saved.</summary>
     Task<IReadOnlyDictionary<string, string>> GetStepsAsync(Guid id, CancellationToken cancellationToken);
@@ -60,7 +59,7 @@ public interface ITextbookImportStore
 
     /// <summary>
     /// In one transaction: writes the draft curriculum (every lesson needs review), marks the import ready with it, and
-    /// deletes the book's pages (D-125). Returns the draft's ID.
+    /// deletes the book (D-125). Returns the draft's ID.
     /// </summary>
     /// <param name="notes">About the whole book, for the review page.</param>
     Task<Guid> SaveDraftAsync(
@@ -70,7 +69,7 @@ public interface ITextbookImportStore
     Task<ImportRetry> RetryAsync(Guid id, DateTimeOffset staleBefore, DateTimeOffset now, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Deletes the import, its pages and steps, and its draft unless the draft was published (T-147). False if there was
+    /// Deletes the import, its book and steps, and its draft unless the draft was published (T-147). False if there was
     /// no such import.
     /// </summary>
     Task<bool> DiscardAsync(Guid id, CancellationToken cancellationToken);
@@ -81,7 +80,8 @@ public sealed class TextbookImportStore(AppDbContext db) : ITextbookImportStore
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public async Task<(CurriculumImport Import, bool Created)> CreateAsync(
-        Guid clientRequestId, ImportBook book, IReadOnlyList<byte[]> pages, DateTimeOffset now, CancellationToken cancellationToken)
+        Guid clientRequestId, ImportBook book, byte[] pdf, IReadOnlyList<int> pageSizes, DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         await db.Database.ExecuteSqlAsync(
@@ -101,16 +101,16 @@ public sealed class TextbookImportStore(AppDbContext db) : ITextbookImportStore
             Medium = book.Medium,
             Book = book.Book,
             Part = book.Part,
-            PageCount = pages.Count,
+            PageCount = pageSizes.Count,
             Status = CurriculumImportStatuses.Queued,
             CreatedAt = now,
             UpdatedAt = now,
         };
         db.CurriculumImports.Add(import);
-        db.CurriculumImportPages.AddRange(pages.Select((pdf, i) => new CurriculumImportPage { ImportId = import.Id, Number = i + 1, Pdf = pdf }));
+        db.CurriculumImportFiles.Add(new CurriculumImportFile { ImportId = import.Id, Pdf = pdf, PageSizes = [.. pageSizes] });
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        db.ChangeTracker.Clear(); // the pages' bytes stay out of memory
+        db.ChangeTracker.Clear(); // the book's bytes stay out of memory
         return (import, true);
     }
 
@@ -145,17 +145,11 @@ public sealed class TextbookImportStore(AppDbContext db) : ITextbookImportStore
         return started == 1 ? await GetAsync(id, cancellationToken) : null;
     }
 
-    public async Task<IReadOnlyList<int>> GetPageSizesAsync(Guid id, CancellationToken cancellationToken) =>
-        await db.CurriculumImportPages.Where(p => p.ImportId == id).OrderBy(p => p.Number)
-            .Select(p => p.Pdf.Length).ToListAsync(cancellationToken);
-
-    public async Task<IReadOnlyList<byte[]>> GetPagesAsync(Guid id, IReadOnlyList<int> numbers, CancellationToken cancellationToken)
-    {
-        var pages = await db.CurriculumImportPages.AsNoTracking()
-            .Where(p => p.ImportId == id && numbers.Contains(p.Number))
-            .ToDictionaryAsync(p => p.Number, p => p.Pdf, cancellationToken);
-        return numbers.Select(n => pages[n]).ToList();
-    }
+    public async Task<(byte[] Pdf, IReadOnlyList<int> PageSizes)?> GetBookAsync(Guid id, CancellationToken cancellationToken) =>
+        await db.CurriculumImportFiles.AsNoTracking().Where(f => f.ImportId == id)
+            .Select(f => new { f.Pdf, f.PageSizes }).FirstOrDefaultAsync(cancellationToken) is { } file
+            ? (file.Pdf, file.PageSizes)
+            : null;
 
     public async Task<IReadOnlyDictionary<string, string>> GetStepsAsync(Guid id, CancellationToken cancellationToken) =>
         await db.CurriculumImportSteps.AsNoTracking().Where(s => s.ImportId == id)
@@ -220,8 +214,8 @@ public sealed class TextbookImportStore(AppDbContext db) : ITextbookImportStore
         import.StepsDone = import.StepsTotal;
         import.UpdatedAt = now;
         await db.SaveChangesAsync(cancellationToken);
-        // The book's pages aren't needed once the draft is written, and we don't keep the book (D-125).
-        await db.CurriculumImportPages.Where(p => p.ImportId == id).ExecuteDeleteAsync(cancellationToken);
+        // The book isn't needed once the draft is written, and we don't keep it (D-125).
+        await db.CurriculumImportFiles.Where(f => f.ImportId == id).ExecuteDeleteAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         db.ChangeTracker.Clear();
         return curriculum.Id;
@@ -252,7 +246,7 @@ public sealed class TextbookImportStore(AppDbContext db) : ITextbookImportStore
             return false;
         }
 
-        // Pages and steps go with the import (cascade); a draft goes too, but never a published curriculum (T-147).
+        // The book and steps go with the import (cascade); a draft goes too, but never a published curriculum (T-147).
         await db.CurriculumImports.Where(i => i.Id == id).ExecuteDeleteAsync(cancellationToken);
         if (import.CurriculumId is { } curriculumId)
         {

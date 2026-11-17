@@ -65,6 +65,20 @@ Store cases in `evals/cases/*.json`; results (date, model, prompt version, score
 
 **Today's message, A9 with the lesson's description** (16 Nov, T-141, D-123, prompts `a9-todays-message` v5 + `a9-todays-message-sums` v2 and `a9-todays-message-lesson` v2, Opus 5.5): each lesson's stored description and worked examples go in, and the concept becomes 5–6 sentences / 80–110 words (code: at most 6 and 140). **28/28 first pass** (compare, sums, edits, from-class) and **10/10 first pass** (lessons without exercises); in no case does a concept hold both picture-question numbers. Average Kannada concept 81–84 words (v4: 22), so about 45 s at Bulbul's 1.86 words a second, plus the 5–7 s AI notice. Two earlier runs that day: "at most 110 words" gave about 30 s; then `p4-all-five` hit 8192 output tokens (now 16384) and two Hindi concepts went over 120 words (passed on retry; limit now 140). `evals/results/2026-11-16-a9-todays-message.json`, `…-lesson-v2.json`.
 
+**Textbook import, A10** (17 Nov, T-146, D-125, prompts `a10-textbook-outline`, `a10-textbook-lessons`, `a10-textbook-prerequisites` v1, Opus 5.5): the real importer on the KTBS Grade 3 maths book, Kannada medium, Part 1 (160 pages), compared with our hand-built curriculum.
+- **Passed: lesson recall 32 of 32 (target 80%).** Each hand-built lesson is matched to the imported lesson that starts closest at or before its printed page and reaches it.
+- **By name, about 28 of 32 are the same topic.** The other four are next to the right lesson:
+  - number names → counting in hundreds;
+  - addition word problems → adding on a place value chart;
+  - subtraction word problems → subtraction with place-value groups;
+  - counting to 999 → counting to 100 (the import split counting into two lessons).
+- Chapters 5 of 5.
+- The draft: 40 lessons (1 flagged), 149 typed exercises, 147 other exercises, 156 pictures described; 37 lessons have prerequisites.
+- **Exercises aren't measured yet: 2 of 18 hand-typed pairs are anywhere in the draft.** Those pairs were copied from the book's worked examples (T-128), which A10 doesn't list as exercises, so this gold set can't measure exercise accuracy; a hand-checked exercise list for a few pages can.
+- Cost: 33 calls, all valid; 800k input and 100k output tokens, about USD 5 at Opus 5.5 list prices; 16¾ minutes.
+- A first run the same day scored 29 of 32 with a matching that was too loose: most lessons matched the one before them. That matching was replaced, with unit tests (`A10MatchTests`).
+- Results: `evals/results/2026-11-17-a10-textbook-import.json` (with every imported lesson listed); first run `…-run1.json`.
+
 **A4 content check** (`evals/cases/a4-check.json`: 2 good A3 scripts + 4 crafted flaws: wrong topic, shaming, mismatched summary, too hard; pass = Haiku's verdict equals `expectPass`): **6/6** (`evals/results/2026-10-22-a4-check.json`). The first run was 5/6: Haiku failed a good Kannada script because the summary mentioned household objects it hadn't been shown; it now gets the object option and judges "same lesson, numbers and homework", not extra detail.
 
 **Text-to-speech** (23 Oct, `TtsSmokeEvals`, Bulbul v3 "priya", 16 kHz → Opus 24 kbps; `evals/results/2026-10-23-tts.json`, audio in `evals/results/audio/` for a listen on an Android phone): disclosure 4.9–6.7 s; scripts of 94–96 words took 48–51 s, so **1.86 (kn), 1.91 (te), 1.96 (ta) words a second**; whole catch-ups 53–57 s and 139–154 KB, inside 95 s / 300 KB. `Verifier:WordsPerSecond` retuned to kn 1.8, te 1.85, ta 1.9 (rounded down so the estimate errs long). Sarvam's own MP3 (fixed 128 kbps) would have been ~860 KB, hence the Opus re-encoding.

@@ -32,12 +32,13 @@ public sealed class TextbookImporterTests
         Assert.Equal(["M3.NUM.TENS", "M3.ADD.CARRY"], draft.Lessons.Select(l => l.Competency.Id));
         Assert.Equal(["M3.NUM.TENS"], draft.Lessons[1].Competency.Prerequisites);
         Assert.Equal(6, draft.Lessons[1].Competency.TextbookPage!.Page); // PDF page 7 is printed 6
-        Assert.Empty(_store.Pages[import.Id]);
+        Assert.Null(_store.Books[import.Id]); // the book is not kept once the draft is written
         // Two outline windows (10 + 2 pages), one lessons call per chapter, one for prerequisites.
         Assert.Equal(
             [TextbookOutline.PromptId, TextbookOutline.PromptId, TextbookLessons.PromptId, TextbookLessons.PromptId, TextbookPrerequisites.PromptId],
             _llm.Requests.Select(r => r.Prompt.Id));
         Assert.All(_llm.Requests.Take(4), r => Assert.NotEmpty(Assert.Single(r.Documents!).Pdf));
+        Assert.Equal(10, PdfPages.Count(_llm.Requests[0].Documents![0].Pdf)); // pages 1–10 cut from the book
         Assert.Null(_llm.Requests[^1].Documents); // prerequisites are text only
         Assert.Equal((5, 5), (saved.StepsDone, saved.StepsTotal));
     }
@@ -126,11 +127,7 @@ public sealed class TextbookImporterTests
         new FixedClock(Now),
         NullLogger<TextbookImporter>.Instance);
 
-    private static List<byte[]> Pages(int count)
-    {
-        var book = PdfPagesTests.Book(count);
-        return [.. PdfPages.Split(book, 600)];
-    }
+    private static byte[] Pages(int count) => PdfPagesTests.Book(count);
 
     /// <summary>
     /// Claude for a 12-page book: chapter 1 (Numbers) starts on PDF page 3, chapter 2 (Addition) on page 7; page n is

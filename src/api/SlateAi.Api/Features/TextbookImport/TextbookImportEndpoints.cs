@@ -70,7 +70,7 @@ public static partial class TextbookImportEndpoints
                 "medium (kn, en, te, ta, hi), book (textbook, workbook, nalikali), part (optional). Returns 202 with the " +
                 "import, queued: Claude reads the book in the background (A10) and code checks everything into a draft. " +
                 "The same clientRequestId returns the same import. 400 for a field or a PDF that can't be read, 413 too " +
-                "big, 415 not a PDF. The book's pages are kept only until the draft is written. Admin page; no key (D-112).");
+                "big, 415 not a PDF. The book is kept only until the draft is written. Admin page; no key (D-112).");
 
         app.MapGet("/api/admin/curriculum-imports", ListAsync)
             .WithTags("Admin")
@@ -140,17 +140,17 @@ public static partial class TextbookImportEndpoints
             return TypedResults.StatusCode(StatusCodes.Status415UnsupportedMediaType);
         }
 
-        IReadOnlyList<byte[]> pages;
+        IReadOnlyList<int> pageSizes;
         try
         {
-            pages = PdfPages.Split(bytes, MaxPages);
+            pageSizes = PdfPages.Measure(bytes, MaxPages);
         }
         catch (PdfUnreadableException e)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["pdf"] = [e.Message] });
         }
 
-        var (import, created) = await store.CreateAsync(clientRequestId, info!, pages, clock.GetUtcNow(), cancellationToken);
+        var (import, created) = await store.CreateAsync(clientRequestId, info!, bytes, pageSizes, clock.GetUtcNow(), cancellationToken);
         if (created && !queue.TryEnqueue(new TextbookImportJob(import.Id)))
         {
             await store.FailAsync(import.Id, "error:queue-full", clock.GetUtcNow(), cancellationToken);
