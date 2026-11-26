@@ -48,6 +48,13 @@ public sealed record NewEveningMessage(
     Guid? LessonAudioId = null,
     Guid? TodaysMessageId = null);
 
+/// <summary>
+/// A message already sent that day (T-86): when, in which language, whether today's message went with it, and the wording
+/// and slots it was sent with, so her preview shows exactly what the family got.
+/// </summary>
+public sealed record SentEvening(
+    Guid ChildId, DateTimeOffset SentAt, string Language, bool WithTodays, string TemplateText, SlotValues Slots);
+
 /// <summary>The lesson clip she approved for this message's day and language (T-62), played after the disclosure.</summary>
 public sealed record ParentLessonAudio(Guid ClipId, double Seconds, string? Transcript);
 
@@ -128,6 +135,9 @@ public interface IEveningStore
     Task<ConfirmedLesson?> LatestConfirmedLessonAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 
     Task<IReadOnlySet<Guid>> GetSentChildIdsAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
+
+    /// <summary>The messages sent that day, one per child (T-86).</summary>
+    Task<IReadOnlyList<SentEvening>> GetSentAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
 
     /// <summary>The lesson audio she approved for that day, language to row id (T-62). Only approved rows: guardrail 3.</summary>
     Task<IReadOnlyDictionary<string, Guid>> GetApprovedLessonAudioAsync(Guid classId, DateOnly date, CancellationToken cancellationToken);
@@ -272,6 +282,20 @@ public sealed class EveningStore(AppDbContext db, TimeProvider clock) : IEvening
             .Select(m => m.ChildId)
             .ToListAsync(cancellationToken))
         .ToHashSet();
+
+    public async Task<IReadOnlyList<SentEvening>> GetSentAsync(Guid classId, DateOnly date, CancellationToken cancellationToken)
+    {
+        var rows = await (
+                from m in db.EveningMessages
+                where m.ClassId == classId && m.Date == date
+                join t in db.MessageTemplates on m.TemplateId equals t.Id
+                select new { m.ChildId, m.SentAt, m.Language, WithTodays = m.TodaysMessageId != null, t.Text, m.SlotValues })
+            .ToListAsync(cancellationToken);
+        return rows
+            .Select(r => new SentEvening(
+                r.ChildId, r.SentAt, r.Language, r.WithTodays, r.Text, JsonSerializer.Deserialize<SlotValues>(r.SlotValues, Json)!))
+            .ToList();
+    }
 
     public async Task<IReadOnlyDictionary<string, Guid>> GetApprovedLessonAudioAsync(
         Guid classId, DateOnly date, CancellationToken cancellationToken) =>

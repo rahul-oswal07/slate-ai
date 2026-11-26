@@ -18,6 +18,15 @@ Attendance, recording today's lesson, tonight's message and today's answers on o
 
 Every state, with copy and screenshots, is in the design card.
 
+### Tonight's message (T-86, D-126)
+
+Once the lesson is confirmed and someone is away, one card says what goes to families tonight:
+
+- **Checklist, in order:** the evening message approved once (See an example) · the lesson and page · today's message (approved, or waiting with Check and approve).
+- **Status line**, always what happens next and when: goes at 6 pm (with today's message) · approve today's message by 6, or it goes without it at 6:05 · waiting N min for you, then it goes without today's message · today's message is being written · going now · sent at hh:mm, with today's message or text only. The times come from the API, worked out by the 6 pm job's own rule (T-111).
+- **One line per absent child:** name, language, with today's message or text only, or why nothing goes (no phone, no consent, stopped, no wording). Families who get it have **Preview**, a sheet with their real text in their language and what goes with it.
+- **After the send it is a receipt:** the time, and only the children left out. The answers card lists everyone who got it (T-92).
+
 ## Requirements
 
 Moved as they are from `spec.md` §2 (15 Nov 2026). This file is now where they are kept; `spec.md` §2 has the index.
@@ -31,6 +40,6 @@ Moved as they are from `spec.md` §2 (15 Nov 2026). This file is now where they 
 
 ## Decisions cited
 
-D-03, D-17, D-21, D-26, D-27, D-31, D-33, D-34, D-39, D-45, D-46, D-51, D-53, D-54, D-55 (changed by D-104), D-67, D-68, D-69, D-70, D-72, D-80, D-82, D-104, D-105.
+D-03, D-17, D-21, D-26, D-27, D-31, D-33, D-34, D-39, D-45, D-46, D-51, D-53, D-54, D-55 (changed by D-104), D-67, D-68, D-69, D-70, D-72, D-80, D-82, D-104, D-105, D-126.
 
 D-01 to D-99 are in [`../../decisions/D-01-to-D-99.md`](../../decisions/D-01-to-D-99.md); later ones are one file each in [`../../decisions/`](../../decisions/README.md).
