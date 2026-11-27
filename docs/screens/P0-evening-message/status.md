@@ -13,7 +13,7 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- The Telugu and Tamil evening text still attach a suffix to a name written in Latin letters (`{child}ని`, `{child}இன்`): for native review (T-26).
+- The Telugu and Tamil evening text attach a suffix to a name written in Latin letters (`{child}ని`, `{child}இன்`); native review (T-26) asked for no change.
 - She has to approve the v4 wording once on each server before any evening or today's message goes (see [`../../status.md`](../../status.md), Next).
 
 ## Open tasks

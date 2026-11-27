@@ -70,6 +70,10 @@ export function pkg(overrides: Partial<CatchUpPackage> = {}): CatchUpPackage {
     familiesReachable: 1,
     approvedAt: null,
     sentAt: null,
+    video: null,
+    note: null,
+    removed: [],
+    edited: false,
     ...overrides,
   }
 }

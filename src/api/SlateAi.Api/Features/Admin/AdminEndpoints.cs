@@ -5,6 +5,7 @@ using SlateAi.Api.Features.Audio;
 using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.LessonLinks;
 using SlateAi.Api.Features.Curricula;
+using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.TextbookImport;
 
 namespace SlateAi.Api.Features.Admin;
@@ -68,6 +69,7 @@ public static class AdminEndpoints
             .WithDescription("404 for a clip that isn't lesson audio. Admin page; no key (D-112).");
 
         app.MapLessonLinkEndpoints();
+        app.MapLessonFeedbackEndpoints();
         app.MapLessonContentEndpoints();
         app.MapTextbookImportEndpoints();
         app.MapCurriculumAdminEndpoints();

@@ -58,12 +58,13 @@ public static class SchoolDate
         app.Use(async (context, next) =>
         {
             DateOnly? date = null;
-            if (context.Request.Headers.TryGetValue(Header, out var header) && context.User.GetClassId() is { } classId)
+            if (context.Request.Headers.TryGetValue(Header, out var header) && context.User.GetClassIds().Count > 0)
             {
                 var services = context.RequestServices;
                 var demo = services.GetRequiredService<IOptions<DemoOptions>>().Value;
+                // The demo class is one of hers (T-115); the app sends the header only while she has it open.
                 var demoClass = demo.Enabled
-                    && classId == await services.GetRequiredService<DemoClass>().IdAsync(context.RequestAborted);
+                    && context.User.IsInClass(await services.GetRequiredService<DemoClass>().IdAsync(context.RequestAborted));
                 // Read only for the demo class: every other request never touches the switch.
                 var switchOn = demoClass && await services.GetRequiredService<SchoolDateSwitch>()
                     .IsOnAsync(services.GetRequiredService<ISchoolDateSwitchStore>(), context.RequestAborted);

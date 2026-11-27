@@ -41,7 +41,7 @@ describe('MissedScreen (T4)', () => {
     vi.restoreAllMocks()
   })
 
-  it('opens on “Absent this week”: rows with days away, lessons missed this week and two separate tags', async () => {
+  it('opens on “Absent this week”: a table of name · days away · lessons missed · level, no lesson list (T-98)', async () => {
     setup(() => ledger())
     renderApp('/missed')
 
@@ -52,34 +52,45 @@ describe('MissedScreen (T4)', () => {
     // Back today has its own tab again, so it is not a filter here (D-117, T-129).
     expect(within(screen.getByRole('group', { name: 'Filter' })).getAllByRole('button')).toHaveLength(2)
     expect(screen.queryByRole('button', { name: /Back today/ })).not.toBeInTheDocument()
-    // Lesson names come from the curriculum, which may arrive after the ledger.
-    await screen.findAllByText(/Subtraction with borrowing/)
 
-    const rows = screen.getAllByRole('link', { name: /Ravi|Asha|Chetan|Kavya/ })
-    expect(rows.map((r) => within(r).getByText(/^(Ravi|Asha|Chetan|Kavya)/).textContent)).toEqual(['Asha · 1 day away', 'Ravi · 2 days away'])
-    const ravi = at(rows, 1)
-    expect(ravi).toHaveTextContent('Missed: Subtraction with borrowing, Addition with carrying')
-    // Learning status (the latest missed lesson) and the channel are two tags: a stop never hides it (B-08).
-    expect(ravi).toHaveTextContent('Needs buddy')
-    expect(ravi).toHaveTextContent('Stopped by family')
-    expect(ravi).toHaveAttribute('href', '/missed/ravi')
-    // Asha's last-week lesson is not "this week".
-    expect(rows[0]).toHaveTextContent('Missed: Subtraction with borrowing')
-    expect(rows[0]).toHaveTextContent('Missed lesson')
-    expect(rows[0]).toHaveTextContent('No phone · buddy card')
+    const table = screen.getByRole('table', { name: 'Children this week: days away, lessons missed and level' })
+    expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual([
+      'Child',
+      'Days away',
+      'Lessons missed',
+      'Level',
+    ])
+    const rows = within(table).getAllByRole('row').slice(1)
+    expect(rows.map((r) => within(r).getAllByRole('cell').map((c) => c.textContent))).toEqual([
+      // Asha's last-week lesson is not "this week"; her catch-up hasn't gone, so no level yet.
+      ['1', '1', '—No level yet'],
+      // Ravi got Monday's lesson but needs help with Tuesday's: the one that needs her shows (D-130).
+      ['2', '2', 'Needs help'],
+    ])
+    const [asha, ravi] = [at(rows, 0), at(rows, 1)]
+    expect(within(ravi).getByRole('link', { name: 'Ravi' })).toHaveAttribute('href', '/missed/ravi')
+    // The channel is its own line under the name, so a stop never hides the level (B-08).
+    expect(within(ravi).getByRole('rowheader')).toHaveTextContent('Stopped by family')
+    expect(within(asha).getByRole('rowheader')).toHaveTextContent('No phone · buddy card')
+    // The level is an icon and a word, in the level's own colour (T-97).
+    expect(within(ravi).getByText('Needs help')).toHaveAttribute('data-level', 'needsHelp')
+    expect(within(ravi).getByText('Needs help').querySelector('svg')).not.toBeNull()
+    // No lesson names in the rows: they are on the child view.
+    await screen.findByRole('link', { name: 'Asha' })
+    expect(table).not.toHaveTextContent(/Subtraction|Addition/)
     expect(screen.getByText('Filled automatically from attendance × your lesson records. No AI in this.')).toBeInTheDocument()
   })
 
-  it('Everyone lists the whole class; children with nothing missed say so', async () => {
+  it('Everyone lists the whole class; children with nothing missed show 0 and no level', async () => {
     setup(() => ledger())
     renderApp('/missed')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Everyone · 4' }))
 
-    const rows = screen.getAllByRole('link', { name: /Ravi|Asha|Chetan|Kavya/ })
-    expect(rows).toHaveLength(4)
-    const kavya = at(rows.filter((r) => r.textContent?.includes('Kavya')), 0)
-    expect(kavya).toHaveTextContent('No missed lessons this week')
+    const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1)
+    expect(rows.map((r) => within(r).getByRole('link').textContent)).toEqual(['Asha', 'Chetan', 'Ravi', 'Kavya'])
+    const kavya = at(rows, 3)
+    expect(within(kavya).getAllByRole('cell').map((c) => c.textContent)).toEqual(['0', '0', '—No level yet'])
     expect(kavya).toHaveTextContent('No consent')
   })
 

@@ -6,6 +6,7 @@ using SlateAi.Api.Features.CatchUps.Compression;
 using SlateAi.Api.Features.CatchUps.Practice;
 using SlateAi.Api.Features.CatchUps.Script;
 using SlateAi.Api.Features.CatchUps.Verify;
+using SlateAi.Api.Features.LessonLinks;
 
 namespace SlateAi.Api.Features.CatchUps;
 
@@ -45,9 +46,16 @@ public sealed class CatchUpGenerator(
 /// <summary>
 /// Writes one catch-up: A3 → validator → verifier (A4), with one auto-retry carrying the verifier's reasons
 /// (spec §5.1 A3). Passes → ready; a second verifier failure → needsReview with the reasons; nothing usable → failed.
+/// When she edited the script (T-103) it only voices her words: no AI writes or judges them.
 /// </summary>
 public sealed class CatchUpWriter(
-    ICatchUpStore store, ScriptWriter writer, Verifier verifier, PackageAudio audio, ICurriculumProvider curricula, PromptLibrary prompts)
+    ICatchUpStore store,
+    ScriptWriter writer,
+    Verifier verifier,
+    PackageAudio audio,
+    ICurriculumProvider curricula,
+    PromptLibrary prompts,
+    ILessonLinkStore links)
 {
     public const int Attempts = 2;
 
@@ -60,6 +68,12 @@ public sealed class CatchUpWriter(
 
         // A3, A4 and the voice are about the children this catch-up is for: the Under the hood panel says so (T-73).
         using var about = AiCallScope.For(package.ChildIds ?? []);
+
+        if (package.Hint == CatchUpRevision.VoiceHint)
+        {
+            await VoiceAsync(packageId, cancellationToken);
+            return;
+        }
 
         var promptVersion = prompts.Get(ScriptWriter.PromptId).Version;
         var curriculum = await curricula.ForClassAsync(package.ClassId, cancellationToken);
@@ -121,7 +135,29 @@ public sealed class CatchUpWriter(
             };
         }
 
-        await store.SaveScriptAsync(packageId, outcome, cancellationToken);
+        // The lesson's video comes from the admin page, by code, never the AI (D-106, T-103).
+        var video = await links.GetForAsync(
+            await curricula.IdForClassAsync(package.ClassId, cancellationToken), package.TargetIds, cancellationToken) is [var (_, url), ..]
+            ? url
+            : null;
+        await store.SaveScriptAsync(packageId, outcome with { VideoUrl = video }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Her edited script through the same text-to-speech and real-audio check as A3's (FR-09, T-103), so what she approves
+    /// is what the family hears. Her words were checked by code when she saved them.
+    /// </summary>
+    private async Task VoiceAsync(Guid packageId, CancellationToken cancellationToken)
+    {
+        if (await store.GetViewAsync(packageId, cancellationToken) is not { Script: { } script } view)
+        {
+            return;
+        }
+
+        var (segments, audioCheck) = await audio.MakeAsync(packageId, view.ClassId, view.Language, script, cancellationToken);
+        var checks = (view.Review?.Checks ?? []).Where(c => c.Name != PackageAudio.CheckName).Append(audioCheck).ToList();
+        await store.SaveVoiceAsync(
+            packageId, segments, new PackageReview(checks.All(c => c.Passed), view.Review?.Attempts ?? 0, checks), cancellationToken);
     }
 
     private static ActivityData Activity(PackageProblems p) =>

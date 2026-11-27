@@ -27,7 +27,8 @@ public sealed record LessonRecord(
     string? SummaryKn = null,
     string? SummaryEn = null,
     IReadOnlyList<string>? ExamplesUsed = null,
-    DateTimeOffset? MappingStartedAt = null);
+    DateTimeOffset? MappingStartedAt = null,
+    double? Confidence = null);
 
 /// <summary>Names the scrubber removes before anything goes to Claude (never sent anywhere themselves).</summary>
 public sealed record ClassNames(IReadOnlyList<string> Children, string? Teacher);
@@ -54,7 +55,9 @@ public interface ILessonStore
 
     /// <summary>
     /// Creates or replaces the day's lesson as confirmed (D-55: one per day; "Change" overwrites), unless
-    /// <paramref name="clientRequestId"/> was already applied. Returns the stored lesson.
+    /// <paramref name="clientRequestId"/> was already applied. Returns the stored lesson. With
+    /// <paramref name="feedback"/>, also saves it as an eval case (T-102) in the same write, but only while the day's
+    /// lesson is still the A1 match it was built from (the same note, still mapped or low).
     /// </summary>
     Task<LessonRecord> SaveConfirmedAsync(
         Guid classId,
@@ -62,7 +65,11 @@ public interface ILessonStore
         DateOnly date,
         IReadOnlyList<string> competencyIds,
         string source,
+        LessonFeedbackRecord? feedback,
         CancellationToken cancellationToken);
+
+    /// <summary>Saved eval cases (T-102), newest first; from <paramref name="from"/> on when given.</summary>
+    Task<IReadOnlyList<SavedLessonFeedback>> ListFeedbackAsync(DateOnly? from, int limit, CancellationToken cancellationToken);
 
     /// <summary>
     /// A voice note arrived: marks the day's lesson as processing (replacing an unconfirmed one, or a confirmed one when
@@ -92,7 +99,7 @@ public sealed class LessonStore(AppDbContext db, TimeProvider clock) : ILessonSt
         db.Lessons
             .Where(l => l.ClassId == classId && l.Date == date)
             .Select(l => new LessonRecord(
-                l.CompetencyIds, l.Source, l.Status, l.SummaryKn, l.SummaryEn, l.ExamplesUsed, l.MappingStartedAt))
+                l.CompetencyIds, l.Source, l.Status, l.SummaryKn, l.SummaryEn, l.ExamplesUsed, l.MappingStartedAt, l.Confidence))
             .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<string>> LastConfirmedBeforeAsync(
@@ -109,6 +116,7 @@ public sealed class LessonStore(AppDbContext db, TimeProvider clock) : ILessonSt
         DateOnly date,
         IReadOnlyList<string> competencyIds,
         string source,
+        LessonFeedbackRecord? feedback,
         CancellationToken cancellationToken)
     {
         await using (var transaction = await LockDayAsync(classId, date, cancellationToken))
@@ -116,6 +124,13 @@ public sealed class LessonStore(AppDbContext db, TimeProvider clock) : ILessonSt
             if (!await IsProcessedAsync(clientRequestId, cancellationToken))
             {
                 var lesson = await FindOrAddAsync(classId, date, source, cancellationToken);
+                if (feedback is not null
+                    && lesson.Status is LessonValues.Mapped or LessonValues.Low
+                    && lesson.MappingStartedAt == feedback.MappingStartedAt.ToUniversalTime())
+                {
+                    db.LessonFeedback.Add(Entity(classId, feedback));
+                }
+
                 lesson.CompetencyIds = [.. competencyIds];
                 lesson.Source = source;
                 lesson.Status = LessonValues.Confirmed;
@@ -175,6 +190,42 @@ public sealed class LessonStore(AppDbContext db, TimeProvider clock) : ILessonSt
                     .SetProperty(l => l.Confidence, result.Confidence),
                 cancellationToken);
     }
+
+    public async Task<IReadOnlyList<SavedLessonFeedback>> ListFeedbackAsync(
+        DateOnly? from, int limit, CancellationToken cancellationToken)
+    {
+        var rows = await db.LessonFeedback
+            .Where(f => from == null || f.Date >= from)
+            .OrderByDescending(f => f.CreatedAt)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+        return rows.Select(f => new SavedLessonFeedback(
+            f.Id,
+            f.ClassId,
+            f.CreatedAt,
+            new LessonFeedbackRecord(
+                f.Date, f.MappingStartedAt, f.PromptVersion, f.MatchStatus, f.MatchedCompetencyIds, f.Confidence,
+                f.ChosenCompetencyIds, f.ConfirmedVia, f.Outcome, f.SummaryKn, f.SummaryEn, f.ExamplesUsed))).ToList();
+    }
+
+    private LessonFeedback Entity(Guid classId, LessonFeedbackRecord feedback) => new()
+    {
+        Id = Guid.NewGuid(),
+        ClassId = classId,
+        Date = feedback.Date,
+        MappingStartedAt = feedback.MappingStartedAt.ToUniversalTime(),
+        PromptVersion = feedback.PromptVersion,
+        MatchStatus = feedback.MatchStatus,
+        MatchedCompetencyIds = [.. feedback.MatchedCompetencyIds],
+        Confidence = feedback.Confidence,
+        ChosenCompetencyIds = [.. feedback.ChosenCompetencyIds],
+        ConfirmedVia = feedback.ConfirmedVia,
+        Outcome = feedback.Outcome,
+        SummaryKn = feedback.SummaryKn,
+        SummaryEn = feedback.SummaryEn,
+        ExamplesUsed = [.. feedback.ExamplesUsed],
+        CreatedAt = clock.GetUtcNow(),
+    };
 
     public async Task<ClassNames> GetNamesAsync(Guid classId, CancellationToken cancellationToken)
     {

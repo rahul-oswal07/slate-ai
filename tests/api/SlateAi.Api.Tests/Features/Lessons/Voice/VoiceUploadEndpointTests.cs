@@ -174,7 +174,7 @@ public sealed class VoiceUploadEndpointTests
     }
 
     private Task ConfirmAsync() =>
-        _store.SaveConfirmedAsync(ClassId, Guid.NewGuid(), Today, ["M3.SUB.NOBORROW"], "picked", Ct);
+        _store.SaveConfirmedAsync(ClassId, Guid.NewGuid(), Today, ["M3.SUB.NOBORROW"], "picked", null, Ct);
 
     private TodaysMessageRow AddTodays(string status, int? approvedVersion)
     {
@@ -198,6 +198,56 @@ public sealed class VoiceUploadEndpointTests
         var day = await confirmed.Content.ReadFromJsonAsync<LessonDayResponse>(Ct);
         Assert.Equal("confirmed", day!.Lesson!.Status);
         Assert.Equal("voice", day.Lesson.Source);
+    }
+
+    [Fact]
+    public async Task Her_correction_of_the_match_is_saved_once_as_an_eval_case_without_names()
+    {
+        // T-102: the fake Claude matches M3.ADD.CARRY; she picks another lesson instead. The phone's outbox may send it twice.
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+        await UploadAsync(client, Guid.NewGuid());
+        var match = (await WaitForMatchAsync(client)).Lesson!;
+        var confirm = new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"], "picked");
+
+        await client.PutAsJsonAsync(DayUrl, confirm, Ct);
+        await client.PutAsJsonAsync(DayUrl, confirm, Ct);
+        using var admin = factory.CreateHttpsClient();
+        var listed = await admin.GetAsync("/api/admin/lesson-feedback", Ct);
+
+        var saved = Assert.Single(_store.Feedback).Feedback;
+        Assert.Equal(["M3.ADD.CARRY"], saved.MatchedCompetencyIds);
+        Assert.Equal(["M3.SUB.NOBORROW"], saved.ChosenCompetencyIds);
+        Assert.Equal(LessonFeedbackBuilder.Replaced, saved.Outcome);
+        Assert.Equal("picked", saved.ConfirmedVia);
+        Assert.Equal(0.9, saved.Confidence);
+        Assert.Equal(match.SummaryKn, saved.SummaryKn);
+        Assert.Equal("no-store", listed.Headers.CacheControl?.ToString());
+        var json = await listed.Content.ReadAsStringAsync(Ct);
+        var @case = Assert.Single((await listed.Content.ReadFromJsonAsync<LessonFeedbackCases>(Ct))!.Cases);
+        Assert.Equal("M3.SUB.NOBORROW", @case.Expected);
+        Assert.Empty(@case.AlsoAcceptable);
+        Assert.Equal(["M3.ADD.CARRY"], @case.Matched);
+        Assert.Equal(match.SummaryKn, @case.Transcript);
+        Assert.Equal(Today, @case.Date);
+        Assert.All(_store.Names.Children.Append(_store.Names.Teacher!), name => Assert.DoesNotContain(name, json));
+    }
+
+    [Fact]
+    public async Task Confirming_the_match_as_offered_is_saved_as_accepted()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+        await UploadAsync(client, Guid.NewGuid());
+        await WaitForMatchAsync(client);
+
+        await client.PutAsJsonAsync(DayUrl, new SaveLessonRequest(Guid.NewGuid(), ["M3.ADD.CARRY"], "voice"), Ct);
+        // "Change" after confirming is not a new case: there is no A1 match left to compare with.
+        await client.PutAsJsonAsync(DayUrl, new SaveLessonRequest(Guid.NewGuid(), ["M3.SUB.NOBORROW"], "picked"), Ct);
+
+        var saved = Assert.Single(_store.Feedback).Feedback;
+        Assert.Equal(LessonFeedbackBuilder.Accepted, saved.Outcome);
+        Assert.Equal(["M3.ADD.CARRY"], saved.ChosenCompetencyIds);
     }
 
     [Fact]

@@ -12,6 +12,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Child> Children => Set<Child>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<LessonFeedback> LessonFeedback => Set<LessonFeedback>();
     public DbSet<ProcessedRequest> ProcessedRequests => Set<ProcessedRequest>();
     public DbSet<AiCall> AiCalls => Set<AiCall>();
     public DbSet<MessageTemplate> MessageTemplates => Set<MessageTemplate>();
@@ -52,6 +53,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<Class>(e =>
         {
             e.Property(c => c.Medium).HasMaxLength(5);
+            e.Property(c => c.Name).HasMaxLength(20).HasDefaultValue("");
             e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId);
             // A curriculum a class follows can't be deleted (T-145); null = the built-in one.
             e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(c => c.CurriculumId).OnDelete(DeleteBehavior.Restrict);
@@ -141,6 +143,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.HasIndex(l => new { l.ClassId, l.Date }).IsUnique(); // one lesson record per day (D-55)
         });
 
+        modelBuilder.Entity<LessonFeedback>(e =>
+        {
+            e.ToTable("LessonFeedback");
+            e.Property(f => f.MatchStatus).HasMaxLength(20);
+            e.Property(f => f.ConfirmedVia).HasMaxLength(10);
+            e.Property(f => f.Outcome).HasMaxLength(10);
+            e.HasOne<Class>().WithMany().HasForeignKey(f => f.ClassId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(f => f.CreatedAt);
+        });
+
         modelBuilder.Entity<LessonLink>(e =>
         {
             e.HasKey(l => new { l.CurriculumId, l.CompetencyId }); // one link per lesson of a curriculum (D-106, T-147)
@@ -222,6 +234,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(p => p.Review).HasColumnType("jsonb");
             e.Property(p => p.AudioSegments).HasColumnType("jsonb");
             e.Property(p => p.AudioUrl).HasMaxLength(500);
+            e.Property(p => p.VideoUrl).HasMaxLength(500);
             e.HasOne<Class>().WithMany().HasForeignKey(p => p.ClassId);
             e.HasOne<Teacher>().WithMany().HasForeignKey(p => p.ApprovedByTeacherId);
             e.HasIndex(p => new { p.ClassId, p.WeekOf, p.Language, p.TargetKey }).IsUnique();

@@ -23,6 +23,10 @@ export type ParentCatchUp = {
   transcript: { disclosureText: string; script: string; keyWordsKn: string[] } | null
   activity: { question: string; number: number; instruction: string | null; objectOption: string | null } | null
   check: { question: string; prompt: string | null; options: ParentOption[] } | null
+  /** Her note as she typed it (T-103), unless she removed it. */
+  note?: string | null
+  /** The lesson's video link (T-103), unless she removed it. */
+  videoUrl?: string | null
 }
 
 /** The 410 body for an old catch-up link. */

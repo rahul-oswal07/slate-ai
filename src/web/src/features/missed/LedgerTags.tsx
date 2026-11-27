@@ -73,7 +73,34 @@ export function LearningTag({
 }
 
 /** The family's channel, a separate tag so a stop never hides "Caught up" (B-08). */
-export function ChannelTag({ channel }: { channel: Channel }) {
+export function ChannelTag({
+  channel,
+  compact = false,
+}: {
+  channel: Channel;
+  /** A small icon + word line under a name in a table row (T-98), not a pill. */
+  compact?: boolean;
+}) {
   const { t } = useTranslation();
-  return <Tag {...channels[channel]} text={t(`missed.channel.${channel}`)} />;
+  const text = t(`missed.channel.${channel}`);
+  if (compact) {
+    return (
+      <span className="flex items-start gap-1 pb-1 text-caption text-ink-muted">
+        <Icon name={channels[channel].icon} size={14} className="mt-[3px] shrink-0" />
+        {text}
+      </span>
+    );
+  }
+  return <Tag {...channels[channel]} text={text} />;
+}
+
+/** A missed lesson whose catch-up hasn't gone yet (no level): one chip on the child view, icon + name + word (T-98). */
+export function MissedLessonChip({ lesson }: { lesson: string }) {
+  const { t } = useTranslation();
+  return (
+    <span className="inline-flex items-center gap-1 rounded-pill border-[1.5px] border-status-stopped bg-status-stopped-bg px-2 py-0.5 text-caption font-bold text-status-stopped">
+      <Icon name={learning.missed.icon} size={14} className="shrink-0" />
+      {`${lesson} · ${t("missed.status.missed")}`}
+    </span>
+  );
 }

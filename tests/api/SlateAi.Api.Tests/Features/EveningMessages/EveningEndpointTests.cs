@@ -198,6 +198,131 @@ public sealed class EveningEndpointTests
     }
 
     [Fact]
+    public async Task Tonight_card_says_when_it_goes_and_each_familys_language()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        _clock.Now = Ist(15, 0);
+
+        var day = await GetDayAsync();
+
+        Assert.Equal(Ist(18, 0), day.GoesAt);
+        Assert.Null(day.Waiting);
+        Assert.Null(day.SentAt);
+        Assert.False(day.WithTodays);
+        var ravi = day.Children.Single(c => c.ChildId == Ravi.Id);
+        Assert.Equal(("te", false), (ravi.Language, ravi.WithTodays));
+        Assert.Equal("kn", day.Children.Single(c => c.ChildId == NoPhone.Id).Language);
+    }
+
+    [Fact]
+    public async Task Tonight_card_counts_down_the_jobs_wait_for_a_ready_todays_message()
+    {
+        // The same rule as Worker_waits_5_minutes_for_a_ready_todays_message_then_sends_the_plain_message.
+        ApproveTemplate();
+        ConfirmLesson();
+        SetTodaysMessage(TodaysMessageStatus.Ready, Ist(19, 10));
+        _clock.Now = Ist(19, 12);
+
+        var day = await GetDayAsync();
+
+        Assert.Equal(Ist(19, 15), day.GoesAt);
+        Assert.Equal(EveningWaiting.ForYou, day.Waiting);
+    }
+
+    [Fact]
+    public async Task Tonight_card_has_no_time_while_todays_message_is_written()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        SetTodaysMessage(TodaysMessageStatus.Generating, Ist(18, 29));
+
+        var day = await GetDayAsync();
+
+        Assert.Null(day.GoesAt);
+        Assert.Equal(EveningWaiting.Writing, day.Waiting);
+    }
+
+    [Fact]
+    public async Task Tonight_card_after_the_send_is_a_receipt_with_the_time_and_todays_message()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        var id = SetTodaysMessage(TodaysMessageStatus.Approved, Ist(17, 0));
+        _store.ApprovedTodaysMessage = _ => (id, new HashSet<string> { "kn" });
+        await SendAsync();
+
+        _clock.Now = Ist(19, 0);
+        var day = await GetDayAsync();
+
+        Assert.Equal(Ist(18, 30), day.SentAt);
+        Assert.Null(day.GoesAt);
+        Assert.Null(day.Waiting);
+        Assert.True(day.WithTodays);
+        // Today's message is written in Kannada only: Ravi's Telugu family got the text alone.
+        Assert.True(day.Children.Single(c => c.ChildId == Asha.Id).WithTodays);
+        Assert.False(day.Children.Single(c => c.ChildId == Ravi.Id).WithTodays);
+    }
+
+    [Fact]
+    public async Task Tonight_card_on_a_past_day_has_no_time()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        _clock.Now = Ist(15, 0).AddDays(1);
+
+        var day = await GetDayAsync();
+
+        Assert.Null(day.GoesAt);
+    }
+
+    [Fact]
+    public async Task Preview_shows_the_familys_real_message_before_and_after_the_send()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+        _clock.Now = Ist(15, 0);
+        await using (var before = Create())
+        {
+            using var client = before.CreateTeacherClient(ClassId);
+            var preview = (await client.GetFromJsonAsync<EveningPreviewResponse>(PreviewUrl(Ravi), Ct))!;
+
+            Assert.Equal("te", preview.Language);
+            Assert.Equal("ఈ రోజు Ravi … పది తీసుకుని తీసివేత … భాగం 2, పేజీ 15", preview.Text);
+            Assert.False(preview.Sent);
+            Assert.Null(preview.SentAt);
+        }
+
+        Assert.Empty(_store.Messages); // a preview sends nothing
+
+        _clock.Now = Ist(18, 30);
+        await SendAsync();
+        await using var after = Create();
+        using var teacher = after.CreateTeacherClient(ClassId);
+        var sent = (await teacher.GetFromJsonAsync<EveningPreviewResponse>(PreviewUrl(Ravi), Ct))!;
+
+        Assert.True(sent.Sent);
+        Assert.Equal(Ist(18, 30), sent.SentAt);
+        Assert.Equal("ఈ రోజు Ravi … పది తీసుకుని తీసివేత … భాగం 2, పేజీ 15", sent.Text);
+    }
+
+    [Fact]
+    public async Task Preview_is_404_for_a_child_who_gets_no_message_and_for_another_class()
+    {
+        ApproveTemplate();
+        ConfirmLesson();
+
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+        using var other = factory.CreateTeacherClient(Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(PreviewUrl(Present), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(PreviewUrl(NoPhone), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(PreviewUrl(Tamil), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync(PreviewUrl(Ravi), Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task Template_is_shown_filled_with_a_telugu_example()
     {
         ConfirmLesson();
@@ -542,6 +667,15 @@ public sealed class EveningEndpointTests
                 services.AddSingleton<IDeliveryStore>(_delivery);
             },
             settings: new Dictionary<string, string?> { ["Demo:Enabled"] = demo.ToString() });
+
+    private static string PreviewUrl(EveningChild child) => $"{DayUrl}/children/{child.Id}";
+
+    private async Task<EveningDayResponse> GetDayAsync()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient(ClassId);
+        return (await client.GetFromJsonAsync<EveningDayResponse>(DayUrl, Ct))!;
+    }
 
     private async Task<HttpResponseMessage> SendAsync(bool demo = false)
     {

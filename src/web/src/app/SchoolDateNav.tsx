@@ -1,13 +1,13 @@
 import { type ReactNode, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '../components/Icon'
-import { useMe } from '../features/auth/useMe'
+import { useCurrentClass } from '../features/auth/useCurrentClass'
 import { setSchoolDate, stepSchoolDate, useSchoolDate } from '../features/today/schoolDate'
 import { istToday } from '../features/today/schoolTime'
 
-/** The admin switch (T-134): the demo teacher may act as a past day. */
+/** The admin switch (T-134): the demo teacher may act as a past day, while she has the demo class open (T-115). */
 function useSwitchedOn() {
-  return useMe().data?.demo?.schoolDate === true
+  return useCurrentClass()?.demo?.schoolDate === true
 }
 
 /**

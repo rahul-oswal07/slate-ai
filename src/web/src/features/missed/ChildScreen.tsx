@@ -4,11 +4,13 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
-import { dayName, latestStatus, lessonNames } from './ledgerText'
-import { ChannelTag, LearningTag } from './LedgerTags'
+import { LevelTag } from '../today/LevelTag'
+import { dayName, lessonNames, thisWeek } from './ledgerText'
+import { ChannelTag, MissedLessonChip } from './LedgerTags'
+import { childLevel, lessonLevel } from './levels'
 import type { LedgerChild, LedgerEvent } from './types'
 import { useDeleteChild, useLedger } from './useLedger'
 
@@ -19,7 +21,7 @@ import { useDeleteChild, useLedger } from './useLedger'
 export function ChildScreen() {
   const { t } = useTranslation()
   const { childId = '' } = useParams()
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const ledger = useLedger(classId)
   const chapters = useCurriculum().data?.chapters ?? []
   const child = ledger.data?.children.find((c) => c.childId === childId)
@@ -67,7 +69,13 @@ function ChildDetails({
 }) {
   const { t, i18n } = useTranslation()
   const [deleting, setDeleting] = useState(false)
-  const status = latestStatus(child, weekOf)
+  const level = childLevel(child, weekOf)
+  const lessons = thisWeek(child, weekOf)
+  // T-98 (G2): the away days are one line, the lessons one chip each; the rest of the week stays a dated list.
+  const awayDays = [...new Set(child.history.filter((e) => e.kind === 'away').map((e) => e.date))]
+  const events = child.history.filter((e) => e.kind !== 'away')
+  const daysAway = Math.max(child.daysAwayThisWeek, awayDays.length)
+  const away = daysAway > 0 || lessons.length > 0
   return (
     <div className="flex flex-col gap-5 px-4 py-4">
       <div className="flex flex-col gap-2">
@@ -77,67 +85,94 @@ function ChildDetails({
             language: t(`missed.language.${child.homeLanguage}`),
           })}
         </p>
-        {(status || child.channel) && (
+        {(level || child.channel) && (
           <p className="flex flex-wrap gap-1">
-            {status && <LearningTag status={status} />}
+            {level && <LevelTag level={level} />}
             {child.channel && <ChannelTag channel={child.channel} />}
           </p>
         )}
       </div>
 
-      <section aria-labelledby="this-week" className="flex flex-col gap-2">
+      <section aria-labelledby="this-week" className="flex flex-col gap-3">
         <h2 id="this-week" className="text-caption font-bold text-ink-muted">
           {t('missed.child.thisWeek')}
         </h2>
-        {child.history.length === 0 ? (
-          <p className="text-body">{t('missed.child.none')}</p>
-        ) : (
+        {!away && events.length === 0 && <p className="text-body">{t('missed.child.none')}</p>}
+        {away && (
+          <div className="card flex flex-col gap-2 p-3">
+            {daysAway > 0 && (
+              <p className="text-label">
+                {awayDays.length > 0
+                  ? t('missed.child.awayDays', {
+                      count: daysAway,
+                      days: awayDays.map((d) => dayName(d, i18n.language)).join(', '),
+                    })
+                  : t('missed.child.awayCount', { count: daysAway })}
+              </p>
+            )}
+            {lessons.length > 0 && (
+              <ul aria-label={t('missed.table.lessons')} className="flex flex-wrap gap-2">
+                {lessons.map((lesson) => {
+                  const name = lessonNames(chapters, lesson.competencyIds, i18n.language).join(', ')
+                  const lessonLevelNow = lessonLevel(lesson.status)
+                  return (
+                    <li key={lesson.lessonId}>
+                      {lessonLevelNow ? (
+                        <LevelTag level={lessonLevelNow} label={name} />
+                      ) : (
+                        <MissedLessonChip lesson={name} />
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
+        )}
+        {events.length > 0 && (
           <ol aria-labelledby="this-week" className="flex flex-col gap-3 border-l-2 border-divider pl-4">
-            {child.history.map((event, i) => (
+            {events.map((event, i) => (
               <li key={`${event.date}-${event.kind}-${i}`} className="relative text-body">
                 <span
                   aria-hidden="true"
                   className="absolute top-2 -left-[23px] size-[10px] rounded-full border border-border bg-surface"
                 />
-                <span className="font-bold">{dayName(event.date, i18n.language)}</span> ·{' '}
-                {eventText(t, event, chapters, i18n.language)}
+                <span className="font-bold">{dayName(event.date, i18n.language)}</span> · {eventText(t, event)}
               </li>
             ))}
           </ol>
         )}
       </section>
 
-      <section aria-labelledby="child-data" className="mt-4 flex flex-col gap-2 border-t border-divider pt-4">
-        <h2 id="child-data" className="text-caption font-bold text-ink-muted">
-          {t('missed.child.dataHeading')}
-        </h2>
-        <button
-          type="button"
-          onClick={() => setDeleting(true)}
-          className="min-h-target w-full rounded-button border-2 border-error bg-surface px-4 text-label text-error"
-        >
-          {t('missed.child.delete', { name: child.firstName })}
-        </button>
-      </section>
+      {/* T-98: deleting is rare and final, so it sits under More; it still asks first (FR-15). */}
+      <details className="mt-2 border-t border-divider pt-2">
+        <summary className="flex min-h-target cursor-pointer items-center gap-1 text-label text-primary-strong">
+          {t('missed.child.more')}
+        </summary>
+        <section aria-labelledby="child-data" className="flex flex-col gap-2 pt-2">
+          <h2 id="child-data" className="text-caption font-bold text-ink-muted">
+            {t('missed.child.dataHeading')}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setDeleting(true)}
+            className="min-h-target w-full rounded-button border-2 border-error bg-surface px-4 text-label text-error"
+          >
+            {t('missed.child.delete', { name: child.firstName })}
+          </button>
+        </section>
+      </details>
 
       {deleting && <DeleteDialog classId={classId} child={child} onClose={() => setDeleting(false)} />}
     </div>
   )
 }
 
-function eventText(
-  t: ReturnType<typeof useTranslation>['t'],
-  event: LedgerEvent,
-  chapters: Chapter[],
-  language: string,
-) {
+/** Every event but "away", which is grouped above the list (T-98). */
+function eventText(t: ReturnType<typeof useTranslation>['t'], event: LedgerEvent) {
   switch (event.kind) {
     case 'away':
-      return event.competencyIds && event.competencyIds.length > 0
-        ? t('missed.child.away', {
-            lessons: lessonNames(chapters, event.competencyIds, language).join(', '),
-          })
-        : t('missed.child.awayNoLesson')
+      return null
     case 'reason':
       return t('missed.child.reason', {
         reason: t(`parent.reason.category.${event.category ?? 'other'}`),

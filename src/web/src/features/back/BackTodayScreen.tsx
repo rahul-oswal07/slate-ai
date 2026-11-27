@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { pageText } from '../lessons/lessonText'
 import { sumQuestion } from '../parent/sumQuestion'
+import { levelOf } from '../missed/levels'
+import { useLedger } from '../missed/useLedger'
+import { LevelTag } from '../today/LevelTag'
 import { useSchoolToday } from '../today/schoolDate'
 import type { BuddyCard } from './types'
 import { useBuddyCards, useSaveTicks } from './useBuddyCards'
@@ -55,7 +58,7 @@ function itemText(t: ReturnType<typeof useTranslation>['t'], kind: string | null
 export function BackTodayScreen() {
   const { t } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const today = useSchoolToday()
   const query = useBuddyCards(classId, today)
   const [index, setIndex] = useState(0)
@@ -122,6 +125,9 @@ function Cards({
   const moved = useRef(false)
   const card = cards[index] as BuddyCard
   const next = cards[index + 1]
+  // The lessons of this absence are the child's latest `missedDays` missed lessons in the ledger.
+  const ledgerChild = useLedger(classId).data?.children.find((c) => c.childId === card.childId)
+  const level = ledgerChild && card.missedDays > 0 ? levelOf(ledgerChild.missedLessons.slice(-card.missedDays)) : null
 
   // Moving between cards keeps focus on the card's heading (B-19); not on first open (the page title has it).
   useEffect(() => {
@@ -142,6 +148,15 @@ function Cards({
         {t('back.position', { i: index + 1, n: cards.length })}
         {next && ` · ${t('back.next', { name: next.firstName })}`}
       </p>
+
+      {/* The catch-up's level (T-97, D-130) is for her, so it sits above the card and never prints: the card and its
+          printout show no result or score (B-20, T5 card). */}
+      {level && (
+        <p className="flex flex-wrap items-center gap-2 text-caption text-ink-muted print:hidden">
+          {t('back.level')}
+          <LevelTag level={level} />
+        </p>
+      )}
 
       <article
         aria-labelledby={`card-${card.childId}`}

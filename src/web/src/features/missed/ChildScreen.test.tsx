@@ -37,19 +37,25 @@ describe('ChildScreen (T4 child history + delete)', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows this week as a timeline with the day on every event; the reason is labelled “from the parent”', async () => {
+  it('groups the away days in one line, one chip per lesson with its level, then the rest of the week by day (T-98)', async () => {
     setup(() => ledger())
     renderApp('/missed/ravi')
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Ravi' })).toHaveFocus()
     expect(screen.getByText('Roll 4 · home language: Telugu')).toBeInTheDocument()
+    expect(screen.getByText('Away 2 days: Mon, Tue')).toBeInTheDocument()
     // Lesson names come from the curriculum, which may arrive after the ledger.
     await screen.findByText(/Subtraction with borrowing/)
+    const chips = within(screen.getByRole('list', { name: 'Lessons missed' })).getAllByRole('listitem')
+    expect(chips.map((li) => li.textContent)).toEqual([
+      'Subtraction with borrowing · Got it',
+      'Addition with carrying · Needs help',
+    ])
+    // The child's one level is the one that needs her (D-130), the same tag as on the list.
+    expect(screen.getAllByText('Needs help')[0]).toHaveAttribute('data-level', 'needsHelp')
     const timeline = screen.getByRole('list', { name: 'This week' })
     expect(within(timeline).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-      'Mon · away · missed: Subtraction with borrowing',
       'Mon · reason (from the parent): Unwell',
-      'Tue · away · missed: Addition with carrying',
       'Wed · catch-up sent (Telugu)',
       'Thu · picture question: right',
       'Thu · family stopped messages. Buddy card continues.',
@@ -57,10 +63,30 @@ describe('ChildScreen (T4 child history + delete)', () => {
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/missed')
   })
 
+  it('a lesson whose catch-up hasn’t gone is a “Missed lesson” chip, not a level', async () => {
+    setup(() => ledger())
+    renderApp('/missed/asha')
+
+    await screen.findByText(/Subtraction with borrowing/)
+    const chips = within(screen.getByRole('list', { name: 'Lessons missed' })).getAllByRole('listitem')
+    expect(chips.map((li) => li.textContent)).toEqual(['Subtraction with borrowing · Missed lesson'])
+  })
+
+  it('Delete sits under More, folded away', async () => {
+    setup(() => ledger())
+    renderApp('/missed/ravi')
+
+    const delete_ = await screen.findByRole('button', { name: 'Delete all of Ravi’s data' })
+    expect(delete_).not.toBeVisible()
+    await userEvent.click(screen.getByText('More'))
+    expect(delete_).toBeVisible()
+  })
+
   it('delete asks first with Keep focused; Keep sends nothing', async () => {
     const calls = setup(() => ledger())
     renderApp('/missed/ravi')
 
+    await userEvent.click(await screen.findByText('More'))
     await userEvent.click(await screen.findByRole('button', { name: 'Delete all of Ravi’s data' }))
     const dialog = screen.getByRole('dialog', { name: 'Delete Ravi’s data?' })
     expect(within(dialog).getByRole('button', { name: 'Keep' })).toHaveFocus()
@@ -93,6 +119,7 @@ describe('ChildScreen (T4 child history + delete)', () => {
     })
     renderApp('/missed/ravi')
 
+    await userEvent.click(await screen.findByText('More'))
     await userEvent.click(await screen.findByRole('button', { name: 'Delete all of Ravi’s data' }))
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }))
 
@@ -112,6 +139,7 @@ describe('ChildScreen (T4 child history + delete)', () => {
     )
     renderApp('/missed/ravi')
 
+    await userEvent.click(await screen.findByText('More'))
     await userEvent.click(await screen.findByRole('button', { name: 'Delete all of Ravi’s data' }))
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }))
 

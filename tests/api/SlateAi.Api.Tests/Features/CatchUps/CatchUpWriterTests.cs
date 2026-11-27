@@ -26,6 +26,7 @@ public sealed class CatchUpWriterTests
     private readonly FakeAudioStore _audio = new();
     private readonly RecordingTts _tts = new();
     private readonly FakeAiCallStore _aiCalls = new();
+    private readonly SlateAi.Api.Tests.Features.LessonLinks.FakeLessonLinkStore _links = new();
     private readonly SequenceLlm _llm;
     private readonly Guid _packageId;
     private readonly PackageProblems _problems;
@@ -202,7 +203,69 @@ public sealed class CatchUpWriterTests
             new Verifier(new ContentCheck(_llm, _aiCalls, prompts), Options.Create(new VerifierOptions())),
             new PackageAudio(_tts, _audio, new DisclosureClips(_tts, _audio, Disclosure), Options.Create(new VerifierOptions()), NullLogger<PackageAudio>.Instance),
             new FixedCurriculumProvider(book),
-            prompts);
+            prompts,
+            _links);
+    }
+
+    [Fact]
+    public async Task The_lesson_video_from_the_admin_page_goes_in_by_code()
+    {
+        // T-103: the same Video section as today's message, from the admin page's link (D-106), never from the AI.
+        _links.Links["M3.SUB.BORROW"] = "https://diksha.gov.in/play/content/do_123";
+        _llm.Script.Enqueue(Good);
+        _llm.Check.Enqueue(Pass);
+
+        await Writer().WriteAsync(_packageId, Ct);
+
+        Assert.Equal("https://diksha.gov.in/play/content/do_123", _store.Packages.Single().VideoUrl);
+    }
+
+    [Fact]
+    public async Task Her_edited_script_is_voiced_with_no_ai_call_and_the_version_she_saved_stays()
+    {
+        // T-103: after her edit the writer only voices her words, through the same audio check (FR-09).
+        _llm.Script.Enqueue(Good);
+        _llm.Check.Enqueue(Pass);
+        await Writer().WriteAsync(_packageId, Ct);
+        var package = _store.Packages.Single();
+        var view = (await _store.GetViewAsync(_packageId, Ct))!;
+        var mine = $"నా మాటలు {_problems.Activity.Numbers[0]} మరియు {_problems.Activity.Numbers[1]}.";
+        var review = CatchUpEditCheck.Review(view.Review, CatchUpSectionKind.Concept,
+            [new SlateAi.Api.Features.CatchUps.Verify.VerifierCheck("length", true, "about 3 seconds")]);
+        Assert.Equal(PackageChange.Applied, await _store.ReviseAsync(
+            _packageId, Guid.NewGuid(), package.ScriptVersion, new PackageRevision(CatchUpSectionKind.Concept, mine, Review: review), Ct));
+        var version = package.ScriptVersion;
+        Assert.Equal((PackageStatus.Generating, null), (package.Status, package.AudioSegments));
+        var calls = _llm.ScriptCalls.Count + _llm.CheckCalls.Count;
+
+        await Writer().WriteAsync(_packageId, Ct);
+
+        Assert.Equal(PackageStatus.Ready, package.Status);
+        Assert.Equal(version, package.ScriptVersion);
+        Assert.Null(package.Hint);
+        Assert.Equal(calls, _llm.ScriptCalls.Count + _llm.CheckCalls.Count);
+        Assert.Equal(mine, _tts.Texts.Last());
+        Assert.NotNull(package.AudioSegments);
+        var checks = (await _store.GetViewAsync(_packageId, Ct))!.Review!.Checks;
+        Assert.Contains(checks, c => c is { Name: "audio", Passed: true });
+        Assert.DoesNotContain(checks, c => c.Name is "content" or "keyWords");
+    }
+
+    [Fact]
+    public async Task Her_edited_script_that_cannot_be_voiced_needs_review()
+    {
+        _llm.Script.Enqueue(Good);
+        _llm.Check.Enqueue(Pass);
+        await Writer().WriteAsync(_packageId, Ct);
+        var package = _store.Packages.Single();
+        await _store.ReviseAsync(_packageId, Guid.NewGuid(), package.ScriptVersion,
+            new PackageRevision(CatchUpSectionKind.Concept, $"నా మాటలు {_problems.Activity.Numbers[0]}."), Ct);
+        _tts.Fail = true;
+
+        await Writer().WriteAsync(_packageId, Ct);
+
+        Assert.Equal(PackageStatus.NeedsReview, package.Status);
+        Assert.Equal("verifier:audio", package.Verdict);
     }
 
     internal static readonly DisclosureWording Disclosure = new("1", new Dictionary<string, string>
