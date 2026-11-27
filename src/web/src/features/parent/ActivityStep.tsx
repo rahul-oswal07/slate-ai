@@ -30,6 +30,16 @@ export function ActivityStep({ page, onNext }: { page: ParentCatchUp; onNext: ()
           )}
         </section>
       )}
+      {page.videoUrl && (
+        // The lesson's video from the admin page, put in by code (T-103, D-106); optional, so it is a link, not a step.
+        <section className="flex flex-col gap-2">
+          <p className="text-body">{t('parent.todays.videoIntro')}</p>
+          <a href={page.videoUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary flex items-center justify-center">
+            {t('parent.todays.watch')}
+          </a>
+          <p className="text-caption text-ink-muted">{t('parent.todays.videoData')}</p>
+        </section>
+      )}
       <PrimaryButton onClick={onNext}>{t('parent.activity.next')}</PrimaryButton>
       {page.homework && <HomeworkCard homework={page.homework} teacher={page.teacherName} />}
     </div>

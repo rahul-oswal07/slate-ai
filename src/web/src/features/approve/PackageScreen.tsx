@@ -8,17 +8,17 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useClassId } from '../auth/useCurrentClass'
 import { formatSchoolTime } from '../today/schoolTime'
 import { useCurriculum } from '../lessons/useLessons'
-import { sumQuestion } from '../parent/sumQuestion'
 import { lessonNames } from './packageText'
-import { SegmentPlayer } from './SegmentPlayer'
+import { CatchUpSections } from './CatchUpSections'
 import { StatusTag } from './StatusTag'
 import type { CatchUpPackage, CompressionItem } from './types'
 import { useApprove, usePackages, useRegenerate } from './usePackages'
 
 /**
- * T3 Approve, detail: listen, read the Kannada summary and "Why this", see the picture question, tick, Approve
- * (bound to the script version she ticked: a new version clears the tick). Needs review blocks Approve and says why
- * in numbers. Withdraw and bulk approve are roadmap (D-70).
+ * T3 Approve, detail: the same sections and editing as today's message (T-103: concept with the player and the Kannada
+ * summary, activity, video, picture question, her note), "Why this", tick, Approve (bound to the script version she
+ * ticked: a new version, from Simpler / Shorter or her own edit, clears the tick). Needs review blocks Approve and says
+ * why in numbers. Withdraw and bulk approve are roadmap (D-70).
  */
 export function PackageScreen() {
   const { id = '' } = useParams()
@@ -74,7 +74,6 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
   }, [pkg.status, announce, t])
 
   const lessons = lessonNames(chapters, pkg.targetCompetencyIds, i18n.language)
-  const checkLesson = lessonNames(chapters, [pkg.check.competencyId], i18n.language)[0]
   const busy = pkg.status === 'generating' || approve.isPending || regenerate.isPending
   const failedChecks = pkg.review?.checks.filter((c) => !c.passed) ?? []
   const tooLong = failedChecks.some((c) => c.name === 'audio' || c.name === 'length')
@@ -107,6 +106,10 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
         </h2>
         <p className="text-body font-bold">{pkg.children.map((c) => c.firstName).join(', ')}</p>
         <p className="text-caption text-ink-muted">{lessons.join(' + ')}</p>
+        <p className="text-caption text-ink-muted">
+          {t('todays.version', { n: pkg.scriptVersion })}
+          {pkg.edited && ` · ${t('approve.sections.edited')}`}
+        </p>
       </div>
 
       {pkg.status === 'failed' && (
@@ -129,7 +132,8 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
       {pkg.status === 'generating' && (
         <output className="flex items-start gap-2 rounded-card border-[1.5px] border-edge border-l-4 border-l-warning bg-surface p-[14px] text-body">
           <Icon name="clock" size={20} className="mt-0.5 shrink-0 text-warning" />
-          {t('approve.pkg.regenerating')}
+          {/* After her own script (T-103) only the voice is made again. */}
+          {t(pkg.edited ? 'approve.sections.voicing' : 'approve.pkg.regenerating')}
         </output>
       )}
 
@@ -158,54 +162,12 @@ function PackageDetail({ pkg, classId }: { pkg: CatchUpPackage; classId: string 
         </output>
       )}
 
-      {pkg.status !== 'failed' && pkg.audio && <SegmentPlayer segments={pkg.audio.segments} />}
-
-      {pkg.status !== 'failed' && pkg.glossKn && (
-        <div className="rounded-card border-2 border-primary bg-panel p-[14px]">
-          <h2 className="text-label text-primary-strong">{t('approve.pkg.summary')}</h2>
-          <p lang="kn" className="mt-1 text-body text-ink">{pkg.glossKn}</p>
-          {i18n.language !== 'kn' && pkg.glossEn && <p className="mt-2 text-body text-ink-muted">{pkg.glossEn}</p>}
-          {pkg.keyWordsKn.length > 0 && (
-            <>
-              <h3 className="mt-3 text-caption text-ink-muted">{t('approve.pkg.keyWords')}</h3>
-              <ul className="mt-1 flex flex-wrap gap-2">
-                {pkg.keyWordsKn.map((w) => (
-                  <li key={w} lang="kn" className="rounded-sm border border-border bg-surface px-2 py-1 text-label">
-                    {w}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
+      {/* The same sections and editing as today's message (T-103): she changes the words while it is ready or needs review. */}
+      {pkg.status !== 'failed' && (
+        <CatchUpSections pkg={pkg} classId={classId} canChange={(pkg.status === 'ready' || pkg.status === 'needsReview') && !busy} />
       )}
 
       {pkg.status !== 'failed' && <WhyThis pkg={pkg} />}
-
-      {pkg.status !== 'failed' && pkg.check.options.length > 0 && (
-        <div className="rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
-          <h2 className="text-label">{t('approve.pkg.check', { lesson: checkLesson })}</h2>
-          <p className="mt-1 text-title">{sumQuestion(pkg.check.question)}</p>
-          <ul className="mt-2 flex gap-2" aria-label={t('approve.pkg.options')}>
-            {pkg.check.options.map((option, i) => (
-              <li
-                key={option}
-                className={`rounded-sm border px-3 py-1 text-label ${
-                  i === pkg.check.correctIndex ? 'border-primary bg-panel text-primary-strong' : 'border-border text-ink'
-                }`}
-              >
-                {option}
-                {i === pkg.check.correctIndex && (
-                  <>
-                    {' ✓'}
-                    <span className="sr-only">{t('approve.pkg.correct')}</span>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {pkg.status === 'ready' && (
         <div className="flex flex-col gap-2 border-t border-divider pt-3">

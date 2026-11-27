@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data.Entities;
 using SlateAi.Api.Features.Audio;
+using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.EveningMessages;
 using SlateAi.Api.Features.WeeklyStar;
 
@@ -401,6 +402,8 @@ public static class ParentEndpoints
             : null;
         var activity = record.Activity;
         var check = record.Check;
+        // Only what she approved at this version: the record is served only then (CanServe), and removed sections stay out.
+        var (video, note) = CatchUpRevision.ForFamily(record.VideoUrl, record.TeacherNote, record.RemovedSections ?? []);
         return new ParentCatchUpResponse(
             record.Language,
             record.ChildName,
@@ -414,7 +417,9 @@ public static class ParentEndpoints
             new ParentActivity(activity.Question, activity.Numbers.FirstOrDefault(), activity.Instruction, activity.ObjectOption),
             new ParentCheck(check.Question, check.Prompt, check.Options.Select((n, i) => new ParentOption(i, n)).ToList()),
             record.ChoiceId,
-            record.Locked);
+            record.Locked,
+            note,
+            video);
     }
 
     /// <summary>The link may show its lesson and take an answer: approved, not expired, not stopped.</summary>

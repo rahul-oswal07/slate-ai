@@ -11,6 +11,9 @@ Spec: [`spec.md`](spec.md)
 - Done tells the family the child earned a star for doing the catch-up (T-63). It is a picture only: nothing counts it (D-118, T-125).
 - The answer: choose, then "This one, send"; their choice comes back with Try again and Next; after the second send it is locked. The latest counts on the teacher's ledger; nothing says right or wrong (D-108).
 - Every step has Back (but Listen) and its title in one row, then the teacher line; a reopened link starts at Listen; Back from Done opens the answer page (T-116).
+- Listen shows the teacher's note under the teacher line when she wrote one, as she typed it (T-103).
+- The activity page links the lesson's video when it has one, before Next (T-103).
+- The page carries only what she approved at its version; a section she removed (video, note) is not shown (T-103).
 
 ## Known gaps and drafts
 

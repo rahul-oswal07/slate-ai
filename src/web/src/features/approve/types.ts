@@ -1,3 +1,5 @@
+import type { SectionKind } from './sectionKinds'
+
 export type PackageStatus = 'generating' | 'ready' | 'needsReview' | 'approved' | 'sent' | 'failed'
 
 /** `reasonKn` (D-76): A2's reason in Kannada; missing on rule choices and catch-ups made before prompt v2. */
@@ -25,7 +27,8 @@ export type CatchUpPackage = {
   keyWordsKn: string[]
   glossKn: string | null
   glossEn: string | null
-  activity: { question: string; instruction: string | null }
+  /** `question`: the numbers code chose; `instruction` and `objectOption`: A3's words, or hers (T-103). */
+  activity: { question: string; instruction: string | null; objectOption?: string | null }
   check: { competencyId: string; question: string; options: number[]; correctIndex: number; prompt: string | null }
   children: AssignedChild[]
   review: { passed: boolean; attempts: number; checks: { name: string; passed: boolean; detail: string }[] } | null
@@ -34,6 +37,14 @@ export type CatchUpPackage = {
   familiesReachable: number
   approvedAt: string | null
   sentAt: string | null
+  /** The lesson's video link from the admin page, put in by code (T-103). */
+  video: { url: string; removed: boolean } | null
+  /** Her note as she typed it (T-103); null until she adds one. */
+  note: { text: string; removed: boolean } | null
+  /** Sections she removed: not sent. */
+  removed: SectionKind[]
+  /** The script or the activity's words are hers (T-103). */
+  edited: boolean
 }
 
 export type CatchUpWeek = { weekOf: string; packages: CatchUpPackage[] }

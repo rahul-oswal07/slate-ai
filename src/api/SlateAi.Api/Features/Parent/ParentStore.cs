@@ -10,6 +10,9 @@ namespace SlateAi.Api.Features.Parent;
 /// <summary>A catch-up link as stored: the assignment, its package and the family's state.</summary>
 /// <param name="ChildName">Written text only (the page header, "Well done"); never sent to an AI provider (D-50).</param>
 /// <param name="ClassId">The child's class: its curriculum names the homework page (T-145).</param>
+/// <param name="VideoUrl">The lesson's video link (T-103), or null.</param>
+/// <param name="TeacherNote">Her note as she typed it (T-103), or null.</param>
+/// <param name="RemovedSections">The sections she removed: "video", "note".</param>
 public sealed record ParentCatchUpRecord(
     Guid AssignmentId,
     Guid ChildId,
@@ -29,7 +32,10 @@ public sealed record ParentCatchUpRecord(
     DateTimeOffset ExpiresAt,
     bool Stopped,
     int Attempts = 0,
-    int? ChoiceId = null)
+    int? ChoiceId = null,
+    string? VideoUrl = null,
+    string? TeacherNote = null,
+    IReadOnlyList<string>? RemovedSections = null)
 {
     /// <summary>At least one submit.</summary>
     public bool Answered => Attempts > 0;
@@ -86,7 +92,7 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
                 {
                     a.Id, a.ChildId, a.ClassId, c.FirstName, t.DisplayName, p.Language, p.Status, p.ScriptVersion,
                     p.ApprovedScriptVersion, p.TargetCompetencyIds, p.Script, p.KeyWordsKn, p.Activity, p.CheckItem,
-                    p.AudioSegments, a.ExpiresAt, Stopped = c.ParentStoppedAt != null,
+                    p.AudioSegments, a.ExpiresAt, Stopped = c.ParentStoppedAt != null, p.VideoUrl, p.TeacherNote, p.RemovedSections,
                     Attempts = db.CheckResponses.Where(r => r.AssignmentId == a.Id).Select(r => r.Attempts).FirstOrDefault(),
                     ChoiceId = db.CheckResponses.Where(r => r.AssignmentId == a.Id).Select(r => (int?)r.ChoiceId).FirstOrDefault(),
                 })
@@ -103,7 +109,10 @@ public sealed class ParentStore(AppDbContext db) : IParentStore
                 row.ExpiresAt ?? DateTimeOffset.MinValue,
                 row.Stopped,
                 row.Attempts,
-                row.ChoiceId);
+                row.ChoiceId,
+                row.VideoUrl,
+                row.TeacherNote,
+                row.RemovedSections);
     }
 
     public async Task<Guid?> FindChildAsync(string token, CancellationToken cancellationToken) =>

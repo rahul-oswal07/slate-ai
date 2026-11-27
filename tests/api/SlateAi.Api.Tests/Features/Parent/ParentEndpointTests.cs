@@ -80,6 +80,29 @@ public sealed class ParentEndpointTests
             page.Audio!.Segments.Select(s => s.Url));
     }
 
+    [Fact]
+    public async Task Her_note_and_the_video_go_to_the_family_unless_she_removed_them()
+    {
+        // T-103: the catch-up has today's message's sections; a removed one is not sent.
+        _parents.CatchUps[Token] = Record() with
+        {
+            TeacherNote = "ఆకులపై సంఖ్యలు రాశాం.",
+            VideoUrl = "https://diksha.gov.in/play/content/do_1",
+            RemovedSections = ["video"],
+        };
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+
+        var page = (await client.GetFromJsonAsync<ParentCatchUpResponse>($"/api/p/{Token}", Ct))!;
+
+        Assert.Equal("ఆకులపై సంఖ్యలు రాశాం.", page.Note);
+        Assert.Null(page.VideoUrl);
+
+        _parents.CatchUps[Token] = Record() with { VideoUrl = "https://diksha.gov.in/play/content/do_1" };
+        var plain = (await client.GetFromJsonAsync<ParentCatchUpResponse>($"/api/p/{Token}", Ct))!;
+        Assert.Equal(("https://diksha.gov.in/play/content/do_1", null), (plain.VideoUrl, plain.Note));
+    }
+
     [Theory]
     [InlineData(PackageStatus.Ready, 2)]
     [InlineData(PackageStatus.Generating, 2)]

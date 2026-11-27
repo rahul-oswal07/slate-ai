@@ -139,6 +139,25 @@ describe('ParentScreen', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Question' })).toBeInTheDocument()
   })
 
+  it('her note on Listen and the lesson video on the activity page, as she approved them (T-103)', async () => {
+    setup(() => page({ note: 'We wrote numbers on leaves.', videoUrl: 'https://diksha.gov.in/play/content/do_1' }))
+    renderApp(`/p/${token}`)
+
+    expect(await screen.findByText('We wrote numbers on leaves.')).toBeInTheDocument()
+    expect(screen.getByText('A note from Shobha')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+    expect(await screen.findByRole('link', { name: 'Watch the video' })).toHaveAttribute('href', 'https://diksha.gov.in/play/content/do_1')
+  })
+
+  it('no note and no video: neither shows', async () => {
+    setup(() => page())
+    renderApp(`/p/${token}?step=2`)
+
+    expect(await screen.findByText('Open one bundle. Now take away 18.')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Watch the video' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/A note from/)).not.toBeInTheDocument()
+  })
+
   it('P3: no numeral before the tap; the chosen one is sent, shown back with Try again and Next, then Well done', async () => {
     let current = page()
     const calls = setup(() => current, {

@@ -100,6 +100,8 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
             p.AudioSegments = outcome.Audio is null ? null : JsonSerializer.Serialize(outcome.Audio, Json);
             if (outcome.Content is { } c)
             {
+                p.TeacherEdited = false;
+                p.VideoUrl = outcome.VideoUrl;
                 p.Script = c.Script;
                 p.KeyWordsKn = [.. c.KeyWordsKn];
                 p.GlossKn = c.GlossKn;
@@ -148,6 +150,47 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
             p.ApprovedByTeacherId = teacherId;
             p.ApprovedScriptVersion = scriptVersion;
             return Task.FromResult(PackageChange.Applied);
+        }
+    }
+
+    public Task<PackageChange> ReviseAsync(
+        Guid packageId, Guid clientRequestId, int? scriptVersion, PackageRevision revision, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (_processed.Contains(clientRequestId))
+            {
+                return Task.FromResult(PackageChange.Replay);
+            }
+
+            if (Packages.SingleOrDefault(x => x.Id == packageId) is not { } p)
+            {
+                return Task.FromResult(PackageChange.NotFound);
+            }
+
+            if (!CatchUpRevision.CanChange(p.Status) || (scriptVersion is not null && p.ScriptVersion != scriptVersion)
+                || !CatchUpRevision.Fits(p, revision))
+            {
+                return Task.FromResult(PackageChange.Conflict);
+            }
+
+            _processed.Add(clientRequestId);
+            CatchUpRevision.Apply(p, revision, Now());
+            return Task.FromResult(PackageChange.Applied);
+        }
+    }
+
+    public Task SaveVoiceAsync(
+        Guid packageId, SlateAi.Api.Features.Audio.AudioSegments? audio, PackageReview review, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            if (Packages.Single(x => x.Id == packageId) is { Status: PackageStatus.Generating, Hint: CatchUpRevision.VoiceHint } p)
+            {
+                CatchUpRevision.Voiced(p, audio, review, Now());
+            }
+
+            return Task.CompletedTask;
         }
     }
 
@@ -233,5 +276,9 @@ public sealed class FakeCatchUpStore(Guid classId, TimeProvider? clock = null) :
         p.AudioSegments is null ? null : JsonSerializer.Deserialize<SlateAi.Api.Features.Audio.AudioSegments>(p.AudioSegments, Json),
         p.ClassId,
         p.ApprovedAt,
-        p.SentAt);
+        p.SentAt,
+        CatchUpRevision.Video(p),
+        CatchUpRevision.Note(p),
+        p.RemovedSections,
+        p.TeacherEdited);
 }

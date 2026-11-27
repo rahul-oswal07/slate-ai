@@ -88,6 +88,14 @@ export function ListenStep({ page, onNext }: { page: ParentCatchUp; onNext: () =
         {t('parent.from', { teacher: page.teacherName })}
       </p>
 
+      {page.note && (
+        // As she wrote it (T-103): she may write in any language, so no lang attribute is claimed.
+        <p className="card text-body">
+          <span className="block text-caption text-ink-muted">{t('parent.todays.note', { teacher: page.teacherName })}</span>
+          {page.note}
+        </p>
+      )}
+
       {segments.length > 0 && (
         <div className="flex flex-col items-center gap-3">
           <div className="relative flex size-[184px] items-center justify-center rounded-full bg-panel">
