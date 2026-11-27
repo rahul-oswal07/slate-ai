@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `TextbookImportFiles` (T-146) |
+| Last migration | `CatchUpSections` (T-103) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | The built-in one is not in the database: loaded from `data/curriculum/*.json` at startup (T-05). A class can instead follow a stored curriculum (`Curricula`, T-145, D-125). Rows reference competencies by string ID such as `M3.ADD.CARRY`, read in the class's curriculum |
 
@@ -19,6 +19,7 @@ erDiagram
     Classes ||--o{ Attendance : "register per day"
     Children ||--o{ Attendance : "marked in"
     Classes ||--o{ Lessons : "taught on a day"
+    Classes ||--o{ LessonFeedback : "her confirmations over A1's match"
     Classes ||--o{ MessageTemplates : "approves once"
     Children ||--o{ EveningMessages : "one per day absent"
     MessageTemplates ||--o{ EveningMessages : "filled from"
@@ -61,6 +62,7 @@ erDiagram
     Classes {
         uuid Id PK
         uuid TeacherId FK
+        varchar20 Name "e.g. 3A; empty = none"
         int Grade
         varchar5 Medium "e.g. kn"
         uuid CurriculumId FK "nullable: null = built-in"
@@ -156,6 +158,23 @@ erDiagram
         float Confidence "nullable"
         timestamptz MappingStartedAt "nullable"
         varchar20 Status "processing, mapped, low, unclear, confirmed"
+    }
+    LessonFeedback {
+        uuid Id PK
+        uuid ClassId FK
+        date Date
+        timestamptz MappingStartedAt
+        int PromptVersion
+        varchar20 MatchStatus "mapped, low"
+        text_array MatchedCompetencyIds
+        float Confidence "nullable"
+        text_array ChosenCompetencyIds
+        varchar10 ConfirmedVia "voice, picked"
+        varchar10 Outcome "accepted, edited, replaced"
+        text SummaryKn "nullable"
+        text SummaryEn "nullable"
+        text_array ExamplesUsed
+        timestamptz CreatedAt
     }
     ProcessedRequests {
         uuid ClientRequestId PK
@@ -396,9 +415,9 @@ erDiagram
 
 **`Teachers`** — one per teacher login (D-40, T-47). `Phone` is the 10-digit national number, unique. `PinHash` is a PBKDF2 hash (`PasswordHasher`) of the 4–6 digit PIN; the demo teacher's comes from `Demo:TeacherPin` and the co-teachers' from `Demo:CoTeacherPin` via the seeder, never stored in clear. `FailedPinAttempts` / `PinLockedUntil`: 5 wrong PINs lock sign-in for 15 minutes. `ConsentAt` is the first-run gate: null → Welcome. It is set once by saving the greeting with the voice-consent tick (`POST /api/me/greeting`, T-61), or by `POST /api/me/welcome` when she continues without a greeting because the microphone is blocked (D-34). `GreetingAudioUrl` is `/api/audio/{id}` of the teacher's own recorded greeting (an `AudioClips` row of kind `greeting`), played first in every parent message (FR-09); null until she records one.
 
-**`Classes`** — `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `CurriculumId` (nullable, migration `ClassCurricula`, T-145, D-125) is the published `Curricula` row the class follows; null is the built-in curriculum from `data/curriculum/*.json`. It is set on `/admin/curriculum` (T-147), which refuses a curriculum missing any lesson ID the class has used in `Lessons`, `TodaysMessages`, `CatchUpPackages` or `CatchUpAssignments`. FK `CurriculumId → Curricula` restrict, so a curriculum a class follows can't be deleted. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
+**`Classes`** — `Name` is the section as the school says it, e.g. `3A` (migration `AddClassName`, T-115; `''` when it has none), so two sections of one grade and medium tell apart in the class dropdown on Today; the seeder fills it from `data/seed/demo-class.json` only while it is empty. `Grade` (3 for the demo) and `Medium` (language of instruction, `kn`). FK `TeacherId → Teachers` (cascade). Index on `TeacherId`. `CurriculumId` (nullable, migration `ClassCurricula`, T-145, D-125) is the published `Curricula` row the class follows; null is the built-in curriculum from `data/curriculum/*.json`. It is set on `/admin/curriculum` (T-147), which refuses a curriculum missing any lesson ID the class has used in `Lessons`, `TodaysMessages`, `CatchUpPackages` or `CatchUpAssignments`. FK `CurriculumId → Curricula` restrict, so a curriculum a class follows can't be deleted. `TeacherId` is the class's **main teacher**: the name, greeting and `{teacher}` families see (D-79); who can sign in to the class is `ClassTeachers`.
 
-**`ClassTeachers`** — which teachers can sign in to a class (D-79): composite PK `(ClassId, TeacherId)`, FKs to `Classes` and `Teachers` (cascade), index on `TeacherId`. `AuthStore.GetMeAsync` takes the teacher's class from here (their own class first), and the class goes into the session cookie as before. The migration `ClassTeachers` adds one row per existing class for its main teacher; the seeder adds the demo class's main teacher and the co-teachers in `data/seed/demo-class.json` (`coTeachers`).
+**`ClassTeachers`** — which teachers can sign in to a class (D-79): composite PK `(ClassId, TeacherId)`, FKs to `Classes` and `Teachers` (cascade), index on `TeacherId`. `AuthStore.GetMeAsync` lists every class of hers from here, the class she is main teacher of first (her default), and each one goes into the session cookie as its own `class_id` claim (T-115); every class route accepts any of them. The migration `ClassTeachers` adds one row per existing class for its main teacher; the seeder adds the demo class's main teacher and the co-teachers in `data/seed/demo-class.json` (`coTeachers`), and the main teacher of each of the file's `otherClasses` (Monika's 3B, T-115).
 
 **`Children`** — `RollNo` is unique within a class (`IX_Children_ClassId_RollNo`). `HomeLanguage` (`kn`, `en`, `te`, `ta` or `hi`) is the language of everything the family gets: evening message, today's message, lesson audio, catch-ups. It can be changed on `/admin/children`, which sets `HomeLanguageSetAt` (migration `HomeLanguageSetAt`, T-122, D-113); what was made before keeps its language, and the demo Reset puts a changed language back on the re-created child. `HasPhone = false` children still get the return-day buddy card (FR-12). `ParentPhone` is E.164; seeded values are fictional and never dialled. `ParentPhoneSetAt` is set when a number is saved on `/admin/children` (migration `ParentPhoneSetAt`, T-118, D-110): only then does WhatsApp use it, and it is the only number WhatsApp dials (D-114); clearing sets both null. `ParentPhone2` / `ParentPhone2SetAt` are the family's optional Number 2, with the same rules (migration `SecondParentPhone`, T-140, D-122); the seed has none, and every message goes to each saved number. The demo Reset puts both saved numbers back on the re-created children. FK `ClassId → Classes` (cascade). `Consent` is the family's paper form as the teacher recorded it (D-39): `yes`, `no` or `nophone`; a form not back is `no` (column default). Nothing is sent unless `yes`. In the MVP it comes from `data/seed/demo-class.json`; the seeder keeps it in step until `ConsentChangedAt` is set (the T8 editing screen is roadmap, D-70). `ParentStoppedAt` is the family's "Stop these messages" (D-19), separate from consent; every send path refuses a stopped child (migration `EveningMessages`).
 
@@ -407,6 +426,8 @@ erDiagram
 - **No rows for a date = not a school day** (holiday, Dasara break). Such days never count as absences.
 
 **`Lessons`** — what was taught on a day: one row per class per day (D-55; "Change" overwrites it; a new note can replace a confirmed row until today's message is approved or tonight's message has gone, which sets it back to processing, D-104). Only rows with `Status = confirmed` reach the ledger and missed lessons (T2 §3); picking from the list (FR-04) writes `Source = picked`, `Status = confirmed` directly. T-07 PR B adds `Transcript`, `ExamplesUsed`, `Confidence` and the capture endpoint. `CompetencyIds` is a Postgres `text[]` of curriculum IDs (1–3, validated against the curriculum in code, never trusted from the LLM). FK `ClassId → Classes` (cascade). **Unique** index `(ClassId, Date)` (migration `LessonOnePerDay`). Writes are idempotent by `clientRequestId` (`ProcessedRequests`, endpoint `lesson`) under a per-class-and-date advisory lock. Voice notes (T-07 PR 2b, migration `LessonVoiceMapping`): the upload sets `Status = processing` and `MappingStartedAt`; the background worker stores A1's ranked `CompetencyIds`, `SummaryKn`/`SummaryEn` (D-56), `ExamplesUsed` and `Confidence`, and `Status` `mapped` / `low` (< 0.7) / `unclear`, but only if the lesson is still processing that note. A note still processing after 2 minutes reads as `unclear`. **Neither the transcript nor the audio is stored** (her recording stays on her phone until she confirms).
+
+**`LessonFeedback`** — her confirmations over A1's match, kept as A1 eval cases (T-102, migration `LessonFeedback`). One row each time she confirms a lesson while the day's lesson is `mapped` or `low`, from the matched list (`ConfirmedVia = voice`) or from the lesson list instead (`picked`): A1's ranked `MatchedCompetencyIds`, `MatchStatus` and `Confidence`, her `ChosenCompetencyIds` (book order), `Outcome` computed in code (`accepted`: what T2 offered, all the ticked lessons or one of the two low choices; `edited`: some of it; `replaced`: none of it), the A1 prompt `PromptVersion`, and A1's own name-scrubbed `SummaryKn`/`SummaryEn`/`ExamplesUsed` copied from the lesson row. **No names, transcript or audio** (there is no column for them). Written in the same transaction as the confirmation, only if the `clientRequestId` is new and the lesson is still the note the match came from (`MappingStartedAt`), so an outbox replay adds nothing. Not linked to the `Lessons` row, so it outlives "Change", a new note and the demo reset; a "Change" after confirming adds no row (there is no match left to compare with). Listed newest first on `GET /api/admin/lesson-feedback` in the shape of `evals/cases/a1-lesson-mapping.json`. FK `ClassId → Classes` (cascade). Index on `CreatedAt`.
 
 **`MessageTemplates`** — the evening message the teacher approves once (FR-20, D-21): one row per class and language (unique `(ClassId, Language)`), created as `draft` from `data/seed/evening-message.json` on first use. When that file's `version` changes, the rows take the new text and go back to `draft` (a change needs approval again, D-49). Approval sets every language to `approved` with `ApprovedAt` / `ApprovedByTeacherId` (FK → Teachers), idempotent by `clientRequestId` (`ProcessedRequests`, endpoint `message-template-approve`) under a per-class advisory lock; approving a stale version is refused (409). FK `ClassId → Classes` (cascade).
 
@@ -460,7 +481,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`, `Classes.CurriculumId` (restrict, T-145) and `CurriculumImports.CurriculumId` (set null, T-146): Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`, `Classes.CurriculumId` (restrict, T-145) and `CurriculumImports.CurriculumId` (set null, T-146): Teacher → Classes → Children / Attendance / Lessons / LessonFeedback / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -511,6 +532,7 @@ From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 - Personal data is limited to `Teachers.DisplayName`, `Teachers.Phone`, `Children.FirstName` (first name only) and `Children.ParentPhone` / `ParentPhone2`. None of it is ever sent to Claude or Sarvam (guardrail 1, NFR-05); AI inputs use IDs and `{child}` / `{teacher}` placeholders. WhatsApp gets the child's and teacher's first names only in the final send to the family (T-40), to a number saved on `/admin/children` (`ParentPhone` / `ParentPhone2` with their `SetAt`, D-114, D-122); seeded numbers are never dialled.
 - The demo seed (`data/seed/demo-class.json`) is fictional, with placeholder phone numbers that must never be messaged.
 - Logs record counts and IDs, never names.
+- A1 eval cases from her confirmations (`LessonFeedback`, T-102) keep curriculum IDs and A1's own name-scrubbed summary and examples, never a name, transcript or audio.
 - Deleting a child removes all their rows by cascade; audio in blob storage is deleted in code (T-19).
 - Health data (D-23): store only the reason category (e.g. "unwell"), never symptoms.
 

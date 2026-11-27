@@ -62,6 +62,10 @@ const evening = (sent: number): EveningDay => ({
   sent,
   sendsAt: '18:00:00',
   children: [],
+  goesAt: null,
+  waiting: null,
+  sentAt: null,
+  withTodays: false,
 })
 
 const answers: TodaysAnswers = {
@@ -134,7 +138,7 @@ describe('Today’s next step (T-96)', () => {
     today({ lesson: 'confirmed', todays: todaysMessage({ status: 'approved', approvedVersion: 1 }) })
     renderApp('/')
 
-    expect(await screen.findByText('Today’s message: approved · goes after 6 pm')).toBeInTheDocument()
+    expect(await screen.findByText('Today’s message: approved')).toBeInTheDocument()
     expect(primaries()).toHaveLength(0)
   })
 

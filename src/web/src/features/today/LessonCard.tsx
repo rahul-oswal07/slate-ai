@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { AccentTitle } from '../../components/AccentWord'
-import { useMe } from '../auth/useMe'
+import { useCurrentClass } from '../auth/useCurrentClass'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { ExercisesTag } from '../lessons/ExercisesTag'
@@ -47,7 +47,7 @@ export function LessonCard({
   const announce = useAnnounce()
   const queued = useNoteQueued(classId, date)
   const send = useSendNote(classId, date)
-  const sampleVoiceNote = useMe().data?.demo?.sampleVoiceNote === true
+  const sampleVoiceNote = useCurrentClass()?.demo?.sampleVoiceNote === true
   const [sending, setSending] = useState(false)
   const [sampleFailed, setSampleFailed] = useState(false)
   // Re-record holds only until she sends the new note; then the card follows the server again.

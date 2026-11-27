@@ -261,6 +261,16 @@ public sealed class CatchUpApprovalEndpointTests
     }
 
     [Fact]
+    public async Task A_teacher_in_two_classes_opens_a_catch_up_of_either()
+    {
+        // T-115: the package is in her second class, not her default one.
+        await using var factory = Create(new CatchUpQueue(), demo: true);
+        using var client = factory.CreateTeacherClient([Guid.NewGuid(), ClassId], TeacherId);
+
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync($"/api/packages/{_packageId}", Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task Another_class_gets_404_and_signed_out_gets_401()
     {
         await using var factory = Create(new CatchUpQueue(), demo: true);

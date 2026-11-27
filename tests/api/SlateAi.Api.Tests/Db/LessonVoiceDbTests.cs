@@ -31,5 +31,27 @@ public sealed class LessonVoiceDbTests(PostgresFixture postgres)
         Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE"], day.CompetencyIds);
         Assert.Equal(["865 - 432"], day.ExamplesUsed);
         Assert.Equal("Subtraction", day.SummaryEn);
+        Assert.Equal(0.86, day.Confidence);
+
+        // T-102: confirming over the match saves one eval case, in the same write, matched on the note's start time
+        // as read back from Postgres; the outbox replaying the confirmation adds nothing.
+        var feedback = LessonFeedbackBuilder.From(Day, day, ["M3.SUB.NOBORROW"], LessonValues.Voice, 3)!;
+        var confirm = Guid.NewGuid();
+        await api.ScopedAsync<ILessonStore>(async store =>
+        {
+            await store.SaveConfirmedAsync(api.ClassId, confirm, Day, ["M3.SUB.NOBORROW"], LessonValues.Voice, feedback, DemoClassApi.Ct);
+            await store.SaveConfirmedAsync(api.ClassId, confirm, Day, ["M3.SUB.NOBORROW"], LessonValues.Voice, feedback, DemoClassApi.Ct);
+        });
+
+        var saved = await api.ScopedAsync<ILessonStore, IReadOnlyList<SavedLessonFeedback>>(
+            store => store.ListFeedbackAsync(Day, 10, DemoClassApi.Ct));
+        var only = Assert.Single(saved);
+        Assert.Equal(api.ClassId, only.ClassId);
+        Assert.Equal(["M3.SUB.NOBORROW", "M3.SUB.MAKE"], only.Feedback.MatchedCompetencyIds);
+        Assert.Equal(["M3.SUB.NOBORROW"], only.Feedback.ChosenCompetencyIds);
+        Assert.Equal(LessonFeedbackBuilder.Edited, only.Feedback.Outcome);
+        Assert.Equal("ಕಳೆಯುವಿಕೆ", only.Feedback.SummaryKn);
+        Assert.Empty(await api.ScopedAsync<ILessonStore, IReadOnlyList<SavedLessonFeedback>>(
+            store => store.ListFeedbackAsync(Day.AddDays(1), 10, DemoClassApi.Ct)));
     }
 }

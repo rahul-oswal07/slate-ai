@@ -4,7 +4,7 @@ import { NetworkError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useOnline } from '../../components/useOnline'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { useCurriculum } from '../lessons/useLessons'
 import { byActionNeeded } from './packageOrder'
 import { duration, lessonNames } from './packageText'
@@ -23,10 +23,9 @@ type Tab = (typeof TABS)[number]
  */
 export function ApproveScreen() {
   const { t } = useTranslation()
-  const me = useMe()
   const online = useOnline()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = me.data?.classId ?? ''
+  const classId = useClassId()
   const [params, setParams] = useSearchParams()
   const tab: Tab = params.get('tab') === 'catch-ups' ? 'catchUps' : 'today'
   const select = (next: Tab) => setParams(next === 'catchUps' ? { tab: 'catch-ups' } : {}, { replace: true })

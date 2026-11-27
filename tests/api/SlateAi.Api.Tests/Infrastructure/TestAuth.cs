@@ -36,11 +36,15 @@ public static class TestAuth
         factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
 
     /// <summary>A client signed in as the teacher of <paramref name="classId"/>.</summary>
-    public static HttpClient CreateTeacherClient(this ApiFactory factory, Guid classId, Guid? teacherId = null)
+    public static HttpClient CreateTeacherClient(this ApiFactory factory, Guid classId, Guid? teacherId = null) =>
+        factory.CreateTeacherClient([classId], teacherId);
+
+    /// <summary>A client signed in as a teacher of every class in <paramref name="classIds"/> (T-115).</summary>
+    public static HttpClient CreateTeacherClient(this ApiFactory factory, IReadOnlyList<Guid> classIds, Guid? teacherId = null)
     {
         var client = factory.CreateHttpsClient();
         client.DefaultRequestHeaders.Add(TeacherHeader, (teacherId ?? Guid.NewGuid()).ToString());
-        client.DefaultRequestHeaders.Add(ClassHeader, classId.ToString());
+        client.DefaultRequestHeaders.Add(ClassHeader, string.Join(',', classIds));
         return client;
     }
 
@@ -55,8 +59,12 @@ public static class TestAuth
                 return Task.FromResult(AuthenticateResult.NoResult());
             }
 
-            Guid? classId = Guid.TryParse(Request.Headers[ClassHeader], out var id) ? id : null;
-            ClaimsPrincipal user = AuthClaims.Teacher(teacherId, classId, HeaderScheme);
+            // One class or several, comma-separated (T-115).
+            var classIds = Request.Headers[ClassHeader].ToString()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(value => Guid.TryParse(value, out var id) ? id : Guid.Empty)
+                .Where(id => id != Guid.Empty);
+            ClaimsPrincipal user = AuthClaims.Teacher(teacherId, classIds, HeaderScheme);
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(user, HeaderScheme)));
         }
     }

@@ -1,5 +1,5 @@
 {
-  "_note": "Fictional demo class. No real children. Phone numbers are placeholders and must never be messaged. consent = the family's paper form as the teacher recorded it (D-39): yes, no or nophone.",
+  "_note": "Fictional demo class. No real children. Phone numbers are placeholders and must never be messaged. consent = the family's paper form as the teacher recorded it (D-39): yes, no or nophone. otherClasses (T-115): more fictional classes, each with its main teacher from teacher or coTeachers; 3B is Monika's, so she signs in to two classes. The demo Reset never touches them.",
   "teacher": {
     "id": "6abf3cc9-9aa8-5786-a833-62325a6418f4",
     "displayName": "Shobha",
@@ -19,6 +19,7 @@
   ],
   "class": {
     "id": "0a1e03b3-23fa-5a7d-87e3-490d6ddae335",
+    "name": "3A",
     "grade": 3,
     "medium": "kn"
   },
@@ -346,6 +347,71 @@
       "hasPhone": false,
       "parentPhone": null,
       "consent": "nophone"
+    }
+  ],
+  "otherClasses": [
+    {
+      "id": "fe320bf3-fd21-5787-b984-e2f290102247",
+      "name": "3B",
+      "grade": 3,
+      "medium": "kn",
+      "teacherId": "983078c0-de44-5954-b9d8-30834b3179c8",
+      "children": [
+        {
+          "id": "905cf44e-c8b1-5342-bb1f-83511270733b",
+          "rollNo": 1,
+          "firstName": "Aditi",
+          "homeLanguage": "kn",
+          "hasPhone": true,
+          "parentPhone": "+919000000101",
+          "consent": "yes"
+        },
+        {
+          "id": "4a634e57-8e67-5a68-a910-801583aad207",
+          "rollNo": 2,
+          "firstName": "Bharath",
+          "homeLanguage": "kn",
+          "hasPhone": true,
+          "parentPhone": "+919000000102",
+          "consent": "yes"
+        },
+        {
+          "id": "9bb83433-823b-51df-86bb-392d713f4827",
+          "rollNo": 3,
+          "firstName": "Farhan",
+          "homeLanguage": "hi",
+          "hasPhone": true,
+          "parentPhone": "+919000000103",
+          "consent": "yes"
+        },
+        {
+          "id": "43759c53-b8c9-5e49-9289-2d48f7a503f6",
+          "rollNo": 4,
+          "firstName": "Gowri",
+          "homeLanguage": "te",
+          "hasPhone": true,
+          "parentPhone": "+919000000104",
+          "consent": "yes"
+        },
+        {
+          "id": "97561df2-bc30-5474-93c8-d7f9a8df9737",
+          "rollNo": 5,
+          "firstName": "Ilango",
+          "homeLanguage": "ta",
+          "hasPhone": false,
+          "parentPhone": null,
+          "consent": "nophone"
+        },
+        {
+          "id": "9d2150e3-26de-5bf6-ac6e-f205bbf1673b",
+          "rollNo": 6,
+          "firstName": "Jyothi",
+          "homeLanguage": "kn",
+          "hasPhone": true,
+          "parentPhone": "+919000000106",
+          "consent": "no"
+        }
+      ]
     }
   ]
 }

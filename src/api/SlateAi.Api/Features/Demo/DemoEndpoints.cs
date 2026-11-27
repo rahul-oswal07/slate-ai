@@ -199,7 +199,7 @@ public static class DemoEndpoints
             });
         }
 
-        if (http.User.GetClassId() != request.ClassId
+        if (!http.User.IsInClass(request.ClassId)
             || await store.GetRosterAsync(request.ClassId, cancellationToken) is not { } roster)
         {
             return TypedResults.NotFound();
@@ -235,7 +235,7 @@ public static class DemoEndpoints
 
         await http.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            AuthClaims.Teacher(me.TeacherId, me.ClassId, CookieAuthenticationDefaults.AuthenticationScheme),
+            AuthClaims.Teacher(me.TeacherId, me.ClassIds, CookieAuthenticationDefaults.AuthenticationScheme),
             new AuthenticationProperties { IsPersistent = true });
         return TypedResults.Ok(me);
     }
@@ -247,7 +247,7 @@ public static class DemoEndpoints
         CancellationToken cancellationToken)
     {
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
-        if (http.User.GetClassId() != seed.Class.Id)
+        if (!http.User.IsInClass(seed.Class.Id))
         {
             return TypedResults.NotFound();
         }
@@ -275,7 +275,7 @@ public static class DemoEndpoints
         }
 
         var classId = (await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken)).Class.Id;
-        if (http.User.GetClassId() != classId)
+        if (!http.User.IsInClass(classId))
         {
             return TypedResults.NotFound();
         }
@@ -306,7 +306,7 @@ public static class DemoEndpoints
     {
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
         var classId = seed.Class.Id;
-        if (http.User.GetClassId() != classId)
+        if (!http.User.IsInClass(classId))
         {
             return TypedResults.NotFound();
         }
@@ -359,7 +359,7 @@ public static class DemoEndpoints
 
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
         var classId = seed.Class.Id;
-        if (http.User.GetClassId() != classId)
+        if (!http.User.IsInClass(classId))
         {
             return TypedResults.NotFound();
         }
@@ -377,11 +377,19 @@ public static class DemoEndpoints
     }
 
     private static async Task<Results<Ok<IReadOnlyList<FamilyMessage>>, NotFound>> GetFamilyAsync(
-        Guid childId, HttpContext http, IDemoStore store, CancellationToken cancellationToken) =>
-        http.User.GetClassId() is { } classId
-        && await store.GetFamilyAsync(classId, childId, cancellationToken) is { } messages
-            ? TypedResults.Ok(messages)
-            : TypedResults.NotFound();
+        Guid childId, HttpContext http, IDemoStore store, CancellationToken cancellationToken)
+    {
+        // The child is in at most one of her classes (T-115).
+        foreach (var classId in http.User.GetClassIds())
+        {
+            if (await store.GetFamilyAsync(classId, childId, cancellationToken) is { } messages)
+            {
+                return TypedResults.Ok(messages);
+            }
+        }
+
+        return TypedResults.NotFound();
+    }
 
     private static async Task<Results<Ok<DemoChildResponse>, NotFound>> GetChildAsync(
         Guid childId,
@@ -392,7 +400,7 @@ public static class DemoEndpoints
     {
         // Demo class only: its names are fictional, so they can be shown on a page anyone with the link can open.
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
-        return http.User.GetClassId() == seed.Class.Id
+        return http.User.IsInClass(seed.Class.Id)
             && await store.GetChildAsync(seed.Class.Id, childId, cancellationToken) is { } child
                 ? TypedResults.Ok(child)
                 : TypedResults.NotFound();
@@ -416,17 +424,25 @@ public static class DemoEndpoints
     }
 
     private static async Task<Results<Ok<DemoSnapshot>, NotFound>> GetSnapshotAsync(
-        Guid packageId, HttpContext http, IDemoStore store, CancellationToken cancellationToken) =>
-        http.User.GetClassId() is { } classId
-        && await store.ExportAsync(classId, packageId, cancellationToken) is { } snapshot
-            ? TypedResults.Ok(snapshot)
-            : TypedResults.NotFound();
+        Guid packageId, HttpContext http, IDemoStore store, CancellationToken cancellationToken)
+    {
+        // The package is in at most one of her classes (T-115).
+        foreach (var classId in http.User.GetClassIds())
+        {
+            if (await store.ExportAsync(classId, packageId, cancellationToken) is { } snapshot)
+            {
+                return TypedResults.Ok(snapshot);
+            }
+        }
+
+        return TypedResults.NotFound();
+    }
 
     private static async Task<Results<PhysicalFileHttpResult, NotFound>> GetVoiceNoteAsync(
         HttpContext http, IOptions<DatabaseOptions> database, IOptions<DemoOptions> demo, CancellationToken cancellationToken)
     {
         var seed = await DemoSeedFile.LoadAsync(database.Value.SeedFile, cancellationToken);
-        return http.User.GetClassId() == seed.Class.Id && DemoVoiceNote.Path(demo.Value) is { } path
+        return http.User.IsInClass(seed.Class.Id) && DemoVoiceNote.Path(demo.Value) is { } path
             ? TypedResults.PhysicalFile(path, "audio/webm")
             : TypedResults.NotFound();
     }

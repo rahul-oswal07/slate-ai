@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Open until the Grand Finale, Wed 18 Nov |
+| Status | Closed (the Grand Finale was on Wed 18 Nov) |
 | Issue | none |
 | Owner | M |
 | Screens | demo, curriculum |
@@ -21,6 +21,7 @@
 
 ## Notes
 
+- 27 Nov: closed, since the finale is over. What is still open lives in the screens' `status.md` files (design cards not updated for T-89 to T-99) and in [`../status.md`](../status.md) (lesson videos on prod).
 - 15 Nov: moved here from `tasks.md` (T-110).
 - 15 Nov: T-94 is built: Monika (or Rahul) enters the checked link on `/admin/lesson-links` (staging needs the admin link with its key), no code change needed (D-106).
 - 14 Nov: M-1 not in yet: no checked DIKSHA link in the repo or on issue #191, so T-94 waits.

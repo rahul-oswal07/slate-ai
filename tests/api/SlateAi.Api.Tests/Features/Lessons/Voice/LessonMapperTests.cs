@@ -174,7 +174,7 @@ public sealed class LessonMapperTests
     [Fact]
     public async Task A_result_is_ignored_if_she_picked_from_the_list_meanwhile()
     {
-        await _store.SaveConfirmedAsync(ClassId, Guid.NewGuid(), Day, ["M3.SUB.BORROW"], "picked", Ct);
+        await _store.SaveConfirmedAsync(ClassId, Guid.NewGuid(), Day, ["M3.SUB.BORROW"], "picked", null, Ct);
 
         await Mapper().MapAsync(Job(), Ct);
 

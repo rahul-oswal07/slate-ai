@@ -62,32 +62,71 @@ public sealed class DemoSeeder(
             coTeacherIds.Add(co.Id);
         }
 
+        added += await SeedClassAsync(
+            seed.Class.Id, seed.Teacher.Id, seed.Class.Name, seed.Class.Grade, seed.Class.Medium, seed.Children,
+            coTeacherIds.Prepend(seed.Teacher.Id).ToList(), cancellationToken);
+        // More fictional classes (T-115), e.g. Monika's own 3B: she then signs in to two classes.
+        foreach (var other in seed.OtherClasses ?? [])
+        {
+            added += await SeedClassAsync(
+                other.Id, other.TeacherId, other.Name, other.Grade, other.Medium, other.Children, [other.TeacherId],
+                cancellationToken);
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        logger.LogInformation("Demo seed applied: {Added} rows added", added);
+    }
+
+    /// <summary>
+    /// One class, its children and who can sign in to it (<paramref name="members"/>, main teacher first). Returns the
+    /// rows added.
+    /// </summary>
+    private async Task<int> SeedClassAsync(
+        Guid classId,
+        Guid mainTeacherId,
+        string? name,
+        int grade,
+        string medium,
+        IReadOnlyList<DemoSeedFile.SeedChild> children,
+        IReadOnlyList<Guid> members,
+        CancellationToken cancellationToken)
+    {
+        var added = 0;
+
         // Children are added only with a new class: a child the teacher deleted (FR-15) must not come back on the next
         // start or deploy. The demo Reset (T-18) re-seeds on purpose.
-        var newClass = !await db.Classes.AnyAsync(c => c.Id == seed.Class.Id, cancellationToken);
-        if (newClass)
+        var stored = await db.Classes.SingleOrDefaultAsync(c => c.Id == classId, cancellationToken);
+        var newClass = stored is null;
+        if (stored is null)
         {
             db.Classes.Add(new Class
             {
-                Id = seed.Class.Id,
-                TeacherId = seed.Teacher.Id,
-                Grade = seed.Class.Grade,
-                Medium = seed.Class.Medium,
+                Id = classId,
+                TeacherId = mainTeacherId,
+                Name = name ?? "",
+                Grade = grade,
+                Medium = medium,
             });
             added++;
         }
+        else if (stored.Name == "" && !string.IsNullOrEmpty(name))
+        {
+            // A class seeded before names existed (T-115) gets the file's name once; a name set later is kept.
+            stored.Name = name;
+        }
 
         var existing = await db.Children
-            .Where(c => c.ClassId == seed.Class.Id)
+            .Where(c => c.ClassId == classId)
             .ToDictionaryAsync(c => c.Id, cancellationToken);
 
-        foreach (var child in seed.Children)
+        foreach (var child in children)
         {
-            if (existing.TryGetValue(child.Id, out var stored))
+            if (existing.TryGetValue(child.Id, out var storedChild))
             {
-                if (stored.ConsentChangedAt is null)
+                if (storedChild.ConsentChangedAt is null)
                 {
-                    stored.Consent = child.Consent ?? "no";
+                    storedChild.Consent = child.Consent ?? "no";
                 }
 
                 continue;
@@ -98,22 +137,20 @@ public sealed class DemoSeeder(
                 continue;
             }
 
-            db.Children.Add(child.ToEntity(seed.Class.Id));
+            db.Children.Add(child.ToEntity(classId));
             added++;
         }
 
         // Who can sign in to the class: its main teacher and the co-teachers. Added even when the class already exists.
-        var members = await db.ClassTeachers.Where(m => m.ClassId == seed.Class.Id).Select(m => m.TeacherId)
+        var current = await db.ClassTeachers.Where(m => m.ClassId == classId).Select(m => m.TeacherId)
             .ToListAsync(cancellationToken);
-        foreach (var teacherId in coTeacherIds.Prepend(seed.Teacher.Id).Except(members))
+        foreach (var teacherId in members.Except(current))
         {
-            db.ClassTeachers.Add(new ClassTeacher { ClassId = seed.Class.Id, TeacherId = teacherId });
+            db.ClassTeachers.Add(new ClassTeacher { ClassId = classId, TeacherId = teacherId });
             added++;
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        logger.LogInformation("Demo seed applied: {Added} rows added", added);
+        return added;
     }
 
     private void SetLogin(Teacher teacher, string? phone, string? pin, string setting)

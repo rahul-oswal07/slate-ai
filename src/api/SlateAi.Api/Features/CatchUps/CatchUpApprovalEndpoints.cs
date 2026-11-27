@@ -276,9 +276,9 @@ public static class CatchUpApprovalEndpoints
         return result == PackageChange.Conflict ? TypedResults.Conflict(latest) : TypedResults.Ok(latest);
     }
 
-    /// <summary>The package if it belongs to the signed-in teacher's class; 404 otherwise.</summary>
+    /// <summary>The package if it belongs to one of the signed-in teacher's classes; 404 otherwise.</summary>
     private static async Task<PackageView?> OwnedAsync(Guid id, HttpContext http, ICatchUpStore store, CancellationToken cancellationToken) =>
-        await store.GetViewAsync(id, cancellationToken) is { } view && view.ClassId == http.User.GetClassId() ? view : null;
+        await store.GetViewAsync(id, cancellationToken) is { } view && http.User.IsInClass(view.ClassId) ? view : null;
 
     private static ValidationProblem Required() =>
         TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["clientRequestId"] = ["Required."] });

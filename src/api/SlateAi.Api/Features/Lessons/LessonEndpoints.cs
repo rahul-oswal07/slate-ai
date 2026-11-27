@@ -86,7 +86,9 @@ public static class LessonEndpoints
             .WithDescription(
                 "Creates or replaces the day's lesson (one per day, D-55) as picked and confirmed. 1–3 curriculum IDs. " +
                 "Replaying the same clientRequestId is a no-op (offline outbox). 409 with the day as it is when tonight's " +
-                "message has already gone to families and the lesson would change (T-143, D-124); the same lesson is fine.");
+                "message has already gone to families and the lesson would change (T-143, D-124); the same lesson is fine. " +
+                "Confirming over a voice or photo match also saves what A1 offered and what she chose as an eval case " +
+                "(T-102; IDs and A1's summary only, see `/api/admin/lesson-feedback`).");
 
         app.MapPost("/api/classes/{classId:guid}/lessons/{date}/audio", UploadAudioAsync)
             .RequireClassOwner()
@@ -241,6 +243,7 @@ public static class LessonEndpoints
         IEveningStore evening,
         ICurriculumProvider curricula,
         TodaysMessageService todays,
+        PromptLibrary prompts,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
@@ -281,15 +284,20 @@ public static class LessonEndpoints
 
         // T-143, D-124: once tonight's message has gone, families have the message about the confirmed lesson; another
         // lesson would make Missed lessons disagree with it, and the message is never sent twice. The same lesson is fine.
-        if (await store.GetDayAsync(classId, date, cancellationToken) is { Status: LessonValues.Confirmed } current
+        var current = await store.GetDayAsync(classId, date, cancellationToken);
+        if (current is { Status: LessonValues.Confirmed }
             && !current.CompetencyIds.Order(StringComparer.Ordinal).SequenceEqual(ordered.Order(StringComparer.Ordinal))
             && await SentToFamiliesAsync(evening, classId, date, cancellationToken))
         {
             return TypedResults.Conflict(await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken));
         }
 
+        // T-102: confirming over A1's match keeps what A1 offered and what she chose, as an eval case.
+        var source = request.Source ?? LessonValues.Picked;
+        var feedback = LessonFeedbackBuilder.From(
+            date, current, ordered, source, prompts.Get(LessonMapper.PromptId).Version);
         var saved = await store.SaveConfirmedAsync(
-            classId, request.ClientRequestId, date, ordered, request.Source ?? LessonValues.Picked, cancellationToken);
+            classId, request.ClientRequestId, date, ordered, source, feedback, cancellationToken);
         // D-91: confirming the lesson starts today's message for absent families (a replay of the same lesson doesn't).
         await todays.StartAsync(classId, date, saved.CompetencyIds, force: false, cancellationToken);
         return TypedResults.Ok(await DayAsync(classId, date, store, evening, curricula, clock, cancellationToken));

@@ -4,6 +4,8 @@ using SlateAi.Api.Curriculum;
 using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Features.Auth;
+using SlateAi.Api.Features.LessonAudio;
+using SlateAi.Api.Features.TodaysMessage;
 
 namespace SlateAi.Api.Features.EveningMessages;
 
@@ -91,7 +93,20 @@ public static class EveningEndpoints
         app.MapGet("/api/classes/{classId:guid}/evening-messages/{date}", GetDayAsync)
             .RequireClassOwner()
             .WithTags("Evening message")
-            .WithSummary("Tonight's evening messages: who gets one and why not (T1 tonight's card)");
+            .WithSummary("Tonight's evening messages: who gets one and why not, and when they go (T1 tonight's card)")
+            .WithDescription(
+                "goesAt is when the 6 pm job sends if she does nothing: the send time, or later while it waits for her to " +
+                "approve today's message (waiting \"forYou\"); null while today's message is being written (waiting " +
+                "\"writing\"), once everything has gone, or on another day. Worked out by the same code the job uses.");
+
+        app.MapGet("/api/classes/{classId:guid}/evening-messages/{date}/children/{childId:guid}", GetPreviewAsync)
+            .RequireClassOwner()
+            .WithTags("Evening message")
+            .WithSummary("One family's real evening message, for her to read on Today (T-86)")
+            .WithDescription(
+                "The text as it goes tonight (or went), with the child's name and the lesson filled by code, in the " +
+                "family's language, and whether today's message goes with it. Read only: nothing is sent. 404 for a child " +
+                "who isn't absent that day or whose family gets no message.");
 
         app.MapPost("/api/classes/{classId:guid}/evening-messages/send", SendAsync)
             .RequireClassOwner()
@@ -154,21 +169,61 @@ public static class EveningEndpoints
         Guid classId,
         DateOnly date,
         EveningSender sender,
+        ILessonAudioStore lessonAudio,
+        ITodaysMessageStore todaysMessages,
+        IOptions<EveningOptions> options,
+        TimeProvider clock,
+        CancellationToken cancellationToken)
+    {
+        var today = SchoolClock.Today(clock);
+        if (date > today)
+        {
+            return FutureDate();
+        }
+
+        if (await sender.PlanAsync(classId, date, cancellationToken) is not { } day)
+        {
+            return TypedResults.NotFound();
+        }
+
+        // Only today's messages are still to go: the job sends for today only. Something must be due, and not blocked.
+        if (date != today || day.Blocked is not null || day.Children.All(c => c.Outcome != EveningOutcome.WillSend))
+        {
+            return TypedResults.Ok(day);
+        }
+
+        var next = EveningSchedule.Next(
+            await lessonAudio.GetDayAsync(classId, date, cancellationToken),
+            await todaysMessages.GetAsync(classId, date, cancellationToken),
+            clock.GetUtcNow(),
+            SchoolClock.At(date, options.Value.SendAt),
+            options.Value);
+        return TypedResults.Ok(day with { GoesAt = next.GoesAt, Waiting = next.Waiting });
+    }
+
+    private static async Task<Results<Ok<EveningPreviewResponse>, NotFound, ValidationProblem>> GetPreviewAsync(
+        Guid classId,
+        DateOnly date,
+        Guid childId,
+        EveningSender sender,
         TimeProvider clock,
         CancellationToken cancellationToken)
     {
         if (date > SchoolClock.Today(clock))
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["date"] = ["Can't use a future date."],
-            });
+            return FutureDate();
         }
 
-        return await sender.PlanAsync(classId, date, cancellationToken) is { } day
-            ? TypedResults.Ok(day)
+        return await sender.PreviewAsync(classId, date, childId, cancellationToken) is { } preview
+            ? TypedResults.Ok(preview)
             : TypedResults.NotFound();
     }
+
+    private static ValidationProblem FutureDate() =>
+        TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["date"] = ["Can't use a future date."],
+        });
 
     private static async Task<Results<Ok<EveningDayResponse>, Conflict<EveningDayResponse>, NotFound, ValidationProblem>>
         SendAsync(

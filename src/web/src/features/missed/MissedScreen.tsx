@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { findLesson, pageText } from '../lessons/lessonText'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
@@ -27,7 +27,7 @@ const STATUS_ORDER: LearningStatus[] = ['missed', 'sent', 'caughtUp', 'needsBudd
 export function MissedScreen() {
   const { t, i18n } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const ledger = useLedger(classId)
   const chapters = useCurriculum().data?.chapters ?? []
   const [params, setParams] = useSearchParams()

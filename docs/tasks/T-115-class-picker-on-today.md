@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Status | Proposed · after judging |
+| Status | Done (#314) |
 | Issue | #226 |
 | Owner | R |
-| Screens | T1-today, app-shell |
+| Screens | T1-today, app-shell, T9-sign-in |
 | Source | Rahul, 15 Nov; size M |
 
 ## What
@@ -37,4 +37,9 @@ xUnit: claims hold every class, filter allows her classes and 404s others, `/api
 
 ## Notes
 
+- 27 Nov: built on `feat/T-115-class-picker` (from `main`), as designed above, with these choices: Shobha's class is **3A**; the new class is **3B · Grade 3 · Kannada** (built-in curriculum) with 6 fictional children (Aditi, Bharath, Farhan, Gowri, Ilango, Jyothi), Monika its main teacher and only member. The seeder adds 3B on both servers at the next deploy; nothing goes to its families until Monika approves 3B's evening message.
+  - **API:** `Class.Name` (migration `AddClassName`, varchar 20, default `''`); the seeder fills it only while empty and seeds `otherClasses` from `demo-class.json`. One `class_id` claim per class; `GetClassId()` is gone, replaced by `GetClassIds()` / `IsInClass()` in `ClassOwnerFilter`, the demo endpoints, audio, catch-up approval and `X-School-Date`. `/api/me` adds `classes` (name, grade, medium, main teacher, demo flags for the demo class only) and re-issues the cookie when her classes changed since sign-in.
+  - **Web:** `features/auth/currentClass.ts` (pure: the choice per teacher in localStorage, falling back to her default) and `useCurrentClass.ts` (`useClassId()`, `useCurrentClass()`) replace every `me.classId` read. `ClassPicker` sits above the date on Today; the header, Profile, the demo flags and the past-day switch follow the class. The options reuse `profile.class` and `profile.classValue`, so there are no new strings: "3A · Grade 3 · ಕನ್ನಡ medium" rather than "3A · Grade 3 · Kannada" (the app writes language names in their own script).
+  - **Tests:** xUnit `ClassMembershipTests`, plus new tests in `AuthEndpointTests` (every class opens after sign-in, `/api/me` lists them, the cookie is refreshed after a change and not otherwise), `DemoShellEndpointTests` (demo flags only on the demo class; the demo runs for a teacher whose default is another class), `AudioEndpointTests` and `CatchUpApprovalEndpointTests`. Db: `StartupDbTests` checks Monika's two classes, the names and the name backfill; the tests that assumed one class now look at the demo class; `DemoResetDbTests` checks 3B survives Reset. No new Db test file. Vitest: `currentClass.test.ts`, `ClassPicker.test.tsx` (switching, reload, one class, an offline mark reaching the class it was made in), `classLine.test.ts`.
+  - **Not done:** admin pages don't show the class name; there is no screen to create or rename a class.
 - 15 Nov: proposed by Rahul; parked until after judging, because it changes how sign-in checks a teacher's class and the finale build merges on 15 Nov (finale 18 Nov).

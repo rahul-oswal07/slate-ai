@@ -93,6 +93,7 @@ public sealed class LessonEndpointTests
         Assert.Equal(new[] { "M3.SUB.NOBORROW", "M3.SUB.MAKE" }, day!.Lesson!.CompetencyIds);
         Assert.Equal("picked", day.Lesson.Source);
         Assert.Equal("confirmed", day.Lesson.Status);
+        Assert.Empty(_store.Feedback); // no note, no A1 match: nothing to learn from (T-102)
     }
 
     [Fact]
