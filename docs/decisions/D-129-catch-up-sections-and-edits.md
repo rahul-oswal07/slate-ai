@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Accepted (27 Nov, Rahul) |
 | Owner | Rahul, 27 Nov 2026 |
 | Gate | none (T-103 built it; Rahul to confirm) |
 | Screens | T3-approve, P1-P4-catch-up |
@@ -33,4 +33,5 @@ D-91 said catch-ups would get today's message's sections later, and T-103 asks f
 
 ## Notes
 
+- 27 Nov: accepted by Rahul as built in #325.
 - 27 Nov 2026: built in T-103 (#321) while Rahul was away; Proposed until he confirms. Open questions for him: translate her note and script edits into other languages through A3 (a prompt change with an eval), and whether the picture should get "Choose another question" from the week's practice.
