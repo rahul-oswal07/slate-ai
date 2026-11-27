@@ -9,10 +9,12 @@ Spec: [`spec.md`](spec.md)
 - **Back today:** buddy cards with the buddy chosen from attendance, 3 sums made by code, textbook words and a print view (T-16).
 - It is its own tab at `/back` (D-117, T-129), with a badge counting today's buddy cards. Printing prints only the cards.
 - In the demo class, `◀ Week of … ▶` under the Back today title steps a week back or forward, and tapping it opens the calendar (T-134, D-120).
+- Above each card, "Catch-up at home:" shows the level of the absence the child is back from (Got it, Needs help or Not answered yet), from the ledger; none before the catch-up goes. It is never on the card and never printed (T-97, D-130, B-20).
 
 ## Known gaps and drafts
 
-None recorded.
+- The design card is not updated for the level line above the card (Monika's file).
+- The kn, te, ta and hi of "Catch-up at home:" are drafts for Monika (T-97).
 
 ## Open tasks
 

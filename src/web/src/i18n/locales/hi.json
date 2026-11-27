@@ -645,10 +645,6 @@
     "filter": "फ़िल्टर",
     "filterWeek": "इस सप्ताह अनुपस्थित · {{n}}",
     "filterAll": "सभी · {{n}}",
-    "daysAway_one": "· {{count}} दिन अनुपस्थित",
-    "daysAway_other": "· {{count}} दिन अनुपस्थित",
-    "missed": "छूटा: {{lessons}}",
-    "noneMissed": "इस सप्ताह कोई पाठ नहीं छूटा",
     "lessonMeta": "{{day}} · {{page}}",
     "lessonCount": "{{total}} में से {{n}} बच्चों का यह छूटा",
     "showChildren": "बच्चे दिखाएँ",
@@ -672,8 +668,6 @@
       "meta": "रोल {{roll}} · घर की भाषा: {{language}}",
       "missing": "यह बच्चा अब सूची में नहीं है।",
       "thisWeek": "इस सप्ताह",
-      "away": "अनुपस्थित · छूटा: {{lessons}}",
-      "awayNoLesson": "अनुपस्थित",
       "reason": "कारण (अभिभावक से): {{reason}}",
       "catchUpSent": "कैच-अप भेजा गया ({{language}})",
       "checkRight": "चित्र वाला सवाल: सही",
@@ -681,7 +675,12 @@
       "stopped": "परिवार ने संदेश रोक दिए। साथी कार्ड जारी है।",
       "none": "इस सप्ताह कोई पाठ नहीं छूटा",
       "dataHeading": "बच्चे का डेटा",
-      "delete": "{{name}} का सारा डेटा हटाएँ"
+      "delete": "{{name}} का सारा डेटा हटाएँ",
+      "awayDays_one": "{{count}} दिन अनुपस्थित: {{days}}",
+      "awayDays_other": "{{count}} दिन अनुपस्थित: {{days}}",
+      "awayCount_one": "{{count}} दिन अनुपस्थित",
+      "awayCount_other": "{{count}} दिन अनुपस्थित",
+      "more": "और"
     },
     "delete": {
       "title": "{{name}} का डेटा हटाएँ?",
@@ -700,6 +699,11 @@
       "ta": "तमिल",
       "en": "अंग्रेज़ी",
       "hi": "हिन्दी"
+    },
+    "table": {
+      "caption": "इस सप्ताह के बच्चे: अनुपस्थित दिन, छूटे पाठ और स्तर",
+      "lessons": "छूटे पाठ",
+      "noLevel": "अभी स्तर नहीं"
     }
   },
   "back": {
@@ -740,7 +744,8 @@
     "loadFailed": "कार्ड लोड नहीं हो सके। कुछ खोया नहीं है। फिर कोशिश करें।",
     "prev": "पिछला कार्ड",
     "print": "कार्ड छापें या साझा करें",
-    "nextCard": "अगला कार्ड"
+    "nextCard": "अगला कार्ड",
+    "level": "घर पर कैच-अप:"
   },
   "week": {
     "title": "यह सप्ताह",
@@ -784,7 +789,20 @@
       "hint": "कक्षा में शाबाशी दीजिए।",
       "rule": "सप्ताह के हर दिन स्कूल आने पर एक सितारा। हर सप्ताह नई शुरुआत।",
       "earned": "इस सप्ताह हर दिन स्कूल आए:",
-      "soFar": "इस सप्ताह अब तक हर दिन आए:"
+      "soFar": "इस सप्ताह अब तक हर दिन आए:",
+      "count_one": "{{count}} बच्चे को सितारा मिला",
+      "count_other": "{{count}} बच्चों को सितारा मिला",
+      "countSoFar_one": "अब तक {{count}} बच्चा",
+      "countSoFar_other": "अब तक {{count}} बच्चे",
+      "seeAll": "सब देखें"
+    },
+    "summary": {
+      "away_one": "{{count}} अनुपस्थित",
+      "away_other": "{{count}} अनुपस्थित",
+      "gotIt_one": "{{count}} समझ गए",
+      "gotIt_other": "{{count}} समझ गए",
+      "needHelp_one": "{{count}} को मदद चाहिए",
+      "needHelp_other": "{{count}} को मदद चाहिए"
     }
   },
   "demo": {

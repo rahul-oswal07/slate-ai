@@ -6,6 +6,9 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useClassId } from '../auth/useCurrentClass'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
+import { type WeekSummary, weekSummary } from '../missed/levels'
+import { useLedger } from '../missed/useLedger'
+import { LEVEL_LOOK } from '../today/levelLook'
 import { useSchoolToday } from '../today/schoolDate'
 import { formatSchoolTime } from '../today/schoolTime'
 import type { ReturnSpeed, Week, WeekReasons } from './types'
@@ -27,6 +30,7 @@ function weekRange(from: string, to: string, language: string) {
 /**
  * T6 Week (FR-22, FR-21, FR-13): how quickly absent children came back this week and last, the families' reasons,
  * and the pacing nudge. Every number is counted in code from attendance; no AI on this screen. Teacher only.
+ * The head teacher's view (T-99, G2, G5): one headline, then the chart; rows that would say 0 are hidden; stars fold.
  */
 export function WeekScreen() {
   const { t, i18n } = useTranslation()
@@ -36,6 +40,9 @@ export function WeekScreen() {
   const query = useWeek(classId, today)
   const chapters = useCurriculum().data?.chapters ?? []
   const week = query.data
+  // The headline's counts come from the ledger for the same school day (T-99, D-130); without it, no headline.
+  const ledger = useLedger(classId).data
+  const summary = ledger ? weekSummary(ledger) : null
 
   return (
     <section aria-labelledby="week-title" className="flex flex-col gap-4 px-4 py-4">
@@ -75,6 +82,7 @@ export function WeekScreen() {
             <p className="rounded-card border-[1.5px] border-edge bg-surface p-4 text-body-lg">{t('week.empty')}</p>
           ) : (
             <>
+              {summary && summary.away > 0 && <Headline summary={summary} />}
               <ReturnSpeedCard week={week} />
               <ReasonsCard reasons={week.reasons} />
             </>
@@ -85,6 +93,47 @@ export function WeekScreen() {
         </>
       ) : null}
     </section>
+  )
+}
+
+/**
+ * The head teacher's view in one line (T-99, G5): "6 away · 4 got it · 2 need help". Children away this week, and how
+ * many of them got their catch-up's picture question or need help (D-130). Counted in code from the ledger; the level
+ * icons and colours are the same as on every other screen (T-97).
+ */
+function Headline({ summary }: { summary: WeekSummary }) {
+  const { t } = useTranslation()
+  const parts = [
+    { key: 'away', text: t('week.summary.away', { count: summary.away }), icon: 'users' as IconName, className: 'text-ink' },
+    {
+      key: 'gotIt',
+      text: t('week.summary.gotIt', { count: summary.gotIt }),
+      icon: LEVEL_LOOK.gotIt.icon,
+      className: LEVEL_LOOK.gotIt.text,
+    },
+    {
+      key: 'needsHelp',
+      text: t('week.summary.needHelp', { count: summary.needsHelp }),
+      icon: LEVEL_LOOK.needsHelp.icon,
+      className: LEVEL_LOOK.needsHelp.text,
+    },
+  ]
+  return (
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-title font-bold">
+      {parts.map((part, i) => (
+        <span key={part.key} className="inline-flex items-center gap-2">
+          {i > 0 && (
+            <span aria-hidden="true" className="text-ink-muted">
+              ·
+            </span>
+          )}
+          <span className={`inline-flex items-center gap-1 ${part.className}`}>
+            <Icon name={part.icon} size={22} className="shrink-0" />
+            {part.text}
+          </span>
+        </span>
+      ))}
+    </p>
   )
 }
 
@@ -100,13 +149,15 @@ function ReturnSpeedCard({ week }: { week: Week }) {
   const { t } = useTranslation()
   const { thisWeek, lastWeek } = week
   const max = Math.max(1, ...BUCKETS.flatMap(([, key]) => [thisWeek[key] as number, lastWeek[key] as number]))
+  // T-99: a length nobody was away for, this week or last, is not drawn (the headline and sentence still add up).
+  const buckets = BUCKETS.filter(([, key]) => (thisWeek[key] as number) > 0 || (lastWeek[key] as number) > 0)
   return (
     <section aria-labelledby="return-title" className="flex flex-col gap-3 rounded-card border-[1.5px] border-edge bg-surface p-4">
       <h2 id="return-title" className="text-title">
         {t('week.returnTitle')}
       </h2>
       <p>
-        <span className="block text-display font-bold">
+        <span className="block text-title font-bold">
           {t('week.headline', { within: thisWeek.backWithinTwoDays, total: thisWeek.total })}
         </span>
         <span className="text-caption text-ink-muted">
@@ -125,7 +176,7 @@ function ReturnSpeedCard({ week }: { week: Week }) {
             <span className="inline-block size-3 rounded-sm border border-border bg-panel" /> {t('week.lastWeek')}
           </span>
         </p>
-        {BUCKETS.map(([label, key]) => (
+        {buckets.map(([label, key]) => (
           <div key={key} className="grid grid-cols-[4.5rem_1fr] items-center gap-2">
             <span className="text-caption">{t(`week.${label}`)}</span>
             <span className="flex flex-col gap-1">
@@ -146,7 +197,7 @@ function ReturnSpeedCard({ week }: { week: Week }) {
           </tr>
         </thead>
         <tbody>
-          {BUCKETS.map(([label, key]) => (
+          {buckets.map(([label, key]) => (
             <tr key={key}>
               <th scope="row">{t(`week.${label}`)}</th>
               <td>{thisWeek[key]}</td>
@@ -178,16 +229,23 @@ const REASONS: { key: keyof WeekReasons; icon: IconName }[] = [
   { key: 'notGiven', icon: 'helpCircle' },
 ]
 
-/** One per absent child (latest reason, else "Not given"): categories only, never names (FR-21, D-23). */
+/**
+ * One per absent child (latest reason, else "Not given"): categories only, never names (FR-21, D-23). A category
+ * nobody gave is not listed (T-99).
+ */
 function ReasonsCard({ reasons }: { reasons: WeekReasons }) {
   const { t } = useTranslation()
+  const rows = REASONS.filter(({ key }) => reasons[key] > 0)
+  if (rows.length === 0) {
+    return null
+  }
   return (
     <section aria-labelledby="reasons-title" className="flex flex-col gap-2 rounded-card border-[1.5px] border-edge bg-surface p-4">
       <h2 id="reasons-title" className="text-title">
         {t('week.reasonsTitle')}
       </h2>
       <ul className="flex flex-col">
-        {REASONS.map(({ key, icon }) => (
+        {rows.map(({ key, icon }) => (
           <li key={key} className="flex min-h-target items-center gap-3 border-b border-divider last:border-b-0">
             <Icon name={icon} size={20} className="shrink-0 text-primary-strong" />
             <span className="flex-1 text-body">

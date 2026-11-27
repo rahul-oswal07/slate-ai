@@ -77,6 +77,16 @@
   --color-status-error: #991b1b;
   --color-status-error-bg: #fef2f2;
 
+  /* Learner levels (D-95, D-108, T-97): one colour per level, the word and icon in it on its own fill, with a border in
+     the same colour (the fill alone is 1.03:1 on surface). Always icon + word, never colour alone. The word is AAA on
+     its fill and on canvas, surface and panel, so a level icon can also sit on a card without its fill. */
+  --color-level-got-it: #124d2a;
+  --color-level-got-it-bg: #dcfce7;
+  --color-level-needs-help: #6b2f0c;
+  --color-level-needs-help-bg: #fdf0d5;
+  --color-level-not-answered: #374151;
+  --color-level-not-answered-bg: #eceff3;
+
   --font-sans: system-ui, "Noto Sans Kannada", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans Devanagari", "Noto Sans", sans-serif;
   --font-heading: var(--font-sans);
 
@@ -205,6 +215,13 @@
     --color-status-queued-bg: #24272b;
     --color-status-error: #fecaca;
     --color-status-error-bg: #3a1515;
+
+    --color-level-got-it: #bbf7d0;
+    --color-level-got-it-bg: #143223;
+    --color-level-needs-help: #fde68a;
+    --color-level-needs-help-bg: #3a2a0b;
+    --color-level-not-answered: #e5e7eb;
+    --color-level-not-answered-bg: #2a2c30;
   }
 }
 

@@ -42,6 +42,7 @@ function contrast(a: string, b: string): number {
 
 const backgrounds = ['canvas', 'surface', 'panel']
 const statuses = ['sent', 'listened', 'caught-up', 'needs-buddy', 'no-phone', 'needs-ear', 'stopped', 'queued', 'error']
+const levels = ['got-it', 'needs-help', 'not-answered']
 
 // [foreground, background, minimum]
 const pairs: [string, string, number][] = [
@@ -62,6 +63,11 @@ const pairs: [string, string, number][] = [
   ['ink', 'error-bg', TEXT],
   ['on-error', 'error', TEXT],
   ...statuses.map((s): [string, string, number] => [`status-${s}`, `status-${s}-bg`, TEXT]),
+  // Learner levels (T-97, D-95, D-108): the word on its own fill, and the word or icon straight on a card.
+  ...levels.flatMap((l): [string, string, number][] => [
+    [`level-${l}`, `level-${l}-bg`, TEXT],
+    ...backgrounds.map((bg): [string, string, number] => [`level-${l}`, bg, TEXT]),
+  ]),
 ]
 
 function check(theme: Theme, list: [string, string, number][]) {
@@ -108,6 +114,17 @@ describe.each([
     ['chat-meta', 'chat-pill', TEXT],
     ['chat-edge', 'chat-wall', UI],
   ])
+})
+
+// T-97: each level has its own colour in each theme, so the three never look alike (colour is a second signal).
+describe.each([
+  ['light', light],
+  ['dark', dark],
+])('learner levels %s', (_name, theme) => {
+  it('has three different colours and three different fills', () => {
+    expect(new Set(levels.map((l) => theme[`level-${l}`])).size).toBe(levels.length)
+    expect(new Set(levels.map((l) => theme[`level-${l}-bg`])).size).toBe(levels.length)
+  })
 })
 
 it('dark theme overrides every colour except decorative ones and amber (the same in both)', () => {

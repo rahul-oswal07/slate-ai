@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { saveSnapshot } from '../../offline/db'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
+import { ledger } from '../missed/fixtures'
 import { istToday } from '../today/schoolTime'
 import type { BuddyCard, BuddyCards } from './types'
 
@@ -195,5 +196,30 @@ describe('BackTodayScreen (T5)', () => {
 
     const article = await screen.findByRole('article', { name: 'Ravi' })
     expect(article).not.toHaveTextContent(/stopped|no phone|consent|caught up|needs buddy|correct/i)
+  })
+
+  it('shows the catch-up’s level above the card for her, never on the card or the printout (T-97, D-130)', async () => {
+    setup(() => ({ date: today, cards: [ravi] }), {
+      [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
+    })
+    renderApp('/back')
+
+    // Ravi's two days away: one lesson got, one needs help.
+    const tag = await screen.findByText('Needs help')
+    expect(tag).toHaveAttribute('data-level', 'needsHelp')
+    const line = tag.closest('p')
+    expect(line).toHaveTextContent('Catch-up at home:')
+    expect(line).toHaveClass('print:hidden')
+    expect(screen.getByRole('article', { name: 'Ravi' })).not.toHaveTextContent(/got it|needs help|not answered/i)
+  })
+
+  it('no level line when the catch-up hasn’t gone', async () => {
+    setup(() => ({ date: today, cards: [card({ childId: 'asha', firstName: 'Asha', missedDays: 1 })] }), {
+      [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
+    })
+    renderApp('/back')
+
+    await screen.findByRole('article', { name: 'Asha' })
+    await waitFor(() => expect(screen.queryByText('Catch-up at home:')).toBeNull())
   })
 })

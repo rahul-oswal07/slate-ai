@@ -8,6 +8,7 @@ Spec: [`spec.md`](spec.md)
 
 - **Teacher app** (React PWA, Kannada / English / Hindi / Telugu / Tamil).
 - Slate & chalk look, AAA tokens, light and dark (D-77).
+- Learner levels have their own tokens, `level-got-it`, `level-needs-help` and `level-not-answered`, each a colour and a fill, AAA on the fill and on canvas, surface and panel in both themes (T-97, D-95, D-108); `tokens.test.ts` checks them.
 - Language is one dropdown in the header on every screen and on `/demo` (T-107). Beside the profile button it shows a short label ("ಕ", "En"); sign-in and `/demo` show the full name (T-109, D-101).
 - The header stays at the top while she scrolls, on teacher screens only (family pages don't use it); focused headings and the skip link land below it (T-114).
 - The tagline is "The missed lesson" (no "at home"); Kannada shows none, since the name already says it (T-114).
@@ -23,6 +24,7 @@ Spec: [`spec.md`](spec.md)
 - Tamil layout at 360 px (T-84) is fixed (T-101, #211); the Tamil tab label is "திரும்பி வந்தோர்" (native review, T-26, found nothing to change).
 - Offline covers attendance and voice notes only (roadmap, D-70).
 - The short language labels and the kn, hi, te and ta strings of the profile menu are drafts for Monika (T-109).
+- `docs/design/tokens.md` does not list the level tokens yet (Monika's file, T-97).
 
 ## Open tasks
 
