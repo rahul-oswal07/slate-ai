@@ -73,6 +73,34 @@ describe('T2 Lesson confirm', () => {
     expect(screen.queryByText(/0\.\d/)).not.toBeInTheDocument()
   })
 
+  it('says what the AI heard and the pages it matched, so she sees why (T-102)', async () => {
+    api(() => voice('mapped', ['M3.SUB.NOBORROW', 'M3.SUB.MAKE']))
+    renderApp('/lesson')
+
+    const note = await screen.findByRole('region', { name: 'What you said' })
+    expect(within(note).getByText('What I heard:')).toBeInTheDocument()
+    expect(within(note).getByText('Subtraction, checked by adding').tagName).toBe('Q')
+    expect(await within(note).findByText('Matched in the book: Part 2, page 6; Part 2, page 117')).toBeInTheDocument()
+  })
+
+  it('for a low match, the pages are those of the two lessons she chooses between (T-102)', async () => {
+    api(() => voice('low', ['M3.SUB.BORROW', 'M3.SUB.MAKE', 'M3.SUB.WORD']))
+    renderApp('/lesson')
+
+    const note = await screen.findByRole('region', { name: 'What you said' })
+    expect(await within(note).findByText('Matched in the book: Part 2, page 15; Part 2, page 117')).toBeInTheDocument()
+  })
+
+  it('in Kannada, what the AI heard is its Kannada summary (T-102)', async () => {
+    await i18n.changeLanguage('kn')
+    api(() => voice('mapped', ['M3.SUB.NOBORROW']))
+    renderApp('/lesson')
+
+    const summary = await screen.findByText('ಕಳೆಯುವಿಕೆ')
+    expect(summary).toHaveAttribute('lang', 'kn')
+    expect(screen.getByText('ನಾನು ಕೇಳಿದ್ದು:')).toBeInTheDocument()
+  })
+
   it('tags a matched lesson that has the book’s exercises (T-128)', async () => {
     api(() => voice('mapped', ['M3.SUB.BORROW', 'M3.SUB.MAKE']))
     renderApp('/lesson')

@@ -47,16 +47,35 @@ public sealed class FakeLessonStore : ILessonStore
 
     public Task<LessonRecord> SaveConfirmedAsync(
         Guid classId, Guid clientRequestId, DateOnly date, IReadOnlyList<string> competencyIds, string source,
-        CancellationToken cancellationToken)
+        LessonFeedbackRecord? feedback, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
             if (_processed.Add(clientRequestId))
             {
+                if (feedback is not null
+                    && Lessons.GetValueOrDefault(date) is { Status: LessonValues.Mapped or LessonValues.Low } lesson
+                    && lesson.MappingStartedAt == feedback.MappingStartedAt)
+                {
+                    Feedback.Add(new SavedLessonFeedback(Guid.NewGuid(), classId, DateTimeOffset.UnixEpoch, feedback));
+                }
+
                 Lessons[date] = new LessonRecord(competencyIds, source, LessonValues.Confirmed);
             }
 
             return Task.FromResult(Lessons[date]);
+        }
+    }
+
+    /// <summary>Eval cases saved by confirming over a match (T-102), oldest first.</summary>
+    public List<SavedLessonFeedback> Feedback { get; } = [];
+
+    public Task<IReadOnlyList<SavedLessonFeedback>> ListFeedbackAsync(DateOnly? from, int limit, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            return Task.FromResult<IReadOnlyList<SavedLessonFeedback>>(
+                Feedback.Where(f => from is null || f.Feedback.Date >= from).Reverse().Take(limit).ToList());
         }
     }
 
@@ -96,6 +115,7 @@ public sealed class FakeLessonStore : ILessonStore
                     SummaryKn = result.SummaryKn,
                     SummaryEn = result.SummaryEn,
                     ExamplesUsed = result.ExamplesUsed,
+                    Confidence = result.Confidence,
                 };
             }
 

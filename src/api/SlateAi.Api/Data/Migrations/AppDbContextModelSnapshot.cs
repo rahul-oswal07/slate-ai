@@ -921,6 +921,72 @@ namespace SlateAi.Api.Data.Migrations
                     b.ToTable("LessonContents");
                 });
 
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonFeedback", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.PrimitiveCollection<List<string>>("ChosenCompetencyIds")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double?>("Confidence")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("ConfirmedVia")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.PrimitiveCollection<List<string>>("ExamplesUsed")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTimeOffset>("MappingStartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MatchStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.PrimitiveCollection<List<string>>("MatchedCompetencyIds")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("PromptVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SummaryEn")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SummaryKn")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.ToTable("LessonFeedback", (string)null);
+                });
+
             modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonLink", b =>
                 {
                     b.Property<Guid>("CurriculumId")
@@ -1617,6 +1683,15 @@ namespace SlateAi.Api.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ClipId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("SlateAi.Api.Data.Entities.LessonFeedback", b =>
+                {
+                    b.HasOne("SlateAi.Api.Data.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SlateAi.Api.Data.Entities.MessageTemplate", b =>

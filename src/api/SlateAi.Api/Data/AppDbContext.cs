@@ -12,6 +12,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Child> Children => Set<Child>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<LessonFeedback> LessonFeedback => Set<LessonFeedback>();
     public DbSet<ProcessedRequest> ProcessedRequests => Set<ProcessedRequest>();
     public DbSet<AiCall> AiCalls => Set<AiCall>();
     public DbSet<MessageTemplate> MessageTemplates => Set<MessageTemplate>();
@@ -139,6 +140,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(l => l.Status).HasMaxLength(20);
             e.HasOne<Class>().WithMany().HasForeignKey(l => l.ClassId);
             e.HasIndex(l => new { l.ClassId, l.Date }).IsUnique(); // one lesson record per day (D-55)
+        });
+
+        modelBuilder.Entity<LessonFeedback>(e =>
+        {
+            e.ToTable("LessonFeedback");
+            e.Property(f => f.MatchStatus).HasMaxLength(20);
+            e.Property(f => f.ConfirmedVia).HasMaxLength(10);
+            e.Property(f => f.Outcome).HasMaxLength(10);
+            e.HasOne<Class>().WithMany().HasForeignKey(f => f.ClassId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(f => f.CreatedAt);
         });
 
         modelBuilder.Entity<LessonLink>(e =>

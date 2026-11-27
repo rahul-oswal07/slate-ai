@@ -4,7 +4,7 @@ PostgreSQL 16 (Azure PostgreSQL Flexible B1ms in staging/prod; Docker locally). 
 
 | | |
 |---|---|
-| Last migration | `TextbookImportFiles` (T-146) |
+| Last migration | `LessonFeedback` (T-102) |
 | Data model in spec | `docs/spec.md` §4.3 (planned tables live there first) |
 | Curriculum | The built-in one is not in the database: loaded from `data/curriculum/*.json` at startup (T-05). A class can instead follow a stored curriculum (`Curricula`, T-145, D-125). Rows reference competencies by string ID such as `M3.ADD.CARRY`, read in the class's curriculum |
 
@@ -19,6 +19,7 @@ erDiagram
     Classes ||--o{ Attendance : "register per day"
     Children ||--o{ Attendance : "marked in"
     Classes ||--o{ Lessons : "taught on a day"
+    Classes ||--o{ LessonFeedback : "her confirmations over A1's match"
     Classes ||--o{ MessageTemplates : "approves once"
     Children ||--o{ EveningMessages : "one per day absent"
     MessageTemplates ||--o{ EveningMessages : "filled from"
@@ -156,6 +157,23 @@ erDiagram
         float Confidence "nullable"
         timestamptz MappingStartedAt "nullable"
         varchar20 Status "processing, mapped, low, unclear, confirmed"
+    }
+    LessonFeedback {
+        uuid Id PK
+        uuid ClassId FK
+        date Date
+        timestamptz MappingStartedAt
+        int PromptVersion
+        varchar20 MatchStatus "mapped, low"
+        text_array MatchedCompetencyIds
+        float Confidence "nullable"
+        text_array ChosenCompetencyIds
+        varchar10 ConfirmedVia "voice, picked"
+        varchar10 Outcome "accepted, edited, replaced"
+        text SummaryKn "nullable"
+        text SummaryEn "nullable"
+        text_array ExamplesUsed
+        timestamptz CreatedAt
     }
     ProcessedRequests {
         uuid ClientRequestId PK
@@ -404,6 +422,8 @@ erDiagram
 
 **`Lessons`** — what was taught on a day: one row per class per day (D-55; "Change" overwrites it; a new note can replace a confirmed row until today's message is approved or tonight's message has gone, which sets it back to processing, D-104). Only rows with `Status = confirmed` reach the ledger and missed lessons (T2 §3); picking from the list (FR-04) writes `Source = picked`, `Status = confirmed` directly. T-07 PR B adds `Transcript`, `ExamplesUsed`, `Confidence` and the capture endpoint. `CompetencyIds` is a Postgres `text[]` of curriculum IDs (1–3, validated against the curriculum in code, never trusted from the LLM). FK `ClassId → Classes` (cascade). **Unique** index `(ClassId, Date)` (migration `LessonOnePerDay`). Writes are idempotent by `clientRequestId` (`ProcessedRequests`, endpoint `lesson`) under a per-class-and-date advisory lock. Voice notes (T-07 PR 2b, migration `LessonVoiceMapping`): the upload sets `Status = processing` and `MappingStartedAt`; the background worker stores A1's ranked `CompetencyIds`, `SummaryKn`/`SummaryEn` (D-56), `ExamplesUsed` and `Confidence`, and `Status` `mapped` / `low` (< 0.7) / `unclear`, but only if the lesson is still processing that note. A note still processing after 2 minutes reads as `unclear`. **Neither the transcript nor the audio is stored** (her recording stays on her phone until she confirms).
 
+**`LessonFeedback`** — her confirmations over A1's match, kept as A1 eval cases (T-102, migration `LessonFeedback`). One row each time she confirms a lesson while the day's lesson is `mapped` or `low`, from the matched list (`ConfirmedVia = voice`) or from the lesson list instead (`picked`): A1's ranked `MatchedCompetencyIds`, `MatchStatus` and `Confidence`, her `ChosenCompetencyIds` (book order), `Outcome` computed in code (`accepted`: what T2 offered, all the ticked lessons or one of the two low choices; `edited`: some of it; `replaced`: none of it), the A1 prompt `PromptVersion`, and A1's own name-scrubbed `SummaryKn`/`SummaryEn`/`ExamplesUsed` copied from the lesson row. **No names, transcript or audio** (there is no column for them). Written in the same transaction as the confirmation, only if the `clientRequestId` is new and the lesson is still the note the match came from (`MappingStartedAt`), so an outbox replay adds nothing. Not linked to the `Lessons` row, so it outlives "Change", a new note and the demo reset; a "Change" after confirming adds no row (there is no match left to compare with). Listed newest first on `GET /api/admin/lesson-feedback` in the shape of `evals/cases/a1-lesson-mapping.json`. FK `ClassId → Classes` (cascade). Index on `CreatedAt`.
+
 **`MessageTemplates`** — the evening message the teacher approves once (FR-20, D-21): one row per class and language (unique `(ClassId, Language)`), created as `draft` from `data/seed/evening-message.json` on first use. When that file's `version` changes, the rows take the new text and go back to `draft` (a change needs approval again, D-49). Approval sets every language to `approved` with `ApprovedAt` / `ApprovedByTeacherId` (FK → Teachers), idempotent by `clientRequestId` (`ProcessedRequests`, endpoint `message-template-approve`) under a per-class advisory lock; approving a stale version is refused (409). FK `ClassId → Classes` (cascade).
 
 **`EveningMessages`** — one row per family message sent on a day of absence (FR-20), written by the 6 pm job or the send endpoint (`Features/EveningMessages/EveningSender.cs`). **Unique `(ChildId, Date)`**: the send is idempotent, so the job can run every minute after 6 pm and a lesson confirmed late still goes once. `SlotValues` holds the code-filled `lesson` and `page` (never the child's name); the parent view re-renders the text from the template. `Token` (128-bit random, base64url, unique) is the only key to `GET /api/p/{token}`, which answers 410 after `ExpiresAt` (14 days). Listens are not tracked (D-36). FKs: `ChildId → Children` (cascade, FR-15), `ClassId`, `TemplateId`, `LessonId`. Index `(ClassId, Date)` for Today's tonight card. `LessonAudioId` (nullable, `SetNull`) points at the **approved** `LessonAudios` row whose clip goes with this message (T-62); null is the plain message. It is set only by code at send time from `IEveningStore.GetApprovedLessonAudioAsync`. `TodaysMessageId` (nullable, `SetNull`, migration `TodaysMessage`) points at the day's **approved** `TodaysMessages` row (D-91, T-88), set only by code at send time when `ApprovedVersion = Version` and the family's language is in it, and re-checked inside the insert transaction under the message's advisory lock; when set, `LessonAudioId` is null (its concept clip replaces the lesson clip). `PictureFirst` and `PictureSecond` (varchar 3 since migration `TodaysPictureSumAnswers`, was varchar 1 from `TodaysAnswer`; nullable) are the child's submits on today's picture question: `>`, `<` or `=` (T-90), or for a sum the number chosen from its three, e.g. `686` (D-116, T-128); `PictureAnsweredAt` the last one: a second tap is taken only after a first that isn't the answer; code scores them against the message's picture and works out the level (`TodaysLevel`, D-95).
@@ -456,7 +476,7 @@ erDiagram
 
 ### Delete behaviour
 
-Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`, `Classes.CurriculumId` (restrict, T-145) and `CurriculumImports.CurriculumId` (set null, T-146): Teacher → Classes → Children / Attendance / Lessons / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
+Every FK is `ON DELETE CASCADE` except `MessageTemplates.ApprovedByTeacherId`, `Classes.CurriculumId` (restrict, T-145) and `CurriculumImports.CurriculumId` (set null, T-146): Teacher → Classes → Children / Attendance / Lessons / LessonFeedback / MessageTemplates / EveningMessages / CatchUpPackages / CatchUpAssignments → CheckResponses, and Child → Attendance / EveningMessages / AbsenceReasons / BuddyCards / CatchUpAssignments → CheckResponses, and Child / EveningMessages / CatchUpAssignments / WeeklyStarMessages → ParentDeliveries, and Child → WeeklyStarMessages. Deleting a child (FR-15, T-13: `DELETE /api/classes/{id}/children/{childId}`, idempotent by `ProcessedRequests`, endpoint `child-delete`) removes every row about them through these cascades; children have no audio or transcripts of their own (lessons store none; catch-up audio is per package and has no names, D-50). Future child-linked tables must cascade too, and any per-child audio blob must be deleted in code. Covered by `ChildDeleteDbTests`.
 
 ## 2. Concurrency and idempotency
 
@@ -507,6 +527,7 @@ From `docs/spec.md` §4.3. Types are indicative; the migration decides.
 - Personal data is limited to `Teachers.DisplayName`, `Teachers.Phone`, `Children.FirstName` (first name only) and `Children.ParentPhone` / `ParentPhone2`. None of it is ever sent to Claude or Sarvam (guardrail 1, NFR-05); AI inputs use IDs and `{child}` / `{teacher}` placeholders. WhatsApp gets the child's and teacher's first names only in the final send to the family (T-40), to a number saved on `/admin/children` (`ParentPhone` / `ParentPhone2` with their `SetAt`, D-114, D-122); seeded numbers are never dialled.
 - The demo seed (`data/seed/demo-class.json`) is fictional, with placeholder phone numbers that must never be messaged.
 - Logs record counts and IDs, never names.
+- A1 eval cases from her confirmations (`LessonFeedback`, T-102) keep curriculum IDs and A1's own name-scrubbed summary and examples, never a name, transcript or audio.
 - Deleting a child removes all their rows by cascade; audio in blob storage is deleted in code (T-19).
 - Health data (D-23): store only the reason category (e.g. "unwell"), never symptoms.
 
