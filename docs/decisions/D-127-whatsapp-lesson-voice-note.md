@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Accepted (27 Nov, Rahul) |
 | Owner | Rahul, 27 Nov 2026 **[CONFIRM: Rahul]** |
 | Gate | T-106 (switching it on) |
 | Screens | delivery, P5-todays-message |
@@ -26,4 +26,5 @@ Two smaller points came up while building T-106 and are recorded here so they're
 
 ## Notes
 
+- 27 Nov: accepted by Rahul as built in #324 (behind `WhatsApp:ChatLesson:Enabled`, off).
 - 27 Nov 2026: proposed with T-106, which is built behind `WhatsApp:ChatLesson:Enabled` (off). Nothing reaches a family until Rahul switches it on.
