@@ -22,6 +22,7 @@ Spec: [`spec.md`](spec.md)
 
 Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24 kbps, ~55 s / ~150 KB per catch-up). Numbers, candidate sets, buddies, scores and pacing are all computed in code.
 - A verdict longer than the AI log's column (100) is stored cut to fit, so logging can never fail a catch-up or any other AI step (T-137).
+- A catch-up script the teacher edited is only voiced (Sarvam TTS and the audio check): no A3 or A4 call; her words get the code checks instead (T-103, D-129).
 
 ## Known gaps and drafts
 

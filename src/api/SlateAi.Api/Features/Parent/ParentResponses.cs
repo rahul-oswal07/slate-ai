@@ -26,6 +26,8 @@ public sealed record ParentCheck(string Question, string? Prompt, IReadOnlyList<
 /// <param name="Answered">At least one submit on the picture check.</param>
 /// <param name="ChoiceId">Their latest submitted choice, or null.</param>
 /// <param name="Locked">Both submits used (D-108): the answer page shows their choice with Next only.</param>
+/// <param name="Note">Her note as she typed it (T-103), unless she removed it.</param>
+/// <param name="VideoUrl">The lesson's video link (T-103), unless she removed it.</param>
 public sealed record ParentCatchUpResponse(
     string Language,
     string ChildName,
@@ -39,7 +41,9 @@ public sealed record ParentCatchUpResponse(
     ParentActivity? Activity,
     ParentCheck? Check,
     int? ChoiceId = null,
-    bool Locked = false)
+    bool Locked = false,
+    string? Note = null,
+    string? VideoUrl = null)
 {
     public string Kind => "catchUp";
 }

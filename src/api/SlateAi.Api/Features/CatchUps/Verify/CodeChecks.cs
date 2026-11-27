@@ -106,24 +106,9 @@ public static partial class CodeChecks
         var c = input.Content;
         foreach (var text in new[] { c.Script, c.GlossKn, c.GlossEn, c.ActivityInstruction, c.CheckPrompt })
         {
-            foreach (Match m in Equation().Matches(text))
+            if (WrongSum(text) is { } wrong)
             {
-                // The whole chain, e.g. "3 + 1 + 1 = 5" for a tens column with a carry, worked left to right.
-                var terms = Term().Matches(m.Groups["sum"].Value);
-                long right = 0;
-                foreach (Match t in terms)
-                {
-                    var value = long.Parse(t.Groups["n"].Value);
-                    right = t.Groups["op"].Value is "" or "+" ? right + value : right - value;
-                }
-
-                var said = long.Parse(m.Groups["said"].Value);
-                if (right != said)
-                {
-                    var written = string.Join(" ", terms.Select((t, i) =>
-                        i == 0 ? t.Groups["n"].Value : $"{(t.Groups["op"].Value == "+" ? "+" : "−")} {t.Groups["n"].Value}"));
-                    return Fail(Numbers, $"says {written} = {said}; it is {right}");
-                }
+                return Fail(Numbers, wrong);
             }
         }
 
@@ -131,6 +116,35 @@ public static partial class CodeChecks
         return missing.Count > 0
             ? Fail(Numbers, $"the script doesn't use the activity's number {string.Join(", ", missing)}")
             : Pass(Numbers, "sums and the picture question are correct");
+    }
+
+    /// <summary>
+    /// The first sum written in <paramref name="text"/> that is wrong, as "says 3 + 4 = 8; it is 7"; null when every sum is
+    /// right. A3's words and her own edits (T-103) are checked the same way.
+    /// </summary>
+    public static string? WrongSum(string text)
+    {
+        foreach (Match m in Equation().Matches(text))
+        {
+            // The whole chain, e.g. "3 + 1 + 1 = 5" for a tens column with a carry, worked left to right.
+            var terms = Term().Matches(m.Groups["sum"].Value);
+            long right = 0;
+            foreach (Match t in terms)
+            {
+                var value = long.Parse(t.Groups["n"].Value);
+                right = t.Groups["op"].Value is "" or "+" ? right + value : right - value;
+            }
+
+            var said = long.Parse(m.Groups["said"].Value);
+            if (right != said)
+            {
+                var written = string.Join(" ", terms.Select((t, i) =>
+                    i == 0 ? t.Groups["n"].Value : $"{(t.Groups["op"].Value == "+" ? "+" : "−")} {t.Groups["n"].Value}"));
+                return $"says {written} = {said}; it is {right}";
+            }
+        }
+
+        return null;
     }
 
     private static VerifierCheck Script(VerifyInput input, VerifierOptions options)

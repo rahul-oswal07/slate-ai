@@ -29,7 +29,10 @@ public sealed class CatchUpPackage
 
     public int? PromptVersion { get; set; }
 
-    /// <summary>"simpler" or "shorter" when she asked to regenerate (FR-08).</summary>
+    /// <summary>
+    /// "simpler" or "shorter" when she asked to regenerate (FR-08); "voice" while her own edited words are being voiced
+    /// (T-103), so the writer makes audio instead of new words.
+    /// </summary>
     public string? Hint { get; set; }
 
     /// <summary>A3's validation verdict (and the verifier's, T-10).</summary>
@@ -60,6 +63,18 @@ public sealed class CatchUpPackage
 
     public Guid? ApprovedByTeacherId { get; set; }
     public int? ApprovedScriptVersion { get; set; }
+
+    /// <summary>The lesson's video link, put in by code from the admin page when the words are written (T-103, D-106); null without one.</summary>
+    public string? VideoUrl { get; set; }
+
+    /// <summary>Her note to the families, as she typed it (T-103); null until she adds one. Never written by the AI.</summary>
+    public string? TeacherNote { get; set; }
+
+    /// <summary>Sections she removed, so they are not sent: "video" or "note" (T-103).</summary>
+    public List<string> RemovedSections { get; set; } = [];
+
+    /// <summary>The script or the activity's words are hers (T-103); a new version from A3 sets it back to false.</summary>
+    public bool TeacherEdited { get; set; }
 
     /// <summary>When the families' links went out (the 6 pm job, or at once in demo mode).</summary>
     public DateTimeOffset? SentAt { get; set; }

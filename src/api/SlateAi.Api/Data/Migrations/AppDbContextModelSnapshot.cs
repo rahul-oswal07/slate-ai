@@ -395,6 +395,10 @@ namespace SlateAi.Api.Data.Migrations
                     b.Property<int?>("PromptVersion")
                         .HasColumnType("integer");
 
+                    b.PrimitiveCollection<List<string>>("RemovedSections")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("Review")
                         .HasColumnType("jsonb");
 
@@ -421,12 +425,22 @@ namespace SlateAi.Api.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<bool>("TeacherEdited")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TeacherNote")
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Verdict")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateOnly>("WeekOf")
                         .HasColumnType("date");

@@ -378,7 +378,6 @@
       "summary": "Kannada summary",
       "keyWords": "Kannada words",
       "why": "Why this",
-      "check": "Picture question · tests: {{lesson}}",
       "options": "The three pictures",
       "correct": "correct answer",
       "tick": "I’ve checked the Kannada summary",
@@ -414,6 +413,30 @@
     "tab": {
       "today": "Today's message",
       "catchUps": "Catch-ups"
+    },
+    "sections": {
+      "edited": "your words",
+      "voicing": "Making the voice for your words… Check it again when it’s ready.",
+      "activityNumbers": "Numbers chosen by the app: {{question}}",
+      "tests": "Tests: {{lesson}}",
+      "pictureByCode": "The numbers and the answer are worked out by the app.",
+      "scriptLabel": "The words families hear (language: {{language}})",
+      "instructionLabel": "What the family does (language: {{language}})",
+      "objectLabel": "Other things they can use (can be left empty)",
+      "noteLabel": "Your note to the family (they read it as you write it)",
+      "saveHint": "Saving makes a new version: you check it again.",
+      "saveHintVoice": "Saving makes a new version: the voice is made again from your words and you check it again.",
+      "problem": {
+        "invalid-output": "Something is empty. Write every part.",
+        "name": "Remove the child's name: messages never name a child here.",
+        "placeholder": "Remove the brackets or the signs > < (write \"more\" or \"less\").",
+        "too-long": "Too long. Make it shorter.",
+        "script": "Write it in {{language}}.",
+        "sum": "A sum in it is wrong. Check it.",
+        "numbers": "Use only this catch-up’s numbers. You can use: {{numbers}}.",
+        "activity-number": "Keep the activity’s numbers in the words: {{numbers}}.",
+        "other": "This could not be saved. Check it and try again."
+      }
     }
   },
   "parent": {
