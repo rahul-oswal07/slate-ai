@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SlateAi.Api.Data;
+using SlateAi.Api.Data.Seed;
 using SlateAi.Api.Features.Attendance;
 using SlateAi.Api.Tests.Infrastructure;
 
@@ -36,8 +37,10 @@ public sealed class DemoClassApi : IAsyncDisposable
         var factory = new ApiFactory(await postgres.CreateEmptyDatabaseAsync(Ct), settings: settings);
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var demoClass = await db.Classes.SingleAsync(Ct);
-        var childIds = await db.Children.OrderBy(c => c.RollNo).Select(c => c.Id).ToListAsync(Ct);
+        // The demo class, not Monika's 3B beside it (T-115).
+        var demoClassId = (await DemoSeedFile.LoadAsync("data/seed/demo-class.json", Ct)).Class.Id;
+        var demoClass = await db.Classes.SingleAsync(c => c.Id == demoClassId, Ct);
+        var childIds = await db.Children.Where(c => c.ClassId == demoClassId).OrderBy(c => c.RollNo).Select(c => c.Id).ToListAsync(Ct);
         return new DemoClassApi(factory, demoClass.Id, demoClass.TeacherId, childIds);
     }
 

@@ -5,7 +5,7 @@ import { Outlet, useLocation } from 'react-router'
 import { AnnouncerProvider } from '../components/Announcer'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { classLine } from '../features/auth/classLine'
-import { useMe } from '../features/auth/useMe'
+import { useCurrentClass } from '../features/auth/useCurrentClass'
 import { useOutboxSync } from '../offline/outbox'
 import { ProfileMenu } from './ProfileMenu'
 
@@ -22,9 +22,9 @@ export function AppShell() {
   useOutboxSync(refresh)
   const headerRef = useStickyHeaderPadding()
   const tagline = t('app.tagline')
-  // Which class the app is for (T-135), on every screen once she is signed in.
-  const me = useMe().data
-  const forClass = signIn ? null : classLine(me, t)
+  // Which class the app is for (T-135): the one she has open (T-115), on every screen once she is signed in.
+  const group = useCurrentClass()
+  const forClass = signIn ? null : classLine(group, t)
 
   return (
     <AnnouncerProvider>

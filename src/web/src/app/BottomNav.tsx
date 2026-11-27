@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { Icon, type IconName } from '../components/Icon'
-import { useMe } from '../features/auth/useMe'
+import { useClassId } from '../features/auth/useCurrentClass'
 import { usePackages, waitingCount } from '../features/approve/usePackages'
 import { useBuddyCards } from '../features/back/useBuddyCards'
 import { useSchoolToday } from '../features/today/schoolDate'
@@ -28,7 +28,7 @@ export function BottomNav() {
   const active = (to: string) =>
     to === '/' ? pathname === '/' || onTodaySubScreen : pathname === to || pathname.startsWith(`${to}/`)
   // Catch-ups waiting for her (ready or needs review); neutral badge, never error-coloured (T3).
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const waiting = waitingCount(usePackages(classId).data)
   // Children back today: the number of today's buddy cards, counted in code (D-117, guardrail 4); offline, the saved cards.
   const backToday = useBuddyCards(classId, useSchoolToday()).data?.cards.length ?? 0

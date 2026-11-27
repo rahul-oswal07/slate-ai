@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
+import { classesOf } from '../features/auth/currentClass'
 import { useMe } from '../features/auth/useMe'
 import { refreshSchoolDate, setSchoolDate, useSchoolDate } from '../features/today/schoolDate'
 import { BottomNav } from './BottomNav'
@@ -35,11 +36,12 @@ function useResetOnSchoolDateChange() {
 
 /**
  * Follows the admin switch (T-134): when /api/me says it is off, forget any chosen day, so the bar goes and the header
- * stops; when it is on, re-read the chosen day.
+ * stops; when it is on, re-read the chosen day. The switch belongs to the demo class (T-115): a teacher who has her
+ * other class open keeps the chosen day for when she comes back to it.
  */
 function useSchoolDateSwitch() {
   const me = useMe().data
-  const on = me?.demo?.schoolDate === true
+  const on = classesOf(me).some((group) => group.demo?.schoolDate === true)
   useEffect(() => {
     if (me === undefined) {
       return

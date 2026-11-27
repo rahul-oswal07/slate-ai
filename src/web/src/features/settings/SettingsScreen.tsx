@@ -6,6 +6,7 @@ import { api } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { db } from '../../offline/db'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
+import { useClassId, useCurrentClass } from '../auth/useCurrentClass'
 import { useMe } from '../auth/useMe'
 import { useMessageTemplate } from '../evening/useEvening'
 import { useWeeklyStarWording } from '../star/useWeeklyStar'
@@ -19,7 +20,7 @@ export function SettingsScreen() {
   const { t } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   // The demo class only (T-143): a real class never sees Reset today.
-  const demo = useMe().data?.demo != null
+  const demo = useCurrentClass()?.demo != null
 
   return (
     <section aria-labelledby="settings-title" className="flex flex-col gap-3">
@@ -166,7 +167,7 @@ function GreetingRow() {
 
 function EveningRow() {
   const { t, i18n } = useTranslation()
-  const template = useMessageTemplate(useMe().data?.classId ?? '')
+  const template = useMessageTemplate(useClassId())
   const approved = template.data?.status === 'approved'
   const approvedAt = approved ? template.data?.approvedAt : null
 
@@ -206,7 +207,7 @@ function EveningRow() {
 /** The weekly star families get (T-125, D-118): approved or not, and the way to review it. */
 function StarRow() {
   const { t } = useTranslation()
-  const wording = useWeeklyStarWording(useMe().data?.classId ?? '')
+  const wording = useWeeklyStarWording(useClassId())
   const approved = wording.data?.approved === true
 
   return (

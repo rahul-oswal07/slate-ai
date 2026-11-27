@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -27,6 +28,10 @@ public sealed record GreetingInfo(string Url, double Seconds);
 /// <param name="Grade">Her class's grade (T-109); null without a class.</param>
 /// <param name="Medium">Her class's medium of instruction as a language code, e.g. "kn" (T-109); null without a class.</param>
 /// <param name="ClassTeacherName">Her class's main teacher, for "Shobha's class" in the header (T-135); null without a class.</param>
+/// <param name="Classes">
+/// Every class she belongs to (T-115), the one she is main teacher of first; the app shows the one she picks on Today.
+/// <c>ClassId</c>, <c>Grade</c>, <c>Medium</c>, <c>ClassTeacherName</c> and <c>Demo</c> describe the first, her default.
+/// </param>
 public sealed record MeResponse(
     Guid TeacherId,
     string DisplayName,
@@ -37,7 +42,19 @@ public sealed record MeResponse(
     string? PhoneLast4 = null,
     int? Grade = null,
     string? Medium = null,
-    string? ClassTeacherName = null);
+    string? ClassTeacherName = null,
+    IReadOnlyList<MeClass>? Classes = null)
+{
+    /// <summary>The classes her session cookie lists (T-115).</summary>
+    [JsonIgnore]
+    public IReadOnlyList<Guid> ClassIds =>
+        Classes is { } classes ? classes.Select(c => c.Id).ToList() : ClassId is { } id ? [id] : [];
+}
+
+/// <summary>One of her classes (T-115), for the class dropdown on Today and "Shobha's class" in the header.</summary>
+/// <param name="Name">The section, e.g. "3A"; empty when the class has none.</param>
+/// <param name="Demo">Only for the demo class (T-93); null otherwise.</param>
+public sealed record MeClass(Guid Id, string Name, int Grade, string Medium, string ClassTeacherName, DemoFlags? Demo = null);
 
 public sealed record PinLockedResponse(DateTimeOffset LockedUntil);
 
@@ -112,7 +129,8 @@ public static class AuthEndpoints
             .WithSummary("The signed-in teacher")
             .WithDescription(
                 "setupComplete is false until the first-run welcome is done (Teacher.ConsentAt). greeting is her " +
-                "recorded greeting, or null.");
+                "recorded greeting, or null. classes lists every class she belongs to (T-115), her default first; the " +
+                "session is refreshed when they changed since sign-in.");
 
         app.MapPost("/api/me/welcome", WelcomeAsync)
             .RequireAuthorization()
@@ -192,7 +210,7 @@ public static class AuthEndpoints
 
         await http.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            AuthClaims.Teacher(me.TeacherId, me.ClassId, CookieAuthenticationDefaults.AuthenticationScheme),
+            AuthClaims.Teacher(me.TeacherId, me.ClassIds, CookieAuthenticationDefaults.AuthenticationScheme),
             new AuthenticationProperties { IsPersistent = true });
         return TypedResults.Ok(me);
     }
@@ -222,9 +240,29 @@ public static class AuthEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var flags = await DemoVoiceNote.FlagsAsync(
-            me.ClassId, demo.Value, database.Value, ct => schoolDate.IsOnAsync(schoolDateStore, ct), cancellationToken);
-        return TypedResults.Ok(me with { Demo = flags });
+        // A class added or left since sign-in (T-115): the cookie lists her classes as they are now.
+        if (http.User.Identity?.AuthenticationType == CookieAuthenticationDefaults.AuthenticationScheme
+            && !http.User.GetClassIds().ToHashSet().SetEquals(me.ClassIds))
+        {
+            await http.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                AuthClaims.Teacher(me.TeacherId, me.ClassIds, CookieAuthenticationDefaults.AuthenticationScheme),
+                new AuthenticationProperties { IsPersistent = true });
+        }
+
+        Task<DemoFlags?> FlagsAsync(Guid? classId) => DemoVoiceNote.FlagsAsync(
+            classId, demo.Value, database.Value, ct => schoolDate.IsOnAsync(schoolDateStore, ct), cancellationToken);
+        List<MeClass>? classes = null;
+        if (me.Classes is { } list)
+        {
+            classes = [];
+            foreach (var c in list)
+            {
+                classes.Add(c with { Demo = await FlagsAsync(c.Id) });
+            }
+        }
+
+        return TypedResults.Ok(me with { Demo = await FlagsAsync(me.ClassId), Classes = classes });
     }
 
     private static async Task<Results<Ok<MeResponse>, ValidationProblem, UnauthorizedHttpResult>> WelcomeAsync(

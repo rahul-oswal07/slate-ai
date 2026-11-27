@@ -5,7 +5,7 @@ import { ApiError, NetworkError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { formatSchoolTime } from '../today/schoolTime'
 import { useCurriculum } from '../lessons/useLessons'
 import { sumQuestion } from '../parent/sumQuestion'
@@ -23,9 +23,8 @@ import { useApprove, usePackages, useRegenerate } from './usePackages'
 export function PackageScreen() {
   const { id = '' } = useParams()
   const { t } = useTranslation()
-  const me = useMe()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = me.data?.classId ?? ''
+  const classId = useClassId()
   const week = usePackages(classId)
   const pkg = week.data?.packages.find((p) => p.id === id)
 

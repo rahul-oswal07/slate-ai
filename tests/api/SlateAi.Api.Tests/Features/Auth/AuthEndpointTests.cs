@@ -71,6 +71,57 @@ public sealed class AuthEndpointTests
     }
 
     [Fact]
+    public async Task Sign_in_opens_every_class_she_belongs_to_and_me_lists_them()
+    {
+        // T-115: Monika is the main teacher of 3B and a co-teacher of 3A; the dropdown on Today picks between them.
+        var other = Guid.NewGuid();
+        _store.Classes = [Class(other, "3B", "Monika"), Class(_store.ClassId, "3A", "Shobha")];
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+        await SignInAsync(client, Phone, Pin);
+
+        var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+        Assert.Equal(other, me!.ClassId);
+        Assert.Equal(["3B", "3A"], me.Classes!.Select(c => c.Name));
+        Assert.Equal(["Monika", "Shobha"], me.Classes!.Select(c => c.ClassTeacherName));
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(CurriculumUrl(other), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(CurriculumUrl(_store.ClassId), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(CurriculumUrl(Guid.NewGuid()), Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Me_refreshes_the_session_when_her_classes_changed_since_sign_in()
+    {
+        // T-115: a class added after sign-in opens once the app asks /api/me again; a class she left closes.
+        _store.Classes = [Class(_store.ClassId, "3A", "Shobha")];
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+        await SignInAsync(client, Phone, Pin);
+        var added = Guid.NewGuid();
+        _store.Classes = [Class(added, "3B", "Monika")];
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(CurriculumUrl(added), Ct)).StatusCode);
+        var me = await client.GetAsync("/api/me", Ct);
+
+        Assert.Contains("slate.session=", Assert.Single(me.Headers.GetValues("Set-Cookie")));
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(CurriculumUrl(added), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(CurriculumUrl(_store.ClassId), Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Me_leaves_the_session_alone_while_her_classes_are_the_same()
+    {
+        await using var factory = Create();
+        using var client = factory.CreateHttpsClient();
+        await SignInAsync(client, Phone, Pin);
+
+        var me = await client.GetAsync("/api/me", Ct);
+
+        Assert.False(me.Headers.Contains("Set-Cookie"));
+    }
+
+    [Fact]
     public async Task Me_without_a_session_is_401()
     {
         await using var factory = Create();
@@ -219,6 +270,10 @@ public sealed class AuthEndpointTests
             services.AddSingleton<TimeProvider>(_clock);
         });
 
+    private static string CurriculumUrl(Guid classId) => $"/api/classes/{classId}/curriculum";
+
+    private static MeClass Class(Guid id, string name, string mainTeacher) => new(id, name, 3, "kn", mainTeacher);
+
     private static Task<HttpResponseMessage> SignInAsync(HttpClient client, string phone, string pin) =>
         client.PostAsJsonAsync("/api/auth/pin", new PinLoginRequest(phone, pin), Ct);
 
@@ -245,6 +300,9 @@ public sealed class AuthEndpointTests
         public DateTimeOffset? PinLockedUntil { get; set; }
         public DateTimeOffset? ConsentAt { get; private set; }
 
+        /// <summary>Her classes (T-115), default first; null: the one class <see cref="ClassId"/>, as before T-115.</summary>
+        public IReadOnlyList<MeClass>? Classes { get; set; }
+
         public Task<TeacherLogin?> FindByPhoneAsync(string phone, CancellationToken cancellationToken) =>
             Task.FromResult(phone == _phone
                 ? new TeacherLogin(TeacherId, PinHash, FailedPinAttempts, PinLockedUntil)
@@ -261,8 +319,8 @@ public sealed class AuthEndpointTests
         public Task<MeResponse?> GetMeAsync(Guid teacherId, CancellationToken cancellationToken) =>
             Task.FromResult(teacherId == TeacherId
                 ? new MeResponse(
-                    TeacherId, "Shobha", ClassId, ConsentAt is not null, PhoneLast4: PhoneMask.Last4(_phone), Grade: 3, Medium: "kn",
-                    ClassTeacherName: "Shobha")
+                    TeacherId, "Shobha", Classes is { } classes ? classes.FirstOrDefault()?.Id : ClassId, ConsentAt is not null,
+                    PhoneLast4: PhoneMask.Last4(_phone), Grade: 3, Medium: "kn", ClassTeacherName: "Shobha", Classes: Classes)
                 : null);
 
         public Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

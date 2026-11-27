@@ -4,7 +4,7 @@ import { ApiError, NetworkError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { StarGlyph } from '../../components/StarGlyph'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { MessageText } from '../evening/MessageText'
 import { useApproveWeeklyStar, useWeeklyStarWording } from './useWeeklyStar'
 
@@ -17,7 +17,7 @@ export function WeeklyStarScreen({ mode = 'setup' }: { mode?: 'setup' | 'setting
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const wording = useWeeklyStarWording(classId)
   const approve = useApproveWeeklyStar(classId)
   const languages = wording.data?.languages ?? []

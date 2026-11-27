@@ -21,6 +21,7 @@ Spec: [`spec.md`](spec.md)
 - After Re-record on Lesson confirm, Today shows the mic, idle, with focus on it (T-114).
 - There is no lesson audio tick: today's message's concept clip is the lesson audio (T-114, D-105).
 - After the send, Today shows "sent to N · M answered" and a child · answer · level table (T-92). The level comes from the latest of up to two submits: Got it, Needs help or Not answered yet; Today checks again until every answer is locked (D-108).
+- **Class dropdown** above the date: "3A · Grade 3 · Kannada medium" for each class she belongs to, always shown, also with one class. Picking one switches every screen, the header and the bottom nav's badges, and is kept in this browser per teacher; a class she has left falls back to her default (the class she is main teacher of). A half-done correction or lesson pick is left behind on a switch; marks waiting offline still go to the class they were made in (T-115).
 - In the demo class, arrows beside Today's date step a day back or forward, tapping the date opens the calendar, and Back to today sits below it. Today then loads and writes that day (T-134, D-120).
 
 ## Known gaps and drafts
@@ -33,6 +34,7 @@ Spec: [`spec.md`](spec.md)
 - Tonight's message strings (checklist, status line, Preview) in kn, te, ta and hi are drafts for Monika (T-86).
 - The design card is not updated for the one Tonight's message card (T-86) (Monika's file).
 - Preview shows the family's text and says what goes with it; it doesn't replay today's message's pages (D-126).
+- The design card has no class dropdown yet (T-115, Monika's file). The dropdown reuses the Profile screen's "Class" strings, so it adds no new copy.
 
 ## Open tasks
 
