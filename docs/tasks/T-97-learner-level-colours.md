@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done (#323) |
 | Issue | #316 |
 | Owner | R |
 | Screens | T1-today, T4-missed-lessons, T5-back-today, T6-week, app-shell |

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done (#323) |
 | Issue | #318 |
 | Owner | R |
 | Screens | T6-week |

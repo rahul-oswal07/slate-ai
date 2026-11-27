@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Done (#323) |
 | Issue | #317 |
 | Owner | R |
 | Screens | T4-missed-lessons |
