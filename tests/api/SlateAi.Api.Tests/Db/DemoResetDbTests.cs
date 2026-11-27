@@ -148,7 +148,9 @@ public sealed class DemoResetDbTests(PostgresFixture postgres)
         Assert.True(body!.PreMade);
 
         // The seed's 36 children, with the deleted one back and the stop and consent change undone.
-        Assert.Equal(36, await api.QueryAsync(db => db.Children.CountAsync(DemoClassApi.Ct)));
+        Assert.Equal(36, await api.QueryAsync(db => db.Children.CountAsync(c => c.ClassId == api.ClassId, DemoClassApi.Ct)));
+        // Monika's 3B (T-115) is not the demo class: Reset leaves its children alone.
+        Assert.Equal(6, await api.QueryAsync(db => db.Children.CountAsync(c => c.ClassId != api.ClassId, DemoClassApi.Ct)));
         var restored = await api.QueryAsync(db => db.Children.SingleAsync(c => c.Id == bhavana, DemoClassApi.Ct));
         Assert.Null(restored.ParentStoppedAt);
         Assert.Equal("yes", restored.Consent);

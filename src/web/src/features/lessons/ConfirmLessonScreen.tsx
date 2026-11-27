@@ -7,7 +7,7 @@ import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useOnline } from '../../components/useOnline'
 import { useTodaysWaiting } from '../approve/useTodaysMessage'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { useSchoolToday } from '../today/schoolDate'
 import { ExercisesTag } from './ExercisesTag'
 import { findLesson, lessonName, pageText } from './lessonText'
@@ -29,10 +29,9 @@ export function ConfirmLessonScreen() {
   const navigate = useNavigate()
   const announce = useAnnounce()
   const online = useOnline()
-  const me = useMe()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
   const date = useSchoolToday()
-  const classId = me.data?.classId ?? ''
+  const classId = useClassId()
   const day = useLessonDay(classId, date)
   const curriculum = useCurriculum()
   const save = useSaveLesson(classId, date)

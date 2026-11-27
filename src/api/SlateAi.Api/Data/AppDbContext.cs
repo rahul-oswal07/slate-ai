@@ -53,6 +53,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<Class>(e =>
         {
             e.Property(c => c.Medium).HasMaxLength(5);
+            e.Property(c => c.Name).HasMaxLength(20).HasDefaultValue("");
             e.HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId);
             // A curriculum a class follows can't be deleted (T-145); null = the built-in one.
             e.HasOne<StoredCurriculum>().WithMany().HasForeignKey(c => c.CurriculumId).OnDelete(DeleteBehavior.Restrict);

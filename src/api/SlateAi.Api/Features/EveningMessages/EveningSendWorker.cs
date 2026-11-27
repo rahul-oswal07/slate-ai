@@ -85,18 +85,15 @@ public sealed class EveningSendWorker(
                         .GetAsync(classId, today, cancellationToken);
                     var now = clock.GetUtcNow();
                     var sendAt = SchoolClock.At(today, options.Value.SendAt);
-                    if (LessonAudioWait.Holds(lessonAudio, now, sendAt, options.Value.LessonAudioWait))
+                    // The same rule Today's card shows her (T-86): one place decides when the message goes.
+                    var next = EveningSchedule.Next(lessonAudio, todays, now, sendAt, options.Value);
+                    if (next.Holds(now))
                     {
-                        // She ticked the lesson audio and hasn't approved a clip yet: sending now would lock her out (T-82).
+                        // Today's message (or a ticked clip) is being written or she is reading it: the plain message now
+                        // would leave her Approve with nothing to attach to (T-82, T-111).
                         logger.LogInformation(
-                            "Evening messages for class {ClassId} on {Date}: waiting for lesson audio approval", classId, today);
-                    }
-                    else if (TodaysMessageWait.Holds(todays, now, sendAt, options.Value.TodaysMessageWait))
-                    {
-                        // Today's message is being written or she is reading it: the plain message now would leave her
-                        // Approve with nothing to attach to (T-111).
-                        logger.LogInformation(
-                            "Evening messages for class {ClassId} on {Date}: waiting for today's message approval", classId, today);
+                            "Evening messages for class {ClassId} on {Date}: waiting ({Waiting}) until {GoesAt}",
+                            classId, today, next.Waiting, next.GoesAt);
                     }
                     else
                     {

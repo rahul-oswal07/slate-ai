@@ -92,7 +92,8 @@
       "notNow": "Not now · you can change it in Settings",
       "approved": "You approved this message. It goes after 6 pm on each day a child is absent.",
       "offline": "No network. Nothing was approved. Connect and tap Approve again.",
-      "error": "Could not approve. Nothing was sent to parents. Try again."
+      "error": "Could not approve. Nothing was sent to parents. Try again.",
+      "exampleNote": "This is an example with a child from your class. Each family’s real message is on Today, under Tonight."
     },
     "greeting": {
       "heading": "A 10-second greeting in your voice",
@@ -205,13 +206,6 @@
       "sub": "who missed {{lessons}}",
       "see": "See the {{n}} children"
     },
-    "todays": {
-      "waiting": "Today’s message is waiting for you",
-      "waitingHint": "Until you approve it, families get the plain evening message.",
-      "check": "Check and approve",
-      "approved": "Today’s message: approved · goes after 6 pm",
-      "see": "See today’s message"
-    },
     "next": {
       "record": "Record today’s lesson",
       "confirm": "Confirm today’s lesson",
@@ -219,10 +213,7 @@
       "answers": "See answers"
     },
     "tonight": {
-      "title": "After 6 pm tonight: message to {{families}} of {{absent}} families",
-      "body": "The message you approved once, with today’s lesson and page.",
-      "bodyTodays": "With today’s message, which you checked and approved today.",
-      "see": "See the message",
+      "heading": "Tonight: message to {{families}} of {{absent}} families",
       "sent": "Sent tonight to {{families}} of {{absent}} families",
       "none": "No messages tonight.",
       "notApproved": "The evening message is not approved yet, so no messages go tonight.",
@@ -232,6 +223,40 @@
         "noConsent": "No consent",
         "stopped": "Stopped by family",
         "noWording": "No message in their language yet"
+      },
+      "check": {
+        "wording": "Your evening message, approved once",
+        "example": "See an example",
+        "lesson": "Lesson: {{lessons}} · p {{page}}",
+        "lessonNoPage": "Lesson: {{lessons}}",
+        "todaysApproved": "Today’s message: approved",
+        "todaysWaiting": "Today’s message is waiting for you",
+        "todaysWriting": "Today’s message is being written",
+        "approve": "Check and approve",
+        "seeTodays": "See today’s message"
+      },
+      "status": {
+        "writing": "Tonight’s message goes once today’s message is ready.",
+        "approveBy": "Goes at {{at}}. Approve today’s message by then, or it goes without it at {{until}}.",
+        "waiting": "Waiting for you until {{until}} ({{minutes}} min). Then it goes without today’s message.",
+        "goesAt": "Goes at {{at}}.",
+        "goesAtTodays": "Goes at {{at}} with today’s message.",
+        "goingNow": "Going now.",
+        "sentTodays": "Sent at {{at}} · with today’s message",
+        "sentText": "Sent at {{at}} · text only"
+      },
+      "child": {
+        "withTodays": "with today’s message",
+        "textOnly": "text only",
+        "preview": "Preview",
+        "previewLabel": "Preview the message to {{child}}’s family"
+      },
+      "leftOut": "Didn’t get it tonight:",
+      "preview": {
+        "title": "{{child}}’s family · {{language}}",
+        "withTodays": "Today’s message goes with it: its pages, the picture question and the voice clip.",
+        "textOnly": "Only this text goes.",
+        "sentAt": "Sent at {{at}}."
       }
     },
     "strip": {

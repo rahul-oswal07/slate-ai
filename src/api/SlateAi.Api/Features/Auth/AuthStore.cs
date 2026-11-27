@@ -51,37 +51,34 @@ public sealed class AuthStore(AppDbContext db) : IAuthStore
             return null;
         }
 
-        // One class per teacher in the MVP; a class can have several teachers (ClassTeachers). The class they are
-        // the main teacher of comes first.
-        var classId = await db.ClassTeachers
-            .Where(m => m.TeacherId == teacherId)
-            .OrderByDescending(m => db.Classes.Any(c => c.Id == m.ClassId && c.TeacherId == teacherId))
-            .Select(m => (Guid?)m.ClassId)
-            .FirstOrDefaultAsync(cancellationToken);
+        // Every class she belongs to (T-115; a class can have several teachers, ClassTeachers). The class she is the
+        // main teacher of comes first: that is her default. The header (T-135) says whose class it is: its main teacher,
+        // also for a co-teacher.
+        var classes = await (
+                from m in db.ClassTeachers
+                where m.TeacherId == teacherId
+                join c in db.Classes on m.ClassId equals c.Id
+                join main in db.Teachers on c.TeacherId equals main.Id
+                orderby c.TeacherId == teacherId descending, c.Name, c.Grade, c.Id
+                select new MeClass(c.Id, c.Name, c.Grade, c.Medium, main.DisplayName, null))
+            .ToListAsync(cancellationToken);
+        var group = classes.FirstOrDefault();
         var greeting = await db.AudioClips
             .Where(c => c.TeacherId == teacherId && c.Kind == "greeting")
             .Select(c => new GreetingInfo("/api/audio/" + c.Id, Math.Round(c.Seconds, 1)))
             .FirstOrDefaultAsync(cancellationToken);
-        // Profile (T-109): the class as she knows it, and only the last 4 digits of her phone. The header (T-135) says
-        // whose class it is: its main teacher, also for a co-teacher.
-        var group = classId is null
-            ? null
-            : await (
-                    from c in db.Classes
-                    join main in db.Teachers on c.TeacherId equals main.Id
-                    where c.Id == classId
-                    select new { c.Grade, c.Medium, MainTeacher = main.DisplayName })
-                .SingleOrDefaultAsync(cancellationToken);
+        // Profile (T-109): only the last 4 digits of her phone.
         return new MeResponse(
             teacher.Id,
             teacher.DisplayName,
-            classId,
+            group?.Id,
             teacher.ConsentAt is not null,
             greeting,
             PhoneLast4: PhoneMask.Last4(teacher.Phone),
             Grade: group?.Grade,
             Medium: group?.Medium,
-            ClassTeacherName: group?.MainTeacher);
+            ClassTeacherName: group?.ClassTeacherName,
+            Classes: classes);
     }
 
     public async Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken)

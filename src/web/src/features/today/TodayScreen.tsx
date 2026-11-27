@@ -7,13 +7,14 @@ import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useOnline } from '../../components/useOnline'
 import { useTodaysMessage, useTodaysWaiting } from '../approve/useTodaysMessage'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { useEveningDay } from '../evening/useEvening'
 import { PickLessonSheet } from '../lessons/PickLessonSheet'
 import { useCurriculum, useLessonDay, useSaveLesson } from '../lessons/useLessons'
 import { AddedCard } from './AddedCard'
 import { AttendanceCard } from './AttendanceCard'
 import { AttendanceGrid } from './AttendanceGrid'
+import { ClassPicker } from './ClassPicker'
 import { DayStrip } from './DayStrip'
 import { GreetingCard } from './GreetingCard'
 import { AnswersCard } from './AnswersCard'
@@ -22,7 +23,6 @@ import { NextStepButton } from './NextStepButton'
 import { useSchoolToday } from './schoolDate'
 import { formatSchoolDate, formatSchoolTime } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
-import { TodaysMessageCard } from './TodaysMessageCard'
 import { TonightCard } from './TonightCard'
 import { RecapCard } from '../week/RecapCard'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
@@ -31,22 +31,29 @@ import { BackToToday, SchoolDateNav } from '../../app/SchoolDateNav'
 /**
  * T1 Today (docs/design/T1-today.md): register from the simulated SATS feed with corrections and manual
  * fallback; today's lesson picked from the list (FR-04) with Change; "Added to missed lessons"; offline outbox
- * and sync badge; today's message waiting or approved (T-108); tonight's evening-message card (T-44).
+ * and sync badge; tonight's message with today's message, when it goes and each family's preview (T-44, T-108, T-86).
+ * The class dropdown above the date switches the class (T-115).
  */
 export function TodayScreen() {
   const { t, i18n } = useTranslation()
-  const me = useMe()
   const online = useOnline()
   // After Re-record on Lesson confirm (T-114) focus goes to the mic, not the heading.
   const rerecord = (useLocation().state as { rerecord?: boolean } | null)?.rerecord === true
   const headingRef = useFocusOnMount<HTMLHeadingElement>(!rerecord)
   // The demo teacher may act as a past day (T-134, D-120); otherwise today in IST.
   const date = useSchoolToday()
-  const classId = me.data?.classId ?? ''
+  const classId = useClassId()
   const day = useAttendanceDay(classId, date)
   const save = useSaveAttendance(classId, date)
   const [editing, setEditing] = useState(false)
   const [picking, setPicking] = useState(false)
+  // Another class picked above the date (T-115): leave any half-done correction or lesson pick of the last one behind.
+  const [shownClass, setShownClass] = useState(classId)
+  if (shownClass !== classId) {
+    setShownClass(classId)
+    setEditing(false)
+    setPicking(false)
+  }
   const announce = useAnnounce()
   const navigate = useNavigate()
   const curriculum = useCurriculum()
@@ -87,6 +94,8 @@ export function TodayScreen() {
 
   return (
     <section aria-labelledby="today-title" className="flex flex-col gap-3">
+      {/* Which class Today (and the whole app) is for (T-115); always shown, also with one class. */}
+      <ClassPicker />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 id="today-title" ref={headingRef} tabIndex={-1} className="text-title">
           {/* The demo can step back a day or pick one from the calendar here (T-134); otherwise just the title. */}
@@ -171,9 +180,16 @@ export function TodayScreen() {
       {!editing && done && (
         <div className="card-payoff flex flex-col gap-3">
           <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
-          {todays && <TodaysMessageCard message={todays} />}
+          {/* Today's message and tonight's send are one card (T-86, D-126). */}
           {evening.data && day.data && (
-            <TonightCard day={evening.data} roster={day.data.children} todaysApproved={todaysApproved} />
+            <TonightCard
+              classId={classId}
+              day={evening.data}
+              roster={day.data.children}
+              todays={todays ?? undefined}
+              lessonIds={confirmed}
+              chapters={chapters}
+            />
           )}
           <AnswersCard classId={classId} date={date} />
         </div>

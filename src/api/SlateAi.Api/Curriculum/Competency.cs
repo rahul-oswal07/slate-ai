@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SlateAi.Api.Curriculum;
 
 /// <summary>One node of the curriculum graph, e.g. "M3.ADD.CARRY". Loaded from <c>data/curriculum/*.json</c>.</summary>
-/// <param name="NameTe">Telugu name for parent-facing text (evening message); optional, draft until native review (T-26).</param>
+/// <param name="NameTe">Telugu name for parent-facing text (evening message); optional (native review done, T-26).</param>
 /// <param name="NameTa">Tamil name, as <paramref name="NameTe"/>.</param>
 /// <param name="NameHi">Hindi name, as <paramref name="NameTe"/> (D-78).</param>
 /// <param name="KeyWordsKn">Textbook Kannada words for this lesson; A3 picks the catch-up's 3 key words from them (FR-07).</param>

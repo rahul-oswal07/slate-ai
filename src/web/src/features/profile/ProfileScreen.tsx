@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
 import { classLine as lineOf } from '../auth/classLine'
+import { useCurrentClass } from '../auth/useCurrentClass'
 import { useMe } from '../auth/useMe'
 
 /**
@@ -16,7 +17,8 @@ export function ProfileScreen() {
 
   // A mask and digits, the same in every language: not a string to translate.
   const phone = me?.phoneLast4 ? `•••• ${me.phoneLast4}` : null
-  const classLine = lineOf(me, t)
+  // The class she has open on Today (T-115).
+  const classLine = lineOf(useCurrentClass(), t)
   const rows: [label: string, value: string | null | undefined][] = [
     [t('profile.name'), me?.displayName],
     [t('profile.phone'), phone],

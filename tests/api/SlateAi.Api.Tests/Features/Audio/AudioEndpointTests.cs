@@ -43,6 +43,16 @@ public sealed class AudioEndpointTests
     }
 
     [Fact]
+    public async Task A_teacher_in_two_classes_hears_the_audio_of_either()
+    {
+        // T-115: the package is in her second class, not her default one.
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient([Guid.NewGuid(), ClassId]);
+
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync($"/api/audio/{_script}", Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task Another_class_gets_404_and_signed_out_gets_401()
     {
         await using var factory = Create();

@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import type { Chapter } from '../lessons/types'
 import { useCurriculum } from '../lessons/useLessons'
 import { dayName, latestStatus, lessonNames } from './ledgerText'
@@ -19,7 +19,7 @@ import { useDeleteChild, useLedger } from './useLedger'
 export function ChildScreen() {
   const { t } = useTranslation()
   const { childId = '' } = useParams()
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const ledger = useLedger(classId)
   const chapters = useCurriculum().data?.chapters ?? []
   const child = ledger.data?.children.find((c) => c.childId === childId)
