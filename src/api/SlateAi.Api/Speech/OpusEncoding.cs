@@ -25,6 +25,42 @@ public static class OpusEncoding
         ogg.Finish();
         return (output.ToArray(), samples.Length / (double)sampleRate);
     }
+
+    /// <summary>The sample rate clips are decoded at to be joined: Sarvam's and the browser recorder's voice band.</summary>
+    public const int JoinSampleRate = 16000;
+
+    /// <summary>
+    /// Joins Ogg Opus clips into one, in order (T-106, D-127: the AI disclosure and the lesson as one WhatsApp voice note).
+    /// Each clip is decoded to 16 kHz mono and the samples are encoded again at <see cref="Bitrate"/>, so the result is a
+    /// single plain Ogg Opus stream (a chained Ogg would play only its first part on many phones). Returns the bytes and
+    /// the duration from the samples.
+    /// </summary>
+    public static (byte[] Ogg, double Seconds) Join(IReadOnlyList<byte[]> clips)
+    {
+        var samples = new List<short>();
+        foreach (var clip in clips)
+        {
+            var decoder = OpusCodecFactory.CreateDecoder(JoinSampleRate, 1);
+            using var input = new MemoryStream(clip, writable: false);
+            var ogg = new OpusOggReadStream(decoder, input);
+            while (ogg.HasNextPacket)
+            {
+                if (ogg.DecodeNextPacket() is { Length: > 0 } packet)
+                {
+                    samples.AddRange(packet);
+                }
+            }
+        }
+
+        var all = samples.ToArray();
+        var encoder = OpusCodecFactory.CreateEncoder(JoinSampleRate, 1, OpusApplication.OPUS_APPLICATION_VOIP);
+        encoder.Bitrate = Bitrate;
+        using var output = new MemoryStream();
+        var writer = new OpusOggWriteStream(encoder, output, null, JoinSampleRate);
+        writer.WriteSamples(all, 0, all.Length);
+        writer.Finish();
+        return (output.ToArray(), all.Length / (double)JoinSampleRate);
+    }
 }
 
 /// <summary>Minimal RIFF/WAVE reader for Sarvam's output: PCM, 16-bit, mono (first channel kept if more).</summary>

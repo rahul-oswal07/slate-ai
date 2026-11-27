@@ -36,6 +36,18 @@ public sealed class WhatsAppOptions
     public string? PhoneNumberId { get; set; }
     public string? AccessToken { get; set; }
 
+    /// <summary>
+    /// The Meta app's secret (<b>secret</b>): the webhook checks <c>X-Hub-Signature-256</c> with it (T-106). Only from
+    /// user-secrets or App Service settings. Without it every webhook POST is refused (401).
+    /// </summary>
+    public string? AppSecret { get; set; }
+
+    /// <summary>The verify token typed into Meta's webhook setup; the webhook's GET echoes the challenge only for it (T-106).</summary>
+    public string? VerifyToken { get; set; }
+
+    /// <summary>Step 2: today's message inside the chat (T-106). Off by default.</summary>
+    public WhatsAppChatLessonOptions ChatLesson { get; set; } = new();
+
     /// <summary>The approved template for each kind of message: name, and our language code to WhatsApp's.</summary>
     /// <remarks>
     /// The plain evening message (D-21) has no approved template (D-107): Meta classed the warm wording as Marketing,
@@ -90,4 +102,28 @@ public sealed class WhatsAppTemplate
         ["ta"] = "ta",
         ["hi"] = "hi",
     };
+}
+
+/// <summary>
+/// Step 2 (T-106, D-98): today's message goes as <c>todays_lesson_chat_v1</c>, whose "Send it here" quick reply brings
+/// the lesson into the chat through the webhook. <see cref="Enabled"/> is off by default: until Rahul switches it on
+/// (after Meta enables the template and the webhook is set up) today's message goes as <c>todays_lesson_link_v1</c> and
+/// the webhook answers 404.
+/// </summary>
+public sealed class WhatsAppChatLessonOptions
+{
+    /// <summary><c>WhatsApp:ChatLesson:Enabled</c>: false (default) keeps step 1 exactly as it is.</summary>
+    public bool Enabled { get; set; }
+
+    /// <summary>
+    /// The template: {{1}} child, {{2}} lesson, {{3}} page (as <c>todays_lesson_link_v1</c>); button 0 is the quick reply
+    /// "Send it here", button 1 the URL button that opens /p/{token}. A language missing here goes as the link template.
+    /// </summary>
+    public WhatsAppTemplate Template { get; set; } = new() { Name = "todays_lesson_chat_v1" };
+
+    /// <summary>
+    /// The AI disclosure and the lesson as one voice note (D-127, changing D-18's separate segments). False sends them as
+    /// two voice notes in a row, the disclosure first.
+    /// </summary>
+    public bool JoinDisclosure { get; set; } = true;
 }

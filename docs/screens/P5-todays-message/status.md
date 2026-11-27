@@ -20,6 +20,7 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - No design card.
+- Today's message inside the WhatsApp chat (T-106) is built behind `WhatsApp:ChatLesson:Enabled` and off: the same sections as voice notes, one text, reply buttons and a list; taps count as on this page.
 
 ## Open tasks
 

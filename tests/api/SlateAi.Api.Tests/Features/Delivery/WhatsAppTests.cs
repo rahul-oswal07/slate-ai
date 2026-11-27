@@ -133,6 +133,50 @@ public sealed class WhatsAppTests
         // weekly_star_v1 is in review at Meta (T-125): no language until it is approved.
         Assert.Equal(("weekly_star_v1", "1"), (settings.WeeklyStar.Name, settings.WeeklyStar.WordingVersion));
         Assert.Empty(settings.WeeklyStar.Languages);
+        // Step 2 (T-106) is off until Rahul switches it on.
+        Assert.False(settings.ChatLesson.Enabled);
+        Assert.Equal("todays_lesson_chat_v1", settings.ChatLesson.Template.Name);
+        Assert.True(settings.ChatLesson.JoinDisclosure);
+    }
+
+    [Fact]
+    public async Task Switched_on_todays_message_goes_as_the_chat_template_with_send_it_here_and_the_link_T106()
+    {
+        var settings = Settings();
+        settings.ChatLesson.Enabled = true;
+        var (channel, http) = Create(settings);
+
+        var result = await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Todays, "te", ["Ravi", "lesson", "4"], "tok_9", "4", RaviPhone), Ct);
+
+        Assert.Equal(DeliveryStatus.Sent, result.Outcome);
+        using var json = JsonDocument.Parse(Assert.Single(http.Requests).Body);
+        var template = json.RootElement.GetProperty("template");
+        Assert.Equal("todays_lesson_chat_v1", template.GetProperty("name").GetString());
+        var components = template.GetProperty("components").EnumerateArray().ToList();
+        Assert.Equal(("quick_reply", "0"), (components[1].GetProperty("sub_type").GetString(), components[1].GetProperty("index").GetString()));
+        Assert.Equal("lesson:tok_9", components[1].GetProperty("parameters")[0].GetProperty("payload").GetString());
+        Assert.Equal(("url", "1"), (components[2].GetProperty("sub_type").GetString(), components[2].GetProperty("index").GetString()));
+        Assert.Equal("tok_9", components[2].GetProperty("parameters")[0].GetProperty("text").GetString());
+    }
+
+    [Fact]
+    public async Task Switched_on_a_language_without_the_chat_template_and_other_kinds_keep_the_link_templates_T106()
+    {
+        var settings = Settings();
+        settings.ChatLesson.Enabled = true;
+        settings.ChatLesson.Template.Languages.Remove("ta");
+        var (channel, http) = Create(settings);
+
+        await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.Todays, "ta", ["Ravi", "lesson", "4"], "tok_9", "4", RaviPhone), Ct);
+        await channel.SendAsync(
+            new DeliveryMessage(Guid.NewGuid(), Ravi, DeliveryKinds.CatchUp, "kn", ["Ravi", "x", "y"], "tok_8", Phone: RaviPhone), Ct);
+
+        Assert.Equal(2, http.Requests.Count);
+        Assert.Contains("todays_lesson_link_v1", http.Requests[0].Body);
+        Assert.Contains("catchup_link_v1", http.Requests[1].Body);
+        Assert.DoesNotContain(http.Requests, r => r.Body.Contains("quick_reply"));
     }
 
     [Theory]
