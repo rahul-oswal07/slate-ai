@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built, not merged |
+| Status | Done (#325) |
 | Issue | #321 |
 | Owner | R |
 | Screens | T3-approve, P1-P4-catch-up |
