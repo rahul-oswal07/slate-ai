@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { Icon } from '../../components/Icon'
@@ -226,7 +227,12 @@ export function ConfirmLessonScreen() {
       )}
 
       {(status === 'mapped' || status === 'low') && lesson && (
-        <NoteCard date={date} lesson={lesson} onReRecord={() => void reRecord()} />
+        <NoteCard
+          date={date}
+          lesson={lesson}
+          pages={matchedPages(t, chapters, status === 'low' ? lesson.competencyIds.slice(0, 2) : lesson.competencyIds)}
+          onReRecord={() => void reRecord()}
+        />
       )}
 
       {sheet && (
@@ -324,14 +330,26 @@ function LessonOption({
   )
 }
 
-/** Her own recording and photo (from the phone, T-64) and what A1 understood (FR-03, D-56). */
+/** The book pages of the lessons A1 matched, once each ("Part 2, page 6; Part 2, page 117"). */
+function matchedPages(t: TFunction, chapters: Chapter[], ids: string[]) {
+  const pages = ids.map((id) => pageText(t, findLesson(chapters, id)?.lesson.textbookPage ?? null)).filter(Boolean)
+  return [...new Set(pages)].join('; ')
+}
+
+/**
+ * Her own recording and photo (from the phone, T-64) and what A1 understood (FR-03, D-56), as "What I heard" and the
+ * matched pages, so she sees why the AI chose the lesson (T-102, PAIR). The summary is A1's own, already stored; the
+ * transcript is never kept.
+ */
 function NoteCard({
   date,
   lesson,
+  pages,
   onReRecord,
 }: {
   date: string
   lesson: { summaryKn: string | null; summaryEn: string | null; examplesUsed: string[] }
+  pages: string
   onReRecord: () => void
 }) {
   const { t, i18n } = useTranslation()
@@ -365,10 +383,12 @@ function NoteCard({
         </audio>
       )}
       {summary && (
-        <p className="mt-2 text-body" lang={i18n.language === 'kn' && lesson.summaryKn ? 'kn' : 'en'}>
-          {summary}
+        <p className="mt-2 text-body">
+          <span className="font-bold">{t('confirm.why.heard')}</span>{' '}
+          <q lang={i18n.language === 'kn' && lesson.summaryKn ? 'kn' : 'en'}>{summary}</q>
         </p>
       )}
+      {pages && <p className="mt-2 text-caption text-ink-muted">{t('confirm.why.page', { pages })}</p>}
       {lesson.examplesUsed.length > 0 && (
         <p className="mt-2 text-caption text-ink-muted">
           {t('confirm.note.examples')}: {lesson.examplesUsed.join(', ')}

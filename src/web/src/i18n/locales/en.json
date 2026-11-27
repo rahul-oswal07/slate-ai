@@ -68,6 +68,12 @@
       "sats": "Attendance comes from SATS. Just one voice note a day.",
       "approval": "Nothing reaches a parent until you approve it.",
       "privacy": "Only you can see these records.",
+      "ai": {
+        "title": "What the AI does",
+        "does": "It matches your voice note or photo to the textbook lesson, and drafts messages and catch-ups in each family’s language.",
+        "doesNot": "It never marks attendance, works out numbers or answers, sees children’s names, or sends anything by itself.",
+        "approve": "You check and approve everything before it reaches a family."
+      },
       "start": "Start"
     },
     "step1": {
@@ -347,6 +353,10 @@
     "keepOne": "Keep at least one lesson",
     "addLesson": "Add another lesson",
     "offline": "No network. Your note is saved on the phone. It will be matched when you have network.",
+    "why": {
+      "heard": "What I heard:",
+      "page": "Matched in the book: {{pages}}"
+    },
     "note": {
       "label": "What you said",
       "play": "Play your note",

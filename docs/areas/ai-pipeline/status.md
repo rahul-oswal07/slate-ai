@@ -22,10 +22,15 @@ Spec: [`spec.md`](spec.md)
 
 Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24 kbps, ~55 s / ~150 KB per catch-up). Numbers, candidate sets, buddies, scores and pacing are all computed in code.
 - A verdict longer than the AI log's column (100) is stored cut to fit, so logging can never fail a catch-up or any other AI step (T-137).
+- Each time a teacher confirms a lesson over A1's match, what A1 matched and what she chose are saved as an A1 eval case (`LessonFeedback`), with the outcome accepted, edited or replaced worked out in code (T-102).
+- A saved case keeps curriculum IDs, A1's confidence and prompt version, and A1's own name-scrubbed summary and examples; never a name, transcript or audio (T-102).
+- `GET /api/admin/lesson-feedback` lists the cases in the shape of `evals/cases/a1-lesson-mapping.json`, with A1's Kannada summary standing in for the transcript (T-102).
 
 ## Known gaps and drafts
 
 - The eval sets are smaller than the 25 cases per call that `quality.md` asks for.
+- Teachers' saved corrections are not yet copied into `evals/cases/a1-lesson-mapping.json`; that is by hand (`evals/README.md`, T-102).
+- A "Change" after confirming a lesson saves no eval case: by then there is no A1 match left to compare with (T-102).
 
 ## Open tasks
 

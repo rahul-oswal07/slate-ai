@@ -39,6 +39,20 @@ export function WelcomeScreen() {
         ))}
       </ul>
 
+      {/* AI explained (T-102, PAIR): what the AI does and doesn't, before she starts. */}
+      <section aria-labelledby="welcome-ai-title" className="mt-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
+        <h2 id="welcome-ai-title" className="flex items-center gap-2 text-label">
+          <Icon name="bot" className="shrink-0 text-primary-strong" />
+          {t('setup.welcome.ai.title')}
+        </h2>
+        <p className="mt-2 text-body">{t('setup.welcome.ai.does')}</p>
+        <p className="mt-2 text-body">{t('setup.welcome.ai.doesNot')}</p>
+        <p className="mt-2 flex items-start gap-2 text-body font-bold">
+          <Icon name="checkCircle" className="mt-0.5 shrink-0 text-primary-strong" />
+          {t('setup.welcome.ai.approve')}
+        </p>
+      </section>
+
       <div className="sticky bottom-0 mt-4 border-t border-divider bg-canvas pb-3 pt-3">
         <button
           type="button"

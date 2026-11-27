@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { fakeApi, renderApp, teacher } from '../../test/renderApp'
@@ -25,6 +25,17 @@ describe('WelcomeScreen', () => {
     expect(screen.getByText('Nothing reaches a parent until you approve it.')).toBeInTheDocument()
     expect(screen.getByText('Only you can see these records.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /back/i })).not.toBeInTheDocument()
+  })
+
+  it('explains what the AI does and doesn’t, and that she approves everything (T-102)', async () => {
+    fakeApi({ 'GET /api/me': () => ({ status: 200, body: firstRun }) })
+
+    renderApp('/welcome')
+
+    const card = await screen.findByRole('region', { name: 'What the AI does' })
+    expect(within(card).getByText(/matches your voice note or photo to the textbook lesson/)).toBeInTheDocument()
+    expect(within(card).getByText(/never marks attendance, works out numbers or answers, sees children’s names/)).toBeInTheDocument()
+    expect(within(card).getByText('You check and approve everything before it reaches a family.')).toBeInTheDocument()
   })
 
   it('Start opens the greeting step without finishing setup (the voice consent does that)', async () => {

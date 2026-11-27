@@ -38,6 +38,7 @@ Spec: [`spec.md`](spec.md)
   - In a draft each lesson can be edited: names (te/ta/hi drafts), key words, printed page, earlier lessons it needs, practice kind, the book's exercises with the app's answers beside them, example problems, description and worked examples, other exercises and pictures as words. "Checked" marks it ready; a lesson can also be removed.
   - Publish is enabled once every lesson is checked and the curriculum passes the file rules; until then it lists what stops it. A published curriculum is read only.
 - The kn, te, ta and hi strings of the curriculum pages are drafts for Monika (T-147).
+- `GET /api/admin/lesson-feedback` (API only, no page) lists teachers' confirmations over A1's match as A1 eval cases, newest 500, `?from=YYYY-MM-DD` optional (T-102).
 - Every admin page and the WhatsApp test send open without a key, on staging, prod and locally: anyone with the address can read and change what they show (T-121, D-112).
 
 ## Known gaps and drafts
