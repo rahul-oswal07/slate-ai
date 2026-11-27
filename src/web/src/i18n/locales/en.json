@@ -587,10 +587,6 @@
     "filter": "Filter",
     "filterWeek": "Absent this week · {{n}}",
     "filterAll": "Everyone · {{n}}",
-    "daysAway_one": "· {{count}} day away",
-    "daysAway_other": "· {{count}} days away",
-    "missed": "Missed: {{lessons}}",
-    "noneMissed": "No missed lessons this week",
     "lessonMeta": "{{day}} · {{page}}",
     "lessonCount": "{{n}} of {{total}} children missed it",
     "showChildren": "Show the children",
@@ -614,8 +610,6 @@
       "meta": "Roll {{roll}} · home language: {{language}}",
       "missing": "This child is no longer in the list.",
       "thisWeek": "This week",
-      "away": "away · missed: {{lessons}}",
-      "awayNoLesson": "away",
       "reason": "reason (from the parent): {{reason}}",
       "catchUpSent": "catch-up sent ({{language}})",
       "checkRight": "picture question: right",
@@ -623,7 +617,12 @@
       "stopped": "family stopped messages. Buddy card continues.",
       "none": "No missed lessons this week",
       "dataHeading": "Child’s data",
-      "delete": "Delete all of {{name}}’s data"
+      "delete": "Delete all of {{name}}’s data",
+      "awayDays_one": "Away {{count}} day: {{days}}",
+      "awayDays_other": "Away {{count}} days: {{days}}",
+      "awayCount_one": "Away {{count}} day",
+      "awayCount_other": "Away {{count}} days",
+      "more": "More"
     },
     "delete": {
       "title": "Delete {{name}}’s data?",
@@ -642,6 +641,11 @@
       "ta": "Tamil",
       "en": "English",
       "hi": "Hindi"
+    },
+    "table": {
+      "caption": "Children this week: days away, lessons missed and level",
+      "lessons": "Lessons missed",
+      "noLevel": "No level yet"
     }
   },
   "back": {
@@ -682,7 +686,8 @@
     "loadFailed": "Could not load the cards. Nothing was lost. Try again.",
     "prev": "Previous card",
     "print": "Print or share card",
-    "nextCard": "Next card"
+    "nextCard": "Next card",
+    "level": "Catch-up at home:"
   },
   "week": {
     "title": "This week",
@@ -726,7 +731,20 @@
       "hint": "Say well done in class.",
       "rule": "A star for coming to school every day of the week. Each week starts fresh.",
       "earned": "Came to school every day this week:",
-      "soFar": "Every day so far this week:"
+      "soFar": "Every day so far this week:",
+      "count_one": "{{count}} earned a star",
+      "count_other": "{{count}} earned a star",
+      "countSoFar_one": "{{count}} on track so far",
+      "countSoFar_other": "{{count}} on track so far",
+      "seeAll": "See all"
+    },
+    "summary": {
+      "away_one": "{{count}} away",
+      "away_other": "{{count}} away",
+      "gotIt_one": "{{count}} got it",
+      "gotIt_other": "{{count}} got it",
+      "needHelp_one": "{{count}} needs help",
+      "needHelp_other": "{{count}} need help"
     }
   },
   "demo": {

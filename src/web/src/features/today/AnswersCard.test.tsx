@@ -103,7 +103,9 @@ describe('Answers back on Today (T-92)', () => {
     })
     renderApp('/missed')
 
-    const ravi = await screen.findByRole('link', { name: /Ravi/ })
-    await waitFor(() => expect(ravi).toHaveTextContent('Needs help'))
+    // Asha's catch-up hasn't gone, so her row shows today's level; Ravi's shows his catch-up's (D-130).
+    const asha = (await screen.findByRole('link', { name: /Asha/ })).closest('tr')
+    await waitFor(() => expect(asha).toHaveTextContent('Got it'))
+    expect(screen.getByRole('link', { name: /Ravi/ }).closest('tr')).toHaveTextContent('Needs help')
   })
 })

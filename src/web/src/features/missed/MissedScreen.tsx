@@ -11,8 +11,9 @@ import { LevelTag } from '../today/LevelTag'
 import { useSchoolToday } from '../today/schoolDate'
 import { formatSchoolTime } from '../today/schoolTime'
 import { type Level, useTodaysAnswers } from '../today/useTodaysAnswers'
-import { dayName, latestStatus, lessonNames, missedText } from './ledgerText'
+import { dayName, lessonNames, thisWeek } from './ledgerText'
 import { ChannelTag, LearningTag } from './LedgerTags'
+import { childLevel } from './levels'
 import type { LearningStatus, Ledger, LedgerChild } from './types'
 import { useLedger } from './useLedger'
 import { SchoolWeekNav } from '../../app/SchoolDateNav'
@@ -115,7 +116,6 @@ export function MissedScreen() {
             <ByChild
               data={data}
               levels={levels}
-              chapters={chapters}
               everyone={everyone}
               onFilter={(all) => set('filter', all ? 'all' : null)}
             />
@@ -133,17 +133,15 @@ export function MissedScreen() {
 function ByChild({
   data,
   levels,
-  chapters,
   everyone,
   onFilter,
 }: {
   data: Ledger
   levels: Map<string, Level>
-  chapters: Chapter[]
   everyone: boolean
   onFilter: (all: boolean) => void
 }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const absent = data.children.filter((c) => c.daysAwayThisWeek > 0)
   const rows = everyone ? data.children : absent
   return (
@@ -166,68 +164,71 @@ function ByChild({
           ))}
         </div>
       </fieldset>
-      <ul className="overflow-hidden rounded-button border-2 border-border bg-surface">
-        {rows.map((child) => (
-          <li key={child.childId} className="border-b border-divider last:border-b-0">
-            <ChildRow
-              child={child}
-              weekOf={data.weekOf}
-              chapters={chapters}
-              language={i18n.language}
-              t={t}
-              level={levels.get(child.childId)}
-            />
-          </li>
-        ))}
-      </ul>
+      {/* T-98 (G1): one row per child, name · days away · lessons missed · level. The lessons themselves are on the
+          child view, one chip each. */}
+      <div className="overflow-hidden rounded-button border-2 border-border bg-surface">
+        <table className="w-full table-fixed text-left">
+          <caption className="sr-only">{t('missed.table.caption')}</caption>
+          <thead>
+            <tr className="text-caption text-ink-muted">
+              <th scope="col" className="py-2 pr-1 pl-3 font-normal">
+                {t('answers.child')}
+              </th>
+              <th scope="col" className="w-[3.5rem] px-1 py-2 text-center font-normal">
+                {t('week.daysAway')}
+              </th>
+              <th scope="col" className="w-[3.75rem] px-1 py-2 text-center font-normal">
+                {t('missed.table.lessons')}
+              </th>
+              <th scope="col" className="w-[38%] py-2 pr-2 pl-1 font-normal">
+                {t('answers.level')}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((child) => (
+              <ChildRow
+                key={child.childId}
+                child={child}
+                lessons={thisWeek(child, data.weekOf).length}
+                // The catch-up's level for this week's missed lessons (D-130); else today's picture question (T-92).
+                level={childLevel(child, data.weekOf) ?? levels.get(child.childId) ?? null}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }
 
-function ChildRow({
-  child,
-  weekOf,
-  chapters,
-  language,
-  t,
-  level,
-}: {
-  child: LedgerChild
-  weekOf: string
-  /** Today's picture question level (T-92, D-108), for a child who got today's message. */
-  level?: Level
-  chapters: Chapter[]
-  language: string
-  t: ReturnType<typeof useTranslation>['t']
-}) {
-  const status = latestStatus(child, weekOf)
+function ChildRow({ child, lessons, level }: { child: LedgerChild; lessons: number; level: Level | null }) {
+  const { t } = useTranslation()
   return (
-    <Link
-      to={`/missed/${child.childId}`}
-      className="flex min-h-[56px] items-center gap-3 px-3 py-2 focus-visible:outline-offset-[-4px]"
-    >
-      <span className="w-6 shrink-0 text-caption text-ink-muted">{child.rollNo}</span>
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-label">
-          {child.firstName}
-          {child.daysAwayThisWeek > 0 && (
-            <span className="font-normal text-ink-muted">
-              {' '}
-              {t('missed.daysAway', { count: child.daysAwayThisWeek })}
-            </span>
-          )}
-        </span>
-        <span className="text-caption text-ink-muted">{missedText(t, chapters, child, weekOf, language)}</span>
-        {(status || child.channel || level) && (
-          <span className="flex flex-wrap gap-1">
-            {level && <LevelTag level={level} />}
-            {status && <LearningTag status={status} />}
-            {child.channel && <ChannelTag channel={child.channel} />}
+    <tr className="border-t border-divider">
+      <th scope="row" className="py-1 pr-1 pl-3 text-left align-middle font-normal">
+        <Link
+          to={`/missed/${child.childId}`}
+          className="flex min-h-target items-center gap-0.5 rounded-sm text-label text-primary-strong underline underline-offset-4"
+        >
+          <span className="min-w-0 break-words">{child.firstName}</span>
+          <Icon name="chevronRight" size={18} className="shrink-0" />
+        </Link>
+        {child.channel && <ChannelTag channel={child.channel} compact />}
+      </th>
+      <td className="px-1 py-1 text-center align-middle text-label tabular-nums">{child.daysAwayThisWeek}</td>
+      <td className="px-1 py-1 text-center align-middle text-label tabular-nums">{lessons}</td>
+      <td className="py-1 pr-2 pl-1 align-middle">
+        {level ? (
+          <LevelTag level={level} />
+        ) : (
+          <span className="text-label text-ink-muted">
+            <span aria-hidden="true">—</span>
+            <span className="sr-only">{t('missed.table.noLevel')}</span>
           </span>
         )}
-      </span>
-      <Icon name="chevronRight" size={20} className="shrink-0 text-ink-muted" />
-    </Link>
+      </td>
+    </tr>
   )
 }
 

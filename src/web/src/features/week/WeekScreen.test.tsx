@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { initI18n } from '../../i18n'
 import { saveSnapshot } from '../../offline/db'
 import { fakeApi, renderApp, teacher, type FakeRoute } from '../../test/renderApp'
-import { curriculum } from '../missed/fixtures'
+import { curriculum, ledger } from '../missed/fixtures'
 import { istToday } from '../today/schoolTime'
 import type { ReturnSpeed, Week } from './types'
 
@@ -104,7 +104,7 @@ describe('WeekScreen (T6)', () => {
     expect(rows).toEqual(['1 day75', '2 days34', '3 days12', '4+ days12'])
   })
 
-  it('reasons: a count per category and “Not given”, never a name', async () => {
+  it('reasons: a count per category and “Not given”, never a name; a category nobody gave is hidden (T-99)', async () => {
     setup(() => week())
     renderApp('/week')
 
@@ -113,11 +113,48 @@ describe('WeekScreen (T6)', () => {
       'Unwell3',
       'Family travel or work1',
       'Festival or function2',
-      'Needed at home0',
       'Other1',
       'Not given5',
     ])
     expect(card).toHaveTextContent('Only for you. Not sent to anyone.')
+  })
+
+  it('return speed: a length of absence nobody had, this week or last, is not drawn (T-99)', async () => {
+    setup(() =>
+      week({
+        thisWeek: speed({ oneDay: 2, twoDays: 0, threeDays: 0, fourPlusDays: 0, backWithinTwoDays: 2, total: 2 }),
+        lastWeek: speed({ twoDays: 1, backWithinTwoDays: 1, total: 1 }),
+      }),
+    )
+    renderApp('/week')
+
+    const card = await screen.findByRole('region', { name: 'How quickly children came back' })
+    const table = within(card).getByRole('table', { name: 'Absent children by days away' })
+    expect(within(table).getAllByRole('row').slice(1).map((r) => r.textContent)).toEqual(['1 day20', '2 days01'])
+  })
+
+  it('headline: “N away · N got it · N need help” from the ledger, with the level icons (T-99, D-130)', async () => {
+    setup(() => week(), {
+      [`GET /api/classes/${teacher.classId}/ledger`]: () => ({ status: 200, body: ledger() }),
+    })
+    renderApp('/week')
+
+    // Ravi and Asha were away; Ravi needs help with one lesson; Asha's catch-up hasn't gone.
+    const away = await screen.findByText('2 away')
+    const headline = away.closest('p')
+    expect(headline?.textContent).toBe('2 away·0 got it·1 needs help')
+    expect(screen.getByText('1 needs help').querySelector('svg')).not.toBeNull()
+    expect(screen.getByText('1 needs help')).toHaveClass('text-level-needs-help')
+    // It comes before the chart.
+    const chart = screen.getByRole('region', { name: 'How quickly children came back' })
+    expect(headline?.compareDocumentPosition(chart)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+
+  it('headline: none without the ledger', async () => {
+    setup(() => week())
+    renderApp('/week')
+    await screen.findByText('10 of 12')
+    expect(screen.queryByText(/^\d+ away$/)).toBeNull()
   })
 
   it('nudge: the sentence uses the counted numbers and lesson names; Plan recap stores it, Change reopens', async () => {
