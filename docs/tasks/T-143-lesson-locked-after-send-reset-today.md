@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Done (#303, not merged yet) |
+| Status | Done (#303) |
 | Issue | #302 |
 | Owner | R |
 | Screens | T1-today, T10-settings, T3-approve |

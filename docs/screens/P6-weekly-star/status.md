@@ -13,7 +13,6 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - No design card (Monika's).
-- The kn, te, ta and hi page copy is a draft for native review (T-26).
 - Over WhatsApp, `weekly_star_v1` goes in no language until Meta approves it (English submitted 15 Nov); until then families see it only on the demo chat.
 
 ## Open tasks

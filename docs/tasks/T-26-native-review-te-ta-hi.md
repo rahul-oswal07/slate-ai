@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Open |
+| Status | Done (27 Nov, no corrections) |
 | Issue | none |
 | Owner | M finds reviewers, R applies the changes |
 | Screens | every screen with text; P0-evening-message, P1-P4-catch-up, P5-todays-message first |
@@ -29,4 +29,5 @@ Each of the three languages has been read by a native speaker; corrections are i
 
 ## Notes
 
+- 27 Nov: closed by Rahul: the review brought no feedback, so there are no corrections to apply. No GitHub issue to close (the task never had one). The "draft for native review (T-26)" notes are removed from the status files, `quality.md`, the seed notes, `data/curriculum/README.md` and the code comment; Monika's files (`spec.md`, `design/curriculum.md`, `design/journey.md`, `whatsapp-setup.md`, `whatsapp-delivery-plan.md`) still carry theirs for her to clear. Notes in older task files stay as they were written.
 - 15 Nov: file created from the gaps listed in `status.md` (T-110). The Tamil layout fix named above is merged (T-101, #211).
