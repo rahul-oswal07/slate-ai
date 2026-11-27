@@ -28,6 +28,7 @@ using SlateAi.Api.Features.Curricula;
 using SlateAi.Api.Features.TextbookImport;
 using SlateAi.Api.Features.Week;
 using SlateAi.Api.Features.WeeklyStar;
+using SlateAi.Api.Features.WhatsAppChat;
 using SlateAi.Api.Features.LessonContents;
 using SlateAi.Api.Features.LessonLinks;
 
@@ -60,6 +61,7 @@ builder.Services.AddEveningMessages(builder.Configuration);
 builder.Services.AddWeeklyStar(builder.Configuration);
 builder.Services.AddCatchUps(builder.Configuration);
 builder.Services.AddDelivery(builder.Configuration);
+builder.Services.AddWhatsAppChat();
 builder.Services.AddAudio();
 builder.Services.AddLessonAudio();
 builder.Services.AddTodaysMessage();
@@ -109,6 +111,7 @@ app.MapWeekEndpoints();
 app.MapDemoEndpoints();
 app.MapAdminEndpoints();
 app.MapDeliveryEndpoints();
+app.MapWhatsAppChatEndpoints();
 app.MapApiDocs();
 app.MapSpa();
 

@@ -1,0 +1,122 @@
+{
+  "_note": "Fixed lines of today's message inside the WhatsApp chat (T-106, step 2). Code fills {child}, {page} and {choice}; everything else in the chat is from the approved today's message. Lines marked in _new are new copy; the rest are copied from the family pages (src/web/src/i18n/locales, parent.*). kn, te, ta and hi of the new lines are drafts for Monika and native review (T-26). List rows and the list button are 24 and 20 characters at most (Meta), so the Tamil travelOrWork row is shortened to 'travel or work'. Nothing here says right or wrong (D-108).",
+  "version": "1",
+  "_new": ["pictureCompare", "pictureSum", "pictureAgain", "pictureDone", "stopWords"],
+  "languages": {
+    "en": {
+      "activity": "Try this at home",
+      "homework": "Homework: {page}",
+      "video": "Watch how it's taught",
+      "videoData": "Uses mobile data. You can skip it.",
+      "pictureTitle": "{child}'s turn",
+      "pictureCompare": "Which sign goes between the numbers? Tap one.",
+      "pictureSum": "Which number is the answer? Tap one.",
+      "pictureAgain": "{child} chose {choice}. You can change it once: tap another answer above.",
+      "pictureDone": "Thank you. The teacher will see {child}'s answer.",
+      "reasonQuestion": "We missed {child} today. Is everything OK?",
+      "reasonButton": "Reason",
+      "reasons": {
+        "unwell": "Unwell",
+        "travelOrWork": "Family travel or work",
+        "festival": "Festival or function",
+        "neededAtHome": "Needed at home",
+        "other": "Other"
+      },
+      "reasonThanks": "Thank you for telling us.",
+      "stopped": "Messages stopped",
+      "stopWords": ["stop"]
+    },
+    "kn": {
+      "activity": "ಮನೆಯಲ್ಲಿ ಇದನ್ನು ಮಾಡಿ",
+      "homework": "ಮನೆಕೆಲಸ: {page}",
+      "video": "ತರಗತಿಯಲ್ಲಿ ಹೇಗೆ ಕಲಿಸುತ್ತಾರೆ ನೋಡಿ",
+      "videoData": "ಮೊಬೈಲ್ ಡೇಟಾ ಬಳಸುತ್ತದೆ. ಬಿಟ್ಟುಬಿಡಬಹುದು.",
+      "pictureTitle": "{child} ಸರದಿ",
+      "pictureCompare": "ಸಂಖ್ಯೆಗಳ ನಡುವೆ ಯಾವ ಚಿಹ್ನೆ ಬರುತ್ತದೆ? ಒಂದನ್ನು ಒತ್ತಿ.",
+      "pictureSum": "ಉತ್ತರ ಯಾವ ಸಂಖ್ಯೆ? ಒಂದನ್ನು ಒತ್ತಿ.",
+      "pictureAgain": "{child} {choice} ಆರಿಸಿದರು. ಒಮ್ಮೆ ಬದಲಿಸಬಹುದು: ಮೇಲಿನ ಇನ್ನೊಂದು ಉತ್ತರ ಒತ್ತಿ.",
+      "pictureDone": "ಧನ್ಯವಾದ. {child} ಉತ್ತರವನ್ನು ಟೀಚರ್ ನೋಡುತ್ತಾರೆ.",
+      "reasonQuestion": "ಇಂದು ತರಗತಿಯಲ್ಲಿ {child} ಇಲ್ಲದೆ ಬೇಸರವಾಯಿತು. ಎಲ್ಲವೂ ಚೆನ್ನಾಗಿದೆಯೇ?",
+      "reasonButton": "ಕಾರಣ",
+      "reasons": {
+        "unwell": "ಹುಷಾರಿಲ್ಲ",
+        "travelOrWork": "ಕುಟುಂಬ ಪ್ರಯಾಣ ಅಥವಾ ಕೆಲಸ",
+        "festival": "ಹಬ್ಬ ಅಥವಾ ಸಮಾರಂಭ",
+        "neededAtHome": "ಮನೆಯಲ್ಲಿ ಅಗತ್ಯ",
+        "other": "ಬೇರೆ"
+      },
+      "reasonThanks": "ತಿಳಿಸಿದ್ದಕ್ಕೆ ಧನ್ಯವಾದ.",
+      "stopped": "ಸಂದೇಶಗಳನ್ನು ನಿಲ್ಲಿಸಲಾಗಿದೆ",
+      "stopWords": ["ನಿಲ್ಲಿಸಿ"]
+    },
+    "te": {
+      "activity": "ఇంట్లో ఇది చేయండి",
+      "homework": "ఇంటి పని: {page}",
+      "video": "తరగతిలో ఎలా నేర్పుతారో చూడండి",
+      "videoData": "మొబైల్ డేటా వాడుతుంది. వదిలేయవచ్చు.",
+      "pictureTitle": "{child} వంతు",
+      "pictureCompare": "సంఖ్యల మధ్య ఏ గుర్తు వస్తుంది? ఒకటి నొక్కండి.",
+      "pictureSum": "జవాబు ఏ సంఖ్య? ఒకటి నొక్కండి.",
+      "pictureAgain": "{child} {choice} ఎంచుకున్నారు. ఒకసారి మార్చవచ్చు: పైన ఇంకో జవాబు నొక్కండి.",
+      "pictureDone": "ధన్యవాదాలు. {child} జవాబును టీచర్ చూస్తారు.",
+      "reasonQuestion": "ఈ రోజు మేము {child}ని గుర్తు చేసుకున్నాం. అంతా బాగుందా?",
+      "reasonButton": "కారణం",
+      "reasons": {
+        "unwell": "ఒంట్లో బాగాలేదు",
+        "travelOrWork": "కుటుంబ ప్రయాణం లేదా పని",
+        "festival": "పండుగ లేదా శుభకార్యం",
+        "neededAtHome": "ఇంట్లో అవసరం",
+        "other": "ఇంకేదైనా"
+      },
+      "reasonThanks": "చెప్పినందుకు ధన్యవాదాలు.",
+      "stopped": "సందేశాలు ఆపేశాం",
+      "stopWords": ["ఆపండి", "ఆపు"]
+    },
+    "ta": {
+      "activity": "வீட்டில் இதைச் செய்யுங்கள்",
+      "homework": "வீட்டுப்பாடம்: {page}",
+      "video": "வகுப்பில் எப்படிக் கற்பிக்கிறார்கள் பாருங்கள்",
+      "videoData": "மொபைல் டேட்டா பயன்படுத்தும். தவிர்க்கலாம்.",
+      "pictureTitle": "{child} முறை",
+      "pictureCompare": "எண்களுக்கு இடையே எந்தக் குறி வரும்? ஒன்றைத் தட்டவும்.",
+      "pictureSum": "விடை எந்த எண்? ஒன்றைத் தட்டவும்.",
+      "pictureAgain": "{child} {choice} தேர்ந்தெடுத்தார். ஒருமுறை மாற்றலாம்: மேலே வேறு விடையைத் தட்டவும்.",
+      "pictureDone": "நன்றி. {child} விடையை ஆசிரியர் பார்ப்பார்.",
+      "reasonQuestion": "இன்று வகுப்பில் {child} இல்லாதது எங்களுக்குக் குறையாக இருந்தது. எல்லாம் நலமா?",
+      "reasonButton": "காரணம்",
+      "reasons": {
+        "unwell": "உடல்நலம் சரியில்லை",
+        "travelOrWork": "பயணம் அல்லது வேலை",
+        "festival": "பண்டிகை அல்லது விழா",
+        "neededAtHome": "வீட்டில் தேவைப்பட்டது",
+        "other": "வேறு"
+      },
+      "reasonThanks": "சொன்னதற்கு நன்றி.",
+      "stopped": "செய்திகள் நிறுத்தப்பட்டன",
+      "stopWords": ["நிறுத்து", "நிறுத்தவும்"]
+    },
+    "hi": {
+      "activity": "घर पर यह करें",
+      "homework": "गृहकार्य: {page}",
+      "video": "कक्षा में कैसे पढ़ाते हैं, देखें",
+      "videoData": "मोबाइल डेटा लगता है। आप इसे छोड़ सकते हैं।",
+      "pictureTitle": "{child} की बारी",
+      "pictureCompare": "संख्याओं के बीच कौन-सा चिह्न आएगा? एक दबाएँ।",
+      "pictureSum": "उत्तर कौन-सी संख्या है? एक दबाएँ।",
+      "pictureAgain": "{child} ने {choice} चुना। आप इसे एक बार बदल सकते हैं: ऊपर दूसरा उत्तर दबाएँ।",
+      "pictureDone": "धन्यवाद। {child} का उत्तर टीचर देखेंगी।",
+      "reasonQuestion": "आज हमें {child} की कमी खली। सब ठीक है न?",
+      "reasonButton": "कारण",
+      "reasons": {
+        "unwell": "तबीयत ठीक नहीं",
+        "travelOrWork": "परिवार की यात्रा या काम",
+        "festival": "त्योहार या समारोह",
+        "neededAtHome": "घर पर ज़रूरत थी",
+        "other": "कुछ और"
+      },
+      "reasonThanks": "बताने के लिए धन्यवाद।",
+      "stopped": "संदेश बंद हो गए",
+      "stopWords": ["रोकें", "बंद करें", "बंद"]
+    }
+  }
+}

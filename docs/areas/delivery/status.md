@@ -14,10 +14,12 @@ Spec: [`spec.md`](spec.md)
 - A ready lesson clip that she hasn't approved holds the class's evening message for 5 minutes, then the plain message goes (T-85).
 - The weekly star (T-125, D-118): after 6 pm on Saturday once the register is in (or on Sunday, for a week whose Saturday had no school), the job sends `weekly_star_v1` ({{1}} the child's name) to each family whose child was present every school day, with consent Yes, not stopped, and only if she approved the star wording. Once per child per week.
 - After 6 pm the job holds a class's evening messages while today's message is being written, and for 5 minutes while it is ready and not approved; then the plain message goes (T-111, D-100).
+- **Step 2, today's message inside the chat (T-106): built behind `WhatsApp:ChatLesson:Enabled`, off by default.** When on, today's message goes as `todays_lesson_chat_v1` with "Send it here"; the tap reaches `/api/whatsapp/webhook` (signature checked with `WhatsApp:AppSecret`, each event once) and, from today's message approved at its version and within 24 hours of the tap, the family gets her greeting and the lesson (disclosure + concept as one voice note, D-127 proposed) as voice notes, one text, the picture question with reply buttons and the reason list. Taps land on Today like the family page's; `STOP` stops the family. Switch-on steps in T-106.
 
 ## Known gaps and drafts
 
 - WhatsApp is simulated unless `Delivery:Channel=whatsapp` (T-40).
+- Step 2 (T-106) isn't switched on anywhere and hasn't been tried on a phone: it needs `todays_lesson_chat_v1` live at Meta, the app secret, the verify token and the webhook set up. In the chat the picture question is written ("47 ? 52"), not drawn.
 - The plain evening message has no approved template, so it isn't sent over WhatsApp; those families keep the demo chat (D-107).
 - A Tamil catch-up isn't sent over WhatsApp: `catchup_link_v1` has no ta version yet.
 - The weekly star isn't sent over WhatsApp in any language yet: `weekly_star_v1` is in review (English submitted 15 Nov). Once Meta approves a language, add it with `WhatsApp__WeeklyStar__Languages__en=en` (T-125).

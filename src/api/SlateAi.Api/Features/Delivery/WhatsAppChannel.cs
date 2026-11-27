@@ -45,6 +45,17 @@ public sealed class WhatsAppChannel(WhatsAppClient client, IOptions<WhatsAppOpti
             return Task.FromResult(ChannelResult.Skipped("wording-version"));
         }
 
+        // Step 2 (T-106), when switched on: the same values as todays_lesson_chat_v1, whose "Send it here" brings the
+        // lesson into the chat. A language the chat template lacks keeps the link template.
+        if (message.Kind == DeliveryKinds.Todays
+            && settings.ChatLesson is { Enabled: true, Template: { Name.Length: > 0 } chat }
+            && chat.Languages.TryGetValue(message.Language, out var chatLanguage))
+        {
+            return client.SendTemplateAsync(
+                number, chat.Name, chatLanguage, message.Parameters, message.Token, cancellationToken,
+                quickReplyPayload: ChatReplyIds.ForLesson(message.Token));
+        }
+
         return client.SendTemplateAsync(number, template.Name, language, message.Parameters, message.Token, cancellationToken);
     }
 }

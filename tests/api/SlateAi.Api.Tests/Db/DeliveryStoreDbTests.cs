@@ -6,13 +6,15 @@ using SlateAi.Api.Features.CatchUps;
 using SlateAi.Api.Features.Delivery;
 using SlateAi.Api.Features.Lessons;
 using SlateAi.Api.Features.TodaysMessage;
+using SlateAi.Api.Features.WhatsAppChat;
 
 namespace SlateAi.Api.Tests.Db;
 
 /// <summary>
 /// T-104 (a, b): the outbox query on real Postgres. A row carrying today's message reads its lessons (an array column)
 /// and comes back as <see cref="DeliveryKinds.Todays"/>; a catch-up reads its package's targets; both get the values of
-/// Monika's templates; a plain evening row is unchanged.
+/// Monika's templates; a plain evening row is unchanged. T-106: the chat store's queries (the lesson behind a token with
+/// guardrail 3 checked again, numbers saved for a child, an event recorded once) on the same rows.
 /// </summary>
 [Trait("Category", "Db")]
 [Collection(DbCollection.Name)]
@@ -42,7 +44,11 @@ public sealed class DeliveryStoreDbTests(PostgresFixture postgres)
             db.TodaysMessages.Add(new TodaysMessage
             {
                 Id = todaysId, ClassId = api.ClassId, Date = today.AddDays(-1), CompetencyIds = [Nalikali],
-                Status = TodaysMessageStatus.Approved, Version = 1, ApprovedVersion = 1, Sections = "{}",
+                Status = TodaysMessageStatus.Approved, Version = 1, ApprovedVersion = 1,
+                Sections = new TodaysSections(
+                    new TodaysConcept(new Dictionary<string, string> { ["kn"] = "ಹೋಲಿಸಿ." }, new Dictionary<string, Guid>()),
+                    new TodaysActivity(new Dictionary<string, IReadOnlyList<string>> { ["kn"] = ["ಕಡ್ಡಿಗಳನ್ನು ಎಣಿಸಿ."] }),
+                    new TodaysPicture(TodaysPicture.Compare, 47, 52, "<")).ToJson(),
                 CreatedAt = now, UpdatedAt = now,
             });
             foreach (var (child, language, todays) in new[] { (manjunath, "kn", (Guid?)todaysId), (ravi, "te", null) })
@@ -86,6 +92,14 @@ public sealed class DeliveryStoreDbTests(PostgresFixture postgres)
         Assert.Equal(["Ananya", "ಹೆಚ್ಚು – ಕಡಿಮೆ – ಸಮ", "ಪುಟ 4"], byChild[ananya].Parameters);
         Assert.Equal(DeliveryKinds.Evening, byChild[ravi].Kind);
         Assert.Equal(["Ravi", "ఎక్కువ – తక్కువ – సమానం", "నలికలి గణితం భాగం 1, పేజీ 4"], byChild[ravi].Parameters);
+
+        // T-106: the chat reads the same message; today's message is approved at its version only on Manjunath's.
+        var chat = await api.ScopedAsync<IWhatsAppChatStore, ChatLesson?>(s => s.FindLessonAsync("tok-kn", DemoClassApi.Ct));
+        var plain = await api.ScopedAsync<IWhatsAppChatStore, ChatLesson?>(s => s.FindLessonAsync("tok-te", DemoClassApi.Ct));
+        Assert.Equal((manjunath, "kn", true), (chat!.ChildId, chat.Language, chat.TodaysApproved));
+        Assert.Equal(("ಹೋಲಿಸಿ.", "<"), (chat.Todays?.Concept, chat.PictureAnswer));
+        Assert.False(plain!.TodaysApproved);
+        Assert.Null(await api.ScopedAsync<IWhatsAppChatStore, ChatLesson?>(s => s.FindLessonAsync("tok-none", DemoClassApi.Ct)));
     }
 
     [Fact]
@@ -135,5 +149,18 @@ public sealed class DeliveryStoreDbTests(PostgresFixture postgres)
         Assert.Equal("+919845012345", phones[(ravi, 2)]);
         Assert.Null(phones[(manjunath, 1)]);
         Assert.Null(phones[(manjunath, 2)]);
+
+        // T-106: only saved numbers count in the chat, and a webhook event is recorded once.
+        var chat = await api.ScopedAsync<IWhatsAppChatStore, ChatLesson?>(s => s.FindLessonAsync("tok2-r", DemoClassApi.Ct));
+        Assert.Equal(["+919876543210", "+919845012345"], chat!.Phones);
+        Assert.Empty((await api.ScopedAsync<IWhatsAppChatStore, ChatLesson?>(s => s.FindLessonAsync("tok2-m", DemoClassApi.Ct)))!.Phones);
+        var byPhone = await api.ScopedAsync<IWhatsAppChatStore, IReadOnlyList<ChatChild>>(
+            s => s.FindByPhoneAsync("+919845012345", DemoClassApi.Ct));
+        Assert.Equal([ravi], byPhone.Select(c => c.Id));
+        Assert.Empty(await api.ScopedAsync<IWhatsAppChatStore, IReadOnlyList<ChatChild>>(
+            s => s.FindByPhoneAsync("+919812345678", DemoClassApi.Ct)));
+        var eventId = ChatHandler.EventGuid("event", "wamid.DB");
+        Assert.True(await api.ScopedAsync<IWhatsAppChatStore, bool>(s => s.TryRecordEventAsync(eventId, now, DemoClassApi.Ct)));
+        Assert.False(await api.ScopedAsync<IWhatsAppChatStore, bool>(s => s.TryRecordEventAsync(eventId, now, DemoClassApi.Ct)));
     }
 }
