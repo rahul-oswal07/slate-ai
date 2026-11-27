@@ -25,7 +25,6 @@ Sarvam is used for STT (`saaras:v4`) and TTS (`bulbul:v3`, re-encoded to Opus 24
 
 ## Known gaps and drafts
 
-- Telugu, Tamil and Hindi scripts are drafts for native review; the Hindi audio hasn't been listened to on a phone (T-26).
 - The eval sets are smaller than the 25 cases per call that `quality.md` asks for.
 
 ## Open tasks

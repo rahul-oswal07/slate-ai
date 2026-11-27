@@ -20,7 +20,7 @@ Spec: [`spec.md`](spec.md)
 
 ## Known gaps and drafts
 
-- Tamil layout at 360 px (T-84) is fixed (T-101, #211); the Tamil tab label "திரும்பி வந்தோர்" is a draft for native review (T-26).
+- Tamil layout at 360 px (T-84) is fixed (T-101, #211); the Tamil tab label is "திரும்பி வந்தோர்" (native review, T-26, found nothing to change).
 - Offline covers attendance and voice notes only (roadmap, D-70).
 - The short language labels and the kn, hi, te and ta strings of the profile menu are drafts for Monika (T-109).
 

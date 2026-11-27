@@ -52,6 +52,13 @@ public sealed class EveningMessageDbTests(PostgresFixture postgres)
         Assert.Contains("పది తీసుకుని తీసివేత", parent.Text);
         Assert.Contains("Ravi", parent.Text);
 
+        // T-86: Today's receipt and her preview read the sent message back (GetSentAsync translates to SQL).
+        var dayUrl = $"/api/classes/{api.ClassId}/evening-messages/{today:yyyy-MM-dd}";
+        var receipt = (await api.Client.GetFromJsonAsync<EveningDayResponse>(dayUrl, DemoClassApi.Ct))!;
+        Assert.Equal(message.SentAt, receipt.SentAt);
+        var preview = (await api.Client.GetFromJsonAsync<EveningPreviewResponse>($"{dayUrl}/children/{ravi}", DemoClassApi.Ct))!;
+        Assert.Equal((parent.Text, true), (preview.Text, preview.Sent));
+
         // T-40: queued for the phone in the same transaction, once despite the race; the demo channel settles it.
         // T-140: once per family number, 1 and 2.
         var queued = await api.QueryAsync(db => db.ParentDeliveries.OrderBy(d => d.Recipient).ToListAsync(DemoClassApi.Ct));

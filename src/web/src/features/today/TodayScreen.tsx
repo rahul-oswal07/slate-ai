@@ -23,7 +23,6 @@ import { NextStepButton } from './NextStepButton'
 import { useSchoolToday } from './schoolDate'
 import { formatSchoolDate, formatSchoolTime } from './schoolTime'
 import { SyncBadge } from './SyncBadge'
-import { TodaysMessageCard } from './TodaysMessageCard'
 import { TonightCard } from './TonightCard'
 import { RecapCard } from '../week/RecapCard'
 import { useAttendanceDay, useSaveAttendance } from './useAttendanceDay'
@@ -32,8 +31,8 @@ import { BackToToday, SchoolDateNav } from '../../app/SchoolDateNav'
 /**
  * T1 Today (docs/design/T1-today.md): register from the simulated SATS feed with corrections and manual
  * fallback; today's lesson picked from the list (FR-04) with Change; "Added to missed lessons"; offline outbox
- * and sync badge; today's message waiting or approved (T-108); tonight's evening-message card (T-44). The class
- * dropdown above the date switches the class (T-115).
+ * and sync badge; tonight's message with today's message, when it goes and each family's preview (T-44, T-108, T-86).
+ * The class dropdown above the date switches the class (T-115).
  */
 export function TodayScreen() {
   const { t, i18n } = useTranslation()
@@ -181,9 +180,16 @@ export function TodayScreen() {
       {!editing && done && (
         <div className="card-payoff flex flex-col gap-3">
           <AddedCard absent={absent} lessonIds={confirmed} chapters={chapters} />
-          {todays && <TodaysMessageCard message={todays} />}
+          {/* Today's message and tonight's send are one card (T-86, D-126). */}
           {evening.data && day.data && (
-            <TonightCard day={evening.data} roster={day.data.children} todaysApproved={todaysApproved} />
+            <TonightCard
+              classId={classId}
+              day={evening.data}
+              roster={day.data.children}
+              todays={todays ?? undefined}
+              lessonIds={confirmed}
+              chapters={chapters}
+            />
           )}
           <AnswersCard classId={classId} date={date} />
         </div>
