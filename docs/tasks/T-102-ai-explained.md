@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress |
+| Status | Done (#322) |
 | Issue | #315 |
 | Owner | R |
 | Screens | T0-setup, T2-lesson-confirm, ai-pipeline, admin |
