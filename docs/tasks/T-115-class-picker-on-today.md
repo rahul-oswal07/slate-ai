@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Built, not merged (27 Nov) |
+| Status | Done (#314) |
 | Issue | #226 |
 | Owner | R |
 | Screens | T1-today, app-shell, T9-sign-in |
