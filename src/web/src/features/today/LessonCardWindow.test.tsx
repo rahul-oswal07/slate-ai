@@ -57,6 +57,10 @@ const evening = (sent: number): EveningDay => ({
   sent,
   sendsAt: '18:00:00',
   children: [],
+  goesAt: null,
+  waiting: null,
+  sentAt: null,
+  withTodays: false,
 })
 
 function today(opts: {

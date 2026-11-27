@@ -60,6 +60,8 @@ export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'se
         </div>
       )}
 
+      {/* A sample child from the class; each family's real message is on Today (T-86). */}
+      {example && <p className="text-caption text-ink-muted">{t('setup.template.exampleNote')}</p>}
       {example && (
         <div className="flex flex-col gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <span className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-panel px-3 py-1 text-caption text-primary-strong">
