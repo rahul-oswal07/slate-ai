@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Accepted |
+| Status | Proposed **[CONFIRM: Rahul]**: built in #323 so it can be seen; the star count on Week goes against D-118's "no numbers" |
 | Owner | Rahul (build, 27 Nov, on his go-ahead for T-97 to T-99); Monika to confirm the copy |
 | Gate | none |
 | Screens | T1-today, T4-missed-lessons, T5-back-today, T6-week, app-shell |
