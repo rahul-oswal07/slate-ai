@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed **[CONFIRM: Rahul]**: built in #323 so it can be seen; the star count on Week goes against D-118's "no numbers" |
+| Status | Accepted (27 Nov, Rahul) |
 | Owner | Rahul (build, 27 Nov, on his go-ahead for T-97 to T-99); Monika to confirm the copy |
 | Gate | none |
 | Screens | T1-today, T4-missed-lessons, T5-back-today, T6-week, app-shell |
@@ -22,4 +22,5 @@
 
 ## Notes
 
+- 27 Nov: accepted by Rahul as built in #323, including the class star count on Week (changes D-118's "no numbers" for that one count).
 - 27 Nov 2026: built in T-97, T-98 and T-99. FR-24's acceptance ("with no numbers") in `docs/screens/T6-week/spec.md` needs Monika's wording for point 6.

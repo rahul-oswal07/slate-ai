@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Accepted (16 Nov, Rahul) |
+| Status | Accepted (16 Nov, Rahul); changed by [D-130](D-130-one-learner-level-per-child.md) (27 Nov): Week shows the class star count |
 | Owner | Monika (flow, copy, WhatsApp template), 15 Nov; Rahul (link and demo), 16 Nov |
 | Gate | T-125 |
 | Screens | T6-week, T0-setup, P1-P4-catch-up, P5-todays-message, delivery, demo, P6-weekly-star (new) |
