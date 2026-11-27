@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '../../api/client'
+import { api, ApiError } from '../../api/client'
 import type { CatchUpPackage, CatchUpWeek } from './types'
 
 export const packagesKey = (classId: string) => ['packages', classId] as const
@@ -51,6 +51,57 @@ export function useApprove(classId: string) {
     onSuccess: (updated) => replace(queryClient, classId, updated),
     onError: () => void queryClient.invalidateQueries({ queryKey: packagesKey(classId) }),
   })
+}
+
+/**
+ * Her words for one section (T-103). The API answers with the latest catch-up, also on a 409 (an older version, or it
+ * changed meanwhile), so the screen shows what is current; a 400 says what to fix and changes nothing.
+ */
+export function useEditPackageSection(classId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      id,
+      kind,
+      scriptVersion,
+      text,
+      objectOption,
+    }: {
+      id: string
+      kind: 'concept' | 'activity' | 'note'
+      scriptVersion: number
+      text: string
+      objectOption?: string
+    }) =>
+      api<CatchUpPackage>(`/api/packages/${id}/sections/${kind}`, {
+        method: 'PUT',
+        body: { clientRequestId: crypto.randomUUID(), scriptVersion, text, objectOption },
+      }),
+    onSuccess: (updated) => replace(queryClient, classId, updated),
+    onError: (error) => latestOn409(queryClient, classId, error),
+  })
+}
+
+/** Removes or puts back the video or her note (T-103): a new version, her tick cleared. */
+export function useSetPackageRemoved(classId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, kind, removed }: { id: string; kind: 'video' | 'note'; removed: boolean }) =>
+      api<CatchUpPackage>(`/api/packages/${id}/sections/${kind}`, {
+        method: 'PATCH',
+        body: { clientRequestId: crypto.randomUUID(), removed },
+      }),
+    onSuccess: (updated) => replace(queryClient, classId, updated),
+    onError: (error) => latestOn409(queryClient, classId, error),
+  })
+}
+
+function latestOn409(queryClient: ReturnType<typeof useQueryClient>, classId: string, error: unknown) {
+  if (error instanceof ApiError && error.status === 409 && error.body) {
+    replace(queryClient, classId, error.body as CatchUpPackage)
+  } else if (!(error instanceof ApiError && error.status === 400)) {
+    void queryClient.invalidateQueries({ queryKey: packagesKey(classId) })
+  }
 }
 
 /** Simpler / Shorter / Try again (hint null): a new version is written in the background. */

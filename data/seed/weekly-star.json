@@ -1,5 +1,5 @@
 {
-  "_note": "Weekly star for families (T-125, D-118). The teacher approves this once in setup; code fills only {child} from the register. whatsApp is the body of the Meta template weekly_star_v1 ({{1}} = {child}), shown so she approves what goes out; message and badge are the two screens of the page. Change any text → bump version (she approves again, D-49) and, for whatsApp, a new Meta template. Copy from Monika (T-125, 15 Nov); kn, te, ta and hi are drafts for native review (T-26). Only the en weekly_star_v1 is submitted at Meta so far.",
+  "_note": "Weekly star for families (T-125, D-118). The teacher approves this once in setup; code fills only {child} from the register. whatsApp is the body of the Meta template weekly_star_v1 ({{1}} = {child}), shown so she approves what goes out; message and badge are the two screens of the page. Change any text → bump version (she approves again, D-49) and, for whatsApp, a new Meta template. Copy from Monika (T-125, 15 Nov); kn, te, ta and hi passed native review (T-26). Only the en weekly_star_v1 is submitted at Meta so far.",
   "version": "1",
   "languages": {
     "en": {

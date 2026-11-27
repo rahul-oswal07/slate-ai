@@ -109,6 +109,20 @@ public sealed class FakeEveningStore(Guid classId, Guid teacherId) : IEveningSto
         }
     }
 
+    public Task<IReadOnlyList<SentEvening>> GetSentAsync(Guid id, DateOnly date, CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            return Task.FromResult<IReadOnlyList<SentEvening>>(Messages
+                .Where(m => m.Date == date)
+                .Select(m => new SentEvening(
+                    m.Message.ChildId, m.Message.SentAt, m.Message.Language, m.Message.TodaysMessageId is not null,
+                    // Some tests add a sent message without a template; the database's foreign key never allows that.
+                    Templates.FirstOrDefault(t => t.Id == m.Message.TemplateId)?.Text ?? "", m.Message.Slots))
+                .ToList());
+        }
+    }
+
     public Task<int> AddMessagesAsync(
         Guid id, DateOnly date, IReadOnlyList<NewEveningMessage> messages, CancellationToken cancellationToken)
     {

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Icon } from '../../components/Icon'
 import { useAnnounce } from '../../components/useAnnounce'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { pageText } from '../lessons/lessonText'
 import { sumQuestion } from '../parent/sumQuestion'
 import { levelOf } from '../missed/levels'
@@ -58,7 +58,7 @@ function itemText(t: ReturnType<typeof useTranslation>['t'], kind: string | null
 export function BackTodayScreen() {
   const { t } = useTranslation()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = useMe().data?.classId ?? ''
+  const classId = useClassId()
   const today = useSchoolToday()
   const query = useBuddyCards(classId, today)
   const [index, setIndex] = useState(0)

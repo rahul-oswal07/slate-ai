@@ -14,7 +14,6 @@ Spec: [`spec.md`](spec.md)
 ## Known gaps and drafts
 
 - No design card.
-- The kn, hi, te and ta strings are drafts for Monika and native review (T-26).
 - Nothing can be edited here; changing a name, phone or PIN is not in the app.
 
 ## Open tasks

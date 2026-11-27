@@ -80,7 +80,7 @@ public sealed class ChildDeleteDbTests(PostgresFixture postgres)
 
         Assert.All(await RowsFor(ravi), n => Assert.Equal(0, n));
         Assert.Equal(answersBefore - 1, await api.QueryAsync(db => db.CheckResponses.CountAsync(DemoClassApi.Ct)));
-        Assert.Equal(35, await api.QueryAsync(db => db.Children.CountAsync(DemoClassApi.Ct)));
+        Assert.Equal(35, await api.QueryAsync(db => db.Children.CountAsync(c => c.ClassId == api.ClassId, DemoClassApi.Ct)));
         Assert.Equal(1, await api.QueryAsync(db => db.EveningMessages.CountAsync(m => m.ChildId == saiTeja, DemoClassApi.Ct)));
         // The AI call stays (it is the cost log) and still names Sai Teja's ID; only Ravi's is gone.
         Assert.Equal([saiTeja], await api.QueryAsync(db => db.AiCalls.Where(c => c.Id == aiCall).Select(c => c.ChildIds!).SingleAsync(DemoClassApi.Ct)));
@@ -89,6 +89,6 @@ public sealed class ChildDeleteDbTests(PostgresFixture postgres)
         // The next start (or deploy) runs the seed again: the deleted child stays deleted.
         await api.ScopedAsync<DemoSeeder>(seeder => seeder.SeedAsync(DemoClassApi.Ct));
         Assert.Equal(0, await api.QueryAsync(db => db.Children.CountAsync(c => c.Id == ravi, DemoClassApi.Ct)));
-        Assert.Equal(35, await api.QueryAsync(db => db.Children.CountAsync(DemoClassApi.Ct)));
+        Assert.Equal(35, await api.QueryAsync(db => db.Children.CountAsync(c => c.ClassId == api.ClassId, DemoClassApi.Ct)));
     }
 }

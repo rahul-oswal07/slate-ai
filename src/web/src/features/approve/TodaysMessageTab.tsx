@@ -1,4 +1,4 @@
-import { type ReactNode, useId, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { Icon } from '../../components/Icon'
@@ -6,6 +6,8 @@ import { useAnnounce } from '../../components/useAnnounce'
 import { findLesson, lessonName, pageText } from '../lessons/lessonText'
 import { useCurriculum } from '../lessons/useLessons'
 import { useSchoolToday } from '../today/schoolDate'
+import { SECTION_ORDER } from './sectionKinds'
+import { type EditField, SectionActions, SectionCard, SectionEditForm } from './Sections'
 import type { TodaysMessage, TodaysSectionKind } from './todaysTypes'
 import {
   editProblem,
@@ -18,7 +20,7 @@ import {
 } from './useTodaysMessage'
 
 type Editable = 'concept' | 'activity' | 'note'
-const SECTIONS: TodaysSectionKind[] = ['concept', 'activity', 'video', 'picture', 'note']
+const SECTIONS: TodaysSectionKind[] = SECTION_ORDER
 const PROMISED: TodaysSectionKind[] = ['concept', 'activity', 'picture']
 
 /**
@@ -277,7 +279,7 @@ function NoteText({ note }: { note: NonNullable<TodaysMessage['note']> }) {
   )
 }
 
-/** One section: a header that opens it, its content, and Edit / Remove (or Choose another pair) while she can change it. */
+/** One section: the shared card (T-103), its content, and Edit / Remove (or Choose another pair) while she can change it. */
 function Section({
   kind,
   classId,
@@ -298,7 +300,6 @@ function Section({
   children: ReactNode
 }) {
   const { t } = useTranslation()
-  const id = useId()
   const setRemoved = useSetRemoved(classId, date)
   const [editing, setEditing] = useState(false)
   const removed = message.removed.includes(kind)
@@ -309,54 +310,27 @@ function Section({
   const canRemove = !PROMISED.includes(kind) && !emptyNote && (removed || showing > 1)
 
   return (
-    <div className={`rounded-card border-[1.5px] border-edge bg-surface ${removed ? 'opacity-70' : ''}`}>
-      <h3>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={`${id}-body`}
-          onClick={onToggle}
-          className="flex min-h-target w-full items-center justify-between gap-2 px-[14px] text-left text-label"
-        >
-          <span>
-            {t(`todays.section.${kind}`)}
-            {removed && <span className="ml-2 text-caption text-ink-muted">{t('todays.removedTag')}</span>}
-          </span>
-          <Icon name={open ? 'chevronUp' : 'chevronDown'} size={20} className="shrink-0 text-ink-muted" />
-        </button>
-      </h3>
-      {open && (
-        <div id={`${id}-body`} className="flex flex-col gap-3 border-t border-divider p-[14px]">
-          {editing && kind !== 'picture' ? (
-            <EditForm kind={kind as Editable} classId={classId} date={date} message={message} onDone={() => setEditing(false)} />
-          ) : (
-            <>
-              {emptyNote ? <p className="text-caption text-ink-muted">{t('todays.noNote')}</p> : children}
-              {!readOnly && kind === 'picture' && <PairPicker classId={classId} date={date} message={message} />}
-              {!readOnly && (
-                <div className="flex flex-wrap gap-2">
-                  {kind !== 'picture' && kind !== 'video' && !removed && (
-                    <button type="button" onClick={() => setEditing(true)} className="btn-secondary w-auto">
-                      {emptyNote ? t('todays.addNote') : t('todays.edit')}
-                    </button>
-                  )}
-                  {canRemove && (
-                    <button
-                      type="button"
-                      disabled={setRemoved.isPending}
-                      onClick={() => setRemoved.mutate({ kind, removed: !removed })}
-                      className="btn-link"
-                    >
-                      {removed ? t('todays.restore') : t('todays.remove')}
-                    </button>
-                  )}
-                </div>
-              )}
-            </>
+    <SectionCard kind={kind} removed={removed} open={open} onToggle={onToggle}>
+      {editing && kind !== 'picture' ? (
+        <EditForm kind={kind as Editable} classId={classId} date={date} message={message} onDone={() => setEditing(false)} />
+      ) : (
+        <>
+          {emptyNote ? <p className="text-caption text-ink-muted">{t('todays.noNote')}</p> : children}
+          {!readOnly && kind === 'picture' && <PairPicker classId={classId} date={date} message={message} />}
+          {!readOnly && (
+            <SectionActions
+              editLabel={kind !== 'picture' && kind !== 'video' && !removed ? (emptyNote ? t('todays.addNote') : t('todays.edit')) : null}
+              onEdit={() => setEditing(true)}
+              remove={
+                canRemove
+                  ? { removed, pending: setRemoved.isPending, onToggle: () => setRemoved.mutate({ kind, removed: !removed }) }
+                  : null
+              }
+            />
           )}
-        </div>
+        </>
       )}
-    </div>
+    </SectionCard>
   )
 }
 
@@ -377,81 +351,46 @@ function EditForm({
   const { t } = useTranslation()
   const edit = useEditSection(classId, date)
   const kn = message.languages.find((l) => l.language === 'kn')
-  // Her note starts from what she typed, in whatever language (T-119).
-  const [text, setText] = useState(kind === 'concept' ? (kn?.concept ?? '') : (message.note?.original ?? message.note?.text.kn ?? ''))
-  const [steps, setSteps] = useState<string[]>(kn?.steps.length ? kn.steps : [''])
   const problem = editProblem(edit.error)
-  const errorId = useId()
-
-  const save = () =>
-    edit.mutate(
-      kind === 'activity'
-        ? { kind, version: message.version, steps: steps.filter((s) => s.trim() !== '') }
-        : { kind, version: message.version, text },
-      { onSuccess: onDone },
-    )
+  const step = (n: number) => t('todays.step', { n })
+  const fields: EditField[] =
+    kind === 'activity'
+      ? (kn?.steps.length ? kn.steps : ['']).map((s, i) => ({ label: step(i + 1), value: s, placeholder: t('todays.stepPlaceholder'), rows: 2 }))
+      : [
+          {
+            label: t(kind === 'note' ? 'todays.noteLabel' : 'todays.conceptLabel'),
+            // Her note starts from what she typed, in whatever language (T-119).
+            value: kind === 'concept' ? (kn?.concept ?? '') : (message.note?.original ?? message.note?.text.kn ?? ''),
+            placeholder: t(kind === 'note' ? 'todays.notePlaceholder' : 'todays.conceptPlaceholder'),
+          },
+        ]
 
   return (
-    <form
-      className="flex flex-col gap-2"
-      onSubmit={(e) => {
-        e.preventDefault()
-        save()
-      }}
-    >
-      {kind === 'activity' ? (
-        steps.map((step, i) => (
-          <label key={i} className="flex flex-col gap-1 text-caption">
-            {t('todays.step', { n: i + 1 })}
-            <textarea
-              value={step}
-              rows={2}
-              placeholder={t('todays.stepPlaceholder')}
-              aria-describedby={problem ? errorId : undefined}
-              onChange={(e) => setSteps(steps.map((s, j) => (j === i ? e.target.value : s)))}
-              className="rounded-button border-2 border-border bg-surface p-2 text-body text-ink"
-            />
-          </label>
-        ))
-      ) : (
-        <label className="flex flex-col gap-1 text-caption">
-          {t(kind === 'note' ? 'todays.noteLabel' : 'todays.conceptLabel')}
-          <textarea
-            value={text}
-            rows={4}
-            placeholder={t(kind === 'note' ? 'todays.notePlaceholder' : 'todays.conceptPlaceholder')}
-            aria-describedby={problem ? errorId : undefined}
-            onChange={(e) => setText(e.target.value)}
-            className="rounded-button border-2 border-border bg-surface p-2 text-body text-ink"
-          />
-        </label>
-      )}
-      {kind === 'activity' && steps.length < 3 && (
-        <button type="button" onClick={() => setSteps([...steps, ''])} className="btn-link self-start">
-          {t('todays.addStep')}
-        </button>
-      )}
-      {problem && (
-        <p id={errorId} role="alert" className="text-caption text-error">
-          {t(`todays.problem.${problem.problem}`, { defaultValue: t('todays.problem.other') })}
-          {problem.problem === 'numbers' && ` ${t('todays.allowed', { numbers: problem.allowed.filter((n) => n.length > 1).join(', ') })}`}
-        </p>
-      )}
-      {edit.isError && !problem && (
-        <p role="alert" className="text-caption text-error">
-          {t('todays.changed')}
-        </p>
-      )}
-      <p className="text-caption text-ink-muted">{t('todays.saveHint')}</p>
-      <div className="flex gap-2">
-        <button type="submit" disabled={edit.isPending} className="btn-primary w-auto">
-          {t('todays.save')}
-        </button>
-        <button type="button" onClick={onDone} className="btn-secondary w-auto">
-          {t('common.cancel')}
-        </button>
-      </div>
-    </form>
+    <SectionEditForm
+      fields={fields}
+      more={
+        kind === 'activity'
+          ? { max: 3, label: step, placeholder: t('todays.stepPlaceholder'), add: t('todays.addStep') }
+          : undefined
+      }
+      hint={t('todays.saveHint')}
+      problem={
+        problem &&
+        t(`todays.problem.${problem.problem}`, { defaultValue: t('todays.problem.other') }) +
+          (problem.problem === 'numbers' ? ` ${t('todays.allowed', { numbers: problem.allowed.filter((n) => n.length > 1).join(', ') })}` : '')
+      }
+      conflict={edit.isError}
+      pending={edit.isPending}
+      onSave={(values) =>
+        edit.mutate(
+          kind === 'activity'
+            ? { kind, version: message.version, steps: values.filter((s) => s.trim() !== '') }
+            : { kind, version: message.version, text: values[0] ?? '' },
+          { onSuccess: onDone },
+        )
+      }
+      onCancel={onDone}
+    />
   )
 }
 

@@ -68,6 +68,12 @@
       "sats": "Attendance comes from SATS. Just one voice note a day.",
       "approval": "Nothing reaches a parent until you approve it.",
       "privacy": "Only you can see these records.",
+      "ai": {
+        "title": "What the AI does",
+        "does": "It matches your voice note or photo to the textbook lesson, and drafts messages and catch-ups in each family’s language.",
+        "doesNot": "It never marks attendance, works out numbers or answers, sees children’s names, or sends anything by itself.",
+        "approve": "You check and approve everything before it reaches a family."
+      },
       "start": "Start"
     },
     "step1": {
@@ -86,7 +92,8 @@
       "notNow": "Not now · you can change it in Settings",
       "approved": "You approved this message. It goes after 6 pm on each day a child is absent.",
       "offline": "No network. Nothing was approved. Connect and tap Approve again.",
-      "error": "Could not approve. Nothing was sent to parents. Try again."
+      "error": "Could not approve. Nothing was sent to parents. Try again.",
+      "exampleNote": "This is an example with a child from your class. Each family’s real message is on Today, under Tonight."
     },
     "greeting": {
       "heading": "A 10-second greeting in your voice",
@@ -199,13 +206,6 @@
       "sub": "who missed {{lessons}}",
       "see": "See the {{n}} children"
     },
-    "todays": {
-      "waiting": "Today’s message is waiting for you",
-      "waitingHint": "Until you approve it, families get the plain evening message.",
-      "check": "Check and approve",
-      "approved": "Today’s message: approved · goes after 6 pm",
-      "see": "See today’s message"
-    },
     "next": {
       "record": "Record today’s lesson",
       "confirm": "Confirm today’s lesson",
@@ -213,10 +213,7 @@
       "answers": "See answers"
     },
     "tonight": {
-      "title": "After 6 pm tonight: message to {{families}} of {{absent}} families",
-      "body": "The message you approved once, with today’s lesson and page.",
-      "bodyTodays": "With today’s message, which you checked and approved today.",
-      "see": "See the message",
+      "heading": "Tonight: message to {{families}} of {{absent}} families",
       "sent": "Sent tonight to {{families}} of {{absent}} families",
       "none": "No messages tonight.",
       "notApproved": "The evening message is not approved yet, so no messages go tonight.",
@@ -226,6 +223,40 @@
         "noConsent": "No consent",
         "stopped": "Stopped by family",
         "noWording": "No message in their language yet"
+      },
+      "check": {
+        "wording": "Your evening message, approved once",
+        "example": "See an example",
+        "lesson": "Lesson: {{lessons}} · p {{page}}",
+        "lessonNoPage": "Lesson: {{lessons}}",
+        "todaysApproved": "Today’s message: approved",
+        "todaysWaiting": "Today’s message is waiting for you",
+        "todaysWriting": "Today’s message is being written",
+        "approve": "Check and approve",
+        "seeTodays": "See today’s message"
+      },
+      "status": {
+        "writing": "Tonight’s message goes once today’s message is ready.",
+        "approveBy": "Goes at {{at}}. Approve today’s message by then, or it goes without it at {{until}}.",
+        "waiting": "Waiting for you until {{until}} ({{minutes}} min). Then it goes without today’s message.",
+        "goesAt": "Goes at {{at}}.",
+        "goesAtTodays": "Goes at {{at}} with today’s message.",
+        "goingNow": "Going now.",
+        "sentTodays": "Sent at {{at}} · with today’s message",
+        "sentText": "Sent at {{at}} · text only"
+      },
+      "child": {
+        "withTodays": "with today’s message",
+        "textOnly": "text only",
+        "preview": "Preview",
+        "previewLabel": "Preview the message to {{child}}’s family"
+      },
+      "leftOut": "Didn’t get it tonight:",
+      "preview": {
+        "title": "{{child}}’s family · {{language}}",
+        "withTodays": "Today’s message goes with it: its pages, the picture question and the voice clip.",
+        "textOnly": "Only this text goes.",
+        "sentAt": "Sent at {{at}}."
       }
     },
     "strip": {
@@ -322,6 +353,10 @@
     "keepOne": "Keep at least one lesson",
     "addLesson": "Add another lesson",
     "offline": "No network. Your note is saved on the phone. It will be matched when you have network.",
+    "why": {
+      "heard": "What I heard:",
+      "page": "Matched in the book: {{pages}}"
+    },
     "note": {
       "label": "What you said",
       "play": "Play your note",
@@ -378,7 +413,6 @@
       "summary": "Kannada summary",
       "keyWords": "Kannada words",
       "why": "Why this",
-      "check": "Picture question · tests: {{lesson}}",
       "options": "The three pictures",
       "correct": "correct answer",
       "tick": "I’ve checked the Kannada summary",
@@ -414,6 +448,30 @@
     "tab": {
       "today": "Today's message",
       "catchUps": "Catch-ups"
+    },
+    "sections": {
+      "edited": "your words",
+      "voicing": "Making the voice for your words… Check it again when it’s ready.",
+      "activityNumbers": "Numbers chosen by the app: {{question}}",
+      "tests": "Tests: {{lesson}}",
+      "pictureByCode": "The numbers and the answer are worked out by the app.",
+      "scriptLabel": "The words families hear (language: {{language}})",
+      "instructionLabel": "What the family does (language: {{language}})",
+      "objectLabel": "Other things they can use (can be left empty)",
+      "noteLabel": "Your note to the family (they read it as you write it)",
+      "saveHint": "Saving makes a new version: you check it again.",
+      "saveHintVoice": "Saving makes a new version: the voice is made again from your words and you check it again.",
+      "problem": {
+        "invalid-output": "Something is empty. Write every part.",
+        "name": "Remove the child's name: messages never name a child here.",
+        "placeholder": "Remove the brackets or the signs > < (write \"more\" or \"less\").",
+        "too-long": "Too long. Make it shorter.",
+        "script": "Write it in {{language}}.",
+        "sum": "A sum in it is wrong. Check it.",
+        "numbers": "Use only this catch-up’s numbers. You can use: {{numbers}}.",
+        "activity-number": "Keep the activity’s numbers in the words: {{numbers}}.",
+        "other": "This could not be saved. Check it and try again."
+      }
     }
   },
   "parent": {

@@ -40,8 +40,10 @@ public sealed record PackageReview(bool Passed, int Attempts, IReadOnlyList<Veri
 /// <param name="Status">ready, needsReview or failed.</param>
 /// <param name="Content">The words to store; null when nothing usable came back (failed).</param>
 /// <param name="Audio">The audio segments; null when no audio was made.</param>
+/// <param name="VideoUrl">The lesson's video link from the admin page, put in by code (T-103); null without one.</param>
 public sealed record ScriptOutcome(
-    string Status, ScriptContent? Content, string Verdict, int PromptVersion, PackageReview? Review, AudioSegments? Audio = null);
+    string Status, ScriptContent? Content, string Verdict, int PromptVersion, PackageReview? Review, AudioSegments? Audio = null,
+    string? VideoUrl = null);
 
 /// <param name="FirstName">For the teacher's screen only; never sent to an AI provider.</param>
 /// <param name="Sent">This family got the link.</param>
@@ -65,6 +67,10 @@ public enum PackageChange
 }
 
 /// <summary>A catch-up as the teacher's Approve screen will read it (T3).</summary>
+/// <param name="Video">The lesson's video link (T-103), or null.</param>
+/// <param name="Note">Her note (T-103), or null until she adds one.</param>
+/// <param name="Removed">Sections she removed: they are not sent.</param>
+/// <param name="Edited">The script or the activity's words are hers (T-103).</param>
 public sealed record PackageView(
     Guid Id,
     string Language,
@@ -84,7 +90,11 @@ public sealed record PackageView(
     AudioSegments? Audio,
     Guid ClassId,
     DateTimeOffset? ApprovedAt,
-    DateTimeOffset? SentAt)
+    DateTimeOffset? SentAt,
+    CatchUpVideo? Video,
+    CatchUpNote? Note,
+    IReadOnlyList<string> Removed,
+    bool Edited)
 {
     /// <summary>Families the link went to (counted in code).</summary>
     public int FamiliesSent => Children.Count(c => c.Sent);
@@ -128,6 +138,20 @@ public interface ICatchUpStore
     /// <summary>Approves only a ready package at <paramref name="scriptVersion"/> (T3: approval bound to the version she ticked).</summary>
     Task<PackageChange> ApproveAsync(
         Guid packageId, Guid clientRequestId, int scriptVersion, Guid teacherId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Her change to one section (T-103): applies <see cref="CatchUpRevision.Apply"/> only when the catch-up can still
+    /// change, is at <paramref name="scriptVersion"/> (null: any, for removing a section) and the change fits. A replayed
+    /// <paramref name="clientRequestId"/> is a no-op.
+    /// </summary>
+    Task<PackageChange> ReviseAsync(
+        Guid packageId, Guid clientRequestId, int? scriptVersion, PackageRevision revision, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Her edited script voiced (T-103): the audio and the review, ready or needs review, at the same version. Nothing
+    /// happens unless the catch-up is still waiting for its voice.
+    /// </summary>
+    Task SaveVoiceAsync(Guid packageId, AudioSegments? audio, PackageReview review, CancellationToken cancellationToken);
 
     /// <summary>Sets a ready, needs-review or failed package back to generating with the hint (Simpler / Shorter / Try again).</summary>
     Task<PackageChange> StartRegenerateAsync(Guid packageId, Guid clientRequestId, string? hint, CancellationToken cancellationToken);
@@ -252,6 +276,9 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
         package.UpdatedAt = clock.GetUtcNow();
         if (outcome.Content is { } content)
         {
+            // New words from A3: hers are replaced; her note and what she removed stay (T-103).
+            package.TeacherEdited = false;
+            package.VideoUrl = outcome.VideoUrl;
             package.Script = content.Script;
             package.KeyWordsKn = [.. content.KeyWordsKn];
             package.GlossKn = content.GlossKn;
@@ -301,6 +328,49 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return PackageChange.Applied;
+    }
+
+    public async Task<PackageChange> ReviseAsync(
+        Guid packageId, Guid clientRequestId, int? scriptVersion, PackageRevision revision, CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockPackageAsync(packageId, cancellationToken);
+        if (await db.ProcessedRequests.AnyAsync(r => r.ClientRequestId == clientRequestId, cancellationToken))
+        {
+            return PackageChange.Replay;
+        }
+
+        if (await db.CatchUpPackages.SingleOrDefaultAsync(p => p.Id == packageId, cancellationToken) is not { } package)
+        {
+            return PackageChange.NotFound;
+        }
+
+        if (!CatchUpRevision.CanChange(package.Status)
+            || (scriptVersion is not null && package.ScriptVersion != scriptVersion)
+            || !CatchUpRevision.Fits(package, revision))
+        {
+            return PackageChange.Conflict;
+        }
+
+        var now = clock.GetUtcNow();
+        CatchUpRevision.Apply(package, revision, now);
+        Processed(clientRequestId, "package-edit", now);
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return PackageChange.Applied;
+    }
+
+    public async Task SaveVoiceAsync(Guid packageId, AudioSegments? audio, PackageReview review, CancellationToken cancellationToken)
+    {
+        await using var transaction = await LockPackageAsync(packageId, cancellationToken);
+        if (await db.CatchUpPackages.SingleOrDefaultAsync(p => p.Id == packageId, cancellationToken) is not
+            { Status: PackageStatus.Generating, Hint: CatchUpRevision.VoiceHint } package)
+        {
+            return;
+        }
+
+        CatchUpRevision.Voiced(package, audio, review, clock.GetUtcNow());
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     public async Task<PackageChange> StartRegenerateAsync(
@@ -412,7 +482,11 @@ public sealed class CatchUpStore(AppDbContext db, TimeProvider clock) : ICatchUp
                 p.AudioSegments is null ? null : JsonSerializer.Deserialize<AudioSegments>(p.AudioSegments, Json),
                 p.ClassId,
                 p.ApprovedAt,
-                p.SentAt))
+                p.SentAt,
+                CatchUpRevision.Video(p),
+                CatchUpRevision.Note(p),
+                p.RemovedSections,
+                p.TeacherEdited))
             .ToList();
     }
 

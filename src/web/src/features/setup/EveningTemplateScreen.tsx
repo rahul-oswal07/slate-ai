@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { ApiError, NetworkError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { MessageText } from '../evening/MessageText'
 import { useApproveTemplate, useMessageTemplate } from '../evening/useEvening'
 
@@ -16,9 +16,8 @@ import { useApproveTemplate, useMessageTemplate } from '../evening/useEvening'
 export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'settings' }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const me = useMe()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = me.data?.classId ?? ''
+  const classId = useClassId()
   const template = useMessageTemplate(classId)
   const approve = useApproveTemplate(classId)
   const languages = template.data?.languages ?? []
@@ -60,6 +59,8 @@ export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'se
         </div>
       )}
 
+      {/* A sample child from the class; each family's real message is on Today (T-86). */}
+      {example && <p className="text-caption text-ink-muted">{t('setup.template.exampleNote')}</p>}
       {example && (
         <div className="flex flex-col gap-3 rounded-card border-[1.5px] border-edge bg-surface p-[14px]">
           <span className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-panel px-3 py-1 text-caption text-primary-strong">
