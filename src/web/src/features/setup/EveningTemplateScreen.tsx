@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { ApiError, NetworkError } from '../../api/client'
 import { Icon } from '../../components/Icon'
 import { useFocusOnMount } from '../../components/useFocusOnMount'
-import { useMe } from '../auth/useMe'
+import { useClassId } from '../auth/useCurrentClass'
 import { MessageText } from '../evening/MessageText'
 import { useApproveTemplate, useMessageTemplate } from '../evening/useEvening'
 
@@ -16,9 +16,8 @@ import { useApproveTemplate, useMessageTemplate } from '../evening/useEvening'
 export function EveningTemplateScreen({ mode = 'setup' }: { mode?: 'setup' | 'settings' }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const me = useMe()
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const classId = me.data?.classId ?? ''
+  const classId = useClassId()
   const template = useMessageTemplate(classId)
   const approve = useApproveTemplate(classId)
   const languages = template.data?.languages ?? []

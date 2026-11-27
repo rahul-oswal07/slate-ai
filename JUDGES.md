@@ -198,7 +198,7 @@ All three teachers share one class, **Grade 3 · Kannada medium** (36 children),
 |---|---|---|---|
 | **Shobha** | Class teacher | `9000000000` | Run the class: register, lesson, approvals. Families hear her greeting |
 | **Savitha** | Co-teacher | `9123456789` | See the [first-time sign-in](#first-time-sign-in-what-a-new-teacher-sees) |
-| **Monika** | Co-teacher | `9123456788` | Work in the same class as a second teacher |
+| **Monika** | Co-teacher, and class teacher of 3B | `9123456788` | Opens her own small class 3B; pick Shobha's 3A in the class dropdown on Today to work in it as a second teacher |
 | Family | — | — | No sign-in: each family's link carries its own key |
 
 **The PIN is sent to you separately by email.** It is not in this public repository.
@@ -233,7 +233,7 @@ All three teachers share one class, **Grade 3 · Kannada medium** (36 children),
 | Persona | Where | What they do |
 |---|---|---|
 | **Class teacher** (Shobha) | Teacher app: **Today · Approve · Missed · Back today · Week**, **Settings** | Register, lesson, approves every message, sees answers and levels, buddy cards, the weekly view |
-| **Co-teacher** (Savitha, Monika) | The same app, the same class | Shares the class; families hear the class teacher's greeting |
+| **Co-teacher** (Savitha, Monika) | The same app, the same class | Shares the class; families hear the class teacher's greeting. A teacher in two classes (Monika) picks one in the dropdown above Today's date |
 | **Family and child** | A link on WhatsApp (`/p/<token>`): no app, no sign-in ([what they see](#what-the-parents-see)) | Listen in their language, give a reason for the absence, do the activity, the child answers; "Stop these messages" at any time |
 | **Administrator** | `/admin` | Family phone numbers (where WhatsApp goes) and home languages, lesson video links and lesson descriptions, teacher consent, greetings |
 | **Judge / reviewer** | `/demo`, `/demo/ai` | Both phones side by side, and every AI call |

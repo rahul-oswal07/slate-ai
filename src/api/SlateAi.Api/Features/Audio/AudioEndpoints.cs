@@ -28,7 +28,7 @@ public static class AudioEndpoints
         Guid id, HttpContext http, IAudioStore store, CancellationToken cancellationToken)
     {
         if (await store.GetInfoAsync(id, cancellationToken) is not { } info
-            || (info.ClassId is { } classId && classId != http.User.GetClassId() && info.TeacherId != http.User.GetTeacherId())
+            || (info.ClassId is { } classId && !http.User.IsInClass(classId) && info.TeacherId != http.User.GetTeacherId())
             || await store.GetBytesAsync(id, cancellationToken) is not { } bytes)
         {
             return TypedResults.NotFound();

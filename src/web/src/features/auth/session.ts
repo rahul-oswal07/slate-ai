@@ -15,6 +15,25 @@ export type Me = {
   medium?: string | null
   /** Her class's main teacher (T-135), for "Shobha's class" in the header; also for a co-teacher. */
   classTeacherName?: string | null
+  /**
+   * Every class she belongs to (T-115), her default first; `classId`, `grade`, `medium`, `classTeacherName` and `demo`
+   * above describe that default. Missing in a `me` cached before T-115. Which one the app shows: `currentClass.ts`.
+   */
+  classes?: ClassInfo[]
+}
+
+/** One of her classes (T-115). */
+export type ClassInfo = {
+  id: string
+  /** The section, e.g. "3A"; empty when the class has none. */
+  name: string
+  grade: number | null
+  /** Medium of instruction as a language code, e.g. "kn". */
+  medium: string | null
+  /** The class's main teacher, for "Shobha's class". */
+  classTeacherName: string | null
+  /** Only for the demo class (T-93). */
+  demo?: DemoFlags | null
 }
 
 /**

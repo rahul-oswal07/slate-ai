@@ -180,6 +180,38 @@ public sealed class DemoShellEndpointTests
     }
 
     [Fact]
+    public async Task Me_gives_the_demo_flags_to_the_demo_class_only()
+    {
+        // T-115: Monika's default is her own 3B; the flags travel with the demo class in her list, not with her.
+        var other = Guid.NewGuid();
+        _auth.Classes = [new MeClass(other, "3B", 3, "kn", "Monika"), new MeClass(ClassId, "3A", 3, "kn", "Shobha")];
+        await using var factory = Create(schoolDate: true);
+        using var client = factory.CreateTeacherClient([other, ClassId], TeacherId);
+
+        var me = await client.GetFromJsonAsync<MeResponse>("/api/me", Ct);
+
+        Assert.Equal(other, me!.ClassId);
+        Assert.Null(me.Demo);
+        Assert.Null(me.Classes![0].Demo);
+        Assert.Equal(new DemoFlags(SampleVoiceNote: false, SchoolDate: true), me.Classes[1].Demo);
+    }
+
+    [Fact]
+    public async Task A_teacher_whose_default_is_another_class_still_runs_the_demo()
+    {
+        // T-115: she picked the demo class on Today; her session lists it beside her own.
+        _store.Families[(ClassId, Manjunath)] = [];
+        await using var factory = Create();
+        using var client = factory.CreateTeacherClient([Guid.NewGuid(), ClassId], TeacherId);
+
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/demo", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync($"/api/demo/family/{Manjunath}", Ct)).StatusCode);
+        Assert.Equal(
+            HttpStatusCode.OK,
+            (await client.PostAsJsonAsync("/api/demo/reset-today", new DemoResetDayRequest(Guid.NewGuid()), Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task Reset_today_is_not_found_for_another_class()
     {
         await using var factory = Create();
@@ -473,6 +505,9 @@ public sealed class DemoShellEndpointTests
     {
         public bool Seeded { get; set; } = true;
 
+        /// <summary>Her classes (T-115), default first; null: only the demo class, as before T-115.</summary>
+        public IReadOnlyList<MeClass>? Classes { get; set; }
+
         public Task<TeacherLogin?> FindByPhoneAsync(string phone, CancellationToken cancellationToken) =>
             Task.FromResult<TeacherLogin?>(null);
 
@@ -481,7 +516,9 @@ public sealed class DemoShellEndpointTests
             Task.CompletedTask;
 
         public Task<MeResponse?> GetMeAsync(Guid teacherId, CancellationToken cancellationToken) =>
-            Task.FromResult(Seeded && teacherId == TeacherId ? new MeResponse(TeacherId, "Shobha", ClassId, true) : null);
+            Task.FromResult(Seeded && teacherId == TeacherId
+                ? new MeResponse(TeacherId, "Shobha", Classes?.FirstOrDefault()?.Id ?? ClassId, true, Classes: Classes)
+                : null);
 
         public Task<MeResponse?> MarkWelcomedAsync(Guid teacherId, DateTimeOffset at, CancellationToken cancellationToken) =>
             GetMeAsync(teacherId, cancellationToken);
